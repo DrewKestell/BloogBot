@@ -9,7 +9,7 @@ A few important notes:
 - This does **NOT WORK ON RETAIL**. As mentioned in the writing on my website, the purpose of this project is intellectual exploration, not exploitation. I have no interest in monetizing the bot for current versions of the WoW client. And in fact, Blizzard's anticheat has likely gotten so sophisticated that it's beyond my technical ability. So this bot will only work on the old versions of the WoW client. It'll work on the various Vanilla/Burning Crusade private servers out there, or on a MaNGOS install you set up yourself.
 - I used to have two completely separate code bases - one for v1.12.1, and one for v2.4.3 of the WoW client. I recently merged them into a single codebase, but I have only thoroughly tested v2.4.3 (Burning Crusade). The Vanilla client is likely broken at this point, but it shouldn't be too hard to get it working again. I'll try to fix it as time permits.
 - There are a few external dependencies that you'll need to wire up if you want to compile and run this yourself:
-  - You'll need to compile movemaps to facilitate the bot's navigation through the game world. See [this article from my website](https://drewkestell.us/Article/6/Chapter/20) for mroe info
+  - You'll need to compile movemaps to facilitate the bot's navigation through the game world. See [this article from my website](https://drewkestell.us/Article/6/Chapter/20) for more info
   - You'll need to modify some values in `botSettings.json` (alternatively, you can find the code that references these and disable it if you don't care about the functionality):
     - DatabasePath
     - DiscordBotToken
