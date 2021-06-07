@@ -1,0 +1,244 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{0901E784-2977-437E-8A2C-C70F0184EEFB}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>BloogBot</RootNamespace>
+    <AssemblyName>BloogBot</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\Bot\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\Bot\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Discord.Net.Core, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Discord.Net.Core.2.2.0\lib\net461\Discord.Net.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Discord.Net.Rest, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Discord.Net.Rest.2.2.0\lib\net461\Discord.Net.Rest.dll</HintPath>
+    </Reference>
+    <Reference Include="Discord.Net.WebSocket, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Discord.Net.WebSocket.2.2.0\lib\net461\Discord.Net.WebSocket.dll</HintPath>
+    </Reference>
+    <Reference Include="Fasm.NET, Version=1.0.5697.28632, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Bot\Fasm.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable, Version=1.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.3.1\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Interactive.Async, Version=4.0.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Interactive.Async.4.0.0\lib\net461\System.Interactive.Async.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Linq.Async, Version=4.0.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Linq.Async.4.0.0\lib\net461\System.Linq.Async.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.2\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="UI\App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="AI\Bot.cs" />
+    <Compile Include="AI\DependencyContainer.cs" />
+    <Compile Include="AI\IBot.cs" />
+    <Compile Include="AI\IBotState.cs" />
+    <Compile Include="AI\IDependencyContainer.cs" />
+    <Compile Include="AI\PlayerTracker.cs" />
+    <Compile Include="AI\SharedStates\BuyItemsState.cs" />
+    <Compile Include="AI\SharedStates\CombatStateBase.cs" />
+    <Compile Include="AI\SharedStates\EquipArmorState.cs" />
+    <Compile Include="AI\SharedStates\EquipBagsState.cs" />
+    <Compile Include="AI\SharedStates\GatherObjectState.cs" />
+    <Compile Include="AI\SharedStates\GrindState.cs" />
+    <Compile Include="AI\SharedStates\LootState.cs" />
+    <Compile Include="AI\SharedStates\MoveToCorpseState.cs" />
+    <Compile Include="AI\SharedStates\MoveToHotspotWaypointState.cs" />
+    <Compile Include="AI\SharedStates\MoveToPositionState.cs" />
+    <Compile Include="AI\SharedStates\PowerlevelState.cs" />
+    <Compile Include="AI\SharedStates\ReleaseCorpseState.cs" />
+    <Compile Include="AI\SharedStates\RepairEquipmentState.cs" />
+    <Compile Include="AI\SharedStates\RetrieveCorpseState.cs" />
+    <Compile Include="AI\SharedStates\SellItemsState.cs" />
+    <Compile Include="AI\SharedStates\StuckState.cs" />
+    <Compile Include="AI\SharedStates\TravelState.cs" />
+    <Compile Include="AI\StuckHelper.cs" />
+    <Compile Include="BotLoader.cs" />
+    <Compile Include="BotSettings.cs" />
+    <Compile Include="CommandModel.cs" />
+    <Compile Include="Detour.cs" />
+    <Compile Include="DiscordClientWrapper.cs" />
+    <Compile Include="Game\Cache\ItemCacheInfo.cs" />
+    <Compile Include="Game\Enums\Class.cs" />
+    <Compile Include="Game\Enums\ClientVersion.cs" />
+    <Compile Include="Game\Enums\ControlBits.cs" />
+    <Compile Include="Game\Enums\CreatureFamily.cs" />
+    <Compile Include="Game\Enums\CreatureRank.cs" />
+    <Compile Include="Game\Enums\CreatureType.cs" />
+    <Compile Include="Game\Enums\DebuffType.cs" />
+    <Compile Include="Game\Enums\DialogType.cs" />
+    <Compile Include="Game\Enums\DynamicFlags.cs" />
+    <Compile Include="Game\Enums\EquipSlot.cs" />
+    <Compile Include="Game\Enums\ItemCacheLookupType.cs" />
+    <Compile Include="Game\Enums\ItemClass.cs" />
+    <Compile Include="Game\Enums\ItemQuality.cs" />
+    <Compile Include="Game\Enums\ItemSubclass.cs" />
+    <Compile Include="Game\Enums\MovementFlags.cs" />
+    <Compile Include="Game\Enums\ObjectType.cs" />
+    <Compile Include="Game\Enums\Race.cs" />
+    <Compile Include="Game\Enums\UnitFlags.cs" />
+    <Compile Include="Game\Enums\UnitReactions.cs" />
+    <Compile Include="Game\Frames\DialogFrame.cs" />
+    <Compile Include="Game\Frames\MerchantFrame.cs" />
+    <Compile Include="Game\Intersection.cs" />
+    <Compile Include="Game\Inventory.cs" />
+    <Compile Include="Game\LuaTarget.cs" />
+    <Compile Include="Game\ObjectManager.cs" />
+    <Compile Include="Game\Objects\LocalPlayer.cs" />
+    <Compile Include="Game\Objects\LocalPet.cs" />
+    <Compile Include="Game\Objects\WoWGameObject.cs" />
+    <Compile Include="Game\Objects\WoWItem.cs" />
+    <Compile Include="Game\Objects\WoWPet.cs" />
+    <Compile Include="Game\Objects\WoWPlayer.cs" />
+    <Compile Include="Game\Objects\WoWUnit.cs" />
+    <Compile Include="Game\Objects\WoWObject.cs" />
+    <Compile Include="Game\Position.cs" />
+    <Compile Include="Game\Frames\LootFrame.cs" />
+    <Compile Include="Game\Spell.cs" />
+    <Compile Include="Game\SpellEffect.cs" />
+    <Compile Include="Game\MemoryAddresses.cs" />
+    <Compile Include="Game\WoWEventHandler.cs" />
+    <Compile Include="Game\XYZ.cs" />
+    <Compile Include="Game\XYZXYZ.cs" />
+    <Compile Include="Hack.cs" />
+    <Compile Include="HackManager.cs" />
+    <Compile Include="Hotspot.cs" />
+    <Compile Include="HotspotGenerator.cs" />
+    <Compile Include="Logger.cs" />
+    <Compile Include="MemoryManager.cs" />
+    <Compile Include="Navigation.cs" />
+    <Compile Include="Npc.cs" />
+    <Compile Include="Probe.cs" />
+    <Compile Include="Repository.cs" />
+    <Compile Include="SignalEventManager.cs" />
+    <Compile Include="ThreadSynchronizer.cs" />
+    <Compile Include="TravelPath.cs" />
+    <Compile Include="TravelPathGenerator.cs" />
+    <Compile Include="UI\App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Game\Functions.cs" />
+    <Compile Include="Loader.cs" />
+    <Compile Include="Wait.cs" />
+    <Compile Include="WardenDisabler.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="UI\CommandHandler.cs" />
+    <Compile Include="UI\MainViewModel.cs" />
+    <Compile Include="UI\MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="bootstrapperSettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="botSettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="UI\MainWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Fasm.NET.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
