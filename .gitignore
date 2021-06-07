@@ -31,8 +31,6 @@ bld/
 [Ll]og/
 [Dd]ebug/Internal/mmaps/
 [Rr]elease/Internal/mmaps/
-[Dd]ebug/Internal/bootstrapperSettings.json
-[Rr]elease/Internal/bootstrapperSettings.json
 [Dd]ebug/Internal/log.txt
 [Rr]elease/Internal/log.txt
 
