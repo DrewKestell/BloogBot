@@ -176,8 +176,6 @@ namespace BloogBot
             // we can detour Warden's various scanning functions before they're
             // called for the first time.
 
-            var bar = MemoryAddresses.WardenLoadHookAddr;
-
             MemoryManager.InjectAssembly("WardenLoadHook", (uint)MemoryAddresses.WardenLoadHookAddr, "JMP " + wardenLoadDetour);
 
             InitializeModuleScanHook();

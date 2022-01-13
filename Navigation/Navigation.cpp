@@ -35,6 +35,15 @@ void Navigation::FreePathArr(XYZ* pathArr)
     delete[] pathArr;
 }
 
+void Navigation::GetTileAt(unsigned int mapId, XYZ position, int* x, int* y)
+{
+    PathFinder pathFinder(mapId, 1);
+
+    Vector3 pos(position.X, position.Y, position.Z);
+
+    pathFinder.getTileAt(pos, x, y);
+}
+
 XYZ* Navigation::CalculatePath(unsigned int mapId, XYZ start, XYZ end, bool straightPath, int* length)
 {
     MMAP::MMapManager* manager = MMAP::MMapFactory::createOrGetMMapManager();

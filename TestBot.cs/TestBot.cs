@@ -1,17 +1,18 @@
 ﻿using BloogBot;
 using BloogBot.AI;
+using BloogBot.AI.SharedStates;
 using BloogBot.Game;
-using BloogBot.Game.Frames;
 using BloogBot.Game.Objects;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace TestBot
 {
     [Export(typeof(IBot))]
-    unsafe class TestBot : Bot, IBot
+    class TestBot : Bot, IBot
     {
         public string Name => "Tester";
 
@@ -42,11 +43,50 @@ namespace TestBot
         {
             ThreadSynchronizer.RunOnMainThread(() =>
             {
-                var target = ObjectManager.Players.FirstOrDefault(u => u.Guid == ObjectManager.Player.TargetGuid);
+                //var tile = Navigation.GetTileCoords(ObjectManager.MapId, ObjectManager.Player.Position);
 
-                if (target != null)
-                    Console.WriteLine(ObjectManager.Player.InLosWith(target.Position));
+                //Console.WriteLine($"MapId: {ObjectManager.MapId} - {tile.X}, {tile.Y}");
+                var end = new Position(-2009.88f, -447.54f, -12.57f);
+
+                var botStates = new Stack<IBotState>();
+                var mtps = new MoveToPositionState(botStates, container, end);
+                botStates.Push(mtps);
+
+                StartInternal(botStates, container);
             });
+        }
+
+        async void StartInternal(Stack<IBotState> botStates, IDependencyContainer container)
+        {
+            while (true)
+            {
+                try
+                {
+                    ThreadSynchronizer.RunOnMainThread(() =>
+                    {
+                        var player = ObjectManager.Player;
+
+                        player.AntiAfk();
+
+                        if (botStates.Count() == 0)
+                        {
+                            Stop();
+                            return;
+                        }
+                        if (botStates.Count > 0)
+                        {
+                            container.Probe.CurrentState = botStates.Peek()?.GetType().Name;
+                            botStates.Peek()?.Update();
+                        }
+                    });
+
+                    await Task.Delay(25);
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(e + "\n");
+                }
+            }
         }
     }
 }

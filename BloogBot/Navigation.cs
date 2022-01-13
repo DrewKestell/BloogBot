@@ -25,8 +25,12 @@ namespace BloogBot
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         delegate void FreePathArr(XYZ* pathArr);
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        delegate void GetTileAt(uint mapId, XYZ position, out int x, out int y);
+
         static CalculatePathDelegate calculatePath;
         static FreePathArr freePathArr;
+        static GetTileAt getTileAt;
 
         static Navigation()
         {
@@ -40,6 +44,9 @@ namespace BloogBot
 
             var freePathPtr = GetProcAddress(navProcPtr, "FreePathArr");
             freePathArr = Marshal.GetDelegateForFunctionPointer<FreePathArr>(freePathPtr);
+
+            var getTileAtPtr = GetProcAddress(navProcPtr, "GetTileAt");
+            getTileAt = Marshal.GetDelegateForFunctionPointer<GetTileAt>(getTileAtPtr);
         }
 
         static public float DistanceViaPath(uint mapId, Position start, Position end)
@@ -103,6 +110,16 @@ namespace BloogBot
             }
 
             return cn == 1;
+        }
+
+        static public XY GetTileCoords(uint mapId, Position position)
+        {
+            var x = 0;
+            var y = 0;
+
+            getTileAt(mapId, position.ToXYZ(), out x, out y);
+
+            return new XY(x, y);
         }
     }
 

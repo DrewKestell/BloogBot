@@ -35,6 +35,7 @@ public:
 	void Release();
 	XYZ* CalculatePath(unsigned int mapId, XYZ start, XYZ end, bool straightPath, int* length);
 	void FreePathArr(XYZ* length);
+	void GetTileAt(unsigned int mapId, XYZ position, int* x, int* y);
     std::string GetMmapsPath();
 
 private:

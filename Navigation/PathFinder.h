@@ -93,6 +93,7 @@ public:
 	// Calculate the path from owner to given destination
 	// return: true if new path was calculated, false otherwise (no change needed)
 	bool calculate(float originX, float originY, float originZ, float destX, float destY, float destZ, bool forceDest = false, bool isSwimming = false);
+	void getTileAt(const Vector3& p, int* x, int* y);
 
 	// option setters - use optional
 	void setUseStrightPath(bool useStraightPath) { m_useStraightPath = useStraightPath; };

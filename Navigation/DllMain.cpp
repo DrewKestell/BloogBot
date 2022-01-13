@@ -12,6 +12,11 @@ extern "C"
 	{
 		return Navigation::GetInstance()->FreePathArr(pathArr);
 	}
+
+	__declspec(dllexport) void GetTileAt(unsigned int mapId, XYZ position, int* x, int* y)
+	{
+		return Navigation::GetInstance()->GetTileAt(mapId, position, x, y);
+	}
 };
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)

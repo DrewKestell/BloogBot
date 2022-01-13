@@ -490,10 +490,11 @@ void PathFinder::createFilter()
 {
 	unsigned short includeFlags = 0;
 	unsigned short excludeFlags = 0;
-	includeFlags |= (NAV_GROUND);
+	includeFlags |= NAV_GROUND;
+	excludeFlags != NAV_WATER;
 	
 	m_filter.setIncludeFlags(includeFlags);
-	m_filter.setExcludeFlags(excludeFlags);
+	m_filter.setExcludeFlags(NAV_WATER);
 
 	// TODO
 	updateFilter(false, 0, 0, 0);
@@ -550,6 +551,18 @@ bool PathFinder::HaveTile(const Vector3& p) const
     }
         
     return (m_navMesh->getTileAt(tx, ty, 0) != NULL);
+}
+
+void PathFinder::getTileAt(const Vector3& p, int* x, int* y)
+{
+	float point[VERTEX_SIZE] = { p.y, p.z, p.x };
+
+	m_navMesh->calcTileLoc(point, x, y);
+
+	const dtMeshTile* tile = m_navMesh->getTileAt(*x, *y, 0);
+
+	*x = tile->header->x;
+	*y = tile->header->y;
 }
 
 unsigned int PathFinder::fixupCorridor(dtPolyRef* path, unsigned int npath, unsigned int maxPath,
