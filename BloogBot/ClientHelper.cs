@@ -12,7 +12,11 @@ namespace BloogBot
         {
             var clientVersion = Process.GetProcessesByName("WoW")[0].MainModule.FileVersionInfo.FileVersion;
 
-            if (clientVersion == "2, 4, 3, 8606")
+            if (clientVersion == "3, 3, 5, 12340")
+            {
+                ClientVersion = ClientVersion.WotLK;
+            }
+            else if (clientVersion == "2, 4, 3, 8606")
             {
                 ClientVersion = ClientVersion.TBC;
             }

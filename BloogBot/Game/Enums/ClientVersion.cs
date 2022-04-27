@@ -3,6 +3,7 @@
     public enum ClientVersion
     {
         Vanilla,
-        TBC
+        TBC,
+        WotLK
     }
 }

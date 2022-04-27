@@ -6,7 +6,99 @@ namespace BloogBot.Game
     {
         static MemoryAddresses()
         {
-            if (ClientHelper.ClientVersion == ClientVersion.TBC)
+            if (ClientHelper.ClientVersion == ClientVersion.WotLK)
+            {
+                EnumerateVisibleObjectsFunPtr = 0x0;
+                GetObjectPtrFunPtr = 0x0;
+                GetPlayerGuidFunPtr = 0x0;
+                SetFacingFunPtr = 0x0;
+                SendMovementUpdateFunPtr = 0x0;
+                SetControlBitFunPtr = 0x0;
+                SetControlBitDevicePtr = 0x0;
+                JumpFunPtr = 0x0;
+                GetCreatureTypeFunPtr = 0x0;
+                GetCreatureRankFunPtr = 0x0;
+                GetUnitReactionFunPtr = 0x0;
+                LuaCallFunPtr = 0x0;
+                GetTextFunPtr = 0x0;
+                CastSpellByIdFunPtr = 0x0;
+                GetRow2FunPtr = 0x0;
+                IntersectFunPtr = 0x0;
+                SelectObjectFunPtr = 0x0;
+                IsLootingFunPtr = 0x0;
+                CanLootFunPtr = 0x0;
+                LootUnitFunPtr = 0x0;
+                CanAttackFunPtr = 0x0;
+                IsDeadFunPtr = 0x0;
+                RetrieveCorpseFunPtr = 0x0;
+                ReleaseCorpseFunPtr = 0x0;
+                GetItemCacheEntryFunPtr = 0x0;
+                ItemCacheEntryBasePtr = 0x0;
+                IsSpellOnCooldownFunPtr = 0x0;
+                LootSlotFunPtr = 0x0;
+                UseItemFunPtr = 0x0;
+                SellItemByGuidFunPtr = 0x0;
+                BuyVendorItemFunPtr = 0x0;
+                DismountFunPtr = 0x0;
+                CastAtPositionFunPtr = 0x0;
+                ZoneTextPtrAddr = 0x0;
+                SubZoneTextPtrAddr = 0x0;
+                MinimapZoneTextPtrAddr = 0x0;
+                MapIdAddr = 0x0;
+                ServerNameAddr = 0x0;
+                LootFrameItemsBasePtr = 0x0;
+                CoinCountPtr = 0x0;
+                MerchantFrameItemsBasePtr = 0x0;
+                MerchantFrameItemPtr = 0x0;
+                FrameItemOffset = 0x0;
+                DialogFrameBaseAddr = 0x0;
+                LocalPlayer_SetFacingOffset = 0x0;
+                LocalPlayer_CorpsePositionX = 0x0;
+                LocalPlayer_CorpsePositionY = 0x0;
+                LocalPlayer_CorpsePositionZ = 0x0;
+                LocalPlayer_LastHardwareAction = 0x0;
+                LocalPlayer_PlayerSpellsBase = 0x0;
+                LocalPlayer_ClassOffset = 0x0;
+                LocalPlayer_BackpackFirstItemOffset = 0x0;
+                LocalPlayer_EquipmentFirstItemOffset = 0x0;
+                LocalPlayer_CanOverpowerAddr = 0x0;
+                WoWItem_ItemIdOffset = 0x0;
+                WoWItem_StackCountOffset = 0x0;
+                WoWItem_DurabilityOffset = 0x0;
+                WoWItem_ContainerFirstItemOffset = 0x0;
+                WoWItem_ContainerSlotsOffset = 0x0;
+                WoWObject_DescriptorOffset = 0x0;
+                WoWObject_GetPositionFunOffset = 0x0;
+                WoWObject_GetFacingFunOffset = 0x0;
+                WoWObject_InteractFunOffset = 0x0;
+                WoWObject_GetNameFunOffset = 0x0;
+                WoWPet_SpellsBase = 0x0;
+                WoWUnit_SummonedByGuidOffset = 0x0;
+                WoWUnit_TargetGuidOffset = 0x0;
+                WoWUnit_HealthOffset = 0x0;
+                WoWUnit_ManaOffset = 0x0;
+                WoWUnit_RageOffset = 0x0;
+                WoWUnit_EnergyOffset = 0x0;
+                WoWUnit_MaxHealthOffset = 0x0;
+                WoWUnit_MaxManaOffset = 0x0;
+                WoWUnit_LevelOffset = 0x0;
+                WoWUnit_FactionIdOffset = 0x0;
+                WoWUnit_UnitFlagsOffset = 0x0;
+                WoWUnit_BuffsBaseOffset = 0x0;
+                WoWUnit_DebuffsBaseOffset = 0x0;
+                WoWUnit_DynamicFlagsOffset = 0x0;
+                WoWUnit_CurrentChannelingOffset = 0x0;
+                WoWUnit_MovementFlagsOffset = 0x0;
+                WoWUnit_CurrentSpellcastOffset = 0x0;
+                FirstExtraBagAddr = 0x0;
+                SignalEventFunPtr = 0x0;
+                SignalEventNoParamsFunPtr = 0x0;
+                WardenLoadHookAddr = 0x0;
+                WardenBaseAddr = 0x0;
+                WardenPageScanOffset = 0x0;
+                WardenMemScanOffset = 0x0;
+            }
+            else if (ClientHelper.ClientVersion == ClientVersion.TBC)
             {
                 EnumerateVisibleObjectsFunPtr = 0x0046B3F0;
                 GetObjectPtrFunPtr = 0x0046b520;

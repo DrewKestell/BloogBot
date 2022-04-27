@@ -1,5 +1,6 @@
 ﻿using BloogBot.Game.Enums;
 using System;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 
 namespace BloogBot.Game
@@ -81,6 +82,7 @@ namespace BloogBot.Game
         static readonly EnumerateVisibleObjectsDelegate EnumerateVisibleObjectsFunction =
             Marshal.GetDelegateForFunctionPointer<EnumerateVisibleObjectsDelegate>((IntPtr)MemoryAddresses.EnumerateVisibleObjectsFunPtr);
 
+        [HandleProcessCorruptedStateExceptions]
         public void EnumerateVisibleObjects(IntPtr callback, int filter)
         {
             EnumerateVisibleObjectsFunction(callback, filter);

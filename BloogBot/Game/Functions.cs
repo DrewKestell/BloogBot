@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.ExceptionServices;
 
 namespace BloogBot.Game
 {
@@ -14,7 +13,9 @@ namespace BloogBot.Game
 
         static Functions()
         {
-            if (ClientHelper.ClientVersion == ClientVersion.TBC)
+            if (ClientHelper.ClientVersion == ClientVersion.WotLK)
+                gameFunctionHandler = new WotLKGameFunctionHandler();
+            else if (ClientHelper.ClientVersion == ClientVersion.TBC)
                 gameFunctionHandler = new TBCGameFunctionHandler();
             else if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                 gameFunctionHandler = new VanillaGameFunctionHandler();
@@ -58,7 +59,6 @@ namespace BloogBot.Game
             return gameFunctionHandler.Dismount(unitPtr);
         }
 
-        [HandleProcessCorruptedStateExceptions]
         static public void EnumerateVisibleObjects(IntPtr callback, int filter)
         {
             gameFunctionHandler.EnumerateVisibleObjects(callback, filter);

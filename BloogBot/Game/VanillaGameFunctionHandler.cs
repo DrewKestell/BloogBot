@@ -1,5 +1,6 @@
 ﻿using BloogBot.Game.Enums;
 using System;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 
 namespace BloogBot.Game
@@ -16,32 +17,46 @@ namespace BloogBot.Game
 
         public bool CanAttack(IntPtr playerPtr, IntPtr targetPtr)
         {
+            // TODO
             throw new NotImplementedException();
         }
 
         public bool CanLoot(IntPtr playerPtr, IntPtr targetPtr)
         {
+            // TODO
             throw new NotImplementedException();
         }
 
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        private delegate int CastAtPositionDelegate(ref XYZ parPos);
+
+        static readonly CastAtPositionDelegate CastAtPositionFunction =
+            Marshal.GetDelegateForFunctionPointer<CastAtPositionDelegate>((IntPtr)MemoryAddresses.CastAtPositionFunPtr);
+
         public void CastAtPosition(string spellName, Position position)
         {
-            throw new NotImplementedException();
+            MemoryManager.WriteByte((IntPtr)0xCECAC0, 0);
+            LuaCall($"CastSpellByName('{spellName}')");
+            var pos = position.ToXYZ();
+            CastAtPositionFunction(ref pos);
         }
 
         public int CastSpellById(int spellId, ulong targetGuid)
         {
+            // TODO
             throw new NotImplementedException();
         }
 
         public int Dismount(IntPtr unitPtr)
         {
+            // TODO
             throw new NotImplementedException();
         }
 
         [DllImport("FastCall.dll", EntryPoint = "EnumerateVisibleObjects")]
         static extern void EnumerateVisibleObjectsFunction(IntPtr callback, int filter, IntPtr ptr);
 
+        [HandleProcessCorruptedStateExceptions]
         public void EnumerateVisibleObjects(IntPtr callback, int filter)
         {
             EnumerateVisibleObjectsFunction(callback, filter, (IntPtr)MemoryAddresses.EnumerateVisibleObjectsFunPtr);
@@ -111,6 +126,7 @@ namespace BloogBot.Game
 
         public Spell GetSpellDBEntry(int index)
         {
+            // TODO
             throw new NotImplementedException();
         }
 
@@ -151,21 +167,45 @@ namespace BloogBot.Game
 
         public bool IsDead(IntPtr unitPtr)
         {
+            // TODO
             throw new NotImplementedException();
         }
 
         public bool IsLooting(IntPtr unitPtr)
         {
+            // TODO
             throw new NotImplementedException();
         }
 
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate void IsSpellOnCooldownDelegate(
+            IntPtr spellCooldownPtr,
+            int spellId,
+            int unused1,
+            ref int cooldownDuration,
+            int unused2,
+            bool unused3);
+
+        static readonly IsSpellOnCooldownDelegate IsSpellOnCooldownFunction =
+            Marshal.GetDelegateForFunctionPointer<IsSpellOnCooldownDelegate>((IntPtr)MemoryAddresses.IsSpellOnCooldownFunPtr);
+
         public bool IsSpellOnCooldown(int spellId)
         {
-            throw new NotImplementedException();
+            var cooldownDuration = 0;
+            IsSpellOnCooldownFunction(
+                (IntPtr)0x00CECAEC,
+                spellId,
+                0,
+                ref cooldownDuration,
+                0,
+                false);
+
+            return cooldownDuration == 0;
         }
 
         public void Jump()
         {
+            // TODO
             throw new NotImplementedException();
         }
 
@@ -179,6 +219,7 @@ namespace BloogBot.Game
 
         public void LootUnit(IntPtr playerPtr, IntPtr targetPtr)
         {
+            // TODO
             throw new NotImplementedException();
         }
 
@@ -213,6 +254,7 @@ namespace BloogBot.Game
 
         public void SelectObject(ulong guid)
         {
+            // TODO
             throw new NotImplementedException();
         }
 

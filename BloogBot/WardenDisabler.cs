@@ -20,6 +20,8 @@ namespace BloogBot
         static DisableWardenVanillaDelegate disableWardenVanillaDelegate;
         delegate void DisableWardenTBCDelegate();
         static DisableWardenTBCDelegate disableWardenTBCDelegate;
+        delegate void DisableWardenWotLKDelegate();
+        static DisableWardenWotLKDelegate disableWardenWotLKDelegate;
 
         static IntPtr wardenPageScanFunPtr = IntPtr.Zero;
         static IntPtr wardenMemScanFunPtr = IntPtr.Zero;
@@ -201,6 +203,16 @@ namespace BloogBot
                     "JMP 0x006D0C01"
                 };
             }
+            else if (ClientHelper.ClientVersion == ClientVersion.TBC)
+            {
+                disableWardenWotLKDelegate = DisableWardenWotLK;
+                var addrToDetour = Marshal.GetFunctionPointerForDelegate(disableWardenWotLKDelegate);
+
+                instructions = new[]
+                {
+                    "TODO"
+                };
+            }
 
             var wardenLoadDetour = MemoryManager.InjectAssembly("WardenLoadDetour", instructions);       
             MemoryManager.InjectAssembly("WardenLoadHook", (uint)MemoryAddresses.WardenLoadHookAddr, "JMP " + wardenLoadDetour);
@@ -213,6 +225,11 @@ namespace BloogBot
         }
 
         static void DisableWardenTBC()
+        {
+            DisableWardenInternal();
+        }
+
+        static void DisableWardenWotLK()
         {
             DisableWardenInternal();
         }
