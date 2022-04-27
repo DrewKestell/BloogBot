@@ -203,7 +203,7 @@ namespace BloogBot
                     "JMP 0x006D0C01"
                 };
             }
-            else if (ClientHelper.ClientVersion == ClientVersion.TBC)
+            else if (ClientHelper.ClientVersion == ClientVersion.WotLK)
             {
                 disableWardenWotLKDelegate = DisableWardenWotLK;
                 var addrToDetour = Marshal.GetFunctionPointerForDelegate(disableWardenWotLKDelegate);
