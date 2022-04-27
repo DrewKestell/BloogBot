@@ -53,3 +53,11 @@ To explain why I did this, I refer to the first chapter of my website:
 > Before taking a look under the hood of the WoW bot, we'll first examine a rudamentary game engine I wrote in C++ called BloogsQuest that we'll use as a contrived example to explore some fundamental concepts that are important to understand before diving fully into bot development.
 
 > I also want to mention that the code snippets found here will be truncated, and will most certainly deviate from best practices in software development. This is less a step-by-step tutorial in bot development, and more an exploration of the high level concepts involved. Some prerequisite knowledge of C# and C++ are necessary, including understanding pointers, but I'll do my best to explain things as they come up.
+  
+___
+
+![image](https://user-images.githubusercontent.com/6411339/120980933-f7368a80-c72b-11eb-97ec-d82dd02094dc.png)
+
+![image](https://user-images.githubusercontent.com/6411339/120980947-fbfb3e80-c72b-11eb-8aa1-35d24ebd5310.png)
+
+
