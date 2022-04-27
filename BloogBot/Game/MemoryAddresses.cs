@@ -1,27 +1,20 @@
 ﻿using BloogBot.Game.Enums;
-using System;
-using System.Diagnostics;
 
 namespace BloogBot.Game
 {
     public static class MemoryAddresses
     {
-        public static readonly ClientVersion ClientVersion;
-
         static MemoryAddresses()
         {
-            var clientVersion = Process.GetProcessesByName("WoW")[0].MainModule.FileVersionInfo.FileVersion;
-
-            if (clientVersion == "2, 4, 3, 8606")
+            if (ClientHelper.ClientVersion == ClientVersion.TBC)
             {
-                ClientVersion = ClientVersion.TBC;
-
                 EnumerateVisibleObjectsFunPtr = 0x0046B3F0;
                 GetObjectPtrFunPtr = 0x0046b520;
                 GetPlayerGuidFunPtr = 0x00469DD0;
                 SetFacingFunPtr = 0x007B9DE0;
                 SendMovementUpdateFunPtr = 0x0060D200;
                 SetControlBitFunPtr = 0x005343A0;
+                SetControlBitDevicePtr = 0x00CF31E4;
                 JumpFunPtr = 0x00534400;
                 GetCreatureTypeFunPtr = 0x0060D9A0;
                 GetCreatureRankFunPtr = 0x006080E0;
@@ -40,6 +33,7 @@ namespace BloogBot.Game
                 RetrieveCorpseFunPtr = 0x0049F770;
                 ReleaseCorpseFunPtr = 0x005DC310;
                 GetItemCacheEntryFunPtr = 0x00591600;
+                ItemCacheEntryBasePtr = 0x00D29A98;
                 IsSpellOnCooldownFunPtr = 0x006F8100;
                 LootSlotFunPtr = 0x004D2750;
                 UseItemFunPtr = 0x005F8A50;
@@ -100,19 +94,19 @@ namespace BloogBot.Game
                 SignalEventFunPtr = 0x00000000; // TODO
                 SignalEventNoParamsFunPtr = 0x00000000; // TODO
                 WardenLoadHookAddr = 0x006D0BFC;
+                WardenBaseAddr = 0x00E118D4;
                 WardenPageScanOffset = 0x00002B21;
                 WardenMemScanOffset = 0x00002A7F;
             }
-            else if (clientVersion == "1, 12, 1, 5875")
+            else if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
             {
-                ClientVersion = ClientVersion.Vanilla;
-
                 EnumerateVisibleObjectsFunPtr = 0x00468380;
                 GetObjectPtrFunPtr = 0x00464870;
                 GetPlayerGuidFunPtr = 0x00468550;
                 SetFacingFunPtr = 0x007C6F30;
                 SendMovementUpdateFunPtr = 0x00600A30;
                 SetControlBitFunPtr = 0x00515090;
+                SetControlBitDevicePtr = 0x00BE1148;
                 JumpFunPtr = 0x00000000; // TODO
                 GetCreatureTypeFunPtr = 0x00605570;
                 GetCreatureRankFunPtr = 0x00605620;
@@ -131,6 +125,7 @@ namespace BloogBot.Game
                 RetrieveCorpseFunPtr = 0x0048D260;
                 ReleaseCorpseFunPtr = 0x005E0AE0;
                 GetItemCacheEntryFunPtr = 0x0055BA30;
+                ItemCacheEntryBasePtr = 0x00C0E2A0;
                 IsSpellOnCooldownFunPtr = 0x006E13E0;
                 LootSlotFunPtr = 0x004C2790;
                 UseItemFunPtr = 0x005D8D00;
@@ -191,11 +186,10 @@ namespace BloogBot.Game
                 SignalEventFunPtr = 0x00703F76;
                 SignalEventNoParamsFunPtr = 0x00703E72;
                 WardenLoadHookAddr = 0x006CA22E;
+                WardenBaseAddr = 0x00CE8978;
                 WardenPageScanOffset = 0x00002B21;
                 WardenMemScanOffset = 0x00002A7F;
             }
-            else
-                throw new InvalidOperationException("Unknown client version.");
         }
 
         public static int EnumerateVisibleObjectsFunPtr;
@@ -209,6 +203,8 @@ namespace BloogBot.Game
         public static int SendMovementUpdateFunPtr;
 
         public static int SetControlBitFunPtr;
+
+        public static int SetControlBitDevicePtr;
 
         public static int JumpFunPtr;
 
@@ -245,6 +241,8 @@ namespace BloogBot.Game
         public static int ReleaseCorpseFunPtr;
 
         public static int GetItemCacheEntryFunPtr;
+
+        public static int ItemCacheEntryBasePtr;
 
         public static int IsSpellOnCooldownFunPtr;
 
@@ -365,6 +363,8 @@ namespace BloogBot.Game
         public static int SignalEventNoParamsFunPtr;
 
         public static int WardenLoadHookAddr;
+
+        public static int WardenBaseAddr;
 
         public static int WardenPageScanOffset;
 

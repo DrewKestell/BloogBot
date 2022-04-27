@@ -81,6 +81,7 @@ namespace MMAP
 
 		bool hasLoadedWesternContinent = false;
 		bool hasLoadedEasternContinent = false;
+		bool hasLoadedOutland = false;
 
 		bool loadMap(unsigned int mapId, int x, int y);
 

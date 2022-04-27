@@ -121,6 +121,7 @@
     <Compile Include="AI\StuckHelper.cs" />
     <Compile Include="BotLoader.cs" />
     <Compile Include="BotSettings.cs" />
+    <Compile Include="ClientHelper.cs" />
     <Compile Include="CommandModel.cs" />
     <Compile Include="Detour.cs" />
     <Compile Include="DiscordClientWrapper.cs" />
@@ -146,6 +147,7 @@
     <Compile Include="Game\Enums\UnitReactions.cs" />
     <Compile Include="Game\Frames\DialogFrame.cs" />
     <Compile Include="Game\Frames\MerchantFrame.cs" />
+    <Compile Include="Game\IGameFunctionHandler.cs" />
     <Compile Include="Game\Intersection.cs" />
     <Compile Include="Game\Inventory.cs" />
     <Compile Include="Game\LuaTarget.cs" />
@@ -163,6 +165,8 @@
     <Compile Include="Game\Spell.cs" />
     <Compile Include="Game\SpellEffect.cs" />
     <Compile Include="Game\MemoryAddresses.cs" />
+    <Compile Include="Game\VanillaGameFunctionHandler.cs" />
+    <Compile Include="Game\TBCGameFunctionHandler.cs" />
     <Compile Include="Game\WoWEventHandler.cs" />
     <Compile Include="Game\XYZ.cs" />
     <Compile Include="Game\XYZXYZ.cs" />

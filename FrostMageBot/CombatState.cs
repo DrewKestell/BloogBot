@@ -16,6 +16,7 @@ namespace FrostMageBot
         readonly string[] FireWardTargets = new[] { "Fire", "Flame", "Infernal", "Searing", "Hellcaller", "Dragon", "Whelp" };
         readonly string[] FrostWardTargets = new[] { "Ice", "Frost" };
 
+        const string ColdSnap = "Cold Snap";
         const string ConeOfCold = "Cone of Cold";
         const string Counterspell = "Counterspell";
         const string Evocation = "Evocation";
@@ -28,6 +29,7 @@ namespace FrostMageBot
         const string Frostbolt = "Frostbolt";
         const string IceBarrier = "Ice Barrier";
         const string IcyVeins = "Icy Veins";
+        const string SummonWaterElemental = "Summon Water Elemental";
 
         readonly LocalPlayer player;
         readonly WoWUnit target;
@@ -92,6 +94,10 @@ namespace FrostMageBot
                 player.LuaCall(WandLuaScript);
             else
             {
+                TryCastSpell(SummonWaterElemental, !ObjectManager.Units.Any(u => u.Name == "Water Elemental" && u.SummonedByGuid == player.Guid));
+
+                TryCastSpell(ColdSnap, !player.IsSpellReady(SummonWaterElemental));
+
                 TryCastSpell(IcyVeins, ObjectManager.Aggressors.Count() > 1);
 
                 TryCastSpell(FireWard, 0, int.MaxValue, FireWardTargets.Any(c => target.Name.Contains(c)) && (target.HealthPercent > 20 || player.HealthPercent < 10));

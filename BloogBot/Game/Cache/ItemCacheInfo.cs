@@ -203,9 +203,9 @@ namespace BloogBot.Game.Cache
         {
             get
             {
-                if (MemoryAddresses.ClientVersion == ClientVersion.TBC)
+                if (ClientHelper.ClientVersion == ClientVersion.TBC)
                     return (ItemClass)MemoryManager.ReadByte(baseAddress + 0x4);
-                else if (MemoryAddresses.ClientVersion == ClientVersion.Vanilla)
+                else if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                     return (ItemClass)MemoryManager.ReadByte(baseAddress + 0x0);
                 else
                     throw new NotImplementedException("Unknown client version");
@@ -216,9 +216,9 @@ namespace BloogBot.Game.Cache
         {
             get
             {
-                if (MemoryAddresses.ClientVersion == ClientVersion.TBC)
+                if (ClientHelper.ClientVersion == ClientVersion.TBC)
                     return MemoryManager.ReadInt(baseAddress + 0x8);
-                else if (MemoryAddresses.ClientVersion == ClientVersion.Vanilla)
+                else if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                     return MemoryManager.ReadInt(baseAddress + 0x4);
                 else
                     throw new NotImplementedException("Unknown client version");
@@ -229,9 +229,9 @@ namespace BloogBot.Game.Cache
         {
             get
             {
-                if (MemoryAddresses.ClientVersion == ClientVersion.TBC)
+                if (ClientHelper.ClientVersion == ClientVersion.TBC)
                     return (ItemQuality)MemoryManager.ReadByte(baseAddress + 0x14);
-                else if (MemoryAddresses.ClientVersion == ClientVersion.Vanilla)
+                else if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                     throw new NotImplementedException("TODO: figure this out for Vanilla");
                 else
                     throw new NotImplementedException("Unknown client version");
@@ -242,9 +242,9 @@ namespace BloogBot.Game.Cache
         {
             get
             {
-                if (MemoryAddresses.ClientVersion == ClientVersion.TBC)
+                if (ClientHelper.ClientVersion == ClientVersion.TBC)
                     return (EquipSlot)MemoryManager.ReadByte(baseAddress + 0x24);
-                else if (MemoryAddresses.ClientVersion == ClientVersion.Vanilla)
+                else if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                     return (EquipSlot)MemoryManager.ReadByte(baseAddress + 0x2C);
                 else
                     throw new NotImplementedException("Unknown client version");
@@ -255,9 +255,9 @@ namespace BloogBot.Game.Cache
         {
             get
             {
-                if (MemoryAddresses.ClientVersion == ClientVersion.TBC)
+                if (ClientHelper.ClientVersion == ClientVersion.TBC)
                     return MemoryManager.ReadInt(baseAddress + 0x34);
-                else if (MemoryAddresses.ClientVersion == ClientVersion.Vanilla)
+                else if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                     return MemoryManager.ReadInt(baseAddress + 0x3C);
                 else
                     throw new NotImplementedException("Unknown client version");
@@ -268,9 +268,9 @@ namespace BloogBot.Game.Cache
         {
             get
             {
-                if (MemoryAddresses.ClientVersion == ClientVersion.TBC)
+                if (ClientHelper.ClientVersion == ClientVersion.TBC)
                     return MemoryManager.ReadInt(baseAddress + 0x1C0);
-                else if (MemoryAddresses.ClientVersion == ClientVersion.Vanilla)
+                else if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                     return MemoryManager.ReadInt(baseAddress + 0x1C4);
                 else
                     throw new NotImplementedException("Unknown client version");
@@ -281,9 +281,9 @@ namespace BloogBot.Game.Cache
         {
             get
             {
-                if (MemoryAddresses.ClientVersion == ClientVersion.TBC)
+                if (ClientHelper.ClientVersion == ClientVersion.TBC)
                     return MemoryManager.ReadIntPtr(baseAddress + 0x200);
-                else if (MemoryAddresses.ClientVersion == ClientVersion.Vanilla)
+                else if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                     return MemoryManager.ReadIntPtr(baseAddress + 0x8);
                 else
                     throw new NotImplementedException("Unknown client version");

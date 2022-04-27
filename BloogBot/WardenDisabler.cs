@@ -1,4 +1,5 @@
 ﻿using BloogBot.Game;
+using BloogBot.Game.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,8 +14,12 @@ namespace BloogBot
         static readonly byte[] pageScanOriginalBytes = { 0x8B, 0x45, 0x08, 0x8A, 0x04 }; // first 5 bytes of Warden's PageScan function
         static readonly byte[] memScanOriginalBytes  = { 0x56, 0x57, 0xFC, 0x8B, 0x54 }; // first 5 bytes of Warden's MemScan function
 
-        delegate void DisableWardenDelegate();
-        static DisableWardenDelegate disableWardenDelegate;
+        // different client versions have different function signatures for this hook. the game crashes with an access violation unless you
+        // use the right signature here (likely due to stack or register corruption)
+        delegate void DisableWardenVanillaDelegate(IntPtr _);
+        static DisableWardenVanillaDelegate disableWardenVanillaDelegate;
+        delegate void DisableWardenTBCDelegate();
+        static DisableWardenTBCDelegate disableWardenTBCDelegate;
 
         static IntPtr wardenPageScanFunPtr = IntPtr.Zero;
         static IntPtr wardenMemScanFunPtr = IntPtr.Zero;
@@ -154,38 +159,67 @@ namespace BloogBot
             "winrnr.dll"
         };
 
+        // we need a 5 byte instruction to use as a valid inline hook option.
+        // it gets called when Warden is dynamically added to the WoW process,
+        // so we hook here to detour the WardenLoad call to ensure
+        // we can detour Warden's various scanning functions before they're
+        // called for the first time. the location of this 5 byte instruction
+        // depends on which version of the WoW client we're running.
         static internal void Initialize()
         {
-            disableWardenDelegate = DisableWarden;
-            var addrToDetour = Marshal.GetFunctionPointerForDelegate(disableWardenDelegate);
-            var instructions = new[]
+            string[] instructions = null;
+            if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
             {
-                "PUSHFD",
-                "PUSHAD",
-                $"CALL {(uint)addrToDetour}",
-                "POPAD",
-                "POPFD",
-                "MOV ECX, 0x00E118EC",
-                "JMP 0x006D0C01"
-            };
-            var wardenLoadDetour = MemoryManager.InjectAssembly("WardenLoadDetour", instructions);
+                disableWardenVanillaDelegate = DisableWardenVanilla;
+                var addrToDetour = Marshal.GetFunctionPointerForDelegate(disableWardenVanillaDelegate);
 
-            // the 5 byte instruction at this address is a valid inline hook option.
-            // it gets called when Warden is dynamically added to the WoW process,
-            // so we hook here to detour the WardenLoad call to ensure
-            // we can detour Warden's various scanning functions before they're
-            // called for the first time.
+                instructions = new[]
+                {
+                    "MOV[0xCE8978], EAX",
+                    "PUSHFD",
+                    "PUSHAD",
+                    "PUSH EAX",
+                    $"CALL {(uint)addrToDetour}",
+                    "POPAD",
+                    "POPFD",
+                    "JMP 0x006CA233"
+                };
+            }
+            else if (ClientHelper.ClientVersion == ClientVersion.TBC)
+            {
+                disableWardenTBCDelegate = DisableWardenTBC;
+                var addrToDetour = Marshal.GetFunctionPointerForDelegate(disableWardenTBCDelegate);
 
-            var bar = MemoryAddresses.WardenLoadHookAddr;
+                instructions = new[]
+                {
+                    "PUSHFD",
+                    "PUSHAD",
+                    $"CALL {(uint)addrToDetour}",
+                    "POPAD",
+                    "POPFD",
+                    "MOV ECX, 0x00E118EC",
+                    "JMP 0x006D0C01"
+                };
+            }
 
+            var wardenLoadDetour = MemoryManager.InjectAssembly("WardenLoadDetour", instructions);       
             MemoryManager.InjectAssembly("WardenLoadHook", (uint)MemoryAddresses.WardenLoadHookAddr, "JMP " + wardenLoadDetour);
-
             InitializeModuleScanHook();
         }
 
-        static void DisableWarden()
+        static void DisableWardenVanilla(IntPtr _)
         {
-            var wardenPtr = MemoryManager.ReadIntPtr((IntPtr)0x00E118D4);
+            DisableWardenInternal();
+        }
+
+        static void DisableWardenTBC()
+        {
+            DisableWardenInternal();
+        }
+
+        static void DisableWardenInternal()
+        {
+            var wardenPtr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.WardenBaseAddr);
             var wardenBaseAddr = MemoryManager.ReadIntPtr(wardenPtr);
             InitializeWardenPageScanHook(wardenBaseAddr);
             InitializeWardenMemScanHook(wardenBaseAddr);
@@ -195,8 +229,8 @@ namespace BloogBot
         delegate void WardenPageScanDelegate(IntPtr readBase, int readOffset, IntPtr writeTo);
         static WardenPageScanDelegate wardenPageScanDelegate;
 
-        static byte[] seed = new byte[4];
-        static byte[] buffer = new byte[20];
+        static readonly byte[] seed = new byte[4];
+        static readonly byte[] buffer = new byte[20];
 
         static void InitializeWardenPageScanHook(IntPtr wardenModuleStart)
         {
