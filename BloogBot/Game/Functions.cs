@@ -71,7 +71,7 @@ namespace BloogBot.Game
 
         static public CreatureType GetCreatureType(IntPtr unitPtr)
         {
-            return GetCreatureType(unitPtr);
+            return gameFunctionHandler.GetCreatureType(unitPtr);
         }
 
         static public IntPtr GetItemCacheEntry(int itemId)

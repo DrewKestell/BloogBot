@@ -93,10 +93,10 @@ namespace BloogBot.Game
                 FirstExtraBagAddr = 0x0;
                 SignalEventFunPtr = 0x0;
                 SignalEventNoParamsFunPtr = 0x0;
-                WardenLoadHookAddr = 0x0;
-                WardenBaseAddr = 0x0;
-                WardenPageScanOffset = 0x0;
-                WardenMemScanOffset = 0x0;
+                WardenLoadHookAddr = 0x008724C0;
+                WardenBaseAddr = 0x00A9C414;
+                WardenPageScanOffset = 0x00002B21;
+                WardenMemScanOffset = 0x00002A7F;
             }
             else if (ClientHelper.ClientVersion == ClientVersion.TBC)
             {

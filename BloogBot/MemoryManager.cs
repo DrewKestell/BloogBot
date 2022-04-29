@@ -78,7 +78,7 @@ namespace BloogBot
             }
             catch (AccessViolationException)
             {
-                Logger.Log("Access Violation on " + address + " with type Byte");
+                Logger.Log("Access Violation on " + address.ToString("X") + " with type Byte");
                 return default;
             }
         }
@@ -92,7 +92,7 @@ namespace BloogBot
             }
             catch (AccessViolationException)
             {
-                Logger.Log("Access Violation on " + address + " with type Int");
+                Logger.Log("Access Violation on " + address.ToString("X") + " with type Int");
                 return default;
             }
         }
@@ -106,7 +106,7 @@ namespace BloogBot
             }
             catch (AccessViolationException)
             {
-                Logger.Log("Access Violation on " + address + " with type Uint");
+                Logger.Log("Access Violation on " + address.ToString("X") + " with type Uint");
                 return default;
             }
         }
@@ -120,7 +120,7 @@ namespace BloogBot
             }
             catch (AccessViolationException)
             {
-                Logger.Log("Access Violation on " + address + " with type Ulong");
+                Logger.Log("Access Violation on " + address.ToString("X") + " with type Ulong");
                 return default;
             }
         }
@@ -134,7 +134,7 @@ namespace BloogBot
             }
             catch (AccessViolationException)
             {
-                Logger.Log("Access Violation on " + address + " with type IntPtr");
+                Logger.Log("Access Violation on " + address.ToString("X") + " with type IntPtr");
                 return default;
             }
         }
@@ -148,7 +148,7 @@ namespace BloogBot
             }
             catch (AccessViolationException)
             {
-                Logger.Log("Access Violation on " + address + " with type Float");
+                Logger.Log("Access Violation on " + address.ToString("X") + " with type Float");
                 return default;
             }
         }
@@ -171,7 +171,7 @@ namespace BloogBot
             }
             catch (AccessViolationException)
             {
-                Logger.Log("Access Violation on " + address + " with type string");
+                Logger.Log("Access Violation on " + address.ToString("X") + " with type string");
                 return default;
             }
         }
@@ -191,7 +191,7 @@ namespace BloogBot
             }
             catch (AccessViolationException)
             {
-                Logger.Log("Access Violation on " + address + " with type Byte[]");
+                //Logger.Log("Access Violation on " + address.ToString("X") + " with type Byte[]");
                 return default;
             }
         }
@@ -205,7 +205,7 @@ namespace BloogBot
             }
             catch (AccessViolationException)
             {
-                Logger.Log("Access Violation on " + address + " with type ItemCacheEntry");
+                Logger.Log("Access Violation on " + address.ToString("X") + " with type ItemCacheEntry");
                 return default;
             }
         }

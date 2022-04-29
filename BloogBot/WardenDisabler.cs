@@ -12,7 +12,7 @@ namespace BloogBot
     static class WardenDisabler
     {
         static readonly byte[] pageScanOriginalBytes = { 0x8B, 0x45, 0x08, 0x8A, 0x04 }; // first 5 bytes of Warden's PageScan function
-        static readonly byte[] memScanOriginalBytes  = { 0x56, 0x57, 0xFC, 0x8B, 0x54 }; // first 5 bytes of Warden's MemScan function
+        static readonly byte[] memScanOriginalBytes = { 0x56, 0x57, 0xFC, 0x8B, 0x54 }; // first 5 bytes of Warden's MemScan function
 
         // different client versions have different function signatures for this hook. the game crashes with an access violation unless you
         // use the right signature here (likely due to stack or register corruption)
@@ -23,8 +23,8 @@ namespace BloogBot
         delegate void DisableWardenWotLKDelegate();
         static DisableWardenWotLKDelegate disableWardenWotLKDelegate;
 
-        static IntPtr wardenPageScanFunPtr = IntPtr.Zero;
-        static IntPtr wardenMemScanFunPtr = IntPtr.Zero;
+        static bool pageScanHooked;
+        static bool memScanHooked;
 
         // Module scan
         [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
@@ -210,11 +210,18 @@ namespace BloogBot
 
                 instructions = new[]
                 {
-                    "TODO"
+                    "PUSHFD",
+                    "PUSHAD",
+                    $"CALL {(uint)addrToDetour}",
+                    "POPAD",
+                    "POPFD",
+                    "MOV EAX, [EDI]",
+                    "MOV ECX, [EAX+8]",
+                    "JMP 0x008724C5"
                 };
             }
 
-            var wardenLoadDetour = MemoryManager.InjectAssembly("WardenLoadDetour", instructions);       
+            var wardenLoadDetour = MemoryManager.InjectAssembly("WardenLoadDetour", instructions);
             MemoryManager.InjectAssembly("WardenLoadHook", (uint)MemoryAddresses.WardenLoadHookAddr, "JMP " + wardenLoadDetour);
             InitializeModuleScanHook();
         }
@@ -236,10 +243,26 @@ namespace BloogBot
 
         static void DisableWardenInternal()
         {
-            var wardenPtr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.WardenBaseAddr);
-            var wardenBaseAddr = MemoryManager.ReadIntPtr(wardenPtr);
-            InitializeWardenPageScanHook(wardenBaseAddr);
-            InitializeWardenMemScanHook(wardenBaseAddr);
+            Logger.Log("[WARDEN] DisableWardenHook called.");
+            if (ClientHelper.ClientVersion == ClientVersion.WotLK)
+            {
+                var wardenPtr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.WardenBaseAddr);
+                if (wardenPtr != IntPtr.Zero)
+                {
+                    var wardenBaseAddr = MemoryManager.ReadIntPtr(wardenPtr);
+                    Logger.Log($"[WARDEN] DisableWardenHook found WardenBaseAddress = {wardenBaseAddr.ToString("X")}");
+                    InitializeWardenPageScanHook(wardenBaseAddr);
+                    InitializeWardenMemScanHook(wardenBaseAddr);
+                }
+            }
+            else
+            {
+                var wardenPtr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.WardenBaseAddr);
+                var wardenBaseAddr = MemoryManager.ReadIntPtr(wardenPtr);
+                Logger.Log($"[WARDEN] DisableWardenHook found WardenBaseAddress = {wardenBaseAddr.ToString("X")}");
+                InitializeWardenPageScanHook(wardenBaseAddr);
+                InitializeWardenMemScanHook(wardenBaseAddr);
+            }
         }
 
         #region InitializeWardenPageScanHook
@@ -249,21 +272,43 @@ namespace BloogBot
         static readonly byte[] seed = new byte[4];
         static readonly byte[] buffer = new byte[20];
 
-        static void InitializeWardenPageScanHook(IntPtr wardenModuleStart)
+        static bool InitializeWardenPageScanHook(IntPtr wardenModuleStart)
         {
-            var pageScanPtr = IntPtr.Add(wardenModuleStart, MemoryAddresses.WardenPageScanOffset);
+            if (pageScanHooked)
+                return false;
 
-            if (pageScanPtr != wardenPageScanFunPtr)
+            IntPtr pageScanPtr = IntPtr.Zero;
+            if (ClientHelper.ClientVersion == ClientVersion.WotLK)
             {
-                var currentBytes = MemoryManager.ReadBytes(pageScanPtr, 5);
-                if (!currentBytes.SequenceEqual(pageScanOriginalBytes))
-                    return;
-
-                wardenPageScanDelegate = WardenPageScanHook;
-                var addrToDetour = Marshal.GetFunctionPointerForDelegate(wardenPageScanDelegate);
-
-                var instructions = new[]
+                for (var i = 0x6000; i > 0; i--)
                 {
+                    var tempPageScanPtr = IntPtr.Add(wardenModuleStart, i);
+                    var currentBytes = MemoryManager.ReadBytes(tempPageScanPtr, 5);
+                    if (currentBytes != null && currentBytes.SequenceEqual(pageScanOriginalBytes))
+                    {
+                        pageScanPtr = tempPageScanPtr;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                var tempPageScanPtr = IntPtr.Add(wardenModuleStart, MemoryAddresses.WardenPageScanOffset);
+                var currentBytes = MemoryManager.ReadBytes(tempPageScanPtr, 5);
+                if (currentBytes != null && currentBytes.SequenceEqual(pageScanOriginalBytes))
+                {
+                    pageScanPtr = tempPageScanPtr;
+                }
+            }
+
+            if (pageScanPtr == IntPtr.Zero)
+                return false;
+
+            wardenPageScanDelegate = WardenPageScanHook;
+            var addrToDetour = Marshal.GetFunctionPointerForDelegate(wardenPageScanDelegate);
+
+            var instructions = new[]
+            {
                     "MOV EAX, [EBP+8]",
                     "PUSHFD",
                     "PUSHAD",
@@ -277,20 +322,21 @@ namespace BloogBot
                     "POPAD",
                     "POPFD",
                     "INC EDI",
-                    $"JMP {(uint)wardenModuleStart + 0x2B2C}"
+                    $"JMP {(uint)pageScanPtr + 0xB}"
                 };
 
-                var wardenPageScanDetourPtr = MemoryManager.InjectAssembly("WardenPageScanDetour", instructions);
-                MemoryManager.InjectAssembly("WardenPageScanHook", (uint)pageScanPtr, "JMP 0x" + wardenPageScanDetourPtr.ToString("X"));
+            var wardenPageScanDetourPtr = MemoryManager.InjectAssembly("WardenPageScanDetour", instructions);
+            MemoryManager.InjectAssembly("WardenPageScanHook", (uint)pageScanPtr, "JMP 0x" + wardenPageScanDetourPtr.ToString("X"));
 
-                wardenPageScanFunPtr = pageScanPtr;
-                Console.WriteLine("[WARDEN] PageScan Hooked!");
-            }
+            pageScanHooked = true;
+            Console.WriteLine($"[WARDEN] PageScan Hooked! WardenModulePtr={wardenModuleStart.ToString("X")} OriginalPageScanFunPtr={pageScanPtr.ToString("X")} DetourFunPtr={wardenPageScanDetourPtr.ToString("X")}");
+
+            return true;
         }
 
         static void WardenPageScanHook(IntPtr readBase, int readOffset, IntPtr writeTo)
         {
-            //Console.WriteLine($"[WARDEN PageScan] BaseAddr: {readBase.ToString("X")}, Offset: {readOffset}");
+            Console.WriteLine($"[WARDEN PageScan] BaseAddr: {readBase.ToString("X")}, Offset: {readOffset}");
 
             var readByteFrom = readBase + readOffset;
 
@@ -313,21 +359,43 @@ namespace BloogBot
         delegate void WardenMemScanDelegate(IntPtr addr, int size, IntPtr bufferStart);
         static WardenMemScanDelegate wardenMemScanDelegate;
 
-        static void InitializeWardenMemScanHook(IntPtr wardenModuleStart)
+        static bool InitializeWardenMemScanHook(IntPtr wardenModuleStart)
         {
-            var memScanPtr = IntPtr.Add(wardenModuleStart, MemoryAddresses.WardenMemScanOffset);
+            if (memScanHooked)
+                return false;
 
-            if (memScanPtr != wardenMemScanFunPtr)
+            IntPtr memScanPtr = IntPtr.Zero;
+            if (ClientHelper.ClientVersion == ClientVersion.WotLK)
             {
-                var currentBytes = MemoryManager.ReadBytes(memScanPtr, 5);
-                if (!currentBytes.SequenceEqual(memScanOriginalBytes))
-                    return;
-
-                wardenMemScanDelegate = WardenMemScanHook;
-                var addrToDetour = Marshal.GetFunctionPointerForDelegate(wardenMemScanDelegate);
-
-                var instructions = new[]
+                for (var i = 0x6000; i > 0; i--)
                 {
+                    var tempMemScanPtr = IntPtr.Add(wardenModuleStart, i);
+                    var currentBytes = MemoryManager.ReadBytes(tempMemScanPtr, 5);
+                    if (currentBytes != null && currentBytes.SequenceEqual(memScanOriginalBytes))
+                    {
+                        memScanPtr = tempMemScanPtr;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                var tempMemScanPtr = IntPtr.Add(wardenModuleStart, MemoryAddresses.WardenMemScanOffset);
+                var currentBytes = MemoryManager.ReadBytes(tempMemScanPtr, 5);
+                if (currentBytes != null && currentBytes.SequenceEqual(memScanOriginalBytes))
+                {
+                    memScanPtr = tempMemScanPtr;
+                }
+            }
+
+            if (memScanPtr == IntPtr.Zero)
+                return false;
+
+            wardenMemScanDelegate = WardenMemScanHook;
+            var addrToDetour = Marshal.GetFunctionPointerForDelegate(wardenMemScanDelegate);
+
+            var instructions = new[]
+            {
                     "PUSH ESI",
                     "PUSH EDI",
                     "CLD",
@@ -349,12 +417,13 @@ namespace BloogBot
                     $"JMP 0x{((uint) (memScanPtr + 0x24)).ToString("X")}",
                 };
 
-                var wardenMemScanDetourPtr = MemoryManager.InjectAssembly("WardenMemScanDetour", instructions);
-                MemoryManager.InjectAssembly("WardenMemScanHook", (uint)memScanPtr, "JMP 0x" + wardenMemScanDetourPtr.ToString("X"));
+            var wardenMemScanDetourPtr = MemoryManager.InjectAssembly("WardenMemScanDetour", instructions);
+            MemoryManager.InjectAssembly("WardenMemScanHook", (uint)memScanPtr, "JMP 0x" + wardenMemScanDetourPtr.ToString("X"));
 
-                wardenMemScanFunPtr = memScanPtr;
-                Console.WriteLine("[WARDEN] MemoryScan Hooked!");
-            }
+            memScanHooked = true;
+            Console.WriteLine($"[WARDEN] MemScan Hooked! WardenModulePtr={wardenModuleStart.ToString("X")} OriginalMemScanFunPtr={memScanPtr.ToString("X")} DetourFunPtr={wardenMemScanDetourPtr.ToString("X")}");
+
+            return true;
         }
 
         static void WardenMemScanHook(IntPtr addr, int size, IntPtr bufferStart)
@@ -362,7 +431,7 @@ namespace BloogBot
             // todo: will size ever be 0?
             if (size != 0)
             {
-                //Console.WriteLine($"[WARDEN MemoryScan] BaseAddr: {addr.ToString("X")}, Size: {size}");
+                Console.WriteLine($"[WARDEN MemoryScan] BaseAddr: {addr.ToString("X")}, Size: {size}");
 
                 var hacksWithinRange = HackManager.Hacks
                     .Where(i => i.Address.ToInt32() <= IntPtr.Add(addr, size).ToInt32() && i.Address.ToInt32() >= addr.ToInt32());

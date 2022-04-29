@@ -37,7 +37,7 @@ namespace BloogBot.Game
 
         public void EnumerateVisibleObjects(IntPtr callback, int filter)
         {
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
         }
 
         public int GetCreatureRank(IntPtr unitPtr)
@@ -62,7 +62,8 @@ namespace BloogBot.Game
 
         public ulong GetPlayerGuid()
         {
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
+            return 0;
         }
 
         public Spell GetSpellDBEntry(int index)
