@@ -23,8 +23,8 @@ namespace BloogBot
         delegate void DisableWardenWotLKDelegate();
         static DisableWardenWotLKDelegate disableWardenWotLKDelegate;
 
-        static bool pageScanHooked;
-        static bool memScanHooked;
+        static IntPtr wardenPageScanFunPtr = IntPtr.Zero;
+        static IntPtr wardenMemScanFunPtr = IntPtr.Zero;
 
         // Module scan
         [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
@@ -243,23 +243,12 @@ namespace BloogBot
 
         static void DisableWardenInternal()
         {
-            Logger.Log("[WARDEN] DisableWardenHook called.");
-            if (ClientHelper.ClientVersion == ClientVersion.WotLK)
+            Console.WriteLine("[WARDEN] DisableWardenHook called.");
+            var wardenPtr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.WardenBaseAddr);
+            if (wardenPtr != IntPtr.Zero)
             {
-                var wardenPtr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.WardenBaseAddr);
-                if (wardenPtr != IntPtr.Zero)
-                {
-                    var wardenBaseAddr = MemoryManager.ReadIntPtr(wardenPtr);
-                    Logger.Log($"[WARDEN] DisableWardenHook found WardenBaseAddress = {wardenBaseAddr.ToString("X")}");
-                    InitializeWardenPageScanHook(wardenBaseAddr);
-                    InitializeWardenMemScanHook(wardenBaseAddr);
-                }
-            }
-            else
-            {
-                var wardenPtr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.WardenBaseAddr);
                 var wardenBaseAddr = MemoryManager.ReadIntPtr(wardenPtr);
-                Logger.Log($"[WARDEN] DisableWardenHook found WardenBaseAddress = {wardenBaseAddr.ToString("X")}");
+                Console.WriteLine($"[WARDEN] DisableWardenHook found WardenBaseAddress = {wardenBaseAddr.ToString("X")}");
                 InitializeWardenPageScanHook(wardenBaseAddr);
                 InitializeWardenMemScanHook(wardenBaseAddr);
             }
@@ -272,14 +261,15 @@ namespace BloogBot
         static readonly byte[] seed = new byte[4];
         static readonly byte[] buffer = new byte[20];
 
-        static bool InitializeWardenPageScanHook(IntPtr wardenModuleStart)
+        static void InitializeWardenPageScanHook(IntPtr wardenModuleStart)
         {
-            if (pageScanHooked)
-                return false;
-
             IntPtr pageScanPtr = IntPtr.Zero;
             if (ClientHelper.ClientVersion == ClientVersion.WotLK)
             {
+                // in the WotLK client, the PageScan and MemScan functions seem to be loaded into memory at a random offset sometime after the WardenModule base address,
+                // and about 6000 bytes later. I spent a bunch of time trying to figure out how to find the address of these functions deterministically, but failed.
+                // so isntead, we scan 5 bytes of memory 1 byte at a time until we find the function signature. and we start at 6000 and go down because occasionally
+                // I've seen the same 5 bytes in memory more in more than one place, but through experimentation, it seems we always want the higher one.
                 for (var i = 0x6000; i > 0; i--)
                 {
                     var tempPageScanPtr = IntPtr.Add(wardenModuleStart, i);
@@ -301,8 +291,8 @@ namespace BloogBot
                 }
             }
 
-            if (pageScanPtr == IntPtr.Zero)
-                return false;
+            if (pageScanPtr == IntPtr.Zero || pageScanPtr == wardenPageScanFunPtr)
+                return;
 
             wardenPageScanDelegate = WardenPageScanHook;
             var addrToDetour = Marshal.GetFunctionPointerForDelegate(wardenPageScanDelegate);
@@ -328,10 +318,8 @@ namespace BloogBot
             var wardenPageScanDetourPtr = MemoryManager.InjectAssembly("WardenPageScanDetour", instructions);
             MemoryManager.InjectAssembly("WardenPageScanHook", (uint)pageScanPtr, "JMP 0x" + wardenPageScanDetourPtr.ToString("X"));
 
-            pageScanHooked = true;
+            wardenPageScanFunPtr = pageScanPtr;
             Console.WriteLine($"[WARDEN] PageScan Hooked! WardenModulePtr={wardenModuleStart.ToString("X")} OriginalPageScanFunPtr={pageScanPtr.ToString("X")} DetourFunPtr={wardenPageScanDetourPtr.ToString("X")}");
-
-            return true;
         }
 
         static void WardenPageScanHook(IntPtr readBase, int readOffset, IntPtr writeTo)
@@ -359,11 +347,8 @@ namespace BloogBot
         delegate void WardenMemScanDelegate(IntPtr addr, int size, IntPtr bufferStart);
         static WardenMemScanDelegate wardenMemScanDelegate;
 
-        static bool InitializeWardenMemScanHook(IntPtr wardenModuleStart)
+        static void InitializeWardenMemScanHook(IntPtr wardenModuleStart)
         {
-            if (memScanHooked)
-                return false;
-
             IntPtr memScanPtr = IntPtr.Zero;
             if (ClientHelper.ClientVersion == ClientVersion.WotLK)
             {
@@ -388,8 +373,8 @@ namespace BloogBot
                 }
             }
 
-            if (memScanPtr == IntPtr.Zero)
-                return false;
+            if (memScanPtr == IntPtr.Zero || memScanPtr == wardenMemScanFunPtr)
+                return;
 
             wardenMemScanDelegate = WardenMemScanHook;
             var addrToDetour = Marshal.GetFunctionPointerForDelegate(wardenMemScanDelegate);
@@ -420,10 +405,8 @@ namespace BloogBot
             var wardenMemScanDetourPtr = MemoryManager.InjectAssembly("WardenMemScanDetour", instructions);
             MemoryManager.InjectAssembly("WardenMemScanHook", (uint)memScanPtr, "JMP 0x" + wardenMemScanDetourPtr.ToString("X"));
 
-            memScanHooked = true;
+            wardenMemScanFunPtr = memScanPtr;
             Console.WriteLine($"[WARDEN] MemScan Hooked! WardenModulePtr={wardenModuleStart.ToString("X")} OriginalMemScanFunPtr={memScanPtr.ToString("X")} DetourFunPtr={wardenMemScanDetourPtr.ToString("X")}");
-
-            return true;
         }
 
         static void WardenMemScanHook(IntPtr addr, int size, IntPtr bufferStart)
