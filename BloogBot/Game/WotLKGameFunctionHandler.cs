@@ -1,5 +1,8 @@
 ﻿using BloogBot.Game.Enums;
 using System;
+using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
+using System.Runtime.InteropServices;
 
 namespace BloogBot.Game
 {
@@ -35,9 +38,16 @@ namespace BloogBot.Game
             throw new NotImplementedException();
         }
 
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        delegate char EnumerateVisibleObjectsDelegate(IntPtr callback, int filter);
+
+        static readonly EnumerateVisibleObjectsDelegate EnumerateVisibleObjectsFunction =
+            Marshal.GetDelegateForFunctionPointer<EnumerateVisibleObjectsDelegate>((IntPtr)MemoryAddresses.EnumerateVisibleObjectsFunPtr);
+
+        [HandleProcessCorruptedStateExceptions]
         public void EnumerateVisibleObjects(IntPtr callback, int filter)
         {
-            // throw new NotImplementedException();
+            EnumerateVisibleObjectsFunction(callback, filter);
         }
 
         public int GetCreatureRank(IntPtr unitPtr)
@@ -55,15 +65,21 @@ namespace BloogBot.Game
             throw new NotImplementedException();
         }
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        delegate IntPtr GetObjectPtrDelegate(ulong objectGuid, uint typeMask, string file, int line);
+
+        static readonly GetObjectPtrDelegate GetObjectPtrFunction =
+            Marshal.GetDelegateForFunctionPointer<GetObjectPtrDelegate>((IntPtr)MemoryAddresses.GetObjectPtrFunPtr);
+
+        [HandleProcessCorruptedStateExceptions]
         public IntPtr GetObjectPtr(ulong guid)
         {
-            throw new NotImplementedException();
+            return GetObjectPtrFunction(guid, 0xFFFFFFFF, string.Empty, 0);
         }
 
         public ulong GetPlayerGuid()
         {
-            // throw new NotImplementedException();
-            return 0;
+            return MemoryManager.ReadUlong((IntPtr)0x00CA1238);
         }
 
         public Spell GetSpellDBEntry(int index)
@@ -141,19 +157,50 @@ namespace BloogBot.Game
             throw new NotImplementedException();
         }
 
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate void SendMovementUpdateDelegate(
+            IntPtr playerPtr,
+            IntPtr unknown,
+            int OpCode,
+            int unknown2,
+            int unknown3);
+
+        static readonly SendMovementUpdateDelegate SendMovementUpdateFunction =
+            Marshal.GetDelegateForFunctionPointer<SendMovementUpdateDelegate>((IntPtr)MemoryAddresses.SendMovementUpdateFunPtr);
+
         public void SendMovementUpdate(IntPtr playerPtr, int opcode)
         {
-            throw new NotImplementedException();
+            SendMovementUpdateFunction(playerPtr, (IntPtr)0x00BE1E2C, opcode, 0, 0);
         }
+
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate void SetControlBitDelegate(IntPtr device, int bit, int state, int tickCount);
+
+        static readonly SetControlBitDelegate SetControlBitFunction =
+            Marshal.GetDelegateForFunctionPointer<SetControlBitDelegate>((IntPtr)MemoryAddresses.SetControlBitFunPtr);
 
         public void SetControlBit(int bit, int state, int tickCount)
         {
-            throw new NotImplementedException();
+            var ptr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.SetControlBitDevicePtr);
+            SetControlBitFunction(ptr, bit, state, tickCount);
         }
+
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate void SetFacingDelegate(IntPtr playerSetFacingPtr, uint time, float facing);
+
+        static readonly SetFacingDelegate SetFacingFunction =
+            Marshal.GetDelegateForFunctionPointer<SetFacingDelegate>((IntPtr)MemoryAddresses.SetFacingFunPtr);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        delegate uint PerformanceCounterDelegate();
+
+        static readonly PerformanceCounterDelegate PerformanceCounter =
+            Marshal.GetDelegateForFunctionPointer<PerformanceCounterDelegate>((IntPtr)0x0086AE20);
 
         public void SetFacing(IntPtr playerSetFacingPtr, float facing)
         {
-            throw new NotImplementedException();
+            var performanceCounter = PerformanceCounter();
+            SetFacingFunction(playerSetFacingPtr, performanceCounter, facing);
         }
 
         public void UseItem(IntPtr itemPtr)

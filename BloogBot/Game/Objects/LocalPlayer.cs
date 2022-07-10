@@ -13,7 +13,8 @@ namespace BloogBot.Game.Objects
             ObjectType objectType)
             : base(pointer, guid, objectType)
         {
-            RefreshSpells();
+            // TODO
+            // RefreshSpells();
         }
 
         readonly Random random = new Random();
@@ -137,8 +138,15 @@ namespace BloogBot.Game.Objects
 
         public void SetFacing(float facing)
         {
-            Functions.SetFacing(IntPtr.Add(Pointer, MemoryAddresses.LocalPlayer_SetFacingOffset), facing);
-            Functions.SendMovementUpdate(Pointer, SET_FACING_OPCODE);
+            if (ClientHelper.ClientVersion == ClientVersion.WotLK)
+            {
+                Functions.SetFacing(Pointer, facing);
+            }
+            else
+            {
+                Functions.SetFacing(IntPtr.Add(Pointer, MemoryAddresses.LocalPlayer_SetFacingOffset), facing);
+                Functions.SendMovementUpdate(Pointer, SET_FACING_OPCODE);
+            }
         }
 
         public void MoveToward(Position pos)

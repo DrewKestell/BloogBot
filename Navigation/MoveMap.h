@@ -26,6 +26,7 @@
 #define MANGOS_H_MOVE_MAP
 
 #include <unordered_map>
+#include <map>
 
 #include "DetourAlloc.h"
 #include "DetourNavMesh.h"
@@ -79,9 +80,7 @@ namespace MMAP
 	public:
 		~MMapManager();
 
-		bool hasLoadedWesternContinent = false;
-		bool hasLoadedEasternContinent = false;
-		bool hasLoadedOutland = false;
+		std::map<unsigned int, bool> zoneMap = {};
 
 		bool loadMap(unsigned int mapId, int x, int y);
 

@@ -12,12 +12,13 @@ namespace BloogBot.Game.Objects
             ObjectType objectType)
             : base (pointer, guid, objectType)
         {
-            var addr = Functions.GetItemCacheEntry(ItemId);
-            if (addr != IntPtr.Zero)
-            {
-                var itemCacheEntry = MemoryManager.ReadItemCacheEntry(addr);
-                Info = new ItemCacheInfo(itemCacheEntry);
-            }
+            // TODO
+            //var addr = Functions.GetItemCacheEntry(ItemId);
+            //if (addr != IntPtr.Zero)
+            //{
+            //    var itemCacheEntry = MemoryManager.ReadItemCacheEntry(addr);
+            //    Info = new ItemCacheInfo(itemCacheEntry);
+            //}
         }
 
         public int ItemId => MemoryManager.ReadInt(GetDescriptorPtr() + MemoryAddresses.WoWItem_ItemIdOffset);

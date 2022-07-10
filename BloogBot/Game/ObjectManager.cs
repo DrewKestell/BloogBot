@@ -214,8 +214,7 @@ namespace BloogBot.Game
                 {
                     playerGuid = Functions.GetPlayerGuid();
                     ObjectsBuffer.Clear();
-                    if (IsLoggedIn)
-                        Functions.EnumerateVisibleObjects(callbackPtr, 0);
+                    Functions.EnumerateVisibleObjects(callbackPtr, 0);
                     Objects = new List<WoWObject>(ObjectsBuffer);
 
                     if (Player != null)
@@ -234,8 +233,9 @@ namespace BloogBot.Game
                                 Pet = null;
                         }
 
-                        Player.RefreshSpells();
-                        UpdateProbe();
+                        // TODO
+                        //Player.RefreshSpells();
+                        //UpdateProbe();
                     }
                 }
             });
@@ -252,7 +252,7 @@ namespace BloogBot.Game
                 {
                     case ObjectType.Container:
                     case ObjectType.Item:
-                        ObjectsBuffer.Add(new WoWItem(pointer, guid, objectType));
+                        //ObjectsBuffer.Add(new WoWItem(pointer, guid, objectType));
                         break;
                     case ObjectType.Player:
                         if (guid == playerGuid)
@@ -261,14 +261,14 @@ namespace BloogBot.Game
                             Player = player;
                             ObjectsBuffer.Add(player);
                         }
-                        else
-                            ObjectsBuffer.Add(new WoWPlayer(pointer, guid, objectType));
+                        //else
+                        //    ObjectsBuffer.Add(new WoWPlayer(pointer, guid, objectType));
                         break;
                     case ObjectType.GameObject:
-                        ObjectsBuffer.Add(new WoWGameObject(pointer, guid, objectType));
+                        //ObjectsBuffer.Add(new WoWGameObject(pointer, guid, objectType));
                         break;
                     case ObjectType.Unit:
-                        ObjectsBuffer.Add(new WoWUnit(pointer, guid, objectType));
+                        //ObjectsBuffer.Add(new WoWUnit(pointer, guid, objectType));
                         break;
                 }
             }

@@ -1445,7 +1445,8 @@ namespace BloogBot.UI
         {
             ObjectManager.Initialize(probe);
             ObjectManager.StartEnumeration();
-            Task.Run(async () => await InitializeCommandHandler());
+            // TODO
+            //Task.Run(async () => await InitializeCommandHandler());
         }
         
         void UpdatePropertiesWithAttribute(Type type)

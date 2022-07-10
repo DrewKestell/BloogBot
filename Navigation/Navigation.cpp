@@ -61,7 +61,7 @@ XYZ* Navigation::CalculatePath(unsigned int mapId, XYZ start, XYZ end, bool stra
 
 void Navigation::InitializeMapsForContinent(MMAP::MMapManager* manager, unsigned int mapId)
 {
-    if ((mapId == 0 && !manager->hasLoadedEasternContinent) || (mapId == 1 && !manager->hasLoadedWesternContinent) || (mapId == 530 && !manager->hasLoadedOutland))
+    if (!manager->zoneMap.contains(mapId))
     {
         for (auto& p : std::filesystem::directory_iterator(Navigation::GetMmapsPath()))
         {
@@ -79,18 +79,21 @@ void Navigation::InitializeMapsForContinent(MMAP::MMapManager* manager, unsigned
                 int x = (xTens * 10) + xOnes;
                 int y = (yTens * 10) + yOnes;
 
-                if ((filename[0] == '0' && filename[1] == '0' && filename[2] == std::to_string(mapId)[0]) || (mapId == 530 && filename[0] == '5' && filename[1] == '3' && filename[2] == '0'))
+                std::string mapIdString;
+                if (mapId < 10)
+                    mapIdString = "00" + std::to_string(mapId);
+                else if (mapId < 100)
+                    mapIdString = "0" + std::to_string(mapId);
+                else
+                    mapIdString = std::to_string(mapId);
+
+                if (filename[0] == mapIdString[0] && filename[1] == mapIdString[1] && filename[2] == mapIdString[2])
                     manager->loadMap(mapId, x, y);
             }
         }
-    }
 
-    if (mapId == 0)
-        manager->hasLoadedEasternContinent = true;
-    if (mapId == 1)
-        manager->hasLoadedWesternContinent = true;
-    if (mapId == 530)
-        manager->hasLoadedOutland = true;
+        manager->zoneMap.insert(std::pair<unsigned int, bool>(mapId, true));
+    }
 }
 
 string Navigation::GetMmapsPath()

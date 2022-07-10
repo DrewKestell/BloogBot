@@ -1,17 +1,17 @@
 ﻿using BloogBot;
 using BloogBot.AI;
 using BloogBot.Game;
-using BloogBot.Game.Frames;
+using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Linq;
+using System.Threading.Tasks;
 
 namespace TestBot
 {
     [Export(typeof(IBot))]
-    unsafe class TestBot : Bot, IBot
+    class TestBot : Bot, IBot
     {
         public string Name => "Tester";
 
@@ -42,10 +42,23 @@ namespace TestBot
         {
             ThreadSynchronizer.RunOnMainThread(() =>
             {
-                var target = ObjectManager.Players.FirstOrDefault(u => u.Guid == ObjectManager.Player.TargetGuid);
+                var player = ObjectManager.Player;
 
-                if (target != null)
-                    Console.WriteLine(ObjectManager.Player.InLosWith(target.Position));
+                if (player != null)
+                {
+                    Console.WriteLine($"Pointer: {player.Pointer.ToString("X")}");
+                    Console.WriteLine($"Position: {player.Position}");
+                    Console.WriteLine($"Facing: {player.Facing}");
+                    Console.WriteLine($"MapId: {ObjectManager.MapId}");
+
+                    var start = player.Position;
+                    var end = new Position(5807.83f, 587.83f, 652.38f);
+
+                    var nextPoint = Navigation.GetNextWaypoint(ObjectManager.MapId, start, end, false);
+
+                    player.StopMovement(ControlBits.Front);
+                    player.MoveToward(nextPoint);
+                }
             });
         }
     }
