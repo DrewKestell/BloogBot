@@ -46,18 +46,7 @@ namespace TestBot
 
                 if (player != null)
                 {
-                    Console.WriteLine($"Pointer: {player.Pointer.ToString("X")}");
                     Console.WriteLine($"Position: {player.Position}");
-                    Console.WriteLine($"Facing: {player.Facing}");
-                    Console.WriteLine($"MapId: {ObjectManager.MapId}");
-
-                    var start = player.Position;
-                    var end = new Position(5807.83f, 587.83f, 652.38f);
-
-                    var nextPoint = Navigation.GetNextWaypoint(ObjectManager.MapId, start, end, false);
-
-                    player.StopMovement(ControlBits.Front);
-                    player.MoveToward(nextPoint);
                 }
             });
         }
