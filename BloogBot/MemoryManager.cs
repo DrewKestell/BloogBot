@@ -1,4 +1,5 @@
 ﻿using Binarysharp.Assemblers.Fasm;
+using BloogBot.Game;
 using BloogBot.Game.Cache;
 using System;
 using System.Diagnostics;

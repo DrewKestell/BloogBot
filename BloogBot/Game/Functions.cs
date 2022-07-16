@@ -218,6 +218,16 @@ namespace BloogBot.Game
             gameFunctionHandler.UseItem(itemPtr);
         }
 
+        static public IntPtr GetRow(IntPtr tablePtr, int index)
+        {
+            return gameFunctionHandler.GetRow(tablePtr, index);
+        }
+
+        static public IntPtr GetLocalizedRow(IntPtr tablePtr, int index, IntPtr rowPtr)
+        {
+            return gameFunctionHandler.GetLocalizedRow(tablePtr, index, rowPtr);
+        }
+
         static string GetRandomLuaVarName()
         {
             const string chars = "abcdefghijklmnopqrstuvwxyz";

@@ -232,5 +232,27 @@ namespace BloogBot.Game
             ulong unused1 = 0;
             UseItemFunction(itemPtr, ref unused1, 0);
         }
+
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate IntPtr GetRowDelegate(IntPtr tablePtr, int index);
+
+        static readonly GetRowDelegate GetRowFunction =
+            Marshal.GetDelegateForFunctionPointer<GetRowDelegate>((IntPtr)MemoryAddresses.GetRowFunPtr);
+
+        public IntPtr GetRow(IntPtr tablePtr, int index)
+        {
+            return GetRowFunction(tablePtr, index);
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate IntPtr GetLocalizedRowDelegate(IntPtr tablePtr, int index, IntPtr rowPtr);
+
+        static readonly GetLocalizedRowDelegate GetLocalizedRowFunction =
+            Marshal.GetDelegateForFunctionPointer<GetLocalizedRowDelegate>((IntPtr)MemoryAddresses.GetLocalizedRowFunPtr);
+
+        public IntPtr GetLocalizedRow(IntPtr tablePtr, int index, IntPtr rowPtr)
+        {
+            return GetLocalizedRowFunction(tablePtr, index, rowPtr);
+        }
     }
 }

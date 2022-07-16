@@ -291,15 +291,23 @@ namespace BloogBot.Game.Objects
             {
                 var currentSpellId = MemoryManager.ReadInt((IntPtr)(MemoryAddresses.LocalPlayerSpellsBase + 4 * i));
                 if (currentSpellId == 0) break;
-                var spell = Functions.GetSpellDBEntry(currentSpellId);
 
-                if (playerSpells.ContainsKey(spell.Name))
-                    playerSpells[spell.Name] = new List<int>(playerSpells[spell.Name])
+                if (ClientHelper.ClientVersion == ClientVersion.WotLK)
+                {
+                    var spell = WowDb.Tables[ClientDb.Spell].GetLocalizedRow(currentSpellId);
+                }
+                else
+                {
+                    var spell = Functions.GetSpellDBEntry(currentSpellId);
+
+                    if (playerSpells.ContainsKey(spell.Name))
+                        playerSpells[spell.Name] = new List<int>(playerSpells[spell.Name])
                     {
                         currentSpellId
                     }.ToArray();
-                else
-                    playerSpells.Add(spell.Name, new[] { currentSpellId });
+                    else
+                        playerSpells.Add(spell.Name, new[] { currentSpellId });
+                }
             }
         }
 

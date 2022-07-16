@@ -390,5 +390,15 @@ namespace BloogBot.Game
             ulong unused1 = 0;
             UseItemFunction(itemPtr, ref unused1, 0);
         }
+
+        public IntPtr GetRow(IntPtr tablePtr, int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IntPtr GetLocalizedRow(IntPtr tablePtr, int index, IntPtr rowPtr)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

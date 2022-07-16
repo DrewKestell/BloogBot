@@ -66,5 +66,9 @@ namespace BloogBot.Game
         int Dismount(IntPtr unitPtr);
 
         void CastAtPosition(string spellName, Position position);
+
+        IntPtr GetRow(IntPtr tablePtr, int index);
+
+        IntPtr GetLocalizedRow(IntPtr tablePtr, int index, IntPtr rowPtr);
     }
 }
