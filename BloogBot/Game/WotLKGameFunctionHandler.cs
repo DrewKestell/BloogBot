@@ -1,6 +1,5 @@
 ﻿using BloogBot.Game.Enums;
 using System;
-using System.Collections.Generic;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 
@@ -50,14 +49,27 @@ namespace BloogBot.Game
             EnumerateVisibleObjectsFunction(callback, filter);
         }
 
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate int GetCreatureRankDelegate
+            (IntPtr unitPtr);
+
+        static readonly GetCreatureRankDelegate GetCreatureRankFunction =
+            Marshal.GetDelegateForFunctionPointer<GetCreatureRankDelegate>((IntPtr)MemoryAddresses.GetCreatureRankFunPtr);
+
         public int GetCreatureRank(IntPtr unitPtr)
         {
-            throw new NotImplementedException();
+            return GetCreatureRankFunction(unitPtr);
         }
+
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate int GetCreatureTypeDelegate(IntPtr unitPtr);
+
+        static readonly GetCreatureTypeDelegate GetCreatureTypeFunction =
+            Marshal.GetDelegateForFunctionPointer<GetCreatureTypeDelegate>((IntPtr)MemoryAddresses.GetCreatureTypeFunPtr);
 
         public CreatureType GetCreatureType(IntPtr unitPtr)
         {
-            throw new NotImplementedException();
+            return (CreatureType)GetCreatureTypeFunction(unitPtr);
         }
 
         public IntPtr GetItemCacheEntry(int itemId)
@@ -92,9 +104,15 @@ namespace BloogBot.Game
             throw new NotImplementedException();
         }
 
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate int GetUnitReactionDelegate(IntPtr unitPtr1, IntPtr unitPtr2);
+
+        static readonly GetUnitReactionDelegate GetUnitReactionFunction =
+            Marshal.GetDelegateForFunctionPointer<GetUnitReactionDelegate>((IntPtr)MemoryAddresses.GetUnitReactionFunPtr);
+
         public UnitReaction GetUnitReaction(IntPtr unitPtr1, IntPtr unitPtr2)
         {
-            throw new NotImplementedException();
+            return (UnitReaction)GetUnitReactionFunction(unitPtr1, unitPtr2);
         }
 
         public XYZ Intersect(Position start, Position end)
@@ -203,9 +221,16 @@ namespace BloogBot.Game
             SetFacingFunction(playerSetFacingPtr, performanceCounter, facing);
         }
 
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate void UseItemDelegate(IntPtr itemPtr, ref ulong unused1, int unused2);
+
+        static readonly UseItemDelegate UseItemFunction =
+            Marshal.GetDelegateForFunctionPointer<UseItemDelegate>((IntPtr)MemoryAddresses.UseItemFunPtr);
+
         public void UseItem(IntPtr itemPtr)
         {
-            throw new NotImplementedException();
+            ulong unused1 = 0;
+            UseItemFunction(itemPtr, ref unused1, 0);
         }
     }
 }

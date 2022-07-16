@@ -12,7 +12,8 @@ namespace BloogBot.Game.Objects
              ulong guid,
              ObjectType objectType) : base(pointer, guid, objectType)
         {
-            RefreshSpells();
+            // TODO
+            //RefreshSpells();
         }
 
         readonly IDictionary<string, int[]> petSpells = new Dictionary<string, int[]>();

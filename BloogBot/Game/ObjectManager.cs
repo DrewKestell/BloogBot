@@ -35,6 +35,8 @@ namespace BloogBot.Game
 
         static public LocalPet Pet { get; private set; }
 
+        static public IEnumerable<WoWObject> AllObjects => Objects;
+
         static public IEnumerable<WoWUnit> Units => Objects.OfType<WoWUnit>().Where(o => o.ObjectType == ObjectType.Unit).ToList();
 
         static public IEnumerable<WoWPlayer> Players => Objects.OfType<WoWPlayer>();
@@ -57,7 +59,7 @@ namespace BloogBot.Game
             {
                 try
                 {
-                    var ptr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.ZoneTextPtrAddr);
+                    var ptr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.ZoneTextPtr);
                     return MemoryManager.ReadString(ptr);
                 }
                 catch (Exception)
@@ -75,7 +77,7 @@ namespace BloogBot.Game
             {
                 try
                 {
-                    var ptr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.SubZoneTextPtrAddr);
+                    var ptr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.SubZoneTextPtr);
                     return MemoryManager.ReadString(ptr);
                 }
                 catch (Exception)
@@ -93,7 +95,7 @@ namespace BloogBot.Game
             {
                 try
                 {
-                    var ptr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.MinimapZoneTextPtrAddr);
+                    var ptr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.MinimapZoneTextPtr);
                     return MemoryManager.ReadString(ptr);
                 }
                 catch (Exception)
@@ -111,7 +113,7 @@ namespace BloogBot.Game
             {
                 try
                 {
-                    return MemoryManager.ReadUint((IntPtr)MemoryAddresses.MapIdAddr);
+                    return MemoryManager.ReadUint((IntPtr)MemoryAddresses.MapId);
                 }
                 catch (Exception)
                 {
@@ -129,7 +131,7 @@ namespace BloogBot.Game
                 try
                 {
                     // not exactly sure how this works. seems to return a string like "Endless\WoW.exe" or "Karazhan\WoW.exe"
-                    var fullName = MemoryManager.ReadString((IntPtr)MemoryAddresses.ServerNameAddr);
+                    var fullName = MemoryManager.ReadString((IntPtr)MemoryAddresses.ServerName);
                     return fullName.Split('\\').First();
                 }
                 catch (Exception)
@@ -252,7 +254,7 @@ namespace BloogBot.Game
                 {
                     case ObjectType.Container:
                     case ObjectType.Item:
-                        //ObjectsBuffer.Add(new WoWItem(pointer, guid, objectType));
+                        ObjectsBuffer.Add(new WoWItem(pointer, guid, objectType));
                         break;
                     case ObjectType.Player:
                         if (guid == playerGuid)
@@ -261,14 +263,14 @@ namespace BloogBot.Game
                             Player = player;
                             ObjectsBuffer.Add(player);
                         }
-                        //else
-                        //    ObjectsBuffer.Add(new WoWPlayer(pointer, guid, objectType));
+                        else
+                            ObjectsBuffer.Add(new WoWPlayer(pointer, guid, objectType));
                         break;
                     case ObjectType.GameObject:
-                        //ObjectsBuffer.Add(new WoWGameObject(pointer, guid, objectType));
+                        ObjectsBuffer.Add(new WoWGameObject(pointer, guid, objectType));
                         break;
                     case ObjectType.Unit:
-                        //ObjectsBuffer.Add(new WoWUnit(pointer, guid, objectType));
+                        ObjectsBuffer.Add(new WoWUnit(pointer, guid, objectType));
                         break;
                 }
             }

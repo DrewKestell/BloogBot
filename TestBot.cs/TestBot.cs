@@ -46,7 +46,10 @@ namespace TestBot
 
                 if (player != null)
                 {
-                    Console.WriteLine($"Position: {player.Position}");
+                    foreach (var obj in ObjectManager.AllObjects)
+                    {
+                        Console.WriteLine($"Pointer={obj.Pointer} Guid={obj.Guid} Type={obj.ObjectType} Name={obj.Name} Facing={obj.Facing} Pos={obj.Position}");
+                    }
                 }
             });
         }

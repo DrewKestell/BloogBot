@@ -9,7 +9,7 @@ namespace BloogBot.Game.Frames
     {
         public DialogFrame()
         {
-            var vendorGuid = MemoryManager.ReadUlong((IntPtr)MemoryAddresses.DialogFrameBaseAddr);
+            var vendorGuid = MemoryManager.ReadUlong((IntPtr)MemoryAddresses.DialogFrameBase);
             if (vendorGuid == 0)
                 return;
 

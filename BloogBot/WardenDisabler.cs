@@ -222,7 +222,7 @@ namespace BloogBot
             }
 
             var wardenLoadDetour = MemoryManager.InjectAssembly("WardenLoadDetour", instructions);
-            MemoryManager.InjectAssembly("WardenLoadHook", (uint)MemoryAddresses.WardenLoadHookAddr, "JMP " + wardenLoadDetour);
+            MemoryManager.InjectAssembly("WardenLoadHook", (uint)MemoryAddresses.WardenLoadHook, "JMP " + wardenLoadDetour);
             InitializeModuleScanHook();
         }
 
@@ -244,13 +244,21 @@ namespace BloogBot
         static void DisableWardenInternal()
         {
             Console.WriteLine("[WARDEN] DisableWardenHook called.");
-            var wardenPtr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.WardenBaseAddr);
+            var wardenPtr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.WardenBase);
+            Console.WriteLine($"[WARDEN] WardenPtr = {wardenPtr} ({wardenPtr.ToString("X")})");
             if (wardenPtr != IntPtr.Zero)
             {
-                var wardenBaseAddr = MemoryManager.ReadIntPtr(wardenPtr);
-                Console.WriteLine($"[WARDEN] DisableWardenHook found WardenBaseAddress = {wardenBaseAddr.ToString("X")}");
-                InitializeWardenPageScanHook(wardenBaseAddr);
-                InitializeWardenMemScanHook(wardenBaseAddr);
+                if ((int)wardenPtr < 80000)
+                {
+                    Console.WriteLine($"[WARDEN] Warden Module is at an unexpected memory address. Not hooking. PLAY AT YOUR OWN RISK!");
+                }
+                else
+                {
+                    var wardenBaseAddr = MemoryManager.ReadIntPtr(wardenPtr);
+                    Console.WriteLine($"[WARDEN] DisableWardenHook found WardenBaseAddress = {wardenBaseAddr} ({wardenBaseAddr.ToString("X")})");
+                    InitializeWardenPageScanHook(wardenBaseAddr);
+                    InitializeWardenMemScanHook(wardenBaseAddr);
+                }
             }
         }
 
@@ -268,7 +276,7 @@ namespace BloogBot
             {
                 // in the WotLK client, the PageScan and MemScan functions seem to be loaded into memory at a random offset sometime after the WardenModule base address,
                 // and about 6000 bytes later. I spent a bunch of time trying to figure out how to find the address of these functions deterministically, but failed.
-                // so isntead, we scan 5 bytes of memory 1 byte at a time until we find the function signature. and we start at 6000 and go down because occasionally
+                // so instead, we scan 5 bytes of memory 1 byte at a time until we find the function signature. and we start at 6000 and go down because occasionally
                 // I've seen the same 5 bytes in memory more in more than one place, but through experimentation, it seems we always want the higher one.
                 for (var i = 0x6000; i > 0; i--)
                 {
@@ -292,7 +300,12 @@ namespace BloogBot
             }
 
             if (pageScanPtr == IntPtr.Zero || pageScanPtr == wardenPageScanFunPtr)
+            {
+                Console.WriteLine("PageScan hook failed. It's possible the incoming Warden Module does not include the PageScan function. PLAY AT YOUR OWN RISK!");
                 return;
+            }
+
+            Console.WriteLine("PageScan module found in memory, continuing with hook...");
 
             wardenPageScanDelegate = WardenPageScanHook;
             var addrToDetour = Marshal.GetFunctionPointerForDelegate(wardenPageScanDelegate);
@@ -374,7 +387,12 @@ namespace BloogBot
             }
 
             if (memScanPtr == IntPtr.Zero || memScanPtr == wardenMemScanFunPtr)
+            {
+                Console.WriteLine("MemScan hook failed. It's possible the incoming Warden Module does not include the MemScan function. PLAY AT YOUR OWN RISK!");
                 return;
+            }
+
+            Console.WriteLine("MemScan module found in memory, continuing with hook...");
 
             wardenMemScanDelegate = WardenMemScanHook;
             var addrToDetour = Marshal.GetFunctionPointerForDelegate(wardenMemScanDelegate);

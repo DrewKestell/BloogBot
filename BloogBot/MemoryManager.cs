@@ -189,6 +189,10 @@ namespace BloogBot
 
                 return ret;
             }
+            catch (NullReferenceException)
+            {
+                return default;
+            }
             catch (AccessViolationException)
             {
                 //Logger.Log("Access Violation on " + address.ToString("X") + " with type Byte[]");

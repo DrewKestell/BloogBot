@@ -168,6 +168,7 @@
     <Compile Include="Game\VanillaGameFunctionHandler.cs" />
     <Compile Include="Game\TBCGameFunctionHandler.cs" />
     <Compile Include="Game\WotLKGameFunctionHandler.cs" />
+    <Compile Include="Game\WowDb.cs" />
     <Compile Include="Game\WoWEventHandler.cs" />
     <Compile Include="Game\XYZ.cs" />
     <Compile Include="Game\XYZXYZ.cs" />

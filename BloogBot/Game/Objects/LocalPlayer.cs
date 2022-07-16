@@ -13,8 +13,7 @@ namespace BloogBot.Game.Objects
             ObjectType objectType)
             : base(pointer, guid, objectType)
         {
-            // TODO
-            // RefreshSpells();
+            RefreshSpells();
         }
 
         readonly Random random = new Random();
@@ -41,14 +40,14 @@ namespace BloogBot.Game.Objects
         float amountPerTurn;
         Position turningToward;
 
-        public Class Class => (Class)MemoryManager.ReadByte((IntPtr)MemoryAddresses.LocalPlayer_ClassOffset);
+        public Class Class => (Class)MemoryManager.ReadByte((IntPtr)MemoryAddresses.LocalPlayerClass);
 
-        public void AntiAfk() => MemoryManager.WriteInt((IntPtr)MemoryAddresses.LocalPlayer_LastHardwareAction, Environment.TickCount);
+        public void AntiAfk() => MemoryManager.WriteInt((IntPtr)MemoryAddresses.LastHardwareAction, Environment.TickCount);
 
         public Position CorpsePosition => new Position(
-            MemoryManager.ReadFloat((IntPtr)MemoryAddresses.LocalPlayer_CorpsePositionX),
-            MemoryManager.ReadFloat((IntPtr)MemoryAddresses.LocalPlayer_CorpsePositionY),
-            MemoryManager.ReadFloat((IntPtr)MemoryAddresses.LocalPlayer_CorpsePositionZ));
+            MemoryManager.ReadFloat((IntPtr)MemoryAddresses.LocalPlayerCorpsePositionX),
+            MemoryManager.ReadFloat((IntPtr)MemoryAddresses.LocalPlayerCorpsePositionY),
+            MemoryManager.ReadFloat((IntPtr)MemoryAddresses.LocalPlayerCorpsePositionZ));
 
         public void Face(Position pos)
         {
@@ -244,7 +243,7 @@ namespace BloogBot.Game.Objects
 
         public void SetTarget(ulong guid) => Functions.SelectObject(guid);
 
-        public bool CanOverpower => MemoryManager.ReadInt((IntPtr)MemoryAddresses.LocalPlayer_CanOverpowerAddr) > 0;
+        public bool CanOverpower => MemoryManager.ReadInt((IntPtr)MemoryAddresses.LocalPlayerCanOverpower) > 0;
 
         public byte ComboPoints
         {
@@ -290,7 +289,7 @@ namespace BloogBot.Game.Objects
             playerSpells.Clear();
             for (var i = 0; i < 1024; i++)
             {
-                var currentSpellId = MemoryManager.ReadInt((IntPtr)(MemoryAddresses.LocalPlayer_PlayerSpellsBase + 4 * i));
+                var currentSpellId = MemoryManager.ReadInt((IntPtr)(MemoryAddresses.LocalPlayerSpellsBase + 4 * i));
                 if (currentSpellId == 0) break;
                 var spell = Functions.GetSpellDBEntry(currentSpellId);
 

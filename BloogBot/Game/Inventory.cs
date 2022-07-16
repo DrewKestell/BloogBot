@@ -98,7 +98,7 @@ namespace BloogBot.Game
             }
             var BagGuids = new List<ulong>();
             for (var i = 0; i < 4; i++)
-                BagGuids.Add(MemoryManager.ReadUlong(IntPtr.Add((IntPtr)MemoryAddresses.FirstExtraBagAddr, i * 8)));
+                BagGuids.Add(MemoryManager.ReadUlong(IntPtr.Add((IntPtr)MemoryAddresses.LocalPlayerFirstExtraBag, i * 8)));
         
             var tmpItems = ObjectManager
                 .Items
@@ -124,7 +124,7 @@ namespace BloogBot.Game
             {
                 var bagGuids = new List<ulong>();
                 for (var i = 0; i < 4; i++)
-                    bagGuids.Add(MemoryManager.ReadUlong(IntPtr.Add((IntPtr)MemoryAddresses.FirstExtraBagAddr, i * 8)));
+                    bagGuids.Add(MemoryManager.ReadUlong(IntPtr.Add((IntPtr)MemoryAddresses.LocalPlayerFirstExtraBag, i * 8)));
 
                 return bagGuids.Count(b => b == 0);
             }
@@ -194,7 +194,7 @@ namespace BloogBot.Game
         static WoWItem GetExtraBag(int parSlot)
         {
             if (parSlot > 3 || parSlot < 0) return null;
-            var bagGuid = MemoryManager.ReadUlong(IntPtr.Add((IntPtr)MemoryAddresses.FirstExtraBagAddr, parSlot * 8));
+            var bagGuid = MemoryManager.ReadUlong(IntPtr.Add((IntPtr)MemoryAddresses.LocalPlayerFirstExtraBag, parSlot * 8));
             return bagGuid == 0 ? null : ObjectManager.Items.FirstOrDefault(i => i.Guid == bagGuid);
         }
 
