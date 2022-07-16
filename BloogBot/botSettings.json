@@ -1,6 +1,6 @@
 {
-  "DatabasePath": "Server=tcp:bloog-bot.database.windows.net,1433;Initial Catalog=BloogBot;Persist Security Info=False;User ID=dkestell;Password=)$)?C0`?tm'6mfz;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
-  "DiscordBotToken": "NDU5NzM3ODk4NjUzMzE5MTY4.GVy2BL.UbyPWY1EwVOzygBJnqIAJAWbqYpsHsUctqNzGU",
+  "DatabasePath": "Server=tcp:bloog-bot.database.windows.net,1433;Initial Catalog=BloogBot;Persist Security Info=False;User ID=dkestell;Password=<>;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
+  "DiscordBotToken": "<>",
   "DiscordGuildId": "303695206333546496",
   "DiscordRoleId": "707118407157284936",
   "DiscordChannelId": "706714451000426596",
