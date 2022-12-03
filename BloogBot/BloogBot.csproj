@@ -126,6 +126,7 @@
     <Compile Include="Detour.cs" />
     <Compile Include="DiscordClientWrapper.cs" />
     <Compile Include="Game\Cache\ItemCacheInfo.cs" />
+    <Compile Include="Game\Enums\AuraFlags.cs" />
     <Compile Include="Game\Enums\Class.cs" />
     <Compile Include="Game\Enums\ClientVersion.cs" />
     <Compile Include="Game\Enums\ControlBits.cs" />
@@ -155,6 +156,7 @@
     <Compile Include="Game\Objects\LocalPlayer.cs" />
     <Compile Include="Game\Objects\LocalPet.cs" />
     <Compile Include="Game\Objects\WoWGameObject.cs" />
+    <Compile Include="Game\Objects\WoWContainer.cs" />
     <Compile Include="Game\Objects\WoWItem.cs" />
     <Compile Include="Game\Objects\WoWPet.cs" />
     <Compile Include="Game\Objects\WoWPlayer.cs" />

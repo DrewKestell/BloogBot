@@ -15,18 +15,6 @@ namespace BloogBot.Game
             BuyVendorItemFunction(itemId, quantity, vendorGuid, (IntPtr)MemoryAddresses.BuyVendorItemFunPtr);
         }
 
-        public bool CanAttack(IntPtr playerPtr, IntPtr targetPtr)
-        {
-            // TODO
-            throw new NotImplementedException();
-        }
-
-        public bool CanLoot(IntPtr playerPtr, IntPtr targetPtr)
-        {
-            // TODO
-            throw new NotImplementedException();
-        }
-
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         private delegate int CastAtPositionDelegate(ref XYZ parPos);
 
@@ -97,7 +85,7 @@ namespace BloogBot.Game
         static readonly ItemCacheGetRowDelegate GetItemCacheEntryFunction =
             Marshal.GetDelegateForFunctionPointer<ItemCacheGetRowDelegate>((IntPtr)MemoryAddresses.GetItemCacheEntryFunPtr);
 
-        public IntPtr GetItemCacheEntry(int itemId)
+        public IntPtr GetItemCacheEntry(int itemId, ulong guid)
         {
             return GetItemCacheEntryFunction((IntPtr)MemoryAddresses.ItemCacheEntryBasePtr, itemId, IntPtr.Zero, 0, 0, (char)0);
         }
@@ -165,18 +153,6 @@ namespace BloogBot.Game
             return intersection;
         }
 
-        public bool IsDead(IntPtr unitPtr)
-        {
-            // TODO
-            throw new NotImplementedException();
-        }
-
-        public bool IsLooting(IntPtr unitPtr)
-        {
-            // TODO
-            throw new NotImplementedException();
-        }
-
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         delegate void IsSpellOnCooldownDelegate(
             IntPtr spellCooldownPtr,
@@ -217,12 +193,6 @@ namespace BloogBot.Game
             LootSlotFunction(slot, (IntPtr)MemoryAddresses.LootSlotFunPtr);
         }
 
-        public void LootUnit(IntPtr playerPtr, IntPtr targetPtr)
-        {
-            // TODO
-            throw new NotImplementedException();
-        }
-
         [DllImport("FastCall.dll", EntryPoint = "LuaCall")]
         static extern void LuaCallFunction(string code, int ptr);
 
@@ -252,7 +222,7 @@ namespace BloogBot.Game
             RetrieveCorpseFunction();
         }
 
-        public void SelectObject(ulong guid)
+        public void SetTarget(ulong guid)
         {
             // TODO
             throw new NotImplementedException();
@@ -323,6 +293,16 @@ namespace BloogBot.Game
         }
 
         public IntPtr GetLocalizedRow(IntPtr tablePtr, int index, IntPtr rowPtr)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int GetAuraCount(IntPtr unitPtr)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IntPtr GetAuraPointer(IntPtr unitPtr, int index)
         {
             throw new NotImplementedException();
         }

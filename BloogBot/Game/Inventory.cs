@@ -67,15 +67,15 @@ namespace BloogBot.Game
             var items = new List<WoWItem>();
             for (int bag = 0; bag < 5; bag++)
             {
-                WoWItem bagItem = GetExtraBag(bag - 1);
-                if (bag != 0 && bagItem == null)
+                var container = GetExtraBag(bag - 1);
+                if (bag != 0 && container == null)
                 {
                     continue;
                 }
 
-                for (int slot = 0; slot < (bag == 0 ? 16 : bagItem.Slots); slot++)
+                for (int slot = 0; slot < (bag == 0 ? 16 : container.Slots); slot++)
                 {
-                    WoWItem item = GetItem(bag, slot);
+                    var item = GetItem(bag, slot);
                     if (item == null)
                     {
                         continue;
@@ -96,13 +96,13 @@ namespace BloogBot.Game
                 var tmpSlotGuid = ObjectManager.Player.GetBackpackItemGuid(i);
                 if (tmpSlotGuid == 0) freeSlots++;
             }
-            var BagGuids = new List<ulong>();
+            var bagGuids = new List<ulong>();
             for (var i = 0; i < 4; i++)
-                BagGuids.Add(MemoryManager.ReadUlong(IntPtr.Add((IntPtr)MemoryAddresses.LocalPlayerFirstExtraBag, i * 8)));
+                bagGuids.Add(MemoryManager.ReadUlong(IntPtr.Add((IntPtr)MemoryAddresses.LocalPlayerFirstExtraBag, i * 8)));
         
             var tmpItems = ObjectManager
-                .Items
-                .Where(i => i.Slots != 0 && BagGuids.Contains(i.Guid)).ToList();
+                .Containers
+                .Where(i => i.Slots != 0 && bagGuids.Contains(i.Guid)).ToList();
             
             foreach (var bag in tmpItems)
             {
@@ -191,11 +191,11 @@ namespace BloogBot.Game
             return ObjectManager.Items.FirstOrDefault(i => i.Guid == guid);
         }
 
-        static WoWItem GetExtraBag(int parSlot)
+        static WoWContainer GetExtraBag(int parSlot)
         {
             if (parSlot > 3 || parSlot < 0) return null;
             var bagGuid = MemoryManager.ReadUlong(IntPtr.Add((IntPtr)MemoryAddresses.LocalPlayerFirstExtraBag, parSlot * 8));
-            return bagGuid == 0 ? null : ObjectManager.Items.FirstOrDefault(i => i.Guid == bagGuid);
+            return bagGuid == 0 ? null : ObjectManager.Containers.FirstOrDefault(i => i.Guid == bagGuid);
         }
 
         static public WoWItem GetItem(int parBag, int parSlot)

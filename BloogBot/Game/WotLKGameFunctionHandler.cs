@@ -7,19 +7,15 @@ namespace BloogBot.Game
 {
     public class WotLKGameFunctionHandler : IGameFunctionHandler
     {
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        delegate void BuyVendorItemDelegate(ulong vendorGuid, int itemId, int quantity, int unused);
+
+        static readonly BuyVendorItemDelegate BuyVendorItemFunction =
+            Marshal.GetDelegateForFunctionPointer<BuyVendorItemDelegate>((IntPtr)MemoryAddresses.BuyVendorItemFunPtr);
+
         public void BuyVendorItem(ulong vendorGuid, int itemId, int quantity)
         {
-            throw new NotImplementedException();
-        }
-
-        public bool CanAttack(IntPtr playerPtr, IntPtr targetPtr)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool CanLoot(IntPtr playerPtr, IntPtr targetPtr)
-        {
-            throw new NotImplementedException();
+            BuyVendorItemFunction(vendorGuid, itemId, quantity, 1);
         }
 
         public void CastAtPosition(string spellName, Position position)
@@ -27,14 +23,22 @@ namespace BloogBot.Game
             throw new NotImplementedException();
         }
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        delegate int CastSpellByIdDelegate(int spellId, int itemId, ulong guid, int isTrade, int a6, int a7, int a8);
+
+        static readonly CastSpellByIdDelegate CastSpellByIdFunction =
+            Marshal.GetDelegateForFunctionPointer<CastSpellByIdDelegate>((IntPtr)MemoryAddresses.CastSpellByIdFunPtr);
+
         public int CastSpellById(int spellId, ulong targetGuid)
         {
-            throw new NotImplementedException();
+            return CastSpellByIdFunction(spellId, 0, targetGuid, 0, 0, 0, 0);
         }
 
         public int Dismount(IntPtr unitPtr)
         {
-            throw new NotImplementedException();
+            LuaCall("Dismount()");
+
+            return 0;
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
@@ -72,9 +76,21 @@ namespace BloogBot.Game
             return (CreatureType)GetCreatureTypeFunction(unitPtr);
         }
 
-        public IntPtr GetItemCacheEntry(int itemId)
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate IntPtr ItemCacheGetRowDelegate(
+            IntPtr ptr,
+            int itemId,
+            ref ulong guid,
+            int unused1,
+            int unused2,
+            int unused3);
+
+        static readonly ItemCacheGetRowDelegate GetItemCacheEntryFunction =
+            Marshal.GetDelegateForFunctionPointer<ItemCacheGetRowDelegate>((IntPtr)MemoryAddresses.GetItemCacheEntryFunPtr);
+
+        public IntPtr GetItemCacheEntry(int itemId, ulong guid)
         {
-            throw new NotImplementedException();
+            return GetItemCacheEntryFunction((IntPtr)MemoryAddresses.ItemCacheEntryBasePtr, itemId, ref guid, 0, 0, 0);
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -96,12 +112,37 @@ namespace BloogBot.Game
 
         public Spell GetSpellDBEntry(int index)
         {
-            throw new NotImplementedException();
+            var spellPtr = WowDb.Tables[ClientDb.Spell].GetLocalizedRow(index);
+
+            var costAddr = IntPtr.Add(spellPtr, 0xA8);
+            var cost = MemoryManager.ReadInt(costAddr);
+
+            var spellNamePtrAddr = IntPtr.Add(spellPtr, 0x220);
+            var spellNamePtr = MemoryManager.ReadIntPtr(spellNamePtrAddr);
+            var name = MemoryManager.ReadString(spellNamePtr);
+
+            var spellDescriptionPtrAddr = IntPtr.Add(spellPtr, 0x228);
+            var spellDescriptionPtr = MemoryManager.ReadIntPtr(spellDescriptionPtrAddr);
+            var description = MemoryManager.ReadString(spellDescriptionPtr);
+
+            var spellTooltipPtrAddr = IntPtr.Add(spellPtr, 0x22C);
+            var spellTooltipPtr = MemoryManager.ReadIntPtr(spellTooltipPtrAddr);
+            var tooltip = MemoryManager.ReadString(spellTooltipPtr);
+
+            Marshal.FreeHGlobal(spellPtr);
+
+            return new Spell(index, cost, name, description, tooltip);
         }
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        delegate IntPtr GetTextDelegate(string arg);
+
+        static readonly GetTextDelegate GetTextFunction =
+            Marshal.GetDelegateForFunctionPointer<GetTextDelegate>((IntPtr)MemoryAddresses.GetTextFunPtr);
 
         public IntPtr GetText(string varName)
         {
-            throw new NotImplementedException();
+            return GetTextFunction(varName);
         }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
@@ -115,64 +156,101 @@ namespace BloogBot.Game
             return (UnitReaction)GetUnitReactionFunction(unitPtr1, unitPtr2);
         }
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        delegate int IntersectDelegate(ref XYZ start, ref XYZ end, ref XYZ intersection, ref float distance, uint flags, IntPtr Ptr);
+
+        static readonly IntersectDelegate IntersectFunction =
+            Marshal.GetDelegateForFunctionPointer<IntersectDelegate>((IntPtr)MemoryAddresses.IntersectFunPtr);
+
         public XYZ Intersect(Position start, Position end)
         {
-            throw new NotImplementedException();
+            var intersection = new XYZ();
+            var distance = start.DistanceTo(end);
+            var startXYZ = new XYZ(start.X, start.Y, start.Z + 5.0f);
+            var endXYZ = new XYZ(end.X, end.Y, end.Z + 5.0f);
+
+            IntersectFunction(ref startXYZ, ref endXYZ, ref intersection, ref distance, 0x00100171, IntPtr.Zero);
+
+            return intersection;
         }
 
-        public bool IsDead(IntPtr unitPtr)
-        {
-            throw new NotImplementedException();
-        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        delegate bool GetSpellCooldownDelegate(int spellId, bool isPet, ref int duration, ref int start, ref bool isReady, ref int unk0);
 
-        public bool IsLooting(IntPtr unitPtr)
-        {
-            throw new NotImplementedException();
-        }
+        static readonly GetSpellCooldownDelegate GetSpellCooldownFunction =
+            Marshal.GetDelegateForFunctionPointer<GetSpellCooldownDelegate>((IntPtr)MemoryAddresses.IsSpellOnCooldownFunPtr);
 
         public bool IsSpellOnCooldown(int spellId)
         {
-            throw new NotImplementedException();
+            var duration = 0;
+            var start = 0;
+            var isReady = false;
+            var unk0 = 0;
+            GetSpellCooldownFunction(spellId, false, ref duration, ref start, ref isReady, ref unk0);
+
+            var result = start + duration - (int)PerformanceCounter();
+            var cooldown = isReady ? (result > 0 ? result / 1000f : 0f) : float.MaxValue;
+
+            return cooldown > 0;
         }
 
         public void Jump()
         {
-            throw new NotImplementedException();
+            LuaCall("JumpOrAscendStart()");
         }
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        delegate void LootSlotDelegate(int slot);
+
+        static readonly LootSlotDelegate LootSlotFunction =
+            Marshal.GetDelegateForFunctionPointer<LootSlotDelegate>((IntPtr)MemoryAddresses.LootSlotFunPtr);
 
         public void LootSlot(int slot)
         {
-            throw new NotImplementedException();
+            LootSlotFunction(slot);
         }
 
-        public void LootUnit(IntPtr playerPtr, IntPtr targetPtr)
-        {
-            throw new NotImplementedException();
-        }
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        delegate int LuaCallDelegate(string code1, string code2, int unknown);
+
+        static readonly LuaCallDelegate LuaCallFunction =
+            Marshal.GetDelegateForFunctionPointer<LuaCallDelegate>((IntPtr)MemoryAddresses.LuaCallFunPtr);
 
         public void LuaCall(string code)
         {
-            throw new NotImplementedException();
+            LuaCallFunction(code, code, 0);
         }
 
         public void ReleaseCorpse(IntPtr ptr)
         {
-            throw new NotImplementedException();
+            LuaCall("RepopMe()");
         }
 
         public void RetrieveCorpse()
         {
-            throw new NotImplementedException();
+            LuaCall("RetrieveCorpse()");
         }
 
-        public void SelectObject(ulong guid)
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        delegate void SetTargetDelegate(ulong guid);
+
+        static readonly SetTargetDelegate SetTargetFunction =
+            Marshal.GetDelegateForFunctionPointer<SetTargetDelegate>((IntPtr)MemoryAddresses.SetTargetFunPtr);
+
+        public void SetTarget(ulong guid)
         {
-            throw new NotImplementedException();
+            SetTargetFunction(guid);
         }
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        delegate void SellItemByGuidDelegate(ulong vendorGuid, ulong itemGuid, int unused);
+
+        static readonly SellItemByGuidDelegate SellItemByGuidFunction =
+            Marshal.GetDelegateForFunctionPointer<SellItemByGuidDelegate>((IntPtr)MemoryAddresses.SellItemByGuidFunPtr);
 
         public void SellItemByGuid(ulong vendorGuid, ulong itemGuid)
         {
-            throw new NotImplementedException();
+            SellItemByGuidFunction(vendorGuid, itemGuid, 0);
         }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
@@ -253,6 +331,28 @@ namespace BloogBot.Game
         public IntPtr GetLocalizedRow(IntPtr tablePtr, int index, IntPtr rowPtr)
         {
             return GetLocalizedRowFunction(tablePtr, index, rowPtr);
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate int GetAuraCountDelegate(IntPtr thisObj);
+
+        static readonly GetAuraCountDelegate GetAuraCountFunction =
+            Marshal.GetDelegateForFunctionPointer<GetAuraCountDelegate>((IntPtr)MemoryAddresses.GetAuraCountFunPtr);
+
+        public int GetAuraCount(IntPtr unitPtr)
+        {
+            return GetAuraCountFunction(unitPtr);
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate IntPtr GetAuraDelegate(IntPtr unitPtr, int index);
+
+        static readonly GetAuraDelegate GetAuraFunction =
+            Marshal.GetDelegateForFunctionPointer<GetAuraDelegate>((IntPtr)MemoryAddresses.GetAuraFunPtr);
+
+        public IntPtr GetAuraPointer(IntPtr unitPtr, int index)
+        {
+            return GetAuraFunction(unitPtr, index);
         }
     }
 }

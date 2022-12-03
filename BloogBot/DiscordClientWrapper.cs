@@ -2,6 +2,7 @@
 using Discord;
 using Discord.WebSocket;
 using System;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,6 +21,8 @@ namespace BloogBot
 
         static internal void Initialize(BotSettings botSettings)
         {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
             bloogsMinionsGuildId = Convert.ToUInt64(botSettings.DiscordGuildId);
             botsmithsRoleId = Convert.ToUInt64(botSettings.DiscordGuildId);
             bloogBotChannelId = Convert.ToUInt64(botSettings.DiscordChannelId);
@@ -30,8 +33,15 @@ namespace BloogBot
 
             Task.Run(async () =>
             {
-                await client.LoginAsync(TokenType.Bot, botSettings.DiscordBotToken);
-                await client.StartAsync();
+                try
+                {
+                    await client.LoginAsync(TokenType.Bot, botSettings.DiscordBotToken);
+                    await client.StartAsync();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Discord connection failed with exception: {e}");
+                }
             });
         }
 

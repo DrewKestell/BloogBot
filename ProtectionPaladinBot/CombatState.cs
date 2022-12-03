@@ -1,20 +1,25 @@
-﻿using BloogBot.AI;
+﻿using BloogBot;
+using BloogBot.AI;
 using BloogBot.AI.SharedStates;
 using BloogBot.Game;
 using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ProtectionPaladinBot
 {
     class CombatState : CombatStateBase, IBotState
     {
+        const string Consecration = "Consecration";
         const string DevotionAura = "Devotion Aura";
         const string Exorcism = "Exorcism";
         const string HammerOfJustice = "Hammer of Justice";
         const string HolyLight = "Holy Light";
         const string HolyShield = "Holy Shield";
         const string Judgement = "Judgement";
+        const string JudgementOfLight = "Judgement of Light";
+        const string JudgementOfWisdom = "Judgement of Wisdom";
         const string JudgementOfTheCrusader = "Judgement of the Crusader";
         const string LayOnHands = "Lay on Hands";
         const string Purify = "Purify";
@@ -28,7 +33,7 @@ namespace ProtectionPaladinBot
         readonly LocalPlayer player;
         readonly WoWUnit target;
 
-        internal CombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) : base(botStates, container, target, 3)
+        internal CombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) : base(botStates, container, target, 4)
         {
             this.botStates = botStates;
             this.container = container;
@@ -61,7 +66,20 @@ namespace ProtectionPaladinBot
 
             TryCastSpell(HammerOfJustice, 0, 10, (target.CreatureType != CreatureType.Humanoid || (target.CreatureType == CreatureType.Humanoid && target.HealthPercent < 20)));
 
-            TryCastSpell(Judgement, 0, 10, player.HasBuff(SealOfTheCrusader) || (player.HasBuff(SealOfRighteousness) && (player.ManaPercent >= 95 || target.HealthPercent <= 3)));
+            TryCastSpell(Consecration, ObjectManager.Aggressors.Count() > 1);
+
+            // for judgements - in WotLK they reworked Paladins to have "Judgement of Light" and "Judgement of Wisdom" instead of "Judgement".
+            // we may want different bot .dlls for each client?
+            if (ClientHelper.ClientVersion == ClientVersion.WotLK)
+            {
+                // do we need to use JudgementOfWisdom? prot pally seems to always be at full mana.
+
+                TryCastSpell(JudgementOfLight, 0, 10, !target.HasDebuff(JudgementOfLight) && player.Buffs.Any(b => b.Name.StartsWith("Seal of")));
+            }
+            else
+            {
+                TryCastSpell(Judgement, 0, 10, player.HasBuff(SealOfTheCrusader) || (player.HasBuff(SealOfRighteousness) && (player.ManaPercent >= 95 || target.HealthPercent <= 3)));
+            }
 
             TryCastSpell(SealOfTheCrusader, !player.HasBuff(SealOfTheCrusader) && !target.HasDebuff(JudgementOfTheCrusader));
 

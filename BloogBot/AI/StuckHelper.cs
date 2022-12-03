@@ -34,10 +34,6 @@ namespace BloogBot.AI
                 botStates.Push(new StuckState(botStates, container));
                 return true;
             }
-            else if (stuckDuration >= 250)
-            {
-                ObjectManager.Player.Jump();
-            }
 
             lastPosition = player.Position;
             lastTickTime = Environment.TickCount;

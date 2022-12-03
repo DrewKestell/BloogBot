@@ -30,7 +30,7 @@ namespace BloogBot.Game.Objects
         // OPCODES
         const int SET_FACING_OPCODE = 0xDA; // TBC
 
-        readonly IDictionary<string, int[]> playerSpells = new Dictionary<string, int[]>();
+        public readonly IDictionary<string, int[]> PlayerSpells = new Dictionary<string, int[]>();
 
         public WoWUnit Target { get; set; }
 
@@ -133,7 +133,7 @@ namespace BloogBot.Game.Objects
         }
 
         // Nat added this to see if he could test out the cleave radius which is larger than that isFacing radius
-        public bool IsInCleave(Position position) => Math.Abs((GetFacingForPosition(position) - Facing)) < 3f;
+        public bool IsInCleave(Position position) => Math.Abs(GetFacingForPosition(position) - Facing) < 3f;
 
         public void SetFacing(float facing)
         {
@@ -241,7 +241,7 @@ namespace BloogBot.Game.Objects
             }
         }
 
-        public void SetTarget(ulong guid) => Functions.SelectObject(guid);
+        public void SetTarget(ulong guid) => Functions.SetTarget(guid);
 
         public bool CanOverpower => MemoryManager.ReadInt((IntPtr)MemoryAddresses.LocalPlayerCanOverpower) > 0;
 
@@ -286,28 +286,21 @@ namespace BloogBot.Game.Objects
 
         public void RefreshSpells()
         {
-            playerSpells.Clear();
+            PlayerSpells.Clear();
             for (var i = 0; i < 1024; i++)
             {
                 var currentSpellId = MemoryManager.ReadInt((IntPtr)(MemoryAddresses.LocalPlayerSpellsBase + 4 * i));
                 if (currentSpellId == 0) break;
 
-                if (ClientHelper.ClientVersion == ClientVersion.WotLK)
-                {
-                    var spell = WowDb.Tables[ClientDb.Spell].GetLocalizedRow(currentSpellId);
-                }
-                else
-                {
-                    var spell = Functions.GetSpellDBEntry(currentSpellId);
+                var spell = Functions.GetSpellDBEntry(currentSpellId);
 
-                    if (playerSpells.ContainsKey(spell.Name))
-                        playerSpells[spell.Name] = new List<int>(playerSpells[spell.Name])
+                if (PlayerSpells.ContainsKey(spell.Name))
+                    PlayerSpells[spell.Name] = new List<int>(PlayerSpells[spell.Name])
                     {
                         currentSpellId
                     }.ToArray();
-                    else
-                        playerSpells.Add(spell.Name, new[] { currentSpellId });
-                }
+                else
+                    PlayerSpells.Add(spell.Name, new[] { currentSpellId });
             }
         }
 
@@ -315,18 +308,18 @@ namespace BloogBot.Game.Objects
         {
             int spellId;
 
-            var maxRank = playerSpells[spellName].Length;
+            var maxRank = PlayerSpells[spellName].Length;
             if (rank < 1 || rank > maxRank)
-                spellId = playerSpells[spellName][maxRank - 1];
+                spellId = PlayerSpells[spellName][maxRank - 1];
             else
-                spellId = playerSpells[spellName][rank - 1];
+                spellId = PlayerSpells[spellName][rank - 1];
 
             return spellId;
         }
 
         public bool IsSpellReady(string spellName, int rank = -1)
         {
-            if (!playerSpells.ContainsKey(spellName))
+            if (!PlayerSpells.ContainsKey(spellName))
                 return false;
 
             var spellId = GetSpellId(spellName, rank);
@@ -340,7 +333,7 @@ namespace BloogBot.Game.Objects
             return Functions.GetSpellDBEntry(spellId).Cost;
         }
 
-        public bool KnowsSpell(string name) => playerSpells.ContainsKey(name);
+        public bool KnowsSpell(string name) => PlayerSpells.ContainsKey(name);
 
         public bool MainhandIsEnchanted => LuaCallWithResults("{0} = GetWeaponEnchantInfo()")[0] == "1";
 
@@ -353,8 +346,6 @@ namespace BloogBot.Game.Objects
             var spellId = GetSpellId(spellName);
             Functions.CastSpellById(spellId, targetGuid);
         }
-
-        public bool CanLoot(WoWUnit target) => Functions.CanLoot(target.Pointer);
 
         public bool InLosWith(Position position)
         {

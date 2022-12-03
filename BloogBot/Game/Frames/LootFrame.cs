@@ -15,7 +15,7 @@ namespace BloogBot.Game.Frames
                 LootItems.Add(new LootItem(null, 0, 0, true));
             for (var i = 0; i <= 15; i++)
             {
-                var itemId = MemoryManager.ReadInt((IntPtr)(MemoryAddresses.LootFrameItemsBasePtr + i * MemoryAddresses.FrameItemOffset));
+                var itemId = MemoryManager.ReadInt((IntPtr)(MemoryAddresses.LootFrameItemsBasePtr + i * MemoryAddresses.LootFrameItemOffset));
                 if (itemId == 0) break;
                 var itemCacheEntry = MemoryManager.ReadItemCacheEntry(Functions.GetItemCacheEntry(itemId));
                 var itemCacheInfo = new ItemCacheInfo(itemCacheEntry);

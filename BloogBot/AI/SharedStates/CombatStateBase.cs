@@ -112,7 +112,7 @@ namespace BloogBot.AI.SharedStates
             // ensure auto-attack is turned on ONLY if player does not have a wand
             var wand = Inventory.GetEquippedItem(EquipSlot.Ranged);
             if (wand == null)
-                player.Target.Interact();
+                player.LuaCall("StartAttack()");
 
             return false;
         }

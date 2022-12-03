@@ -12,13 +12,12 @@ namespace BloogBot.Game.Objects
             ObjectType objectType)
             : base (pointer, guid, objectType)
         {
-            // TODO
-            //var addr = Functions.GetItemCacheEntry(ItemId);
-            //if (addr != IntPtr.Zero)
-            //{
-            //    var itemCacheEntry = MemoryManager.ReadItemCacheEntry(addr);
-            //    Info = new ItemCacheInfo(itemCacheEntry);
-            //}
+            var addr = Functions.GetItemCacheEntry(ItemId);
+            if (addr != IntPtr.Zero)
+            {
+                var itemCacheEntry = MemoryManager.ReadItemCacheEntry(addr);
+                Info = new ItemCacheInfo(itemCacheEntry);
+            }
         }
 
         public int ItemId => MemoryManager.ReadInt(GetDescriptorPtr() + MemoryAddresses.WoWItem_ItemIdOffset);
@@ -28,13 +27,6 @@ namespace BloogBot.Game.Objects
         public ItemCacheInfo Info { get; }
 
         public void Use() => Functions.UseItem(Pointer);
-
-        // returns 0 if not a container
-        public int Slots => MemoryManager.ReadInt(IntPtr.Add(Pointer, MemoryAddresses.WoWItem_ContainerSlotsOffset));
-
-        // slot index starts at 0
-        public ulong GetItemGuid(int slot) =>
-            MemoryManager.ReadUlong(GetDescriptorPtr() + (MemoryAddresses.WoWItem_ContainerFirstItemOffset + (slot * 8)));
 
         public ItemQuality Quality => Info.Quality;
 

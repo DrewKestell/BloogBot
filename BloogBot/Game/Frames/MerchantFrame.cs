@@ -19,7 +19,7 @@ namespace BloogBot.Game.Frames
             var totalVendorItems = MemoryManager.ReadInt((IntPtr)MemoryAddresses.MerchantFrameItemsBasePtr);
             for (var i = 0; i < totalVendorItems; i++)
             {
-                var itemId = MemoryManager.ReadInt((IntPtr)(MemoryAddresses.MerchantFrameItemPtr + i * MemoryAddresses.FrameItemOffset));
+                var itemId = MemoryManager.ReadInt((IntPtr)(MemoryAddresses.MerchantFrameItemPtr + i * MemoryAddresses.MerchantFrameItemOffset));
                 var address = Functions.GetItemCacheEntry(itemId);
                 if (address == IntPtr.Zero) continue;
                 var entry = MemoryManager.ReadItemCacheEntry(address);

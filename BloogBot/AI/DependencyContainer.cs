@@ -63,24 +63,24 @@ namespace BloogBot.AI
         {
             return FindThreat() ??
                 ObjectManager
-                    .Units
+                    .Units?
                     .Where(u => u != null && u.Name != null && u.Position != null)
                     .Where(u => u.Health > 0)
                     .Where(u => !u.TappedByOther)
                     .Where(u => !u.IsPet)
-                    .Where(u => !Probe.BlacklistedMobIds.Contains(u.Guid))
-                    .Where(u => u.CreatureRank == CreatureRank.Normal || BotSettings.TargetingIncludedNames.Any(n => u.Name.Contains(n)))
-                    .Where(u => string.IsNullOrWhiteSpace(BotSettings.TargetingIncludedNames) || BotSettings.TargetingIncludedNames.Split('|').Any(m => u.Name.Contains(m)))
-                    .Where(u => string.IsNullOrWhiteSpace(BotSettings.TargetingExcludedNames) || !BotSettings.TargetingExcludedNames.Split('|').Any(m => u.Name.Contains(m)))
-                    .Where(u => BotSettings.CreatureTypes.Count == 0 || u.CreatureType == CreatureType.Mechanical || (u.CreatureType == CreatureType.Totem && u.Position.DistanceTo(ObjectManager.Player.Position) <= 20) || BotSettings.CreatureTypes.Contains(u.CreatureType.ToString()) || oozeNames.Contains(u.Name))
+                    .Where(u => !Probe?.BlacklistedMobIds?.Contains(u.Guid) ?? true)
+                    .Where(u => u.CreatureRank == CreatureRank.Normal || BotSettings.TargetingIncludedNames.Any(n => u.Name != null && u.Name.Contains(n)))
+                    .Where(u => string.IsNullOrWhiteSpace(BotSettings.TargetingIncludedNames) || BotSettings.TargetingIncludedNames.Split('|').Any(m => u.Name != null && u.Name.Contains(m)))
+                    .Where(u => string.IsNullOrWhiteSpace(BotSettings.TargetingExcludedNames) || !BotSettings.TargetingExcludedNames.Split('|').Any(m => u.Name != null && u.Name.Contains(m)))
+                    .Where(u => BotSettings.CreatureTypes.Count == 0 || u.CreatureType == CreatureType.Mechanical || (u.CreatureType == CreatureType.Totem && u.Position.DistanceTo(ObjectManager.Player?.Position) <= 20) || BotSettings.CreatureTypes.Contains(u.CreatureType.ToString()) || oozeNames.Contains(u.Name))
                     .Where(u => BotSettings.UnitReactions.Count == 0 || BotSettings.UnitReactions.Contains(u.UnitReaction.ToString()))
-                    .Where(u => u.Level <= ObjectManager.Player.Level + BotSettings.LevelRangeMax && u.Level >= ObjectManager.Player.Level - BotSettings.LevelRangeMin)
-                    .Where(u => Navigation.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, u.Position, false).Count() > 0)
+                    .Where(u => u.Level <= ObjectManager.Player?.Level + BotSettings.LevelRangeMax && u.Level >= ObjectManager.Player?.Level - BotSettings.LevelRangeMin)
+                    .Where(u => Navigation.CalculatePath(ObjectManager.MapId, ObjectManager.Player?.Position, u.Position, false).Count() > 0)
                     // TODO: FactionId
                     // 71: Undercity, 85: Orgrimmar, 474: Gadgetzan
                     .Where(u => u.FactionId != 71 && u.FactionId != 85 && u.FactionId != 474 && u.FactionId != 475 && u.FactionId != 1475)
                     .Where(u => targetingCriteria(u))            
-                    .OrderBy(u => Navigation.DistanceViaPath(ObjectManager.MapId, ObjectManager.Player.Position, u.Position))
+                    .OrderBy(u => Navigation.DistanceViaPath(ObjectManager.MapId, ObjectManager.Player?.Position, u.Position))
                     .FirstOrDefault();
         }
 

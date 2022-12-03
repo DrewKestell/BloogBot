@@ -1,4 +1,6 @@
-﻿namespace BloogBot.Game
+﻿using System.Text;
+
+namespace BloogBot.Game
 {
     public class Spell
     {
@@ -20,5 +22,16 @@
         public string Description { get; }
 
         public string Tooltip { get; }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"Spell {Id}:");
+            sb.AppendLine($"  Cost: {Cost}");
+            sb.AppendLine($"  Name: {Name}");
+            sb.AppendLine($"  Description: {Description}");
+            sb.AppendLine($"  Tooltip: {Tooltip}");
+            return sb.ToString();
+        }
     }
 }

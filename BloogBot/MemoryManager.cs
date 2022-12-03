@@ -73,6 +73,9 @@ namespace BloogBot
         [HandleProcessCorruptedStateExceptions]
         static internal byte ReadByte(IntPtr address)
         {
+            if (address == IntPtr.Zero)
+                return 0;
+
             try
             {
                 return *(byte*)address;
@@ -85,8 +88,11 @@ namespace BloogBot
         }
 
         [HandleProcessCorruptedStateExceptions]
-        static internal int ReadInt(IntPtr address)
+        static public int ReadInt(IntPtr address)
         {
+            if (address == IntPtr.Zero)
+                return 0;
+
             try
             {
                 return *(int*)address;
@@ -99,8 +105,11 @@ namespace BloogBot
         }
 
         [HandleProcessCorruptedStateExceptions]
-        static internal uint ReadUint(IntPtr address)
+        static public uint ReadUint(IntPtr address)
         {
+            if (address == IntPtr.Zero)
+                return 0;
+
             try
             {
                 return *(uint*)address;
@@ -113,8 +122,11 @@ namespace BloogBot
         }
 
         [HandleProcessCorruptedStateExceptions]
-        static internal ulong ReadUlong(IntPtr address)
+        static public ulong ReadUlong(IntPtr address)
         {
+            if (address == IntPtr.Zero)
+                return 0;
+
             try
             {
                 return *(ulong*)address;
@@ -127,8 +139,11 @@ namespace BloogBot
         }
 
         [HandleProcessCorruptedStateExceptions]
-        static internal IntPtr ReadIntPtr(IntPtr address)
+        static public IntPtr ReadIntPtr(IntPtr address)
         {
+            if (address == IntPtr.Zero)
+                return IntPtr.Zero;
+
             try
             {
                 return *(IntPtr*)address;
@@ -141,8 +156,11 @@ namespace BloogBot
         }
 
         [HandleProcessCorruptedStateExceptions]
-        static internal float ReadFloat(IntPtr address)
+        static public float ReadFloat(IntPtr address)
         {
+            if (address == IntPtr.Zero)
+                return 0;
+
             try
             {
                 return *(float*)address;
@@ -155,8 +173,11 @@ namespace BloogBot
         }
 
         [HandleProcessCorruptedStateExceptions]
-        static internal string ReadString(IntPtr address, int size = 512)
+        static public string ReadString(IntPtr address, int size = 512)
         {
+            if (address == IntPtr.Zero)
+                return null;
+
             try
             {
                 var buffer = ReadBytes(address, size);
@@ -178,8 +199,11 @@ namespace BloogBot
         }
 
         [HandleProcessCorruptedStateExceptions]
-        static internal byte[] ReadBytes(IntPtr address, int count)
+        static public byte[] ReadBytes(IntPtr address, int count)
         {
+            if (address == IntPtr.Zero)
+                return null;
+
             try
             {
                 var ret = new byte[count];
@@ -196,14 +220,16 @@ namespace BloogBot
             }
             catch (AccessViolationException)
             {
-                //Logger.Log("Access Violation on " + address.ToString("X") + " with type Byte[]");
                 return default;
             }
         }
 
         [HandleProcessCorruptedStateExceptions]
-        static internal ItemCacheEntry ReadItemCacheEntry(IntPtr address)
+        static public ItemCacheEntry ReadItemCacheEntry(IntPtr address)
         {
+            if (address == IntPtr.Zero)
+                return null;
+
             try
             {
                 return new ItemCacheEntry(address);
@@ -226,6 +252,9 @@ namespace BloogBot
         // if you have further issues, you may need to use VirtualProtect from the Win32 API.
         static internal void WriteBytes(IntPtr address, byte[] bytes)
         {
+            if (address == IntPtr.Zero)
+                return;
+
             var access = ProcessAccessFlags.PROCESS_CREATE_THREAD |
                          ProcessAccessFlags.PROCESS_QUERY_INFORMATION |
                          ProcessAccessFlags.PROCESS_SET_INFORMATION |

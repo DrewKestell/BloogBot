@@ -33,6 +33,7 @@ namespace BloogBot.Game.Objects
 
             return result[0].Trim().Equals("0");
         }
+
         public void Cast(string parPetSpell)
         {
             const string castPetSpell1 = "for index = 1,11,1 do curName = GetPetActionInfo(index); if curName == '";

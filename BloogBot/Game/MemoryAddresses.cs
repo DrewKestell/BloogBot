@@ -20,21 +20,16 @@ namespace BloogBot.Game
                 GetCreatureRankFunPtr = 0x00718A00;
                 GetUnitReactionFunPtr = 0x007251C0;
                 LuaCallFunPtr = 0x00819210;
-                GetTextFunPtr = 0x007225E0;
-                CastSpellByIdFunPtr = 0x0053E060;
+                GetTextFunPtr = 0x00819D40;
+                CastSpellByIdFunPtr = 0x0080DA40;
                 GetRow2FunPtr = 0x0065C290;
                 IntersectFunPtr = 0x0077F310;
-                SelectObjectFunPtr = 0x0;
-                IsLootingFunPtr = 0x0;
-                CanLootFunPtr = 0x0;
-                LootUnitFunPtr = 0x0;
-                CanAttackFunPtr = 0x00729A70;
-                IsDeadFunPtr = 0x0060F480;
+                SetTargetFunPtr = 0x00524BF0;
                 RetrieveCorpseFunPtr = 0x0051B800;
                 ReleaseCorpseFunPtr = 0x0051AA90;
-                GetItemCacheEntryFunPtr = 0x0;
-                ItemCacheEntryBasePtr = 0x0;
-                IsSpellOnCooldownFunPtr = 0x00807980;
+                GetItemCacheEntryFunPtr = 0x0067CA30;
+                ItemCacheEntryBasePtr = 0x00C5D828;
+                IsSpellOnCooldownFunPtr = 0x00809000;
                 LootSlotFunPtr = 0x00589140;
                 UseItemFunPtr = 0x00708C20;
                 SellItemByGuidFunPtr = 0x006D2D40;
@@ -47,52 +42,53 @@ namespace BloogBot.Game
                 SubZoneTextPtr = 0x00BD0784;
                 MinimapZoneTextPtr = 0x00BD077C;
                 MapId = 0x00AB63BC;
-                ServerName = 0x004DD900;
-                LootFrameItemsBasePtr = 0x0;
-                CoinCountPtr = 0x0;
-                MerchantFrameItemsBasePtr = 0x0;
-                MerchantFrameItemPtr = 0x0;
-                FrameItemOffset = 0x0;
-                DialogFrameBase = 0x0;
+                ServerName = 0x00C79B9E;
+                LootFrameItemsBasePtr = 0x00C9D340;
+                CoinCountPtr = 0x00BFA8D0;
+                MerchantFrameItemsBasePtr = 0x00BFA3F0;
+                MerchantFrameItemPtr = 0x00BF912C;
+                LootFrameItemOffset = 0x18;
+                MerchantFrameItemOffset = 0x20;
+                DialogFrameBase = 0x00BD07A8;
                 LocalPlayer_SetFacingOffset = 0x7A8;
-                LocalPlayerCorpsePositionX = 0x0051F430;
-                LocalPlayerCorpsePositionY = 0x0051F434;
-                LocalPlayerCorpsePositionZ = 0x0051F438;
+                LocalPlayerCorpsePositionX = 0x00BD0A58;
+                LocalPlayerCorpsePositionY = LocalPlayerCorpsePositionX + 0x4;
+                LocalPlayerCorpsePositionZ = LocalPlayerCorpsePositionX + 0x8;
                 LastHardwareAction = 0x00B499A4;
-                LocalPlayerSpellsBase = 0x0;
-                LocalPlayerClass = 0x0;
-                LocalPlayer_BackpackFirstItemOffset = 0x0;
-                LocalPlayer_EquipmentFirstItemOffset = 0x0;
+                LocalPlayerSpellsBase = 0x00BE5D88;
+                LocalPlayerClass = 0x00C79E89;
+                LocalPlayer_BackpackFirstItemOffset = 0x5C8;
+                LocalPlayer_EquipmentFirstItemOffset = 0x1E68;
                 LocalPlayerCanOverpower = 0x0;
-                WoWItem_ItemIdOffset = 0x0;
-                WoWItem_StackCountOffset = 0x20;
-                WoWItem_DurabilityOffset = 0xD8;
-                WoWItem_ContainerFirstItemOffset = 0x0;
-                WoWItem_ContainerSlotsOffset = 0x0;
+                WoWItem_ItemIdOffset = 0xC;
+                WoWItem_StackCountOffset = 0x38;
+                WoWItem_DurabilityOffset = 0xF0;
+                WoWItem_ContainerFirstItemOffset = 0x108;
+                WoWItem_ContainerSlotsOffset = 0x760;
                 WoWObject_DescriptorOffset = 0x8;
                 WoWObject_GetPositionFunOffset = 0x30;
                 WoWObject_GetFacingFunOffset = 0x38;
                 WoWObject_InteractFunOffset = 0xB0;
                 WoWObject_GetNameFunOffset = 0xD8;
                 WoWPet_SpellsBase = 0x0;
-                WoWUnit_SummonedByGuidOffset = 0x20;
-                WoWUnit_TargetGuidOffset = 0x30;
-                WoWUnit_HealthOffset = 0x48;
-                WoWUnit_ManaOffset = 0x0;
-                WoWUnit_RageOffset = 0x0;
-                WoWUnit_EnergyOffset = 0x0;
-                WoWUnit_MaxHealthOffset = 0x68;
-                WoWUnit_MaxManaOffset = 0x0;
-                WoWUnit_LevelOffset = 0xC0;
+                WoWUnit_SummonedByGuidOffset = 0x38;
+                WoWUnit_TargetGuidOffset = 0x48;
+                WoWUnit_HealthOffset = 0x60;
+                WoWUnit_ManaOffset = 0x64;
+                WoWUnit_RageOffset = 0x68;
+                WoWUnit_EnergyOffset = 0x70;
+                WoWUnit_MaxHealthOffset = 0x80;
+                WoWUnit_MaxManaOffset = 0x84;
+                WoWUnit_LevelOffset = 0xD8;
                 WoWUnit_FactionIdOffset = 0x24;
-                WoWUnit_UnitFlagsOffset = 0xD4;
-                WoWUnit_BuffsBaseOffset = 0x0;
+                WoWUnit_UnitFlagsOffset = 0xEC;
+                WoWUnit_BuffsBaseOffset = 0xC70;
                 WoWUnit_DebuffsBaseOffset = 0x0;
-                WoWUnit_DynamicFlagsOffset = 0x124;
-                WoWUnit_CurrentChannelingOffset = 0x0;
-                WoWUnit_MovementFlagsOffset = 0x0;
-                WoWUnit_CurrentSpellcastOffset = 0x0;
-                LocalPlayerFirstExtraBag = 0x0;
+                WoWUnit_DynamicFlagsOffset = 0x13C;
+                WoWUnit_CurrentChannelingOffset = 0xA80;
+                WoWUnit_MovementFlagsOffset = 0x7CC;
+                WoWUnit_CurrentSpellcastOffset = 0xA6C;
+                LocalPlayerFirstExtraBag = 0x00C23540;
                 SignalEventFunPtr = 0x0;
                 SignalEventNoParamsFunPtr = 0x0;
                 WardenLoadHook = 0x008724C0;
@@ -121,12 +117,7 @@ namespace BloogBot.Game
                 CastSpellByIdFunPtr = 0x006FC520;
                 GetRow2FunPtr = 0x00466680;
                 IntersectFunPtr = 0x006A37B0;
-                SelectObjectFunPtr = 0x004A6690;
-                IsLootingFunPtr = 0x0060B3E0;
-                CanLootFunPtr = 0x005DE280;
-                LootUnitFunPtr = 0x005E2460;
-                CanAttackFunPtr = 0x00613BD0;
-                IsDeadFunPtr = 0x005E22C0;
+                SetTargetFunPtr = 0x004A6690;
                 RetrieveCorpseFunPtr = 0x0049F770;
                 ReleaseCorpseFunPtr = 0x005DC310;
                 GetItemCacheEntryFunPtr = 0x00591600;
@@ -138,6 +129,8 @@ namespace BloogBot.Game
                 BuyVendorItemFunPtr = 0x005DC790;
                 DismountFunPtr = 0x00622490;
                 CastAtPositionFunPtr = 0x006E60F0;
+                GetAuraFunPtr = 0x0;
+                GetAuraCountFunPtr = 0x0;
                 ZoneTextPtr = 0x00C6E81C;
                 SubZoneTextPtr = 0x00C6E818;
                 MinimapZoneTextPtr = 0x00C6E810;
@@ -147,7 +140,8 @@ namespace BloogBot.Game
                 CoinCountPtr = 0x00C896B0;
                 MerchantFrameItemsBasePtr = 0x00C89210;
                 MerchantFrameItemPtr = 0x00C87F4C;
-                FrameItemOffset = 0x20;
+                LootFrameItemOffset = 0x20;
+                MerchantFrameItemOffset = 0x20;
                 DialogFrameBase = 0x00C6E958;
                 LocalPlayer_SetFacingOffset = 0xBE0;
                 LocalPlayerCorpsePositionX = 0x00C6EA80;
@@ -216,12 +210,7 @@ namespace BloogBot.Game
                 CastSpellByIdFunPtr = 0x00000000; // TODO
                 GetRow2FunPtr = 0x00000000; // TODO
                 IntersectFunPtr = 0x006AA160;
-                SelectObjectFunPtr = 0x00000000; // TODO
-                IsLootingFunPtr = 0x00000000; // TODO
-                CanLootFunPtr = 0x00000000; // TODO
-                LootUnitFunPtr = 0x00000000; // TODO
-                CanAttackFunPtr = 0x00000000; // TODO
-                IsDeadFunPtr = 0x00000000; // TODO
+                SetTargetFunPtr = 0x00000000; // TODO
                 RetrieveCorpseFunPtr = 0x0048D260;
                 ReleaseCorpseFunPtr = 0x005E0AE0;
                 GetItemCacheEntryFunPtr = 0x0055BA30;
@@ -233,6 +222,8 @@ namespace BloogBot.Game
                 BuyVendorItemFunPtr = 0x005E1E90;
                 DismountFunPtr = 0x00000000; // TODO
                 CastAtPositionFunPtr = 0x006E60F0;
+                GetAuraFunPtr = 0x0;
+                GetAuraCountFunPtr = 0x0;
                 ZoneTextPtr = 0x00B4B404;
                 SubZoneTextPtr = 0x00000000; // TODO
                 MinimapZoneTextPtr = 0x00B4DA28;
@@ -242,7 +233,8 @@ namespace BloogBot.Game
                 CoinCountPtr = 0x00B71BA0;
                 MerchantFrameItemsBasePtr = 0x00BDDFA0;
                 MerchantFrameItemPtr = 0x00BDD11C;
-                FrameItemOffset = 0x1C;
+                LootFrameItemOffset = 0x1C;
+                MerchantFrameItemOffset = 0x1C;
                 DialogFrameBase = 0x00000000; // TODO
                 LocalPlayer_SetFacingOffset = 0x9A8;
                 LocalPlayerCorpsePositionX = 0x00B4E284;
@@ -312,12 +304,7 @@ namespace BloogBot.Game
         public static int CastSpellByIdFunPtr;
         public static int GetRow2FunPtr;
         public static int IntersectFunPtr;
-        public static int SelectObjectFunPtr;
-        public static int IsLootingFunPtr;
-        public static int CanLootFunPtr;
-        public static int LootUnitFunPtr;
-        public static int CanAttackFunPtr;
-        public static int IsDeadFunPtr;
+        public static int SetTargetFunPtr;
         public static int RetrieveCorpseFunPtr;
         public static int ReleaseCorpseFunPtr;
         public static int GetItemCacheEntryFunPtr;
@@ -340,8 +327,6 @@ namespace BloogBot.Game
         public static int MinimapZoneTextPtr;
         public static int MapId;
         public static int ServerName;
-        public static int LootFrameItemsBasePtr;
-        public static int CoinCountPtr;
         public static int LocalPlayerCorpsePositionX;
         public static int LocalPlayerCorpsePositionY;
         public static int LocalPlayerCorpsePositionZ;
@@ -361,8 +346,11 @@ namespace BloogBot.Game
         // Frames
         public static int MerchantFrameItemsBasePtr;
         public static int MerchantFrameItemPtr;
-        public static int FrameItemOffset;
+        public static int LootFrameItemOffset;
+        public static int MerchantFrameItemOffset;
         public static int DialogFrameBase;
+        public static int LootFrameItemsBasePtr;
+        public static int CoinCountPtr;
 
         // Descriptors
         public static int LocalPlayer_BackpackFirstItemOffset;

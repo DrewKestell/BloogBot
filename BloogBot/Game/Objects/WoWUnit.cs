@@ -35,7 +35,7 @@ namespace BloogBot.Game.Objects
 
         public int Energy => MemoryManager.ReadInt(GetDescriptorPtr() + MemoryAddresses.WoWUnit_EnergyOffset);
 
-        public int CurrentChannelingId => MemoryManager.ReadInt(GetDescriptorPtr() + MemoryAddresses.WoWUnit_CurrentChannelingOffset);
+        public int CurrentChannelingId => MemoryManager.ReadInt(Pointer + MemoryAddresses.WoWUnit_CurrentChannelingOffset);
 
         public bool IsChanneling => CurrentChannelingId > 0;
 
@@ -121,16 +121,42 @@ namespace BloogBot.Game.Objects
         {
             get
             {
-                var buffs = new List<Spell>();
-                var currentBuffOffset = MemoryAddresses.WoWUnit_BuffsBaseOffset;
-                for (var i = 0; i < 10; i++)
+                // TODO: figure out what's going on here. WotLK seems to store buffs at a static offset from the Player Pointer,
+                // but TBC seems to store them as a Descriptor
+                if (ClientHelper.ClientVersion == ClientVersion.WotLK)
                 {
-                    var buffId = MemoryManager.ReadInt(GetDescriptorPtr() + currentBuffOffset);
-                    if (buffId != 0)
-                        buffs.Add(GetSpellById(buffId));
-                    currentBuffOffset += 4;
+                    var count = Functions.GetAuraCount(Pointer);
+                    var buffs = new List<Spell>();
+                    for (var i = 0; i < count; i++)
+                    {
+                        var buffPtr = Functions.GetAuraPointer(Pointer, i);
+
+                        var spellId = MemoryManager.ReadInt(buffPtr + 0x8);
+                        if (spellId > 0) // some weird invisible auras exist?
+                        {
+                            var flags = (AuraFlags)MemoryManager.ReadInt(buffPtr + 0x10);
+                            if (!flags.HasFlag(AuraFlags.Harmful))
+                            {
+                                buffs.Add(GetSpellById(spellId));
+                            }
+                        }
+                        
+                    }
+                    return buffs;
                 }
-                return buffs;
+                else
+                {
+                    var buffs = new List<Spell>();
+                    var currentBuffOffset = MemoryAddresses.WoWUnit_BuffsBaseOffset;
+                    for (var i = 0; i < 10; i++)
+                    {
+                        var buffId = MemoryManager.ReadInt(GetDescriptorPtr() + currentBuffOffset);
+                        if (buffId != 0)
+                            buffs.Add(GetSpellById(buffId));
+                        currentBuffOffset += 4;
+                    }
+                    return buffs;
+                }
             }
         }
 
@@ -138,16 +164,41 @@ namespace BloogBot.Game.Objects
         {
             get
             {
-                var debuffs = new List<Spell>();
-                var currentDebuffOffset = MemoryAddresses.WoWUnit_DebuffsBaseOffset;
-                for (var i = 0; i < 16; i++)
+                // TODO: figure out what's going on here. WotLK seems to store buffs at a static offset from the Player Pointer,
+                // but TBC seems to store them as a Descriptor
+                if (ClientHelper.ClientVersion == ClientVersion.WotLK)
                 {
-                    var debuffId = MemoryManager.ReadInt(Pointer + currentDebuffOffset);
-                    if (debuffId != 0)
-                        debuffs.Add(GetSpellById(debuffId));
-                    currentDebuffOffset += 4;
+                    var count = Functions.GetAuraCount(Pointer);
+                    var buffs = new List<Spell>();
+                    for (var i = 0; i < count; i++)
+                    {
+                        var buffPtr = Functions.GetAuraPointer(Pointer, i);
+
+                        var spellId = MemoryManager.ReadInt(buffPtr + 0x8);
+                        if (spellId > 0) // some weird invisible auras exist?
+                        {
+                            var flags = (AuraFlags)MemoryManager.ReadInt(buffPtr + 0x10);
+                            if (flags.HasFlag(AuraFlags.Harmful))
+                            {
+                                buffs.Add(GetSpellById(spellId));
+                            }
+                        }
+                    }
+                    return buffs;
                 }
-                return debuffs;
+                else
+                {
+                    var debuffs = new List<Spell>();
+                    var currentDebuffOffset = MemoryAddresses.WoWUnit_DebuffsBaseOffset;
+                    for (var i = 0; i < 16; i++)
+                    {
+                        var debuffId = MemoryManager.ReadInt(Pointer + currentDebuffOffset);
+                        if (debuffId != 0)
+                            debuffs.Add(GetSpellById(debuffId));
+                        currentDebuffOffset += 4;
+                    }
+                    return debuffs;
+                }
             }
         }
 

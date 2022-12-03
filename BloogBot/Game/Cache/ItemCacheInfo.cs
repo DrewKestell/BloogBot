@@ -190,7 +190,7 @@ namespace BloogBot.Game.Cache
         public string Name => MemoryManager.ReadString(itemCacheEntry.NamePtr);
     }
 
-    class ItemCacheEntry
+    public class ItemCacheEntry
     {
         readonly IntPtr baseAddress;
 
@@ -207,6 +207,8 @@ namespace BloogBot.Game.Cache
                     return (ItemClass)MemoryManager.ReadByte(baseAddress + 0x4);
                 else if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                     return (ItemClass)MemoryManager.ReadByte(baseAddress + 0x0);
+                else if (ClientHelper.ClientVersion == ClientVersion.WotLK)
+                    return (ItemClass)MemoryManager.ReadByte(baseAddress + 0x4);
                 else
                     throw new NotImplementedException("Unknown client version");
             }
@@ -220,6 +222,8 @@ namespace BloogBot.Game.Cache
                     return MemoryManager.ReadInt(baseAddress + 0x8);
                 else if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                     return MemoryManager.ReadInt(baseAddress + 0x4);
+                else if (ClientHelper.ClientVersion == ClientVersion.WotLK)
+                    return MemoryManager.ReadInt(baseAddress + 0x8);
                 else
                     throw new NotImplementedException("Unknown client version");
             }
@@ -233,6 +237,8 @@ namespace BloogBot.Game.Cache
                     return (ItemQuality)MemoryManager.ReadByte(baseAddress + 0x14);
                 else if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                     throw new NotImplementedException("TODO: figure this out for Vanilla");
+                else if (ClientHelper.ClientVersion == ClientVersion.WotLK)
+                    return (ItemQuality)MemoryManager.ReadByte(baseAddress + 0x14);
                 else
                     throw new NotImplementedException("Unknown client version");
             }
@@ -246,6 +252,8 @@ namespace BloogBot.Game.Cache
                     return (EquipSlot)MemoryManager.ReadByte(baseAddress + 0x24);
                 else if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                     return (EquipSlot)MemoryManager.ReadByte(baseAddress + 0x2C);
+                else if (ClientHelper.ClientVersion == ClientVersion.WotLK)
+                    return (EquipSlot)MemoryManager.ReadByte(baseAddress + 0x28);
                 else
                     throw new NotImplementedException("Unknown client version");
             }
@@ -259,6 +267,8 @@ namespace BloogBot.Game.Cache
                     return MemoryManager.ReadInt(baseAddress + 0x34);
                 else if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                     return MemoryManager.ReadInt(baseAddress + 0x3C);
+                else if (ClientHelper.ClientVersion == ClientVersion.WotLK)
+                    return MemoryManager.ReadInt(baseAddress + 0x38);
                 else
                     throw new NotImplementedException("Unknown client version");
             }
@@ -272,6 +282,8 @@ namespace BloogBot.Game.Cache
                     return MemoryManager.ReadInt(baseAddress + 0x1C0);
                 else if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                     return MemoryManager.ReadInt(baseAddress + 0x1C4);
+                else if (ClientHelper.ClientVersion == ClientVersion.WotLK)
+                    return MemoryManager.ReadInt(baseAddress + 0x1AC);
                 else
                     throw new NotImplementedException("Unknown client version");
             }
@@ -285,6 +297,8 @@ namespace BloogBot.Game.Cache
                     return MemoryManager.ReadIntPtr(baseAddress + 0x200);
                 else if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                     return MemoryManager.ReadIntPtr(baseAddress + 0x8);
+                else if (ClientHelper.ClientVersion == ClientVersion.WotLK)
+                    return MemoryManager.ReadIntPtr(baseAddress + 0x1F4);
                 else
                     throw new NotImplementedException("Unknown client version");
             }

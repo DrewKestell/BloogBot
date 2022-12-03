@@ -43,6 +43,8 @@ namespace BloogBot.Game
 
         static public IEnumerable<WoWItem> Items => Objects.OfType<WoWItem>();
 
+        static public IEnumerable<WoWContainer> Containers => Objects.OfType<WoWContainer>();
+
         static public IEnumerable<WoWGameObject> GameObjects => Objects.OfType<WoWGameObject>();
 
         static public WoWUnit CurrentTarget => Units.FirstOrDefault(u => Player.TargetGuid == u.Guid);
@@ -235,9 +237,9 @@ namespace BloogBot.Game
                                 Pet = null;
                         }
 
-                        // TODO
-                        //Player.RefreshSpells();
-                        //UpdateProbe();
+                        Player.RefreshSpells();
+
+                        UpdateProbe();
                     }
                 }
             });
@@ -253,6 +255,8 @@ namespace BloogBot.Game
                 switch (objectType)
                 {
                     case ObjectType.Container:
+                        ObjectsBuffer.Add(new WoWContainer(pointer, guid, objectType));
+                        break;
                     case ObjectType.Item:
                         ObjectsBuffer.Add(new WoWItem(pointer, guid, objectType));
                         break;

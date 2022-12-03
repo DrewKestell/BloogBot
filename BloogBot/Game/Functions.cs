@@ -26,27 +26,19 @@ namespace BloogBot.Game
             gameFunctionHandler.BuyVendorItem(vendorGuid, itemId, quantity);
         }
 
-        static public bool CanAttack(IntPtr targetPtr)
-        {
-            var player = ObjectManager.Player;
-            if (player != null)
-                return gameFunctionHandler.CanAttack(player.Pointer, targetPtr);
-            else
-                return false;
-        }
-
-        static public bool CanLoot(IntPtr targetPtr)
-        {
-            var player = ObjectManager.Player;
-            if (player != null)
-                return gameFunctionHandler.CanLoot(player.Pointer, targetPtr);
-            else
-                return false;
-        }
-
         static public void CastAtPosition(string spellName, Position position)
         {
             gameFunctionHandler.CastAtPosition(spellName, position);
+        }
+
+        static public int GetAuraCount(IntPtr unitPtr)
+        {
+            return gameFunctionHandler.GetAuraCount(unitPtr);
+        }
+
+        static public IntPtr GetAuraPointer(IntPtr unitPtr, int index)
+        {
+            return gameFunctionHandler.GetAuraPointer(unitPtr, index);
         }
 
         static public int CastSpellById(int spellId, ulong targetGuid)
@@ -74,9 +66,9 @@ namespace BloogBot.Game
             return gameFunctionHandler.GetCreatureType(unitPtr);
         }
 
-        static public IntPtr GetItemCacheEntry(int itemId)
+        static public IntPtr GetItemCacheEntry(int itemId, ulong guid = 0)
         {
-            return gameFunctionHandler.GetItemCacheEntry(itemId);
+            return gameFunctionHandler.GetItemCacheEntry(itemId, guid);
         }
 
         static public IntPtr GetObjectPtr(ulong guid)
@@ -89,19 +81,6 @@ namespace BloogBot.Game
             return gameFunctionHandler.GetPlayerGuid();
         }
 
-        static public string[] GetText(string[] varNames)
-        {
-            var results = new List<string>();
-
-            foreach (var varName in varNames)
-            {
-                var address = gameFunctionHandler.GetText(varName);
-                results.Add(MemoryManager.ReadString(address));
-            }
-
-            return results.ToArray();
-        }
-
         static public UnitReaction GetUnitReaction(IntPtr unitPtr1, IntPtr unitPtr2)
         {
             return gameFunctionHandler.GetUnitReaction(unitPtr1, unitPtr2);
@@ -112,16 +91,6 @@ namespace BloogBot.Game
             return gameFunctionHandler.Intersect(start, end);
         }
 
-        static public bool IsDead(IntPtr unitPtr)
-        {
-            return gameFunctionHandler.IsDead(unitPtr);
-        }
-
-        static public bool IsLooting(IntPtr unitPtr)
-        {
-            return gameFunctionHandler.IsLooting(unitPtr);
-        }
-
         static public bool IsSpellOnCooldown(int spellId)
         {
             return gameFunctionHandler.IsSpellOnCooldown(spellId);
@@ -130,13 +99,6 @@ namespace BloogBot.Game
         static public void Jump()
         {
             gameFunctionHandler.Jump();
-        }
-
-        static public void LootUnit(IntPtr targetPtr)
-        {
-            var player = ObjectManager.Player;
-            if (player != null)
-                gameFunctionHandler.LootUnit(player.Pointer, targetPtr);
         }
 
         static public void LuaCall(string code)
@@ -188,9 +150,9 @@ namespace BloogBot.Game
             gameFunctionHandler.LootSlot(slot);
         }
 
-        static public void SelectObject(ulong guid)
+        static public void SetTarget(ulong guid)
         {
-            gameFunctionHandler.SelectObject(guid);
+            gameFunctionHandler.SetTarget(guid);
         }
 
         static public void SellItemByGuid(ulong vendorGuid, ulong itemGuid)

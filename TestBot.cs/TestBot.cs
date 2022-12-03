@@ -6,6 +6,7 @@ using BloogBot.Game.Objects;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace TestBot
@@ -42,15 +43,15 @@ namespace TestBot
         {
             ThreadSynchronizer.RunOnMainThread(() =>
             {
-                var player = ObjectManager.Player;
+                ulong foo = 1830282;
+                var bar = Functions.GetObjectPtr(foo);
+                Console.WriteLine(bar.ToString("X"));
+                //var player = ObjectManager.Player;
 
-                if (player != null)
-                {
-                    foreach (var obj in ObjectManager.AllObjects)
-                    {
-                        Console.WriteLine($"Pointer={obj.Pointer} Guid={obj.Guid} Type={obj.ObjectType} Name={obj.Name} Facing={obj.Facing} Pos={obj.Position}");
-                    }
-                }
+                //if (player != null)
+                //{
+                //    Console.WriteLine(player.Pointer);
+                //}
             });
         }
     }

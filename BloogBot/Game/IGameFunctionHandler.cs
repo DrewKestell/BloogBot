@@ -35,23 +35,13 @@ namespace BloogBot.Game
 
         XYZ Intersect(Position start, Position end);
 
-        void SelectObject(ulong guid);
-
-        bool IsLooting(IntPtr unitPtr);
-
-        bool CanLoot(IntPtr playerPtr, IntPtr targetPtr);
-
-        void LootUnit(IntPtr playerPtr, IntPtr targetPtr);
-
-        bool CanAttack(IntPtr playerPtr, IntPtr targetPtr);
-
-        bool IsDead(IntPtr unitPtr);
+        void SetTarget(ulong guid);
 
         void RetrieveCorpse();
 
         void ReleaseCorpse(IntPtr ptr);
 
-        IntPtr GetItemCacheEntry(int itemId);
+        IntPtr GetItemCacheEntry(int itemId, ulong guid = 0);
 
         bool IsSpellOnCooldown(int spellId);
 
@@ -66,6 +56,10 @@ namespace BloogBot.Game
         int Dismount(IntPtr unitPtr);
 
         void CastAtPosition(string spellName, Position position);
+
+        int GetAuraCount(IntPtr unitPtr);
+
+        IntPtr GetAuraPointer(IntPtr unitPtr, int index);
 
         IntPtr GetRow(IntPtr tablePtr, int index);
 

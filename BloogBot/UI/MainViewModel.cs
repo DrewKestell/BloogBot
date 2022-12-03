@@ -1445,8 +1445,7 @@ namespace BloogBot.UI
         {
             ObjectManager.Initialize(probe);
             ObjectManager.StartEnumeration();
-            // TODO
-            //Task.Run(async () => await InitializeCommandHandler());
+            Task.Run(async () => await InitializeCommandHandler());
         }
         
         void UpdatePropertiesWithAttribute(Type type)
@@ -1484,7 +1483,7 @@ namespace BloogBot.UI
                     {
                         if (!readyForCommands)
                         {
-                            if (string.IsNullOrWhiteSpace(player.Name))
+                            if (string.IsNullOrWhiteSpace(player.Name) || player.Level == 0)
                                 continue;
 
                             Repository.DeleteCommandsForPlayer(player.Name);

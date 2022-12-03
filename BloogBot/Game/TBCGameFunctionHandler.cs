@@ -19,28 +19,6 @@ namespace BloogBot.Game
         }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        delegate bool CanAttackDelegate(IntPtr unitPtr, IntPtr targetPtr);
-
-        static readonly CanAttackDelegate CanAttackFunction =
-            Marshal.GetDelegateForFunctionPointer<CanAttackDelegate>((IntPtr)MemoryAddresses.CanAttackFunPtr);
-
-        public bool CanAttack(IntPtr playerPtr, IntPtr targetPtr)
-        {
-            return CanAttackFunction(playerPtr, targetPtr);
-        }
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        delegate bool CanLootDelegate(IntPtr unitPtr, IntPtr targetPtr);
-
-        static readonly CanLootDelegate CanLootFunction =
-            Marshal.GetDelegateForFunctionPointer<CanLootDelegate>((IntPtr)MemoryAddresses.CanLootFunPtr);
-
-        public bool CanLoot(IntPtr playerPtr, IntPtr targetPtr)
-        {
-            return CanLootFunction(playerPtr, targetPtr);
-        }
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         private delegate int CastAtPositionDelegate(ref XYZ parPos);
 
         static readonly CastAtPositionDelegate CastAtPositionFunction =
@@ -123,7 +101,7 @@ namespace BloogBot.Game
         static readonly ItemCacheGetRowDelegate GetItemCacheEntryFunction =
             Marshal.GetDelegateForFunctionPointer<ItemCacheGetRowDelegate>((IntPtr)MemoryAddresses.GetItemCacheEntryFunPtr);
 
-        public IntPtr GetItemCacheEntry(int itemId)
+        public IntPtr GetItemCacheEntry(int itemId, ulong guid)
         {
             return GetItemCacheEntryFunction((IntPtr)MemoryAddresses.ItemCacheEntryBasePtr, itemId, IntPtr.Zero, 0, 0, (char)0);
         }
@@ -221,28 +199,6 @@ namespace BloogBot.Game
         }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        delegate bool IsDeadDelegate(IntPtr unitPtr);
-
-        static readonly IsDeadDelegate IsDeadFunction =
-            Marshal.GetDelegateForFunctionPointer<IsDeadDelegate>((IntPtr)MemoryAddresses.IsDeadFunPtr);
-
-        public bool IsDead(IntPtr unitPtr)
-        {
-            return IsDeadFunction(unitPtr);
-        }
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        delegate bool IsLootingDelegate(IntPtr unitPtr);
-
-        static readonly IsLootingDelegate IsLootingFunction =
-            Marshal.GetDelegateForFunctionPointer<IsLootingDelegate>((IntPtr)MemoryAddresses.IsLootingFunPtr);
-
-        public bool IsLooting(IntPtr unitPtr)
-        {
-            return IsLootingFunction(unitPtr);
-        }
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         delegate bool IsSpellOnCooldownDelegate(IntPtr ptr, int spellId, int unknown1, int unknown2, int unknown3, int unknown4);
 
         static readonly IsSpellOnCooldownDelegate IsSpellOnCooldownFunction =
@@ -273,17 +229,6 @@ namespace BloogBot.Game
         public void LootSlot(int slot)
         {
             LootSlotFunction(slot);
-        }
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        delegate int LootUnitDelegate(IntPtr unitPtr, IntPtr targetPtr, IntPtr unknown);
-
-        static readonly LootUnitDelegate LootUnitFunction =
-            Marshal.GetDelegateForFunctionPointer<LootUnitDelegate>((IntPtr)MemoryAddresses.LootUnitFunPtr);
-
-        public void LootUnit(IntPtr playerPtr, IntPtr targetPtr)
-        {
-            LootUnitFunction(playerPtr, targetPtr, IntPtr.Zero);
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
@@ -319,14 +264,14 @@ namespace BloogBot.Game
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        delegate void SelectObjectDelegate(ulong guid);
+        delegate void SetTargetDelegate(ulong guid);
 
-        static readonly SelectObjectDelegate SelectObjectFunction =
-            Marshal.GetDelegateForFunctionPointer<SelectObjectDelegate>((IntPtr)MemoryAddresses.SelectObjectFunPtr);
+        static readonly SetTargetDelegate SetTargetFunction =
+            Marshal.GetDelegateForFunctionPointer<SetTargetDelegate>((IntPtr)MemoryAddresses.SetTargetFunPtr);
 
-        public void SelectObject(ulong guid)
+        public void SetTarget(ulong guid)
         {
-            SelectObjectFunction(guid);
+            SetTargetFunction(guid);
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
@@ -397,6 +342,16 @@ namespace BloogBot.Game
         }
 
         public IntPtr GetLocalizedRow(IntPtr tablePtr, int index, IntPtr rowPtr)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int GetAuraCount(IntPtr unitPtr)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IntPtr GetAuraPointer(IntPtr unitPtr, int index)
         {
             throw new NotImplementedException();
         }
