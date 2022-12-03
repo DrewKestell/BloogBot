@@ -1,5 +1,7 @@
 # BloogBot
 
+Join the [BloogBot Discord Server](https://discord.gg/S4tvykaGcJ) to chat with other folks hacking on BloogBot!
+
 BloogBot is an in-process bot for the original Vanilla (v 1.12.1) and Burning Crusade (v 2.4.3) clients.
 
 I have written extensively about the project [on my website](https://drewkestell.us/Article/6/Chapter/1).
