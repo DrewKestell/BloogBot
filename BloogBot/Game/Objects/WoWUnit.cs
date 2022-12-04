@@ -35,7 +35,20 @@ namespace BloogBot.Game.Objects
 
         public int Energy => MemoryManager.ReadInt(GetDescriptorPtr() + MemoryAddresses.WoWUnit_EnergyOffset);
 
-        public int CurrentChannelingId => MemoryManager.ReadInt(Pointer + MemoryAddresses.WoWUnit_CurrentChannelingOffset);
+        public int CurrentChannelingId
+        {
+            get
+            {
+                if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+                {
+                    return MemoryManager.ReadInt(GetDescriptorPtr() + 0x240);
+                }
+                else
+                {
+                    return MemoryManager.ReadInt(Pointer + MemoryAddresses.WoWUnit_CurrentChannelingOffset);
+                }
+            }
+        }
 
         public bool IsChanneling => CurrentChannelingId > 0;
 
@@ -111,7 +124,31 @@ namespace BloogBot.Game.Objects
 
         public CreatureRank CreatureRank => (CreatureRank)Functions.GetCreatureRank(Pointer);
 
-        public Spell GetSpellById(int spellId) => Functions.GetSpellDBEntry(spellId);
+        public Spell GetSpellById(int spellId)
+        {
+            if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+            {
+                var spellsBasePtr = MemoryManager.ReadIntPtr((IntPtr)0x00C0D788);
+                var spellPtr =  MemoryManager.ReadIntPtr(spellsBasePtr + spellId * 4);
+
+                var spellCost = MemoryManager.ReadInt(spellPtr + 0x0080);
+
+                var spellNamePtr = MemoryManager.ReadIntPtr(spellPtr + 0x1E0);
+                var spellName = MemoryManager.ReadString(spellNamePtr);
+
+                var spellDescriptionPtr = MemoryManager.ReadIntPtr(spellPtr + 0x228);
+                var spellDescription = MemoryManager.ReadString(spellDescriptionPtr);
+
+                var spellTooltipPtr = MemoryManager.ReadIntPtr(spellPtr + 0x24C);
+                var spellTooltip = MemoryManager.ReadString(spellTooltipPtr);
+
+                return new Spell(spellId, spellCost, spellName, spellDescription, spellTooltip);
+            }
+            else
+            {
+                return Functions.GetSpellDBEntry(spellId);
+            }
+        }
 
         public void LuaCall(string code) => Functions.LuaCall(code);
 
@@ -186,13 +223,26 @@ namespace BloogBot.Game.Objects
                     }
                     return buffs;
                 }
-                else
+                else if (ClientHelper.ClientVersion == ClientVersion.TBC)
                 {
                     var debuffs = new List<Spell>();
                     var currentDebuffOffset = MemoryAddresses.WoWUnit_DebuffsBaseOffset;
                     for (var i = 0; i < 16; i++)
                     {
                         var debuffId = MemoryManager.ReadInt(Pointer + currentDebuffOffset);
+                        if (debuffId != 0)
+                            debuffs.Add(GetSpellById(debuffId));
+                        currentDebuffOffset += 4;
+                    }
+                    return debuffs;
+                }
+                else
+                {
+                    var debuffs = new List<Spell>();
+                    var currentDebuffOffset = MemoryAddresses.WoWUnit_DebuffsBaseOffset;
+                    for (var i = 0; i < 16; i++)
+                    {
+                        var debuffId = MemoryManager.ReadInt(GetDescriptorPtr() + currentDebuffOffset);
                         if (debuffId != 0)
                             debuffs.Add(GetSpellById(debuffId));
                         currentDebuffOffset += 4;

@@ -1,5 +1,7 @@
-﻿using BloogBot.AI;
+﻿using BloogBot;
+using BloogBot.AI;
 using BloogBot.Game;
+using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
 
@@ -41,7 +43,16 @@ namespace ProtectionPaladinBot
         void TryCastSpell(string name)
         {
             if (!player.HasBuff(name) && player.IsSpellReady(name) && player.Mana > player.GetManaCost(name))
-                player.CastSpell(name, player.Guid);
+            {
+                if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+                {
+                    player.LuaCall($"CastSpellByName(\"{name}\",1)");
+                }
+                else
+                {
+                    player.CastSpell(name, player.Guid);
+                }
+            }
         }
     }
 }

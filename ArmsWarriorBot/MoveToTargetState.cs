@@ -1,6 +1,7 @@
 ﻿using BloogBot;
 using BloogBot.AI;
 using BloogBot.Game;
+using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
 
@@ -46,7 +47,16 @@ namespace ArmsWarriorBot
             if (distanceToTarget < 25 && distanceToTarget > 8 && !player.IsCasting && player.IsSpellReady("Charge") && player.InLosWith(target.Position))
             {
                 if (!player.IsCasting)
-                    player.CastSpell("Charge", target.Guid);
+                {
+                    if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+                    {
+                        player.LuaCall($"CastSpellByName('Charge')");
+                    }
+                    else
+                    {
+                        player.CastSpell("Charge", target.Guid);
+                    }
+                }
             }
 
             if (distanceToTarget < 3)

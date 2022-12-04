@@ -94,15 +94,11 @@ namespace BloogBot.AI.SharedStates
             {
                 var itemToLoot = lootFrame.LootItems.ElementAt(lootIndex);
                 var itemQuality = ItemQuality.Common;
-
-                try
+                if (itemToLoot.Info != null)
                 {
                     itemQuality = itemToLoot.Info.Quality;
                 }
-                catch (Exception)
-                {
-                    // certain items don't have a Quality, so we can assume they're "Common"
-                }
+
                 var poorQualityCondition = itemToLoot.IsCoins || itemQuality == ItemQuality.Poor && container.BotSettings.LootPoor;
                 var commonQualityCondition = itemToLoot.IsCoins || itemQuality == ItemQuality.Common && container.BotSettings.LootCommon;
                 var uncommonQualityCondition = itemToLoot.IsCoins || itemQuality == ItemQuality.Uncommon && container.BotSettings.LootUncommon;

@@ -1,6 +1,5 @@
 ﻿using BloogBot.Game.Enums;
 using System;
-using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 
 namespace BloogBot.Game
@@ -31,7 +30,7 @@ namespace BloogBot.Game
 
         public int CastSpellById(int spellId, ulong targetGuid)
         {
-            // TODO
+            // not used in vanilla
             throw new NotImplementedException();
         }
 
@@ -44,7 +43,7 @@ namespace BloogBot.Game
         [DllImport("FastCall.dll", EntryPoint = "EnumerateVisibleObjects")]
         static extern void EnumerateVisibleObjectsFunction(IntPtr callback, int filter, IntPtr ptr);
 
-        [HandleProcessCorruptedStateExceptions]
+        // what does this do? [HandleProcessCorruptedStateExceptions]
         public void EnumerateVisibleObjects(IntPtr callback, int filter)
         {
             EnumerateVisibleObjectsFunction(callback, filter, (IntPtr)MemoryAddresses.EnumerateVisibleObjectsFunPtr);
@@ -114,7 +113,7 @@ namespace BloogBot.Game
 
         public Spell GetSpellDBEntry(int index)
         {
-            // TODO
+            // we don't use this in Vanilla, because we can get the spell entry directly from a static memory address
             throw new NotImplementedException();
         }
 
@@ -176,7 +175,7 @@ namespace BloogBot.Game
                 0,
                 false);
 
-            return cooldownDuration == 0;
+            return cooldownDuration != 0;
         }
 
         public void Jump()
@@ -222,10 +221,15 @@ namespace BloogBot.Game
             RetrieveCorpseFunction();
         }
 
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        delegate void SetTargetDelegate(ulong guid);
+
+        static readonly SetTargetDelegate SetTargetFunction =
+            Marshal.GetDelegateForFunctionPointer<SetTargetDelegate>((IntPtr)MemoryAddresses.SetTargetFunPtr);
+
         public void SetTarget(ulong guid)
         {
-            // TODO
-            throw new NotImplementedException();
+            SetTargetFunction(guid);
         }
 
         [DllImport("FastCall.dll", EntryPoint = "SellItemByGuid")]

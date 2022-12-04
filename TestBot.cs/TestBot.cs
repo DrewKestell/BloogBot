@@ -43,15 +43,20 @@ namespace TestBot
         {
             ThreadSynchronizer.RunOnMainThread(() =>
             {
-                ulong foo = 1830282;
-                var bar = Functions.GetObjectPtr(foo);
-                Console.WriteLine(bar.ToString("X"));
-                //var player = ObjectManager.Player;
+                var players = ObjectManager.Players;
 
-                //if (player != null)
-                //{
-                //    Console.WriteLine(player.Pointer);
-                //}
+                var targetGuid = ObjectManager.Player.TargetGuid;
+                var target = ObjectManager.Units.FirstOrDefault(u => u.Guid == targetGuid);
+                if (target != null)
+                {
+                    Console.WriteLine(target.Name);
+                    Console.WriteLine(target.Guid);
+                    Console.WriteLine(target.Level);
+                }
+                else
+                {
+                    Console.WriteLine("Target is null.");
+                }
             });
         }
     }

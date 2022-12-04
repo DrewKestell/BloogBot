@@ -42,8 +42,7 @@ namespace AfflictionWarlockBot
 
         void TryCastSpell(string name, int requiredLevel = 1)
         {
-            if (!player.HasBuff(name) && player.Level >= requiredLevel && player.IsSpellReady(name))
-                player.LuaCall($"CastSpellByName('{name}')");
+            
         }
 
         void DeleteSoulShard()

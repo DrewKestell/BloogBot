@@ -250,7 +250,11 @@ namespace BloogBot
             {
                 if ((int)wardenPtr < 80000)
                 {
-                    Console.WriteLine($"[WARDEN] Warden Module is at an unexpected memory address. Not hooking. PLAY AT YOUR OWN RISK!");
+                    // TODO: Warden disabling is not working reliably for WotLK. You can probably remove this warning once you have it more stable.
+                    if (ClientHelper.ClientVersion == ClientVersion.WotLK)
+                    {
+                        Console.WriteLine($"[WARDEN] Warden Module is at an unexpected memory address. Not hooking. PLAY AT YOUR OWN RISK!");
+                    }
                 }
                 else
                 {
@@ -303,11 +307,15 @@ namespace BloogBot
 
             if (pageScanPtr == IntPtr.Zero || pageScanPtr == wardenPageScanFunPtr)
             {
-                Console.WriteLine("PageScan hook failed. It's possible the incoming Warden Module does not include the PageScan function. PLAY AT YOUR OWN RISK!");
+                // TODO: Warden disabling is not working reliably for WotLK. You can probably remove this warning once you have it more stable.
+                if (ClientHelper.ClientVersion == ClientVersion.WotLK)
+                {
+                    Console.WriteLine($"[WARDEN] Warden Module is at an unexpected memory address. Not hooking. PLAY AT YOUR OWN RISK!");
+                }
                 return;
             }
 
-            Console.WriteLine("PageScan module found in memory, continuing with hook...");
+            Console.WriteLine("[WARDEN] PageScan module found in memory, continuing with hook...");
 
             wardenPageScanDelegate = WardenPageScanHook;
             var addrToDetour = Marshal.GetFunctionPointerForDelegate(wardenPageScanDelegate);
@@ -339,7 +347,8 @@ namespace BloogBot
 
         static void WardenPageScanHook(IntPtr readBase, int readOffset, IntPtr writeTo)
         {
-            Console.WriteLine($"[WARDEN PageScan] BaseAddr: {readBase.ToString("X")}, Offset: {readOffset}");
+            // Logging this to the console lags the client like crazy.
+            // Console.WriteLine($"[WARDEN PageScan] BaseAddr: {readBase.ToString("X")}, Offset: {readOffset}");
 
             var readByteFrom = readBase + readOffset;
 
@@ -390,11 +399,15 @@ namespace BloogBot
 
             if (memScanPtr == IntPtr.Zero || memScanPtr == wardenMemScanFunPtr)
             {
-                Console.WriteLine("MemScan hook failed. It's possible the incoming Warden Module does not include the MemScan function. PLAY AT YOUR OWN RISK!");
+                // TODO: Warden disabling is not working reliably for WotLK. You can probably remove this warning once you have it more stable.
+                if (ClientHelper.ClientVersion == ClientVersion.WotLK)
+                {
+                    Console.WriteLine($"[WARDEN] Warden Module is at an unexpected memory address. Not hooking. PLAY AT YOUR OWN RISK!");
+                }
                 return;
             }
 
-            Console.WriteLine("MemScan module found in memory, continuing with hook...");
+            Console.WriteLine("[WARDEN] MemScan module found in memory, continuing with hook...");
 
             wardenMemScanDelegate = WardenMemScanHook;
             var addrToDetour = Marshal.GetFunctionPointerForDelegate(wardenMemScanDelegate);
@@ -434,7 +447,8 @@ namespace BloogBot
             // todo: will size ever be 0?
             if (size != 0)
             {
-                Console.WriteLine($"[WARDEN MemoryScan] BaseAddr: {addr.ToString("X")}, Size: {size}");
+                // Logging this to the console lags the client like crazy
+                //Console.WriteLine($"[WARDEN MemoryScan] BaseAddr: {addr.ToString("X")}, Size: {size}");
 
                 var hacksWithinRange = HackManager.Hacks
                     .Where(i => i.Address.ToInt32() <= IntPtr.Add(addr, size).ToInt32() && i.Address.ToInt32() >= addr.ToInt32());

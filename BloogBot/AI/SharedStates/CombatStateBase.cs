@@ -112,7 +112,18 @@ namespace BloogBot.AI.SharedStates
             // ensure auto-attack is turned on ONLY if player does not have a wand
             var wand = Inventory.GetEquippedItem(EquipSlot.Ranged);
             if (wand == null)
-                player.LuaCall("StartAttack()");
+            {
+                if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+                {
+                    var autoAttackAction = player.Class == Class.Warrior ? 84 : 12;
+                    var autoAttackLuaScript = $"if IsCurrentAction('{autoAttackAction}') == nil then CastSpellByName('Attack') end";
+                    player.LuaCall(autoAttackLuaScript);
+                }
+                else
+                {
+                    player.LuaCall("StartAttack()");
+                }
+            }
 
             return false;
         }
@@ -129,9 +140,18 @@ namespace BloogBot.AI.SharedStates
 
             if (player.IsSpellReady(name) && player.Mana >= player.GetManaCost(name) && distanceToTarget >= minRange && distanceToTarget <= maxRange && condition && !player.IsStunned && ((!player.IsCasting && !player.IsChanneling) || player.Class == Class.Warrior))
             {
-                var targetGuid = castOnSelf ? player.Guid : target.Guid;
-                player.CastSpell(name, targetGuid);
-                callback?.Invoke();
+                if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+                {
+                    var castOnSelfString = castOnSelf ? ",1" : "";
+                    player.LuaCall($"CastSpellByName(\"{name}\"{castOnSelfString})");
+                    callback?.Invoke();
+                }
+                else
+                {
+                    var targetGuid = castOnSelf ? player.Guid : target.Guid;
+                    player.CastSpell(name, targetGuid);
+                    callback?.Invoke();
+                }
             }
         }
 
@@ -148,8 +168,16 @@ namespace BloogBot.AI.SharedStates
 
             if (player.IsSpellReady(name) && playerResource >= requiredResource && condition && !player.IsStunned && !player.IsCasting)
             {
-                player.CastSpell(name, target.Guid);
-                callback?.Invoke();
+                if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+                {
+                    player.LuaCall($"CastSpellByName('{name}')");
+                    callback?.Invoke();
+                }
+                else
+                {
+                    player.CastSpell(name, target.Guid);
+                    callback?.Invoke();
+                }
             }
         }
 
@@ -159,8 +187,17 @@ namespace BloogBot.AI.SharedStates
         {
             if (player.IsSpellReady(name) && player.Rage >= requiredRage && condition && !player.IsStunned && !player.IsCasting)
             {
-                player.CastSpell(name, target.Guid);
-                callback?.Invoke();
+                if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+                {
+                    player.LuaCall($"CastSpell({id}, 'spell')");
+                    callback?.Invoke();
+                }
+                else
+                {
+                    player.CastSpell(name, target.Guid);
+                    callback?.Invoke();
+                }
+                
             }
         }
 

@@ -1,5 +1,7 @@
-﻿using BloogBot.AI;
+﻿using BloogBot;
+using BloogBot.AI;
 using BloogBot.Game;
+using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
 
@@ -50,7 +52,16 @@ namespace FrostMageBot
             if (!player.HasBuff(name) && player.KnowsSpell(name) && player.IsSpellReady(name))
             {
                 if (castOnSelf)
-                    player.CastSpell(name, player.Guid);
+                {
+                    if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+                    {
+                        player.LuaCall($"CastSpellByName(\"{name}\",1)");
+                    }
+                    else
+                    {
+                        player.CastSpell(name, player.Guid);
+                    }    
+                }
                 else
                     player.LuaCall($"CastSpellByName('{name}')");
             }

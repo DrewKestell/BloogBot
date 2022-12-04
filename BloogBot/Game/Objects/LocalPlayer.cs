@@ -200,7 +200,18 @@ namespace BloogBot.Game.Objects
             Functions.SetControlBit((int)bits, 0, Environment.TickCount);
         }
 
-        public void Jump() => Functions.Jump();
+        public void Jump()
+        {
+            if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+            {
+                StopMovement(ControlBits.Jump);
+                StartMovement(ControlBits.Jump);
+            }
+            else
+            {
+                Functions.Jump();
+            }
+        }
 
         // use this to determine whether you can use cannibalize
         public bool TastyCorpsesNearby =>
@@ -243,7 +254,36 @@ namespace BloogBot.Game.Objects
 
         public void SetTarget(ulong guid) => Functions.SetTarget(guid);
 
-        public bool CanOverpower => MemoryManager.ReadInt((IntPtr)MemoryAddresses.LocalPlayerCanOverpower) > 0;
+        ulong ComboPointGuid { get; set; }
+        public bool CanOverpower
+        {
+            get
+            {
+                if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+                {
+                    return MemoryManager.ReadInt((IntPtr)MemoryAddresses.LocalPlayerCanOverpower) > 0;
+                }
+                else
+                {
+                    var ptr1 = MemoryManager.ReadIntPtr(Pointer + 0xE68);
+                    var ptr2 = IntPtr.Add(ptr1, 0x1029);
+                    if (ComboPointGuid == 0)
+                        MemoryManager.WriteBytes(ptr2, new byte[] { 0 });
+                    var points = MemoryManager.ReadByte(ptr2);
+                    if (points == 0)
+                    {
+                        ComboPointGuid = TargetGuid;
+                        return false;
+                    }
+                    if (ComboPointGuid != TargetGuid)
+                    {
+                        MemoryManager.WriteBytes(ptr2, new byte[] { 0 });
+                        return false;
+                    }
+                    return MemoryManager.ReadByte(ptr2) > 0;
+                }
+            }
+        }
 
         public byte ComboPoints
         {
@@ -292,15 +332,35 @@ namespace BloogBot.Game.Objects
                 var currentSpellId = MemoryManager.ReadInt((IntPtr)(MemoryAddresses.LocalPlayerSpellsBase + 4 * i));
                 if (currentSpellId == 0) break;
 
-                var spell = Functions.GetSpellDBEntry(currentSpellId);
+                string name;
+                if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+                {
+                    var spellsBasePtr = MemoryManager.ReadIntPtr((IntPtr)0x00C0D788);
+                    var spellPtr =  MemoryManager.ReadIntPtr(spellsBasePtr + currentSpellId * 4);
 
-                if (PlayerSpells.ContainsKey(spell.Name))
-                    PlayerSpells[spell.Name] = new List<int>(PlayerSpells[spell.Name])
+                    var spellNamePtr = MemoryManager.ReadIntPtr(spellPtr + 0x1E0);
+                    name = MemoryManager.ReadString(spellNamePtr);
+
+                    if (PlayerSpells.ContainsKey(name))
+                        PlayerSpells[name] = new List<int>(PlayerSpells[name])
+                    {
+                        currentSpellId
+                    }.ToArray();
+                    else
+                        PlayerSpells.Add(name, new[] { currentSpellId });
+                }
+                else
+                {
+                    name = Functions.GetSpellDBEntry(currentSpellId).Name;
+                }
+
+                if (PlayerSpells.ContainsKey(name))
+                    PlayerSpells[name] = new List<int>(PlayerSpells[name])
                     {
                         currentSpellId
                     }.ToArray();
                 else
-                    PlayerSpells.Add(spell.Name, new[] { currentSpellId });
+                    PlayerSpells.Add(name, new[] { currentSpellId });
             }
         }
 
@@ -329,8 +389,21 @@ namespace BloogBot.Game.Objects
 
         public int GetManaCost(string spellName, int rank = -1)
         {
-            var spellId = GetSpellId(spellName, rank);
-            return Functions.GetSpellDBEntry(spellId).Cost;
+            if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+            {
+                var parId = GetSpellId(spellName, rank);
+
+                if (parId >= MemoryManager.ReadUint((IntPtr)(0x00C0D780 + 0xC)) || parId <= 0)
+                    return 0;
+
+                var entryPtr = MemoryManager.ReadIntPtr((IntPtr)((uint)(MemoryManager.ReadUint((IntPtr)(0x00C0D780 + 8)) + parId * 4)));
+                return MemoryManager.ReadInt((entryPtr + 0x0080));
+            }
+            else
+            {
+                var spellId = GetSpellId(spellName, rank);
+                return Functions.GetSpellDBEntry(spellId).Cost;
+            }
         }
 
         public bool KnowsSpell(string name) => PlayerSpells.ContainsKey(name);

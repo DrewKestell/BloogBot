@@ -3,6 +3,7 @@ using BloogBot.Game;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace FrostMageBot
 {
@@ -53,6 +54,7 @@ namespace FrostMageBot
             if (player.ManaPercent < 20 && player.IsSpellReady(Evocation))
             {
                 player.LuaCall($"CastSpellByName('{Evocation}')");
+                Thread.Sleep(200);
                 return;
             }
 

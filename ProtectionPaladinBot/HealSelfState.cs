@@ -1,5 +1,7 @@
-﻿using BloogBot.AI;
+﻿using BloogBot;
+using BloogBot.AI;
 using BloogBot.Game;
+using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
 
@@ -33,7 +35,16 @@ namespace ProtectionPaladinBot
                 player.LuaCall($"CastSpellByName('{DivineProtection}')");
 
             if (player.Mana > player.GetManaCost(HolyLight) && player.IsSpellReady(HolyLight))
-                player.CastSpell(HolyLight, player.Guid);
+            {
+                if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+                {
+                    player.LuaCall($"CastSpellByName(\"HolyLight\",1)");
+                }
+                else
+                {
+                    player.CastSpell(HolyLight, player.Guid);
+                }
+            }
         }
     }
 }

@@ -9,34 +9,49 @@ namespace BloogBot.Game.Frames
     {
         public DialogFrame()
         {
-            var vendorGuid = MemoryManager.ReadUlong((IntPtr)MemoryAddresses.DialogFrameBase);
-            if (vendorGuid == 0)
-                return;
-
-            var dialogOptionCount = Convert.ToInt32(ObjectManager.Player.LuaCallWithResults($"{{0}} = GetNumGossipOptions()")[0]);
-
-            var script = "";
-            for (var i = 0; i < dialogOptionCount; i++)
+            if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
             {
-                var startingIndex = i * 2;
+                var currentItem = (IntPtr)0xBBBE90;
+                while ((int)currentItem < 0xBC3F50)
+                {
+                    if (MemoryManager.ReadInt((currentItem + 0x800)) == -1) break;
+                    var optionType = MemoryManager.ReadInt((currentItem + 0x808));
 
-                script += "{" + startingIndex + "}, ";
-                script += "{" + (startingIndex + 1) + "}";
-
-                if (i + 1 == dialogOptionCount)
-                    script += " = GetGossipOptions()";
-                else
-                    script += ", ";
+                    DialogOptions.Add(new DialogOption((DialogType)optionType));
+                    currentItem = IntPtr.Add(currentItem, 0x80C);
+                }
             }
-
-            var dialogOptions = ObjectManager.Player.LuaCallWithResults(script);
-
-            for (var i = 0; i < dialogOptionCount; i++)
+            else
             {
-                var startingIndex = i * 2;
+                var vendorGuid = MemoryManager.ReadUlong((IntPtr)MemoryAddresses.DialogFrameBase);
+                if (vendorGuid == 0)
+                    return;
 
-                var type = (DialogType)Enum.Parse(typeof(DialogType), dialogOptions[startingIndex + 1]);
-                DialogOptions.Add(new DialogOption(type));
+                var dialogOptionCount = Convert.ToInt32(ObjectManager.Player.LuaCallWithResults($"{{0}} = GetNumGossipOptions()")[0]);
+
+                var script = "";
+                for (var i = 0; i < dialogOptionCount; i++)
+                {
+                    var startingIndex = i * 2;
+
+                    script += "{" + startingIndex + "}, ";
+                    script += "{" + (startingIndex + 1) + "}";
+
+                    if (i + 1 == dialogOptionCount)
+                        script += " = GetGossipOptions()";
+                    else
+                        script += ", ";
+                }
+
+                var dialogOptions = ObjectManager.Player.LuaCallWithResults(script);
+
+                for (var i = 0; i < dialogOptionCount; i++)
+                {
+                    var startingIndex = i * 2;
+
+                    var type = (DialogType)Enum.Parse(typeof(DialogType), dialogOptions[startingIndex + 1]);
+                    DialogOptions.Add(new DialogOption(type));
+                }
             }
         }
 

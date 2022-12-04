@@ -236,7 +236,7 @@ namespace BloogBot.Game.Cache
                 if (ClientHelper.ClientVersion == ClientVersion.TBC)
                     return (ItemQuality)MemoryManager.ReadByte(baseAddress + 0x14);
                 else if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
-                    throw new NotImplementedException("TODO: figure this out for Vanilla");
+                    return (ItemQuality)MemoryManager.ReadByte(baseAddress + 0x1C);
                 else if (ClientHelper.ClientVersion == ClientVersion.WotLK)
                     return (ItemQuality)MemoryManager.ReadByte(baseAddress + 0x14);
                 else

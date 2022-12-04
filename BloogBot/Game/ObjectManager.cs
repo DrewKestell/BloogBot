@@ -12,11 +12,15 @@ namespace BloogBot.Game
     {
         const int OBJECT_TYPE_OFFSET = 0x14;
 
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate int EnumerateVisibleObjectsCallbackVanilla(int filter, ulong guid);
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        delegate int EnumerateVisibleObjectsCallback(ulong guid, int filter);
+        delegate int EnumerateVisibleObjectsCallbackNonVanilla(ulong guid, int filter);
 
         static ulong playerGuid;
-        static EnumerateVisibleObjectsCallback callback;
+        static EnumerateVisibleObjectsCallbackVanilla callbackVanilla;
+        static EnumerateVisibleObjectsCallbackNonVanilla callbackNonVanilla;
         static IntPtr callbackPtr;
         static Probe probe;
 
@@ -27,8 +31,18 @@ namespace BloogBot.Game
         static internal void Initialize(Probe parProbe)
         {
             probe = parProbe;
-            callback = Callback;
-            callbackPtr = Marshal.GetFunctionPointerForDelegate(callback);
+
+            if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+            {
+                callbackVanilla = CallbackVanilla;
+                callbackPtr = Marshal.GetFunctionPointerForDelegate(callbackVanilla);
+            }
+            else
+            {
+                callbackNonVanilla = CallbackNonVanilla;
+                callbackPtr = Marshal.GetFunctionPointerForDelegate(callbackNonVanilla);
+            }
+            
         }
 
         static public LocalPlayer Player { get; private set; }
@@ -115,7 +129,15 @@ namespace BloogBot.Game
             {
                 try
                 {
-                    return MemoryManager.ReadUint((IntPtr)MemoryAddresses.MapId);
+                    if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+                    {
+                        var objectManagerPtr = MemoryManager.ReadIntPtr((IntPtr)0x00B41414);
+                        return MemoryManager.ReadUint(IntPtr.Add(objectManagerPtr, 0xCC));
+                    }
+                    else
+                    {
+                        return MemoryManager.ReadUint((IntPtr)MemoryAddresses.MapId);
+                    }
                 }
                 catch (Exception)
                 {
@@ -245,7 +267,19 @@ namespace BloogBot.Game
             });
         }
 
-        static int Callback(ulong guid, int filter)
+        // EnumerateVisibleObjects callback has the parameter order swapped between Vanilla and other client versions.
+        static int CallbackVanilla(int filter, ulong guid)
+        {
+            return CallbackInternal(guid, filter);
+        }
+
+        // EnumerateVisibleObjects callback has the parameter order swapped between Vanilla and other client versions.
+        static int CallbackNonVanilla(ulong guid, int filter)
+        {
+            return CallbackInternal(guid, filter);
+        }
+
+        static int CallbackInternal(ulong guid, int filter)
         {
             var pointer = Functions.GetObjectPtr(guid);
             var objectType = (ObjectType)MemoryManager.ReadInt(IntPtr.Add(pointer, OBJECT_TYPE_OFFSET));

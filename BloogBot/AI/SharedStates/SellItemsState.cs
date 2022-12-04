@@ -19,6 +19,7 @@ namespace BloogBot.AI.SharedStates
         WoWUnit npc;
         DialogFrame dialogFrame;
         MerchantFrame merchantFrame;
+        int itemIndex;
 
         public SellItemsState(Stack<IBotState> botStates, IDependencyContainer container, string npcName)
         {
@@ -67,13 +68,22 @@ namespace BloogBot.AI.SharedStates
             }
             if (state == State.Initialized && Wait.For("InitializeDelay", 500))
             {
-                foreach (var item in itemsToSell)
+                state = State.ReadyToSell;
+            }
+            if (state == State.ReadyToSell)
+            {
+                if (Wait.For("SellItemDelay", 200))
                 {
-                    merchantFrame.SellItemByGuid(npc.Guid, item.Guid);
-                    Thread.Sleep(200);
-                }
+                    var itemToSell = itemsToSell.ElementAt(itemIndex);
+                    merchantFrame.SellItemByGuid(npc.Guid, itemToSell.Guid);
 
-                state = State.CloseMerchantFrame;
+                    itemIndex++;
+
+                    if (itemIndex == itemsToSell.Count())
+                    {
+                        state = State.CloseMerchantFrame;
+                    }
+                }
             }
             if (state == State.Dialog && Wait.For("DialogFrameDelay", 500))
             {
@@ -106,7 +116,8 @@ namespace BloogBot.AI.SharedStates
             Initialized,
             Dialog,
             CloseMerchantFrame,
-            ReadyToPop
+            ReadyToPop,
+            ReadyToSell
         }
     }
 }
