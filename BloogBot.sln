@@ -57,6 +57,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_SolutionItems", "_Solution
 		Bot\bootstrapperSettings.json = Bot\bootstrapperSettings.json
 		Bot\botSettings.json = Bot\botSettings.json
 		README.md = README.md
+		SqlSchema.SQL = SqlSchema.SQL
 	EndProjectSection
 EndProject
 Global

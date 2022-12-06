@@ -258,19 +258,38 @@ namespace BloogBot.Game.Objects
 
             for (var i = 1; i <= 16; i++)
             {
-                var result = LuaCallWithResults("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10} = UnitDebuff('" + target.ToString().ToLower() + "', " + i + ")");
-                var icon = result[2];
-                var stackCount = result[3];
-                var debuffTypeString = result[4];
+                if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+                {
+                    var result = LuaCallWithResults("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10} = UnitDebuff('" + target.ToString().ToLower() + "', " + i + ")");
+                    var icon = result[0];
+                    var stackCount = result[1];
+                    var debuffTypeString = result[2];
 
-                if (string.IsNullOrEmpty(icon))
-                    break;
+                    if (string.IsNullOrEmpty(icon))
+                        break;
 
-                var success = Enum.TryParse(debuffTypeString, out EffectType type);
-                if (!success)
-                    type = EffectType.None;
+                    var success = Enum.TryParse(debuffTypeString, out EffectType type);
+                    if (!success)
+                        type = EffectType.None;
 
-                debuffs.Add(new SpellEffect(icon, Convert.ToInt32(stackCount), type));
+                    debuffs.Add(new SpellEffect(icon, Convert.ToInt32(stackCount), type));
+                }
+                else
+                {
+                    var result = LuaCallWithResults("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10} = UnitDebuff('" + target.ToString().ToLower() + "', " + i + ")");
+                    var icon = result[2];
+                    var stackCount = result[3];
+                    var debuffTypeString = result[4];
+
+                    if (string.IsNullOrEmpty(icon))
+                        break;
+
+                    var success = Enum.TryParse(debuffTypeString, out EffectType type);
+                    if (!success)
+                        type = EffectType.None;
+
+                    debuffs.Add(new SpellEffect(icon, Convert.ToInt32(stackCount), type));
+                }
             }
 
             return debuffs;

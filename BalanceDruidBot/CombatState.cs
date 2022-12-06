@@ -19,6 +19,7 @@ namespace BalanceDruidBot
         const string Rejuvenation = "Rejuvenation";
         const string RemoveCurse = "Remove Curse";
         const string Wrath = "Wrath";
+        const string InsectSwarm = "Insect Swarm";
 
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
@@ -93,6 +94,8 @@ namespace BalanceDruidBot
             TryCastSpell(RemoveCurse, 0, int.MaxValue, player.IsCursed, castOnSelf: true);
 
             TryCastSpell(AbolishPoison, 0, int.MaxValue, player.IsPoisoned, castOnSelf: true);
+
+            TryCastSpell(InsectSwarm, 0, 30, !target.HasDebuff(InsectSwarm));
 
             TryCastSpell(Moonfire, 0, 30, !target.HasDebuff(Moonfire));
 
