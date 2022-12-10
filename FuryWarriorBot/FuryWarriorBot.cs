@@ -19,12 +19,13 @@ namespace FuryWarriorBot
         // omit any targets that bring the player too close to another threat while moving to that target
         bool AdditionalTargetingCriteria(WoWUnit u) =>
             !ObjectManager.Units.Any(o =>
-                o.Level > ObjectManager.Player.Level - 3 &&
+                o.Level > ObjectManager.Player.Level - 4 &&
                 (o.UnitReaction == UnitReaction.Hated || o.UnitReaction == UnitReaction.Hostile) &&
                 o.Guid != ObjectManager.Player.Guid &&
                 o.Guid != u.Guid &&
                 false &&
-                Navigation.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, u.Position, false).Any(p => p.DistanceTo(o.Position) < 30)
+                Navigation.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, u.Position, false).Any(p => p.DistanceTo(o.Position) < 30) &&
+                u.Position.DistanceTo(o.Position) < 30
             );
 
         IBotState CreateRestState(Stack<IBotState> botStates, IDependencyContainer container) =>

@@ -9,7 +9,9 @@ namespace BloogBot.Game.Objects
     {
         static readonly string[] ImmobilizedSpellText = { "Immobilized" };
 
-        internal WoWUnit(
+        public WoWUnit() { }
+
+        public WoWUnit(
             IntPtr pointer,
             ulong guid,
             ObjectType objectType)
@@ -56,7 +58,7 @@ namespace BloogBot.Game.Objects
 
         public bool IsCasting => CurrentSpellcastId > 0;
 
-        public int Level => MemoryManager.ReadInt(GetDescriptorPtr() + MemoryAddresses.WoWUnit_LevelOffset);
+        public virtual int Level => MemoryManager.ReadInt(GetDescriptorPtr() + MemoryAddresses.WoWUnit_LevelOffset);
 
         public DynamicFlags DynamicFlags => (DynamicFlags)MemoryManager.ReadInt(GetDescriptorPtr() + MemoryAddresses.WoWUnit_DynamicFlagsOffset);
 
@@ -122,7 +124,7 @@ namespace BloogBot.Game.Objects
 
         public UnitReaction UnitReaction => Functions.GetUnitReaction(Pointer, ObjectManager.Player.Pointer);
 
-        public CreatureRank CreatureRank => (CreatureRank)Functions.GetCreatureRank(Pointer);
+        public virtual CreatureRank CreatureRank => (CreatureRank)Functions.GetCreatureRank(Pointer);
 
         public Spell GetSpellById(int spellId)
         {

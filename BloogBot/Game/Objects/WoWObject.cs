@@ -7,9 +7,9 @@ namespace BloogBot.Game.Objects
 {
     public unsafe abstract class WoWObject
     {
-        public readonly IntPtr Pointer;
-        public readonly ulong Guid;
-        public readonly ObjectType ObjectType;
+        public virtual IntPtr Pointer { get; set; }
+        public virtual ulong Guid { get; set; }
+        public virtual ObjectType ObjectType { get; set; }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         delegate void GetPositionDelegate(IntPtr objectPtr, ref XYZ pos);
@@ -38,7 +38,9 @@ namespace BloogBot.Game.Objects
 
         readonly GetNameDelegate getNameFunction;
 
-        internal WoWObject(IntPtr pointer, ulong guid, ObjectType objectType)
+        public WoWObject() { }
+
+        public WoWObject(IntPtr pointer, ulong guid, ObjectType objectType)
         {
             Pointer = pointer;
             Guid = guid;
@@ -71,7 +73,7 @@ namespace BloogBot.Game.Objects
             }    
         }
 
-        public Position Position => GetPosition();
+        public virtual Position Position => GetPosition();
 
         [HandleProcessCorruptedStateExceptions]
         Position GetPosition()
