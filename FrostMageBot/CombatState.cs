@@ -46,11 +46,13 @@ namespace FrostMageBot
             player = ObjectManager.Player;
             this.target = target;
 
-            if (player.Level >= 8)
-                nuke = Frostbolt;
-            else if (player.Level >= 6 || !player.KnowsSpell(Frostbolt))
+            if (!player.KnowsSpell(Frostbolt))
                 nuke = Fireball;
-            else if (player.Level >= 4 && player.KnowsSpell(Frostbolt))
+            else if (player.Level >= 8)
+                nuke = Frostbolt;
+            else if (player.Level >= 6)
+                nuke = Fireball;
+            else if (player.Level >= 4)
                 nuke = Frostbolt;
             else
                 nuke = Fireball;
