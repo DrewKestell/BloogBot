@@ -11,6 +11,7 @@ namespace BalanceDruidBot
     {
         const string Wrath = "Wrath";
         const string Starfire = "Starfire";
+        const string MoonkinForm = "Moonkin Form";
 
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
@@ -55,6 +56,11 @@ namespace BalanceDruidBot
 
             if (player.IsCasting)
                 return;
+
+            if (player.KnowsSpell(MoonkinForm) && !player.HasBuff(MoonkinForm))
+            {
+                player.LuaCall($"CastSpellByName('{MoonkinForm}')");
+            }
 
             if (player.Position.DistanceTo(target.Position) < range && !player.IsCasting && player.IsSpellReady(pullingSpell) && player.InLosWith(target.Position))
             {

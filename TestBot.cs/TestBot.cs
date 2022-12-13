@@ -49,9 +49,8 @@ namespace TestBot
                 var target = ObjectManager.Units.FirstOrDefault(u => u.Guid == targetGuid);
                 if (target != null)
                 {
-                    Console.WriteLine(target.Name);
-                    Console.WriteLine(target.Guid);
-                    Console.WriteLine(target.Level);
+                    var isSkinnable = target.UnitFlags.HasFlag(UnitFlags.UNIT_FLAG_SKINNABLE);
+                    Console.WriteLine(isSkinnable);
                 }
                 else
                 {

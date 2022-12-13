@@ -20,9 +20,10 @@ namespace BalanceDruidBot
         const string RemoveCurse = "Remove Curse";
         const string Wrath = "Wrath";
         const string InsectSwarm = "Insect Swarm";
+        const string Innervate = "Innervate";
+        const string MoonkinForm = "Moonkin Form";
 
         readonly Stack<IBotState> botStates;
-        readonly IDependencyContainer container;
         readonly LocalPlayer player;
         readonly WoWUnit target;
         WoWUnit secondaryTarget;
@@ -39,7 +40,6 @@ namespace BalanceDruidBot
         internal CombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) : base(botStates, container, target, 30)
         {
             this.botStates = botStates;
-            this.container = container;
             player = ObjectManager.Player;
             this.target = target;
         }
@@ -91,11 +91,15 @@ namespace BalanceDruidBot
                 TryCastSpell(EntanglingRoots, 0, 30, !secondaryTarget.HasDebuff(EntanglingRoots), EntanglingRootsCallback);
             }
 
-            TryCastSpell(RemoveCurse, 0, int.MaxValue, player.IsCursed, castOnSelf: true);
+            TryCastSpell(MoonkinForm, !player.HasBuff(MoonkinForm));
 
-            TryCastSpell(AbolishPoison, 0, int.MaxValue, player.IsPoisoned, castOnSelf: true);
+            TryCastSpell(Innervate, player.ManaPercent < 10, castOnSelf: true);
 
-            TryCastSpell(InsectSwarm, 0, 30, !target.HasDebuff(InsectSwarm));
+            TryCastSpell(RemoveCurse, 0, int.MaxValue, player.IsCursed && !player.HasBuff(MoonkinForm), castOnSelf: true);
+
+            TryCastSpell(AbolishPoison, 0, int.MaxValue, player.IsPoisoned && !player.HasBuff(MoonkinForm), castOnSelf: true);
+
+            TryCastSpell(InsectSwarm, 0, 30, !target.HasDebuff(InsectSwarm) && target.HealthPercent > 20);
 
             TryCastSpell(Moonfire, 0, 30, !target.HasDebuff(Moonfire));
 

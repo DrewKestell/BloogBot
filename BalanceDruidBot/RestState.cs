@@ -14,6 +14,7 @@ namespace BalanceDruidBot
 
         const string Regrowth = "Regrowth";
         const string Rejuvenation = "Rejuvenation";
+        const string MoonkinForm = "Moonkin Form";
 
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
@@ -77,10 +78,16 @@ namespace BalanceDruidBot
             }
 
             if (player.HealthPercent < 60 && !player.HasBuff(Regrowth) && Wait.For("SelfHealDelay", 5000, true))
+            {
+                TryCastSpell(MoonkinForm, player.HasBuff(MoonkinForm));
                 TryCastSpell(Regrowth);
-
+            }
+                
             if (player.HealthPercent < 80 && !player.HasBuff(Rejuvenation) && !player.HasBuff(Regrowth) && Wait.For("SelfHealDelay", 5000, true))
+            {
+                TryCastSpell(MoonkinForm, player.HasBuff(MoonkinForm));
                 TryCastSpell(Rejuvenation);
+            }
 
             if (player.Level >= 6 && drinkItem != null && !player.IsDrinking && player.ManaPercent < 60)
                 drinkItem.Use();
@@ -92,9 +99,9 @@ namespace BalanceDruidBot
 
         bool InCombat => ObjectManager.Aggressors.Count() > 0;
 
-        void TryCastSpell(string name)
+        void TryCastSpell(string name, bool condition = true)
         {
-            if (player.IsSpellReady(name) && !player.IsCasting && player.Mana > player.GetManaCost(name) && !player.IsDrinking)
+            if (player.IsSpellReady(name) && !player.IsCasting && player.Mana > player.GetManaCost(name) && !player.IsDrinking && condition)
                 player.LuaCall($"CastSpellByName('{name}',1)");
         }
     }

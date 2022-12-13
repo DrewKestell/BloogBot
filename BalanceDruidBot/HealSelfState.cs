@@ -11,6 +11,8 @@ namespace BalanceDruidBot
         const string WarStomp = "War Stomp";
         const string HealingTouch = "Healing Touch";
         const string Rejuvenation = "Rejuvenation";
+        const string Barkskin = "Barkskin";
+        const string MoonkinForm = "Moonkin Form";
 
         readonly Stack<IBotState> botStates;
         readonly WoWUnit target;
@@ -36,6 +38,10 @@ namespace BalanceDruidBot
 
             if (player.IsSpellReady(WarStomp) && player.Position.DistanceTo(target.Position) <= 8)
                 player.LuaCall($"CastSpellByName('{WarStomp}')");
+
+            TryCastSpell(MoonkinForm, player.HasBuff(MoonkinForm));
+
+            TryCastSpell(Barkskin);
 
             TryCastSpell(Rejuvenation, !player.HasBuff(Rejuvenation));
 
