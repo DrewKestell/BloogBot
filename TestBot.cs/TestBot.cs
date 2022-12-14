@@ -43,14 +43,14 @@ namespace TestBot
         {
             ThreadSynchronizer.RunOnMainThread(() =>
             {
-                var players = ObjectManager.Players;
+                var player = ObjectManager.Player;
 
                 var targetGuid = ObjectManager.Player.TargetGuid;
                 var target = ObjectManager.Units.FirstOrDefault(u => u.Guid == targetGuid);
                 if (target != null)
                 {
-                    var isSkinnable = target.UnitFlags.HasFlag(UnitFlags.UNIT_FLAG_SKINNABLE);
-                    Console.WriteLine(isSkinnable);
+                    var inLos = player.InLosWith(target.Position);
+                    Console.WriteLine(inLos);
                 }
                 else
                 {

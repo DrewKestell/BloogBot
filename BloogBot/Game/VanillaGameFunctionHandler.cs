@@ -136,20 +136,28 @@ namespace BloogBot.Game
             return (UnitReaction)GetUnitReactionFunction(unitPtr1, unitPtr2);
         }
 
-        [DllImport("FastCall.dll", EntryPoint = "Intersect")]
-        static extern byte IntersectFunction(ref XYZXYZ points, ref float distance, ref XYZ intersection, uint flags, IntPtr Ptr);
+        [DllImport("FastCall.dll", EntryPoint = "Intersect2")]
+        static extern bool IntersectFunction(ref XYZ p1, ref XYZ p2, ref XYZ intersection, ref float distance, uint flags, IntPtr Ptr);
 
+        /// <summary>
+        /// Returns { 1, 1, 1 } if there is a collission when casting a ray between start and end params.
+        /// A result of { 1, 1, 1 } would indicate you are not in line-of-sight with your target.
+        /// </summary>
+        /// <param name="start">The start of the raycast.</param>
+        /// <param name="end">The end of the raycast.</param>
+        /// <returns>The result of the collision check.</returns>
         public XYZ Intersect(Position start, Position end)
         {
             var intersection = new XYZ();
             var distance = start.DistanceTo(end);
-            var points = new XYZXYZ(start.X, start.Y, start.Z, end.X, end.Y, end.Z);
-            points.Z1 += 5;
-            points.Z2 += 5;
+            var p1 = new XYZ(start.X, start.Y, start.Z + 5);
+            var p2 = new XYZ(end.X, end.Y, end.Z + 5);
 
-            IntersectFunction(ref points, ref distance, ref intersection, 0x00100010, (IntPtr)MemoryAddresses.IntersectFunPtr);
+            var result = IntersectFunction(ref p1, ref p2, ref intersection, ref distance, 0x00100111, (IntPtr)MemoryAddresses.IntersectFunPtr);
 
-            return intersection;
+            var collisionDetected = result && distance < 1;
+
+            return collisionDetected ? new XYZ(1, 1, 1) : new XYZ(0, 0, 0);
         }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]

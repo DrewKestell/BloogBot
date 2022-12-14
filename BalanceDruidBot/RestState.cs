@@ -102,7 +102,10 @@ namespace BalanceDruidBot
         void TryCastSpell(string name, bool condition = true)
         {
             if (player.IsSpellReady(name) && !player.IsCasting && player.Mana > player.GetManaCost(name) && !player.IsDrinking && condition)
+            {
+                player.Stand();
                 player.LuaCall($"CastSpellByName('{name}',1)");
+            }
         }
     }
 }

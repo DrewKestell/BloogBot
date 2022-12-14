@@ -209,7 +209,7 @@ namespace BloogBot.Game
                 GetTextFunPtr = 0x00703BF0;
                 CastSpellByIdFunPtr = 0x00000000;  // unused in Vanilla
                 GetRow2FunPtr = 0x00000000; // unused in Vanilla
-                IntersectFunPtr = 0x006AA160;
+                IntersectFunPtr = 0x00672170; // https://www.ownedcore.com/forums/world-of-warcraft/world-of-warcraft-bots-programs/wow-memory-editing/409609-fixed-cworld-intersect-raycasting-1-12-a.html
                 SetTargetFunPtr = 0x00493540;
                 RetrieveCorpseFunPtr = 0x0048D260;
                 ReleaseCorpseFunPtr = 0x005E0AE0;
