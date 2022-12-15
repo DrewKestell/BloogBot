@@ -248,7 +248,7 @@ namespace BloogBot.Game
         static readonly SellItemByGuidDelegate SellItemByGuidFunction =
             Marshal.GetDelegateForFunctionPointer<SellItemByGuidDelegate>((IntPtr)MemoryAddresses.SellItemByGuidFunPtr);
 
-        public void SellItemByGuid(ulong vendorGuid, ulong itemGuid)
+        public void SellItemByGuid(uint itemCount, ulong vendorGuid, ulong itemGuid)
         {
             SellItemByGuidFunction(vendorGuid, itemGuid, 0);
         }

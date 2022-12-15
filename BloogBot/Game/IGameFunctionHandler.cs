@@ -49,7 +49,7 @@ namespace BloogBot.Game
 
         void UseItem(IntPtr itemPtr);
 
-        void SellItemByGuid(ulong vendorGuid, ulong itemGuid);
+        void SellItemByGuid(uint itemCount, ulong vendorGuid, ulong itemGuid);
 
         void BuyVendorItem(ulong vendorGuid, int itemId, int quantity);
 

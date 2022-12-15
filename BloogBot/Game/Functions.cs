@@ -155,9 +155,9 @@ namespace BloogBot.Game
             gameFunctionHandler.SetTarget(guid);
         }
 
-        static public void SellItemByGuid(ulong vendorGuid, ulong itemGuid)
+        static public void SellItemByGuid(uint itemCount, ulong vendorGuid, ulong itemGuid)
         {
-            gameFunctionHandler.SellItemByGuid(vendorGuid, itemGuid);
+            gameFunctionHandler.SellItemByGuid(itemCount, vendorGuid, itemGuid);
         }
 
         static public void SendMovementUpdate(IntPtr playerPtr, int opcode)

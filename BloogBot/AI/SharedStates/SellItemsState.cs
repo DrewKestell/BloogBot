@@ -75,7 +75,7 @@ namespace BloogBot.AI.SharedStates
                 if (Wait.For("SellItemDelay", 200))
                 {
                     var itemToSell = itemsToSell.ElementAt(itemIndex);
-                    merchantFrame.SellItemByGuid(npc.Guid, itemToSell.Guid);
+                    merchantFrame.SellItemByGuid((uint)itemToSell.StackCount, npc.Guid, itemToSell.Guid);
 
                     itemIndex++;
 

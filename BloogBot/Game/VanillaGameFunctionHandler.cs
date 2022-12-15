@@ -243,9 +243,9 @@ namespace BloogBot.Game
         [DllImport("FastCall.dll", EntryPoint = "SellItemByGuid")]
         static extern void SellItemByGuidFunction(uint itemCount, ulong npcGuid, ulong itemGuid, IntPtr sellItemFunPtr);
 
-        public void SellItemByGuid(ulong vendorGuid, ulong itemGuid)
+        public void SellItemByGuid(uint itemCount, ulong vendorGuid, ulong itemGuid)
         {
-            SellItemByGuidFunction(1, vendorGuid, itemGuid, (IntPtr)MemoryAddresses.SellItemByGuidFunPtr);
+            SellItemByGuidFunction(itemCount, vendorGuid, itemGuid, (IntPtr)MemoryAddresses.SellItemByGuidFunPtr);
         }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]

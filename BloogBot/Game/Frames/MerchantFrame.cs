@@ -32,8 +32,8 @@ namespace BloogBot.Game.Frames
 
         public bool CanRepair { get; }
 
-        public void SellItemByGuid(ulong npcGuid, ulong itemGuid) =>
-            Functions.SellItemByGuid(npcGuid, itemGuid);
+        public void SellItemByGuid(uint itemCount, ulong npcGuid, ulong itemGuid) =>
+            Functions.SellItemByGuid(itemCount, npcGuid, itemGuid);
 
         public void BuyItemByName(ulong vendorGuid, string itemName, int quantity)
         {
