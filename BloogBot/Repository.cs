@@ -13,6 +13,7 @@ namespace BloogBot
         static internal void Initialize(string parConnectionString)
         {
             connectionString = parConnectionString;
+            CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
         }
 
         static public Npc AddNpc(
