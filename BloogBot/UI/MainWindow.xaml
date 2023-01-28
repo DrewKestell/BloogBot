@@ -275,14 +275,13 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="114"/>
                             <ColumnDefinition Width="28*"/>
                             <ColumnDefinition Width="69*"/>
                         </Grid.ColumnDefinitions>
-
-
 
                         <Label Grid.Row="2" Content="Current State:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
                         <Label Grid.Row="2" Grid.Column="1" Content="{Binding CurrentState}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
@@ -316,6 +315,9 @@
 
                         <Label Grid.Row="12" Content="Target IsChanneling:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
                         <Label Grid.Row="12" Grid.Column="1" Content="{Binding TargetIsChanneling}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2" />
+
+                        <Label Grid.Row="13" Content="Update Latency:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                        <Label Grid.Row="13" Grid.Column="1" Content="{Binding UpdateLatency}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2" />
                     </Grid>
                 </Grid>
             </TabItem>

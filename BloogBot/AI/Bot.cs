@@ -4,6 +4,7 @@ using BloogBot.Game.Enums;
 using BloogBot.UI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -14,6 +15,7 @@ namespace BloogBot.AI
     public abstract class Bot
     {
         readonly Stack<IBotState> botStates = new Stack<IBotState>();
+        readonly Stopwatch stopwatch = new Stopwatch();
 
         bool running;
         bool retrievingCorpse;
@@ -156,6 +158,8 @@ namespace BloogBot.AI
             {
                 try
                 {
+                    stopwatch.Restart();
+
                     ThreadSynchronizer.RunOnMainThread(() =>
                     {
                         if (botStates.Count() == 0)
@@ -274,6 +278,8 @@ namespace BloogBot.AI
                     });
 
                     await Task.Delay(25);
+
+                    container.Probe.UpdateLatency = $"{stopwatch.ElapsedMilliseconds}ms";
                 }
                 catch (Exception e)
                 {
@@ -288,6 +294,8 @@ namespace BloogBot.AI
             {
                 try
                 {
+                    stopwatch.Restart();
+
                     ThreadSynchronizer.RunOnMainThread(() =>
                     {
                         if (botStates.Count() == 0)
@@ -438,6 +446,8 @@ namespace BloogBot.AI
                     });
                     
                     await Task.Delay(25);
+
+                    container.Probe.UpdateLatency = $"{stopwatch.ElapsedMilliseconds}ms";
                 }
                 catch (Exception e)
                 {

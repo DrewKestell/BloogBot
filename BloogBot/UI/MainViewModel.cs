@@ -988,6 +988,12 @@ namespace BloogBot.UI
             get => probe.TargetIsChanneling;
         }
 
+        [ProbeField]
+        public string UpdateLatency
+        {
+            get => probe.UpdateLatency;
+        }
+
         // BotSettings
         [BotSetting]
         public string Food

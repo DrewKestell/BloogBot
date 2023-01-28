@@ -150,8 +150,8 @@ namespace BloogBot.Game
         {
             var intersection = new XYZ();
             var distance = start.DistanceTo(end);
-            var p1 = new XYZ(start.X, start.Y, start.Z + 5);
-            var p2 = new XYZ(end.X, end.Y, end.Z + 5);
+            var p1 = new XYZ(start.X, start.Y, start.Z + 2);
+            var p2 = new XYZ(end.X, end.Y, end.Z + 2);
 
             var result = IntersectFunction(ref p1, ref p2, ref intersection, ref distance, 0x00100111, (IntPtr)MemoryAddresses.IntersectFunPtr);
 

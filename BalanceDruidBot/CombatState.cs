@@ -12,6 +12,8 @@ namespace BalanceDruidBot
 {
     class CombatState : CombatStateBase, IBotState
     {
+        static readonly string[] ImmuneToNatureDamage = { "Vortex", "Whirlwind", "Whirling", "Dust", "Cyclone" };
+
         const string AbolishPoison = "Abolish Poison";
         const string EntanglingRoots = "Entangling Roots";
         const string HealingTouch = "Healing Touch";
@@ -99,11 +101,11 @@ namespace BalanceDruidBot
 
             TryCastSpell(AbolishPoison, 0, int.MaxValue, player.IsPoisoned && !player.HasBuff(MoonkinForm), castOnSelf: true);
 
-            TryCastSpell(InsectSwarm, 0, 30, !target.HasDebuff(InsectSwarm) && target.HealthPercent > 20);
+            TryCastSpell(InsectSwarm, 0, 30, !target.HasDebuff(InsectSwarm) && target.HealthPercent > 20 && !ImmuneToNatureDamage.Any(s => target.Name.Contains(s)));
 
             TryCastSpell(Moonfire, 0, 30, !target.HasDebuff(Moonfire));
 
-            TryCastSpell(Wrath, 0, 30);
+            TryCastSpell(Wrath, 0, 30, !ImmuneToNatureDamage.Any(s => target.Name.Contains(s)));
         }
     }
 }
