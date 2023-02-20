@@ -1,5 +1,6 @@
 ﻿using BloogBot.Game.Enums;
 using System;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 
 namespace BloogBot.Game
@@ -214,9 +215,17 @@ namespace BloogBot.Game
         static readonly ReleaseCorpseDelegate ReleaseCorpseFunction =
             Marshal.GetDelegateForFunctionPointer<ReleaseCorpseDelegate>((IntPtr)MemoryAddresses.ReleaseCorpseFunPtr);
 
+        [HandleProcessCorruptedStateExceptions]
         public void ReleaseCorpse(IntPtr ptr)
         {
-            ReleaseCorpseFunction(ptr);
+            try
+            {
+                ReleaseCorpseFunction(ptr);
+            }
+            catch (AccessViolationException)
+            {
+                Console.WriteLine("AccessViolationException occurred while trying to release corpse. Most likely, this is due to a transient error that caused the player pointer to temporarily equal IntPtr.Zero. The bot should keep trying to release and recover from this error.");
+            }
         }
 
         delegate int RetrieveCorpseDelegate();
