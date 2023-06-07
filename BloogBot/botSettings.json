@@ -1,5 +1,7 @@
 {
+  "DatabaseType": "sqlite", // 'sqlite' or 'mysql' currently. Database path is unused if sqlite is selected as a local database is created.
   "DatabasePath": "Server=tcp:bloog-bot.database.windows.net,1433;Initial Catalog=BloogBot;Persist Security Info=False;User ID=dkestell;Password=<>;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
+  "DiscordBotEnabled": false,
   "DiscordBotToken": "<>",
   "DiscordGuildId": "303695206333546496",
   "DiscordRoleId": "707118407157284936",
