@@ -280,3 +280,4 @@ main.min.css
 *.min.js
 
 Bot
+/BloogBot/UI/App.xaml.cs

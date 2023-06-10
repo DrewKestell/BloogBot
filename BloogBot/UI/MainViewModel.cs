@@ -33,7 +33,7 @@ namespace BloogBot.UI
             UpdatePropertiesWithAttribute(typeof(BotSettingAttribute));
 
             Logger.Initialize(botSettings);
-            Repository.Initialize(botSettings.DatabasePath);
+            Repository.Initialize(botSettings.DatabaseType,botSettings.DatabasePath);
             DiscordClientWrapper.Initialize(botSettings);
             TravelPathGenerator.Initialize(() =>
             {

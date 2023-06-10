@@ -155,6 +155,7 @@
     <Compile Include="BotSettings.cs" />
     <Compile Include="ClientHelper.cs" />
     <Compile Include="CommandModel.cs" />
+    <Compile Include="DatabaseWrapper.cs" />
     <Compile Include="Detour.cs" />
     <Compile Include="DiscordClientWrapper.cs" />
     <Compile Include="Game\Cache\ItemCacheInfo.cs" />
@@ -253,10 +254,10 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="bootstrapperSettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="botSettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -278,6 +279,12 @@
   <ItemGroup>
     <Content Include="Fasm.NET.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TSqlSchema.SQL">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SqliteSchema.SQL">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
