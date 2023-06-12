@@ -64,6 +64,8 @@ namespace BloogBot.Game.Objects
 
         public bool CanBeLooted => Health == 0 && DynamicFlags.HasFlag(DynamicFlags.CanBeLooted);
 
+        public bool CanBeSkinned => Health == 0 && UnitFlags.HasFlag(UnitFlags.UNIT_FLAG_SKINNABLE);
+
         public bool TappedByOther => DynamicFlags.HasFlag(DynamicFlags.Tapped) && !DynamicFlags.HasFlag(DynamicFlags.TappedByMe);
 
         public UnitFlags UnitFlags => (UnitFlags)MemoryManager.ReadInt(GetDescriptorPtr() + MemoryAddresses.WoWUnit_UnitFlagsOffset);
