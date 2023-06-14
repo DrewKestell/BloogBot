@@ -8,13 +8,13 @@ namespace BloogBot.AI.SharedStates
     class GatherObjectState : IBotState
     {
         readonly Stack<IBotState> botStates;
-        readonly WoWGameObject target;
+        readonly dynamic target;
         readonly LocalPlayer player;
         readonly int initialCount = 0;
 
         readonly int startTime = Environment.TickCount;
 
-        internal GatherObjectState(Stack<IBotState> botStates, IDependencyContainer container, WoWGameObject target)
+        internal GatherObjectState(Stack<IBotState> botStates, IDependencyContainer container, dynamic target)
         {
             this.botStates = botStates;
             this.target = target;
@@ -26,7 +26,7 @@ namespace BloogBot.AI.SharedStates
         {
             if (player.IsInCombat || (Environment.TickCount - startTime > 15000))
             {
-                botStates.Pop();
+                //botStates.Pop();
                 return;
             }
 

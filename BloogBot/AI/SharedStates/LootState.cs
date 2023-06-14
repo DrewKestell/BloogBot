@@ -65,8 +65,16 @@ namespace BloogBot.AI.SharedStates
             //  - loot frame is open, but we've already looted everything we want
             //  - stuck count is greater than 5 (perhaps the corpse is in an awkward position the character can't reach)
             //  - we've been in the loot state for over 10 seconds (again, perhaps the corpse is unreachable. most common example of this is when a mob dies on a cliff that we can't climb)
-            if ((currentState == LootStates.Initial && !target.CanBeLooted) || (lootFrame != null && lootIndex == lootFrame.LootItems.Count) || stuckCount > 5 || Environment.TickCount - startTime > 10000)
+            if (((currentState == LootStates.Initial && !target.CanBeLooted) || (lootFrame != null && lootIndex == lootFrame.LootItems.Count) || stuckCount > 5 || Environment.TickCount - startTime > 10000) && !player.IsCasting)
             {
+                if (target.CanBeSkinned && currentState != LootStates.Gathering && player.KnowsSpell("Skinning"))
+                {
+                    botStates.Push(new GatherObjectState(botStates, container, target));
+                    currentState = LootStates.Gathering;
+                    return;
+                }
+
+
                 player.StopAllMovement();
                 botStates.Pop();
                 botStates.Push(new EquipBagsState(botStates, container));
@@ -123,6 +131,7 @@ namespace BloogBot.AI.SharedStates
     {
         Initial,
         RightClicked,
-        LootFrameReady
+        LootFrameReady,
+        Gathering
     }
 }

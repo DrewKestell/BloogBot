@@ -8,7 +8,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using ObjectManager = BloogBot.Game.ObjectManager;
 
 namespace BloogBot.AI
 {
@@ -16,7 +18,7 @@ namespace BloogBot.AI
     {
         readonly Stack<IBotState> botStates = new Stack<IBotState>();
         readonly Stopwatch stopwatch = new Stopwatch();
-
+        
         bool running;
         bool retrievingCorpse;
 
@@ -310,6 +312,12 @@ namespace BloogBot.AI
                         {
                             currentLevel = player.Level;
                             DiscordClientWrapper.SendMessage($"Ding! {player.Name} is now level {player.Level}!");
+                        }
+
+                        if(ObjectManager.Aggressors.Count() > 0 && player.Target.Guid != ObjectManager.Aggressors.First().Guid) 
+                        {
+                            player.SetTarget(ObjectManager.Aggressors.First().Guid);
+                            botStates.Push(container.CreateMoveToTargetState(botStates, container, ObjectManager.Aggressors.First()));
                         }
 
                         player.AntiAfk();

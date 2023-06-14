@@ -23,7 +23,7 @@ namespace BloogBot.AI.SharedStates
         {
             if (ObjectManager.Player.IsInCombat)
             {
-                botStates.Pop();
+                //botStates.Pop();
                 return;
             }
 
