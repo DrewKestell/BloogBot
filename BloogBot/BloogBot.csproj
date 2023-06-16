@@ -211,6 +211,7 @@
     <Compile Include="HackManager.cs" />
     <Compile Include="Hotspot.cs" />
     <Compile Include="HotspotGenerator.cs" />
+    <Compile Include="IRepository.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="MemoryManager.cs" />
     <Compile Include="Navigation.cs" />
@@ -221,6 +222,7 @@
     <Compile Include="ThreadSynchronizer.cs" />
     <Compile Include="TravelPath.cs" />
     <Compile Include="TravelPathGenerator.cs" />
+    <Compile Include="TSqlRepository.cs" />
     <Compile Include="UI\App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
