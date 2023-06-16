@@ -13,11 +13,6 @@ namespace BloogBot
     {
         private string connectionString;
         private string databaseType;
-        public enum DataOperation
-        {
-            SELECT,
-            INSERT
-        }
         public DatabaseWrapper(string dbType, string connString)
         {
             databaseType = dbType.ToLower();
