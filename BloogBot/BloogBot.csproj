@@ -155,7 +155,6 @@
     <Compile Include="BotSettings.cs" />
     <Compile Include="ClientHelper.cs" />
     <Compile Include="CommandModel.cs" />
-    <Compile Include="DatabaseWrapper.cs" />
     <Compile Include="Detour.cs" />
     <Compile Include="DiscordClientWrapper.cs" />
     <Compile Include="Game\Cache\ItemCacheInfo.cs" />
@@ -219,6 +218,8 @@
     <Compile Include="Probe.cs" />
     <Compile Include="Repository.cs" />
     <Compile Include="SignalEventManager.cs" />
+    <Compile Include="SqliteRepository.cs" />
+    <Compile Include="SqlRepository.cs" />
     <Compile Include="ThreadSynchronizer.cs" />
     <Compile Include="TravelPath.cs" />
     <Compile Include="TravelPathGenerator.cs" />
