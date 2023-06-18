@@ -20,16 +20,9 @@ namespace BloogBot
         List<Hotspot> ListHotspots();
         List<Npc> ListNPCs();
         List<TravelPath> ListTravelPaths();
-        dynamic NewCommand(string sql, dynamic db);
-        dynamic NewConnection();
         bool NpcExists(string name);
         void RemoveBlacklistedMob(ulong guid);
         bool RowExistsSql(string sql);
-        void RunSqlQuery(string sql);
         bool TravelPathExists(string name);
-
-        TravelPath ParseTravelPathFromQueryResult(dynamic reader, int id, string prefix);
-        Npc BuildStartNpc(string prefix, dynamic reader);
-        Npc ParseNpcFromQueryResult(dynamic reader, int id, string prefix);
     }
 }

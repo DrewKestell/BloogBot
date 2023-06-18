@@ -223,7 +223,6 @@ namespace BloogBot
             }
 
         }
-
         public ReportSummary GetLatestReportSignatures()
         {
             string sql = $"SELECT TOP 1 Id FROM Commands WHERE Command = '!report' ORDER BY Id DESC";
@@ -267,7 +266,6 @@ namespace BloogBot
 
         }
 
-
         public List<ulong> ListBlacklistedMobs()
         {
             List<ulong> mobIds = new List<ulong>();
@@ -307,55 +305,55 @@ namespace BloogBot
             List<Hotspot> hotspots = new List<Hotspot>();
 
             using (var db = this.NewConnection())
+            {
+                db.Open();
+
+                var command = this.NewCommand(sql, db);
+                var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    db.Open();
+                    var id = Convert.ToInt32(reader["Id"]);
+                    var zone = Convert.ToString(reader["Zone"]);
+                    var description = Convert.ToString(reader["Description"]);
+                    var faction = Convert.ToString(reader["Faction"]);
+                    var minLevel = Convert.ToInt32(reader["MinimumLevel"]);
+                    var waypointsJson = Convert.ToString(reader["Waypoints"]);
+                    var waypoints = JsonConvert.DeserializeObject<Position[]>(waypointsJson);
+                    var safeForGrinding = Convert.ToBoolean(reader["SafeForGrinding"]);
 
-                    var command = this.NewCommand(sql, db);
-                    var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var id = Convert.ToInt32(reader["Id"]);
-                        var zone = Convert.ToString(reader["Zone"]);
-                        var description = Convert.ToString(reader["Description"]);
-                        var faction = Convert.ToString(reader["Faction"]);
-                        var minLevel = Convert.ToInt32(reader["MinimumLevel"]);
-                        var waypointsJson = Convert.ToString(reader["Waypoints"]);
-                        var waypoints = JsonConvert.DeserializeObject<Position[]>(waypointsJson);
-                        var safeForGrinding = Convert.ToBoolean(reader["SafeForGrinding"]);
+                    Npc innkeeper = null;
+                    if (reader["InnkeeperId"].GetType() != typeof(DBNull))
+                        innkeeper = ParseNpcFromQueryResult(reader, Convert.ToInt32(reader["InnkeeperId"]), "Innkeeper_");
 
-                        Npc innkeeper = null;
-                        if (reader["InnkeeperId"].GetType() != typeof(DBNull))
-                            innkeeper = ParseNpcFromQueryResult(reader, Convert.ToInt32(reader["InnkeeperId"]), "Innkeeper_");
+                    Npc repairVendor = null;
+                    if (reader["RepairVendorId"].GetType() != typeof(DBNull))
+                        repairVendor = ParseNpcFromQueryResult(reader, Convert.ToInt32(reader["RepairVendorId"]), "RepairVendor_");
 
-                        Npc repairVendor = null;
-                        if (reader["RepairVendorId"].GetType() != typeof(DBNull))
-                            repairVendor = ParseNpcFromQueryResult(reader, Convert.ToInt32(reader["RepairVendorId"]), "RepairVendor_");
+                    Npc ammoVendor = null;
+                    if (reader["AmmoVendorId"].GetType() != typeof(DBNull))
+                        ammoVendor = ParseNpcFromQueryResult(reader, Convert.ToInt32(reader["AmmoVendorId"]), "AmmoVendor_");
 
-                        Npc ammoVendor = null;
-                        if (reader["AmmoVendorId"].GetType() != typeof(DBNull))
-                            ammoVendor = ParseNpcFromQueryResult(reader, Convert.ToInt32(reader["AmmoVendorId"]), "AmmoVendor_");
+                    TravelPath travelPath = null;
+                    if (reader["TravelPathId"].GetType() != typeof(DBNull))
+                        travelPath = ParseTravelPathFromQueryResult(reader, Convert.ToInt32(reader["TravelPathId"]), "TravelPath_");
 
-                        TravelPath travelPath = null;
-                        if (reader["TravelPathId"].GetType() != typeof(DBNull))
-                            travelPath = ParseTravelPathFromQueryResult(reader, Convert.ToInt32(reader["TravelPathId"]), "TravelPath_");
-
-                        hotspots.Add(new Hotspot(
-                            id,
-                            zone,
-                            description,
-                            faction,
-                            minLevel,
-                            waypoints,
-                            innkeeper,
-                            repairVendor,
-                            ammoVendor,
-                            travelPath,
-                            safeForGrinding));
-                    }
-
-                    reader.Close();
-                    db.Close();
+                    hotspots.Add(new Hotspot(
+                        id,
+                        zone,
+                        description,
+                        faction,
+                        minLevel,
+                        waypoints,
+                        innkeeper,
+                        repairVendor,
+                        ammoVendor,
+                        travelPath,
+                        safeForGrinding));
                 }
+
+                reader.Close();
+                db.Close();
+            }
 
             return hotspots;
         }
@@ -402,35 +400,33 @@ namespace BloogBot
             string sql = $"SELECT * FROM TravelPaths ORDER BY Name";
 
             var travelPaths = new List<TravelPath>();
- 
-                using (var db = this.NewConnection())
+
+            using (var db = this.NewConnection())
+            {
+                db.Open();
+
+                var command = this.NewCommand(sql, db);
+                var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    db.Open();
-
-                    var command = this.NewCommand(sql, db);
-                    var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var id = Convert.ToInt32(reader["Id"]);
-                        var name = Convert.ToString(reader["Name"]);
-                        var waypointsJson = Convert.ToString(reader["Waypoints"]);
-                        var waypoints = JsonConvert.DeserializeObject<Position[]>(waypointsJson);
-                        travelPaths.Add(new TravelPath(id, name, waypoints));
-                    }
-
-                    reader.Close();
-                    db.Close();
-
-                    return travelPaths;
+                    var id = Convert.ToInt32(reader["Id"]);
+                    var name = Convert.ToString(reader["Name"]);
+                    var waypointsJson = Convert.ToString(reader["Waypoints"]);
+                    var waypoints = JsonConvert.DeserializeObject<Position[]>(waypointsJson);
+                    travelPaths.Add(new TravelPath(id, name, waypoints));
                 }
+
+                reader.Close();
+                db.Close();
+
+                return travelPaths;
+            }
 
         }
 
-
-
         public bool NpcExists(string name)
         {
-            string sql= $"SELECT TOP 1 Id FROM Npcs WHERE Name = '{name}';";
+            string sql = $"SELECT TOP 1 Id FROM Npcs WHERE Name = '{name}';";
             return RowExistsSql(sql);
         }
 
@@ -440,74 +436,10 @@ namespace BloogBot
             RunSqlQuery(sql);
         }
 
-        public bool RowExistsSql(string sql)
-        {
-            using (var db = this.NewConnection())
-            {
-                db.Open();
-
-                var command = this.NewCommand(sql, db);
-                var exists = command.ExecuteReader().HasRows;
-
-                db.Close();
-
-                return exists;
-            }
-        }
-
-
-
         public bool TravelPathExists(string name)
         {
             string sql = $"SELECT TOP 1 Id FROM TravelPaths WHERE Name = '{name}'";
             return this.RowExistsSql(sql);
-        }
-
-        public Npc ParseNpcFromQueryResult(dynamic reader, int id, string prefix)
-        {
-            var positionX = (float)Convert.ToDecimal(reader[$"{prefix}PositionX"]);
-            var positionY = (float)Convert.ToDecimal(reader[$"{prefix}PositionY"]);
-            var positionZ = (float)Convert.ToDecimal(reader[$"{prefix}PositionZ"]);
-            var position = new Position(positionX, positionY, positionZ);
-            return new Npc(
-                id,
-                Convert.ToString(reader[$"{prefix}Name"]),
-                Convert.ToBoolean(reader[$"{prefix}IsInnkeeper"]),
-                Convert.ToBoolean(reader[$"{prefix}SellsAmmo"]),
-                Convert.ToBoolean(reader[$"{prefix}Repairs"]),
-                Convert.ToBoolean(reader[$"{prefix}Quest"]),
-                Convert.ToBoolean(reader[$"{prefix}Horde"]),
-                Convert.ToBoolean(reader[$"{prefix}Alliance"]),
-                position,
-                Convert.ToString(reader[$"{prefix}Zone"]));
-        }
-
-        public Npc BuildStartNpc(string prefix, dynamic reader)
-        {
-            var positionX = (float)Convert.ToDecimal(reader[$"{prefix}NpcPositionX"]);
-            var positionY = (float)Convert.ToDecimal(reader[$"{prefix}NpcPositionY"]);
-            var positionZ = (float)Convert.ToDecimal(reader[$"{prefix}NpcPositionZ"]);
-            var position = new Position(positionX, positionY, positionZ);
-            return new Npc(
-                Convert.ToInt32(reader[$"{prefix}NpcId"]),
-                Convert.ToString(reader[$"{prefix}NpcName"]),
-                Convert.ToBoolean(reader[$"{prefix}NpcIsInnkeeper"]),
-                Convert.ToBoolean(reader[$"{prefix}NpcSellsAmmo"]),
-                Convert.ToBoolean(reader[$"{prefix}NpcRepairs"]),
-                Convert.ToBoolean(reader[$"{prefix}NpcQuest"]),
-                Convert.ToBoolean(reader[$"{prefix}NpcHorde"]),
-                Convert.ToBoolean(reader[$"{prefix}NpcAlliance"]),
-                position,
-                Convert.ToString(reader[$"{prefix}NpcZone"]));
-        }
-
-        public TravelPath ParseTravelPathFromQueryResult(dynamic reader, int id, string prefix)
-        {
-            var name = Convert.ToString(reader[$"{prefix}Name"]);
-            var waypointsJson = Convert.ToString(reader[$"{prefix}Waypoints"]);
-            var waypoints = JsonConvert.DeserializeObject<Position[]>(waypointsJson);
-
-            return new TravelPath(id, name, waypoints);
         }
     }
 }
