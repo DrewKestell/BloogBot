@@ -50,15 +50,15 @@ namespace BloogBot
 
         public void AddBlacklistedMob(ulong guid)
         {
-            string sql = $"INSERT INTO BlacklistedMobs VALUES ('{guid}');";
+            string sql = $"INSERT INTO BlacklistedMobs (Guid) VALUES ('{guid}');";
 
             RunSqlQuery(sql);
         }
 
         public Hotspot AddHotspot(string description, string zone = "", string faction = "", string waypointsJson = "", Npc innkeeper = null, Npc repairVendor = null, Npc ammoVendor = null, int minLevel = 0, TravelPath travelPath = null, bool safeForGrinding = false, Position[] waypoints = null)
         {
-            string insertSql = $"INSERT INTO Hotspots VALUES ('{zone}', '{description}', '{faction}', '{waypointsJson}', {innkeeper?.Id.ToString() ?? "NULL"}, {repairVendor?.Id.ToString() ?? "NULL"}, {ammoVendor?.Id.ToString() ?? "NULL"}, {minLevel}, {travelPath?.Id.ToString() ?? "NULL"}, {Convert.ToInt32(safeForGrinding)});";
-            string selectSql = $"SELECT TOP 1 * FROM Hotspots WHERE Description = '{description}';";
+            string insertSql = $"INSERT INTO Hotspots (Zone, Description, Faction, Waypoints, InnkeeperId, RepairVendorId, AmmoVendorId, MinimumLevel, TravelPathId, SafeForGrinding) VALUES ('{zone}', '{description}', '{faction}', '{waypointsJson}', {innkeeper?.Id.ToString() ?? "NULL"}, {repairVendor?.Id.ToString() ?? "NULL"}, {ammoVendor?.Id.ToString() ?? "NULL"}, {minLevel}, {travelPath?.Id.ToString() ?? "NULL"}, {Convert.ToInt32(safeForGrinding)});";
+            string selectSql = $"SELECT * FROM Hotspots WHERE Description = '{description}' LIMIT 1;";
             int id;
 
             RunSqlQuery(insertSql);
@@ -82,8 +82,8 @@ namespace BloogBot
 
         public Npc AddNpc(string name, bool isInnkeeper, bool sellsAmmo, bool repairs, bool quest, bool horde, bool alliance, float positionX, float positionY, float positionZ, string zone)
         {
-            string insertSql = $"INSERT INTO Npcs VALUES ('{name}', {Convert.ToInt32(isInnkeeper)}, {Convert.ToInt32(sellsAmmo)}, {Convert.ToInt32(repairs)}, {Convert.ToInt32(quest)}, {Convert.ToInt32(horde)}, {Convert.ToInt32(alliance)}, {positionX}, {positionY}, {positionZ}, '{zone}');";
-            string selectSql = $"SELECT TOP 1 * FROM Npcs WHERE Name = '{name}';";
+            string insertSql = $"INSERT INTO Npcs (Name, IsInnKeeper, SellsAmmo, Repairs, Quest, Horde, Alliance, PositionX, PositionY, PositionZ, Zone) VALUES ('{name}', {Convert.ToInt32(isInnkeeper)}, {Convert.ToInt32(sellsAmmo)}, {Convert.ToInt32(repairs)}, {Convert.ToInt32(quest)}, {Convert.ToInt32(horde)}, {Convert.ToInt32(alliance)}, {positionX}, {positionY}, {positionZ}, '{zone}');";
+            string selectSql = $"SELECT * FROM Npcs WHERE Name = '{name}' LIMIT 1;";
 
             RunSqlQuery(insertSql);
 
@@ -116,7 +116,7 @@ namespace BloogBot
 
         public void AddReportSignature(string playerName, int commandId)
         {
-            string sql = $"INSERT INTO ReportSignatures VALUES ('{playerName}', {commandId})";
+            string sql = $"INSERT INTO ReportSignatures (Player, CommandId) VALUES ('{playerName}', {commandId})";
 
 
             using (var db = NewConnection())
@@ -132,8 +132,8 @@ namespace BloogBot
         public TravelPath AddTravelPath(string name, string waypointsJson)
         {
 
-            string insertSql = $"INSERT INTO TravelPaths VALUES ('{name}', '{waypointsJson}');";
-            string selectSql = $"SELECT TOP 1 * FROM TravelPaths WHERE Name = '{name}';";
+            string insertSql = $"INSERT INTO TravelPaths (Name, Waypoints) VALUES ('{name}', '{waypointsJson}');";
+            string selectSql = $"SELECT * FROM TravelPaths WHERE Name = '{name}' LIMIT 1;";
 
             TravelPath travelPath;
 
@@ -161,7 +161,7 @@ namespace BloogBot
 
         public bool BlacklistedMobExists(ulong guid)
         {
-            string sql = $"SELECT TOP 1 Id FROM BlacklistedMobs WHERE Guid = '{guid}';";
+            string sql = $"SELECT Id FROM BlacklistedMobs WHERE Guid = '{guid}' LIMIT 1;";
             return RowExistsSql(sql);
         }
 
@@ -227,7 +227,7 @@ namespace BloogBot
 
         public ReportSummary GetLatestReportSignatures()
         {
-            string sql = $"SELECT TOP 1 Id FROM Commands WHERE Command = '!report' ORDER BY Id DESC";
+            string sql = $"SELECT Id FROM Commands WHERE Command = '!report' ORDER BY Id DESC LIMIT 1";
 
             using (var db = NewConnection())
             {
@@ -427,11 +427,9 @@ namespace BloogBot
 
         }
 
-
-
         public bool NpcExists(string name)
         {
-            string sql = $"SELECT TOP 1 Id FROM Npcs WHERE Name = '{name}';";
+            string sql = $"SELECT Id FROM Npcs WHERE Name = '{name}' LIMIT 1;";
             return RowExistsSql(sql);
         }
 
@@ -441,74 +439,10 @@ namespace BloogBot
             RunSqlQuery(sql);
         }
 
-        public bool RowExistsSql(string sql)
-        {
-            using (var db = this.NewConnection())
-            {
-                db.Open();
-
-                var command = this.NewCommand(sql, db);
-                var exists = command.ExecuteReader().HasRows;
-
-                db.Close();
-
-                return exists;
-            }
-        }
-
-
-
         public bool TravelPathExists(string name)
         {
-            string sql = $"SELECT TOP 1 Id FROM TravelPaths WHERE Name = '{name}'";
+            string sql = $"SELECT Id FROM TravelPaths WHERE Name = '{name}' LIMIT 1";
             return this.RowExistsSql(sql);
-        }
-
-        public Npc ParseNpcFromQueryResult(dynamic reader, int id, string prefix)
-        {
-            var positionX = (float)Convert.ToDecimal(reader[$"{prefix}PositionX"]);
-            var positionY = (float)Convert.ToDecimal(reader[$"{prefix}PositionY"]);
-            var positionZ = (float)Convert.ToDecimal(reader[$"{prefix}PositionZ"]);
-            var position = new Position(positionX, positionY, positionZ);
-            return new Npc(
-                id,
-                Convert.ToString(reader[$"{prefix}Name"]),
-                Convert.ToBoolean(reader[$"{prefix}IsInnkeeper"]),
-                Convert.ToBoolean(reader[$"{prefix}SellsAmmo"]),
-                Convert.ToBoolean(reader[$"{prefix}Repairs"]),
-                Convert.ToBoolean(reader[$"{prefix}Quest"]),
-                Convert.ToBoolean(reader[$"{prefix}Horde"]),
-                Convert.ToBoolean(reader[$"{prefix}Alliance"]),
-                position,
-                Convert.ToString(reader[$"{prefix}Zone"]));
-        }
-
-        public Npc BuildStartNpc(string prefix, dynamic reader)
-        {
-            var positionX = (float)Convert.ToDecimal(reader[$"{prefix}NpcPositionX"]);
-            var positionY = (float)Convert.ToDecimal(reader[$"{prefix}NpcPositionY"]);
-            var positionZ = (float)Convert.ToDecimal(reader[$"{prefix}NpcPositionZ"]);
-            var position = new Position(positionX, positionY, positionZ);
-            return new Npc(
-                Convert.ToInt32(reader[$"{prefix}NpcId"]),
-                Convert.ToString(reader[$"{prefix}NpcName"]),
-                Convert.ToBoolean(reader[$"{prefix}NpcIsInnkeeper"]),
-                Convert.ToBoolean(reader[$"{prefix}NpcSellsAmmo"]),
-                Convert.ToBoolean(reader[$"{prefix}NpcRepairs"]),
-                Convert.ToBoolean(reader[$"{prefix}NpcQuest"]),
-                Convert.ToBoolean(reader[$"{prefix}NpcHorde"]),
-                Convert.ToBoolean(reader[$"{prefix}NpcAlliance"]),
-                position,
-                Convert.ToString(reader[$"{prefix}NpcZone"]));
-        }
-
-        public TravelPath ParseTravelPathFromQueryResult(dynamic reader, int id, string prefix)
-        {
-            var name = Convert.ToString(reader[$"{prefix}Name"]);
-            var waypointsJson = Convert.ToString(reader[$"{prefix}Waypoints"]);
-            var waypoints = JsonConvert.DeserializeObject<Position[]>(waypointsJson);
-
-            return new TravelPath(id, name, waypoints);
         }
 
     }
