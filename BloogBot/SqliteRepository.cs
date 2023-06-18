@@ -14,9 +14,9 @@ namespace BloogBot
 {
     internal class SqliteRepository : SqlRepository, IRepository
     {
-        string connectionString;
+        private string connectionString;
 
-        public override void Initialize(string connectionString)
+        public override void Initialize(string _)
         {
             string strExeFilePath = Assembly.GetExecutingAssembly().Location;
             string strWorkPath = Path.GetDirectoryName(strExeFilePath);

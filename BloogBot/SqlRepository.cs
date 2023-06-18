@@ -13,9 +13,6 @@ namespace BloogBot
 {
     public abstract class SqlRepository
     {
-
-        string connectionString;
-
         public abstract dynamic NewConnection();
 
         public abstract dynamic NewCommand(string sql, dynamic db);
