@@ -4,16 +4,28 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Globalization;
-using static BloogBot.DatabaseWrapper;
-
 namespace BloogBot
 {
     static public class Repository
     {
-        static DatabaseWrapper databaseWrapper;
+        static IRepository databaseWrapper;
         static internal void Initialize(string databaseType, string parConnectionString)
         {
-            databaseWrapper = new DatabaseWrapper(databaseType, parConnectionString);
+            switch (databaseType.ToLower())
+            {
+                case "sqlite":
+                    databaseWrapper = new SqliteRepository();
+                    break;
+                case "mssql":
+                    databaseWrapper = new TSqlRepository();
+                    break;
+                default:
+                    throw new NotImplementedException();
+
+            }
+
+            databaseWrapper.Initialize(parConnectionString);
+
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
         }
 
@@ -151,16 +163,7 @@ namespace BloogBot
 
         static public void AddReportSignature(string playerName, int commandId)
         {
-            using (var db = databaseWrapper.NewConnection())
-            {
-                db.Open();
-
-                var sql = $"INSERT INTO ReportSignatures VALUES ('{playerName}', {commandId})";
-                var command = databaseWrapper.NewCommand(sql, db);
-                command.ExecuteNonQuery();
-
-                db.Close();
-            }
+            databaseWrapper.AddReportSignature(playerName, commandId);
         }
 
         static string Encode(string value) => value.Replace("'", "''");
