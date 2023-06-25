@@ -39,6 +39,7 @@ A few more important notes:
   - Update values in `bootstrapperSettings.json` and `botSettings.json`
   - Generate movemaps and dump them into <repo>\Bot\mmaps
   - Set Bootstrapper as your startup project, and fire up your debugger. You should see Wow.exe launch, and then you'll be prompted to attach a debugger to Visual Studio. To learn more about the overall flow of how the bot attached to the WoW process, [read my website](https://drewkestell.us/Article/6/Chapter/1)
+  - View the documentation in the Docs folder to learn more.
   - Join the Discord and ask for help if you're stuck.
 
 ## Motivation
