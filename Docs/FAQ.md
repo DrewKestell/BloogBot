@@ -35,11 +35,11 @@ BloogBot has Discord integration that does things like notify you when you level
 ## 11. How do I generate movemaps?
 Start by reading [this](https://drewkestell.us/Article/6/Chapter/20) to learn how to do it yourself. If you're stuck, you can downloaded the pregenerated movemaps from my google drive [here](https://drive.google.com/file/d/1w8EH25diV0A_sbFBUw063oWIafqg5fOP/view?usp=drive_link). These were generated using the WotLK client. Note that the movemap generator utility from Mangos that I used has a bunch of parameters to tweak how movemaps are generated, like the max walk angle, offmesh links, etc. So you may get better results by generating them yourself.
 
-# 12. Does BloogBot provide an auto-rotation feature?
+## 12. Does BloogBot provide an auto-rotation feature?
 No. It would be easy to write one inside of BloogBot though.
 
-# 13. How do I get help?
+## 13. How do I get help?
 Watch the [tutorial video](https://www.youtube.com/watch?v=g3jYHiajQdk), then join the [Discord server](https://discord.gg/S4tvykaGcJ).
 
-# 14. The bot is crashing randomly, how do I debug?
+## 14. The bot is crashing randomly, how do I debug?
 The best way is to wrap the entire bots execution loop in a try catch. In your catch you can dump the exception and stack trace to the console. There are certain kinds of exceptions that are tricker to catch. Some are impossible, like stack overflow. Access violation exception is possible to catch but requires you to annotate your code with an attribute. Read more [here](Well, the best way is to wrap the entire bots execution loop in a try catch. In your catch you can dump the exception and stack trace to the console. There are certain kinds of exceptions that are tricker to catch. Some are impossible, like stack overflow. Access violation exception is  possible to catch but requires you to annotate your code with an attribute. Read more [here](https://stackoverflow.com/questions/7392783/list-of-exceptions-that-cant-be-caught-in-net) and [here](https://stackoverflow.com/questions/3469368/how-to-handle-accessviolationexception). You can also attach the debugger to visual studio while your bot is running and wait for it to crash. Just note that in visual studio you can configure which exceptions will break execution, and not all may be selected by default. So you might have to go into the debugger settings and select them all.
