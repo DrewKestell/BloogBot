@@ -1,15 +1,10 @@
 ﻿using BloogBot.Game;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data.SqlClient;
-using System.Data.SQLite;
-using System.Windows.Controls;
-using Newtonsoft.Json;
-using System.Reflection;
 using System.IO;
+using System.Reflection;
 
 namespace BloogBot
 {
@@ -34,7 +29,6 @@ namespace BloogBot
                 command.ExecuteNonQuery();
                 db.Close();
             }
-
         }
 
         public override dynamic NewConnection()
@@ -110,13 +104,11 @@ namespace BloogBot
 
                 return npc;
             }
-
         }
 
         public void AddReportSignature(string playerName, int commandId)
         {
             string sql = $"INSERT INTO ReportSignatures VALUES ('{playerName}', {commandId})";
-
 
             using (var db = NewConnection())
             {
@@ -125,7 +117,6 @@ namespace BloogBot
                 command.ExecuteNonQuery();
                 db.Close();
             }
-
         }
 
         public TravelPath AddTravelPath(string name, string waypointsJson)
@@ -392,7 +383,6 @@ namespace BloogBot
 
                 return npcs;
             }
-
         }
 
         public List<TravelPath> ListTravelPaths()
@@ -421,7 +411,6 @@ namespace BloogBot
 
                 return travelPaths;
             }
-
         }
 
         public bool NpcExists(string name)
