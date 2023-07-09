@@ -443,5 +443,36 @@ namespace BloogBot.Game.Objects
             return;
             // Functions.CastAtPosition(spellName, position);
         }
+
+        public bool IsAutoRepeating(string name)
+        {
+            string luaString = $@"
+                local i = 1
+                while true do
+                    local spellName, spellRank = GetSpellName(i, BOOKTYPE_SPELL);
+                    if not spellName then
+                        break;
+                    end
+   
+                    -- use spellName and spellRank here
+                    if(spellName == ""{{{name}}}"") then
+                        PickupSpell(i, BOOKTYPE_SPELL);
+                        PlaceAction(1);
+                        ClearCursor();
+                        return IsAutoRepeatAction(1)
+                    end
+
+                    i = i + 1;
+                end
+                return false;";
+            var result = LuaCallWithResults(luaString);
+            Console.WriteLine(result);
+            return false;
+        }
+
+        private static string FormatLua(string str, params object[] names)
+        {
+            return string.Format(str, names.Select(s => s.ToString().Replace("'", "\\'").Replace("\"", "\\\"")).ToArray());
+        }
     }
 }

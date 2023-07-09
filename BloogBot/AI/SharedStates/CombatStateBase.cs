@@ -116,6 +116,16 @@ namespace BloogBot.AI.SharedStates
                 if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                 {
                     var autoAttackAction = player.Class == Class.Warrior ? 84 : 12;
+
+                    // first check if auto attack is in the correct action slot
+                    var isInCorrectSpot = player.LuaCallWithResults($"{{0}} = IsAttackAction({autoAttackAction})");
+                    if (isInCorrectSpot.Length == 0 || isInCorrectSpot[0] != "1")
+                    {
+                        var error = "You must place the <Attack> action from your spellbook on the last slot on your primary action bar.";
+                        player.LuaCall($"message('{error}')");
+                        return false;
+                    }
+
                     var autoAttackLuaScript = $"if IsCurrentAction('{autoAttackAction}') == nil then CastSpellByName('Attack') end";
                     player.LuaCall(autoAttackLuaScript);
                 }

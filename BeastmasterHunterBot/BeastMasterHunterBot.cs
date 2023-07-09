@@ -38,6 +38,10 @@ namespace BeastMasterHunterBot
                 probe,
                 hotspots);
 
-        public void Test(IDependencyContainer container) { }
+        public void Test(IDependencyContainer container)
+        {
+            var player = ObjectManager.Player;
+            player.LuaCall("StartAttack()");
+        }
     }
 }

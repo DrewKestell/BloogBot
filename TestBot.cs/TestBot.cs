@@ -45,14 +45,15 @@ namespace TestBot
             {
                 var player = ObjectManager.Player;
 
-                Console.WriteLine(player.CurrentSpellcastId);
-                Console.WriteLine(player.CurrentChannelingId);
-                //Console.WriteLine("Hey!");
-                //var autoAttackLuaScript = $"if IsCurrentSpell('6603') == nil then AttackTarget() end";
-                //player.LuaCall(autoAttackLuaScript);
-
-                var result = player.LuaCallWithResults("{0} = IsCurrentSpell(6603)");
-                Console.WriteLine(result);
+                var result = player.LuaCallWithResults("{0} = IsAttackAction(84)");
+                if (result.Length > 0)
+                {
+                    Console.WriteLine(result.Length);
+                    foreach (var r in result)
+                    {
+                        Console.WriteLine(r);
+                    }
+                }    
             });
         }
     }

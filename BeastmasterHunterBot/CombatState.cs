@@ -51,6 +51,8 @@ namespace BeastMasterHunterBot
             if (base.Update())
                 return;
 
+            Console.WriteLine("foo");
+
             var gun = Inventory.GetEquippedItem(EquipSlot.Ranged);
             var canUseRanged = gun != null && player.Position.DistanceTo(target.Position) > 5 && player.Position.DistanceTo(target.Position) < 34;
             if (gun == null)

@@ -19,7 +19,7 @@ A few more important notes:
 - I used to have two completely separate code bases - one for v1.12.1, and one for v2.4.3 of the WoW client. I recently merged them into a single codebase. TBC should be fairly stable. Vanilla and WotLK have been tested with a few basic scenarios using a few class profiles, but there are likely bugs that need to be fixed.
 - There are a few external dependencies that you'll need to wire up if you want to compile and run this yourself:
   - You'll need to compile movemaps to facilitate the bot's navigation through the game world. See [this article from my website](https://drewkestell.us/Article/6/Chapter/20) for more info
-  - You'll need to modify some values in `botSettings.json` (alternatively, you can find the code that references these and disable it if you don't care about the functionality):
+  - You'll need to modify some values in `botSettings.json`. Note that you can disable Discord integration by setting `"DiscordBotEnabled"` to `false` in botSettings.json.
     - DatabasePath
     - DiscordBotToken
     - DiscordGuildId
@@ -34,12 +34,14 @@ A few more important notes:
 - To get started working with this yourself:
   - Clone the repo and open BloogBot.sln in Visual Studio (v2022 ideally)
   - Build the solution - if you get compiler errors, you're likely missing some SDK / framework dependencies. Check the errors, consult Google, and use the Visual Studio installer to install any missing dependencies. For example, you'll definitely need some C++ Build Tools if you don't have them installed already.
-  - Create required Azure infrastructure
+  - Create required Azure infrastructure (alternatively, you can use a local sql database, or sqlite). Add your connection string to botSettings.json and a script should run to scaffold the necessary tables the first time you run the bot. Ask in Discord if this doesn't work for you.
   - Install version 1.12.1, 2.4.3, or 3.5.5 of the WoW client.
   - Update values in `bootstrapperSettings.json` and `botSettings.json`
-  - Generate movemaps and dump them into <repo>\Bot\mmaps
+  - Generate movemaps and dump them into <repo>\Bot\mmaps (see FAQ for details).
   - Set Bootstrapper as your startup project, and fire up your debugger. You should see Wow.exe launch, and then you'll be prompted to attach a debugger to Visual Studio. To learn more about the overall flow of how the bot attached to the WoW process, [read my website](https://drewkestell.us/Article/6/Chapter/1)
   - View the documentation in the Docs folder to learn more.
+  - Watch the [tutorial video](https://www.youtube.com/watch?v=g3jYHiajQdk).
+  - Read the [FAQ](https://github.com/DrewKestell/BloogBot/blob/main/Docs/FAQ.md) for common troubleshooting answers.
   - Join the Discord and ask for help if you're stuck.
 
 ## Motivation
