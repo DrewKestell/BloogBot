@@ -79,6 +79,7 @@ namespace BloogBot.AI
                     // TODO: FactionId
                     // 71: Undercity, 85: Orgrimmar, 474: Gadgetzan
                     .Where(u => u.FactionId != 71 && u.FactionId != 85 && u.FactionId != 474 && u.FactionId != 475 && u.FactionId != 1475)
+                    .Where(u => u.UnitFlags != UnitFlags.UNIT_FLAG_IMMUNE_TO_NPC)
                     .Where(u => targetingCriteria(u))            
                     .OrderBy(u => Navigation.DistanceViaPath(ObjectManager.MapId, ObjectManager.Player?.Position, u.Position))
                     .FirstOrDefault();
