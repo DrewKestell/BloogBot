@@ -113,10 +113,8 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <Target Name="CopyFiles" AfterTargets="Build">
-    <Copy SourceFiles="bootstrapperSettings.json" DestinationFolder="$(OutDir)" Condition="!$([System.IO.File]::Exists($(MSBuildProjectDirectory)\..\bootstrapperSettings.json))" />
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\bootstrapperSettings.json" DestinationFolder="$(OutDir)" Condition="$([System.IO.File]::Exists($(MSBuildProjectDirectory)\..\bootstrapperSettings.json))" /> 
-    <Copy SourceFiles="botSettings.json" DestinationFolder="$(OutDir)" Condition="!$([System.IO.File]::Exists($(MSBuildProjectDirectory)\..\botSettings.json))" />
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\botSettings.json" DestinationFolder="$(OutDir)" Condition="$([System.IO.File]::Exists($(MSBuildProjectDirectory)\..\botSettings.json))" /> 
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\bootstrapperSettings.json" DestinationFolder="$(OutDir)" Condition="$([System.IO.File]::Exists($(MSBuildProjectDirectory)\..\bootstrapperSettings.json))" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\botSettings.json" DestinationFolder="$(OutDir)" Condition="$([System.IO.File]::Exists($(MSBuildProjectDirectory)\..\botSettings.json))" />
   </Target>
   <ItemGroup>
     <ApplicationDefinition Include="UI\App.xaml">
@@ -252,6 +250,12 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="bootstrapperSettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="botSettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
