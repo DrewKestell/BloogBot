@@ -286,6 +286,8 @@ namespace BloogBot
             }
         }
 
+        bool IsNotNullOrZero(dynamic value) => value != null && value.GetType() != typeof(DBNull) && value != 0;
+
         public List<Hotspot> ListHotspots()
         {
             string sql = @"
@@ -321,20 +323,24 @@ namespace BloogBot
                     var safeForGrinding = Convert.ToBoolean(reader["SafeForGrinding"]);
 
                     Npc innkeeper = null;
-                    if (reader["InnkeeperId"].GetType() != typeof(DBNull))
-                        innkeeper = ParseNpcFromQueryResult(reader, Convert.ToInt32(reader["InnkeeperId"]), "Innkeeper_");
+                    var innkeeperId = reader["InnkeeperId"];
+                    if (IsNotNullOrZero(innkeeperId))
+                        innkeeper = ParseNpcFromQueryResult(reader, Convert.ToInt32(innkeeperId), "Innkeeper_");
 
                     Npc repairVendor = null;
-                    if (reader["RepairVendorId"].GetType() != typeof(DBNull))
-                        repairVendor = ParseNpcFromQueryResult(reader, Convert.ToInt32(reader["RepairVendorId"]), "RepairVendor_");
+                    var repairVendorId = reader["RepairVendorId"];
+                    if (IsNotNullOrZero(repairVendorId))
+                        repairVendor = ParseNpcFromQueryResult(reader, Convert.ToInt32(repairVendorId), "RepairVendor_");
 
                     Npc ammoVendor = null;
-                    if (reader["AmmoVendorId"].GetType() != typeof(DBNull))
-                        ammoVendor = ParseNpcFromQueryResult(reader, Convert.ToInt32(reader["AmmoVendorId"]), "AmmoVendor_");
+                    var ammoVendorId = reader["AmmoVendorId"];
+                    if (IsNotNullOrZero(ammoVendorId))
+                        ammoVendor = ParseNpcFromQueryResult(reader, Convert.ToInt32(ammoVendorId), "AmmoVendor_");
 
                     TravelPath travelPath = null;
-                    if (reader["TravelPathId"].GetType() != typeof(DBNull))
-                        travelPath = ParseTravelPathFromQueryResult(reader, Convert.ToInt32(reader["TravelPathId"]), "TravelPath_");
+                    var travelPathId = reader["TravelPathId"];
+                    if (IsNotNullOrZero(travelPathId))
+                        travelPath = ParseTravelPathFromQueryResult(reader, Convert.ToInt32(travelPathId), "TravelPath_");
 
                     hotspots.Add(new Hotspot(
                         id,
