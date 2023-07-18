@@ -23,7 +23,7 @@
     <ProjectGuid>{C5ED9E2F-C166-4D4C-9E65-47035C38B3EA}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>FastCall</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
