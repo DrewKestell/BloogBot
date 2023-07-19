@@ -23,7 +23,13 @@ namespace BloogBot
 
         public BotLoader()
         {
-            AppDomain.CurrentDomain.AssemblyResolve += (sender, args) => Assembly.GetExecutingAssembly();
+            AppDomain.CurrentDomain.AssemblyResolve += (sender, args) => { 
+                
+                var currentAssembly = Assembly.GetExecutingAssembly();
+                var name = args.Name.Split(',')[0];
+                var assembly = Assembly.Load(name) ?? currentAssembly;
+                return assembly;
+            };
         }
 
         internal List<IBot> ReloadBots()
