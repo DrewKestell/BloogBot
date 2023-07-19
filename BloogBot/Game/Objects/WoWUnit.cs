@@ -76,6 +76,8 @@ namespace BloogBot.Game.Objects
 
         public int FactionId => MemoryManager.ReadInt(GetDescriptorPtr() + MemoryAddresses.WoWUnit_FactionIdOffset);
 
+        public bool NotAttackable => UnitFlags.HasFlag(UnitFlags.UNIT_FLAG_NON_ATTACKABLE);
+
         public bool IsFacing(Position position) => Math.Abs(GetFacingForPosition(position) - Facing) < 0.05f;
 
         // in radians
@@ -117,6 +119,8 @@ namespace BloogBot.Game.Objects
         public bool IsSwimming => MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SWIMMING);
 
         public bool IsFalling => MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLING);
+
+        public bool IsMounted => UnitFlags.HasFlag(UnitFlags.UNIT_FLAG_MOUNT);
 
         public bool IsPet => SummonedByGuid > 0;
 
