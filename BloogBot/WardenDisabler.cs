@@ -245,7 +245,7 @@ namespace BloogBot
         {
             Console.WriteLine("[WARDEN] DisableWardenHook called.");
             var wardenPtr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.WardenBase);
-            Console.WriteLine($"[WARDEN] WardenPtr = {wardenPtr} ({wardenPtr.ToString("X")})");
+            Console.WriteLine($"[WARDEN] WardenPtr = {wardenPtr} (0x{wardenPtr.ToString("X")})");
             if (wardenPtr != IntPtr.Zero)
             {
                 if ((int)wardenPtr < 80000)
@@ -259,7 +259,7 @@ namespace BloogBot
                 else
                 {
                     var wardenBaseAddr = MemoryManager.ReadIntPtr(wardenPtr);
-                    Console.WriteLine($"[WARDEN] DisableWardenHook found WardenBaseAddress = {wardenBaseAddr} ({wardenBaseAddr.ToString("X")})");
+                    Console.WriteLine($"[WARDEN] DisableWardenHook found WardenBaseAddress = {wardenBaseAddr} (0x{wardenBaseAddr.ToString("X")})");
                     InitializeWardenPageScanHook(wardenBaseAddr);
                     InitializeWardenMemScanHook(wardenBaseAddr);
                 }
@@ -276,32 +276,21 @@ namespace BloogBot
         static void InitializeWardenPageScanHook(IntPtr wardenModuleStart)
         {
             IntPtr pageScanPtr = IntPtr.Zero;
-            if (ClientHelper.ClientVersion == ClientVersion.WotLK)
-            {
-                // in the WotLK client, the PageScan and MemScan functions seem to be loaded into memory at a random offset sometime after the WardenModule base address,
-                // and about 6000 bytes later. I spent a bunch of time trying to figure out how to find the address of these functions deterministically, but failed.
-                // so instead, we scan 5 bytes of memory 1 byte at a time until we find the function signature. and we start at 6000 and go down because occasionally
-                // I've seen the same 5 bytes in memory more in more than one place, but through experimentation, it seems we always want the higher one.
 
-                // TODO [12-3-2022]: this sorta works, but not consistently. need to come back and find a better way of doing this.
-                for (var i = 0x6000; i > 0; i--)
-                {
-                    var tempPageScanPtr = IntPtr.Add(wardenModuleStart, i);
-                    var currentBytes = MemoryManager.ReadBytes(tempPageScanPtr, 5);
-                    if (currentBytes != null && currentBytes.SequenceEqual(pageScanOriginalBytes))
-                    {
-                        pageScanPtr = tempPageScanPtr;
-                        break;
-                    }
-                }
-            }
-            else
+            // in the WotLK client, the PageScan and MemScan functions seem to be loaded into memory at a random offset sometime after the WardenModule base address,
+            // and about 6000 bytes later. I spent a bunch of time trying to figure out how to find the address of these functions deterministically, but failed.
+            // so instead, we scan 5 bytes of memory 1 byte at a time until we find the function signature. and we start at 6000 and go down because occasionally
+            // I've seen the same 5 bytes in memory more in more than one place, but through experimentation, it seems we always want the higher one.
+
+            // TODO [12-3-2022]: this sorta works, but not consistently. need to come back and find a better way of doing this.
+            for (var i = 0x10000; i > 0; i--)
             {
-                var tempPageScanPtr = IntPtr.Add(wardenModuleStart, MemoryAddresses.WardenPageScanOffset);
+                var tempPageScanPtr = IntPtr.Add(wardenModuleStart, i);
                 var currentBytes = MemoryManager.ReadBytes(tempPageScanPtr, 5);
                 if (currentBytes != null && currentBytes.SequenceEqual(pageScanOriginalBytes))
                 {
                     pageScanPtr = tempPageScanPtr;
+                    break;
                 }
             }
 
@@ -342,7 +331,7 @@ namespace BloogBot
             MemoryManager.InjectAssembly("WardenPageScanHook", (uint)pageScanPtr, "JMP 0x" + wardenPageScanDetourPtr.ToString("X"));
 
             wardenPageScanFunPtr = pageScanPtr;
-            Console.WriteLine($"[WARDEN] PageScan Hooked! WardenModulePtr={wardenModuleStart.ToString("X")} OriginalPageScanFunPtr={pageScanPtr.ToString("X")} DetourFunPtr={wardenPageScanDetourPtr.ToString("X")}");
+            Console.WriteLine($"[WARDEN] PageScan Hooked! WardenModulePtr=0x{wardenModuleStart.ToString("X")} OriginalPageScanFunPtr=0x{pageScanPtr.ToString("X")} DetourFunPtr=0x{wardenPageScanDetourPtr.ToString("X")}");
         }
 
         static void WardenPageScanHook(IntPtr readBase, int readOffset, IntPtr writeTo)
@@ -374,26 +363,14 @@ namespace BloogBot
         static void InitializeWardenMemScanHook(IntPtr wardenModuleStart)
         {
             IntPtr memScanPtr = IntPtr.Zero;
-            if (ClientHelper.ClientVersion == ClientVersion.WotLK)
+            for (var i = 0x10000; i > 0; i--)
             {
-                for (var i = 0x6000; i > 0; i--)
-                {
-                    var tempMemScanPtr = IntPtr.Add(wardenModuleStart, i);
-                    var currentBytes = MemoryManager.ReadBytes(tempMemScanPtr, 5);
-                    if (currentBytes != null && currentBytes.SequenceEqual(memScanOriginalBytes))
-                    {
-                        memScanPtr = tempMemScanPtr;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                var tempMemScanPtr = IntPtr.Add(wardenModuleStart, MemoryAddresses.WardenMemScanOffset);
+                var tempMemScanPtr = IntPtr.Add(wardenModuleStart, i);
                 var currentBytes = MemoryManager.ReadBytes(tempMemScanPtr, 5);
                 if (currentBytes != null && currentBytes.SequenceEqual(memScanOriginalBytes))
                 {
                     memScanPtr = tempMemScanPtr;
+                    break;
                 }
             }
 
