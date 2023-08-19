@@ -23,7 +23,7 @@
     <ProjectGuid>{339B8C16-CAD4-467B-B1F3-F10F7E80F944}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>NavigationTests</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectSubType>NativeUnitTestProject</ProjectSubType>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
