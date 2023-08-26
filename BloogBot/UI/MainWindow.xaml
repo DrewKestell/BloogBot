@@ -1072,7 +1072,7 @@
                             IsEditable="False"
                             VerticalContentAlignment="Center"
                             SelectedItem="{Binding Path=NewHotspotInnkeeper, Mode=TwoWay}"
-                            ItemsSource="{Binding Path=Npcs, Mode=OneWay}">
+                            ItemsSource="{Binding Path=InkeeperNpcs, Mode=OneWay}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock>
@@ -1098,7 +1098,7 @@
                             IsEditable="False"
                             VerticalContentAlignment="Center"
                             SelectedItem="{Binding Path=NewHotspotRepairVendor, Mode=TwoWay}"
-                            ItemsSource="{Binding Path=Npcs, Mode=OneWay}">
+                            ItemsSource="{Binding Path=RepairNpcs, Mode=OneWay}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock>
@@ -1124,7 +1124,7 @@
                             IsEditable="False"
                             VerticalContentAlignment="Center"
                             SelectedItem="{Binding Path=NewHotspotAmmoVendor, Mode=TwoWay}"
-                            ItemsSource="{Binding Path=Npcs, Mode=OneWay}">
+                            ItemsSource="{Binding Path=AmmoNpcs, Mode=OneWay}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock>

@@ -63,7 +63,9 @@ namespace BloogBot.UI
         public ObservableCollection<IBot> Bots { get; private set; }
         public ObservableCollection<TravelPath> TravelPaths { get; private set; }
         public ObservableCollection<Hotspot> Hotspots { get; private set; }
-        public ObservableCollection<Npc> Npcs { get; private set; }
+        public ObservableCollection<Npc> RepairNpcs { get; private set; }
+        public ObservableCollection<Npc> InkeeperNpcs { get; private set; }
+        public ObservableCollection<Npc> AmmoNpcs { get; private set; }
 
         #region Commands
 
@@ -512,12 +514,18 @@ namespace BloogBot.UI
                         target.Position.Z,
                         ObjectManager.ZoneText);
 
-                    Npcs.Add(npc);
-                    Npcs = new ObservableCollection<Npc>(Npcs.OrderBy(n => n?.Horde)
-                        .ThenBy(n => n?.Name));
-
-                    OnPropertyChanged(nameof(Npcs));
-
+                    if (npcIsInnkeeper)
+                    {
+                        InkeeperNpcs.Add(npc);
+                    }
+                    if (npcSellsAmmo)
+                    {
+                        AmmoNpcs.Add(npc);
+                    }
+                    if (npcRepairs)
+                    {
+                        RepairNpcs.Add(npc);
+                    }
                     Log("NPC saved successfully!");
                 }
                 else
@@ -1437,14 +1445,23 @@ namespace BloogBot.UI
         {
             var npcs = Repository.ListNpcs()
                 .OrderBy(n => n.Horde)
-                .ThenBy(n => n.IsInnkeeper)
-                .ThenBy(n => n.Repairs)
-                .ThenBy(n => n.SellsAmmo)
                 .ThenBy(n => n.Name);
 
-            Npcs = new ObservableCollection<Npc>(npcs);
-            Npcs.Insert(0, null);
-            OnPropertyChanged(nameof(Npcs));
+            var repairNpcs = npcs.Where(n => n.Repairs);
+            var inkeeperNpcs = npcs.Where(n => n.IsInnkeeper);
+            var ammoNpcs = npcs.Where(n => n.SellsAmmo);
+
+            RepairNpcs = new ObservableCollection<Npc>(repairNpcs);
+            InkeeperNpcs = new ObservableCollection<Npc>(inkeeperNpcs);
+            AmmoNpcs = new ObservableCollection<Npc>(ammoNpcs);
+
+            RepairNpcs.Insert(0, null);
+            InkeeperNpcs.Insert(0, null);
+            AmmoNpcs.Insert(0, null);
+
+            OnPropertyChanged(nameof(RepairNpcs));
+            OnPropertyChanged(nameof(InkeeperNpcs));
+            OnPropertyChanged(nameof(AmmoNpcs));
         }
 
         public void InitializeObjectManager()
