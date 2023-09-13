@@ -445,7 +445,7 @@ namespace BloogBot.AI
                         }
                     });
                     
-                    await Task.Delay(25);
+                    await Task.Delay(50);
 
                     container.Probe.UpdateLatency = $"{stopwatch.ElapsedMilliseconds}ms";
                 }

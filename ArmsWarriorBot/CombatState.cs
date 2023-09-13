@@ -50,7 +50,7 @@ namespace ArmsWarriorBot
             if (base.Update())
                 return;
 
-            var aggressors = ObjectManager.Aggressors;
+            var aggressors = ObjectManager.Aggressors.ToList();
 
             // Use these abilities when fighting any number of mobs.   
             TryUseAbility(Bloodrage, condition: target.HealthPercent > 50);

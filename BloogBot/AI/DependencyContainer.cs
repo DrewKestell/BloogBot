@@ -50,39 +50,83 @@ namespace BloogBot.AI
 
         public IEnumerable<Hotspot> Hotspots { get; }
 
-        public WoWUnit FindThreat() =>
-            ObjectManager
-                .Units
-                .FirstOrDefault(u =>
-                    ((ObjectManager.GetPartyMembers().Any(p => u.TargetGuid == p.Guid) || u.TargetGuid == ObjectManager.Player.Guid || u.TargetGuid == ObjectManager.Pet?.Guid) && !Probe.BlacklistedMobIds.Contains(u.Guid)) ||
-                    (u.CreatureType == CreatureType.Totem && u.Position.DistanceTo(ObjectManager.Player.Position) <= 20 && u.UnitReaction == UnitReaction.Hostile) ||
-                    u.Position.DistanceTo(ObjectManager.Player.Position) < 10 && Convert.ToBoolean(ObjectManager.Units.FirstOrDefault(ou => ou.Guid == u.TargetGuid)?.Name?.Contains("Stoneclaw Totem")) && u.IsInCombat
-                );
+        // this is broken up into multiple sub-expressions to improve readability and debuggability
+        public WoWUnit FindThreat()
+        {
+            var potentialThreats = ObjectManager.Units
+                .Where(u =>
+                    u.TargetGuid == ObjectManager.Player.Guid ||
+                    u.TargetGuid == ObjectManager.Pet?.Guid &&
+                    !Probe.BlacklistedMobIds.Contains(u.Guid));
 
+            if (potentialThreats.Any())
+                return potentialThreats.First();
+
+            // find totems (these disrupt resting between combat, so kill 'em)
+            potentialThreats = ObjectManager.Units
+                .Where(u =>
+                    u.CreatureType == CreatureType.Totem &&
+                    u.Position.DistanceTo(ObjectManager.Player.Position) <= 20 &&
+                    u.UnitReaction == UnitReaction.Hostile);
+
+            if (potentialThreats.Any())
+                return potentialThreats.First();
+
+            // find stoneclaw totems? for some reason the above will not find these.
+            potentialThreats = ObjectManager.Units
+                .Where(u =>
+                    u.Position.DistanceTo(ObjectManager.Player.Position) < 10 &&
+                    Convert.ToBoolean(ObjectManager.Units.FirstOrDefault(ou => ou.Guid == u.TargetGuid)?.Name?.Contains("Stoneclaw Totem")) &&
+                    u.IsInCombat);
+
+            if (potentialThreats.Any())
+                return potentialThreats.First();
+
+            return null;
+        }
+
+        // this is broken up into multiple sub-expressions to improve readability and debuggability
         public WoWUnit FindClosestTarget()
         {
-            return FindThreat() ??
-                ObjectManager
-                    .Units?
-                    .Where(u => u != null && u.Name != null && u.Position != null)
-                    .Where(u => u.Health > 0)
-                    .Where(u => !u.TappedByOther)
-                    .Where(u => !u.IsPet)
-                    .Where(u => !Probe?.BlacklistedMobIds?.Contains(u.Guid) ?? true)
-                    .Where(u => u.CreatureRank == CreatureRank.Normal || BotSettings.TargetingIncludedNames.Any(n => u.Name != null && u.Name.Contains(n)))
-                    .Where(u => string.IsNullOrWhiteSpace(BotSettings.TargetingIncludedNames) || BotSettings.TargetingIncludedNames.Split('|').Any(m => u.Name != null && u.Name.Contains(m)))
-                    .Where(u => string.IsNullOrWhiteSpace(BotSettings.TargetingExcludedNames) || !BotSettings.TargetingExcludedNames.Split('|').Any(m => u.Name != null && u.Name.Contains(m)))
-                    .Where(u => BotSettings.CreatureTypes.Count == 0 || u.CreatureType == CreatureType.Mechanical || (u.CreatureType == CreatureType.Totem && u.Position.DistanceTo(ObjectManager.Player?.Position) <= 20) || BotSettings.CreatureTypes.Contains(u.CreatureType.ToString()) || oozeNames.Contains(u.Name))
-                    .Where(u => BotSettings.UnitReactions.Count == 0 || BotSettings.UnitReactions.Contains(u.UnitReaction.ToString()))
-                    .Where(u => u.Level <= ObjectManager.Player?.Level + BotSettings.LevelRangeMax && u.Level >= ObjectManager.Player?.Level - BotSettings.LevelRangeMin)
-                    .Where(u => Navigation.CalculatePath(ObjectManager.MapId, ObjectManager.Player?.Position, u.Position, false).Count() > 0)
-                    // TODO: FactionId
-                    // 71: Undercity, 85: Orgrimmar, 474: Gadgetzan
-                    .Where(u => u.FactionId != 71 && u.FactionId != 85 && u.FactionId != 474 && u.FactionId != 475 && u.FactionId != 1475)
-                    .Where(u => u.UnitFlags != UnitFlags.UNIT_FLAG_NON_ATTACKABLE)
-                    .Where(u => targetingCriteria(u))            
-                    .OrderBy(u => Navigation.DistanceViaPath(ObjectManager.MapId, ObjectManager.Player?.Position, u.Position))
-                    .FirstOrDefault();
+            var threat = FindThreat();
+            if (threat != null)
+                return threat;
+
+            var potentialTargetsList = ObjectManager.Units
+                // only consider units that are not null, and whose name and position are not null
+                .Where(u => u != null && u.Name != null && u.Position != null)
+                // only consider living units whose health is > 0
+                .Where(u => u.Health > 0)
+                // only consider units that have not already been tapped by another played
+                .Where(u => !u.TappedByOther)
+                // exclude units that are pets of another unit
+                .Where(u => !u.IsPet)
+                // only consider units that have not been blacklisted
+                .Where(u => !Probe?.BlacklistedMobIds?.Contains(u.Guid) ?? true)
+                // exclude elites, unless their names have been explicitly included in the targeting settings
+                .Where(u => u.CreatureRank == CreatureRank.Normal || BotSettings.TargetingIncludedNames.Any(n => u.Name != null && u.Name.Contains(n)))
+                // if included targets are specified, only consider units part of that list
+                .Where(u => string.IsNullOrWhiteSpace(BotSettings.TargetingIncludedNames) || BotSettings.TargetingIncludedNames.Split('|').Any(m => u.Name != null && u.Name.Contains(m)))
+                // if excluded targets are specified, do not consider units part of that list
+                .Where(u => string.IsNullOrWhiteSpace(BotSettings.TargetingExcludedNames) || !BotSettings.TargetingExcludedNames.Split('|').Any(m => u.Name != null && u.Name.Contains(m)))
+                // filter units by unit reactions as specified in targeting settings
+                .Where(u => BotSettings.UnitReactions.Count == 0 || BotSettings.UnitReactions.Contains(u.UnitReaction.ToString()))
+                // filter units by creature type as specified in targeting settings. also include things like totems and slimes.
+                .Where(u => BotSettings.CreatureTypes.Count == 0 || u.CreatureType == CreatureType.Mechanical || (u.CreatureType == CreatureType.Totem && u.Position.DistanceTo(ObjectManager.Player?.Position) <= 20) || BotSettings.CreatureTypes.Contains(u.CreatureType.ToString()) || oozeNames.Contains(u.Name))
+                // filter by the level range specified in targeting settings
+                .Where(u => u.Level <= ObjectManager.Player?.Level + BotSettings.LevelRangeMax && u.Level >= ObjectManager.Player?.Level - BotSettings.LevelRangeMin)
+                // exclude certain factions known to cause targeting issues (like neutral, non attackable NPCs in town)
+                .Where(u => u.FactionId != 71 && u.FactionId != 85 && u.FactionId != 474 && u.FactionId != 475 && u.FactionId != 1475)
+                // exclude units with the UNIT_FLAG_NON_ATTACKABLE flag
+                .Where(u => u.UnitFlags != UnitFlags.UNIT_FLAG_NON_ATTACKABLE)
+                // apply bot profile specific targeting criteria
+                .Where(u => targetingCriteria(u))
+                .ToList();
+
+            var potentialTargets = potentialTargetsList
+                .OrderBy(u => u.Position.DistanceTo(ObjectManager.Player?.Position));
+
+            return potentialTargets.FirstOrDefault();
         }
 
         public Hotspot GetCurrentHotspot() => BotSettings.GrindingHotspot;
