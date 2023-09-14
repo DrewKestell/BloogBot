@@ -3,6 +3,7 @@ using BloogBot.Game;
 using BloogBot.Game.Objects;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -10,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 using System.Windows.Input;
 
 namespace BloogBot.UI
@@ -514,18 +516,7 @@ namespace BloogBot.UI
                         target.Position.Z,
                         ObjectManager.ZoneText);
 
-                    if (npcIsInnkeeper)
-                    {
-                        InkeeperNpcs.Add(npc);
-                    }
-                    if (npcSellsAmmo)
-                    {
-                        AmmoNpcs.Add(npc);
-                    }
-                    if (npcRepairs)
-                    {
-                        RepairNpcs.Add(npc);
-                    }
+                    InitializeNpcs();
                     Log("NPC saved successfully!");
                 }
                 else
