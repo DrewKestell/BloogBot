@@ -17,6 +17,8 @@ namespace ElementalShamanBot
         readonly LocalPlayer player;
         readonly StuckHelper stuckHelper;
 
+        int stuckCount;
+
         internal MoveToTargetState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target)
         {
             this.botStates = botStates;
@@ -28,14 +30,30 @@ namespace ElementalShamanBot
 
         public void Update()
         {
+            var threat = container.FindThreat();
+
+            if (threat != null)
+            {
+                player.StopAllMovement();
+                botStates.Push(container.CreateMoveToTargetState(botStates, container, threat));
+                return;
+            }
+
             if (target.TappedByOther || (ObjectManager.Aggressors.Count() > 0 && !ObjectManager.Aggressors.Any(a => a.Guid == target.Guid)))
             {
                 player.StopAllMovement();
                 botStates.Pop();
                 return;
             }
+            if (stuckHelper.CheckIfStuck())
+                stuckCount++;
 
-            stuckHelper.CheckIfStuck();
+            if (stuckCount > 20)
+            {
+                player.StopAllMovement();
+                botStates.Pop();
+                return;
+            } 
 
             if (player.Position.DistanceTo(target.Position) < 30 && !player.IsCasting && player.IsSpellReady(LightningBolt) && player.InLosWith(target.Position))
             {

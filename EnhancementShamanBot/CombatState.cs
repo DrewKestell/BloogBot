@@ -71,7 +71,7 @@ namespace EnhancementShamanBot
 
             TryCastSpell(FlameShock, 0, 20, !target.HasDebuff(FlameShock) && target.HealthPercent > 70 || natureImmuneCreatures.Contains(target.Name) && !fireImmuneCreatures.Contains(target.Name));
 
-            TryCastSpell(EarthShock, 0, 20, !natureImmuneCreatures.Contains(target.Name) && (!player.KnowsSpell(Stormstrike) && target.HealthPercent < 70) || target.HasDebuff(Stormstrike) || target.IsCasting || target.IsChanneling || player.HasBuff(Clearcasting));
+            TryCastSpell(EarthShock, 0, 20, !natureImmuneCreatures.Contains(target.Name) && !player.KnowsSpell(Stormstrike) && target.HealthPercent < 70 || target.HasDebuff(Stormstrike) || target.IsCasting || target.IsChanneling || player.HasBuff(Clearcasting));
 
             TryCastSpell(LightningShield, 0, int.MaxValue, !natureImmuneCreatures.Contains(target.Name) && !player.HasBuff(LightningShield));
 

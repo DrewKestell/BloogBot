@@ -14,6 +14,7 @@ namespace BloogBot.AI.SharedStates
         readonly StuckHelper stuckHelper;
 
         int stuckCount;
+        Position lastCheckedPosition;
 
         public MoveToPositionState(Stack<IBotState> botStates, IDependencyContainer container, Position destination, bool use2DPop = false)
         {
@@ -22,7 +23,8 @@ namespace BloogBot.AI.SharedStates
             this.destination = destination;
             this.use2DPop = use2DPop;
             player = ObjectManager.Player;
-            stuckHelper = new StuckHelper(botStates, container);
+            stuckHelper = new StuckHelper(botStates, container); 
+            lastCheckedPosition = ObjectManager.Player.Position;
         }
 
         public void Update()
@@ -60,6 +62,12 @@ namespace BloogBot.AI.SharedStates
             
             var nextWaypoint = Navigation.GetNextWaypoint(ObjectManager.MapId, player.Position, destination, false);
             player.MoveToward(nextWaypoint);
+
+            if (lastCheckedPosition.DistanceTo(ObjectManager.Player.Position) > 15)
+            {
+                lastCheckedPosition = ObjectManager.Player.Position;
+                botStates.Push(new CheckForQuestEntitiesState(botStates, container));
+            }
         }
     }
 }

@@ -4,7 +4,6 @@ using BloogBot.Game.Frames;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 
 namespace BloogBot.AI.SharedStates
 {
@@ -27,17 +26,17 @@ namespace BloogBot.AI.SharedStates
             this.npcName = npcName;
             player = ObjectManager.Player;
 
-            itemsToSell = Inventory
-                .GetAllItems()
-                .Where(i =>
-                    (i.Info.Name != "Hearthstone") &&
-                    (i.Info.Name != container.BotSettings.Food) &&
-                    (i.Info.Name != container.BotSettings.Drink) &&
-                    (i.Info.ItemClass != ItemClass.Quest) &&
-                    (i.Info.ItemClass != ItemClass.Container) &&
-                    (string.IsNullOrWhiteSpace(container.BotSettings.SellExcludedNames) || !container.BotSettings.SellExcludedNames.Split('|').Any(n => n == i.Info.Name)) &&
-                    (container.BotSettings.SellUncommon ? (int)i.Quality < 3 : (int)i.Quality < 2)
-                );
+            //itemsToSell = Inventory
+            //    .GetAllItems()
+            //    .Where(i =>
+            //        (i.Info.Name != "Hearthstone") &&
+            //        (i.Info.Name != container.BotSettings.Food) &&
+            //        (i.Info.Name != container.BotSettings.Drink) &&
+            //        (i.Info.ItemClass != ItemClass.Quest) &&
+            //        (i.Info.ItemClass != ItemClass.Container) &&
+            //        (string.IsNullOrWhiteSpace(container.BotSettings.SellExcludedNames) || !container.BotSettings.SellExcludedNames.Split('|').Any(n => n == i.Info.Name)) &&
+            //        (container.BotSettings.SellUncommon ? (int)i.Quality < 3 : (int)i.Quality < 2)
+            //    );
         }
 
         public void Update()

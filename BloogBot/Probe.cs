@@ -23,6 +23,10 @@ namespace BloogBot
 
         public string TargetName { get; set; }
 
+        public string TargetGuid { get; set; }
+
+        public string TargetID { get; set; }
+
         public string TargetClass { get; set; }
 
         public string TargetCreatureType { get; set; }
@@ -38,6 +42,10 @@ namespace BloogBot
         public string TargetIsChanneling { get; set; }
 
         public string UpdateLatency { get; set; }
+
+        public string CurrentQuestName { get; set; }
+
+        public string CurrentTask { get; set; }
 
         public IList<ulong> BlacklistedMobIds { get; set; }
     }

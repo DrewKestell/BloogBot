@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using static BloogBot.AI.QuestHelper;
 
 namespace BloogBot.Game.Objects
 {
@@ -336,7 +338,7 @@ namespace BloogBot.Game.Objects
                 if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                 {
                     var spellsBasePtr = MemoryManager.ReadIntPtr((IntPtr)0x00C0D788);
-                    var spellPtr =  MemoryManager.ReadIntPtr(spellsBasePtr + currentSpellId * 4);
+                    var spellPtr = MemoryManager.ReadIntPtr(spellsBasePtr + currentSpellId * 4);
 
                     var spellNamePtr = MemoryManager.ReadIntPtr(spellPtr + 0x1E0);
                     name = MemoryManager.ReadString(spellNamePtr);
@@ -396,8 +398,8 @@ namespace BloogBot.Game.Objects
                 if (parId >= MemoryManager.ReadUint((IntPtr)(0x00C0D780 + 0xC)) || parId <= 0)
                     return 0;
 
-                var entryPtr = MemoryManager.ReadIntPtr((IntPtr)((uint)(MemoryManager.ReadUint((IntPtr)(0x00C0D780 + 8)) + parId * 4)));
-                return MemoryManager.ReadInt((entryPtr + 0x0080));
+                var entryPtr = MemoryManager.ReadIntPtr((IntPtr)(uint)(MemoryManager.ReadUint((IntPtr)(0x00C0D780 + 8)) + parId * 4));
+                return MemoryManager.ReadInt(entryPtr + 0x0080);
             }
             else
             {
@@ -411,9 +413,26 @@ namespace BloogBot.Game.Objects
         public bool MainhandIsEnchanted => LuaCallWithResults("{0} = GetWeaponEnchantInfo()")[0] == "1";
 
         public ulong GetBackpackItemGuid(int slot) => MemoryManager.ReadUlong(GetDescriptorPtr() + (MemoryAddresses.LocalPlayer_BackpackFirstItemOffset + (slot * 8)));
+        public string GetStringFromMemory(int offset) => MemoryManager.ReadString(IntPtr.Add(Pointer, offset));
 
-        public ulong GetEquippedItemGuid(EquipSlot slot) => MemoryManager.ReadUlong(IntPtr.Add(Pointer, (MemoryAddresses.LocalPlayer_EquipmentFirstItemOffset + ((int)slot - 1) * 0x8)));
-        
+        public ulong GetEquippedItemGuid(EquipSlot slot) => MemoryManager.ReadUlong(IntPtr.Add(Pointer, MemoryAddresses.LocalPlayer_EquipmentFirstItemOffset + ((int)slot - 1) * 0x8));
+
+        public PlayerQuest GetPlayerQuestFromSlot(int slot) => (PlayerQuest)Marshal.PtrToStructure(GetDescriptorPtr() + (MemoryAddresses.LocalPlayer_QuestLogOffset + (slot * 12)), typeof(PlayerQuest));
+
+        public List<PlayerQuest> GetPlayerQuests()
+        {
+            List<PlayerQuest> list = new List<PlayerQuest>();
+            for (int i = 0; i < 20; i++)
+            {
+                PlayerQuest playerQuest = GetPlayerQuestFromSlot(i);
+
+                if (playerQuest.ID != 0)
+                {
+                    list.Add(playerQuest);
+                }
+            }
+            return list;
+        }
         public void CastSpell(string spellName, ulong targetGuid)
         {
             var spellId = GetSpellId(spellName);
@@ -468,6 +487,11 @@ namespace BloogBot.Game.Objects
             var result = LuaCallWithResults(luaString);
             Console.WriteLine(result);
             return false;
+        }
+
+        public void EquipItemByName(string name)
+        {
+            LuaCall(string.Format("EquipItemByName({0})", name));
         }
 
         private static string FormatLua(string str, params object[] names)

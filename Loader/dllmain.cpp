@@ -22,6 +22,9 @@
 #include "CorError.h"
 #include <iostream>
 
+#include "_BotDomainManagerInterface.h"
+#include "BotHostControl.h"
+
 // No rough configuration needed. :)
 #pragma comment( lib, "mscoree" )
 
@@ -61,7 +64,8 @@ unsigned __stdcall ThreadMain(void* pParam)
 	std::cout << std::string("Attach a debugger now to WoW.exe if you want to debug Loader.dll. Waiting 10 seconds...") << std::endl;
 
 	HANDLE hEvent = CreateEvent(nullptr, TRUE, FALSE, L"MyDebugEvent");
-	WaitForSingleObject(hEvent, 10000);  // Wait for 10 seconds
+	// Wait for 10 seconds 
+	WaitForSingleObject(hEvent, 10000);
 	bool isDebuggerAttached = IsDebuggerPresent() != FALSE;
 
 	if (isDebuggerAttached)
@@ -142,23 +146,40 @@ unsigned __stdcall ThreadMain(void* pParam)
 		return 1;
 	}
 
-	hr = g_clrHost->Start();
+	/*BotHostControl* hostControl = new BotHostControl();
+	hr = g_clrHost->SetHostControl((IHostControl*)hostControl);
 
 	if (FAILED(hr))
 	{
-		MB(L"Failed to start the CLR!");
+		MB(L"Failed to SetHostControl");
+
 		return 1;
 	}
 
-	DWORD dwRet = 0;
-	// Execute the Main func in the domain manager, this will block indefinitely.
-	// (Hence why we're in our own thread!)
-	hr = g_clrHost->ExecuteInDefaultAppDomain(dllLocation, NAMESPACE_AND_CLASS, MAIN_METHOD, MAIN_METHOD_ARGS, &dwRet);
+	ICLRControl* clrControl = NULL;
+	hr = g_clrHost->GetCLRControl(&clrControl);
 
 	if (FAILED(hr))
 	{
-		MB(L"Failed to execute in the default app domain!");
+		MB(L"Failed to GetCLRControl");
 
+		return 1;
+	}
+
+	hr = clrControl->SetAppDomainManagerType(L"BloogBot", L"BloogBot.BotDomainManager");
+
+	if (FAILED(hr))
+	{
+		MB(L"Failed to SetAppDomainManagerType");
+
+		return 1;
+	}
+
+	hr = g_clrHost->Start();*/
+
+	if (FAILED(hr))
+	{
+		MB(L"Failed to Start");
 
 		switch (hr)
 		{
@@ -192,6 +213,64 @@ unsigned __stdcall ThreadMain(void* pParam)
 		return 1;
 	}
 
+	/*ICLRControl* clrControl = NULL;
+	hr = g_clrHost->GetCLRControl(&clrControl);
+
+	hr = clrControl->SetAppDomainManagerType(L"BloogBot", L"BloogBot.BotDomainManager");*/
+
+	hr = g_clrHost->Start();
+
+	//Execute the Main func in the domain manager, this will block indefinitely.
+	//(Hence why we're in our own thread!)
+	
+	DWORD dwRet = 0;
+	hr = g_clrHost->ExecuteInDefaultAppDomain(dllLocation, NAMESPACE_AND_CLASS, MAIN_METHOD, MAIN_METHOD_ARGS, &dwRet);
+
+	if (FAILED(hr))
+	{
+		MB(L"Failed to execute in the default app domain!");
+
+		switch (hr)
+		{
+		case HOST_E_CLRNOTAVAILABLE:
+			MB(L"CLR Not available");
+			break;
+
+		case HOST_E_TIMEOUT:
+			MB(L"Call timed out");
+			break;
+
+		case HOST_E_NOT_OWNER:
+			MB(L"Caller does not own lock");
+			break;
+
+		case HOST_E_ABANDONED:
+			MB(L"An event was canceled while a blocked thread or fiber was waiting on it");
+			break;
+
+		case E_FAIL:
+			MB(L"Unspecified catastrophic failure");
+			break;
+
+		default:
+			char buff[128];
+			sprintf(buff, "Result is: 0x%lx", hr);
+			MessageBoxA(NULL, buff, "Info", 0);
+			break;
+		}
+
+		return 1;
+	}
+
+	/*LPWSTR text;
+	_BotDomainManagerInterface* appDomainManager = hostControl->GetBotDomainManagerInterface();
+
+	hr = appDomainManager->HelloWorld(L"Player One", &text);
+
+	hr = g_clrHost->Stop();
+
+	wprintf(text);*/
+
 	return 0;
 }
 
@@ -219,6 +298,7 @@ void LoadClr()
 BOOL WINAPI DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
 {
 	g_myDllModule = hDll;
+
 	if (dwReason == DLL_PROCESS_ATTACH)
 	{
 		LoadClr();

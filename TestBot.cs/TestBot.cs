@@ -1,13 +1,10 @@
 ﻿using BloogBot;
 using BloogBot.AI;
 using BloogBot.Game;
-using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace TestBot
 {
@@ -29,15 +26,13 @@ namespace TestBot
         IBotState CreatePowerlevelCombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target, WoWPlayer powerlevelTarget) =>
             new PowerlevelCombatState(botStates, container, target, powerlevelTarget);
 
-        public IDependencyContainer GetDependencyContainer(BotSettings botSettings, Probe probe, IEnumerable<Hotspot> hotspots) =>
+        public IDependencyContainer GetDependencyContainer(BotSettings botSettings, Probe probe) =>
             new DependencyContainer(
                 AdditionalTargetingCriteria,
                 CreateRestState,
                 CreateMoveToTargetState,
-                CreatePowerlevelCombatState,
                 botSettings,
-                probe,
-                hotspots);
+                probe);
 
         public void Test(IDependencyContainer container)
         {

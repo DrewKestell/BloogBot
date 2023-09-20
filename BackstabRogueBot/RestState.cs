@@ -2,7 +2,6 @@
 
 using BloogBot;
 using BloogBot.AI;
-using BloogBot.AI.SharedStates;
 using BloogBot.Game;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
@@ -28,8 +27,8 @@ namespace BackstabRogueBot
             this.container = container;
             player = ObjectManager.Player;
 
-            foodItem = Inventory.GetAllItems()
-                .FirstOrDefault(i => i.Info.Name == container.BotSettings.Food);
+            //foodItem = Inventory.GetAllItems()
+            //    .FirstOrDefault(i => i.Info.Name == container.BotSettings.Food);
         }
 
         public void Update()
@@ -51,22 +50,22 @@ namespace BackstabRogueBot
                 if (!InCombat && foodCount == 0 && !container.RunningErrands)
                 {
                     var foodToBuy = 24 - (foodCount / stackCount);
-                    var itemsToBuy = new Dictionary<string, int>
-                    {
-                        { container.BotSettings.Food, foodToBuy }
-                    };
+                    //var itemsToBuy = new Dictionary<string, int>
+                    //{
+                    //    { container.BotSettings.Food, foodToBuy }
+                    //};
 
-                    var currentHotspot = container.GetCurrentHotspot();
-                    if (currentHotspot.TravelPath != null)
-                    {
-                        botStates.Push(new TravelState(botStates, container, currentHotspot.TravelPath.Waypoints, 0));
-                        botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.TravelPath.Waypoints[0]));
-                    }
+                    //var currentHotspot = container.GetCurrentHotspot();
+                    //if (currentHotspot.TravelPath != null)
+                    //{
+                    //    botStates.Push(new TravelState(botStates, container, currentHotspot.TravelPath.Waypoints, 0));
+                    //    botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.TravelPath.Waypoints[0]));
+                    //}
 
-                    botStates.Push(new BuyItemsState(botStates, currentHotspot.Innkeeper.Name, itemsToBuy));
-                    botStates.Push(new SellItemsState(botStates, container, currentHotspot.Innkeeper.Name));
-                    botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.Innkeeper.Position));
-                    container.CheckForTravelPath(botStates, true, false);
+                    //botStates.Push(new BuyItemsState(botStates, currentHotspot.Innkeeper.Name, itemsToBuy));
+                    //botStates.Push(new SellItemsState(botStates, container, currentHotspot.Innkeeper.Name));
+                    //botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.Innkeeper.Position));
+                    //container.CheckForTravelPath(botStates, true, false);
                     container.RunningErrands = true;
                 }
 

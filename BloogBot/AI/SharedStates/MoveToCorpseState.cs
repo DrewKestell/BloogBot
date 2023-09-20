@@ -29,7 +29,6 @@ namespace BloogBot.AI.SharedStates
         {
             if (!initialized)
             {
-                container.DisableTeleportChecker = false;
                 initialized = true;
             }
 

@@ -64,7 +64,7 @@ namespace ProtectionPaladinBot
 
             TryCastSpell(Exorcism, 0, 30, target.CreatureType == CreatureType.Undead || target.CreatureType == CreatureType.Demon);
 
-            TryCastSpell(HammerOfJustice, 0, 10, (target.CreatureType != CreatureType.Humanoid || (target.CreatureType == CreatureType.Humanoid && target.HealthPercent < 20)));
+            TryCastSpell(HammerOfJustice, 0, 10, target.CreatureType != CreatureType.Humanoid || (target.CreatureType == CreatureType.Humanoid && target.HealthPercent < 20));
 
             TryCastSpell(Consecration, ObjectManager.Aggressors.Count() > 1);
 

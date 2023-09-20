@@ -1,6 +1,7 @@
 ﻿using BloogBot.Game.Enums;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace BloogBot.Game
@@ -13,6 +14,7 @@ namespace BloogBot.Game
 
         static Functions()
         {
+            Process[] processes = Process.GetProcessesByName("WoW");
             if (ClientHelper.ClientVersion == ClientVersion.WotLK)
                 gameFunctionHandler = new WotLKGameFunctionHandler();
             else if (ClientHelper.ClientVersion == ClientVersion.TBC)

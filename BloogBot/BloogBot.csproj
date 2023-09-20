@@ -71,27 +71,46 @@
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Data.Sqlite, Version=7.0.11.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Data.Sqlite.Core.7.0.11\lib\netstandard2.0\Microsoft.Data.Sqlite.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="SQLitePCLRaw.batteries_v2, Version=2.1.4.1835, Culture=neutral, PublicKeyToken=8226ea5df37bcae9, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLitePCLRaw.bundle_e_sqlite3.2.1.4\lib\net461\SQLitePCLRaw.batteries_v2.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLitePCLRaw.core, Version=2.1.6.2060, Culture=neutral, PublicKeyToken=1488e028ca7ab535, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLitePCLRaw.core.2.1.6\lib\netstandard2.0\SQLitePCLRaw.core.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLitePCLRaw.provider.dynamic_cdecl, Version=2.1.4.1835, Culture=neutral, PublicKeyToken=b68184102cba0b3b, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLitePCLRaw.provider.dynamic_cdecl.2.1.4\lib\netstandard2.0\SQLitePCLRaw.provider.dynamic_cdecl.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLitePCLRaw.provider.e_sqlite3, Version=2.1.6.2060, Culture=neutral, PublicKeyToken=9c301db686d0bd12, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLitePCLRaw.provider.e_sqlite3.2.1.6\lib\netstandard2.0\SQLitePCLRaw.provider.e_sqlite3.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
+    </Reference>
     <Reference Include="System.Collections.Immutable, Version=1.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Collections.Immutable.1.3.1\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.SQLite, Version=1.0.118.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <HintPath>..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\lib\net46\System.Data.SQLite.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data.SQLite.Linq, Version=1.0.118.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Data.SQLite.Linq.1.0.118.0\lib\net46\System.Data.SQLite.Linq.dll</HintPath>
-    </Reference>
     <Reference Include="System.Interactive.Async, Version=4.0.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Interactive.Async.4.0.0\lib\net461\System.Interactive.Async.dll</HintPath>
     </Reference>
     <Reference Include="System.Linq.Async, Version=4.0.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Linq.Async.4.0.0\lib\net461\System.Linq.Async.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.3\lib\netstandard2.0\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.4.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
@@ -123,28 +142,35 @@
     </ApplicationDefinition>
     <Compile Include="AI\Bot.cs" />
     <Compile Include="AI\DependencyContainer.cs" />
+    <Compile Include="AI\DialogueHelper.cs" />
     <Compile Include="AI\IBot.cs" />
     <Compile Include="AI\IBotState.cs" />
     <Compile Include="AI\IDependencyContainer.cs" />
+    <Compile Include="AI\InventoryHelper.cs" />
     <Compile Include="AI\PlayerTracker.cs" />
+    <Compile Include="AI\QuestHelper.cs" />
     <Compile Include="AI\SharedStates\BuyItemsState.cs" />
+    <Compile Include="AI\SharedStates\UseItemOnUnitState.cs" />
+    <Compile Include="AI\SharedStates\TurnInQuestFromNpcState.cs" />
+    <Compile Include="AI\SharedStates\GrindingState.cs" />
     <Compile Include="AI\SharedStates\CombatStateBase.cs" />
     <Compile Include="AI\SharedStates\EquipArmorState.cs" />
     <Compile Include="AI\SharedStates\EquipBagsState.cs" />
     <Compile Include="AI\SharedStates\GatherObjectState.cs" />
-    <Compile Include="AI\SharedStates\GrindState.cs" />
     <Compile Include="AI\SharedStates\LootState.cs" />
     <Compile Include="AI\SharedStates\MoveToCorpseState.cs" />
-    <Compile Include="AI\SharedStates\MoveToHotspotWaypointState.cs" />
     <Compile Include="AI\SharedStates\MoveToPositionState.cs" />
-    <Compile Include="AI\SharedStates\PowerlevelState.cs" />
+    <Compile Include="AI\SharedStates\CheckForQuestEntitiesState.cs" />
     <Compile Include="AI\SharedStates\ReleaseCorpseState.cs" />
+    <Compile Include="AI\SharedStates\PickUpQuestFromNpcState.cs" />
     <Compile Include="AI\SharedStates\RepairEquipmentState.cs" />
     <Compile Include="AI\SharedStates\RetrieveCorpseState.cs" />
     <Compile Include="AI\SharedStates\SellItemsState.cs" />
     <Compile Include="AI\SharedStates\StuckState.cs" />
     <Compile Include="AI\SharedStates\TravelState.cs" />
     <Compile Include="AI\StuckHelper.cs" />
+    <Compile Include="BotDomainManager.cs" />
+    <Compile Include="BootstrapperSettings.cs" />
     <Compile Include="BotLoader.cs" />
     <Compile Include="BotSettings.cs" />
     <Compile Include="ClientHelper.cs" />
@@ -164,10 +190,10 @@
     <Compile Include="Game\Enums\DynamicFlags.cs" />
     <Compile Include="Game\Enums\EquipSlot.cs" />
     <Compile Include="Game\Enums\ItemCacheLookupType.cs" />
-    <Compile Include="Game\Enums\ItemClass.cs" />
     <Compile Include="Game\Enums\ItemQuality.cs" />
     <Compile Include="Game\Enums\ItemSubclass.cs" />
     <Compile Include="Game\Enums\MovementFlags.cs" />
+    <Compile Include="Game\Enums\NpcMarkerFlags.cs" />
     <Compile Include="Game\Enums\ObjectType.cs" />
     <Compile Include="Game\Enums\Race.cs" />
     <Compile Include="Game\Enums\UnitFlags.cs" />
@@ -202,22 +228,24 @@
     <Compile Include="Game\XYZXYZ.cs" />
     <Compile Include="Hack.cs" />
     <Compile Include="HackManager.cs" />
-    <Compile Include="Hotspot.cs" />
-    <Compile Include="HotspotGenerator.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="MemoryManager.cs" />
+    <Compile Include="Models\CharacterEquip.cs" />
+    <Compile Include="Models\Creature.cs" />
+    <Compile Include="Models\CreatureTemplate.cs" />
+    <Compile Include="Models\GameObject.cs" />
+    <Compile Include="Models\Item.cs" />
+    <Compile Include="Models\Npc.cs" />
+    <Compile Include="Models\NpcVendorEntry.cs" />
+    <Compile Include="Models\QuestTask.cs" />
+    <Compile Include="Models\QuestTemplate.cs" />
     <Compile Include="Navigation.cs" />
-    <Compile Include="Npc.cs" />
     <Compile Include="Probe.cs" />
-    <Compile Include="Repository.cs" />
     <Compile Include="SignalEventManager.cs" />
     <Compile Include="SqliteRepository.cs" />
     <Compile Include="SqlRepository.cs" />
     <Compile Include="ThreadSynchronizer.cs" />
-    <Compile Include="TravelPath.cs" />
-    <Compile Include="TravelPathGenerator.cs" />
-    <Compile Include="TSqlRepository.cs" />
     <Compile Include="UI\App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -225,7 +253,7 @@
     <Compile Include="Game\Functions.cs" />
     <Compile Include="Loader.cs" />
     <Compile Include="Wait.cs" />
-    <Compile Include="WardenDisabler.cs" />
+    <Compile Include="WinImports.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="UI\CommandHandler.cs" />
@@ -277,9 +305,6 @@
     <Content Include="Fasm.NET.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="TSqlSchema.SQL">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="SqliteSchema.SQL">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -296,6 +321,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

@@ -1,4 +1,5 @@
-﻿using BloogBot.Game.Enums;
+﻿using BloogBot.AI.SharedStates;
+using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace BloogBot.Game
 {
     public class ObjectManager
     {
-        const int OBJECT_TYPE_OFFSET = 0x14;
+        public const int OBJECT_TYPE_OFFSET = 0x14;
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         delegate int EnumerateVisibleObjectsCallbackVanilla(int filter, ulong guid);
@@ -26,7 +27,6 @@ namespace BloogBot.Game
 
         static internal IList<WoWObject> Objects = new List<WoWObject>();
         static internal IList<WoWObject> ObjectsBuffer = new List<WoWObject>();
-        static internal bool KillswitchTriggered;
 
         static internal void Initialize(Probe parProbe)
         {
@@ -35,14 +35,14 @@ namespace BloogBot.Game
             if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
             {
                 callbackVanilla = CallbackVanilla;
-                callbackPtr = Marshal.GetFunctionPointerForDelegate(callbackVanilla);
+                callbackPtr = Marshal.GetFunctionPointerForDelegate(callbackVanilla); ;
             }
             else
             {
                 callbackNonVanilla = CallbackNonVanilla;
                 callbackPtr = Marshal.GetFunctionPointerForDelegate(callbackNonVanilla);
             }
-            
+
         }
 
         static public LocalPlayer Player { get; private set; }
@@ -65,6 +65,15 @@ namespace BloogBot.Game
 
         static public bool IsLoggedIn => Functions.GetPlayerGuid() > 0;
 
+        static public byte ReadDataAtPtrAndOffset(IntPtr pointer, int offset)
+        {
+            // this is weird and throws an exception right after entering world,
+            // so we catch and ignore the exception to avoid console noise
+
+            var ptr = MemoryManager.ReadIntPtr(pointer);
+            return MemoryManager.ReadByte(IntPtr.Add(ptr, offset));
+
+        }
         static public string ZoneText
         {
             // this is weird and throws an exception right after entering world,
@@ -191,7 +200,7 @@ namespace BloogBot.Game
         static public IEnumerable<WoWUnit> Aggressors =>
             Units
                 .Where(u => u.Health > 0)
-                .Where(u => 
+                .Where(u =>
                     u.TargetGuid == Player?.Guid ||
                     u.TargetGuid == Pet?.Guid)
                 .Where(u =>
@@ -321,23 +330,17 @@ namespace BloogBot.Game
         {
             if (Player != null)
             {
-                // hit killswitch if player is in GM Island
-                if (MinimapZoneText == "GM Island" && !KillswitchTriggered)
-                {
-                    Logger.Log("Killswitch Engaged");
-                    Player.StopAllMovement();
-                    probe.Killswitch();
-                    DiscordClientWrapper.KillswitchAlert(Player.Name);
-                    KillswitchTriggered = true;
-                }
-
                 probe.CurrentPosition = Player.Position.ToString();
                 probe.CurrentZone = MinimapZoneText;
+                probe.CurrentQuestName = GrindingState.CurrentQuestName;
+                probe.CurrentTask = GrindingState.CurrentTask;
 
                 var target = Units.FirstOrDefault(u => u.Guid == Player.TargetGuid);
                 if (target != null)
                 {
                     probe.TargetName = target.Name;
+                    probe.TargetGuid = target.Guid.ToString();
+                    probe.TargetID = target.Id.ToString();
                     probe.TargetClass = Player.LuaCallWithResults($"{{0}} = UnitClass(\"target\")")[0];
                     probe.TargetCreatureType = target.CreatureType.ToString();
                     probe.TargetPosition = target.Position.ToString();
@@ -345,6 +348,19 @@ namespace BloogBot.Game
                     probe.TargetFactionId = target.FactionId.ToString();
                     probe.TargetIsCasting = target.IsCasting.ToString();
                     probe.TargetIsChanneling = target.IsChanneling.ToString();
+                }
+                else
+                {
+                    probe.TargetName = string.Empty;
+                    probe.TargetGuid = string.Empty;
+                    probe.TargetID = string.Empty;
+                    probe.TargetClass = string.Empty;
+                    probe.TargetCreatureType = string.Empty;
+                    probe.TargetPosition = string.Empty;
+                    probe.TargetRange = string.Empty;
+                    probe.TargetFactionId = string.Empty;
+                    probe.TargetIsCasting = string.Empty;
+                    probe.TargetIsChanneling = string.Empty;
                 }
 
                 probe.Callback();

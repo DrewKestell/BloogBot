@@ -72,14 +72,7 @@ namespace BloogBot.AI.SharedStates
                 botStates.Push(new EquipBagsState(botStates, container));
                 if (player.IsSwimming)
                 {
-                    var nearestWaypoint = container
-                        .Hotspots
-                        .Where(h => h != null)
-                        .SelectMany(h => h.Waypoints)
-                        .OrderBy(w => player.Position.DistanceTo(w))
-                        .FirstOrDefault();
-                    if (nearestWaypoint != null)
-                        botStates.Push(new MoveToPositionState(botStates, container, nearestWaypoint));
+
                 }
                 return;
             }
@@ -99,17 +92,15 @@ namespace BloogBot.AI.SharedStates
                     itemQuality = itemToLoot.Info.Quality;
                 }
 
-                var poorQualityCondition = itemToLoot.IsCoins || itemQuality == ItemQuality.Poor && container.BotSettings.LootPoor;
-                var commonQualityCondition = itemToLoot.IsCoins || itemQuality == ItemQuality.Common && container.BotSettings.LootCommon;
-                var uncommonQualityCondition = itemToLoot.IsCoins || itemQuality == ItemQuality.Uncommon && container.BotSettings.LootUncommon;
+                var poorQualityCondition = itemToLoot.IsCoins || itemQuality == ItemQuality.Poor;
+                var commonQualityCondition = itemToLoot.IsCoins || itemQuality == ItemQuality.Common;
+                var uncommonQualityCondition = itemToLoot.IsCoins || itemQuality == ItemQuality.Uncommon;
                 var other = itemQuality != ItemQuality.Poor && itemQuality != ItemQuality.Common && itemQuality != ItemQuality.Uncommon;
 
-                if (itemQuality == ItemQuality.Rare || itemQuality == ItemQuality.Epic)
-                    DiscordClientWrapper.SendItemNotification(player.Name, itemQuality, itemToLoot.ItemId);
+                //if (itemQuality == ItemQuality.Rare || itemQuality == ItemQuality.Epic)
+                //    DiscordClientWrapper.SendItemNotification(player.Name, itemQuality, itemToLoot.ItemId);
 
-                if (itemToLoot.IsCoins
-                    || ((string.IsNullOrWhiteSpace(container.BotSettings.LootExcludedNames) || !container.BotSettings.LootExcludedNames.Split('|').Any(en => itemToLoot.Info.Name.Contains(en)))
-                    && (poorQualityCondition || commonQualityCondition || uncommonQualityCondition || other)))
+                if (itemToLoot.IsCoins || (poorQualityCondition || commonQualityCondition || uncommonQualityCondition || other))
                 {
                     itemToLoot.Loot();
                 }

@@ -236,14 +236,15 @@ namespace BloogBot.Game
                 LootFrameItemOffset = 0x1C;
                 MerchantFrameItemOffset = 0x1C;
                 DialogFrameBase = 0x00000000; // unused in vanilla
-                LocalPlayer_SetFacingOffset = 0x9A8;
+                LocalPlayer_QuestLogOffset = 0x318;
+                LocalPlayer_SetFacingOffset = 0x9A8; 
                 LocalPlayerCorpsePositionX = 0x00B4E284;
                 LocalPlayerCorpsePositionY = 0x00B4E288;
                 LocalPlayerCorpsePositionZ = 0x00B4E28C;
                 LastHardwareAction = 0x00CF0BC8;
                 LocalPlayerSpellsBase = 0x00B700F0;
                 LocalPlayerClass = 0x00C27E81;
-                LocalPlayer_BackpackFirstItemOffset = 0x850;
+                LocalPlayer_BackpackFirstItemOffset = 0x12C4;
                 LocalPlayer_EquipmentFirstItemOffset = 0x2508;
                 LocalPlayerCanOverpower = 0x00000000; // unused in vanilla
                 WoWItem_ItemIdOffset = 0xC;
@@ -271,6 +272,7 @@ namespace BloogBot.Game
                 WoWUnit_BuffsBaseOffset = 0xBC;
                 WoWUnit_DebuffsBaseOffset = 0x13C;
                 WoWUnit_DynamicFlagsOffset = 0x23C;
+                WoWUnit_NpcMarkerOffset = 0xCB8;
                 WoWUnit_CurrentChannelingOffset = 0x0; // unused in vanilla
                 WoWUnit_MovementFlagsOffset = 0x9E8;
                 WoWUnit_CurrentSpellcastOffset = 0xC8C;
@@ -354,6 +356,7 @@ namespace BloogBot.Game
 
         // Descriptors
         public static int LocalPlayer_BackpackFirstItemOffset;
+        public static int LocalPlayer_QuestLogOffset;
         public static int WoWItem_ItemIdOffset;
         public static int WoWItem_StackCountOffset;
         public static int WoWItem_DurabilityOffset;
@@ -371,6 +374,7 @@ namespace BloogBot.Game
         public static int WoWUnit_FactionIdOffset;
         public static int WoWUnit_UnitFlagsOffset;
         public static int WoWUnit_DynamicFlagsOffset;
+        public static int WoWUnit_NpcMarkerOffset;
         public static int WoWUnit_CurrentChannelingOffset;
 
         // Offsets

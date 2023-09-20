@@ -3,7 +3,6 @@ using BloogBot.AI;
 using BloogBot.Game;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace ArcaneMageBot
 {
@@ -28,11 +27,11 @@ namespace ArcaneMageBot
 
         public void Update()
         {
-            foodItem = Inventory.GetAllItems()
-                .FirstOrDefault(i => i.Info.Name == container.BotSettings.Food);
+            //foodItem = Inventory.GetAllItems()
+            //    .FirstOrDefault(i => i.Info.Name == container.BotSettings.Food);
 
-            drinkItem = Inventory.GetAllItems()
-                .FirstOrDefault(i => i.Info.Name == container.BotSettings.Drink);
+            //drinkItem = Inventory.GetAllItems()
+            //    .FirstOrDefault(i => i.Info.Name == container.BotSettings.Drink);
 
             if (player.IsCasting)
                 return;

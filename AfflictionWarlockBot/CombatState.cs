@@ -45,7 +45,7 @@ namespace AfflictionWarlockBot
             }
 
             var wand = Inventory.GetEquippedItem(EquipSlot.Ranged);
-            if (wand != null && (player.ManaPercent <= 10 || (target.HealthPercent <= 60 && target.HealthPercent > 20) && !player.IsChanneling && !player.IsCasting))
+            if (wand != null && (player.ManaPercent <= 10 || target.HealthPercent <= 60 && target.HealthPercent > 20 && !player.IsChanneling && !player.IsCasting))
                 player.LuaCall(WandLuaScript);
             else
             {

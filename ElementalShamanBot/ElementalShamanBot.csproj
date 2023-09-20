@@ -44,7 +44,6 @@
     <Compile Include="ElementalShamanBot.cs" />
     <Compile Include="HealSelfState.cs" />
     <Compile Include="MoveToTargetState.cs" />
-    <Compile Include="PowerlevelCombatState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RestState.cs" />
   </ItemGroup>
@@ -53,6 +52,9 @@
       <Project>{0901e784-2977-437e-8a2c-c70f0184eefb}</Project>
       <Name>BloogBot</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

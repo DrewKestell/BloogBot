@@ -1,6 +1,5 @@
 ﻿// Friday owns this file!
 
-using BloogBot;
 using BloogBot.AI;
 using BloogBot.AI.SharedStates;
 using BloogBot.Game;

@@ -24,15 +24,13 @@ namespace RetributionPaladinBot
         IBotState CreatePowerlevelCombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target, WoWPlayer powerlevelTarget) =>
             new PowerlevelCombatState(botStates, container, target, powerlevelTarget);
 
-        public IDependencyContainer GetDependencyContainer(BotSettings botSettings, Probe probe, IEnumerable<Hotspot> hotspots) =>
+        public IDependencyContainer GetDependencyContainer(BotSettings botSettings, Probe probe) =>
             new DependencyContainer(
                 AdditionalTargetingCriteria,
                 CreateRestState,
                 CreateMoveToTargetState,
-                CreatePowerlevelCombatState,
                 botSettings,
-                probe,
-                hotspots);
+                probe);
 
         public void Test(IDependencyContainer container) { }
     }

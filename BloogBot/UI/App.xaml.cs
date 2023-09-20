@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Windows;
 
 namespace BloogBot.UI
@@ -8,11 +7,9 @@ namespace BloogBot.UI
     {
         protected override void OnStartup(StartupEventArgs e)
         {
-#if DEBUG
-            Debugger.Launch();
-#endif
-
-            WardenDisabler.Initialize();
+//#if DEBUG
+            //Debugger.Launch();
+//#endif
 
             var mainWindow = new MainWindow();
             Current.MainWindow = mainWindow;

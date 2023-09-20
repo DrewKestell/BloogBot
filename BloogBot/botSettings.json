@@ -32,7 +32,7 @@
   "SellExcludedNames": "Healing Potion|Felcloth",
   "GrindingHotspotId": 47,
   "CurrentTravelPathId": 36,
-  "CurrentBotName": "Frost Mage",
+  "CurrentBotName": "Elemental Shaman",
   "UseTeleportKillswitch": false,
   "UseStuckInPositionKillswitch": true,
   "UseStuckInStateKillswitch": true,
@@ -43,5 +43,6 @@
   "TargetingStopTimer": 15000,
   "ProximityWarningTimer": 10000,
   "ProximityStopTimer": 20000,
-  "UseVerboseLogging": false
+  "UseVerboseLogging": false,
+  "PathToWoW": "E:\\repos\\Elysium Project Game Client\\WoW.exe"
 }

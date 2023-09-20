@@ -4,7 +4,6 @@ using BloogBot.Game;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Threading;
 
 namespace EnhancementShamanBot
 {
@@ -26,15 +25,13 @@ namespace EnhancementShamanBot
         IBotState CreatePowerlevelCombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target, WoWPlayer powerlevelTarget) =>
             new PowerlevelCombatState(botStates, container, target, powerlevelTarget);
 
-        public IDependencyContainer GetDependencyContainer(BotSettings botSettings, Probe probe, IEnumerable<Hotspot> hotspots) =>
+        public IDependencyContainer GetDependencyContainer(BotSettings botSettings, Probe probe) =>
             new DependencyContainer(
                 AdditionalTargetingCriteria,
                 CreateRestState,
                 CreateMoveToTargetState,
-                CreatePowerlevelCombatState,
                 botSettings,
-                probe,
-                hotspots);
+                probe);
 
         public void Test(IDependencyContainer container)
         {

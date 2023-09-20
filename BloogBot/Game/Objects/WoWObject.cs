@@ -9,6 +9,13 @@ namespace BloogBot.Game.Objects
     {
         public virtual IntPtr Pointer { get; set; }
         public virtual ulong Guid { get; set; }
+        public ulong Id
+        {
+            get
+            {
+                return ulong.Parse(Guid.ToString("X").Substring(6, 4), System.Globalization.NumberStyles.HexNumber);
+            }
+        }
         public virtual ObjectType ObjectType { get; set; }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
@@ -243,6 +250,11 @@ namespace BloogBot.Game.Objects
             {
                 interactFunction(Pointer);
             }
+        }
+
+        public byte GetIntAtOffset(int offset)
+        {
+            return MemoryManager.ReadByte(IntPtr.Add(Pointer, offset));
         }
 
         protected IntPtr GetDescriptorPtr() => MemoryManager.ReadIntPtr(IntPtr.Add(Pointer, MemoryAddresses.WoWObject_DescriptorOffset));

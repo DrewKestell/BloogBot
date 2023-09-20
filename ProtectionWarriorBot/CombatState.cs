@@ -61,7 +61,7 @@ namespace ProtectionWarriorBot
                 
                 TryUseAbility(ShieldBash, 10, target.IsCasting && target.Mana > 0);
                 
-                TryUseAbility(Rend, 10, (!target.HasDebuff(Rend) && target.HealthPercent > 50 && (target.CreatureType != CreatureType.Elemental && target.CreatureType != CreatureType.Undead)));
+                TryUseAbility(Rend, 10, !target.HasDebuff(Rend) && target.HealthPercent > 50 && target.CreatureType != CreatureType.Elemental && target.CreatureType != CreatureType.Undead);
 
                 TryUseAbility(BattleShout, 10, !player.HasBuff(BattleShout));
 

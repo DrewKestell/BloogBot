@@ -14,8 +14,8 @@ namespace BloogBot.Game.Frames
                 var currentItem = (IntPtr)0xBBBE90;
                 while ((int)currentItem < 0xBC3F50)
                 {
-                    if (MemoryManager.ReadInt((currentItem + 0x800)) == -1) break;
-                    var optionType = MemoryManager.ReadInt((currentItem + 0x808));
+                    if (MemoryManager.ReadInt(currentItem + 0x800) == -1) break;
+                    var optionType = MemoryManager.ReadInt(currentItem + 0x808);
 
                     DialogOptions.Add(new DialogOption((DialogType)optionType));
                     currentItem = IntPtr.Add(currentItem, 0x80C);

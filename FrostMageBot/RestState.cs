@@ -24,11 +24,11 @@ namespace FrostMageBot
             this.container = container;
             player = ObjectManager.Player;
 
-            foodItem = Inventory.GetAllItems()
-                .FirstOrDefault(i => i.Info.Name == container.BotSettings.Food);
+            //foodItem = Inventory.GetAllItems()
+            //    .FirstOrDefault(i => i.Info.Name == container.BotSettings.Food);
 
-            drinkItem = Inventory.GetAllItems()
-                .FirstOrDefault(i => i.Info.Name == container.BotSettings.Drink);
+            //drinkItem = Inventory.GetAllItems()
+            //    .FirstOrDefault(i => i.Info.Name == container.BotSettings.Drink);
         }
 
         public void Update()

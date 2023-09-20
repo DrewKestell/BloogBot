@@ -1,6 +1,7 @@
 ﻿using BloogBot;
 using BloogBot.AI;
 using BloogBot.Game.Objects;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 
@@ -21,21 +22,21 @@ namespace AfflictionWarlockBot
         IBotState CreateMoveToTargetState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) =>
             new MoveToTargetState(botStates, container, target);
 
-        IBotState CreatePowerlevelCombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target, WoWPlayer powerlevelTarget) =>
-            new PowerlevelCombatState(botStates, container, target, powerlevelTarget);
-
-        public IDependencyContainer GetDependencyContainer(BotSettings botSettings, Probe probe, IEnumerable<Hotspot> hotspots) =>
+        public IDependencyContainer GetDependencyContainer(BotSettings botSettings, Probe probe) =>
             new DependencyContainer(
                 AdditionalTargetingCriteria,
                 CreateRestState,
                 CreateMoveToTargetState,
-                CreatePowerlevelCombatState,
                 botSettings,
-                probe,
-                hotspots);
+                probe);
 
         public void Test(IDependencyContainer container)
         {
+        }
+
+        public void Travel(IDependencyContainer container, bool reverseTravelPath, Action callback)
+        {
+            throw new NotImplementedException();
         }
     }
 }

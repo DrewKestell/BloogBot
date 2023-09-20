@@ -59,7 +59,7 @@ namespace ArcaneMageBot
 
             TryCastSpell(Counterspell, 0, 29, target.Mana > 0 && target.IsCasting);
 
-            TryCastSpell(ManaShield, 0, 50, (!player.HasBuff(ManaShield) && player.HealthPercent < 20));
+            TryCastSpell(ManaShield, 0, 50, !player.HasBuff(ManaShield) && player.HealthPercent < 20);
 
             TryCastSpell(FireBlast, 0, 19, !player.HasBuff(Clearcasting));
 
