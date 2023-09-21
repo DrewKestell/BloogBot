@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using System.Windows.Controls;
 using System.Windows.Input;
 using static BloogBot.UI.WinImports;
 
@@ -22,6 +23,16 @@ namespace BloogBot.UI
         const string COMMAND_ERROR = "An error occured. See Console for details.";
 
         static readonly string[] CityNames = { "Orgrimmar", "Thunder Bluff", "Undercity", "Stormwind", "Darnassus", "Ironforge" };
+
+        static readonly string[] HumanClasses = { "Mage", "Paladin", "Priest", "Rogue", "Warlock", "Warrior" };
+        static readonly string[] DwarfClasses = { "Hunter", "Rogue", "Paladin", "Priest", "Rogue", "Warrior" };
+        static readonly string[] NightElfClasses = { "Druid", "Hunter", "Rogue", "Priest", "Rogue", "Warrior" };
+        static readonly string[] GnomeClasses = { "Mage", "Rogue", "Warlock", "Warrior" };
+
+        static readonly string[] OrcClasses = { "Hunter", "Rogue", "Shaman", "Warlock", "Warrior" };
+        static readonly string[] UndeadClasses = { "Mage", "Priest", "Rogue", "Warlock", "Warrior" };
+        static readonly string[] TaurenClasses = { "Druid", "Hunter", "Shaman", "Warrior" };
+        static readonly string[] TrollClasses = { "Hunter", "Mage", "Priest", "Rogue", "Shaman", "Warrior" };
 
         readonly BotLoader botLoader = new BotLoader();
         readonly Probe probe;

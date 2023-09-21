@@ -63,6 +63,14 @@
                             Content="Stop All"
                             HorizontalAlignment="Left"/>
             <Button
+                            Grid.Column="4"
+                            Grid.ColumnSpan="2"
+                            Width="80"
+                            Margin="6,6,6,6"
+                            Click="Button_Click"
+                            Content="Test"
+                            HorizontalAlignment="Left"/>
+            <Button
                             Grid.Column="6"
                             Grid.ColumnSpan="2"
                             Width="80"
@@ -72,173 +80,22 @@
                             Content="Reload Bots"
                             HorizontalAlignment="Right"/>
         </Grid>
-
-        <TabControl Grid.Row="1" Grid.ColumnSpan="8">
-            <TabItem x:Name="Player1TabItem">
-                <TabItem.Header>Player 1</TabItem.Header>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="156"/>
-                        <ColumnDefinition Width="156"/>
-                        <ColumnDefinition Width="156"/>
-                        <ColumnDefinition Width="156"/>
-                    </Grid.ColumnDefinitions>
+        
+        <Grid Grid.Row="1" Grid.ColumnSpan="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="156"/>
+                <ColumnDefinition Width="156"/>
+                <ColumnDefinition Width="156"/>
+                <ColumnDefinition Width="156"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <GroupBox Header="Bot Settings" Grid.Row="0" Grid.ColumnSpan="6">
+                <Grid >
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <GroupBox Header="Bot Settings" Grid.Row="0" Grid.ColumnSpan="6">
-                        <Grid >
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="80"/>
-                                <ColumnDefinition Width="80"/>
-                                <ColumnDefinition Width="80"/>
-                                <ColumnDefinition Width="80"/>
-                                <ColumnDefinition Width="80"/>
-                                <ColumnDefinition Width="80"/>
-                                <ColumnDefinition Width="80"/>
-                            </Grid.ColumnDefinitions>
-                            <CheckBox Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="1" Grid.RowSpan="1" Content="Tank" VerticalContentAlignment="Center" HorizontalContentAlignment="Left"/>
-                            <CheckBox Grid.Row="0" Grid.Column="4" Grid.ColumnSpan="1" Grid.RowSpan="1" Content="Damage" VerticalContentAlignment="Center" HorizontalContentAlignment="Left"/>
-                            <CheckBox Grid.Row="0" Grid.Column="5" Grid.ColumnSpan="1" Grid.RowSpan="1" Content="Healer" VerticalContentAlignment="Center" HorizontalContentAlignment="Left"/>
-                            <Label Grid.Row="0" Grid.Column="0" Content="Character:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" Grid.ColumnSpan="1" Margin="0,0,0,32" Grid.RowSpan="2"/>
-                            <ComboBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Margin="6,6,6,6" x:Name="RaceComboBox"  VerticalContentAlignment="Center" HorizontalContentAlignment="Right" SelectedIndex="0" IsDropDownOpen="True">
-                                <ComboBoxItem>Human</ComboBoxItem>
-                                <ComboBoxItem>Dwarf</ComboBoxItem>
-                                <ComboBoxItem>Night Elf</ComboBoxItem>
-                                <ComboBoxItem>Gnome</ComboBoxItem>
-                                <ComboBoxItem>Orc</ComboBoxItem>
-                                <ComboBoxItem>Undead</ComboBoxItem>
-                            </ComboBox>
-                            <ComboBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Margin="6,6,6,6" x:Name="ClassComboBox"  VerticalContentAlignment="Center" HorizontalContentAlignment="Right" SelectedIndex="0">
-                                <ComboBoxItem>Warrior</ComboBoxItem>
-                            </ComboBox>
-                            <ListBox Grid.Column="1"  Grid.Row="3" Grid.RowSpan="2" Grid.ColumnSpan="2" x:Name="AvailableInstanceScrollViewer" Margin="6,6,6,6">
-                                <ItemsControl ItemsSource="{Binding WoWProcessList, Mode=OneWay}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding .}" TextWrapping="Wrap" Foreground="Black" FontFamily="Consolas"/>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ListBox>
-                            <Button Name="UpdateButton" Grid.Row="1" Grid.Column="0" Content="Update" Margin="6,6,6,6" Command="{Binding NewWoWInstanceCommand}" Grid.ColumnSpan="1"/>
-                            <Separator Grid.Row="2" Grid.ColumnSpan="7"></Separator>
-                            <Button Name="NewWoWLaunchButton" Grid.Row="3" Content="New" Margin="6,6,6,6" Command="{Binding NewWoWInstanceCommand}" Grid.ColumnSpan="1"/>
-                            <Button Name="AttachButton" Grid.Row="4" Content="Attach" Margin="6,6,6,6" Grid.ColumnSpan="1"/>
-                        </Grid>
-                    </GroupBox>
-                    <GroupBox Header="State Info" Grid.Row="1" Grid.ColumnSpan="4">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="24"/>
-                                <RowDefinition Height="24"/>
-                                <RowDefinition Height="24"/>
-                                <RowDefinition Height="24"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="75"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Label Grid.Row="0" Content="Zone:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="0" Grid.Column="1" Content="{Binding CurrentZone}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
-
-                            <Label Grid.Row="1" Content="Position:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="1" Grid.Column="1" Content="{Binding CurrentPosition}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
-
-                            <Label Grid.Row="2" Content="Task:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="2" Grid.Column="1" Content="{Binding CurrentTask}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
-
-                            <Label Grid.Row="3" Content="State:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="3" Grid.Column="1" Content="{Binding CurrentState}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
-
-                        </Grid>
-                    </GroupBox>
-                    <GroupBox Header="Target Info" Grid.Row="2" Grid.ColumnSpan="4">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="28"/>
-                                <RowDefinition Height="28"/>
-                                <RowDefinition Height="28"/>
-                                <RowDefinition Height="28"/>
-                                <RowDefinition Height="28"/>
-                                <RowDefinition Height="28"/>
-                                <RowDefinition Height="28"/>
-                                <RowDefinition Height="28"/>
-                                <RowDefinition Height="28"/>
-                                <RowDefinition Height="28"/>
-                                <RowDefinition Height="28"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="75"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Label Grid.Row="0" Content="Name:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="0" Grid.Column="1" Content="{Binding TargetName}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
-
-                            <Label Grid.Row="1" Content="ID:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="1" Grid.Column="1" Content="{Binding TargetID}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
-
-                            <Label Grid.Row="2" Content="Guid:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="2" Grid.Column="1" Content="{Binding TargetGuid}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
-
-                            <Label Grid.Row="3" Content="Type:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="3" Grid.Column="1" Content="{Binding TargetCreatureType}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
-
-                            <Label Grid.Row="4" Content="Class:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="4" Grid.Column="1" Content="{Binding TargetClass}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
-
-                            <Label Grid.Row="5" Content="FactionId:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="5" Grid.Column="1" Content="{Binding TargetFactionId}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
-
-                            <Label Grid.Row="6" Content="Position:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="6" Grid.Column="1" Content="{Binding TargetPosition}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
-
-                            <Label Grid.Row="7" Content="Distance:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="7" Grid.Column="1" Content="{Binding TargetRange}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
-
-                            <Label Grid.Row="8" Content="Casting:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="8" Grid.Column="1" Content="{Binding TargetIsCasting}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
-
-                            <Label Grid.Row="9" Content="Channeling:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="9" Grid.Column="1" Content="{Binding TargetIsChanneling}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2" />
-
-                            <Label Grid.Row="10" Content="NPC Markers:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="10" Grid.Column="1" Content="{Binding NpcMarkers}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2" />
-
-                        </Grid>
-                    </GroupBox>
-                </Grid>
-            </TabItem>
-            <TabItem x:Name="Player2TabItem"  Width="75">
-                <TabItem.Header>Player 2</TabItem.Header>
-            </TabItem>
-            <TabItem x:Name="Player3TabItem" Width="75" >
-                <TabItem.Header>Player 3</TabItem.Header>
-            </TabItem>
-            <TabItem x:Name="Player4TabItem" Width="75" >
-                <TabItem.Header>Player 4</TabItem.Header>
-            </TabItem>
-            <TabItem x:Name="Player5TabItem" Width="75" >
-                <TabItem.Header>Player 5</TabItem.Header>
-            </TabItem>
-            <TabItem x:Name="DevelopmentTabItem" Width="125" >
-                <TabItem.Header>Development</TabItem.Header>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
                         <RowDefinition/>
                         <RowDefinition/>
                         <RowDefinition/>
@@ -246,23 +103,129 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="7*"/>
-                        <ColumnDefinition Width="72*"/>
-                        <ColumnDefinition Width="79*"/>
-                        <ColumnDefinition Width="79*"/>
-                        <ColumnDefinition Width="79*"/>
-                        <ColumnDefinition Width="79*"/>
-                        <ColumnDefinition Width="79*"/>
-                        <ColumnDefinition Width="79*"/>
-                        <ColumnDefinition Width="79*"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="80"/>
                     </Grid.ColumnDefinitions>
-                    <Button
-                            Click="Button_Click"
-                            Content="Test"
-                            HorizontalAlignment="Left" Grid.Column="1" Grid.RowSpan="2"/>
+                    <CheckBox Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="1" Grid.RowSpan="1" Content="Tank" VerticalContentAlignment="Center" HorizontalContentAlignment="Left"/>
+                    <CheckBox Grid.Row="0" Grid.Column="4" Grid.ColumnSpan="1" Grid.RowSpan="1" Content="Damage" VerticalContentAlignment="Center" HorizontalContentAlignment="Left"/>
+                    <CheckBox Grid.Row="0" Grid.Column="5" Grid.ColumnSpan="1" Grid.RowSpan="1" Content="Healer" VerticalContentAlignment="Center" HorizontalContentAlignment="Left"/>
+                    <Label Grid.Row="0" Grid.Column="0" Content="Character:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" Grid.ColumnSpan="1" Margin="0,0,0,32" Grid.RowSpan="2"/>
+                    <ComboBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Margin="6,6,6,6" x:Name="RaceComboBox"  VerticalContentAlignment="Center" HorizontalContentAlignment="Right" SelectionChanged="ComboBox_SelectionChanged">
+                        <ComboBoxItem>Dwarf</ComboBoxItem>
+                        <ComboBoxItem>Gnome</ComboBoxItem>
+                        <ComboBoxItem>Human</ComboBoxItem>
+                        <ComboBoxItem>Night Elf</ComboBoxItem>
+                        <ComboBoxItem>Orc</ComboBoxItem>
+                        <ComboBoxItem>Tauren</ComboBoxItem>
+                        <ComboBoxItem>Troll</ComboBoxItem>
+                        <ComboBoxItem>Undead</ComboBoxItem>
+                    </ComboBox>
+                    <ComboBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Margin="6,6,6,6" x:Name="ClassComboBox"  VerticalContentAlignment="Center" HorizontalContentAlignment="Right" SelectedIndex="0">
+                        <ComboBoxItem>Warrior</ComboBoxItem>
+                    </ComboBox>
+                    <ListBox Grid.Column="1"  Grid.Row="3" Grid.RowSpan="2" Grid.ColumnSpan="2" x:Name="AvailableInstanceScrollViewer" Margin="6,6,6,6">
+                        <ItemsControl ItemsSource="{Binding WoWProcessList, Mode=OneWay}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding .}" TextWrapping="Wrap" Foreground="Black" FontFamily="Consolas"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ListBox>
+                    <Button Name="UpdateButton" Grid.Row="1" Grid.Column="0" Content="Update" Margin="6,6,6,6" Command="{Binding NewWoWInstanceCommand}" Grid.ColumnSpan="1"/>
+                    <Separator Grid.Row="2" Grid.ColumnSpan="7"></Separator>
+                    <Button Name="NewWoWLaunchButton" Grid.Row="3" Content="New" Margin="6,6,6,6" Command="{Binding NewWoWInstanceCommand}" Grid.ColumnSpan="1"/>
+                    <Button Name="AttachButton" Grid.Row="4" Content="Attach" Margin="6,6,6,6" Grid.ColumnSpan="1"/>
                 </Grid>
-            </TabItem>
-        </TabControl>
+            </GroupBox>
+            <GroupBox Header="State Info" Grid.Row="1" Grid.ColumnSpan="4">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="24"/>
+                        <RowDefinition Height="24"/>
+                        <RowDefinition Height="24"/>
+                        <RowDefinition Height="24"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="75"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Row="0" Content="Zone:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                    <Label Grid.Row="0" Grid.Column="1" Content="{Binding CurrentZone}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
+
+                    <Label Grid.Row="1" Content="Position:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                    <Label Grid.Row="1" Grid.Column="1" Content="{Binding CurrentPosition}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
+
+                    <Label Grid.Row="2" Content="Task:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                    <Label Grid.Row="2" Grid.Column="1" Content="{Binding CurrentTask}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
+
+                    <Label Grid.Row="3" Content="State:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                    <Label Grid.Row="3" Grid.Column="1" Content="{Binding CurrentState}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
+
+                </Grid>
+            </GroupBox>
+            <GroupBox Header="Target Info" Grid.Row="2" Grid.ColumnSpan="4">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="28"/>
+                        <RowDefinition Height="28"/>
+                        <RowDefinition Height="28"/>
+                        <RowDefinition Height="28"/>
+                        <RowDefinition Height="28"/>
+                        <RowDefinition Height="28"/>
+                        <RowDefinition Height="28"/>
+                        <RowDefinition Height="28"/>
+                        <RowDefinition Height="28"/>
+                        <RowDefinition Height="28"/>
+                        <RowDefinition Height="28"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="75"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Row="0" Content="Name:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                    <Label Grid.Row="0" Grid.Column="1" Content="{Binding TargetName}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
+
+                    <Label Grid.Row="1" Content="ID:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                    <Label Grid.Row="1" Grid.Column="1" Content="{Binding TargetID}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
+
+                    <Label Grid.Row="2" Content="Guid:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                    <Label Grid.Row="2" Grid.Column="1" Content="{Binding TargetGuid}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
+
+                    <Label Grid.Row="3" Content="Type:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                    <Label Grid.Row="3" Grid.Column="1" Content="{Binding TargetCreatureType}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
+
+                    <Label Grid.Row="4" Content="Class:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                    <Label Grid.Row="4" Grid.Column="1" Content="{Binding TargetClass}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
+
+                    <Label Grid.Row="5" Content="FactionId:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                    <Label Grid.Row="5" Grid.Column="1" Content="{Binding TargetFactionId}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
+
+                    <Label Grid.Row="6" Content="Position:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                    <Label Grid.Row="6" Grid.Column="1" Content="{Binding TargetPosition}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
+
+                    <Label Grid.Row="7" Content="Distance:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                    <Label Grid.Row="7" Grid.Column="1" Content="{Binding TargetRange}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
+
+                    <Label Grid.Row="8" Content="Casting:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                    <Label Grid.Row="8" Grid.Column="1" Content="{Binding TargetIsCasting}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2"/>
+
+                    <Label Grid.Row="9" Content="Channeling:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                    <Label Grid.Row="9" Grid.Column="1" Content="{Binding TargetIsChanneling}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2" />
+
+                    <Label Grid.Row="10" Content="NPC Markers:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                    <Label Grid.Row="10" Grid.Column="1" Content="{Binding NpcMarkers}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2" />
+
+                </Grid>
+            </GroupBox>
+        </Grid>
 
         <ScrollViewer Margin="6,6,6,6" Grid.Row="2" Grid.ColumnSpan="8" x:Name="Console" Background="DimGray">
             <StackPanel>

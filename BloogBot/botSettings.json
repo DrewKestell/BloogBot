@@ -11,16 +11,18 @@
   "PathToWoW": "E:\\repos\\Elysium Project Game Client\\WoW.exe",
   "HumanWarrior1Account": "HW1Account",
 
-  "HumanPaladin1Account": "HP1Account",
+  "HumanPaladin1Account": "HPaAccount1",
   "HumanRogue1Account": "HR1Account",
   "HumanPriest1Account": "HPr1Account",
   "HumanMage1Account": "HM1Account",
   "HumanWarlock1Account": "HL1Account",
+
   "DwarfWarrior1Account": "DW1Account",
   "DwarfPaladin1Account": "DPa1Account",
   "DwarfHunter1Account": "DH1Account",
   "DwarfRogue1Account": "DR1Account",
   "DwarfPriest1Account": "DPr1Account",
+
   "NightElfWarrior1Account": "NW1Account",
   "NightElfHunter1Account": "NH1Account",
   "NightElfRogue1Account": "NR1Account",
