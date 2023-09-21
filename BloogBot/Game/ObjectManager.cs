@@ -348,6 +348,7 @@ namespace BloogBot.Game
                     probe.TargetFactionId = target.FactionId.ToString();
                     probe.TargetIsCasting = target.IsCasting.ToString();
                     probe.TargetIsChanneling = target.IsChanneling.ToString();
+                    probe.NpcMarkers = target.NpcMarkerFlags.ToString();
                 }
                 else
                 {
@@ -361,6 +362,7 @@ namespace BloogBot.Game
                     probe.TargetFactionId = string.Empty;
                     probe.TargetIsCasting = string.Empty;
                     probe.TargetIsChanneling = string.Empty;
+                    probe.NpcMarkers = string.Empty;
                 }
 
                 probe.Callback();

@@ -397,6 +397,12 @@ namespace BloogBot.UI
             get => probe.TargetID;
         }
 
+        [ProbeField]
+        public string NpcMarkers
+        {
+            get => probe.NpcMarkers;
+        }
+
         // BotSettings
         [BotSetting]
         public bool UseVerboseLogging

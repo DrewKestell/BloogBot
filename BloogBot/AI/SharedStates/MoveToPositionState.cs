@@ -12,11 +12,12 @@ namespace BloogBot.AI.SharedStates
         readonly bool use2DPop;
         readonly LocalPlayer player;
         readonly StuckHelper stuckHelper;
+        readonly bool forceMove;
 
         int stuckCount;
         Position lastCheckedPosition;
 
-        public MoveToPositionState(Stack<IBotState> botStates, IDependencyContainer container, Position destination, bool use2DPop = false)
+        public MoveToPositionState(Stack<IBotState> botStates, IDependencyContainer container, Position destination, bool use2DPop = false, bool force = false)
         {
             this.botStates = botStates;
             this.container = container;
@@ -25,16 +26,16 @@ namespace BloogBot.AI.SharedStates
             player = ObjectManager.Player;
             stuckHelper = new StuckHelper(botStates, container); 
             lastCheckedPosition = ObjectManager.Player.Position;
+            forceMove = force;
         }
 
         public void Update()
         {
-            var threat = container.FindThreat();
-
-            if (threat != null)
+            if (player.IsInCombat)
             {
                 player.StopAllMovement();
-                botStates.Push(container.CreateMoveToTargetState(botStates, container, threat));
+                botStates.Pop();
+                botStates.Push(container.CreateMoveToTargetState(botStates, container, container.FindThreat()));
                 return;
             }
 
@@ -63,9 +64,11 @@ namespace BloogBot.AI.SharedStates
             var nextWaypoint = Navigation.GetNextWaypoint(ObjectManager.MapId, player.Position, destination, false);
             player.MoveToward(nextWaypoint);
 
-            if (lastCheckedPosition.DistanceTo(ObjectManager.Player.Position) > 15)
+            lastCheckedPosition = ObjectManager.Player.Position;
+
+            if (!forceMove && lastCheckedPosition.DistanceTo2D(ObjectManager.Player.Position) > 15)
             {
-                lastCheckedPosition = ObjectManager.Player.Position;
+                botStates.Pop();
                 botStates.Push(new CheckForQuestEntitiesState(botStates, container));
             }
         }

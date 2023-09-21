@@ -47,6 +47,8 @@ namespace BloogBot
 
         public string CurrentTask { get; set; }
 
+        public string NpcMarkers { get; set; }
+
         public IList<ulong> BlacklistedMobIds { get; set; }
     }
 }

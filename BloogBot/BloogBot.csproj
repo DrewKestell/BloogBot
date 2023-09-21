@@ -150,6 +150,7 @@
     <Compile Include="AI\PlayerTracker.cs" />
     <Compile Include="AI\QuestHelper.cs" />
     <Compile Include="AI\SharedStates\BuyItemsState.cs" />
+    <Compile Include="AI\SharedStates\LoginState.cs" />
     <Compile Include="AI\SharedStates\UseItemOnUnitState.cs" />
     <Compile Include="AI\SharedStates\TurnInQuestFromNpcState.cs" />
     <Compile Include="AI\SharedStates\GrindingState.cs" />

@@ -30,15 +30,6 @@ namespace ElementalShamanBot
 
         public void Update()
         {
-            var threat = container.FindThreat();
-
-            if (threat != null)
-            {
-                player.StopAllMovement();
-                botStates.Push(container.CreateMoveToTargetState(botStates, container, threat));
-                return;
-            }
-
             if (target.TappedByOther || (ObjectManager.Aggressors.Count() > 0 && !ObjectManager.Aggressors.Any(a => a.Guid == target.Guid)))
             {
                 player.StopAllMovement();
