@@ -58,25 +58,6 @@ namespace BloogBot.UI
             };
             timer.Start();
         }
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            UpdateSelectedBot();
-        }
-        private void UpdateSelectedBot()
-        {
-            switch (RaceComboBox.SelectedItem.ToString())
-            {
-                case "1":
-                    //Handle for the first combobox
-                    break;
-                case "2":
-                    //Handle for the second combobox
-                    break;
-                case "3":
-                    //Handle for the third combobox
-                    break;
-            }
-        }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {

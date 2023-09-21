@@ -24,15 +24,6 @@ namespace BloogBot.UI
 
         static readonly string[] CityNames = { "Orgrimmar", "Thunder Bluff", "Undercity", "Stormwind", "Darnassus", "Ironforge" };
 
-        static readonly string[] HumanClasses = { "Mage", "Paladin", "Priest", "Rogue", "Warlock", "Warrior" };
-        static readonly string[] DwarfClasses = { "Hunter", "Rogue", "Paladin", "Priest", "Rogue", "Warrior" };
-        static readonly string[] NightElfClasses = { "Druid", "Hunter", "Rogue", "Priest", "Rogue", "Warrior" };
-        static readonly string[] GnomeClasses = { "Mage", "Rogue", "Warlock", "Warrior" };
-
-        static readonly string[] OrcClasses = { "Hunter", "Rogue", "Shaman", "Warlock", "Warrior" };
-        static readonly string[] UndeadClasses = { "Mage", "Priest", "Rogue", "Warlock", "Warrior" };
-        static readonly string[] TaurenClasses = { "Druid", "Hunter", "Shaman", "Warrior" };
-        static readonly string[] TrollClasses = { "Hunter", "Mage", "Priest", "Rogue", "Shaman", "Warrior" };
 
         readonly BotLoader botLoader = new BotLoader();
         readonly Probe probe;
@@ -67,6 +58,9 @@ namespace BloogBot.UI
 
             InitializeObjectManager();
 
+            Player1PreferredClass = botSettings.Player1PreferredClass;
+            Player1PreferredRace = botSettings.Player1PreferredRace;
+
             ReloadBots();
         }
 
@@ -89,6 +83,7 @@ namespace BloogBot.UI
         {
             try
             {
+
                 ReloadBots();
 
                 var container = CurrentBot.GetDependencyContainer(botSettings, probe);
@@ -146,6 +141,15 @@ namespace BloogBot.UI
         public ICommand StopCommand =>
             stopCommand ?? (stopCommand = new CommandHandler(UiStop, true));
 
+        public static readonly string[] HumanClasses = { "Mage", "Paladin", "Priest", "Rogue", "Warlock", "Warrior" };
+        public static readonly string[] DwarfClasses = { "Hunter", "Paladin", "Priest", "Rogue", "Warrior" };
+        public static readonly string[] NightElfClasses = { "Druid", "Hunter", "Priest", "Rogue", "Warrior" };
+        public static readonly string[] GnomeClasses = { "Mage", "Rogue", "Warlock", "Warrior" };
+
+        public static readonly string[] OrcClasses = { "Hunter", "Rogue", "Shaman", "Warlock", "Warrior" };
+        public static readonly string[] UndeadClasses = { "Mage", "Priest", "Rogue", "Warlock", "Warrior" };
+        public static readonly string[] TaurenClasses = { "Druid", "Hunter", "Shaman", "Warrior" };
+        public static readonly string[] TrollClasses = { "Hunter", "Mage", "Priest", "Rogue", "Shaman", "Warrior" };
         // ReloadBot command
         ICommand reloadBotsCommand;
 
@@ -155,10 +159,9 @@ namespace BloogBot.UI
             {
                 Bots = new ObservableCollection<IBot>(botLoader.ReloadBots());
 
-                CurrentBot = Bots.FirstOrDefault(b => b.Name == botSettings.CurrentBotName) ?? Bots.First();
+                CurrentBot = GetPreferredBot();
 
                 OnPropertyChanged(nameof(Bots));
-                OnPropertyChanged(nameof(WoWProcessList));
                 OnPropertyChanged(nameof(StartAllCommandEnabled));
                 OnPropertyChanged(nameof(StopAllCommandEnabled));
                 OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
@@ -170,6 +173,85 @@ namespace BloogBot.UI
                 Logger.Log(e);
                 Log(COMMAND_ERROR);
             }
+        }
+
+        private IBot GetPreferredBot()
+        {
+            switch (Player1PreferredClass)
+            {
+                case "Druid":
+                    if (Player1HealingRoleDesired)
+                    {
+                        if (Player1DamageRoleDesired)
+                        {
+                            return Bots.First(b => b.Name == "Balance Druid");
+                        }
+                        else
+                        {
+                            return Bots.First(b => b.Name == "Restoration Druid");
+                        }
+                    }
+                    return Bots.First(b => b.Name == "Feral Druid");
+                case "Hunter":
+                    return Bots.First(b => b.Name == "Beastmaster Hunter");
+                case "Mage":
+                    return Bots.First(b => b.Name == "Frost Mage");
+                case "Paladin":
+                    if (Player1TankRoleDesired)
+                    {
+                        return Bots.First(b => b.Name == "Protection Paladin");
+                    }
+                    else if (Player1DamageRoleDesired)
+                    {
+                        return Bots.First(b => b.Name == "Retribution Paladin");
+                    }
+                    return Bots.First(b => b.Name == "Holy Paladin");
+                case "Priest":
+                    if (Player1HealingRoleDesired)
+                    {
+                        if (Player1PvPTemplateDesired)
+                        {
+                            return Bots.First(b => b.Name == "Discipline Priest");
+                        }
+                        else
+                        {
+                            return Bots.First(b => b.Name == "Holy Priest");
+                        }
+                    }
+                    return Bots.First(b => b.Name == "Shadow Priest");
+                case "Rogue":
+                    if (Player1PvPTemplateDesired)
+                    {
+                        return Bots.First(b => b.Name == "Backstab Rogue");
+                    }
+                    else
+                    {
+                        return Bots.First(b => b.Name == "Combat Rogue");
+                    }
+                case "Shaman":
+                    if (Player1TankRoleDesired)
+                    {
+                        return Bots.First(b => b.Name == "Enhancement Shaman");
+                    }
+                    else if (Player1DamageRoleDesired)
+                    {
+                        return Bots.First(b => b.Name == "Elemental Shaman");
+                    }
+                    return Bots.First(b => b.Name == "Elemental Shaman");
+                case "Warlock":
+                    return Bots.First(b => b.Name == "Frost Mage");
+                case "Warrior":
+                    if (Player1TankRoleDesired)
+                    {
+                        return Bots.First(b => b.Name == "Protection Warrior");
+                    }
+                    else if (Player1PvPTemplateDesired)
+                    {
+                        return Bots.First(b => b.Name == "Arms Warrior");
+                    }
+                    break;
+            }
+            return Bots.First(b => b.Name == "Fury Warrior");
         }
 
         public ICommand ReloadBotsCommand =>
@@ -426,6 +508,67 @@ namespace BloogBot.UI
             }
         }
 
+        [BotSetting]
+        public string Player1PreferredRace
+        {
+            get => botSettings.Player1PreferredRace;
+            set
+            {
+                botSettings.Player1PreferredRace = value;
+
+                OnPropertyChanged(nameof(Player1PreferredRace));
+
+                CurrentlyAvailableClasses = new ObservableCollection<string>(CurrentAvailableClasses);
+
+                OnPropertyChanged(nameof(CurrentlyAvailableClasses));
+            }
+        }
+
+        [BotSetting]
+        public string Player1PreferredClass
+        {
+            get => botSettings.Player1PreferredClass;
+            set
+            {
+                botSettings.Player1PreferredClass = value;
+
+                OnPropertyChanged(nameof(Player1PreferredClass));
+            }
+        }
+
+        public ObservableCollection<string> CurrentlyAvailableClasses { get; private set; } = new ObservableCollection<string>();
+
+        private string[] CurrentAvailableClasses
+        {
+            get
+            {
+                switch (Player1PreferredRace)
+                {
+                    case "Dwarf":
+                        return DwarfClasses;
+                    case "Night Elf":
+                        return NightElfClasses;
+                    case "Gnome":
+                        return GnomeClasses;
+                    case "Orc":
+                        return OrcClasses;
+                    case "Undead":
+                        return UndeadClasses;
+                    case "Tauren":
+                        return TaurenClasses;
+                    case "Troll":
+                        return TrollClasses;
+                }
+                return HumanClasses;
+            }
+        }
+        public string Player1PreferredAccount;
+
+        public bool Player1TankRoleDesired;
+        public bool Player1DamageRoleDesired;
+        public bool Player1HealingRoleDesired;
+
+        public bool Player1PvPTemplateDesired;
         #endregion
 
         public event PropertyChangedEventHandler PropertyChanged;

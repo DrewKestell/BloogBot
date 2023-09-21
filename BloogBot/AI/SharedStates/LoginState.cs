@@ -14,20 +14,21 @@ namespace BloogBot.AI.SharedStates
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
 
-        State state;
+        string accountUsername;
 
-        public LoginState(Stack<IBotState> botStates, IDependencyContainer container)
+        public LoginState(Stack<IBotState> botStates, IDependencyContainer container, string username)
         {
             this.botStates = botStates;
             this.container = container;
+            this.accountUsername = username;
         }
         public void Update()
         {
             if (IsElementVisibile("AccountLoginAccountEdit"))
             {
                 Functions.LuaCall(
-                "    local username = 'lrhodes404' " +
-                "\r\nlocal password = 'Rockydog1.'" +
+                $"    local username = '{accountUsername}' " +
+                "\r\nlocal password = 'password'" +
                 "\r\nAccountLoginAccountEdit:SetText(username)" +
                 "\r\nAccountLoginPasswordEdit:SetText(password)" +
                 "\r\nAccountLogin_Login()");
@@ -37,12 +38,6 @@ namespace BloogBot.AI.SharedStates
                 Functions.LuaCall("CharSelectEnterWorldButton:Click()");
             }
 
-        }
-        enum State
-        {
-            Portal,
-            Character,
-            Loading
         }
         public bool IsElementVisibile(string elementName)
         {

@@ -71,7 +71,7 @@
                             Content="Test"
                             HorizontalAlignment="Left"/>
             <Button
-                            Grid.Column="6"
+                            Grid.Column="5"
                             Grid.ColumnSpan="2"
                             Width="80"
                             Margin="6,6,6,6"
@@ -111,11 +111,12 @@
                         <ColumnDefinition Width="80"/>
                         <ColumnDefinition Width="80"/>
                     </Grid.ColumnDefinitions>
-                    <CheckBox Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="1" Grid.RowSpan="1" Content="Tank" VerticalContentAlignment="Center" HorizontalContentAlignment="Left"/>
-                    <CheckBox Grid.Row="0" Grid.Column="4" Grid.ColumnSpan="1" Grid.RowSpan="1" Content="Damage" VerticalContentAlignment="Center" HorizontalContentAlignment="Left"/>
-                    <CheckBox Grid.Row="0" Grid.Column="5" Grid.ColumnSpan="1" Grid.RowSpan="1" Content="Healer" VerticalContentAlignment="Center" HorizontalContentAlignment="Left"/>
+                    <CheckBox Name="TankCheckBox" Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="1" Grid.RowSpan="1" Content="Tank" VerticalContentAlignment="Center" HorizontalContentAlignment="Left"/>
+                    <CheckBox Name="DamageCheckBox" Grid.Row="0" Grid.Column="4" Grid.ColumnSpan="1" Grid.RowSpan="1" Content="Damage" VerticalContentAlignment="Center" HorizontalContentAlignment="Left"/>
+                    <CheckBox Name="HealerCheckBox" Grid.Row="0" Grid.Column="5" Grid.ColumnSpan="1" Grid.RowSpan="1" Content="Healer" VerticalContentAlignment="Center" HorizontalContentAlignment="Left"/>
+                    <CheckBox Name="PvPCheckBox" Grid.Row="0" Grid.Column="6" Grid.ColumnSpan="1" Grid.RowSpan="1" Content="PvP" VerticalContentAlignment="Center" HorizontalContentAlignment="Left"/>
                     <Label Grid.Row="0" Grid.Column="0" Content="Character:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" Grid.ColumnSpan="1" Margin="0,0,0,32" Grid.RowSpan="2"/>
-                    <ComboBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Margin="6,6,6,6" x:Name="RaceComboBox"  VerticalContentAlignment="Center" HorizontalContentAlignment="Right" SelectionChanged="ComboBox_SelectionChanged">
+                    <ComboBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Margin="6,6,6,6" x:Name="RaceComboBox" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" SelectedIndex="0">
                         <ComboBoxItem>Dwarf</ComboBoxItem>
                         <ComboBoxItem>Gnome</ComboBoxItem>
                         <ComboBoxItem>Human</ComboBoxItem>
@@ -125,7 +126,7 @@
                         <ComboBoxItem>Troll</ComboBoxItem>
                         <ComboBoxItem>Undead</ComboBoxItem>
                     </ComboBox>
-                    <ComboBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Margin="6,6,6,6" x:Name="ClassComboBox"  VerticalContentAlignment="Center" HorizontalContentAlignment="Right" SelectedIndex="0">
+                    <ComboBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Margin="6,6,6,6" x:Name="ClassComboBox" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" SelectedIndex="0">
                         <ComboBoxItem>Warrior</ComboBoxItem>
                     </ComboBox>
                     <ListBox Grid.Column="1"  Grid.Row="3" Grid.RowSpan="2" Grid.ColumnSpan="2" x:Name="AvailableInstanceScrollViewer" Margin="6,6,6,6">

@@ -140,6 +140,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AI\AccountHelper.cs" />
     <Compile Include="AI\Bot.cs" />
     <Compile Include="AI\DependencyContainer.cs" />
     <Compile Include="AI\DialogueHelper.cs" />
@@ -151,6 +152,7 @@
     <Compile Include="AI\QuestHelper.cs" />
     <Compile Include="AI\SharedStates\BuyItemsState.cs" />
     <Compile Include="AI\SharedStates\LoginState.cs" />
+    <Compile Include="AI\SharedStates\LogoutState.cs" />
     <Compile Include="AI\SharedStates\UseItemOnUnitState.cs" />
     <Compile Include="AI\SharedStates\TurnInQuestFromNpcState.cs" />
     <Compile Include="AI\SharedStates\GrindingState.cs" />
