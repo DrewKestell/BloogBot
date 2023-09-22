@@ -8,12 +8,15 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Input;
+using BloogBot.Models.Dto;
 using static BloogBot.UI.WinImports;
 
 namespace BloogBot.UI
@@ -32,6 +35,8 @@ namespace BloogBot.UI
 
         public IntPtr processPointer;
 
+        private Socket _socket;
+
         public MainViewModel()
         {
             var currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -42,6 +47,16 @@ namespace BloogBot.UI
             Logger.Initialize(botSettings);
             SqliteRepository.Initialize();
             DiscordClientWrapper.Initialize(botSettings);
+            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            try
+            {
+                _socket.Connect(IPAddress.Parse(botSettings.ListenAddress), botSettings.Port);
+            }
+            catch (Exception e)
+            {
+                Logger.Log(e.Message);
+            }
+            
 
             void callback()
             {
@@ -573,8 +588,49 @@ namespace BloogBot.UI
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        void OnPropertyChanged(string name) =>
+        void OnPropertyChanged(string name)
+        {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            if (name == nameof(CurrentPosition))
+            {
+                InstanceUpdate update = new InstanceUpdate
+                {
+                    CurrentPosition = CurrentPosition
+                };
+                SendSocketMessage(update);
+            }
+        }
+
+        private void SendSocketMessage(InstanceUpdate update)
+        {
+            try
+            {
+                if (_socket == null)
+                {
+                    return;
+                }
+                if (!_socket.Connected)
+                {
+                    try
+                    {
+                        _socket.Connect(IPAddress.Parse(botSettings.ListenAddress), botSettings.Port);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Log(e.Message);
+                    }
+                }
+                if (_socket != null && _socket.Connected)
+                {
+                    _socket.Send(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(update)));
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
 
         public void Log(string message) =>
             ConsoleOutput.Add($"({DateTime.Now.ToShortTimeString()}) {message}");

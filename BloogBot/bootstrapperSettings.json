@@ -1,3 +1,5 @@
 {
-	"PathToWoW": "C:\\Apps\\WoW\\WoW.exe"
+	"PathToWoW": "E:\\repos\\Elysium Project Game Client\\WoW.exe",
+	"Port": 8087,
+	"ListenAddress": "0.0.0.0"
 }

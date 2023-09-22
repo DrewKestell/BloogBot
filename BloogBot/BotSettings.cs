@@ -21,5 +21,9 @@
         public string DiscordChannelId { get; set; }
 
         public bool UseVerboseLogging { get; set; }
+
+        public string ListenAddress { get; set; }
+
+        public int Port { get; set; }
     }
 }
