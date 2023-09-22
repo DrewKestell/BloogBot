@@ -26,8 +26,8 @@ namespace BloogBot.UI
             };
             timer.Tick += (sender, e) =>
             {
-                if (Console.VerticalOffset == Console.ScrollableHeight)
-                    Console.ScrollToEnd();
+                //if (Console.VerticalOffset == Console.ScrollableHeight)
+                //    Console.ScrollToEnd();
 
                 Process[] wowProcesses = Process.GetProcessesByName("WoW");
 

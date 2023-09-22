@@ -51,14 +51,14 @@ namespace BloogBot
             }
             catch (Exception)
             {
-                using (var connection = new SqliteConnection(ConnectionString))
-                {
-                    connection.Open();
+                //using (var connection = new SqliteConnection(ConnectionString))
+                //{
+                //    connection.Open();
 
-                    var command = new SqliteCommand(File.ReadAllText(PreparedSql), connection);
+                //    var command = new SqliteCommand(File.ReadAllText(PreparedSql), connection);
 
-                    command.ExecuteReader();
-                }
+                //    command.ExecuteReader();
+                //}
             }
         }
         public static Item GetItemById(ulong id)
