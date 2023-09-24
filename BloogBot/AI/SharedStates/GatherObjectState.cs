@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace BloogBot.AI.SharedStates
 {
-    class GatherObjectState : IBotState
+    class GatherObjectState : BotState, IBotState
     {
         readonly Stack<IBotState> botStates;
         readonly WoWGameObject target;

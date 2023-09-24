@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace BloogBot.AI.SharedStates
 {
-    public class MoveToPositionState : IBotState
+    public class MoveToPositionState : BotState, IBotState
     {
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
@@ -60,17 +60,20 @@ namespace BloogBot.AI.SharedStates
                     return;
                 }
             }
-            
-            var nextWaypoint = Navigation.GetNextWaypoint(ObjectManager.MapId, player.Position, destination, false);
-            player.MoveToward(nextWaypoint);
 
-            lastCheckedPosition = ObjectManager.Player.Position;
-
-            if (!forceMove && lastCheckedPosition.DistanceTo2D(ObjectManager.Player.Position) > 15)
+            Logger.Log("forceMove " + forceMove);
+            if (!forceMove && lastCheckedPosition.DistanceTo2D(ObjectManager.Player.Position) > 5)
             {
+                Logger.Log("CheckForQuestEntitiesState");
                 botStates.Pop();
                 botStates.Push(new CheckForQuestEntitiesState(botStates, container));
             }
+
+            var nextWaypoint = Navigation.GetNextWaypoint(ObjectManager.MapId, player.Position, destination, false);
+            player.MoveToward(nextWaypoint);
+
+            Logger.Log(ObjectManager.Player.Position);
+            lastCheckedPosition = ObjectManager.Player.Position;
         }
     }
 }

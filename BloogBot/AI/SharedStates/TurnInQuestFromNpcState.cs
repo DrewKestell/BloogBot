@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace BloogBot.AI.SharedStates
 {
-    public class TurnInQuestFromNpcState : IBotState
+    public class TurnInQuestFromNpcState : BotState, IBotState
     {
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
@@ -53,8 +53,8 @@ namespace BloogBot.AI.SharedStates
             {
                 for (int i = 1; i < 5; i++)
                 {
-                    string questGossipText = GetQuestGossipOption(i);
-                    string questTitleText = GetQuestTitleOption(i);
+                    string questGossipText = FrameHelper.GetQuestGossipOption(i);
+                    string questTitleText = FrameHelper.GetQuestTitleOption(i);
 
                     if (questGossipText.Equals(questName, StringComparison.Ordinal) || questTitleText.Equals(questName, StringComparison.Ordinal))
                     {
@@ -89,19 +89,19 @@ namespace BloogBot.AI.SharedStates
         }
         public void SetCurrentState()
         {
-            if (IsElementVisibile("GossipFrame"))
+            if (FrameHelper.IsElementVisibile("GossipFrame"))
             {
                 state = State.GossipQuest;
             }
-            else if (IsElementVisibile($"QuestRewardItem{rewardSelection}"))
+            else if (FrameHelper.IsElementVisibile($"QuestRewardItem{rewardSelection}"))
             {
                 state = State.SelectReward;
             }
-            else if (IsElementVisibile("QuestFrameCompleteQuestButton") || IsElementVisibile("QuestFrameCompleteButton"))
+            else if (FrameHelper.IsElementVisibile("QuestFrameCompleteQuestButton") || FrameHelper.IsElementVisibile("QuestFrameCompleteButton"))
             {
                 state = State.AcceptReward;
             }
-            else if ((npc.NpcMarkerFlags & NpcMarkerFlags.YellowQuestion) != NpcMarkerFlags.YellowQuestion || (IsElementVisibile("QuestFrame") && (state != State.Uninitialized || IsElementVisibile("QuestFrameAcceptButton"))))
+            else if ((npc.NpcMarkerFlags & NpcMarkerFlags.YellowQuestion) != NpcMarkerFlags.YellowQuestion || (FrameHelper.IsElementVisibile("QuestFrame") && (state != State.Uninitialized || FrameHelper.IsElementVisibile("QuestFrameAcceptButton"))))
             {
                 state = State.ReadyToPop;
             }
@@ -114,40 +114,6 @@ namespace BloogBot.AI.SharedStates
             SelectReward,
             AcceptReward,
             ReadyToPop
-        }
-
-        public static string GetQuestGossipOption(int i)
-        {
-            var hasOption = Functions.LuaCallWithResult($"{{0}} = GossipTitleButton{i}:IsVisible()");
-            if (hasOption.Length > 0 && hasOption[0] == "1")
-            {
-                string[] results = Functions.LuaCallWithResult($"{{0}} = GossipTitleButton{i}:GetText()");
-                if (results.Length > 0)
-                {
-                    return results[0];
-                }
-            }
-            return string.Empty;
-        }
-
-        public static string GetQuestTitleOption(int i)
-        {
-            var hasOption = Functions.LuaCallWithResult($"{{0}} = QuestTitleButton{i}:IsVisible()");
-            if (hasOption.Length > 0 && hasOption[0] == "1")
-            {
-                string[] results = Functions.LuaCallWithResult($"{{0}} = QuestTitleButton{i}:GetText()");
-                if (results.Length > 0)
-                {
-                    return results[0];
-                }
-            }
-            return string.Empty;
-        }
-        public static bool IsElementVisibile(string elementName)
-        {
-            var hasOption = Functions.LuaCallWithResult($"{{0}} = {elementName}:IsVisible()");
-
-            return hasOption.Length > 0 && hasOption[0] == "1";
         }
     }
 }

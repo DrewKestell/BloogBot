@@ -14,10 +14,10 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
-using System.Windows.Controls;
 using System.Windows.Input;
 using BloogBot.Models.Dto;
 using static BloogBot.UI.WinImports;
+using System.Windows.Threading;
 
 namespace BloogBot.UI
 {
@@ -27,15 +27,17 @@ namespace BloogBot.UI
 
         static readonly string[] CityNames = { "Orgrimmar", "Thunder Bluff", "Undercity", "Stormwind", "Darnassus", "Ironforge" };
 
-
         readonly BotLoader botLoader = new BotLoader();
-        readonly Probe probe;
+        readonly InstanceUpdate probe;
         readonly BotSettings botSettings;
         bool readyForCommands;
+
+        IDependencyContainer dependencyContainer;
 
         public IntPtr processPointer;
 
         private Socket _socket;
+        private DispatcherTimer _timer;
 
         public MainViewModel()
         {
@@ -55,8 +57,7 @@ namespace BloogBot.UI
             catch (Exception e)
             {
                 Logger.Log(e.Message);
-            }
-            
+            }            
 
             void callback()
             {
@@ -66,21 +67,35 @@ namespace BloogBot.UI
             {
                 Stop();
             }
-            probe = new Probe(callback, killswitch)
+            probe = new InstanceUpdate(callback, killswitch)
             {
 
             };
 
             InitializeObjectManager();
+            
+            _timer = new DispatcherTimer
+            {
+                Interval = new TimeSpan(0, 0, 0, 0, 500)
+            };
+            _timer.Tick += (sender, ea) =>
+            {
+                try
+                {
+                    OnPropertyChanged(nameof(StartCommandEnabled));
+                    OnPropertyChanged(nameof(StopCommandEnabled));
 
-            Player1PreferredClass = botSettings.Player1PreferredClass;
-            Player1PreferredRace = botSettings.Player1PreferredRace;
-
-            ReloadBots();
+                    if (probe != null)
+                    {
+                        SendSocketMessage();
+                    }
+                }catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+            };
+            _timer.Start();
         }
-
-        public ObservableCollection<string> WoWProcessList { get; } = new ObservableCollection<string>();
-        public ObservableCollection<string> ConsoleOutput { get; } = new ObservableCollection<string>();
         public ObservableCollection<IBot> Bots { get; private set; }
 
         #region Commands
@@ -91,35 +106,31 @@ namespace BloogBot.UI
         void UiStart()
         {
             Start();
-            Log("Bot started!");
+        }
+        void StopCallback()
+        {
+            Stop();
         }
 
         void Start()
         {
             try
             {
+                Bots = new ObservableCollection<IBot>(botLoader.ReloadBots());
 
-                ReloadBots();
+                CurrentBot = Bots.First(b => b.Name == "Fury Warrior");
 
-                var container = CurrentBot.GetDependencyContainer(botSettings, probe);
+                dependencyContainer = CurrentBot.GetDependencyContainer(botSettings, probe);
+                dependencyContainer.AccountName = "OrWr1";
 
-                void stopCallback()
-                {
-                    OnPropertyChanged(nameof(StartAllCommandEnabled));
-                    OnPropertyChanged(nameof(StopAllCommandEnabled));
-                    OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
-                }
+                currentBot.Start(dependencyContainer, StopCallback);
 
-                currentBot.Start(container, stopCallback);
-
-                OnPropertyChanged(nameof(StartAllCommandEnabled));
-                OnPropertyChanged(nameof(StopAllCommandEnabled));
-                OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
+                OnPropertyChanged(nameof(StartCommandEnabled));
+                OnPropertyChanged(nameof(StopCommandEnabled));
             }
             catch (Exception e)
             {
-                Logger.Log(e);
-                Log(COMMAND_ERROR);
+                Console.WriteLine(e.Message);
             }
         }
 
@@ -132,20 +143,13 @@ namespace BloogBot.UI
         void UiStop()
         {
             Stop();
-            Log("Bot stopped!");
         }
 
         void Stop()
         {
             try
             {
-                var container = CurrentBot.GetDependencyContainer(botSettings, probe);
-
-                currentBot.Stop();
-
-                OnPropertyChanged(nameof(StartAllCommandEnabled));
-                OnPropertyChanged(nameof(StopAllCommandEnabled));
-                OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
+                CurrentBot.Stop();
             }
             catch (Exception e)
             {
@@ -156,245 +160,18 @@ namespace BloogBot.UI
         public ICommand StopCommand =>
             stopCommand ?? (stopCommand = new CommandHandler(UiStop, true));
 
-        public static readonly string[] HumanClasses = { "Mage", "Paladin", "Priest", "Rogue", "Warlock", "Warrior" };
-        public static readonly string[] DwarfClasses = { "Hunter", "Paladin", "Priest", "Rogue", "Warrior" };
-        public static readonly string[] NightElfClasses = { "Druid", "Hunter", "Priest", "Rogue", "Warrior" };
-        public static readonly string[] GnomeClasses = { "Mage", "Rogue", "Warlock", "Warrior" };
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        public static readonly string[] OrcClasses = { "Hunter", "Rogue", "Shaman", "Warlock", "Warrior" };
-        public static readonly string[] UndeadClasses = { "Mage", "Priest", "Rogue", "Warlock", "Warrior" };
-        public static readonly string[] TaurenClasses = { "Druid", "Hunter", "Shaman", "Warrior" };
-        public static readonly string[] TrollClasses = { "Hunter", "Mage", "Priest", "Rogue", "Shaman", "Warrior" };
-        // ReloadBot command
-        ICommand reloadBotsCommand;
-
-        void ReloadBots()
+        void OnPropertyChanged(string name)
         {
-            try
-            {
-                Bots = new ObservableCollection<IBot>(botLoader.ReloadBots());
-
-                CurrentBot = GetPreferredBot();
-
-                OnPropertyChanged(nameof(Bots));
-                OnPropertyChanged(nameof(StartAllCommandEnabled));
-                OnPropertyChanged(nameof(StopAllCommandEnabled));
-                OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
-
-                Log("Bot successfully loaded!");
-            }
-            catch (Exception e)
-            {
-                Logger.Log(e);
-                Log(COMMAND_ERROR);
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-
-        private IBot GetPreferredBot()
-        {
-            switch (Player1PreferredClass)
-            {
-                case "Druid":
-                    if (Player1HealingRoleDesired)
-                    {
-                        if (Player1DamageRoleDesired)
-                        {
-                            return Bots.First(b => b.Name == "Balance Druid");
-                        }
-                        else
-                        {
-                            return Bots.First(b => b.Name == "Restoration Druid");
-                        }
-                    }
-                    return Bots.First(b => b.Name == "Feral Druid");
-                case "Hunter":
-                    return Bots.First(b => b.Name == "Beastmaster Hunter");
-                case "Mage":
-                    return Bots.First(b => b.Name == "Frost Mage");
-                case "Paladin":
-                    if (Player1TankRoleDesired)
-                    {
-                        return Bots.First(b => b.Name == "Protection Paladin");
-                    }
-                    else if (Player1DamageRoleDesired)
-                    {
-                        return Bots.First(b => b.Name == "Retribution Paladin");
-                    }
-                    return Bots.First(b => b.Name == "Holy Paladin");
-                case "Priest":
-                    if (Player1HealingRoleDesired)
-                    {
-                        if (Player1PvPTemplateDesired)
-                        {
-                            return Bots.First(b => b.Name == "Discipline Priest");
-                        }
-                        else
-                        {
-                            return Bots.First(b => b.Name == "Holy Priest");
-                        }
-                    }
-                    return Bots.First(b => b.Name == "Shadow Priest");
-                case "Rogue":
-                    if (Player1PvPTemplateDesired)
-                    {
-                        return Bots.First(b => b.Name == "Backstab Rogue");
-                    }
-                    else
-                    {
-                        return Bots.First(b => b.Name == "Combat Rogue");
-                    }
-                case "Shaman":
-                    if (Player1TankRoleDesired)
-                    {
-                        return Bots.First(b => b.Name == "Enhancement Shaman");
-                    }
-                    else if (Player1DamageRoleDesired)
-                    {
-                        return Bots.First(b => b.Name == "Elemental Shaman");
-                    }
-                    return Bots.First(b => b.Name == "Elemental Shaman");
-                case "Warlock":
-                    return Bots.First(b => b.Name == "Frost Mage");
-                case "Warrior":
-                    if (Player1TankRoleDesired)
-                    {
-                        return Bots.First(b => b.Name == "Protection Warrior");
-                    }
-                    else if (Player1PvPTemplateDesired)
-                    {
-                        return Bots.First(b => b.Name == "Arms Warrior");
-                    }
-                    break;
-            }
-            return Bots.First(b => b.Name == "Fury Warrior");
-        }
-
-        public ICommand ReloadBotsCommand =>
-            reloadBotsCommand ?? (reloadBotsCommand = new CommandHandler(ReloadBots, true));
-
-        // ClearLog
-        ICommand clearLogCommand;
-
-        void ClearLog()
-        {
-            try
-            {
-                ConsoleOutput.Clear();
-                OnPropertyChanged(nameof(ConsoleOutput));
-            }
-            catch (Exception e)
-            {
-                Logger.Log(e);
-                Log(COMMAND_ERROR);
-            }
-        }
-
-        public ICommand ClearLogCommand =>
-            clearLogCommand ?? (clearLogCommand = new CommandHandler(ClearLog, true));
-
-        // NewWoWInstance command
-        ICommand newWoWInstanceCommand;
-
-        void SpawnNewWowInstance()
-        {
-            try
-            {
-                var currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                var bootstrapperSettingsFilePath = Path.Combine(currentFolder, "bootstrapperSettings.json");
-                var bootstrapperSettings = JsonConvert.DeserializeObject<BootstrapperSettings>(File.ReadAllText(bootstrapperSettingsFilePath));
-
-                var startupInfo = new STARTUPINFO();
-
-                // run BloogBot.exe in a new process
-                CreateProcess(
-                    bootstrapperSettings.PathToWoW,
-                    null,
-                    IntPtr.Zero,
-                    IntPtr.Zero,
-                    false,
-                    ProcessCreationFlag.CREATE_DEFAULT_ERROR_MODE,
-                    IntPtr.Zero,
-                    null,
-                    ref startupInfo,
-                    out PROCESS_INFORMATION processInfo);
-
-                // this seems to help prevent timing issues
-                Thread.Sleep(1000);
-
-                // get a handle to the BloogBot process
-                var processHandle = Process.GetProcessById((int)processInfo.dwProcessId).Handle;
-
-                // resolve the file path to Loader.dll relative to our current working directory
-                var loaderPath = Path.Combine(currentFolder, "Loader.dll");
-
-                // allocate enough memory to hold the full file path to Loader.dll within the BloogBot process
-                var loaderPathPtr = VirtualAllocEx(
-                    processHandle,
-                    (IntPtr)0,
-                    loaderPath.Length,
-                    MemoryAllocationType.MEM_COMMIT,
-                    MemoryProtectionType.PAGE_EXECUTE_READWRITE);
-
-                // this seems to help prevent timing issues
-                Thread.Sleep(500);
-
-                int error = Marshal.GetLastWin32Error();
-                if (error > 0)
-                    throw new InvalidOperationException($"Failed to allocate memory for Loader.dll, error code: {error}");
-
-                // write the file path to Loader.dll to the EoE process's memory
-                var bytes = Encoding.Unicode.GetBytes(loaderPath);
-                var bytesWritten = 0; // throw away
-                WriteProcessMemory(processHandle, loaderPathPtr, bytes, bytes.Length, ref bytesWritten);
-
-                // this seems to help prevent timing issues
-                Thread.Sleep(1000);
-
-                error = Marshal.GetLastWin32Error();
-                if (error > 0 || bytesWritten == 0)
-                    throw new InvalidOperationException($"Failed to write Loader.dll into the WoW.exe process, error code: {error}");
-
-                // search current process's for the memory address of the LoadLibraryW function within the kernel32.dll module
-                var loaderDllPointer = GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryW");
-
-                // this seems to help prevent timing issues
-                Thread.Sleep(1000);
-
-                error = Marshal.GetLastWin32Error();
-                if (error > 0)
-                    throw new InvalidOperationException($"Failed to get memory address to Loader.dll in the WoW.exe process, error code: {error}");
-
-                // create a new thread with the execution starting at the LoadLibraryW function, 
-                // with the path to our Loader.dll passed as a parameter
-                processPointer = CreateRemoteThread(processHandle, (IntPtr)null, (IntPtr)0, loaderDllPointer, loaderPathPtr, 0, (IntPtr)null);
-
-                // this seems to help prevent timing issues
-                Thread.Sleep(1000);
-
-                error = Marshal.GetLastWin32Error();
-                if (error > 0)
-                    throw new InvalidOperationException($"Failed to create remote thread to start execution of Loader.dll in the WoW.exe process, error code: {error}");
-
-                // free the memory that was allocated by VirtualAllocEx
-                VirtualFreeEx(processHandle, loaderPathPtr, 0, MemoryFreeType.MEM_RELEASE);
-            }
-            catch (Exception e)
-            {
-                Logger.Log(e);
-                Log(COMMAND_ERROR);
-            }
-        }
-
-        public ICommand NewWoWInstanceCommand =>
-            newWoWInstanceCommand ?? (newWoWInstanceCommand = new CommandHandler(SpawnNewWowInstance, true));
         #endregion
 
         #region Observables
-        public bool StartAllCommandEnabled => !currentBot.Running();
+        public bool StartCommandEnabled => !currentBot.Running();
 
-        public bool StopAllCommandEnabled => currentBot.Running();
-
-        public bool ReloadBotsCommandEnabled => !currentBot.Running();
+        public bool StopCommandEnabled => currentBot.Running();
 
         // General
         IBot currentBot;
@@ -404,204 +181,12 @@ namespace BloogBot.UI
             set
             {
                 currentBot = value;
-                OnPropertyChanged(nameof(CurrentBot));
             }
         }
 
-        // ProbeFields
-        [ProbeField]
-        public string CurrentState
-        {
-            get => probe.CurrentState;
-        }
-
-        [ProbeField]
-        public string CurrentPosition
-        {
-            get => probe.CurrentPosition;
-        }
-
-        [ProbeField]
-        public string CurrentZone
-        {
-            get => probe.CurrentZone;
-        }
-
-        [ProbeField]
-        public string TargetName
-        {
-            get => probe.TargetName;
-        }
-
-        [ProbeField]
-        public string TargetClass
-        {
-            get => probe.TargetClass;
-        }
-
-        [ProbeField]
-        public string TargetCreatureType
-        {
-            get => probe.TargetCreatureType;
-        }
-
-        [ProbeField]
-        public string TargetPosition
-        {
-            get => probe.TargetPosition;
-        }
-
-        [ProbeField]
-        public string TargetRange
-        {
-            get => probe.TargetRange;
-        }
-
-        [ProbeField]
-        public string TargetFactionId
-        {
-            get => probe.TargetFactionId;
-        }
-
-        [ProbeField]
-        public string TargetIsCasting
-        {
-            get => probe.TargetIsCasting;
-        }
-
-        [ProbeField]
-        public string TargetIsChanneling
-        {
-            get => probe.TargetIsChanneling;
-        }
-
-        [ProbeField]
-        public string UpdateLatency
-        {
-            get => probe.UpdateLatency;
-        }
-
-        [ProbeField]
-        public string CurrentQuestName
-        {
-            get => probe.CurrentQuestName;
-        }
-
-        [ProbeField]
-        public string CurrentTask
-        {
-            get => probe.CurrentTask;
-        }
-
-        [ProbeField]
-        public string TargetGuid
-        {
-            get => probe.TargetGuid;
-        }
-
-        [ProbeField]
-        public string TargetID
-        {
-            get => probe.TargetID;
-        }
-
-        [ProbeField]
-        public string NpcMarkers
-        {
-            get => probe.NpcMarkers;
-        }
-
-        // BotSettings
-        [BotSetting]
-        public bool UseVerboseLogging
-        {
-            get => botSettings.UseVerboseLogging;
-            set
-            {
-                botSettings.UseVerboseLogging = value;
-                OnPropertyChanged(nameof(UseVerboseLogging));
-            }
-        }
-
-        [BotSetting]
-        public string Player1PreferredRace
-        {
-            get => botSettings.Player1PreferredRace;
-            set
-            {
-                botSettings.Player1PreferredRace = value;
-
-                OnPropertyChanged(nameof(Player1PreferredRace));
-
-                CurrentlyAvailableClasses = new ObservableCollection<string>(CurrentAvailableClasses);
-
-                OnPropertyChanged(nameof(CurrentlyAvailableClasses));
-            }
-        }
-
-        [BotSetting]
-        public string Player1PreferredClass
-        {
-            get => botSettings.Player1PreferredClass;
-            set
-            {
-                botSettings.Player1PreferredClass = value;
-
-                OnPropertyChanged(nameof(Player1PreferredClass));
-            }
-        }
-
-        public ObservableCollection<string> CurrentlyAvailableClasses { get; private set; } = new ObservableCollection<string>();
-
-        private string[] CurrentAvailableClasses
-        {
-            get
-            {
-                switch (Player1PreferredRace)
-                {
-                    case "Dwarf":
-                        return DwarfClasses;
-                    case "Night Elf":
-                        return NightElfClasses;
-                    case "Gnome":
-                        return GnomeClasses;
-                    case "Orc":
-                        return OrcClasses;
-                    case "Undead":
-                        return UndeadClasses;
-                    case "Tauren":
-                        return TaurenClasses;
-                    case "Troll":
-                        return TrollClasses;
-                }
-                return HumanClasses;
-            }
-        }
-        public string Player1PreferredAccount;
-
-        public bool Player1TankRoleDesired;
-        public bool Player1DamageRoleDesired;
-        public bool Player1HealingRoleDesired;
-
-        public bool Player1PvPTemplateDesired;
         #endregion
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        void OnPropertyChanged(string name)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-            if (name == nameof(CurrentPosition))
-            {
-                InstanceUpdate update = new InstanceUpdate
-                {
-                    CurrentPosition = CurrentPosition
-                };
-                SendSocketMessage(update);
-            }
-        }
-
-        private void SendSocketMessage(InstanceUpdate update)
+        private void SendSocketMessage()
         {
             try
             {
@@ -622,18 +207,15 @@ namespace BloogBot.UI
                 }
                 if (_socket != null && _socket.Connected)
                 {
-                    _socket.Send(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(update)));
+                    _socket.Send(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(probe)));
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             }
         }
-
-        public void Log(string message) =>
-            ConsoleOutput.Add($"({DateTime.Now.ToShortTimeString()}) {message}");
 
         public void InitializeObjectManager()
         {

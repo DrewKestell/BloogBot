@@ -78,17 +78,23 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BootstrapperSettings.cs" />
-    <Compile Include="InstanceUpdate.cs" />
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
+    <Compile Include="InstanceCoordinator.cs" />
+    <Compile Include="MainControllerWindow.xaml.cs">
+      <DependentUpon>MainControllerWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="ServerSocket.cs" />
     <Compile Include="WinImports.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <Resource Include="Fonts\LifeCraft_Font.ttf" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -104,10 +110,43 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="MainWindow.xaml">
+    <Page Include="MainControllerWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\button_texture_stop.png" />
+    <Resource Include="Resources\button_texture_stop_disabled.png" />
+    <Resource Include="Resources\button_texture_update.png" />
+    <Resource Include="Resources\button_texture_update_disabled.png" />
+    <Resource Include="Resources\button_texture_update_mouseover.png" />
+    <Resource Include="Resources\button_texture_update_pressed.png" />
+    <Resource Include="Resources\button_texture_stop_mouseover.png" />
+    <Resource Include="Resources\button_texture_stop_pressed.png" />
+    <Resource Include="Resources\button_texture_start_mouseover.png" />
+    <Resource Include="Resources\button_texture_start_disabled.png" />
+    <Resource Include="Resources\button_texture_start_pressed.png" />
+    <Resource Include="Resources\button_texture_start.png" />
+    <Resource Include="Resources\LoadScreen-BottomFillTile.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\button_texture_spawn.png" />
+    <Resource Include="Resources\button_texture_spawn_disabled.png" />
+    <Resource Include="Resources\button_texture_spawn_mouseover.png" />
+    <Resource Include="Resources\button_texture_spawn_pressed.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BloogBot\BloogBot.csproj">
+      <Project>{0901E784-2977-437E-8A2C-C70F0184EEFB}</Project>
+      <Name>BloogBot</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

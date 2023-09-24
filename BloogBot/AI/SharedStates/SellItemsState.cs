@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace BloogBot.AI.SharedStates
 {
-    public class SellItemsState : IBotState
+    public class SellItemsState : BotState, IBotState
     {
         readonly Stack<IBotState> botStates;
         readonly string npcName;

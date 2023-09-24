@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace BloogBot.AI.SharedStates
 {
-    public class MoveToCorpseState : IBotState
+    public class MoveToCorpseState : BotState, IBotState
     {
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;

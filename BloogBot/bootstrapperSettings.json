@@ -1,5 +1,47 @@
 {
 	"PathToWoW": "E:\\repos\\Elysium Project Game Client\\WoW.exe",
 	"Port": 8087,
-	"ListenAddress": "0.0.0.0"
+	"ListenAddress": "0.0.0.0",
+	"Activity": "DUNGEON",
+	"ShouldParty": false,
+	"Dungeon": "Ragefire Chasm",
+	"DungeonPartySize": 5,
+	"PvPSelection": "Warsong Gultch",
+	"PartyPreferences": [
+		{
+			"Race": "Orc",
+			"Class": "Warrior",
+			"IsTank": true,
+			"IsDamage": true,
+			"IsHealer": false
+		},
+		{
+			"Race": "Orc",
+			"Class": "Warlock",
+			"IsTank": false,
+			"IsDamage": true,
+			"IsHealer": false
+		},
+		{
+			"Race": "Orc",
+			"Class": "Hunter",
+			"IsTank": false,
+			"IsDamage": true,
+			"IsHealer": false
+		},
+		{
+			"Race": "Troll",
+			"Class": "Mage",
+			"IsTank": false,
+			"IsDamage": true,
+			"IsHealer": false
+		},
+		{
+			"Race": "Orc",
+			"Class": "Shaman",
+			"IsTank": false,
+			"IsDamage": true,
+			"IsHealer": true
+		}
+	]
 }

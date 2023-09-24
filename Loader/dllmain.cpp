@@ -60,28 +60,6 @@ unsigned __stdcall ThreadMain(void* pParam)
 	AllocConsole();
 	freopen("CONOUT$", "w", stdout);
 
-//#if _DEBUG
-//	std::cout << std::string("Attach a debugger now to WoW.exe if you want to debug Loader.dll. Waiting 10 seconds...") << std::endl;
-//
-//	HANDLE hEvent = CreateEvent(nullptr, TRUE, FALSE, L"MyDebugEvent");
-//	// Wait for 10 seconds 
-//	WaitForSingleObject(hEvent, 10000);
-//	bool isDebuggerAttached = IsDebuggerPresent() != FALSE;
-//
-//	if (isDebuggerAttached)
-//	{
-//		std::cout << std::string("Debugger found.") << std::endl;
-//	}
-//	else
-//	{
-//		std::cout << std::string("Debugger not found.") << std::endl;
-//	}
-//
-//	SetEvent(hEvent);
-//	CloseHandle(hEvent);
-//#endif
-
-
 	HRESULT hr = CLRCreateInstance(CLSID_CLRMetaHostPolicy, IID_ICLRMetaHostPolicy, (LPVOID*)&g_pMetaHost);
 
 	if (FAILED(hr))
@@ -90,16 +68,8 @@ unsigned __stdcall ThreadMain(void* pParam)
 		return 1;
 	}
 
-	//hr = g_pMetaHost->GetRuntime(L"v4.0.30128", IID_ICLRRuntimeInfo, (LPVOID*)&g_pRuntimeInfo);
-
-	// Use this if your lazy. Just make sure to change the ICLRMetaHost
-	// to an ICLRMetaHostPolicy instead.
 	DWORD pcchVersion = 0;
 	DWORD dwConfigFlags = 0;
-
-	//wchar_t tmpbuff[1024];
-	//wsprintf(tmpbuff, L"dllLocation: %s pcchVersion: %d dwConfigFlags: %d g_pMetaHost: 0x%lx", dllLocation, pcchVersion, dwConfigFlags, g_pMetaHost);
-	//MB(tmpbuff);
 
 	hr = g_pMetaHost->GetRequestedRuntime(METAHOST_POLICY_HIGHCOMPAT,
 		dllLocation, NULL,
@@ -146,37 +116,6 @@ unsigned __stdcall ThreadMain(void* pParam)
 		return 1;
 	}
 
-	/*BotHostControl* hostControl = new BotHostControl();
-	hr = g_clrHost->SetHostControl((IHostControl*)hostControl);
-
-	if (FAILED(hr))
-	{
-		MB(L"Failed to SetHostControl");
-
-		return 1;
-	}
-
-	ICLRControl* clrControl = NULL;
-	hr = g_clrHost->GetCLRControl(&clrControl);
-
-	if (FAILED(hr))
-	{
-		MB(L"Failed to GetCLRControl");
-
-		return 1;
-	}
-
-	hr = clrControl->SetAppDomainManagerType(L"BloogBot", L"BloogBot.BotDomainManager");
-
-	if (FAILED(hr))
-	{
-		MB(L"Failed to SetAppDomainManagerType");
-
-		return 1;
-	}
-
-	hr = g_clrHost->Start();*/
-
 	if (FAILED(hr))
 	{
 		MB(L"Failed to Start");
@@ -212,12 +151,6 @@ unsigned __stdcall ThreadMain(void* pParam)
 
 		return 1;
 	}
-
-	/*ICLRControl* clrControl = NULL;
-	hr = g_clrHost->GetCLRControl(&clrControl);
-
-	hr = clrControl->SetAppDomainManagerType(L"BloogBot", L"BloogBot.BotDomainManager");*/
-
 	hr = g_clrHost->Start();
 
 	//Execute the Main func in the domain manager, this will block indefinitely.
@@ -261,15 +194,6 @@ unsigned __stdcall ThreadMain(void* pParam)
 
 		return 1;
 	}
-
-	/*LPWSTR text;
-	_BotDomainManagerInterface* appDomainManager = hostControl->GetBotDomainManagerInterface();
-
-	hr = appDomainManager->HelloWorld(L"Player One", &text);
-
-	hr = g_clrHost->Stop();
-
-	wprintf(text);*/
 
 	return 0;
 }

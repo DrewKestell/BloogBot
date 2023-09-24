@@ -2,7 +2,6 @@
 using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using WoWBot.Client.Models;
 
 namespace BloogBot
@@ -809,19 +808,19 @@ namespace BloogBot
             }
             return creatureTemplates;
         }
-        public static List<CreatureTemplate> GetAllVendors()
+        public static List<Creature> GetAllVendors()
         {
-            List<CreatureTemplate> creatureTemplates = new List<CreatureTemplate>();
+            List<Creature> creatures = new List<Creature>();
             using (var connection = new SqliteConnection(ConnectionString))
             {
                 connection.Open();
 
                 var command = connection.CreateCommand();
                 command.CommandText = @"
-                                            SELECT      ct.*
+                                            SELECT      ct.*, crt.Name
                                             FROM        npc_vendor   npcv
-                                            LEFT JOIN   creature_template   ct
-                                            ON          npcv.Entry = ct.Entry
+                                            LEFT JOIN   creature_template   ct  ON  npcv.Entry  = ct.Entry
+                                            LEFT JOIN   creature            crt ON  crt.id      = ct.entry
                                             GROUP BY    ct.Entry
                                         ";
 
@@ -829,97 +828,34 @@ namespace BloogBot
                 {
                     while (reader.Read())
                     {
-                        CreatureTemplate creatureTemplate = new CreatureTemplate()
+                        Creature creature = new Creature
                         {
-                            Entry = reader.GetInt32(reader.GetOrdinal("Entry")),
+                            Guid = Convert.ToInt32(reader["guid"]),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
-                            SubName = reader.IsDBNull(reader.GetOrdinal("SubName")) ? string.Empty : reader.GetString(reader.GetOrdinal("SubName")),
-                            MinLevel = reader.GetByte(reader.GetOrdinal("MinLevel")),
-                            MaxLevel = reader.GetByte(reader.GetOrdinal("MaxLevel")),
-                            ModelId1 = reader.GetInt32(reader.GetOrdinal("ModelId1")),
-                            ModelId2 = reader.GetInt32(reader.GetOrdinal("ModelId2")),
-                            ModelId3 = reader.GetInt32(reader.GetOrdinal("ModelId3")),
-                            ModelId4 = reader.GetInt32(reader.GetOrdinal("ModelId4")),
-                            Faction = reader.GetInt16(reader.GetOrdinal("Faction")),
-                            Scale = reader.GetFloat(reader.GetOrdinal("Scale")),
-                            Family = reader.GetByte(reader.GetOrdinal("Family")),
-                            CreatureType = reader.GetByte(reader.GetOrdinal("CreatureType")),
-                            InhabitType = reader.GetByte(reader.GetOrdinal("InhabitType")),
-                            RegenerateStats = reader.GetByte(reader.GetOrdinal("RegenerateStats")),
-                            RacialLeader = reader.GetByte(reader.GetOrdinal("RacialLeader")),
-                            NpcFlags = reader.GetInt32(reader.GetOrdinal("NpcFlags")),
-                            UnitFlags = reader.GetInt32(reader.GetOrdinal("UnitFlags")),
-                            DynamicFlags = reader.GetInt32(reader.GetOrdinal("DynamicFlags")),
-                            ExtraFlags = reader.GetInt32(reader.GetOrdinal("ExtraFlags")),
-                            CreatureTypeFlags = reader.GetInt32(reader.GetOrdinal("CreatureTypeFlags")),
-                            SpeedWalk = reader.GetFloat(reader.GetOrdinal("SpeedWalk")),
-                            SpeedRun = reader.GetFloat(reader.GetOrdinal("SpeedRun")),
-                            Detection = reader.GetInt32(reader.GetOrdinal("Detection")),
-                            CallForHelp = reader.GetInt32(reader.GetOrdinal("CallForHelp")),
-                            Pursuit = reader.GetInt32(reader.GetOrdinal("Pursuit")),
-                            Leash = reader.GetInt32(reader.GetOrdinal("Leash")),
-                            Timeout = reader.GetInt32(reader.GetOrdinal("Timeout")),
-                            UnitClass = reader.GetByte(reader.GetOrdinal("UnitClass")),
-                            Rank = reader.GetByte(reader.GetOrdinal("Rank")),
-                            HealthMultiplier = reader.GetFloat(reader.GetOrdinal("HealthMultiplier")),
-                            PowerMultiplier = reader.GetFloat(reader.GetOrdinal("PowerMultiplier")),
-                            DamageMultiplier = reader.GetFloat(reader.GetOrdinal("DamageMultiplier")),
-                            DamageVariance = reader.GetFloat(reader.GetOrdinal("DamageVariance")),
-                            ArmorMultiplier = reader.GetFloat(reader.GetOrdinal("ArmorMultiplier")),
-                            ExperienceMultiplier = reader.GetFloat(reader.GetOrdinal("ExperienceMultiplier")),
-                            MinLevelHealth = reader.GetInt32(reader.GetOrdinal("MinLevelHealth")),
-                            MaxLevelHealth = reader.GetInt32(reader.GetOrdinal("MaxLevelHealth")),
-                            MinLevelMana = reader.GetInt32(reader.GetOrdinal("MinLevelMana")),
-                            MaxLevelMana = reader.GetInt32(reader.GetOrdinal("MaxLevelMana")),
-                            MinMeleeDmg = reader.GetFloat(reader.GetOrdinal("MinMeleeDmg")),
-                            MaxMeleeDmg = reader.GetFloat(reader.GetOrdinal("MaxMeleeDmg")),
-                            MinRangedDmg = reader.GetFloat(reader.GetOrdinal("MinRangedDmg")),
-                            MaxRangedDmg = reader.GetFloat(reader.GetOrdinal("MaxRangedDmg")),
-                            Armor = reader.GetInt32(reader.GetOrdinal("Armor")),
-                            MeleeAttackPower = reader.GetInt32(reader.GetOrdinal("MeleeAttackPower")),
-                            RangedAttackPower = reader.GetInt16(reader.GetOrdinal("RangedAttackPower")),
-                            MeleeBaseAttackTime = reader.GetInt32(reader.GetOrdinal("MeleeBaseAttackTime")),
-                            RangedBaseAttackTime = reader.GetInt32(reader.GetOrdinal("RangedBaseAttackTime")),
-                            DamageSchool = reader.GetByte(reader.GetOrdinal("DamageSchool")),
-                            MinLootGold = reader.GetInt32(reader.GetOrdinal("MinLootGold")),
-                            MaxLootGold = reader.GetInt32(reader.GetOrdinal("MaxLootGold")),
-                            LootId = reader.GetInt32(reader.GetOrdinal("LootId")),
-                            PickpocketLootId = reader.GetInt32(reader.GetOrdinal("PickpocketLootId")),
-                            SkinningLootId = reader.GetInt32(reader.GetOrdinal("SkinningLootId")),
-                            KillCredit1 = reader.GetInt32(reader.GetOrdinal("KillCredit1")),
-                            KillCredit2 = reader.GetInt32(reader.GetOrdinal("KillCredit2")),
-                            MechanicImmuneMask = reader.GetInt32(reader.GetOrdinal("MechanicImmuneMask")),
-                            SchoolImmuneMask = reader.GetInt32(reader.GetOrdinal("SchoolImmuneMask")),
-                            ResistanceHoly = reader.GetInt32(reader.GetOrdinal("ResistanceHoly")),
-                            ResistanceFire = reader.GetInt32(reader.GetOrdinal("ResistanceFire")),
-                            ResistanceNature = reader.GetInt32(reader.GetOrdinal("ResistanceNature")),
-                            ResistanceFrost = reader.GetInt32(reader.GetOrdinal("ResistanceFrost")),
-                            ResistanceShadow = reader.GetInt32(reader.GetOrdinal("ResistanceShadow")),
-                            ResistanceArcane = reader.GetInt32(reader.GetOrdinal("ResistanceArcane")),
-                            PetSpellDataId = reader.GetInt32(reader.GetOrdinal("PetSpellDataId")),
-                            MovementType = reader.GetByte(reader.GetOrdinal("MovementType")),
-                            TrainerType = reader.GetByte(reader.GetOrdinal("TrainerType")),
-                            TrainerSpell = reader.GetInt32(reader.GetOrdinal("TrainerSpell")),
-                            TrainerClass = reader.GetByte(reader.GetOrdinal("TrainerClass")),
-                            TrainerRace = reader.GetByte(reader.GetOrdinal("TrainerRace")),
-                            TrainerTemplateId = reader.GetInt32(reader.GetOrdinal("TrainerTemplateId")),
-                            VendorTemplateId = reader.GetInt32(reader.GetOrdinal("VendorTemplateId")),
-                            GossipMenuId = reader.GetInt32(reader.GetOrdinal("GossipMenuId")),
-                            InteractionPauseTimer = reader.GetInt32(reader.GetOrdinal("InteractionPauseTimer")),
-                            VisibilityDistanceType = reader.GetByte(reader.GetOrdinal("visibilityDistanceType")),
-                            CorpseDecay = reader.GetInt32(reader.GetOrdinal("CorpseDecay")),
-                            SpellList = reader.GetInt32(reader.GetOrdinal("SpellList")),
-                            EquipmentTemplateId = reader.GetInt32(reader.GetOrdinal("EquipmentTemplateId")),
-                            Civilian = reader.GetByte(reader.GetOrdinal("Civilian")),
-                            AIName = reader.GetString(reader.GetOrdinal("AIName")),
-                            ScriptName = reader.GetString(reader.GetOrdinal("ScriptName")),
+                            Id = Convert.ToInt32(reader["id"]),
+                            Map = Convert.ToInt16(reader["map"]),
+                            SpawnMask = Convert.ToByte(reader["spawnMask"]),
+                            ModelId = Convert.ToInt32(reader["modelid"]),
+                            EquipmentId = Convert.ToInt32(reader["equipment_id"]),
+                            PositionX = Convert.ToSingle(reader["position_x"]),
+                            PositionY = Convert.ToSingle(reader["position_y"]),
+                            PositionZ = Convert.ToSingle(reader["position_z"]),
+                            Orientation = Convert.ToSingle(reader["orientation"]),
+                            SpawnTimeSecsMin = Convert.ToInt32(reader["spawntimesecsmin"]),
+                            SpawnTimeSecsMax = Convert.ToInt32(reader["spawntimesecsmax"]),
+                            SpawnDist = Convert.ToSingle(reader["spawndist"]),
+                            CurrentWaypoint = Convert.ToInt32(reader["currentwaypoint"]),
+                            CurHealth = Convert.ToInt32(reader["curhealth"]),
+                            CurMana = Convert.ToInt32(reader["curmana"]),
+                            DeathState = Convert.ToByte(reader["DeathState"]),
+                            MovementType = Convert.ToByte(reader["MovementType"])
                         };
 
-                        creatureTemplates.Add(creatureTemplate);
+                        creatures.Add(creature);
                     }
                 }
             }
-            return creatureTemplates;
+            return creatures;
         }
         public static List<NpcVendorEntry> GetAllItemsSoldByVendorByEntry(int entry)
         {

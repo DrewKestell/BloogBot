@@ -1,6 +1,7 @@
 ﻿using BloogBot.AI.SharedStates;
 using BloogBot.Game;
 using BloogBot.Game.Enums;
+using BloogBot.Models;
 using BloogBot.UI;
 using System;
 using System.Collections.Generic;
@@ -9,225 +10,246 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace BloogBot.AI
 {
     public abstract class Bot
     {
         readonly Stack<IBotState> botStates = new Stack<IBotState>();
-        readonly Stopwatch stopwatch = new Stopwatch();
+        Timer timer;
 
         bool running;
         bool retrievingCorpse;
 
         Type currentState;
-        int currentStateStartTime;
-        Position currentPosition;
-        int currentPositionStartTime;
-        Position teleportCheckPosition;
-        bool isFalling;
         int currentLevel;
 
         Action stopCallback;
+
+        IDependencyContainer container;
 
         public bool Running() => running;
 
         public void Stop()
         {
             running = false;
-            currentLevel = 0;
+            timer.Stop();
 
             while (botStates.Count > 0)
+            {
                 botStates.Pop();
+            }
+            ThreadSynchronizer.ClearQueue();
 
             stopCallback?.Invoke();
         }
 
+        public async void Logout()
+        {
+            running = true;
+            botStates.Push(new LogoutState(botStates, container));
+
+            while (botStates.Count > 0)
+            {
+                ThreadSynchronizer.RunOnMainThread(() =>
+                {
+                    botStates.Peek()?.Update();
+                });
+                await Task.Delay(50);
+            }
+            running = false;
+        }
+        public async void Login()
+        {
+            running = true;
+            botStates.Push(new LoginState(botStates, container));
+
+            while (botStates.Count > 0)
+            {
+                ThreadSynchronizer.RunOnMainThread(() =>
+                {
+                    botStates.Peek()?.Update();
+                });
+                await Task.Delay(50);
+            }
+            running = false;
+        }
+
+        public void AddState(IBotState state)
+        {
+            botStates.Push(state);
+        }
+
+        public void ClearStack()
+        {
+            while(botStates.Count > 0)
+            {
+                botStates.Clear();
+            }
+        }
+
         public void Start(IDependencyContainer container, Action stopCallback)
         {
+            this.container = container;
             this.stopCallback = stopCallback;
 
             try
             {
-                running = true;
-
-                ThreadSynchronizer.RunOnMainThread(() =>
-                {
-                    currentLevel = ObjectManager.Player.Level;
-
-                    botStates.Push(new GrindingState(botStates, container));
-
-                    currentState = botStates.Peek().GetType();
-                    currentStateStartTime = Environment.TickCount;
-                    currentPosition = ObjectManager.Player.Position;
-                    currentPositionStartTime = Environment.TickCount;
-                    teleportCheckPosition = ObjectManager.Player.Position;
-                });
-
-                StartInternal(container);
+                StartInternal();
             }
             catch (Exception e)
             {
                 Logger.Log(e);
             }
         }
-
-        async void StartInternal(IDependencyContainer container)
+        private async void OnTimedEvent(object source, ElapsedEventArgs e)
         {
-            while (running)
+            try
             {
-                try
+                if (ThreadSynchronizer.QueueCount() == 0)
                 {
-                    stopwatch.Restart();
-
                     ThreadSynchronizer.RunOnMainThread(() =>
                     {
-                        if (botStates.Count() == 0)
+                        if (ObjectManager.IsLoggedIn)
                         {
-                            Stop();
-                            return;
-                        }
+                            var player = ObjectManager.Player;
 
-                        var player = ObjectManager.Player;
+                            if (player == null)
+                            {
+                                return;
+                            }
 
-                        if (player.Level > currentLevel)
-                        {
-                            currentLevel = player.Level;
-                            DiscordClientWrapper.SendMessage($"Ding! {player.Name} is now level {player.Level}!");
-                        }
+                            if (player.Level > currentLevel)
+                            {
+                                currentLevel = player.Level;
+                                DiscordClientWrapper.SendMessage($"Ding! {player.Name} is now level {player.Level}!");
+                            }
 
-                        player.AntiAfk();
+                            if (botStates.Count > 0 && botStates.Peek()?.GetType() == typeof(GrindingState))
+                            {
+                                container.RunningErrands = false;
+                                retrievingCorpse = false;
+                            }
 
-                        if (player.IsFalling)
-                        {
-                            isFalling = true;
-                        }
+                            // if the player has been stuck in the same state for more than 5 minutes
+                            if (Environment.TickCount < 0 && currentState != typeof(TravelState))
+                            {
+                                var msg = $"Hey, it's {player.Name}, and I need help! I've been stuck in the {currentState.Name} for over 5 minutes. I'm stopping for now.";
+                                LogToFile(msg);
+                                DiscordClientWrapper.SendMessage(msg);
+                                Stop();
+                                return;
+                            }
+                            if (botStates.Count > 0 && botStates.Peek().GetType() != currentState)
+                            {
+                                currentState = botStates.Peek().GetType();
+                            }
 
-                        if (player.Position.DistanceTo(teleportCheckPosition) > 5)
-                        {
-                            DiscordClientWrapper.TeleportAlert(player.Name);
-                            Stop();
-                            return;
-                        }
-                        teleportCheckPosition = player.Position;
+                            // if the player has been stuck in the same position for more than 5 minutes
+                            if (Environment.TickCount < 0)
+                            {
+                                var msg = $"Hey, it's {player.Name}, and I need help! I've been stuck in the same position for over 5 minutes. I'm stopping for now.";
+                                LogToFile(msg);
+                                DiscordClientWrapper.SendMessage(msg);
+                                Stop();
+                                return;
+                            }
 
-                        if (isFalling && !player.IsFalling)
-                        {
-                            isFalling = false;
-                        }
+                            // if the player dies
+                            if ((player.Health <= 0 || player.InGhostForm) && !retrievingCorpse)
+                            {
+                                PopStackToBaseState();
 
-                        if (botStates.Count > 0 && (botStates.Peek()?.GetType() == typeof(GrindingState)))
-                        {
-                            container.RunningErrands = false;
-                            retrievingCorpse = false;
-                        }
+                                retrievingCorpse = true;
+                                container.RunningErrands = true;
 
-                        // if the player has been stuck in the same state for more than 5 minutes
-                        if (Environment.TickCount - currentStateStartTime > 300000 && currentState != typeof(TravelState))
-                        {
-                            var msg = $"Hey, it's {player.Name}, and I need help! I've been stuck in the {currentState.Name} for over 5 minutes. I'm stopping for now.";
-                            LogToFile(msg);
-                            DiscordClientWrapper.SendMessage(msg);
-                            Stop();
-                            return;
-                        }
-                        if (botStates.Peek().GetType() != currentState)
-                        {
-                            currentState = botStates.Peek().GetType();
-                            currentStateStartTime = Environment.TickCount;
-                        }
+                                botStates.Push(container.CreateRestState(botStates, container));
+                                botStates.Push(new RetrieveCorpseState(botStates, container));
+                                botStates.Push(new MoveToCorpseState(botStates, container));
+                                botStates.Push(new ReleaseCorpseState(botStates, container));
+                            }
 
-                        // if the player has been stuck in the same position for more than 5 minutes
-                        if (Environment.TickCount - currentPositionStartTime > 300000)
-                        {
-                            var msg = $"Hey, it's {player.Name}, and I need help! I've been stuck in the same position for over 5 minutes. I'm stopping for now.";
-                            LogToFile(msg);
-                            DiscordClientWrapper.SendMessage(msg);
-                            Stop();
-                            return;
-                        }
-                        if (player.Position.DistanceTo(currentPosition) > 10)
-                        {
-                            currentPosition = player.Position;
-                            currentPositionStartTime = Environment.TickCount;
-                        }
+                            //var currentHotspot = container.GetCurrentHotspot();
 
-                        // if the player dies
-                        if ((player.Health <= 0 || player.InGhostForm) && !retrievingCorpse)
-                        {
-                            PopStackToBaseState();
+                            // if equipment needs to be repaired
+                            int mainhandDurability = Inventory.GetEquippedItem(EquipSlot.MainHand)?.DurabilityPercentage ?? 100;
+                            int offhandDurability = Inventory.GetEquippedItem(EquipSlot.Ranged)?.DurabilityPercentage ?? 100;
 
-                            retrievingCorpse = true;
-                            container.RunningErrands = true;
+                            // offhand throwns don't have durability, but instead register `-2147483648`.
+                            // This is a workaround to prevent that from causing us to get caught in a loop.
+                            // We default to a durability value of 100 for items that are null because 100 will register them as not needing repaired.
+                            if ((mainhandDurability <= 20 && mainhandDurability > -1 || (offhandDurability <= 20 && offhandDurability > -1)) != null && !container.RunningErrands)
+                            {
+                                ShapeshiftToHumanForm(container);
+                                PopStackToBaseState();
 
-                            botStates.Push(container.CreateRestState(botStates, container));
-                            botStates.Push(new RetrieveCorpseState(botStates, container));
-                            botStates.Push(new MoveToCorpseState(botStates, container));
-                            botStates.Push(new ReleaseCorpseState(botStates, container));
-                        }
+                                container.RunningErrands = true;
 
-                        //var currentHotspot = container.GetCurrentHotspot();
+                                //if (currentHotspot.TravelPath != null)
+                                //{
+                                //    botStates.Push(new TravelState(botStates, container, currentHotspot.TravelPath.Waypoints, 0));
+                                //    botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.TravelPath.Waypoints[0]));
+                                //}
 
-                        // if equipment needs to be repaired
-                        int mainhandDurability = Inventory.GetEquippedItem(EquipSlot.MainHand)?.DurabilityPercentage ?? 100;
-                        int offhandDurability = Inventory.GetEquippedItem(EquipSlot.Ranged)?.DurabilityPercentage ?? 100;
+                                //botStates.Push(new RepairEquipmentState(botStates, container, currentHotspot.RepairVendor.Name));
+                                //botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.RepairVendor.Position));
+                                //container.CheckForTravelPath(botStates, true);
+                            }
 
-                        // offhand throwns don't have durability, but instead register `-2147483648`.
-                        // This is a workaround to prevent that from causing us to get caught in a loop.
-                        // We default to a durability value of 100 for items that are null because 100 will register them as not needing repaired.
-                        if ((mainhandDurability <= 20 && mainhandDurability > -1 || (offhandDurability <= 20 && offhandDurability > -1)) != null && !container.RunningErrands)
-                        {
-                            ShapeshiftToHumanForm(container);
-                            PopStackToBaseState();
+                            // if inventory is full
+                            if (Inventory.CountFreeSlots(false) < 3 && !container.RunningErrands)
+                            {
+                                ShapeshiftToHumanForm(container);
+                                PopStackToBaseState();
 
-                            container.RunningErrands = true;
+                                container.RunningErrands = true;
 
-                            //if (currentHotspot.TravelPath != null)
-                            //{
-                            //    botStates.Push(new TravelState(botStates, container, currentHotspot.TravelPath.Waypoints, 0));
-                            //    botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.TravelPath.Waypoints[0]));
-                            //}
+                                //if (currentHotspot.TravelPath != null)
+                                //{
+                                //    botStates.Push(new TravelState(botStates, container, currentHotspot.TravelPath.Waypoints, 0));
+                                //    botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.TravelPath.Waypoints[0]));
+                                //}
+                                Creature vendor = SqliteRepository.GetAllVendors()
+                                                                    .OrderBy(x => new Position(x.PositionX, x.PositionY, x.PositionZ).DistanceTo(ObjectManager.Player.Position))
+                                                                    .First();
 
-                            //botStates.Push(new RepairEquipmentState(botStates, container, currentHotspot.RepairVendor.Name));
-                            //botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.RepairVendor.Position));
-                            //container.CheckForTravelPath(botStates, true);
-                        }
+                                botStates.Push(new SellItemsState(botStates, container, vendor.Name));
+                                botStates.Push(new MoveToPositionState(botStates, container, new Position(vendor.PositionX, vendor.PositionY, vendor.PositionZ)));
+                                //container.CheckForTravelPath(botStates, true);
+                            }
 
-                        // if inventory is full
-                        if (Inventory.CountFreeSlots(false) == 0 && !container.RunningErrands)
-                        {
-                            ShapeshiftToHumanForm(container);
-                            PopStackToBaseState();
-
-                            container.RunningErrands = true;
-
-                            //if (currentHotspot.TravelPath != null)
-                            //{
-                            //    botStates.Push(new TravelState(botStates, container, currentHotspot.TravelPath.Waypoints, 0));
-                            //    botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.TravelPath.Waypoints[0]));
-                            //}
-                            
-                            //botStates.Push(new SellItemsState(botStates, container, currentHotspot.Innkeeper.Name));
-                            //botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.Innkeeper.Position));
-                            //container.CheckForTravelPath(botStates, true);
+                            currentLevel = ObjectManager.Player.Level;
                         }
 
                         if (botStates.Count > 0)
                         {
-                            container.Probe.CurrentState = botStates.Peek()?.GetType().Name;
-                            botStates.Peek()?.Update();
+                            if (!FrameHelper.IsElementVisibile("CinematicFrame"))
+                            {
+                                container.Probe.CurrentTask = botStates.Peek()?.GetType().Name;
+                                running = true;
+                                botStates.Peek()?.Update();
+                            }
                         }
                     });
-                    
-                    await Task.Delay(50);
+                }
 
-                    container.Probe.UpdateLatency = $"{stopwatch.ElapsedMilliseconds}ms";
-                }
-                catch (Exception e)
-                {
-                    Logger.Log(e + "\n");
-                }
+                await Task.Delay(10);
             }
+            catch (Exception ex)
+            {
+                Logger.Log(ex + "\n");
+            }
+        }
+
+        void StartInternal()
+        {
+            timer = new Timer(50)
+            {
+                AutoReset = true
+            };
+            timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
+            timer.Start();
         }
 
         void LogToFile(string text)

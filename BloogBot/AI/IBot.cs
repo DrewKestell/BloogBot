@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BloogBot.Models.Dto;
+using System;
 
 namespace BloogBot.AI
 {
@@ -8,13 +9,19 @@ namespace BloogBot.AI
 
         string FileName { get; }
 
-        IDependencyContainer GetDependencyContainer(BotSettings botSettings, Probe probe);
+        IDependencyContainer GetDependencyContainer(BotSettings botSettings, InstanceUpdate probe);
 
         bool Running();
 
         void Start(IDependencyContainer container, Action stopCallback);
 
         void Stop();
+
+        void Logout();
+
+        void AddState(IBotState state);
+
+        void ClearStack();
 
         void Test(IDependencyContainer container);
     }

@@ -1,6 +1,7 @@
 ﻿using BloogBot.Game;
 using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
+using BloogBot.Models.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace BloogBot.AI
             Func<Stack<IBotState>, IDependencyContainer, IBotState> createRestState,
             Func<Stack<IBotState>, IDependencyContainer, WoWUnit, IBotState> createMoveToTargetState,
             BotSettings botSettings,
-            Probe probe)
+            InstanceUpdate probe)
         {
             this.targetingCriteria = targetingCriteria;
 
@@ -37,7 +38,7 @@ namespace BloogBot.AI
 
         public BotSettings BotSettings { get; }
 
-        public Probe Probe { get; }
+        public InstanceUpdate Probe { get; }
 
         // this is broken up into multiple sub-expressions to improve readability and debuggability
         public WoWUnit FindThreat()
@@ -45,8 +46,7 @@ namespace BloogBot.AI
             var potentialThreats = ObjectManager.Units
                 .Where(u =>
                     u.TargetGuid == ObjectManager.Player.Guid ||
-                    u.TargetGuid == ObjectManager.Pet?.Guid &&
-                    !Probe.BlacklistedMobIds.Contains(u.Guid));
+                    u.TargetGuid == ObjectManager.Pet?.Guid);
 
             if (potentialThreats.Any())
                 return potentialThreats.First();
@@ -90,8 +90,6 @@ namespace BloogBot.AI
                 .Where(u => !u.TappedByOther)
                 // exclude units that are pets of another unit
                 .Where(u => !u.IsPet)
-                // only consider units that have not been blacklisted
-                .Where(u => !Probe?.BlacklistedMobIds?.Contains(u.Guid) ?? true)
                 // exclude elites, unless their names have been explicitly included in the targeting settings
                 //.Where(u => u.CreatureRank == CreatureRank.Normal || BotSettings.TargetingIncludedNames.Any(n => u.Name != null && u.Name.Contains(n)))
                 //// if included targets are specified, only consider units part of that list
@@ -119,5 +117,6 @@ namespace BloogBot.AI
         }
 
         public bool RunningErrands { get; set; }
+        public string AccountName { get; set; }
     }
 }

@@ -1,6 +1,4 @@
 {
-  "DatabaseType": "sqlite", // 'sqlite' or 'mssql' (Microsoft SQL/Transact SQL) currently. Database path is unused if sqlite is selected as a local database is created.
-  "DatabasePath": "Server=tcp:bloog-bot.database.windows.net,1433;Initial Catalog=BloogBot;Persist Security Info=False;User ID=dkestell;Password=<>;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
   "DiscordBotEnabled": false,
   "DiscordBotToken": "<>",
   "DiscordGuildId": "303695206333546496",
@@ -8,6 +6,6 @@
   "DiscordChannelId": "706714451000426596",
   "UseVerboseLogging": false,
   "PathToWoW": "E:\\repos\\Elysium Project Game Client\\WoW.exe",
-  "Player1PreferredRace": "Orc",
-  "Player1PreferredClass": "Shaman"
+  "Port": 8087,
+  "ListenAddress": "127.0.0.1"
 }

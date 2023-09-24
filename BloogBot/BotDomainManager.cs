@@ -1,6 +1,4 @@
-﻿using BloogBot.Game.Objects;
-using System;
-using System.Runtime.InteropServices;
+﻿using System;
 
 namespace BloogBot
 {
@@ -10,7 +8,7 @@ namespace BloogBot
 
         public override void InitializeNewDomain(AppDomainSetup appDomainInfo)
         {
-            base.InitializationFlags = AppDomainManagerInitializationOptions.RegisterWithHost;
+            InitializationFlags = AppDomainManagerInitializationOptions.RegisterWithHost;
         }
 
         //[return: MarshalAs(UnmanagedType.LPWStr)]

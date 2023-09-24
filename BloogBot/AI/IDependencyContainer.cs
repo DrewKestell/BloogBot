@@ -1,4 +1,5 @@
 ﻿using BloogBot.Game.Objects;
+using BloogBot.Models.Dto;
 using System;
 using System.Collections.Generic;
 
@@ -12,12 +13,14 @@ namespace BloogBot.AI
 
         BotSettings BotSettings { get; }
 
-        Probe Probe { get; }
+        InstanceUpdate Probe { get; }
 
         WoWUnit FindClosestTarget();
 
         WoWUnit FindThreat();
 
         bool RunningErrands { get; set; }
+
+        string AccountName { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using BloogBot;
 using BloogBot.AI;
 using BloogBot.Game.Objects;
+using BloogBot.Models.Dto;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -22,7 +23,7 @@ namespace AfflictionWarlockBot
         IBotState CreateMoveToTargetState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) =>
             new MoveToTargetState(botStates, container, target);
 
-        public IDependencyContainer GetDependencyContainer(BotSettings botSettings, Probe probe) =>
+        public IDependencyContainer GetDependencyContainer(BotSettings botSettings, InstanceUpdate probe) =>
             new DependencyContainer(
                 AdditionalTargetingCriteria,
                 CreateRestState,

@@ -60,7 +60,14 @@ namespace BloogBot
             newCallback = WndProc;
             oldCallback = SetWindowLong((IntPtr)windowHandle, GWL_WNDPROC, Marshal.GetFunctionPointerForDelegate(newCallback));
         }
-
+        static public int QueueCount()
+        {
+            return actionQueue.Count;
+        }
+        static public void ClearQueue()
+        {
+            actionQueue.Clear();
+        }
         static public void RunOnMainThread(Action action)
         {
             if (GetCurrentThreadId() == Process.GetCurrentProcess().Threads[0].Id)

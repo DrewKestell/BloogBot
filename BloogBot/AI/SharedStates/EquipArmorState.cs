@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace BloogBot.AI.SharedStates
 {
-    public class EquipArmorState : IBotState
+    public class EquipArmorState : BotState, IBotState
     {
         static readonly IDictionary<Class, ItemSubclass> desiredArmorTypes = new Dictionary<Class, ItemSubclass>
         {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BloogBot.Models.Dto;
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -42,32 +43,49 @@ namespace Bootstrapper
             {
                 Socket clientSocket = _listener.Accept();
                 ThreadPool.QueueUserWorkItem(_ => HandleClient(clientSocket));
+                await Task.Delay(100);
             }
         }
 
         private void HandleClient(Socket clientSocket)
         {
             byte[] buffer = new byte[1024];
-
+            string json = "";
+            int processId = 0;
             while (_listen)
             {
-                int receivedDataLength = clientSocket.Receive(buffer);
-                if (receivedDataLength == 0)
+                try
                 {
-                    break;
-                }
+                    int receivedDataLength = clientSocket.Receive(buffer);
+                    if (receivedDataLength == 0)
+                    {
+                        break;
+                    }
 
-                string json = System.Text.Encoding.UTF8.GetString(buffer, 0, receivedDataLength);
-                if (json.Count(x => x == '}') > 1)
-                {
-                    json = json.Substring(json.LastIndexOf('{'), json.Length - json.LastIndexOf('{'));
+                    json = System.Text.Encoding.UTF8.GetString(buffer, 0, receivedDataLength);
+                    //if (json.Count(x => x == '}') > 1)
+                    //{
+                    //    json = json.Substring(json.LastIndexOf('{'), json.Length - json.LastIndexOf('{'));
+                    //}
+                    InstanceUpdate instanceUpdate = Newtonsoft.Json.JsonConvert.DeserializeObject<InstanceUpdate>(json);
+                    processId = instanceUpdate.ProcessId;
+                    _instanceUpdateSubject.OnNext(instanceUpdate);
+
+                    Array.Clear(buffer, 0, buffer.Length);
+                    buffer[0] = 0x01;
+                    clientSocket.Send(buffer, 0, buffer.Length, SocketFlags.None);
                 }
-                InstanceUpdate instanceUpdate = Newtonsoft.Json.JsonConvert.DeserializeObject<InstanceUpdate>(json);
-                _instanceUpdateSubject.OnNext(instanceUpdate);
-                
-                Array.Clear(buffer, 0, buffer.Length);
-                buffer[0] = 0x01;
-                clientSocket.Send(buffer, 0, buffer.Length, SocketFlags.None);
+                catch (Exception e)
+                {
+                    if (e.GetType() == typeof(SocketException))
+                    {
+                        Console.WriteLine(string.Format($"Process {0} disconnected due to {1}", processId, e.GetType().ToString()));
+                        InstanceCoordinator.RemoveInstanceByProcessId(processId);
+
+                        _instanceUpdateSubject.OnNext(null);
+                        break;
+                    }
+                }
             }
 
             clientSocket.Close();

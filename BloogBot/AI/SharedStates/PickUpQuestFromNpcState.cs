@@ -4,11 +4,10 @@ using BloogBot.Game.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 
 namespace BloogBot.AI.SharedStates
 {
-    public class PickUpQuestFromNpcState : IBotState
+    public class PickUpQuestFromNpcState : BotState, IBotState
     {
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
@@ -31,7 +30,7 @@ namespace BloogBot.AI.SharedStates
                 .Where(x => x.Name == npcName)
                 .First();
 
-            currentQuestLogSize = QuestHelper.GetQuestsFromQuestLog().Count;
+            currentQuestLogSize = ObjectManager.Player.GetPlayerQuests().Count;
         }
 
         public void Update()
@@ -51,11 +50,11 @@ namespace BloogBot.AI.SharedStates
             }
             if (state == State.GossipQuest)
             {
-                if (IsElementVisibile($"GossipTitleButton1"))
+                if (FrameHelper.IsElementVisibile($"GossipTitleButton1"))
                 {
                     Functions.LuaCall($"GossipTitleButton1:Click()");
                 }
-                else if (IsElementVisibile($"QuestTitleButton1"))
+                else if (FrameHelper.IsElementVisibile($"QuestTitleButton1"))
                 {
                     Functions.LuaCall($"QuestTitleButton1:Click()");
                 }
@@ -80,15 +79,15 @@ namespace BloogBot.AI.SharedStates
             {
                 state = State.ReadyToPop;
             }
-            else if (IsElementVisibile("QuestFrameAcceptButton"))
+            else if (FrameHelper.IsElementVisibile("QuestFrameAcceptButton"))
             {
                 state = State.AcceptQuest;
             }
-            else if (IsElementVisibile("GossipFrame"))
+            else if (FrameHelper.IsElementVisibile("GossipFrame"))
             {
                 state = State.GossipQuest;
             }
-            else if (IsElementVisibile("QuestFrameCloseButton"))
+            else if (FrameHelper.IsElementVisibile("QuestFrameCloseButton"))
             {
                 state = State.CloseQuest;
             }
@@ -115,26 +114,6 @@ namespace BloogBot.AI.SharedStates
                 }
             }
             return string.Empty;
-        }
-
-        public static string GetQuestTitleOption(int i)
-        {
-            var hasOption = Functions.LuaCallWithResult($"{{0}} = QuestTitleButton{i}:IsVisible()");
-            if (hasOption.Length > 0 && hasOption[0] == "1")
-            {
-                string[] results = Functions.LuaCallWithResult($"{{0}} = QuestTitleButton{i}:GetText()");
-                if (results.Length > 0)
-                {
-                    return results[0];
-                }
-            }
-            return string.Empty;
-        }
-        public static bool IsElementVisibile(string elementName)
-        {
-            var hasOption = Functions.LuaCallWithResult($"{{0}} = {elementName}:IsVisible()");
-
-            return hasOption.Length > 0 && hasOption[0] == "1";
         }
     }
 }

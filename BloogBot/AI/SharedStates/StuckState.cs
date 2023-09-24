@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 namespace BloogBot.AI.SharedStates
 {
-    public class StuckState : IBotState
+    public class StuckState : BotState, IBotState
     {
         static readonly Stopwatch stopwatch = new Stopwatch();
         static readonly Random random = new Random();

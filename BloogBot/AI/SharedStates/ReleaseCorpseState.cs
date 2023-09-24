@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BloogBot.AI.SharedStates
 {
-    public class ReleaseCorpseState : IBotState
+    public class ReleaseCorpseState : BotState, IBotState
     {
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
@@ -16,6 +16,11 @@ namespace BloogBot.AI.SharedStates
 
         public void Update()
         {
+            if (ObjectManager.Player.Health > 0)
+            {
+                botStates.Pop();
+                return;
+            }
             if (Wait.For("StartReleaseCorpseStateDelay", 1000))
             {
                 if (!ObjectManager.Player.InGhostForm)

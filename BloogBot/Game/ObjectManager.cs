@@ -1,11 +1,13 @@
 ﻿using BloogBot.AI.SharedStates;
 using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
+using BloogBot.Models.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Windows.Navigation;
 
 namespace BloogBot.Game
 {
@@ -23,12 +25,12 @@ namespace BloogBot.Game
         static EnumerateVisibleObjectsCallbackVanilla callbackVanilla;
         static EnumerateVisibleObjectsCallbackNonVanilla callbackNonVanilla;
         static IntPtr callbackPtr;
-        static Probe probe;
+        static InstanceUpdate probe;
 
         static internal IList<WoWObject> Objects = new List<WoWObject>();
         static internal IList<WoWObject> ObjectsBuffer = new List<WoWObject>();
 
-        static internal void Initialize(Probe parProbe)
+        static internal void Initialize(InstanceUpdate parProbe)
         {
             probe = parProbe;
 
@@ -242,7 +244,7 @@ namespace BloogBot.Game
         {
             ThreadSynchronizer.RunOnMainThread(() =>
             {
-                if (IsLoggedIn)
+                if (Functions.GetPlayerGuid() > 0)
                 {
                     playerGuid = Functions.GetPlayerGuid();
                     ObjectsBuffer.Clear();
@@ -328,45 +330,46 @@ namespace BloogBot.Game
 
         static void UpdateProbe()
         {
-            if (Player != null)
+            probe.Guid = Player.Guid;
+            probe.Position = Player.Position;
+            probe.Zone = MinimapZoneText;
+            probe.CurrentTask = GrindingState.CurrentTask;
+            probe.Health = (short)Player.Health;
+            probe.Mana = (short)Player.Mana;
+            probe.Energy = (byte)Player.Energy;
+            probe.IsCasting = Player.IsCasting;
+            probe.IsChanneling = Player.IsChanneling;
+
+            probe.CurrentAction = (CharacterAction)(Player.IsMoving ? 1 : 0);
+            probe.CurrentAction |= Player.IsCasting ? CharacterAction.Casting : 0;
+
+            var target = Units.FirstOrDefault(u => u.Guid == Player.TargetGuid);
+            if (target != null)
             {
-                probe.CurrentPosition = Player.Position.ToString();
-                probe.CurrentZone = MinimapZoneText;
-                probe.CurrentQuestName = GrindingState.CurrentQuestName;
-                probe.CurrentTask = GrindingState.CurrentTask;
-
-                var target = Units.FirstOrDefault(u => u.Guid == Player.TargetGuid);
-                if (target != null)
-                {
-                    probe.TargetName = target.Name;
-                    probe.TargetGuid = target.Guid.ToString();
-                    probe.TargetID = target.Id.ToString();
-                    probe.TargetClass = Player.LuaCallWithResults($"{{0}} = UnitClass(\"target\")")[0];
-                    probe.TargetCreatureType = target.CreatureType.ToString();
-                    probe.TargetPosition = target.Position.ToString();
-                    probe.TargetRange = Player.Position.DistanceTo(target.Position).ToString();
-                    probe.TargetFactionId = target.FactionId.ToString();
-                    probe.TargetIsCasting = target.IsCasting.ToString();
-                    probe.TargetIsChanneling = target.IsChanneling.ToString();
-                    probe.NpcMarkers = target.NpcMarkerFlags.ToString();
-                }
-                else
-                {
-                    probe.TargetName = string.Empty;
-                    probe.TargetGuid = string.Empty;
-                    probe.TargetID = string.Empty;
-                    probe.TargetClass = string.Empty;
-                    probe.TargetCreatureType = string.Empty;
-                    probe.TargetPosition = string.Empty;
-                    probe.TargetRange = string.Empty;
-                    probe.TargetFactionId = string.Empty;
-                    probe.TargetIsCasting = string.Empty;
-                    probe.TargetIsChanneling = string.Empty;
-                    probe.NpcMarkers = string.Empty;
-                }
-
-                probe.Callback();
+                probe.TargetName = target.Name;
+                probe.TargetGuid = target.Guid.ToString();
+                probe.TargetId = target.Id.ToString();
+                probe.TargetClass = (Class)Enum.Parse(typeof(Class), Player.LuaCallWithResults($"{{0}} = UnitClass(\"target\")")[0]);
+                probe.TargetCreatureType = target.CreatureType;
+                probe.TargetPosition = target.Position;
+                probe.TargetFactionId = target.FactionId.ToString();
+                probe.TargetIsCasting = target.IsCasting;
+                probe.TargetIsChanneling = target.IsChanneling;
             }
+            else
+            {
+                probe.TargetName = string.Empty;
+                probe.TargetGuid = string.Empty;
+                probe.TargetId = string.Empty;
+                probe.TargetClass = 0;
+                probe.TargetCreatureType = 0;
+                probe.TargetPosition = new Position(0, 0, 0);
+                probe.TargetFactionId = string.Empty;
+                probe.TargetIsCasting = false;
+                probe.TargetIsChanneling = false;
+            }
+
+            probe.Callback();
         }
     }
 }

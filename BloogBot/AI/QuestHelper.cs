@@ -83,6 +83,11 @@ namespace BloogBot.AI
         public static QuestTask GetQuestTaskById(int id)
         {
             QuestTemplate questTemplate = SqliteRepository.GetQuestTemplateByID(id);
+            if (questTemplate == null)
+            {
+                return null;
+            }
+
             List<int> relatedNpcIds = SqliteRepository.GetQuestRelatedNPCsByQuestId(id);
 
             List<Creature> relatedNpcs = new List<Creature>();
@@ -357,23 +362,6 @@ namespace BloogBot.AI
             return questObjective;
         }
 
-        public static List<PlayerQuest> GetQuestsFromQuestLog()
-        {
-            List<PlayerQuest> questIds = new List<PlayerQuest>();
-
-            for (int i = 0; i < 20; i++)
-            {
-                PlayerQuest playerQuest = ObjectManager.Player.GetPlayerQuestFromSlot(i);
-
-                if (playerQuest.ID > 0)
-                {
-                    questIds.Add(playerQuest);
-                }
-            }
-
-            return questIds;
-        }
-
         private static void PopulateTargetHotSpots(QuestObjective questObjective, List<GameObject> gameObjects, List<Creature> creatures)
         {
             // Drops from mob
@@ -400,7 +388,7 @@ namespace BloogBot.AI
 
         internal static bool IsObjectiveComplete(int questId, int index, int targetsNeeded)
         {
-            PlayerQuest playerQuest = GetQuestsFromQuestLog().Where(x => x.ID == questId).First();
+            PlayerQuest playerQuest = ObjectManager.Player.GetPlayerQuests().Where(x => x.ID == questId).First();
 
             switch (index)
             {

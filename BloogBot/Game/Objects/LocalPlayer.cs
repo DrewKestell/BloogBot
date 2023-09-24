@@ -223,6 +223,7 @@ namespace BloogBot.Game.Objects
             );
 
         public void Stand() => LuaCall("DoEmote(\"STAND\")");
+        public string GetRace() => LuaCallWithResults($"{{0}} = UnitRace(\"player\")")[0];
 
         public string CurrentStance
         {
@@ -416,7 +417,7 @@ namespace BloogBot.Game.Objects
 
         public ulong GetEquippedItemGuid(EquipSlot slot) => MemoryManager.ReadUlong(IntPtr.Add(Pointer, MemoryAddresses.LocalPlayer_EquipmentFirstItemOffset + ((int)slot - 1) * 0x8));
 
-        public PlayerQuest GetPlayerQuestFromSlot(int slot) => (PlayerQuest)Marshal.PtrToStructure(GetDescriptorPtr() + (MemoryAddresses.LocalPlayer_QuestLogOffset + (slot * 12)), typeof(PlayerQuest));
+        public PlayerQuest GetPlayerQuestFromSlot(int slot) => (PlayerQuest)Marshal.PtrToStructure(IntPtr.Add(GetDescriptorPtr(), MemoryAddresses.LocalPlayer_QuestLogOffset + (slot * 12)), typeof(PlayerQuest));
 
         public List<PlayerQuest> GetPlayerQuests()
         {

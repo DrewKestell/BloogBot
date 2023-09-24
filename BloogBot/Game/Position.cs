@@ -60,7 +60,10 @@ namespace BloogBot.Game
             new Position(a.X * n, a.Y * n, a.Z * n);
 
         public XYZ ToXYZ() => new XYZ(X, Y, Z);
-        
-        public override string ToString() => $"X: {Math.Round(X, 2)}, Y: {Math.Round(Y, 2)}, Z: {Math.Round(Z, 2)}";
+
+        public override string ToString()
+        {
+            return $"X: {Math.Round(X, 2).ToString("0.0")}, Y: {Math.Round(Y, 2).ToString("0.0")}, Z: {Math.Round(Z, 2).ToString("0.0")}";
+        }
     }
 }

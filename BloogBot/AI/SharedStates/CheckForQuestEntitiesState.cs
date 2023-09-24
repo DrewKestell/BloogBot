@@ -1,6 +1,7 @@
 ﻿using BloogBot.Game;
 using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
+using BloogBot.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,11 +9,10 @@ using System.Linq;
 
 namespace BloogBot.AI.SharedStates
 {
-    class CheckForQuestEntitiesState : IBotState
+    class CheckForQuestEntitiesState : BotState, IBotState
     {
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
-        readonly LocalPlayer player;
 
         public static readonly Dictionary<ulong, Stopwatch> TargetGuidBlacklist = new Dictionary<ulong, Stopwatch>();
 
@@ -21,13 +21,12 @@ namespace BloogBot.AI.SharedStates
         {
             this.botStates = botStates;
             this.container = container;
-            player = ObjectManager.Player;
         }
         public void Update()
         {
-            if (player.IsInCombat)
+            if (ObjectManager.Player.IsInCombat)
             {
-                player.StopAllMovement();
+                ObjectManager.Player.StopAllMovement();
                 botStates.Pop();
                 botStates.Push(container.CreateMoveToTargetState(botStates, container, container.FindThreat()));
                 return;
@@ -37,8 +36,8 @@ namespace BloogBot.AI.SharedStates
 
             GrindingState.CurrentTask = string.Format("[Questing: {0}]Scanning the area", GrindingState.CurrentQuestName);
 
-            WoWGameObject questObject = GrindingState.NearestQuestObject;
-            WoWUnit questTarget = GrindingState.NearestQuestTarget;
+            WoWGameObject questObject = NearestQuestObject;
+            WoWUnit questTarget = NearestQuestTarget;
             List<WoWUnit> questGivers = QuestHelper.NearbyQuestGivers;
             List<WoWUnit> questTurnIns = QuestHelper.NearbyQuestTurnIns;
 
@@ -46,7 +45,7 @@ namespace BloogBot.AI.SharedStates
             {
                 List<WoWUnit> nearbyMobs = ObjectManager.Units.ToList()
                                 .FindAll(x => x.Health > 0 && !x.NotAttackable && x.UnitReaction == UnitReaction.Hostile)
-                                .OrderBy(x => Navigation.DistanceViaPath(ObjectManager.MapId, x.Position, player.Position))
+                                .OrderBy(x => Navigation.DistanceViaPath(ObjectManager.MapId, x.Position, ObjectManager.Player.Position))
                                 .ToList();
 
                 if (questTurnIns.Count > 0)
@@ -59,7 +58,7 @@ namespace BloogBot.AI.SharedStates
                         botStates.Push(new MoveToPositionState(botStates, container, questTurnIns[0].Position, false, true));
                     }
                 }
-                else if (questGivers.Count > 0 && QuestHelper.GetQuestsFromQuestLog().Count < 20)
+                else if (questGivers.Count > 0 && ObjectManager.Player.GetPlayerQuests().Count < 20)
                 {
                     GrindingState.CurrentTask = string.Format("[Questing: {0}]Picking up quest from {1}", GrindingState.CurrentQuestName, questGivers[0].Name);
                     botStates.Push(new PickUpQuestFromNpcState(botStates, container, questGivers[0].Name));
@@ -169,6 +168,37 @@ namespace BloogBot.AI.SharedStates
             {
                 GrindingState.CurrentTask = string.Format("[Questing: {0}]Attacking {1}", GrindingState.CurrentQuestName, questTarget.Name);
                 botStates.Push(container.CreateMoveToTargetState(botStates, container, questTarget));
+            }
+        }
+        public WoWUnit NearestQuestTarget
+        {
+            get
+            {
+                List<QuestObjective> questObjectives = GrindingState.RemainingQuestObjectives.ToList();
+                List<WoWUnit> woWUnits = ObjectManager.Units.ToList();
+
+                return woWUnits
+                    .Where(unit => questObjectives.Where(x => x.TargetCreatureId != 0).Select(x => x.TargetCreatureId).Contains(unit.Id))
+                    .Where(unit => unit.Health > 0)
+                    .Where(unit => !(TargetGuidBlacklist.ContainsKey(unit.Guid) && unit.Position.DistanceTo(ObjectManager.Player.Position) > 75))
+                    .OrderBy(unit => Navigation.DistanceViaPath(ObjectManager.MapId, unit.Position, ObjectManager.Player.Position))
+                    .FirstOrDefault();
+            }
+        }
+
+        public WoWGameObject NearestQuestObject
+        {
+            get
+            {
+                List<QuestObjective> questObjectives = GrindingState.RemainingQuestObjectives.ToList();
+                if (questObjectives.Count > 0)
+                {
+
+                }
+                return ObjectManager.GameObjects
+                    .Where(gameObject => questObjectives.Where(x => x.TargetGameObjectId != 0).Select(x => x.TargetGameObjectId).Contains(gameObject.Id))
+                    .OrderBy(gameObject => Navigation.DistanceViaPath(ObjectManager.MapId, gameObject.Position, ObjectManager.Player.Position))
+                    .FirstOrDefault();
             }
         }
     }

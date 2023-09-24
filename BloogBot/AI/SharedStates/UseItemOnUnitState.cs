@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace BloogBot.AI.SharedStates
 {
-    public class UseItemOnUnitState : IBotState
+    public class UseItemOnUnitState : BotState, IBotState
     {
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;

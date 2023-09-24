@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace BloogBot.AI.SharedStates
 {
-    public class BuyItemsState : IBotState
+    public class BuyItemsState : BotState, IBotState
     {
         readonly Stack<IBotState> botStates;
         readonly string npcName;

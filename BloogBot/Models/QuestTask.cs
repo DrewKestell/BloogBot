@@ -1,5 +1,6 @@
 ﻿using BloogBot.Game;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,7 +23,7 @@ namespace BloogBot.Models
 
         public virtual bool IsComplete()
         {
-            PlayerQuest playerQuest = GetQuestsFromQuestLog().Where(x => x.ID == QuestId).First();
+            PlayerQuest playerQuest = ObjectManager.Player.GetPlayerQuests().Where(x => x.ID == QuestId).First();
 
             if (playerQuest.State == PlayerQuest.StateFlag.Complete)
             {
@@ -49,7 +50,7 @@ namespace BloogBot.Models
             return stringBuilder.ToString();
         }
     }
-    public class QuestObjective
+    public class QuestObjective : ICloneable
     {
         public int QuestId { get; set; }
         public int Index { get; set; }
@@ -61,6 +62,12 @@ namespace BloogBot.Models
         public int UsableItemId { get; set; }
         public int ConsumableItemId { get; set; }
         public List<Position> HotSpots { get; } = new List<Position>();
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
         public bool IsComplete()
         {
             if (TargetsNeeded > 0)

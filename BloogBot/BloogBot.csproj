@@ -143,8 +143,9 @@
     </ApplicationDefinition>
     <Compile Include="AI\AccountHelper.cs" />
     <Compile Include="AI\Bot.cs" />
+    <Compile Include="AI\BotState.cs" />
     <Compile Include="AI\DependencyContainer.cs" />
-    <Compile Include="AI\DialogueHelper.cs" />
+    <Compile Include="AI\FrameHelper.cs" />
     <Compile Include="AI\IBot.cs" />
     <Compile Include="AI\IBotState.cs" />
     <Compile Include="AI\IDependencyContainer.cs" />
@@ -238,15 +239,16 @@
     <Compile Include="Models\CharacterEquip.cs" />
     <Compile Include="Models\Creature.cs" />
     <Compile Include="Models\CreatureTemplate.cs" />
+    <Compile Include="Models\Dto\InstanceCommand.cs" />
     <Compile Include="Models\Dto\InstanceUpdate.cs" />
     <Compile Include="Models\GameObject.cs" />
     <Compile Include="Models\Item.cs" />
     <Compile Include="Models\Npc.cs" />
     <Compile Include="Models\NpcVendorEntry.cs" />
+    <Compile Include="Models\PartyMemberPreference.cs" />
     <Compile Include="Models\QuestTask.cs" />
     <Compile Include="Models\QuestTemplate.cs" />
     <Compile Include="Navigation.cs" />
-    <Compile Include="Probe.cs" />
     <Compile Include="SignalEventManager.cs" />
     <Compile Include="SqliteRepository.cs" />
     <Compile Include="SqlRepository.cs" />

@@ -1,49 +1,42 @@
 ﻿using BloogBot.Game;
-using BloogBot.Game.Objects;
 using BloogBot.Models;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
 namespace BloogBot.AI.SharedStates
 {
-    class GrindingState : IBotState
+    class GrindingState : BotState, IBotState
     {
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
-        readonly LocalPlayer player;
 
         static readonly List<QuestTask> tasks = new List<QuestTask>();
 
-        public static List<QuestTask> GetQuestTasks()
+        public GrindingState(Stack<IBotState> botStates, IDependencyContainer container)
         {
-                List<int> questIds = QuestHelper.GetQuestsFromQuestLog()
-                                                .Select(x => x.ID)
-                                                .ToList();
-
-                tasks.RemoveAll(x => !questIds.Contains(x.QuestId));
-
-                tasks.AddRange(questIds.Where(x => tasks.All(y => x != y.QuestId))
-                                        .Select(x => QuestHelper.GetQuestTaskById(x))
-                                        .ToList());
-                return tasks;
+            this.botStates = botStates;
+            this.container = container;
         }
-        public static readonly Dictionary<ulong, Stopwatch> TargetGuidBlacklist = new Dictionary<ulong, Stopwatch>();
 
+        public static readonly Dictionary<ulong, Stopwatch> TargetGuidBlacklist = new Dictionary<ulong, Stopwatch>();
+        
         public static Position CurrentHotSpot;
         public static string CurrentQuestName;
         public static string CurrentTask;
         public void Update()
         {
+            Functions.LuaCall("QUEST_FADING_DISABLE = \"1\"");
+
             if (ClosestObjective != null)
             {
-                CurrentQuestName = GetQuestTasks().Where(x => x.QuestObjectives.Find(y => y.QuestId == ClosestObjective.QuestId && y.Index == ClosestObjective.Index) != null).First().Name;
+                QuestObjective questObjective = (QuestObjective)ClosestObjective.Clone();
+                CurrentQuestName = GetQuestTasks().Where(x => x.QuestObjectives.Find(y => y.QuestId == questObjective.QuestId && y.Index == questObjective.Index) != null).First().Name;
             }
 
-            if (player.Level < 60)
+            if (ObjectManager.Player.Level < 60)
             {
-                if (player.IsInCombat)
+                if (ObjectManager.Player.IsInCombat)
                 {
                     botStates.Push(container.CreateMoveToTargetState(botStates, container, ObjectManager.Aggressors.First()));
                 }
@@ -92,43 +85,19 @@ namespace BloogBot.AI.SharedStates
                                        .FindAll(x => !x.IsComplete());
             }
         }
-        public static WoWUnit NearestQuestTarget
+        public static List<QuestTask> GetQuestTasks()
         {
-            get
-            {
-                List<QuestObjective> questObjectives = RemainingQuestObjectives.ToList();
-                List<WoWUnit> woWUnits = ObjectManager.Units.ToList();
+            List<int> questIds = ObjectManager.Player.GetPlayerQuests()
+                                            .Select(x => x.ID)
+                                            .ToList();
 
-                return woWUnits
-                    .Where(unit => questObjectives.Where(x => x.TargetCreatureId != 0).Select(x => x.TargetCreatureId).Contains(unit.Id))
-                    .Where(unit => unit.Health > 0)
-                    .Where(unit => !(TargetGuidBlacklist.ContainsKey(unit.Guid) && unit.Position.DistanceTo(ObjectManager.Player.Position) > 75))
-                    .OrderBy(unit => Navigation.DistanceViaPath(ObjectManager.MapId, unit.Position, ObjectManager.Player.Position))
-                    .FirstOrDefault();
-            }
-        }
+            tasks.RemoveAll(x => !questIds.Contains(x.QuestId));
 
-        public static WoWGameObject NearestQuestObject
-        {
-            get
-            {
-                List<QuestObjective> questObjectives = RemainingQuestObjectives.ToList();
-                if (questObjectives.Count > 0)
-                {
-
-                }
-                return ObjectManager.GameObjects
-                    .Where(gameObject => questObjectives.Where(x => x.TargetGameObjectId != 0).Select(x => x.TargetGameObjectId).Contains(gameObject.Id))
-                    .OrderBy(gameObject => Navigation.DistanceViaPath(ObjectManager.MapId, gameObject.Position, ObjectManager.Player.Position))
-                    .FirstOrDefault();
-            }
-        }
-
-        public GrindingState(Stack<IBotState> botStates, IDependencyContainer container)
-        {
-            this.botStates = botStates;
-            this.container = container;
-            player = ObjectManager.Player;
+            tasks.AddRange(questIds.Where(x => tasks.All(y => x != y.QuestId))
+                                    .Select(x => QuestHelper.GetQuestTaskById(x))
+                                    .Where(x => x != null)
+                                    .ToList());
+            return tasks;
         }
     }
 }

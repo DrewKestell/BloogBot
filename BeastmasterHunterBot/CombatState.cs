@@ -5,7 +5,6 @@ using BloogBot.AI.SharedStates;
 using BloogBot.Game;
 using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
-using System;
 using System.Collections.Generic;
 
 namespace BeastMasterHunterBot
@@ -42,15 +41,12 @@ namespace BeastMasterHunterBot
         {
             player = ObjectManager.Player;
             this.target = target;
-            //pet = ObjectManager.Pet;
         }
 
         public new void Update()
         {
             if (base.Update())
                 return;
-
-            Console.WriteLine("foo");
 
             var gun = Inventory.GetEquippedItem(EquipSlot.Ranged);
             var canUseRanged = gun != null && player.Position.DistanceTo(target.Position) > 5 && player.Position.DistanceTo(target.Position) < 34;

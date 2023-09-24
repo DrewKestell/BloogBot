@@ -2,6 +2,7 @@
 using BloogBot.AI;
 using BloogBot.Game;
 using BloogBot.Game.Objects;
+using BloogBot.Models.Dto;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -26,7 +27,7 @@ namespace TestBot
         IBotState CreatePowerlevelCombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target, WoWPlayer powerlevelTarget) =>
             new PowerlevelCombatState(botStates, container, target, powerlevelTarget);
 
-        public IDependencyContainer GetDependencyContainer(BotSettings botSettings, Probe probe) =>
+        public IDependencyContainer GetDependencyContainer(BotSettings botSettings, InstanceUpdate probe) =>
             new DependencyContainer(
                 AdditionalTargetingCriteria,
                 CreateRestState,
