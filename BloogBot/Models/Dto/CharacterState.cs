@@ -1,28 +1,32 @@
 ﻿using BloogBot.Game;
 using BloogBot.Game.Enums;
+using BloogBot.Models.Enums;
 using Newtonsoft.Json;
 using System;
 
 namespace BloogBot.Models.Dto
 {
-    public class InstanceUpdate
+    public class CharacterState
     {
-        public InstanceUpdate(Action callback, Action killswitch)
+        public CharacterState()
         {
-            Callback = callback;
+
+        }
+        public CharacterState(Action killswitch)
+        {
             Killswitch = killswitch;
         }
 
         [JsonIgnore]
-        public Action Callback { get; }
-
-        [JsonIgnore]
         public Action Killswitch { get; }
         public int ProcessId { get; set; }
+        public bool IsRunning { get; set; }
+        public bool LoginRequested { get; set; }
         public ulong Guid { get; set; }
         public string Zone { get; set; }
         public Race Race { get; set; }
         public Class Class { get; set; }
+        public Role Role { get; set; }
         public short Health { get; set; }
         public short Mana { get; set; }
         public byte Rage { get; set; }

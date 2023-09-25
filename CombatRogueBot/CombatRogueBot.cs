@@ -36,7 +36,7 @@ namespace CombatRogueBot
         IBotState CreatePowerlevelCombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target, WoWPlayer powerlevelTarget) =>
             new PowerlevelCombatState(botStates, container, target, powerlevelTarget);
 
-        public IDependencyContainer GetDependencyContainer(BotSettings botSettings, InstanceUpdate probe) =>
+        public IDependencyContainer GetDependencyContainer(BotSettings botSettings, CharacterState probe) =>
             new DependencyContainer(
                 AdditionalTargetingCriteria,
                 CreateRestState,

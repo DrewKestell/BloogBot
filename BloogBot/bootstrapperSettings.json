@@ -2,46 +2,36 @@
 	"PathToWoW": "E:\\repos\\Elysium Project Game Client\\WoW.exe",
 	"Port": 8087,
 	"ListenAddress": "0.0.0.0",
-	"Activity": "DUNGEON",
+	"Activity": "Dungeon",
 	"ShouldParty": false,
-	"Dungeon": "Ragefire Chasm",
-	"DungeonPartySize": 5,
-	"PvPSelection": "Warsong Gultch",
+	"PartySize": 9,
+	"Dungeon": "10 [ Ragefire Chasm (13-18)",
+	"PvPSelection": "Alterac Valley",
 	"PartyPreferences": [
 		{
 			"Race": "Orc",
 			"Class": "Warrior",
-			"IsTank": true,
-			"IsDamage": true,
-			"IsHealer": false
+			"Role": "FightingTank"
 		},
 		{
 			"Race": "Orc",
 			"Class": "Warlock",
-			"IsTank": false,
-			"IsDamage": true,
-			"IsHealer": false
+			"Role": "Damage"
 		},
 		{
 			"Race": "Orc",
 			"Class": "Hunter",
-			"IsTank": false,
-			"IsDamage": true,
-			"IsHealer": false
+			"Role": "Damage"
 		},
 		{
 			"Race": "Troll",
 			"Class": "Mage",
-			"IsTank": false,
-			"IsDamage": true,
-			"IsHealer": false
+			"Role": "Damage"
 		},
 		{
 			"Race": "Orc",
 			"Class": "Shaman",
-			"IsTank": false,
-			"IsDamage": true,
-			"IsHealer": true
+			"Role": "BrawlingSavior"
 		}
 	]
 }

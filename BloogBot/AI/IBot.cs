@@ -9,7 +9,7 @@ namespace BloogBot.AI
 
         string FileName { get; }
 
-        IDependencyContainer GetDependencyContainer(BotSettings botSettings, InstanceUpdate probe);
+        IDependencyContainer GetDependencyContainer(BotSettings botSettings, CharacterState probe);
 
         bool Running();
 
@@ -18,6 +18,8 @@ namespace BloogBot.AI
         void Stop();
 
         void Logout();
+
+        void Login(string accountName);
 
         void AddState(IBotState state);
 

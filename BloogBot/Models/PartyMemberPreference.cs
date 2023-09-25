@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BloogBot.Game.Enums;
+using BloogBot.Models.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,10 +10,8 @@ namespace BloogBot.Models
 {
     public class PartyMemberPreference
     {
-		public string Race { get; set; }
-        public string Class { get; set; }
-        public bool IsTank { get; set; }
-        public bool IsDamage { get; set; }
-        public bool IsHealer { get; set; }
+        public Race Race { get; set; }
+        public Class Class { get; set; }
+        public Role Role { get; set; }
     }
 }

@@ -22,7 +22,7 @@ namespace BloogBot.AI
             Func<Stack<IBotState>, IDependencyContainer, IBotState> createRestState,
             Func<Stack<IBotState>, IDependencyContainer, WoWUnit, IBotState> createMoveToTargetState,
             BotSettings botSettings,
-            InstanceUpdate probe)
+            CharacterState probe)
         {
             this.targetingCriteria = targetingCriteria;
 
@@ -38,7 +38,7 @@ namespace BloogBot.AI
 
         public BotSettings BotSettings { get; }
 
-        public InstanceUpdate Probe { get; }
+        public CharacterState Probe { get; }
 
         // this is broken up into multiple sub-expressions to improve readability and debuggability
         public WoWUnit FindThreat()

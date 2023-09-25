@@ -1,9 +1,12 @@
-﻿using BloogBot.Models.Dto;
+﻿using BloogBot;
+using BloogBot.Models.Dto;
+using Newtonsoft.Json;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Reactive.Subjects;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,7 +16,8 @@ namespace Bootstrapper
     {
         private readonly int _port;
         private readonly IPAddress _ipAddress;
-        private readonly Subject<InstanceUpdate> _instanceUpdateSubject;
+        private readonly Subject<CharacterState> _instanceUpdateSubject;
+        private readonly Dictionary<int, Socket> _processIds = new Dictionary<int, Socket>();
         private Socket _listener;
         private Task _backgroundTask;
         private bool _listen;
@@ -22,10 +26,10 @@ namespace Bootstrapper
         {
             this._port = port;
             this._ipAddress = ipAddress;
-            this._instanceUpdateSubject = new Subject<InstanceUpdate>();
+            this._instanceUpdateSubject = new Subject<CharacterState>();
         }
 
-        public IObservable<InstanceUpdate> InstanceUpdateObservable => this._instanceUpdateSubject;
+        public IObservable<CharacterState> InstanceUpdateObservable => this._instanceUpdateSubject;
 
         public void Start()
         {
@@ -34,6 +38,7 @@ namespace Bootstrapper
             _listener.Bind(new IPEndPoint(_ipAddress, _port));
             _listener.Listen(10);
             _listen = true;
+            _processIds.Clear();
             _backgroundTask = Task.Run(StartAsync);
         }
 
@@ -50,7 +55,7 @@ namespace Bootstrapper
         private void HandleClient(Socket clientSocket)
         {
             byte[] buffer = new byte[1024];
-            string json = "";
+            string json;
             int processId = 0;
             while (_listen)
             {
@@ -62,18 +67,23 @@ namespace Bootstrapper
                         break;
                     }
 
-                    json = System.Text.Encoding.UTF8.GetString(buffer, 0, receivedDataLength);
-                    //if (json.Count(x => x == '}') > 1)
-                    //{
-                    //    json = json.Substring(json.LastIndexOf('{'), json.Length - json.LastIndexOf('{'));
-                    //}
-                    InstanceUpdate instanceUpdate = Newtonsoft.Json.JsonConvert.DeserializeObject<InstanceUpdate>(json);
+                    json = Encoding.UTF8.GetString(buffer, 0, receivedDataLength);
+                    //Console.WriteLine(string.Format("Received message: {0}", json));
+
+                    CharacterState instanceUpdate = JsonConvert.DeserializeObject<CharacterState>(json);
                     processId = instanceUpdate.ProcessId;
-                    _instanceUpdateSubject.OnNext(instanceUpdate);
+
+                    if (processId != 0)
+                    {
+                        if (!_processIds.ContainsKey(processId))
+                        {
+                            _processIds.Add(processId, clientSocket);
+                        }
+
+                        _instanceUpdateSubject.OnNext(instanceUpdate);
+                    }
 
                     Array.Clear(buffer, 0, buffer.Length);
-                    buffer[0] = 0x01;
-                    clientSocket.Send(buffer, 0, buffer.Length, SocketFlags.None);
                 }
                 catch (Exception e)
                 {
@@ -82,13 +92,42 @@ namespace Bootstrapper
                         Console.WriteLine(string.Format($"Process {0} disconnected due to {1}", processId, e.GetType().ToString()));
                         InstanceCoordinator.RemoveInstanceByProcessId(processId);
 
-                        _instanceUpdateSubject.OnNext(null);
+                        _instanceUpdateSubject.OnNext(new CharacterState() { ProcessId = processId });
                         break;
                     }
                 }
             }
-
+            _processIds.Remove(processId);
             clientSocket.Close();
+        }
+
+        public bool SendCommandToProcess(int processId, InstanceCommand instanceCommand)
+        {
+            if (_processIds.ContainsKey(processId))
+            {
+                _processIds.TryGetValue(processId, out var clientSocket);
+                try
+                {
+                    if (clientSocket != null && clientSocket.Connected)
+                    {
+                        clientSocket.Send(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(instanceCommand)));
+                        return true;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    try
+                    {
+                        clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    }
+                    catch
+                    {
+                        clientSocket.Close();
+                    }
+                }
+            }
+            return false;
         }
 
         public void Stop()

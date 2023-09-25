@@ -240,7 +240,8 @@
     <Compile Include="Models\Creature.cs" />
     <Compile Include="Models\CreatureTemplate.cs" />
     <Compile Include="Models\Dto\InstanceCommand.cs" />
-    <Compile Include="Models\Dto\InstanceUpdate.cs" />
+    <Compile Include="Models\Dto\CharacterState.cs" />
+    <Compile Include="Models\Enums\Role.cs" />
     <Compile Include="Models\GameObject.cs" />
     <Compile Include="Models\Item.cs" />
     <Compile Include="Models\Npc.cs" />
