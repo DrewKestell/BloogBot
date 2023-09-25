@@ -7,6 +7,9 @@
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="Bootstrapper.MainWindow"
         mc:Ignorable="d"
         Title="Party Central" MinHeight="640" Height="640" MaxHeight="640" MinWidth="720" Width="720" MaxWidth="720" ResizeMode="CanMinimize" SizeToContent="WidthAndHeight">
+    <Window.DataContext>
+        <local:BootstrapperSettings/>
+    </Window.DataContext>
     <Window.Resources>
         <FontFamily x:Key="WarcraftFont">pack://application:,,,/Fonts/#LifeCraft</FontFamily>
         <Style TargetType="Button">
@@ -164,27 +167,24 @@
         <Image HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,820,0,0" Source="{StaticResource BackgroundImageSource}" Height="410" Width="720"/>
         <GroupBox Header="Bot Control" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,6,0,0" Width="690" Height="54">
             <Grid>
-                <Button x:Name="StartAllBotsButton" Template="{DynamicResource StartButtonTemplate}" HorizontalAlignment="Left" Margin="0,-3,0,4"/>
-                <Button x:Name="StopAllBotsButton" Template="{DynamicResource StopButtonTemplate}" HorizontalAlignment="Left" Margin="85,-3,0,4" />
+                <Button x:Name="StartAllBotsButton" Template="{DynamicResource StartButtonTemplate}" HorizontalAlignment="Left" Margin="0,-3,0,4" Click="AllBotsControlButton_Click"/>
+                <Button x:Name="StopAllBotsButton" Template="{DynamicResource StopButtonTemplate}" HorizontalAlignment="Left" Margin="90,-3,0,4" Click="AllBotsControlButton_Click"/>
                 <Button x:Name="NewWoWLaunchButton" Template="{DynamicResource SpawnButtonTemplate}" Margin="593,-3,0,4" Click="NewWoWLaunchButton_Click"/>
             </Grid>
         </GroupBox>
         <GroupBox Header="Party / Raid Settings" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="6,58,6,6"  Width="690" Height="88">
             <Grid>
-                <RadioButton x:Name="QuestingRadioButton" Content="Questing" FontSize="22" HorizontalAlignment="Left" Height="24" Margin="11,6,0,26"></RadioButton>
-                <RadioButton x:Name="DungeonRadioButton" Content="Dungeon" FontSize="22" HorizontalAlignment="Left" Height="24" Margin="111,6,0,26"></RadioButton>
-                <RadioButton x:Name="PvPRadioButton" Content="PvP" FontSize="22" HorizontalAlignment="Left" Height="24" Margin="474,6,0,26"></RadioButton>
-                <Grid>
-                    <RadioButton x:Name="FiveManRadioButton" Content="5 Man" FontSize="18" HorizontalAlignment="Center" Height="18" Margin="0,10,0,28"/>
-                    <RadioButton x:Name="TenManRadioButton" Content="10 Man" FontSize="18" HorizontalAlignment="Left" Height="18" Margin="394,10,0,28"/>
-                </Grid>
-                <CheckBox x:Name="PartyCheckBox" Content="Party" FontSize="22" HorizontalAlignment="Left" Height="24" Margin="10,33,0,-1" RenderTransformOrigin="0.561,1.114"/>
+                <RadioButton x:Name="QuestingRadioButton" Content="Questing" FontSize="22" HorizontalAlignment="Left" Height="24" Margin="11,6,0,26" Click="ActivityRadioButton_Click"></RadioButton>
+                <RadioButton x:Name="DungeonRadioButton" Content="Dungeon" FontSize="22" HorizontalAlignment="Left" Height="24" Margin="143,6,0,26" Click="ActivityRadioButton_Click"></RadioButton>
+                <RadioButton x:Name="PvPRadioButton" Content="PvP" FontSize="22" HorizontalAlignment="Left" Height="24" Margin="474,6,0,26" Click="ActivityRadioButton_Click"></RadioButton>
+                <CheckBox x:Name="PartyCheckBox" Content="Party" IsChecked="{Binding ShouldParty}" FontSize="22" HorizontalAlignment="Left" Height="24" Margin="10,33,0,0" />
+                <TextBox x:Name="PartySizeTextBox" FontSize="18" Text="{Binding PartySize}" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="93,32,0,4" Width="32" RenderTransformOrigin="-0.071,0.833"/>
                 <ComboBox Margin="473,30,10,2" x:Name="PvPInstanceComboBox" FontSize="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="0">
                     <ComboBoxItem Content="10 Warsong Gultch"/>
                     <ComboBoxItem Content="15 Arathi Basin"/>
                     <ComboBoxItem Content="40 Alterac Valley"/>
                 </ComboBox>
-                <ComboBox Margin="110,30,210,2" x:Name="DungeonComboBox" FontSize="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="0">
+                <ComboBox Margin="143,30,220,2" x:Name="DungeonComboBox" FontSize="20" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="0">
                     <ComboBoxItem Content="10 [ Ragefire Chasm (13-18)"/>
                     <ComboBoxItem Content="10 Wailing Caverns (15-25)"/>
                     <ComboBoxItem Content="10 The Deadmines (18-23)"/>
@@ -202,7 +202,7 @@
                     <ComboBoxItem Content="10 Zul'Farrak (42-46)"/>
                     <ComboBoxItem Content="10 Maraudon - Wicked Grotto (Purple) (46-55)"/>
                     <ComboBoxItem Content="10 Maraudon - Foulspore Cavern (Orange) (46-55)"/>
-                    <ComboBoxItem Content="10 Maraudon - Wicked Grotto (Purple) (46-55)"/>
+                    <ComboBoxItem Content="10 Maraudon - Earth Song Falls (Inner) (46-55)"/>
                     <ComboBoxItem Content="10 Temple of Atal'Hakkar (50-56)"/>
                     <ComboBoxItem Content="40 Blackrock Depths (52-60)"/>
                     <ComboBoxItem Content="10 Lower Blackrock Spire (55-60)"/>
@@ -268,7 +268,7 @@
                     </Grid.ColumnDefinitions>
                     <GroupBox Header="Player 1" Grid.Column="0" Margin="6,0,6,0">
                         <Grid>
-                            <Button x:Name="Player01StartButton" Margin="178,-1,0,36" Template="{DynamicResource StartButtonTemplate}" HorizontalAlignment="Left" Click="PlayerStartButton_Click"/>
+                            <Button x:Name="Player01StartButton" Margin="178,-1,0,36" Template="{DynamicResource StartButtonTemplate}" HorizontalAlignment="Left" Click="AllBotsControlButton_Click"/>
                             <Button x:Name="Player01UpdateButton" Margin="179,33,0,2" Template="{DynamicResource UpdateButtonTemplate}" HorizontalAlignment="Left"/>
                             <CheckBox x:Name="Player01TankCheckBox" Content="Tank" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Margin="109,-8,101,33"/>
                             <CheckBox x:Name="Player01DamageCheckBox" Content="Damage" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Margin="109,20,101,20"/>
@@ -286,6 +286,7 @@
                             <ComboBox x:Name="Player01ClassComboBox" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="1" Width="104" Margin="0,28,170,0">
                                 <ComboBoxItem Content="Druid"/>
                                 <ComboBoxItem Content="Hunter"/>
+                                <ComboBoxItem Content="Mage"/>
                                 <ComboBoxItem Content="Paladin"/>
                                 <ComboBoxItem Content="Priest"/>
                                 <ComboBoxItem Content="Rogue"/>
@@ -344,6 +345,7 @@
                             <ComboBox x:Name="Player02ClassComboBox" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="1" Width="104" Height="24" Margin="0,28,170,0">
                                 <ComboBoxItem Content="Druid"/>
                                 <ComboBoxItem Content="Hunter"/>
+                                <ComboBoxItem Content="Mage"/>
                                 <ComboBoxItem Content="Paladin"/>
                                 <ComboBoxItem Content="Priest"/>
                                 <ComboBoxItem Content="Rogue"/>
@@ -402,6 +404,7 @@
                             <ComboBox x:Name="Player03ClassComboBox" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="1" Width="104" Height="24" Margin="0,28,170,0">
                                 <ComboBoxItem Content="Druid"/>
                                 <ComboBoxItem Content="Hunter"/>
+                                <ComboBoxItem Content="Mage"/>
                                 <ComboBoxItem Content="Paladin"/>
                                 <ComboBoxItem Content="Priest"/>
                                 <ComboBoxItem Content="Rogue"/>
@@ -460,6 +463,7 @@
                             <ComboBox x:Name="Player04ClassComboBox" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="1" Width="104" Height="24" Margin="0,28,170,0">
                                 <ComboBoxItem Content="Druid"/>
                                 <ComboBoxItem Content="Hunter"/>
+                                <ComboBoxItem Content="Mage"/>
                                 <ComboBoxItem Content="Paladin"/>
                                 <ComboBoxItem Content="Priest"/>
                                 <ComboBoxItem Content="Rogue"/>
@@ -518,6 +522,7 @@
                             <ComboBox x:Name="Player05ClassComboBox" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="1" Width="104" Margin="0,28,170,0">
                                 <ComboBoxItem Content="Druid"/>
                                 <ComboBoxItem Content="Hunter"/>
+                                <ComboBoxItem Content="Mage"/>
                                 <ComboBoxItem Content="Paladin"/>
                                 <ComboBoxItem Content="Priest"/>
                                 <ComboBoxItem Content="Rogue"/>

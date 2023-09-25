@@ -60,10 +60,10 @@ namespace BloogBot.AI
             }
             running = false;
         }
-        public async void Login()
+        public async void Login(string accountName)
         {
             running = true;
-            botStates.Push(new LoginState(botStates, container));
+            botStates.Push(new LoginState(botStates, container, accountName));
 
             while (botStates.Count > 0)
             {

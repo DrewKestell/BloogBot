@@ -1,6 +1,4 @@
 ﻿using BloogBot.Models;
-using System.Collections.Generic;
-using System.Windows.Documents;
 
 namespace Bootstrapper
 {
@@ -12,8 +10,8 @@ namespace Bootstrapper
         public string Activity { get; set; }
         public bool ShouldParty { get; set; }
         public string Dungeon { get; set; }
-        public int DungeonPartySize { get; set; }
         public string PvPSelection { get; set; }
-        public List<PartyMemberPreference> PartyPreferences { get; set; }
+        public int PartySize { get; set; }
+        public PartyMemberPreference[] PartyPreferences { get; set; }
     }
 }

@@ -22,7 +22,7 @@ namespace ElementalShamanBot
         IBotState CreateMoveToTargetState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) =>
             new MoveToTargetState(botStates, container, target);
 
-        public IDependencyContainer GetDependencyContainer(BotSettings botSettings, InstanceUpdate probe) =>
+        public IDependencyContainer GetDependencyContainer(BotSettings botSettings, CharacterState probe) =>
             new DependencyContainer(
                 AdditionalTargetingCriteria,
                 CreateRestState,

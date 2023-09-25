@@ -13,7 +13,7 @@ namespace BloogBot.AI
 
         BotSettings BotSettings { get; }
 
-        InstanceUpdate Probe { get; }
+        CharacterState Probe { get; }
 
         WoWUnit FindClosestTarget();
 

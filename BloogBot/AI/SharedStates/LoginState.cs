@@ -10,15 +10,15 @@ namespace BloogBot.AI.SharedStates
 
         string accountUsername;
 
-        public LoginState(Stack<IBotState> botStates, IDependencyContainer container)
+        public LoginState(Stack<IBotState> botStates, IDependencyContainer container, string accountName)
         {
             this.botStates = botStates;
             this.container = container;
-            this.accountUsername = container.AccountName;
+            this.accountUsername = accountName;
         }
         public void Update()
         {
-            if (FrameHelper.IsElementVisibile("CharSelectEnterWorldButton"))
+            if (FrameHelper.IsElementVisibile("CharSelectEnterWorldButton") && Wait.For("CharacterScreenAnim", 1000))
             {
                 Functions.LuaCall("CharSelectEnterWorldButton:Click()");
                 botStates.Pop();

@@ -18,6 +18,10 @@ using System.Windows.Input;
 using BloogBot.Models.Dto;
 using static BloogBot.UI.WinImports;
 using System.Windows.Threading;
+using System.Threading.Tasks;
+using BloogBot.AI.SharedStates;
+using BloogBot.Game.Enums;
+using BloogBot.Models.Enums;
 
 namespace BloogBot.UI
 {
@@ -28,7 +32,7 @@ namespace BloogBot.UI
         static readonly string[] CityNames = { "Orgrimmar", "Thunder Bluff", "Undercity", "Stormwind", "Darnassus", "Ironforge" };
 
         readonly BotLoader botLoader = new BotLoader();
-        readonly InstanceUpdate probe;
+        readonly CharacterState instanceUpdate;
         readonly BotSettings botSettings;
         bool readyForCommands;
 
@@ -37,7 +41,13 @@ namespace BloogBot.UI
         public IntPtr processPointer;
 
         private Socket _socket;
-        private DispatcherTimer _timer;
+        private Task _heartbeatTask;
+        private Task _commandListenerTask;
+
+        private string _activity;
+        private Race _race;
+        private Class _class;
+        private Role _role;
 
         public MainViewModel()
         {
@@ -57,44 +67,20 @@ namespace BloogBot.UI
             catch (Exception e)
             {
                 Logger.Log(e.Message);
-            }            
-
-            void callback()
-            {
-                UpdatePropertiesWithAttribute(typeof(ProbeFieldAttribute));
             }
             void killswitch()
             {
                 Stop();
             }
-            probe = new InstanceUpdate(callback, killswitch)
+            instanceUpdate = new CharacterState(killswitch)
             {
-
+                ProcessId = Process.GetCurrentProcess().Id
             };
 
             InitializeObjectManager();
-            
-            _timer = new DispatcherTimer
-            {
-                Interval = new TimeSpan(0, 0, 0, 0, 500)
-            };
-            _timer.Tick += (sender, ea) =>
-            {
-                try
-                {
-                    OnPropertyChanged(nameof(StartCommandEnabled));
-                    OnPropertyChanged(nameof(StopCommandEnabled));
 
-                    if (probe != null)
-                    {
-                        SendSocketMessage();
-                    }
-                }catch(Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
-            };
-            _timer.Start();
+            _commandListenerTask = Task.Run(AsyncCommandListenerStart);
+            _heartbeatTask = Task.Run(AsyncHeartbeatStart);
         }
         public ObservableCollection<IBot> Bots { get; private set; }
 
@@ -116,12 +102,7 @@ namespace BloogBot.UI
         {
             try
             {
-                Bots = new ObservableCollection<IBot>(botLoader.ReloadBots());
-
-                CurrentBot = Bots.First(b => b.Name == "Fury Warrior");
-
-                dependencyContainer = CurrentBot.GetDependencyContainer(botSettings, probe);
-                dependencyContainer.AccountName = "OrWr1";
+                ReloadBots();
 
                 currentBot.Start(dependencyContainer, StopCallback);
 
@@ -131,6 +112,248 @@ namespace BloogBot.UI
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+            }
+        }
+
+        private void ReloadBots()
+        {
+            Bots = new ObservableCollection<IBot>(botLoader.ReloadBots());
+
+            CurrentBot = GetPreferredBot();
+
+            dependencyContainer = CurrentBot.GetDependencyContainer(botSettings, instanceUpdate);
+            Console.WriteLine($"Bots: {CurrentBot.Name} {dependencyContainer.AccountName}");
+        }
+        private IBot GetPreferredBot()
+        {
+            switch (_class)
+            {
+                case Class.Druid:
+                    if ((_role & Role.Tank) == Role.Tank)
+                    {
+                        if ((_role & Role.Damage) == Role.Damage)
+                        {
+                            return Bots.First(b => b.Name == "Balance Druid");
+                        }
+                        else
+                        {
+                            return Bots.First(b => b.Name == "Restoration Druid");
+                        }
+                    }
+                    return Bots.First(b => b.Name == "Feral Druid");
+                case Class.Hunter:
+                    return Bots.First(b => b.Name == "Beastmaster Hunter");
+                case Class.Mage:
+                    return Bots.First(b => b.Name == "Frost Mage");
+                case Class.Paladin:
+                    if ((_role & Role.Tank) == Role.Tank)
+                    {
+                        return Bots.First(b => b.Name == "Protection Paladin");
+                    }
+                    else if ((_role & Role.Damage) == Role.Damage)
+                    {
+                        return Bots.First(b => b.Name == "Retribution Paladin");
+                    }
+                    return Bots.First(b => b.Name == "Holy Paladin");
+                case Class.Priest:
+                    if ((_role & Role.Healer) == Role.Healer)
+                    {
+                        if (_activity == "PvP")
+                        {
+                            return Bots.First(b => b.Name == "Discipline Priest");
+                        }
+                        else
+                        {
+                            return Bots.First(b => b.Name == "Holy Priest");
+                        }
+                    }
+                    return Bots.First(b => b.Name == "Shadow Priest");
+                case Class.Rogue:
+                    if (_activity == "PvP")
+                    {
+                        return Bots.First(b => b.Name == "Backstab Rogue");
+                    }
+                    else
+                    {
+                        return Bots.First(b => b.Name == "Combat Rogue");
+                    }
+                case Class.Shaman:
+                    if ((_role & Role.Tank) == Role.Tank)
+                    {
+                        return Bots.First(b => b.Name == "Enhancement Shaman");
+                    }
+                    else if ((_role & Role.Damage) == Role.Damage)
+                    {
+                        return Bots.First(b => b.Name == "Elemental Shaman");
+                    }
+                    return Bots.First(b => b.Name == "Elemental Shaman");
+                case Class.Warlock:
+                    return Bots.First(b => b.Name == "Frost Mage");
+                case Class.Warrior:
+                    if ((_role & Role.Tank) == Role.Tank)
+                    {
+                        return Bots.First(b => b.Name == "Protection Warrior");
+                    }
+                    else if (_activity == "PvP")
+                    {
+                        return Bots.First(b => b.Name == "Arms Warrior");
+                    }
+                    break;
+            }
+            return Bots.First(b => b.Name == "Fury Warrior");
+        }
+
+        private async Task AsyncCommandListenerStart()
+        {
+            byte[] buffer = new byte[1024];
+            string json = "";
+
+            while (true)
+            {
+                try
+                {
+                    OnPropertyChanged(nameof(StartCommandEnabled));
+                    OnPropertyChanged(nameof(StopCommandEnabled));
+
+                    if (instanceUpdate != null)
+                    {
+                        try
+                        {
+                            if (_socket == null)
+                            {
+                                return;
+                            }
+                            if (!_socket.Connected)
+                            {
+                                try
+                                {
+                                    _socket.Connect(IPAddress.Parse(botSettings.ListenAddress), botSettings.Port);
+                                }
+                                catch (Exception e)
+                                {
+                                    Logger.Log(e.Message);
+                                }
+                            }
+                            if (_socket.Connected)
+                            {
+                                int receivedDataLength = _socket.Receive(buffer);
+                                if (receivedDataLength > 0)
+                                {
+                                    json = Encoding.UTF8.GetString(buffer, 0, receivedDataLength);
+                                    Console.WriteLine(string.Format("Receivied command: {0}", json));
+
+                                    if (json.Length > 0 && json.StartsWith("{"))
+                                    {
+                                        try
+                                        {
+                                            InstanceCommand instanceCommand = JsonConvert.DeserializeObject<InstanceCommand>(json);
+
+                                            if (instanceCommand != null)
+                                            {
+                                                if (instanceCommand.StateName == InstanceCommand.LOGIN)
+                                                {
+                                                    instanceUpdate.LoginRequested = true;
+
+                                                    Enum.TryParse(instanceCommand.CommandParam1, out _race);
+                                                    Enum.TryParse(instanceCommand.CommandParam2, out _class);
+                                                    Enum.TryParse(instanceCommand.CommandParam3, out _role);
+
+                                                    instanceUpdate.Role = _role;
+                                                    _activity = instanceCommand.CommandParam4;
+
+                                                    ReloadBots();
+
+                                                    currentBot.Login(AccountHelper.GetAccountByRaceAndClass(_race, _class));
+                                                }
+                                            }
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            Console.WriteLine(string.Format("{0} caused by {1}", e.Message, json));
+                                        }
+                                        Array.Clear(buffer, 0, buffer.Length);
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                            try
+                            {
+                                _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                            }
+                            catch
+                            {
+                                _socket.Close();
+                            }
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(string.Format($"{0} caused by {1}", e.Message, json));
+                }
+                await Task.Delay(500);
+            }
+        }
+        private async Task AsyncHeartbeatStart()
+        {
+            byte[] buffer = new byte[1024];
+            string json = "";
+
+            while (true)
+            {
+                try
+                {
+                    OnPropertyChanged(nameof(StartCommandEnabled));
+                    OnPropertyChanged(nameof(StopCommandEnabled));
+
+                    if (instanceUpdate != null)
+                    {
+                        try
+                        {
+                            if (_socket == null)
+                            {
+                                return;
+                            }
+                            if (!_socket.Connected)
+                            {
+                                try
+                                {
+                                    _socket.Connect(IPAddress.Parse(botSettings.ListenAddress), botSettings.Port);
+                                }
+                                catch (Exception e)
+                                {
+                                    Logger.Log(e.Message);
+                                }
+                            }
+                            if (_socket.Connected)
+                            {
+                                string instanceUpdateJson = JsonConvert.SerializeObject(instanceUpdate);
+                                //Console.WriteLine(string.Format("Sending message: {0}", instanceUpdateJson));
+                                _socket.Send(Encoding.ASCII.GetBytes(instanceUpdateJson));
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                            try
+                            {
+                                _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                            }
+                            catch
+                            {
+                                _socket.Close();
+                            }
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(string.Format($"{0} caused by {1}", e.Message, json));
+                }
+                await Task.Delay(500);
             }
         }
 
@@ -186,40 +409,9 @@ namespace BloogBot.UI
 
         #endregion
 
-        private void SendSocketMessage()
-        {
-            try
-            {
-                if (_socket == null)
-                {
-                    return;
-                }
-                if (!_socket.Connected)
-                {
-                    try
-                    {
-                        _socket.Connect(IPAddress.Parse(botSettings.ListenAddress), botSettings.Port);
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.Log(e.Message);
-                    }
-                }
-                if (_socket != null && _socket.Connected)
-                {
-                    _socket.Send(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(probe)));
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            }
-        }
-
         public void InitializeObjectManager()
         {
-            ObjectManager.Initialize(probe);
+            ObjectManager.Initialize(instanceUpdate);
             ObjectManager.StartEnumeration();
         }
 
@@ -246,10 +438,6 @@ namespace BloogBot.UI
     }
 
     public class BotSettingAttribute : Attribute
-    {
-    }
-
-    public class ProbeFieldAttribute : Attribute
     {
     }
 }

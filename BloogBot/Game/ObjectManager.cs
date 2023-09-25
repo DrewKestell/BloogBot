@@ -25,12 +25,12 @@ namespace BloogBot.Game
         static EnumerateVisibleObjectsCallbackVanilla callbackVanilla;
         static EnumerateVisibleObjectsCallbackNonVanilla callbackNonVanilla;
         static IntPtr callbackPtr;
-        static InstanceUpdate probe;
+        static CharacterState probe;
 
         static internal IList<WoWObject> Objects = new List<WoWObject>();
         static internal IList<WoWObject> ObjectsBuffer = new List<WoWObject>();
 
-        static internal void Initialize(InstanceUpdate parProbe)
+        static internal void Initialize(CharacterState parProbe)
         {
             probe = parProbe;
 
@@ -271,6 +271,31 @@ namespace BloogBot.Game
 
                         UpdateProbe();
                     }
+                } else
+                {
+                    probe.Guid = 0;
+                    probe.Position = new Position(0,0,0);
+                    probe.Zone = string.Empty;
+                    probe.CurrentTask = "Offline";
+                    probe.Health = 0;
+                    probe.Mana = 0;
+                    probe.Energy = 0;
+                    probe.IsCasting = false;
+                    probe.IsChanneling = false;
+                    probe.CurrentAction = 0;
+
+                    probe.TargetName = string.Empty;
+                    probe.TargetGuid = string.Empty;
+                    probe.TargetId = string.Empty;
+                    probe.TargetClass = 0;
+                    probe.TargetMana = 0;
+                    probe.TargetRage = 0;
+                    probe.TargetEnergy = 0;
+                    probe.TargetCreatureType = 0;
+                    probe.TargetPosition = new Position(0, 0, 0);
+                    probe.TargetFactionId = string.Empty;
+                    probe.TargetIsCasting = false;
+                    probe.TargetIsChanneling = false;
                 }
             });
         }
@@ -362,14 +387,15 @@ namespace BloogBot.Game
                 probe.TargetGuid = string.Empty;
                 probe.TargetId = string.Empty;
                 probe.TargetClass = 0;
+                probe.TargetMana = 0;
+                probe.TargetRage = 0;
+                probe.TargetEnergy = 0;
                 probe.TargetCreatureType = 0;
                 probe.TargetPosition = new Position(0, 0, 0);
                 probe.TargetFactionId = string.Empty;
                 probe.TargetIsCasting = false;
                 probe.TargetIsChanneling = false;
             }
-
-            probe.Callback();
         }
     }
 }

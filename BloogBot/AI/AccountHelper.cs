@@ -1,128 +1,131 @@
-﻿namespace BloogBot.AI
+﻿using BloogBot.Game.Enums;
+using System;
+
+namespace BloogBot.AI
 {
     public static class AccountHelper
     {
-        public static string GetAccountByRaceAndClass(string race, string clazz) {
-
+        public static string GetAccountByRaceAndClass(Race race, Class clazz) {
+            Console.WriteLine($"Race: {race} Class: {clazz}");
             switch (race)
             {
-                case "Human":
+                case Race.Human:
                     switch (clazz)
                     {
-                        case "Mage":
+                        case Class.Mage:
                             return "HuMa1";
-                        case "Paladin":
+                        case Class.Paladin:
                             return "HuPa1";
-                        case "Priest":
+                        case Class.Priest:
                             return "HuPr1";
-                        case "Rogue":
+                        case Class.Rogue:
                             return "HuRo1";
-                        case "Warlock":
+                        case Class.Warlock:
                             return "HuWl1";
-                        case "Warrior":
+                        case Class.Warrior:
                             return "HuWr1";
                     }
                     break;
-                case "Dwarf":
+                case Race.Dwarf:
                     switch (clazz)
                     {
-                        case "Hunter":
+                        case Class.Hunter:
                             return "DwHu1";
-                        case "Paladin":
+                        case Class.Paladin:
                             return "DwPa1";
-                        case "Priest":
+                        case Class.Priest:
                             return "DwPr1";
-                        case "Rogue":
+                        case Class.Rogue:
                             return "DwRo1";
-                        case "Warrior":
+                        case Class.Warrior:
                             return "DwWr1";
                     }
                     break;
-                case "Night Elf":
+                case Race.Nightelf:
                     switch (clazz)
                     {
-                        case "Druid":
+                        case Class.Druid:
                             return "NEDr1";
-                        case "Hunter":
+                        case Class.Hunter:
                             return "NEHu1";
-                        case "Priest":
+                        case Class.Priest:
                             return "NEPr1";
-                        case "Rogue":
+                        case Class.Rogue:
                             return "NERo1";
-                        case "Warrior":
+                        case Class.Warrior:
                             return "NEWr1";
                     }
                     break;
-                case "Gnome":
+                case Race.Gnome:
                     switch (clazz)
                     {
-                        case "Mage":
+                        case Class.Mage:
                             return "GnMa1";
-                        case "Rogue":
+                        case Class.Rogue:
                             return "GnRo1";
-                        case "Warlock":
+                        case Class.Warlock:
                             return "GnWl1";
-                        case "Warrior":
+                        case Class.Warrior:
                             return "GnWr1";
                     }
                     break;
-                case "Orc":
+                case Race.Orc:
                     switch (clazz)
                     {
-                        case "Hunter":
+                        case Class.Hunter:
                             return "OrHu1";
-                        case "Rogue":
+                        case Class.Rogue:
                             return "OrRo1";
-                        case "Shaman":
+                        case Class.Shaman:
                             return "OrSh1";
-                        case "Warlock":
+                        case Class.Warlock:
                             return "OrWl1";
-                        case "Warrior":
+                        case Class.Warrior:
                             return "OrWr1";
                     }
                     break;
-                case "Undead":
+                case Race.Undead:
                     switch (clazz)
                     {
-                        case "Mage":
+                        case Class.Mage:
                             return "UdMa1";
-                        case "Priest":
+                        case Class.Priest:
                             return "UdPr1";
-                        case "Rogue":
+                        case Class.Rogue:
                             return "UdRo1";
-                        case "Warlock":
+                        case Class.Warlock:
                             return "UdWl1";
-                        case "Warrior":
+                        case Class.Warrior:
                             return "UdWr1";
                     }
                     break;
-                case "Tauren":
+                case Race.Tauren:
                     switch (clazz)
                     {
-                        case "Druid":
+                        case Class.Druid:
                             return "TaDr1";
-                        case "Hunter":
+                        case Class.Hunter:
                             return "TaHu1";
-                        case "Shaman":
+                        case Class.Shaman:
                             return "TaSh1";
-                        case "Warrior":
+                        case Class.Warrior:
                             return "TaWr1";
                     }
                     break;
-                case "Troll":
+                case Race.Troll:
                     switch (clazz)
                     {
-                        case "Hunter":
+                        case Class.Hunter:
                             return "TrHu1";
-                        case "Mage":
+                        case Class.Mage:
                             return "TrMa1";
-                        case "Priest":
+                        case Class.Priest:
                             return "TrPr1";
-                        case "Rogue":
+                        case Class.Rogue:
                             return "TrRo1";
-                        case "Shaman":
+                        case Class.Shaman:
                             return "TrSh1";
-                        case "Warrior":
+                        case Class.Warrior:
                             return "TrWr1";
                     }
                     break;
