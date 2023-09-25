@@ -1,12 +1,17 @@
 ﻿
 using BloogBot.Models.Dto;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -19,8 +24,11 @@ namespace Bootstrapper
         private readonly SocketServer _socketServer;
         private readonly BootstrapperSettings _bootstrapperSettings;
 
-        private static readonly string[] Races = { "Human", "Dwarf", "Night Elf", "Gnome", "Orc", "Undead", "Tauren", "Troll" };
-        private static readonly string[] Classes = { "Druid", "Hunter", "Mage", "Paladin", "Priest", "Rogue", "Shaman", "Warlock", "Warrior" };
+        private static readonly string[] Races =
+            { "Human", "Dwarf", "Night Elf", "Gnome", "Orc", "Undead", "Tauren", "Troll" };
+
+        private static readonly string[] Classes =
+            { "Druid", "Hunter", "Mage", "Paladin", "Priest", "Rogue", "Shaman", "Warlock", "Warrior" };
 
         private static readonly string[] HumanClasses = { "Mage", "Paladin", "Priest", "Rogue", "Warlock", "Warrior" };
         private static readonly string[] DwarfClasses = { "Hunter", "Paladin", "Priest", "Rogue", "Warrior" };
@@ -32,9 +40,93 @@ namespace Bootstrapper
         private static readonly string[] TaurenClasses = { "Druid", "Hunter", "Shaman", "Warrior" };
         private static readonly string[] TrollClasses = { "Hunter", "Mage", "Priest", "Rogue", "Shaman", "Warrior" };
 
+        public sealed class PlayerViewModel : INotifyPropertyChanged
+        {
+            private Visibility _visibility;
+
+            public Visibility Visibility
+            {
+                get => _visibility;
+                set
+                {
+                    _visibility = value;
+                    OnPropertyChanged();
+                }
+            }
+
+            private string _header;
+
+            public string Header
+            {
+                get => _header;
+                set
+                {
+                    _header = value;
+                    OnPropertyChanged();
+                }
+            }
+
+            private string _currentTask;
+
+            public string CurrentTask
+            {
+                get => _currentTask;
+                set
+                {
+                    _currentTask = value;
+                    OnPropertyChanged();
+                }
+            }
+
+            private string _currentAction;
+
+            public string CurrentAction
+            {
+                get => _currentAction;
+                set
+                {
+                    _currentAction = value;
+                    OnPropertyChanged();
+                }
+            }
+
+            private string _position;
+
+            public string Position
+            {
+                get => _position;
+                set
+                {
+                    _position = value;
+                    OnPropertyChanged();
+                }
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+
+            private bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+            {
+                if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+                field = value;
+                OnPropertyChanged(propertyName);
+                return true;
+            }
+        }
+
+        public ObservableCollection<PlayerViewModel> Players { get; set; } = new ObservableCollection<PlayerViewModel>();
+        
+        private Task _backgroundTask;
+
+
         public MainWindow(SocketServer socketServer, BootstrapperSettings bootstrapperSettings)
         {
             InitializeComponent();
+            DataContext = this;
             _socketServer = socketServer;
             _socketServer.InstanceUpdateObservable.Subscribe(OnInstanceUpdate);
             _bootstrapperSettings = bootstrapperSettings;
@@ -55,101 +147,64 @@ namespace Bootstrapper
             if (_bootstrapperSettings.DungeonPartySize == 5)
             {
 
-            } else
+            }
+            else
             {
 
             }
+            
+            var random = new Random();
+            _backgroundTask = Task.Run(async () =>
+            {
+                //var possibleNames = {{}}
+                while (true)
+                {
+                    if (Players.Count <= 40 && (Players.Count <= 3 || random.Next(1) == 0))
+                    {
+                        var player = new PlayerViewModel
+                        {
+                            Visibility = Visibility.Visible,
+                            Header = "Player " + (Players.Count + 1),
+                            CurrentTask = "Questing",
+                            CurrentAction = "Killing mobs",
+                            Position = $"X: {random.Next(100,500)}, Y: {random.Next(100,500)}"
+                        };
+                        await Dispatcher.Invoke(async () =>
+                        {
+                            Players.Add(player);
+                        });
+                    }
+                    else
+                    {
+                        await Dispatcher.Invoke(async () =>
+                        {
+                            Players.RemoveAt(random.Next(Players.Count));
+                        });
+                    }
 
+                    await Task.Delay(random.Next(1000, 5000));
+                }
+            });
+            
             PartyCheckBox.IsChecked = _bootstrapperSettings.ShouldParty;
         }
 
         private void OnInstanceUpdate(InstanceUpdate update)
         {
-            Dispatcher.Invoke(() =>
-            {
-                if (update != null)
-                {
-                    InstanceCoordinator.ConsumeMessage(update);
-                }
+            //Dispatcher.Invoke(() =>
+            //{
+            //    if (update != null)
+            //    {
+            //        InstanceCoordinator.ConsumeMessage(update);
+            //    }
 
-                UpdateBotLabels();
-            });
+            //    UpdateBotLabels();
+            //});
         }
 
         private void UpdateBotLabels()
         {
-            for (int i = 0; i < 5; i++)
-            {
-                InstanceUpdate currentUpdate = InstanceCoordinator._allInstances[i];
-
-                if (currentUpdate != null)
-                {
-                    switch (i)
-                    {
-                        case 0:
-                            Player01Grid.Visibility = Visibility.Visible;
-                            Player01InfoGroupBox.Header = "Info - " + currentUpdate.ProcessId;
-                            Player01StateLabel.Content = currentUpdate.CurrentTask;
-                            Player01ZoneLabel.Content = currentUpdate.Zone;
-                            Player01TaskLabel.Content = currentUpdate.CurrentAction;
-                            Player01PositionLabel.Content = currentUpdate.Position;
-                            break;
-                        case 1:
-                            Player02Grid.Visibility = Visibility.Visible;
-                            Player02InfoGroupBox.Header = "Info - " + currentUpdate.ProcessId;
-                            Player02StateLabel.Content = currentUpdate.CurrentTask;
-                            Player02ZoneLabel.Content = currentUpdate.Zone;
-                            Player02TaskLabel.Content = currentUpdate.CurrentAction;
-                            Player02PositionLabel.Content = currentUpdate.Position;
-                            break;
-                        case 2:
-                            Player03Grid.Visibility = Visibility.Visible;
-                            Player03InfoGroupBox.Header = "Info - " + currentUpdate.ProcessId;
-                            Player03StateLabel.Content = currentUpdate.CurrentTask;
-                            Player03ZoneLabel.Content = currentUpdate.Zone;
-                            Player03TaskLabel.Content = currentUpdate.CurrentAction;
-                            Player03PositionLabel.Content = currentUpdate.Position;
-                            break;
-                        case 3:
-                            Player04Grid.Visibility = Visibility.Visible;
-                            Player04InfoGroupBox.Header = "Info - " + currentUpdate.ProcessId;
-                            Player04StateLabel.Content = currentUpdate.CurrentTask;
-                            Player04ZoneLabel.Content = currentUpdate.Zone;
-                            Player04TaskLabel.Content = currentUpdate.CurrentAction;
-                            Player04PositionLabel.Content = currentUpdate.Position;
-                            break;
-                        case 4:
-                            Player05Grid.Visibility = Visibility.Visible;
-                            Player05StateLabel.Content = currentUpdate.CurrentTask;
-                            Player05ZoneLabel.Content = currentUpdate.Zone;
-                            Player05TaskLabel.Content = currentUpdate.CurrentAction;
-                            Player05InfoGroupBox.Header = "Info - " + currentUpdate.ProcessId;
-                            Player05PositionLabel.Content = currentUpdate.Position;
-                            break;
-                    }
-                }
-                else
-                {
-                    switch (i)
-                    {
-                        case 0:
-                            Player01Grid.Visibility = Visibility.Collapsed;
-                            break;
-                        case 1:
-                            Player02Grid.Visibility = Visibility.Collapsed;
-                            break;
-                        case 2:
-                            Player03Grid.Visibility = Visibility.Collapsed;
-                            break;
-                        case 3:
-                            Player04Grid.Visibility = Visibility.Collapsed;
-                            break;
-                        case 4:
-                            Player05Grid.Visibility = Visibility.Collapsed;
-                            break;
-                    }
-                }
-            }
+            
         }
 
         private void LaunchProcess()

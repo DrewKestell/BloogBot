@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Bootstrapper"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="Bootstrapper.MainWindow"
+        x:Name="MainControllerWindow"
         mc:Ignorable="d"
         Title="Party Central" MinHeight="640" Height="640" MaxHeight="640" MinWidth="720" Width="720" MaxWidth="720" ResizeMode="CanMinimize" SizeToContent="WidthAndHeight">
     <Window.Resources>
@@ -45,6 +46,7 @@
         </Style>
         <BitmapImage x:Key="BackgroundImageSource" UriSource="Resources/LoadScreen-BottomFillTile.PNG"/>
 
+        <ImageBrush x:Key="BackgroundImageBrush" ImageSource="{StaticResource BackgroundImageSource}"/>
         <BitmapImage x:Key="StartButtonImageSource" UriSource="Resources/button_texture_start.png"/>
         <BitmapImage x:Key="StartButtonPressedImageSource" UriSource="Resources/button_texture_start_pressed.png"/>
         <BitmapImage x:Key="StartButtonDisabledImageSource" UriSource="Resources/button_texture_start_disabled.png"/>
@@ -158,10 +160,7 @@
             </ControlTemplate.Triggers>
         </ControlTemplate>
     </Window.Resources>
-    <Grid>
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" Source="{StaticResource BackgroundImageSource}" Height="410" Width="720"/>
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,410,0,0" Source="{StaticResource BackgroundImageSource}" Height="410" Width="720"/>
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,820,0,0" Source="{StaticResource BackgroundImageSource}" Height="410" Width="720"/>
+    <StackPanel CanHorizontallyScroll="False" CanVerticallyScroll="False" Background="{StaticResource BackgroundImageBrush}">
         <GroupBox Header="Bot Control" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,6,0,0" Width="690" Height="54">
             <Grid>
                 <Button x:Name="StartAllBotsButton" Template="{DynamicResource StartButtonTemplate}" HorizontalAlignment="Left" Margin="0,-3,0,4"/>
@@ -169,7 +168,7 @@
                 <Button x:Name="NewWoWLaunchButton" Template="{DynamicResource SpawnButtonTemplate}" Margin="593,-3,0,4" Click="NewWoWLaunchButton_Click"/>
             </Grid>
         </GroupBox>
-        <GroupBox Header="Party / Raid Settings" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="6,58,6,6"  Width="690" Height="88">
+        <GroupBox Header="Party / Raid Settings" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="6,0,6,6"  Width="690" Height="88">
             <Grid>
                 <RadioButton x:Name="QuestingRadioButton" Content="Questing" FontSize="22" HorizontalAlignment="Left" Height="24" Margin="11,6,0,26"></RadioButton>
                 <RadioButton x:Name="DungeonRadioButton" Content="Dungeon" FontSize="22" HorizontalAlignment="Left" Height="24" Margin="111,6,0,26"></RadioButton>
@@ -220,338 +219,71 @@
                 </ComboBox>
             </Grid>
         </GroupBox>
-        <ScrollViewer Margin="0,151,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalScrollBarVisibility="Hidden">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                    <RowDefinition Height="88" />
-                </Grid.RowDefinitions>
-                <Grid x:Name="Player01Grid" Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="298"/>
-                        <ColumnDefinition Width="404"/>
-                    </Grid.ColumnDefinitions>
-                    <GroupBox Header="Player 1" Grid.Column="0" Margin="6,0,6,0">
-                        <Grid>
-                            <Button x:Name="Player01StartButton" Margin="178,-1,0,36" Template="{DynamicResource StartButtonTemplate}" HorizontalAlignment="Left" Click="PlayerStartButton_Click"/>
-                            <Button x:Name="Player01UpdateButton" Margin="179,33,0,2" Template="{DynamicResource UpdateButtonTemplate}" HorizontalAlignment="Left"/>
-                            <CheckBox x:Name="Player01TankCheckBox" Content="Tank" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Margin="109,-8,101,33"/>
-                            <CheckBox x:Name="Player01DamageCheckBox" Content="Damage" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Margin="109,20,101,20"/>
-                            <CheckBox x:Name="Player01HealerCheckBox" Content="Healer" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Margin="109,39,101,0"/>
-                            <ComboBox x:Name="Player01RaceComboBox" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="0" Width="104" HorizontalAlignment="Left" VerticalAlignment="Top">
-                                <ComboBoxItem Content="Dwarf"/>
-                                <ComboBoxItem Content="Gnome"/>
-                                <ComboBoxItem Content="Human"/>
-                                <ComboBoxItem Content="Night Elf"/>
-                                <ComboBoxItem Content="Orc"/>
-                                <ComboBoxItem Content="Tauren"/>
-                                <ComboBoxItem Content="Troll"/>
-                                <ComboBoxItem Content="Undead"/>
-                            </ComboBox>
-                            <ComboBox x:Name="Player01ClassComboBox" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="1" Width="104" Margin="0,28,170,0">
-                                <ComboBoxItem Content="Druid"/>
-                                <ComboBoxItem Content="Hunter"/>
-                                <ComboBoxItem Content="Paladin"/>
-                                <ComboBoxItem Content="Priest"/>
-                                <ComboBoxItem Content="Rogue"/>
-                                <ComboBoxItem Content="Shaman"/>
-                                <ComboBoxItem Content="Warlock"/>
-                                <ComboBoxItem Content="Warrior"/>
-                            </ComboBox>
-                        </Grid>
-                    </GroupBox>
-                    <GroupBox x:Name="Player01InfoGroupBox" Header="Info" Grid.Column="1" Margin="0,0,6,0">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="24"/>
-                                <RowDefinition Height="24"/>
-                            </Grid.RowDefinitions>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0">
+            <ItemsControl ItemsSource="{Binding Players}" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Grid.Row="0" Visibility="Visible" Height="88">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="64"/>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="52"/>
-                                <ColumnDefinition/>
+                                <ColumnDefinition Width="298"/>
+                                <ColumnDefinition Width="404"/>
                             </Grid.ColumnDefinitions>
-                            <Label Grid.Row="0" Grid.Column="0" Content="Zone:" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="1" Grid.Column="0" Content="Position:" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="0" Grid.Column="2" Content="Task:" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="1" Grid.Column="2" Content="State:" HorizontalContentAlignment="Right"/>
+                            <GroupBox Header="{Binding Header}" Grid.Column="0" Margin="6,0,6,0">
+                                <Grid>
+                                    <Button  Margin="178,-1,0,36" Template="{DynamicResource StartButtonTemplate}" HorizontalAlignment="Left" Click="PlayerStartButton_Click"/>
+                                    <Button  Margin="179,33,0,2" Template="{DynamicResource UpdateButtonTemplate}" HorizontalAlignment="Left"/>
+                                    <CheckBox Content="Tank" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Margin="109,-8,101,33"/>
+                                    <CheckBox Content="Damage" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Margin="109,20,101,20"/>
+                                    <CheckBox Content="Healer" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Margin="109,39,101,0"/>
+                                    <ComboBox VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="0" Width="104" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                        <ComboBoxItem Content="Dwarf"/>
+                                        <ComboBoxItem Content="Gnome"/>
+                                        <ComboBoxItem Content="Human"/>
+                                        <ComboBoxItem Content="Night Elf"/>
+                                        <ComboBoxItem Content="Orc"/>
+                                        <ComboBoxItem Content="Tauren"/>
+                                        <ComboBoxItem Content="Troll"/>
+                                        <ComboBoxItem Content="Undead"/>
+                                    </ComboBox>
+                                    <ComboBox VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="1" Width="104" Margin="0,28,170,0">
+                                        <ComboBoxItem Content="Druid"/>
+                                        <ComboBoxItem Content="Hunter"/>
+                                        <ComboBoxItem Content="Paladin"/>
+                                        <ComboBoxItem Content="Priest"/>
+                                        <ComboBoxItem Content="Rogue"/>
+                                        <ComboBoxItem Content="Shaman"/>
+                                        <ComboBoxItem Content="Warlock"/>
+                                        <ComboBoxItem Content="Warrior"/>
+                                    </ComboBox>
+                                </Grid>
+                            </GroupBox>
+                            <GroupBox Header="Info" Grid.Column="1" Margin="0,0,6,0">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="64"/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="52"/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Grid.Row="0" Grid.Column="0" Content="Zone:" HorizontalContentAlignment="Right"/>
+                                    <Label Grid.Row="1" Grid.Column="0" Content="Position:" HorizontalContentAlignment="Right"/>
+                                    <Label Grid.Row="0" Grid.Column="2" Content="Task:" HorizontalContentAlignment="Right"/>
+                                    <Label Grid.Row="1" Grid.Column="2" Content="State:" HorizontalContentAlignment="Right"/>
 
-                            <Label Grid.Row="0" Grid.Column="1" x:Name="Player01ZoneLabel" HorizontalContentAlignment="Center"/>
-                            <Label Grid.Row="1" Grid.Column="1" x:Name="Player01PositionLabel" HorizontalContentAlignment="Center"/>
-                            <Label Grid.Row="0" Grid.Column="3" x:Name="Player01TaskLabel" HorizontalContentAlignment="Center"/>
-                            <Label Grid.Row="1" Grid.Column="3" x:Name="Player01StateLabel" HorizontalContentAlignment="Center"/>
+                                    <Label Grid.Row="0" Grid.Column="1" HorizontalContentAlignment="Center"/>
+                                    <Label Grid.Row="1" Grid.Column="1" Content="{Binding Position}" HorizontalContentAlignment="Center"/>
+                                    <Label Grid.Row="0" Grid.Column="3" Content="{Binding CurrentTask}" HorizontalContentAlignment="Center"/>
+                                    <Label Grid.Row="1" Grid.Column="3" Content="{Binding CurrentAction}" HorizontalContentAlignment="Center"/>
+                                </Grid>
+                            </GroupBox>
                         </Grid>
-                    </GroupBox>
-                </Grid>
-                <Grid x:Name="Player02Grid" Grid.Row="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="298"/>
-                        <ColumnDefinition Width="404"/>
-                    </Grid.ColumnDefinitions>
-                    <GroupBox Header="Player 2" Grid.Column="0" Margin="6,0,6,0">
-                        <Grid>
-                            <Button x:Name="Player02StartButton" Margin="178,-1,0,36" Template="{DynamicResource StartButtonTemplate}" HorizontalAlignment="Left"/>
-                            <Button x:Name="Player02UpdateButton" Margin="179,31,0,4" Template="{DynamicResource UpdateButtonTemplate}" HorizontalAlignment="Left"/>
-                            <CheckBox x:Name="Player02TankCheckBox" Content="Tank" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Margin="109,-8,101,33"/>
-                            <CheckBox x:Name="Player02DamageCheckBox" Content="Damage" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Margin="109,20,101,20"/>
-                            <CheckBox x:Name="Player02HealerCheckBox" Content="Healer" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Margin="109,39,101,0"/>
-                            <ComboBox x:Name="Player02RaceComboBox" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="0" Width="104" HorizontalAlignment="Left" VerticalAlignment="Top">
-                                <ComboBoxItem Content="Dwarf"/>
-                                <ComboBoxItem Content="Gnome"/>
-                                <ComboBoxItem Content="Human"/>
-                                <ComboBoxItem Content="Night Elf"/>
-                                <ComboBoxItem Content="Orc"/>
-                                <ComboBoxItem Content="Tauren"/>
-                                <ComboBoxItem Content="Troll"/>
-                                <ComboBoxItem Content="Undead"/>
-                            </ComboBox>
-                            <ComboBox x:Name="Player02ClassComboBox" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="1" Width="104" Height="24" Margin="0,28,170,0">
-                                <ComboBoxItem Content="Druid"/>
-                                <ComboBoxItem Content="Hunter"/>
-                                <ComboBoxItem Content="Paladin"/>
-                                <ComboBoxItem Content="Priest"/>
-                                <ComboBoxItem Content="Rogue"/>
-                                <ComboBoxItem Content="Shaman"/>
-                                <ComboBoxItem Content="Warlock"/>
-                                <ComboBoxItem Content="Warrior"/>
-                            </ComboBox>
-                        </Grid>
-                    </GroupBox>
-                    <GroupBox x:Name="Player02InfoGroupBox" Header="Info" Grid.Column="1" Margin="0,0,6,0">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="24"/>
-                                <RowDefinition Height="24"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="64"/>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="52"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Label Grid.Row="0" Grid.Column="0" Content="Zone:" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="1" Grid.Column="0" Content="Position:" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="0" Grid.Column="2" Content="Task:" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="1" Grid.Column="2" Content="State:" HorizontalContentAlignment="Right"/>
-
-                            <Label Grid.Row="0" Grid.Column="1" x:Name="Player02ZoneLabel" HorizontalContentAlignment="Center"/>
-                            <Label Grid.Row="0" Grid.Column="3" x:Name="Player02TaskLabel" HorizontalContentAlignment="Center"/>
-                            <Label Grid.Row="1" Grid.Column="1" x:Name="Player02PositionLabel" HorizontalContentAlignment="Center"/>
-                            <Label Grid.Row="1" Grid.Column="3" x:Name="Player02StateLabel" HorizontalContentAlignment="Center"/>
-                        </Grid>
-                    </GroupBox>
-                </Grid>
-                <Grid x:Name="Player03Grid" Grid.Row="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="298"/>
-                        <ColumnDefinition Width="404"/>
-                    </Grid.ColumnDefinitions>
-                    <GroupBox Header="Player 3" Grid.Column="0" Margin="6,0,6,0">
-                        <Grid>
-                            <Button x:Name="Player03StartButton" Margin="178,-1,0,36" Template="{DynamicResource StartButtonTemplate}" HorizontalAlignment="Left"/>
-                            <Button x:Name="Player03UpdateButton" Margin="179,31,0,4" Template="{DynamicResource UpdateButtonTemplate}" HorizontalAlignment="Left"/>
-                            <CheckBox x:Name="Player03TankCheckBox" Content="Tank" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Margin="109,-8,101,33"/>
-                            <CheckBox x:Name="Player03DamageCheckBox" Content="Damage" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Margin="109,20,101,20"/>
-                            <CheckBox x:Name="Player03HealerCheckBox" Content="Healer" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Margin="109,39,101,0"/>
-                            <ComboBox x:Name="Player03RaceComboBox" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="0" Width="104" HorizontalAlignment="Left" VerticalAlignment="Top">
-                                <ComboBoxItem Content="Dwarf"/>
-                                <ComboBoxItem Content="Gnome"/>
-                                <ComboBoxItem Content="Human"/>
-                                <ComboBoxItem Content="Night Elf"/>
-                                <ComboBoxItem Content="Orc"/>
-                                <ComboBoxItem Content="Tauren"/>
-                                <ComboBoxItem Content="Troll"/>
-                                <ComboBoxItem Content="Undead"/>
-                            </ComboBox>
-                            <ComboBox x:Name="Player03ClassComboBox" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="1" Width="104" Height="24" Margin="0,28,170,0">
-                                <ComboBoxItem Content="Druid"/>
-                                <ComboBoxItem Content="Hunter"/>
-                                <ComboBoxItem Content="Paladin"/>
-                                <ComboBoxItem Content="Priest"/>
-                                <ComboBoxItem Content="Rogue"/>
-                                <ComboBoxItem Content="Shaman"/>
-                                <ComboBoxItem Content="Warlock"/>
-                                <ComboBoxItem Content="Warrior"/>
-                            </ComboBox>
-                        </Grid>
-                    </GroupBox>
-                    <GroupBox x:Name="Player03InfoGroupBox" Header="Info" Grid.Column="1" Margin="0,0,6,0">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="24"/>
-                                <RowDefinition Height="24"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="64"/>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="52"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Label Grid.Row="0" Grid.Column="0" Content="Zone:" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="1" Grid.Column="0" Content="Position:" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="0" Grid.Column="2" Content="Task:" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="1" Grid.Column="2" Content="State:" HorizontalContentAlignment="Right"/>
-
-                            <Label Grid.Row="0" Grid.Column="1" x:Name="Player03ZoneLabel" HorizontalContentAlignment="Center"/>
-                            <Label Grid.Row="0" Grid.Column="3" x:Name="Player03TaskLabel" HorizontalContentAlignment="Center"/>
-                            <Label Grid.Row="1" Grid.Column="1" x:Name="Player03PositionLabel" HorizontalContentAlignment="Center"/>
-                            <Label Grid.Row="1" Grid.Column="3" x:Name="Player03StateLabel" HorizontalContentAlignment="Center"/>
-                        </Grid>
-                    </GroupBox>
-                </Grid>
-                <Grid x:Name="Player04Grid" Grid.Row="3">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="298"/>
-                        <ColumnDefinition Width="404"/>
-                    </Grid.ColumnDefinitions>
-                    <GroupBox Header="Player 4" Grid.Column="0" Margin="6,0,6,0">
-                        <Grid>
-                            <Button x:Name="Player04StartButton" Margin="178,-1,0,36" Template="{DynamicResource StartButtonTemplate}" HorizontalAlignment="Left"/>
-                            <Button x:Name="Player04UpdateButton" Margin="179,31,0,4" Template="{DynamicResource UpdateButtonTemplate}" HorizontalAlignment="Left"/>
-                            <CheckBox x:Name="Player04TankCheckBox" Content="Tank" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Margin="109,-8,101,33"/>
-                            <CheckBox x:Name="Player04DamageCheckBox" Content="Damage" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Margin="109,20,101,20"/>
-                            <CheckBox x:Name="Player04HealerCheckBox" Content="Healer" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Margin="109,39,101,0"/>
-                            <ComboBox x:Name="Player04RaceComboBox" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="0" Width="104" HorizontalAlignment="Left" VerticalAlignment="Top">
-                                <ComboBoxItem Content="Dwarf"/>
-                                <ComboBoxItem Content="Gnome"/>
-                                <ComboBoxItem Content="Human"/>
-                                <ComboBoxItem Content="Night Elf"/>
-                                <ComboBoxItem Content="Orc"/>
-                                <ComboBoxItem Content="Tauren"/>
-                                <ComboBoxItem Content="Troll"/>
-                                <ComboBoxItem Content="Undead"/>
-                            </ComboBox>
-                            <ComboBox x:Name="Player04ClassComboBox" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="1" Width="104" Height="24" Margin="0,28,170,0">
-                                <ComboBoxItem Content="Druid"/>
-                                <ComboBoxItem Content="Hunter"/>
-                                <ComboBoxItem Content="Paladin"/>
-                                <ComboBoxItem Content="Priest"/>
-                                <ComboBoxItem Content="Rogue"/>
-                                <ComboBoxItem Content="Shaman"/>
-                                <ComboBoxItem Content="Warlock"/>
-                                <ComboBoxItem Content="Warrior"/>
-                            </ComboBox>
-                        </Grid>
-                    </GroupBox>
-                    <GroupBox x:Name="Player04InfoGroupBox" Header="Info" Grid.Column="1" Margin="0,0,6,0">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="24"/>
-                                <RowDefinition Height="24"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="64"/>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="52"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Label Grid.Row="0" Grid.Column="0" Content="Zone:" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="1" Grid.Column="0" Content="Position:" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="0" Grid.Column="2" Content="Task:" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="1" Grid.Column="2" Content="State:" HorizontalContentAlignment="Right"/>
-
-                            <Label Grid.Row="0" Grid.Column="1" x:Name="Player04ZoneLabel" HorizontalContentAlignment="Center"/>
-                            <Label Grid.Row="0" Grid.Column="3" x:Name="Player04TaskLabel" HorizontalContentAlignment="Center"/>
-                            <Label Grid.Row="1" Grid.Column="1" x:Name="Player04PositionLabel" HorizontalContentAlignment="Center"/>
-                            <Label Grid.Row="1" Grid.Column="3" x:Name="Player04StateLabel" HorizontalContentAlignment="Center"/>
-                        </Grid>
-                    </GroupBox>
-                </Grid>
-                <Grid x:Name="Player05Grid" Grid.Row="4">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="298"/>
-                        <ColumnDefinition Width="404"/>
-                    </Grid.ColumnDefinitions>
-                    <GroupBox Header="Player 5" Grid.Column="0" Margin="6,0,6,0">
-                        <Grid>
-                            <Button x:Name="Player05StartButton" Margin="179,-1,0,36" Template="{DynamicResource StartButtonTemplate}" HorizontalAlignment="Left"/>
-                            <Button x:Name="Player05UpdateButton" Margin="179,31,0,4" Template="{DynamicResource UpdateButtonTemplate}" HorizontalAlignment="Left"/>
-                            <CheckBox x:Name="Player05TankCheckBox" Content="Tank" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Margin="109,-8,101,33"/>
-                            <CheckBox x:Name="Player05DamageCheckBox" Content="Damage" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Margin="109,20,101,20"/>
-                            <CheckBox x:Name="Player05HealerCheckBox" Content="Healer" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Margin="109,39,101,0"/>
-                            <ComboBox x:Name="Player05RaceComboBox" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="0" Width="104" HorizontalAlignment="Left" VerticalAlignment="Top">
-                                <ComboBoxItem Content="Dwarf"/>
-                                <ComboBoxItem Content="Gnome"/>
-                                <ComboBoxItem Content="Human"/>
-                                <ComboBoxItem Content="Night Elf"/>
-                                <ComboBoxItem Content="Orc"/>
-                                <ComboBoxItem Content="Tauren"/>
-                                <ComboBoxItem Content="Troll"/>
-                                <ComboBoxItem Content="Undead"/>
-                            </ComboBox>
-                            <ComboBox x:Name="Player05ClassComboBox" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="1" Width="104" Margin="0,28,170,0">
-                                <ComboBoxItem Content="Druid"/>
-                                <ComboBoxItem Content="Hunter"/>
-                                <ComboBoxItem Content="Paladin"/>
-                                <ComboBoxItem Content="Priest"/>
-                                <ComboBoxItem Content="Rogue"/>
-                                <ComboBoxItem Content="Shaman"/>
-                                <ComboBoxItem Content="Warlock"/>
-                                <ComboBoxItem Content="Warrior"/>
-                            </ComboBox>
-                        </Grid>
-                    </GroupBox>
-                    <GroupBox x:Name="Player05InfoGroupBox" Header="Info" Grid.Column="1" Margin="0,0,6,0">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="24"/>
-                                <RowDefinition Height="24"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="64"/>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="52"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Label Grid.Row="0" Grid.Column="0" Content="Zone:" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="1" Grid.Column="0" Content="Position:" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="0" Grid.Column="2" Content="Task:" HorizontalContentAlignment="Right"/>
-                            <Label Grid.Row="1" Grid.Column="2" Content="State:" HorizontalContentAlignment="Right"/>
-
-                            <Label Grid.Row="0" Grid.Column="1" x:Name="Player05ZoneLabel" HorizontalContentAlignment="Center"/>
-                            <Label Grid.Row="0" Grid.Column="3" x:Name="Player05TaskLabel" HorizontalContentAlignment="Center"/>
-                            <Label Grid.Row="1" Grid.Column="1" x:Name="Player05PositionLabel" HorizontalContentAlignment="Center"/>
-                            <Label Grid.Row="1" Grid.Column="3" x:Name="Player05StateLabel" HorizontalContentAlignment="Center"/>
-                        </Grid>
-                    </GroupBox>
-                </Grid>
-            </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </ScrollViewer>
-    </Grid>
+    </StackPanel>
 </Window>
