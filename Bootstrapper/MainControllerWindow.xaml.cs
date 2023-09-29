@@ -1,20 +1,23 @@
-
-using BloogBot.AI;
-using BloogBot.Models;
+using BloogBot;
 using BloogBot.Models.Dto;
-using BloogBot.Models.Enums;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Threading;
 using static Bootstrapper.WinImports;
 
@@ -25,316 +28,189 @@ namespace Bootstrapper
         private readonly SocketServer _socketServer;
         private readonly BootstrapperSettings _bootstrapperSettings;
 
-            { "Human", "Dwarf", "Night Elf", "Gnome", "Orc", "Undead", "Tauren", "Troll" };
-        private static readonly string[] Races =
+        private static readonly string _PVP_WARSONG_GULTCH = "10 Warsong Gultch";
+        private static readonly string _PVP_ARATHI_BASIN = "15 Arathi Basin";
+        private static readonly string _PVP_ALTERAC_VALLEY = "40 Alterac Valley";
 
-        private static readonly string[] Classes =
-            { "Druid", "Hunter", "Mage", "Paladin", "Priest", "Rogue", "Shaman", "Warlock", "Warrior" };
+        private static readonly string _DUNGEON_RAGEFIRE_CHASM = "10 [ Ragefire Chasm (13-18)";
+        private static readonly string _DUNGEON_WAILING_CAVERNS = "10 Wailing Caverns (15-25)";
+        private static readonly string _DUNGEON_THE_DEADMINES = "10 The Deadmines (18-23)";
+        private static readonly string _DUNGEON_SHADOWFANG_KEEP = "10 Shadowfang Keep (22-30)";
+        private static readonly string _DUNGEON_THE_STOKADE = "10 ] The Stockade (22-30)";
+        private static readonly string _DUNGEON_BLACKFATHOM_DEEPS = "10 Blackfathom Deeps (24-32)";
+        private static readonly string _DUNGEON_GNOMEREGAN = "10 Gnomeregan (29-38)";
+        private static readonly string _DUNGEON_RAZORFEN_KRAUL = "10 Razorfen Kraul (30-40)";
+        private static readonly string _DUNGEON_SM_GRAVEYARD = "10 The Scarlet Monastery - Graveyard (28-38)";
+        private static readonly string _DUNGEON_SM_LIBRARY = "10 The Scarlet Monastery - Library (29-39)";
+        private static readonly string _DUNGEON_SM_ARMORY = "10 The Scarlet Monastery - Armory (32-42)";
+        private static readonly string _DUNGEON_SM_CATHEDRAL = "10 The Scarlet Monastery - Cathedral (35-45)";
+        private static readonly string _DUNGEON_RAZORFEN_DOWNS = "10 Razorfen Downs (40-50)";
+        private static readonly string _DUNGEON_ULDAMAN = "10 Uldaman (42-52)";
+        private static readonly string _DUNGEON_ZULFARRAK = "10 Zul'Farrak (42-46)";
+        private static readonly string _DUNGEON_WICKED_GROTTO = "10 Maraudon - Wicked Grotto (Purple) (46-55)";
+        private static readonly string _DUNGEON_FOULSPORE_CAVERN = "10 Maraudon - Foulspore Cavern (Orange) (46-55)";
+        private static readonly string _DUNGEON_EARTH_SONG_FALLS = "10 Maraudon - Earth Song Falls (Inner) (46-55)";
+        private static readonly string _DUNGEON_TEMPLE_OF_ATALHAKKAR = "10 Temple of Atal'Hakkar (50-56)";
+        private static readonly string _DUNGEON_BLACKROCK_DEPTHS = "40 Blackrock Depths (52-60)";
+        private static readonly string _DUNGEON_LOWER_BLACKROCK_SPIRE = "10 Lower Blackrock Spire (55-60)";
+        private static readonly string _DUNGEON_UPPER_BLACKROCK_SPIRE = "10 Upper Blackrock Spire (58-60)";
+        private static readonly string _DUNGEON_DIRE_MAUL = "5 Dire Maul (55-60)";
+        private static readonly string _DUNGEON_STRATHOLME = "5 Stratholme (58-60)";
+        private static readonly string _DUNGEON_SCHOLOMANCE = "5 Scholomance (58-60)";
+        private static readonly string _DUNGEON_ONYXIAS_LAIR = "40 Onyxia's Lair (60+)";
+        private static readonly string _DUNGEON_ZUL_GURUB = "20 Zul'Gurub (60+)";
+        private static readonly string _DUNGEON_MOLTEN_CORE = "40 Molten Core (60+)";
+        private static readonly string _DUNGEON_BLACKWING_LAIR = "40 Blackwing Lair (60++)";
+        private static readonly string _DUNGEON_RUINS_OF_AHNQIRAJ = "20 Ruins of Ahn'Qiraj (60++)";
+        private static readonly string _DUNGEON_TEMPLE_OF_AHNQIRAJ = "40 Temple of Ahn'Qiraj (60+++)";
+        private static readonly string _DUNGEON_NAXXRAMAS = "40 Naxxramas (60++++)";
 
-        private static readonly string[] HumanClasses = { "Mage", "Paladin", "Priest", "Rogue", "Warlock", "Warrior" };
-        private static readonly string[] DwarfClasses = { "Hunter", "Paladin", "Priest", "Rogue", "Warrior" };
-        private static readonly string[] NightElfClasses = { "Druid", "Hunter", "Priest", "Rogue", "Warrior" };
-        private static readonly string[] GnomeClasses = { "Mage", "Rogue", "Warlock", "Warrior" };
+        private static readonly Regex _regex = new Regex("[0-9]+");
 
-        private static readonly string[] _orcClasses = { "Hunter", "Rogue", "Shaman", "Warlock", "Warrior" };
-        private static readonly string[] _undeadClasses = { "Mage", "Priest", "Rogue", "Warlock", "Warrior" };
-        private static readonly string[] _taurenClasses = { "Druid", "Hunter", "Shaman", "Warrior" };
-        private static readonly string[] _trollClasses = { "Hunter", "Mage", "Priest", "Rogue", "Shaman", "Warrior" };
-
-        public sealed class PlayerViewModel : INotifyPropertyChanged
-        {
-            private Visibility _visibility;
-
-            public Visibility Visibility
-            {
-                get => _visibility;
-                set
-                {
-                    _visibility = value;
-                    OnPropertyChanged();
-                }
-            }
-
-            private string _header;
-
-            public string Header
-            {
-                get => _header;
-                set
-                {
-                    _header = value;
-                    OnPropertyChanged();
-                }
-            }
-
-            private string _currentTask;
-
-            public string CurrentTask
-            {
-                get => _currentTask;
-                set
-                {
-                    _currentTask = value;
-                    OnPropertyChanged();
-                }
-            }
-
-            private string _currentAction;
-
-            public string CurrentAction
-            {
-                get => _currentAction;
-                set
-                {
-                    _currentAction = value;
-                    OnPropertyChanged();
-                }
-            }
-
-            private string _position;
-
-            public string Position
-            {
-                get => _position;
-                set
-                {
-                    _position = value;
-                    OnPropertyChanged();
-                }
-            }
-
-            public event PropertyChangedEventHandler PropertyChanged;
-
-            private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
-
-            private bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
-            {
-                if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-                field = value;
-                OnPropertyChanged(propertyName);
-                return true;
-            }
-        }
-
-        public ObservableCollection<PlayerViewModel> Players { get; set; } = new ObservableCollection<PlayerViewModel>();
-        
         private Task _backgroundTask;
 
-
-        private static readonly string[] _dungeonInstances = { "Ragefire Chasm", "Wailing Caverns", "Shadowfang Keep",  "The Stockade",
-                                                            "Blackfathom Deeps", "Gnomeregan", "Razorfen Kraul",
-                                                            "The Scarlet Monastery - Graveyard", "The Scarlet Monastery - Library",
-                                                            "The Scarlet Monastery - Armory", "The Scarlet Monastery - Cathedral",
-                                                            "Razorfen Downs", "Uldaman", "Zul'Farrak", "Maraudon - Wicked Grotto (Purple)",
-                                                            "Maraudon - Foulspore Cavern (Orange)", "Maraudon - Earth Song Falls (Inner)",
-                                                            "Temple of Atal'Hakkar", "Blackrock Depths", "Lower Blackrock Spire",
-                                                            "Upper Blackrock Spire", "Dire Maul", "Stratholme", "Scholomance", "Onyxia's Lair",
-                                                            "Zul'Gurub", "Molten Core", "Blackwing Lair", "Ruins of Ahn'Qiraj",
-                                                            "Temple of Ahn'Qiraj", "Naxxramas" };
-
-        private bool _shouldRun;
-        private Task _backgroundTask;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        void OnPropertyChanged(string name)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
+        public readonly CharacterState[] _characterStates = {
+            new CharacterState(), new CharacterState(), new CharacterState(), new CharacterState(), new CharacterState(),
+            new CharacterState(), new CharacterState(), new CharacterState(), new CharacterState(), new CharacterState(),
+            new CharacterState(), new CharacterState(), new CharacterState(), new CharacterState(), new CharacterState(),
+            new CharacterState(), new CharacterState(), new CharacterState(), new CharacterState(), new CharacterState(),
+            new CharacterState(), new CharacterState(), new CharacterState(), new CharacterState(), new CharacterState(),
+            new CharacterState(), new CharacterState(), new CharacterState(), new CharacterState(), new CharacterState(),
+            new CharacterState(), new CharacterState(), new CharacterState(), new CharacterState(), new CharacterState(),
+            new CharacterState(), new CharacterState(), new CharacterState(), new CharacterState(), new CharacterState(),
+        };
 
         public MainWindow(SocketServer socketServer, BootstrapperSettings bootstrapperSettings)
         {
             InitializeComponent();
-            DataContext = this;
+
+            _bootstrapperSettings = bootstrapperSettings;
             _socketServer = socketServer;
             _socketServer.InstanceUpdateObservable.Subscribe(OnInstanceUpdate);
-            _bootstrapperSettings = bootstrapperSettings;
 
-            if (_bootstrapperSettings.Activity == "Dungeon")
-            {
-                DungeonRadioButton.IsChecked = true;
-                PartyCheckBox.IsChecked = true;
-                PartyCheckBox.IsEnabled = false;
-            }
-            else if (_bootstrapperSettings.Activity == "PvP")
-            {
-                PvPRadioButton.IsChecked = true;
-                PartyCheckBox.IsEnabled = false;
-            }
-            else
+            DataContext = this;
+
+            if (Activity == "Questing")
             {
                 QuestingRadioButton.IsChecked = true;
                 PartyCheckBox.IsEnabled = true;
-                PartyCheckBox.IsChecked = _bootstrapperSettings.ShouldParty;
+            }
+            else
+            {
+                InstanceRadioButton.IsChecked = true;
+                PartyCheckBox.IsEnabled = false;
+                PartyCheckBox.IsChecked = true;
             }
 
-            for (int i = 0; i < DungeonComboBox.Items.Count; i++)
+            for (int i = 0; i < InstanceComboBox.Items.Count; i++)
             {
-                if (DungeonComboBox.Items.GetItemAt(i).ToString() == _bootstrapperSettings.Dungeon)
+                if (((ComboBoxItem)InstanceComboBox.Items.GetItemAt(i)).Content.ToString() == Activity)
                 {
-                    DungeonComboBox.SelectedIndex = i;
+                    InstanceComboBox.SelectedIndex = i;
                     break;
                 }
             }
 
-            if (_bootstrapperSettings.PvPSelection == "Warsong Gultch")
+            if (_bootstrapperSettings.ActivityPresets.ContainsKey(Activity))
             {
-                PvPInstanceComboBox.SelectedIndex = 0;
-            }
-            else if (_bootstrapperSettings.PvPSelection == "Arathi Basin")
-            {
-                PvPInstanceComboBox.SelectedIndex = 1;
+                while (_bootstrapperSettings.ActivityPresets[Activity].Count < PresetSelectorComboBox.Items.Count)
+                {
+                    _bootstrapperSettings.ActivityPresets[Activity].Add(new List<PartyMemberPreset>() { new PartyMemberPreset() });
+                }
+                PartyMemberPresets = _bootstrapperSettings.ActivityPresets[Activity][PresetSelectorComboBox.SelectedIndex < 0 ? 0 : PresetSelectorComboBox.SelectedIndex];
             }
             else
             {
-                PvPInstanceComboBox.SelectedIndex = 2;
+                _bootstrapperSettings.ActivityPresets.Add(Activity, new List<List<PartyMemberPreset>>() { new List<PartyMemberPreset>() { new PartyMemberPreset() } });
+                PartyMemberPresets = _bootstrapperSettings.ActivityPresets[Activity][PresetSelectorComboBox.SelectedIndex < 0 ? 0 : PresetSelectorComboBox.SelectedIndex];
             }
 
-            PartySizeTextBox.Text = _bootstrapperSettings.PartySize.ToString();
+            PresetSelectorComboBox.Items.Clear();
 
-            for (int i = 0; i < _bootstrapperSettings.PartyPreferences.Length; i++)
+            for (int i = 0; i < PartyMemberPresets.Count; i++)
             {
-                switch (i)
+                PresetSelectorComboBox.Items.Add((i + 1).ToString());
+            }
+
+            PresetSelectorComboBox.SelectedIndex = 0;
+
+            UpdateBotLabels();
+
+            _backgroundTask = Task.Run(StartSync);
+
+            OnPropertyChanged(nameof(CanStart));
+            OnPropertyChanged(nameof(CanStop));
+        }
+        private void OnInstanceUpdate(CharacterState update)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                ConsumeMessage(update);
+                UpdateBotLabels();
+            });
+        }
+        public void ConsumeMessage(CharacterState characterState)
+        {
+            for (int i = 0; i < PartyMemberPresets.Count; i++)
+            {
+                if (_characterStates[i].ProcessId == characterState.ProcessId)
                 {
-                    case 0:
-                        for (int j = 0; j < Player01RaceComboBox.Items.Count; j++)
-                        {
-                            if (((ComboBoxItem)Player01RaceComboBox.Items.GetItemAt(j)).Content.ToString() == _bootstrapperSettings.PartyPreferences[i].Race.ToString())
-                            {
-                                Player01RaceComboBox.SelectedIndex = j;
-                                break;
-                            }
-                        }
-                        for (int j = 0; j < Player01ClassComboBox.Items.Count; j++)
-                        {
-                            if (((ComboBoxItem)Player01ClassComboBox.Items.GetItemAt(j)).Content.ToString() == _bootstrapperSettings.PartyPreferences[i].Class.ToString())
-                            {
-                                AssignClassOptions(i, Player01TankCheckBox, Player01HealerCheckBox);
-                                Player01ClassComboBox.SelectedIndex = j;
-                                break;
-                            }
-                        }
-                        Player01TankCheckBox.IsChecked = (_bootstrapperSettings.PartyPreferences[i].Role & Role.Tank) == Role.Tank;
-                        Player01DamageCheckBox.IsChecked = (_bootstrapperSettings.PartyPreferences[i].Role & Role.Damage) == Role.Damage;
-                        Player01HealerCheckBox.IsChecked = (_bootstrapperSettings.PartyPreferences[i].Role & Role.Healer) == Role.Healer;
-                        break;
-                    case 1:
-                        for (int j = 0; j < Player02RaceComboBox.Items.Count; j++)
-                        {
-                            if (((ComboBoxItem)Player02RaceComboBox.Items.GetItemAt(j)).Content.ToString() == _bootstrapperSettings.PartyPreferences[i].Race.ToString())
-                            {
-                                Player02RaceComboBox.SelectedIndex = j;
-                                break;
-                            }
-                        }
-                        for (int j = 0; j < Player02ClassComboBox.Items.Count; j++)
-                        {
-                            if (((ComboBoxItem)Player02ClassComboBox.Items.GetItemAt(j)).Content.ToString() == _bootstrapperSettings.PartyPreferences[i].Class.ToString())
-                            {
-                                AssignClassOptions(i, Player02TankCheckBox, Player02HealerCheckBox);
-                                Player02ClassComboBox.SelectedIndex = j;
-                                break;
-                            }
-                        }
-                        Player02TankCheckBox.IsChecked = (_bootstrapperSettings.PartyPreferences[i].Role & Role.Tank) == Role.Tank;
-                        Player02DamageCheckBox.IsChecked = (_bootstrapperSettings.PartyPreferences[i].Role & Role.Damage) == Role.Damage;
-                        Player02HealerCheckBox.IsChecked = (_bootstrapperSettings.PartyPreferences[i].Role & Role.Healer) == Role.Healer;
-                        break;
-                    case 2:
-                        for (int j = 0; j < Player03RaceComboBox.Items.Count; j++)
-                        {
-                            if (((ComboBoxItem)Player03RaceComboBox.Items.GetItemAt(j)).Content.ToString() == _bootstrapperSettings.PartyPreferences[i].Race.ToString())
-                            {
-                                Player03RaceComboBox.SelectedIndex = j;
-                                break;
-                            }
-                        }
-                        for (int j = 0; j < Player03ClassComboBox.Items.Count; j++)
-                        {
-                            if (((ComboBoxItem)Player03ClassComboBox.Items.GetItemAt(j)).Content.ToString() == _bootstrapperSettings.PartyPreferences[i].Class.ToString())
-                            {
-                                AssignClassOptions(i, Player03TankCheckBox, Player03HealerCheckBox);
-                                Player03ClassComboBox.SelectedIndex = j;
-                                break;
-                            }
-                        }
-                        Player03TankCheckBox.IsChecked = (_bootstrapperSettings.PartyPreferences[i].Role & Role.Tank) == Role.Tank;
-                        Player03DamageCheckBox.IsChecked = (_bootstrapperSettings.PartyPreferences[i].Role & Role.Damage) == Role.Damage;
-                        Player03HealerCheckBox.IsChecked = (_bootstrapperSettings.PartyPreferences[i].Role & Role.Healer) == Role.Healer;
-                        break;
-                    case 3:
-                        for (int j = 0; j < Player04RaceComboBox.Items.Count; j++)
-                        {
-                            if (((ComboBoxItem)Player04RaceComboBox.Items.GetItemAt(j)).Content.ToString() == _bootstrapperSettings.PartyPreferences[i].Race.ToString())
-                            {
-                                Player04RaceComboBox.SelectedIndex = j;
-                                break;
-                            }
-                        }
-                        for (int j = 0; j < Player04ClassComboBox.Items.Count; j++)
-                        {
-                            if (((ComboBoxItem)Player04ClassComboBox.Items.GetItemAt(j)).Content.ToString() == _bootstrapperSettings.PartyPreferences[i].Class.ToString())
-                            {
-                                AssignClassOptions(i, Player04TankCheckBox, Player04HealerCheckBox);
-                                Player04ClassComboBox.SelectedIndex = j;
-                                break;
-                            }
-                        }
-                        Player04TankCheckBox.IsChecked = (_bootstrapperSettings.PartyPreferences[i].Role & Role.Tank) == Role.Tank;
-                        Player04DamageCheckBox.IsChecked = (_bootstrapperSettings.PartyPreferences[i].Role & Role.Damage) == Role.Damage;
-                        Player04HealerCheckBox.IsChecked = (_bootstrapperSettings.PartyPreferences[i].Role & Role.Healer) == Role.Healer;
-                        break;
-                    case 4:
-                        for (int j = 0; j < Player05RaceComboBox.Items.Count; j++)
-                        {
-                            if (((ComboBoxItem)Player05RaceComboBox.Items.GetItemAt(j)).Content.ToString() == _bootstrapperSettings.PartyPreferences[i].Race.ToString())
-                            {
-                                Player05RaceComboBox.SelectedIndex = j;
-                                break;
-                            }
-                        }
-                        for (int j = 0; j < Player05ClassComboBox.Items.Count; j++)
-                        {
-                            if (((ComboBoxItem)Player05ClassComboBox.Items.GetItemAt(j)).Content.ToString() == _bootstrapperSettings.PartyPreferences[i].Class.ToString())
-                            {
-                                AssignClassOptions(i, Player05TankCheckBox, Player05HealerCheckBox);
-                                Player05ClassComboBox.SelectedIndex = j;
-                                break;
-                            }
-                        }
-                        Player05TankCheckBox.IsChecked = (_bootstrapperSettings.PartyPreferences[i].Role & Role.Tank) == Role.Tank;
-                        Player05DamageCheckBox.IsChecked = (_bootstrapperSettings.PartyPreferences[i].Role & Role.Damage) == Role.Damage;
-                        Player05HealerCheckBox.IsChecked = (_bootstrapperSettings.PartyPreferences[i].Role & Role.Healer) == Role.Healer;
-                        break;
+                    _characterStates[i] = characterState;
+
+                    if (!_characterStates[i].IsConnected)
+                    {
+                        _characterStates[i].ProcessId = 0;
+                    }
+
+                    return;
                 }
             }
-
-            StartAllBotsButton.IsEnabled = true;
-            StopAllBotsButton.IsEnabled = false;
-
-            InstanceCoordinator.SetActivityState(_bootstrapperSettings.PartyPreferences, _bootstrapperSettings.PartySize);
+            for (int i = 0; i < PartyMemberPresets.Count; i++)
+            {
+                if (_characterStates[i].ProcessId == 0
+                    && PartyMemberPresets[i].AccountName == _characterStates[i].AccountName
+                    && PartyMemberPresets[i].CharacterSlot == _characterStates[i].CharacterSlot
+                    && PartyMemberPresets[i].BotProfileName == _characterStates[i].BotProfileName)
+                {
+                    _characterStates[i] = characterState;
+                    return;
+                }
+            }
+            for (int i = 0; i < PartyMemberPresets.Count; i++)
+            {
+                if (_characterStates[i].ProcessId == 0)
+                {
+                    _characterStates[i] = characterState;
+                    return;
+                }
+            }
         }
-
-        private void Start()
+        private void StartAll()
         {
             try
             {
-                ShouldRun = true;
+                for (int i = 0; i < Players.Count; i++)
+                {
+                    Players[i].ShouldRun = true;
+                }
 
-                _backgroundTask = Task.Run(StartSync);
+                StartAllBotsButton.IsEnabled = false;
             }
             catch
             {
                 Console.WriteLine("Error encountered starting bot.");
             }
         }
-        private void Stop()
+        private void StopAll()
         {
             try
             {
-                ShouldRun = false;
+                for (int i = 0; i < Players.Count; i++)
+                {
+                    Players[i].ShouldRun = false;
+                }
+
+                StopAllBotsButton.IsEnabled = false;
             }
             catch
             {
@@ -343,138 +219,109 @@ namespace Bootstrapper
         }
         private async Task StartSync()
         {
-            while (_shouldRun)
+            while (true)
             {
-                for (int i = 0; i < InstanceCoordinator.MaxActivityCapacity; i++)
+                for (int i = 0; i < PartyMemberPresets.Count; i++)
                 {
-                    if (InstanceCoordinator._allCharacterStates[i].ProcessId > 0)
+                    if (Players[i].ShouldRun)
                     {
-                        if (InstanceCoordinator._allCharacterStates[i].Guid == 0)
+                        if (_characterStates[i].ProcessId > 0)
                         {
-                            if (!InstanceCoordinator._allCharacterStates[i].LoginRequested)
+                            if (_characterStates[i].IsRunning)
                             {
-                                var loginCommand = new InstanceCommand()
+                                if (_characterStates[i].Guid == 0
+                                        || _characterStates[i].AccountName != PartyMemberPresets[i].AccountName
+                                        || _characterStates[i].CharacterSlot != PartyMemberPresets[i].CharacterSlot
+                                        || _characterStates[i].BotProfileName != PartyMemberPresets[i].BotProfileName)
                                 {
-                                    StateName = InstanceCommand.LOGIN,
-                                    CommandParam1 = InstanceCoordinator._partyMemberPreferences[i].Race.ToString(),
-                                    CommandParam2 = InstanceCoordinator._partyMemberPreferences[i].Class.ToString(),
-                                    CommandParam3 = InstanceCoordinator._partyMemberPreferences[i].Role.ToString(),
-                                    CommandParam4 = Activity
-                                };
+                                    if (!_characterStates[i].SetAccountInfoRequested)
+                                    {
+                                        var loginCommand = new InstanceCommand()
+                                        {
+                                            CommandName = InstanceCommand.SET_ACCOUNT_INFO,
+                                            CommandParam1 = PartyMemberPresets[i].AccountName,
+                                            CommandParam2 = PartyMemberPresets[i].CharacterSlot.ToString(),
+                                            CommandParam3 = PartyMemberPresets[i].BotProfileName
+                                        };
 
-                                _socketServer.SendCommandToProcess(InstanceCoordinator._allCharacterStates[i].ProcessId, loginCommand);
-                                InstanceCoordinator._allCharacterStates[i].LoginRequested = true;
+                                        _socketServer.SendCommandToProcess(_characterStates[i].ProcessId, loginCommand);
+                                        _characterStates[i].SetAccountInfoRequested = true;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (!_characterStates[i].StartRequested)
+                                {
+                                    var startCommand = new InstanceCommand()
+                                    {
+                                        CommandName = InstanceCommand.START,
+                                    };
+
+                                    _socketServer.SendCommandToProcess(_characterStates[i].ProcessId, startCommand);
+                                    _characterStates[i].StartRequested = true;
+                                }
                             }
                         }
                         else
                         {
-
+                            LaunchProcess();
                         }
-                    }
-                }
-                await Task.Delay(100);
-            }
-            
-            var random = new Random();
-            _backgroundTask = Task.Run(async () =>
-            {
-                //var possibleNames = {{}}
-                while (true)
-                {
-                    if (Players.Count <= 40 && (Players.Count <= 3 || random.Next(1) == 0))
-                    {
-                        var player = new PlayerViewModel
-                        {
-                            Visibility = Visibility.Visible,
-                            Header = "Player " + (Players.Count + 1),
-                            CurrentTask = "Questing",
-                            CurrentAction = "Killing mobs",
-                            Position = $"X: {random.Next(100,500)}, Y: {random.Next(100,500)}"
-                        };
-                        await Dispatcher.Invoke(async () =>
-                        {
-                            Players.Add(player);
-                        });
                     }
                     else
                     {
-                        await Dispatcher.Invoke(async () =>
+                        if (_characterStates[i].ProcessId > 0 && _characterStates[i].IsRunning && !_characterStates[i].StopRequested)
                         {
-                            Players.RemoveAt(random.Next(Players.Count));
-                        });
+                            var stopCommand = new InstanceCommand()
+                            {
+                                CommandName = InstanceCommand.STOP,
+                            };
+
+                            _socketServer.SendCommandToProcess(_characterStates[i].ProcessId, stopCommand);
+                            _characterStates[i].StopRequested = true;
+                        }
                     }
-        }
-
-        private void AssignClassOptions(int i, CheckBox tankCheckBox, CheckBox healerCheckBox)
-        {
-            switch (_bootstrapperSettings.PartyPreferences[i].Class)
-            {
-                case BloogBot.Game.Enums.Class.Druid:
-                    tankCheckBox.IsEnabled = true;
-                    healerCheckBox.IsEnabled = true;
-                    break;
-                case BloogBot.Game.Enums.Class.Hunter:
-                    tankCheckBox.IsEnabled = false;
-                    healerCheckBox.IsEnabled = false;
-                    break;
-                case BloogBot.Game.Enums.Class.Mage:
-                    tankCheckBox.IsEnabled = false;
-                    healerCheckBox.IsEnabled = false;
-                    break;
-                case BloogBot.Game.Enums.Class.Paladin:
-                    tankCheckBox.IsEnabled = true;
-                    healerCheckBox.IsEnabled = true;
-                    break;
-                case BloogBot.Game.Enums.Class.Priest:
-                    tankCheckBox.IsEnabled = false;
-                    healerCheckBox.IsEnabled = true;
-                    break;
-                case BloogBot.Game.Enums.Class.Rogue:
-                    tankCheckBox.IsEnabled = false;
-                    healerCheckBox.IsEnabled = false;
-                    break;
-                case BloogBot.Game.Enums.Class.Shaman:
-                    tankCheckBox.IsEnabled = false;
-                    healerCheckBox.IsEnabled = true;
-                    break;
-                case BloogBot.Game.Enums.Class.Warlock:
-                    tankCheckBox.IsEnabled = false;
-                    healerCheckBox.IsEnabled = false;
-                    break;
-                case BloogBot.Game.Enums.Class.Warrior:
-                    tankCheckBox.IsEnabled = true;
-                    healerCheckBox.IsEnabled = false;
-                    break;
-            }
-                    await Task.Delay(random.Next(1000, 5000));
                 }
-            });
-            
-            PartyCheckBox.IsChecked = _bootstrapperSettings.ShouldParty;
+
+                OnPropertyChanged(nameof(CanStart));
+                OnPropertyChanged(nameof(CanStop));
+
+                await Task.Delay(100);
+            }
         }
 
-        public bool ShouldRun
-        {
-            //Dispatcher.Invoke(() =>
-            //{
-            //    if (update != null)
-            //    {
-            //        InstanceCoordinator.ConsumeMessage(update);
-            //    }
+        public ObservableCollection<PlayerViewModel> Players { get; set; } = new ObservableCollection<PlayerViewModel>();
 
-            //    UpdateBotLabels();
-            //});
+        public event PropertyChangedEventHandler PropertyChanged;
+        void OnPropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private List<PartyMemberPreset> _partyMemberPresets = new List<PartyMemberPreset>();
+        public List<PartyMemberPreset> PartyMemberPresets
+        {
             get
             {
-                return _shouldRun;
+                return _partyMemberPresets;
             }
             set
             {
-                _shouldRun = value;
-
-                StopAllBotsButton.IsEnabled = value;
-                StartAllBotsButton.IsEnabled = !value;
-                OnPropertyChanged(nameof(ShouldRun));
+                _partyMemberPresets = value;
+            }
+        }
+        public bool CanStart
+        {
+            get
+            {
+                return !Players.All(x => x.IsRunning);
+            }
+        }
+        public bool CanStop
+        {
+            get
+            {
+                return Players.Any(x => x.IsRunning);
             }
         }
         public string Activity
@@ -486,19 +333,18 @@ namespace Bootstrapper
             set
             {
                 _bootstrapperSettings.Activity = value;
-                OnPropertyChanged(nameof(Activity));
-            }
-        }
-        public string Dungeon
-        {
-            get
-            {
-                return _bootstrapperSettings.Dungeon;
-            }
-            set
-            {
-                _bootstrapperSettings.Dungeon = value;
-                OnPropertyChanged(nameof(Dungeon));
+
+                PresetSelectorComboBox.Items.Clear();
+                Players.Clear();
+
+                for (int i = 0; i < PartyMemberPresets.Count; i++)
+                {
+                    PresetSelectorComboBox.Items.Add((i + 1).ToString());
+                }
+
+                PresetSelectorComboBox.SelectedIndex = 0;
+
+                RegeneratePartyList();
             }
         }
         public bool ShouldParty
@@ -517,92 +363,92 @@ namespace Bootstrapper
         {
             get
             {
-                return _bootstrapperSettings.PartySize.ToString();
+                return PartyMemberPresets.Count.ToString();
             }
             set
             {
-                _bootstrapperSettings.PartySize = Convert.ToInt32(value);
-                OnPropertyChanged(nameof(PartySize));
+                if (_bootstrapperSettings != null)
+                {
+                    try
+                    {
+                        int partySize = int.Parse(value);
+
+                        if (partySize < 1)
+                        {
+                            partySize = 1;
+                        }
+                        else if (partySize > 40)
+                        {
+                            partySize = 40;
+                        }
+                        int difference = partySize - PartyMemberPresets.Count;
+
+                        if (difference > 0)
+                        {
+                            for (int i = 0; i < difference; i++)
+                            {
+                                PartyMemberPresets.Add(new PartyMemberPreset());
+                            }
+                        }
+                        else if (difference < 0)
+                        {
+                            while (PartyMemberPresets.Count > partySize)
+                            {
+                                PartyMemberPresets.Remove(PartyMemberPresets.ElementAt(PartyMemberPresets.Count - 1));
+                            }
+                        }
+
+                        RegeneratePartyList();
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                }
             }
         }
-        public string PvPSelection
+        private void RegeneratePartyList()
         {
-            get
+            for (int i = Players.Count; i < PartyMemberPresets.Count; i++)
             {
-                return _bootstrapperSettings.PvPSelection;
+                PlayerViewModel playerViewModel = new PlayerViewModel
+                {
+                    PartyMemberPreference = PartyMemberPresets[i],
+                    ProcessId = "Not Connected",
+                    AccountName = PartyMemberPresets[i].AccountName,
+                    BotProfileName = PartyMemberPresets[i].BotProfileName,
+                    CharacterSlot = PartyMemberPresets[i].CharacterSlot.ToString(),
+                };
+
+                Players.Add(playerViewModel);
             }
-            set
+
+            while (Players.Count > PartyMemberPresets.Count)
             {
-                _bootstrapperSettings.PvPSelection = value;
-                OnPropertyChanged(nameof(PvPSelection));
+                Players.RemoveAt(Players.Count - 1);
             }
+
+            OnPropertyChanged(nameof(Players));
+            OnPropertyChanged(nameof(PartySize));
         }
-        public PartyMemberPreference[] PartyPreferences
-        {
-            get
-            {
-                return _bootstrapperSettings.PartyPreferences;
-            }
-            set
-            {
-                _bootstrapperSettings.PartyPreferences = value;
-                OnPropertyChanged(nameof(PartyPreferences));
-            }
-        }
-        private void OnInstanceUpdate(CharacterState update)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                InstanceCoordinator.ConsumeMessage(update);
-                UpdateBotLabels();
-            });
-        }
+
         private void UpdateBotLabels()
         {
-            for (int i = 0; i < InstanceCoordinator.MaxActivityCapacity; i++)
+            for (int i = 0; i < Players.Count; i++)
             {
-                CharacterState characterState = InstanceCoordinator._allCharacterStates[i];
+                CharacterState characterState = _characterStates[i];
 
                 if (characterState != null)
                 {
-                    switch (i)
-                    {
-                        case 0:
-                            Player01InfoGroupBox.Header = "Info - " + characterState.ProcessId;
-                            Player01StateLabel.Content = characterState.CurrentTask;
-                            Player01ZoneLabel.Content = characterState.Zone;
-                            Player01TaskLabel.Content = characterState.CurrentAction;
-                            Player01PositionLabel.Content = characterState.Position;
-                            break;
-                        case 1:
-                            Player02InfoGroupBox.Header = "Info - " + characterState.ProcessId;
-                            Player02StateLabel.Content = characterState.CurrentTask;
-                            Player02ZoneLabel.Content = characterState.Zone;
-                            Player02TaskLabel.Content = characterState.CurrentAction;
-                            Player02PositionLabel.Content = characterState.Position;
-                            break;
-                        case 2:
-                            Player03InfoGroupBox.Header = "Info - " + characterState.ProcessId;
-                            Player03StateLabel.Content = characterState.CurrentTask;
-                            Player03ZoneLabel.Content = characterState.Zone;
-                            Player03TaskLabel.Content = characterState.CurrentAction;
-                            Player03PositionLabel.Content = characterState.Position;
-                            break;
-                        case 3:
-                            Player04InfoGroupBox.Header = "Info - " + characterState.ProcessId;
-                            Player04StateLabel.Content = characterState.CurrentTask;
-                            Player04ZoneLabel.Content = characterState.Zone;
-                            Player04TaskLabel.Content = characterState.CurrentAction;
-                            Player04PositionLabel.Content = characterState.Position;
-                            break;
-                        case 4:
-                            Player05StateLabel.Content = characterState.CurrentTask;
-                            Player05ZoneLabel.Content = characterState.Zone;
-                            Player05TaskLabel.Content = characterState.CurrentAction;
-                            Player05InfoGroupBox.Header = "Info - " + characterState.ProcessId;
-                            Player05PositionLabel.Content = characterState.Position;
-                            break;
-                    }
+                    Players[i].ProcessId = characterState.ProcessId == 0 ? "Not Connected" : string.Format("Process Id - {0}", characterState.ProcessId.ToString());
+                    Players[i].IsRunning = characterState.IsRunning;
+                    Players[i].Zone = characterState.Zone;
+                    Players[i].Position = characterState.Position == null ? string.Empty : characterState.Position.ToString();
+                    Players[i].CurrentTask = string.IsNullOrEmpty(characterState.CurrentTask) ? "Idle" : characterState.CurrentTask;
+                    Players[i].CurrentActivity = string.IsNullOrEmpty(characterState.CurrentActivity) ? "None" : characterState.CurrentActivity;
+                    Players[i].Header = string.IsNullOrEmpty(characterState.CharacterName)
+                                        ? string.Format($"Player {i + 1}")
+                                        : string.Format($"Player {i + 1} - {characterState.CharacterName}");
                 }
             }
         }
@@ -616,21 +462,21 @@ namespace Bootstrapper
             {
                 if (controlButton == StartAllBotsButton)
                 {
-                    Start();
+                    StartAll();
                 }
                 else
                 {
-                    Stop();
+                    StopAll();
                 }
             }
         }
         private void ActivityRadioButton_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is RadioButton radioButton)
+            if (sender is RadioButton radioButton && radioButton.IsChecked == true)
             {
-                Activity = radioButton.Content.ToString();
-                if (Activity == "Questing")
+                if (radioButton == QuestingRadioButton)
                 {
+                    Activity = "Questing";
                     PartyCheckBox.IsEnabled = true;
                 }
                 else
@@ -638,26 +484,121 @@ namespace Bootstrapper
                     PartyCheckBox.IsEnabled = false;
                     PartyCheckBox.IsChecked = true;
 
-                    if (Activity == "PvP")
+                    Activity = ((ComboBoxItem)InstanceComboBox.SelectedItem).Content.ToString();
+                }
+            }
+        }
+        private void PartySizeTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (_regex.IsMatch(PartySizeTextBox.Text))
+            {
+                try
+                {
+                    if (!string.IsNullOrEmpty(PartySizeTextBox.Text))
                     {
-                        if (PvPSelection == "10 Warsong Gultch")
+                        int requestedPartySize = int.Parse(PartySizeTextBox.Text);
+                        if (requestedPartySize <= 0)
                         {
-
+                            PartySizeTextBox.Text = "1";
+                            requestedPartySize = 1;
                         }
-                        else if (PvPSelection == "15 Arathi Basin")
+                        else if (requestedPartySize > 40)
                         {
-
+                            PartySizeTextBox.Text = "40";
+                            requestedPartySize = 40;
                         }
-                        else
-                        {
 
-                        }
-                    }
-                    else if (Activity == "Dungeon")
-                    {
-
+                        e.Handled = requestedPartySize < 1 || requestedPartySize > 40;
                     }
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Preview " + ex.Message);
+                }
+            }
+        }
+
+        private void InstanceComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_bootstrapperSettings != null && sender is ComboBox comboBox && comboBox.IsEnabled)
+            {
+                Activity = ((ComboBoxItem)comboBox.SelectedItem).Content.ToString();
+            }
+        }
+
+        private void AddPresetButton_Click(object sender, RoutedEventArgs e)
+        {
+            PresetSelectorComboBox.Items.Add((PresetSelectorComboBox.Items.Count + 1).ToString());
+            PresetSelectorComboBox.SelectedIndex = PresetSelectorComboBox.Items.Count - 1;
+
+            AddPresetButton.IsEnabled = _bootstrapperSettings.ActivityPresets[Activity].Count < 10;
+            RemovePresetButton.IsEnabled = _bootstrapperSettings.ActivityPresets[Activity].Count > 1;
+        }
+
+        private void RemovePresetButton_Click(object sender, RoutedEventArgs e)
+        {
+            _bootstrapperSettings.ActivityPresets[Activity].RemoveAt(PresetSelectorComboBox.SelectedIndex);
+            PresetSelectorComboBox.Items.RemoveAt(PresetSelectorComboBox.Items.Count - 1);
+
+            if (PresetSelectorComboBox.SelectedIndex < 0)
+            {
+                PresetSelectorComboBox.SelectedIndex = PresetSelectorComboBox.Items.Count - 1;
+            }
+
+            AddPresetButton.IsEnabled = _bootstrapperSettings.ActivityPresets[Activity].Count < 10;
+            RemovePresetButton.IsEnabled = _bootstrapperSettings.ActivityPresets[Activity].Count > 1;
+
+            RegeneratePartyList();
+        }
+
+        private void PresetSelectorComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_bootstrapperSettings != null && sender is ComboBox comboBox && comboBox.SelectedIndex > -1)
+            {
+                if (_bootstrapperSettings.ActivityPresets.ContainsKey(Activity))
+                {
+                    while (_bootstrapperSettings.ActivityPresets[Activity].Count < PresetSelectorComboBox.Items.Count)
+                    {
+                        _bootstrapperSettings.ActivityPresets[Activity].Add(new List<PartyMemberPreset>() { new PartyMemberPreset() });
+                    }
+                    PartyMemberPresets = _bootstrapperSettings.ActivityPresets[Activity][PresetSelectorComboBox.SelectedIndex < 0 ? 0 : PresetSelectorComboBox.SelectedIndex];
+                }
+                else
+                {
+                    _bootstrapperSettings.ActivityPresets.Add(Activity, new List<List<PartyMemberPreset>>() { new List<PartyMemberPreset>() { new PartyMemberPreset() } });
+                    PartyMemberPresets = _bootstrapperSettings.ActivityPresets[Activity][PresetSelectorComboBox.SelectedIndex < 0 ? 0 : PresetSelectorComboBox.SelectedIndex];
+                }
+
+                Players.Clear();
+                RegeneratePartyList();
+            }
+        }
+        private void SaveConfigButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                _bootstrapperSettings.ActivityPresets.ToList().ForEach(activity =>
+                {
+                    activity.Value.ForEach(presetList =>
+                    {
+                        presetList.RemoveAll(partyMemberPreset => string.IsNullOrEmpty(partyMemberPreset.AccountName)
+                                                || string.IsNullOrEmpty(partyMemberPreset.BotProfileName)
+                                                || partyMemberPreset.CharacterSlot == 0);
+                    });
+                });
+
+                _bootstrapperSettings.ActivityPresets.ToList().RemoveAll(x => x.Value.Count == 0);
+
+                var currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                var botSettingsFilePath = Path.Combine(currentFolder, "bootstrapperSettings.json");
+                var json = JsonConvert.SerializeObject(_bootstrapperSettings, Formatting.Indented);
+                File.WriteAllText(botSettingsFilePath, json);
+
+                Console.WriteLine("Settings successfully saved!");
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex);
             }
         }
         private void LaunchProcess()
@@ -739,6 +680,193 @@ namespace Bootstrapper
 
             // free the memory that was allocated by VirtualAllocEx
             VirtualFreeEx(processHandle, loaderPathPtr, 0, MemoryFreeType.MEM_RELEASE);
+        }
+    }
+    public sealed class PlayerViewModel : INotifyPropertyChanged
+    {
+        ICommand _startCommand;
+
+        public ICommand StartCommand =>
+            _startCommand ?? (_startCommand = new CommandHandler(StartBot, true));
+
+        public void StartBot()
+        {
+            ShouldRun = true;
+        }
+
+        ICommand _stopCommand;
+
+        public ICommand StopCommand =>
+            _stopCommand ?? (_stopCommand = new CommandHandler(StopBot, true));
+
+        public void StopBot()
+        {
+            ShouldRun = false;
+        }
+
+        ICommand _updateCommand;
+
+        public ICommand UpdateCommand =>
+            _updateCommand ?? (_updateCommand = new CommandHandler(UpdatePlayerPreference, true));
+
+        public void UpdatePlayerPreference()
+        {
+        }
+        private bool _shouldRun;
+
+        public bool ShouldRun
+        {
+            get => _shouldRun;
+            set
+            {
+                _shouldRun = value;
+                OnPropertyChanged(nameof(ShouldRun));
+            }
+        }
+        private bool _isRunning;
+
+        public bool IsRunning
+        {
+            get => _isRunning;
+            set
+            {
+                _isRunning = value;
+                OnPropertyChanged(nameof(IsRunning));
+            }
+        }
+
+        private string _header;
+
+        public string Header
+        {
+            get => _header;
+            set
+            {
+                _header = value;
+                OnPropertyChanged(nameof(Header));
+            }
+        }
+
+        public string AccountName
+        {
+            get => PartyMemberPreference.AccountName;
+            set
+            {
+                PartyMemberPreference.AccountName = value;
+            }
+        }
+
+        public string CharacterSlot
+        {
+            get => PartyMemberPreference.CharacterSlot.ToString();
+            set
+            {
+                try
+                {
+                    int slot = int.Parse(value);
+
+                    if (slot < 1)
+                    {
+                        slot = 1;
+                    }
+                    else if (slot > 10)
+                    {
+                        slot = 10;
+                    }
+
+                    PartyMemberPreference.CharacterSlot = slot;
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+        }
+
+        public string BotProfileName
+        {
+            get => PartyMemberPreference.BotProfileName;
+            set
+            {
+                PartyMemberPreference.BotProfileName = value;
+            }
+        }
+
+        private string _zone;
+
+        public string Zone
+        {
+            get => _zone;
+            set
+            {
+                _zone = value;
+                OnPropertyChanged(nameof(Zone));
+            }
+        }
+
+        private string _processId;
+
+        public string ProcessId
+        {
+            get => _processId == "0" ? "Not Connected" : _processId;
+            set
+            {
+                _processId = value;
+                OnPropertyChanged(nameof(ProcessId));
+            }
+        }
+
+        private string _currentTask;
+
+        public string CurrentTask
+        {
+            get => _currentTask;
+            set
+            {
+                _currentTask = value;
+                OnPropertyChanged(nameof(CurrentTask));
+            }
+        }
+
+        private string _currentActivity;
+
+        public string CurrentActivity
+        {
+            get => _currentActivity;
+            set
+            {
+                _currentActivity = value;
+                OnPropertyChanged(nameof(CurrentActivity));
+            }
+        }
+
+        private string _position;
+
+        public string Position
+        {
+            get => _position;
+            set
+            {
+                _position = value;
+                OnPropertyChanged(nameof(Position));
+            }
+        }
+
+        public PartyMemberPreset PartyMemberPreference;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
         }
     }
 }

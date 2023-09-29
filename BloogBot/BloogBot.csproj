@@ -81,14 +81,14 @@
     <Reference Include="SQLitePCLRaw.batteries_v2, Version=2.1.4.1835, Culture=neutral, PublicKeyToken=8226ea5df37bcae9, processorArchitecture=MSIL">
       <HintPath>..\packages\SQLitePCLRaw.bundle_e_sqlite3.2.1.4\lib\net461\SQLitePCLRaw.batteries_v2.dll</HintPath>
     </Reference>
-    <Reference Include="SQLitePCLRaw.core, Version=2.1.6.2060, Culture=neutral, PublicKeyToken=1488e028ca7ab535, processorArchitecture=MSIL">
-      <HintPath>..\packages\SQLitePCLRaw.core.2.1.6\lib\netstandard2.0\SQLitePCLRaw.core.dll</HintPath>
+    <Reference Include="SQLitePCLRaw.core, Version=2.1.4.1835, Culture=neutral, PublicKeyToken=1488e028ca7ab535, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLitePCLRaw.core.2.1.4\lib\netstandard2.0\SQLitePCLRaw.core.dll</HintPath>
     </Reference>
     <Reference Include="SQLitePCLRaw.provider.dynamic_cdecl, Version=2.1.4.1835, Culture=neutral, PublicKeyToken=b68184102cba0b3b, processorArchitecture=MSIL">
       <HintPath>..\packages\SQLitePCLRaw.provider.dynamic_cdecl.2.1.4\lib\netstandard2.0\SQLitePCLRaw.provider.dynamic_cdecl.dll</HintPath>
     </Reference>
-    <Reference Include="SQLitePCLRaw.provider.e_sqlite3, Version=2.1.6.2060, Culture=neutral, PublicKeyToken=9c301db686d0bd12, processorArchitecture=MSIL">
-      <HintPath>..\packages\SQLitePCLRaw.provider.e_sqlite3.2.1.6\lib\netstandard2.0\SQLitePCLRaw.provider.e_sqlite3.dll</HintPath>
+    <Reference Include="SQLitePCLRaw.provider.e_sqlite3, Version=2.1.4.1835, Culture=neutral, PublicKeyToken=9c301db686d0bd12, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLitePCLRaw.provider.e_sqlite3.2.1.4\lib\netstandard2.0\SQLitePCLRaw.provider.e_sqlite3.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -142,40 +142,39 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AI\AccountHelper.cs" />
-    <Compile Include="AI\Bot.cs" />
-    <Compile Include="AI\BotState.cs" />
-    <Compile Include="AI\DependencyContainer.cs" />
+    <Compile Include="AI\BotRunner.cs" />
+    <Compile Include="AI\BotTask.cs" />
+    <Compile Include="AI\ClassContainer.cs" />
     <Compile Include="AI\FrameHelper.cs" />
     <Compile Include="AI\IBot.cs" />
-    <Compile Include="AI\IBotState.cs" />
-    <Compile Include="AI\IDependencyContainer.cs" />
+    <Compile Include="AI\IBotTask.cs" />
+    <Compile Include="AI\IClassContainer.cs" />
     <Compile Include="AI\InventoryHelper.cs" />
     <Compile Include="AI\PlayerTracker.cs" />
     <Compile Include="AI\QuestHelper.cs" />
-    <Compile Include="AI\SharedStates\BuyItemsState.cs" />
-    <Compile Include="AI\SharedStates\LoginState.cs" />
-    <Compile Include="AI\SharedStates\LogoutState.cs" />
-    <Compile Include="AI\SharedStates\UseItemOnUnitState.cs" />
-    <Compile Include="AI\SharedStates\TurnInQuestFromNpcState.cs" />
-    <Compile Include="AI\SharedStates\GrindingState.cs" />
-    <Compile Include="AI\SharedStates\CombatStateBase.cs" />
-    <Compile Include="AI\SharedStates\EquipArmorState.cs" />
-    <Compile Include="AI\SharedStates\EquipBagsState.cs" />
-    <Compile Include="AI\SharedStates\GatherObjectState.cs" />
-    <Compile Include="AI\SharedStates\LootState.cs" />
-    <Compile Include="AI\SharedStates\MoveToCorpseState.cs" />
-    <Compile Include="AI\SharedStates\MoveToPositionState.cs" />
-    <Compile Include="AI\SharedStates\CheckForQuestEntitiesState.cs" />
-    <Compile Include="AI\SharedStates\ReleaseCorpseState.cs" />
-    <Compile Include="AI\SharedStates\PickUpQuestFromNpcState.cs" />
-    <Compile Include="AI\SharedStates\RepairEquipmentState.cs" />
-    <Compile Include="AI\SharedStates\RetrieveCorpseState.cs" />
-    <Compile Include="AI\SharedStates\SellItemsState.cs" />
-    <Compile Include="AI\SharedStates\StuckState.cs" />
-    <Compile Include="AI\SharedStates\TravelState.cs" />
+    <Compile Include="AI\SharedTasks\BuyItemsTask.cs" />
+    <Compile Include="AI\SharedTasks\DungeoneeringTask.cs" />
+    <Compile Include="AI\SharedTasks\QuestingTask.cs" />
+    <Compile Include="AI\SharedTasks\LoginTask.cs" />
+    <Compile Include="AI\SharedTasks\LogoutTask.cs" />
+    <Compile Include="AI\SharedTasks\UseItemOnUnitTask.cs" />
+    <Compile Include="AI\SharedTasks\TurnInQuestFromNpcTask.cs" />
+    <Compile Include="AI\SharedTasks\CombatRotationTask.cs" />
+    <Compile Include="AI\SharedTasks\EquipArmorTask.cs" />
+    <Compile Include="AI\SharedTasks\EquipBagsTask.cs" />
+    <Compile Include="AI\SharedTasks\GatherObjectTask.cs" />
+    <Compile Include="AI\SharedTasks\LootTask.cs" />
+    <Compile Include="AI\SharedTasks\MoveToCorpseTask.cs" />
+    <Compile Include="AI\SharedTasks\MoveToPositionTask.cs" />
+    <Compile Include="AI\SharedTasks\ScanForQuestUnitsTask.cs" />
+    <Compile Include="AI\SharedTasks\ReleaseCorpseTask.cs" />
+    <Compile Include="AI\SharedTasks\PickUpQuestFromNpcTask.cs" />
+    <Compile Include="AI\SharedTasks\RepairEquipmentTask.cs" />
+    <Compile Include="AI\SharedTasks\RetrieveCorpseTask.cs" />
+    <Compile Include="AI\SharedTasks\SellItemsTask.cs" />
+    <Compile Include="AI\SharedTasks\StuckTask.cs" />
     <Compile Include="AI\StuckHelper.cs" />
     <Compile Include="BotDomainManager.cs" />
-    <Compile Include="BootstrapperSettings.cs" />
     <Compile Include="BotLoader.cs" />
     <Compile Include="BotSettings.cs" />
     <Compile Include="ClientHelper.cs" />
@@ -241,13 +240,11 @@
     <Compile Include="Models\CreatureTemplate.cs" />
     <Compile Include="Models\Dto\InstanceCommand.cs" />
     <Compile Include="Models\Dto\CharacterState.cs" />
-    <Compile Include="Models\Enums\Role.cs" />
     <Compile Include="Models\GameObject.cs" />
     <Compile Include="Models\Item.cs" />
     <Compile Include="Models\Npc.cs" />
     <Compile Include="Models\NpcVendorEntry.cs" />
-    <Compile Include="Models\PartyMemberPreference.cs" />
-    <Compile Include="Models\QuestTask.cs" />
+    <Compile Include="Models\QuestDescription.cs" />
     <Compile Include="Models\QuestTemplate.cs" />
     <Compile Include="Navigation.cs" />
     <Compile Include="SignalEventManager.cs" />
@@ -329,7 +326,9 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Models\Enums\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

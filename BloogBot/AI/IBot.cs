@@ -1,5 +1,6 @@
-﻿using BloogBot.Models.Dto;
-using System;
+﻿using BloogBot.Game.Objects;
+using BloogBot.Models.Dto;
+using System.Collections.Generic;
 
 namespace BloogBot.AI
 {
@@ -9,22 +10,16 @@ namespace BloogBot.AI
 
         string FileName { get; }
 
-        IDependencyContainer GetDependencyContainer(BotSettings botSettings, CharacterState probe);
+        IClassContainer GetClassContainer(CharacterState probe);
 
-        bool Running();
+        IBotTask CreateRestTask(IClassContainer container, Stack<IBotTask> botTasks);
 
-        void Start(IDependencyContainer container, Action stopCallback);
+        IBotTask CreateMoveToTargetTask(IClassContainer container, Stack<IBotTask> botTasks, WoWUnit target);
 
-        void Stop();
+        IBotTask CreateBuffTask(IClassContainer container, Stack<IBotTask> botTasks, List<WoWUnit> partyMembers);
 
-        void Logout();
+        IBotTask CreateOffensiveRotationTask(IClassContainer container, Stack<IBotTask> botTasks, List<WoWUnit> targets);
 
-        void Login(string accountName);
-
-        void AddState(IBotState state);
-
-        void ClearStack();
-
-        void Test(IDependencyContainer container);
+        IBotTask CreateDefensiveRotationTask(IClassContainer container, Stack<IBotTask> botTasks, List<WoWUnit> partyMembers);
     }
 }

@@ -1,36 +1,28 @@
 ﻿using BloogBot.Game;
 using BloogBot.Game.Enums;
-using BloogBot.Models.Enums;
-using Newtonsoft.Json;
-using System;
 
 namespace BloogBot.Models.Dto
 {
     public class CharacterState
     {
-        public CharacterState()
-        {
-
-        }
-        public CharacterState(Action killswitch)
-        {
-            Killswitch = killswitch;
-        }
-
-        [JsonIgnore]
-        public Action Killswitch { get; }
         public int ProcessId { get; set; }
+        public string AccountName { get; set; }
+        public int CharacterSlot { get; set; }
+        public string CharacterName { get; set; }
+        public string CurrentActivity { get; set; }
+        public string BotProfileName { get; set; }
+        public bool ShouldRun { get; set; }
+        public bool IsConnected { get; set; }
         public bool IsRunning { get; set; }
-        public bool LoginRequested { get; set; }
+        public bool SetAccountInfoRequested { get; set; }
+        public bool StartRequested { get; set; }
+        public bool StopRequested { get; set; }
         public ulong Guid { get; set; }
         public string Zone { get; set; }
-        public Race Race { get; set; }
-        public Class Class { get; set; }
-        public Role Role { get; set; }
-        public short Health { get; set; }
-        public short Mana { get; set; }
-        public byte Rage { get; set; }
-        public byte Energy { get; set; }
+        public int Health { get; set; }
+        public int Mana { get; set; }
+        public int Rage { get; set; }
+        public int Energy { get; set; }
         public bool IsCasting { get; set; }
         public bool IsChanneling { get; set; }
         public string CurrentTask { get; set; }
@@ -41,10 +33,10 @@ namespace BloogBot.Models.Dto
         public string TargetName { get; set; }
         public Class TargetClass { get; set; }
         public CreatureType TargetCreatureType { get; set; }
-        public short TargetHealth { get; set; }
-        public short TargetMana { get; set; }
-        public byte TargetRage { get; set; }
-        public byte TargetEnergy { get; set; }
+        public int TargetHealth { get; set; }
+        public int TargetMana { get; set; }
+        public int TargetRage { get; set; }
+        public int TargetEnergy { get; set; }
         public string TargetFactionId { get; set; }
         public bool TargetIsCasting { get; set; }
         public bool TargetIsChanneling { get; set; }

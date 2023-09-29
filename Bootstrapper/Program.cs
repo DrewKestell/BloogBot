@@ -22,12 +22,10 @@ namespace Bootstrapper
 
             protected override void OnStartup(StartupEventArgs e)
             {
-
                 var mainWindow = new MainWindow(_socketServer, _bootstrapperSettings);
                 Current.MainWindow = mainWindow;
                 mainWindow.Closed += (sender, args) => { Environment.Exit(0); };
                 mainWindow.Show();
-                
 
                 base.OnStartup(e);
             }

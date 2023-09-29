@@ -8,18 +8,18 @@ namespace BloogBot.AI
 {
     public class StuckHelper
     {
-        readonly Stack<IBotState> botStates;
-        readonly IDependencyContainer container;
+        readonly IClassContainer container;
+        readonly Stack<IBotTask> botTasks;
         readonly LocalPlayer player;
 
         Position lastPosition;
         int lastTickTime;
         int stuckDuration;
 
-        public StuckHelper(Stack<IBotState> botStates, IDependencyContainer container)
+        public StuckHelper(IClassContainer container, Stack<IBotTask> botTasks)
         {
-            this.botStates = botStates;
             this.container = container;
+            this.botTasks = botTasks;
             player = ObjectManager.Player;
         }
 
@@ -31,7 +31,7 @@ namespace BloogBot.AI
             {
                 stuckDuration = 0;
                 lastPosition = null;
-                botStates.Push(new StuckState(botStates, container));
+                botTasks.Push(new StuckTask(container, botTasks));
                 return true;
             }
 

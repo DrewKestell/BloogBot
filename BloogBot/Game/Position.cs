@@ -63,7 +63,7 @@ namespace BloogBot.Game
 
         public override string ToString()
         {
-            return $"X: {Math.Round(X, 2).ToString("0.0")}, Y: {Math.Round(Y, 2).ToString("0.0")}, Z: {Math.Round(Z, 2).ToString("0.0")}";
+            return $"X: {Math.Round(X, 2).ToString("0")}, Y: {Math.Round(Y, 2).ToString("0")}, Z: {Math.Round(Z, 2).ToString("0")}";
         }
     }
 }

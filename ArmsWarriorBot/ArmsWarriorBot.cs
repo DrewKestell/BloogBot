@@ -1,76 +1,40 @@
-﻿using BloogBot;
-using BloogBot.AI;
-using BloogBot.Game;
-using BloogBot.Game.Enums;
+﻿using BloogBot.AI;
 using BloogBot.Game.Objects;
 using BloogBot.Models.Dto;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Linq;
 
 namespace ArmsWarriorBot
 {
     [Export(typeof(IBot))]
-    class ArmsWarriorBot : Bot, IBot
+    class ArmsWarriorBot : IBot
     {
         public string Name => "Arms Warrior";
 
         public string FileName => "ArmsWarriorBot.dll";
 
-        // omit any targets that bring the player too close to another threat while moving to that target
-        bool AdditionalTargetingCriteria(WoWUnit u) =>
-            !ObjectManager.Units.Any(o =>
-                o.Level > ObjectManager.Player.Level - 3 &&
-                (o.UnitReaction == UnitReaction.Hated || o.UnitReaction == UnitReaction.Hostile) &&
-                o.Guid != ObjectManager.Player.Guid &&
-                o.Guid != u.Guid &&
-                false &&
-                Navigation.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, u.Position, false).Any(p => p.DistanceTo(o.Position) < 30)
-            );
-
-        IBotState CreateRestState(Stack<IBotState> botStates, IDependencyContainer container) =>
-            new RestState(botStates, container);
-
-        IBotState CreateMoveToTargetState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) =>
-            new MoveToTargetState(botStates, container, target);
-
-        IBotState CreatePowerlevelCombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target, WoWPlayer powerlevelTarget) =>
-            new PowerlevelCombatState(botStates, container, target, powerlevelTarget);
-
-        public IDependencyContainer GetDependencyContainer(BotSettings botSettings, CharacterState probe) =>
-            new DependencyContainer(
-                AdditionalTargetingCriteria,
-                CreateRestState,
-                CreateMoveToTargetState,
-                botSettings,
+        public IClassContainer GetClassContainer(CharacterState probe) =>
+            new ClassContainer(
+                CreateRestTask,
+                CreateMoveToTargetTask,
+                CreateBuffTask,
+                CreateOffensiveRotationTask,
+                CreateDefensiveRotationTask,
                 probe);
 
-        public void Test(IDependencyContainer container)
-        {
-            //var target = ObjectManager.Units.FirstOrDefault(u => u.Guid == ObjectManager.Player.TargetGuid);
+        public IBotTask CreateRestTask(IClassContainer container, Stack<IBotTask> botTasks) =>
+            new RestTask(container, botTasks);
 
-            //if (target != null)
-            //{
-            //    Console.WriteLine(target.CanBeLooted);
-            //}
+        public IBotTask CreateMoveToTargetTask(IClassContainer container, Stack<IBotTask> botTasks, WoWUnit target) =>
+            new MoveToTargetTask(container, botTasks, target);
 
-            ThreadSynchronizer.RunOnMainThread(() =>
-            {
-                var results = Functions.LuaCallWithResult($"{{0}}, {{1}}, {{2}}, {{3}} = GetGossipOptions()");
-                if (results.Length > 0)
-                {
-                    Console.WriteLine(results[0]);
-                    Console.WriteLine(results[1]);
-                    Console.WriteLine(results[2]);
-                    Console.WriteLine(results[3]);
-                }
-            });
-        }
+        public IBotTask CreateBuffTask(IClassContainer container, Stack<IBotTask> botTasks, List<WoWUnit> partyMembers) =>
+            new BuffTask(container, botTasks, partyMembers);
 
-        public void Travel(IDependencyContainer container, bool reverseTravelPath, Action callback)
-        {
-            throw new NotImplementedException();
-        }
+        public IBotTask CreateOffensiveRotationTask(IClassContainer container, Stack<IBotTask> botTasks, List<WoWUnit> targets) =>
+            new CombatTask(container, botTasks, targets);
+
+        public IBotTask CreateDefensiveRotationTask(IClassContainer container, Stack<IBotTask> botTasks, List<WoWUnit> partyMembers) =>
+            new CombatTask(container, botTasks, partyMembers);
     }
 }

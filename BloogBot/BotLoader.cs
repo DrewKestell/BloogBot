@@ -23,8 +23,9 @@ namespace BloogBot
 
         public BotLoader()
         {
-            AppDomain.CurrentDomain.AssemblyResolve += (sender, args) => { 
-                
+            AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
+            {
+
                 var currentAssembly = Assembly.GetExecutingAssembly();
                 var name = args.Name.Split(',')[0];
                 var assembly = Assembly.Load(name) ?? currentAssembly;
@@ -38,29 +39,36 @@ namespace BloogBot
             container?.Dispose();
 
             var currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var botPaths = new[] { "AfflictionWarlockBot.dll", "ArcaneMageBot.dll", "ArmsWarriorBot.dll", "BackstabRogueBot.dll", "BalanceDruidBot.dll", "BeastMasterHunterBot.dll", "CombatRogueBot.dll", "EnhancementShamanBot.dll", "ElementalShamanBot.dll", "FeralDruidBot.dll", "FrostMageBot.dll", "FuryWarriorBot.dll", "ProtectionPaladinBot.dll", "ProtectionWarriorBot.dll", "RetributionPaladinBot.dll", "ShadowPriestBot.dll", "TestBot.dll" };
+            var botPaths = new[] { "AfflictionWarlockBot.dll", "ArcaneMageBot.dll", "ArmsWarriorBot.dll", "BackstabRogueBot.dll", "BalanceDruidBot.dll", "BeastMasterHunterBot.dll", "CombatRogueBot.dll", "ElementalShamanBot.dll", "EnhancementShamanBot.dll", "FeralDruidBot.dll", "FrostMageBot.dll", "FuryWarriorBot.dll", "ProtectionPaladinBot.dll", "ProtectionWarriorBot.dll", "RetributionPaladinBot.dll", "ShadowPriestBot.dll" };
 
             foreach (var botPath in botPaths)
             {
-                var path = Path.Combine(currentFolder, botPath);
-                var assembly = Assembly.Load(File.ReadAllBytes(path));
-                var assemblyName = assembly.FullName.Split(',')[0];
-                if (assemblies.ContainsKey(assemblyName))
+                try
                 {
-                    if (assemblies[assemblyName] != assembly.FullName)
+                    var path = Path.Combine(currentFolder, botPath);
+                    var assembly = Assembly.Load(File.ReadAllBytes(path));
+                    var assemblyName = assembly.FullName.Split(',')[0];
+                    if (assemblies.ContainsKey(assemblyName))
+                    {
+                        if (assemblies[assemblyName] != assembly.FullName)
+                        {
+                            catalog.Catalogs.Add(new AssemblyCatalog(assembly));
+                            assemblies[assemblyName] = assembly.FullName;
+                        }
+                    }
+                    else
                     {
                         catalog.Catalogs.Add(new AssemblyCatalog(assembly));
-                        assemblies[assemblyName] = assembly.FullName;
+                        assemblies.Add(assemblyName, assembly.FullName);
                     }
+                    container = new CompositionContainer(catalog);
+                    container.ComposeParts(this);
                 }
-                else
+                catch (Exception ex)
                 {
-                    catalog.Catalogs.Add(new AssemblyCatalog(assembly));
-                    assemblies.Add(assemblyName, assembly.FullName);
+                    Console.WriteLine(botPath + " " + ex.ToString());
                 }
             }
-            container = new CompositionContainer(catalog);
-            container.ComposeParts(this);
 
             return bots
                 .GroupBy(b => b.Name)

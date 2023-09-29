@@ -3,18 +3,18 @@ using System.Collections.Generic;
 
 namespace TestBot
 {
-    class RestState : IBotState
+    class RestState : IBotTask
     {
-        readonly Stack<IBotState> botStates;
+        readonly Stack<IBotTask> botTasks;
 
-        public RestState(Stack<IBotState> botStates, IDependencyContainer container)
+        public RestState(Stack<IBotTask> botTasks, IClassContainer container)
         {
-            this.botStates = botStates;
+            this.botTasks = botTasks;
         }
 
         public void Update()
         {
-            botStates.Pop();
+            botTasks.Pop();
         }
     }
 }

@@ -1,9 +1,7 @@
 ﻿using BloogBot.AI;
 using BloogBot.Game;
-using Bootstrapper;
 using Newtonsoft.Json;
 using System;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -11,17 +9,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
 using System.Windows.Input;
 using BloogBot.Models.Dto;
-using static BloogBot.UI.WinImports;
-using System.Windows.Threading;
 using System.Threading.Tasks;
-using BloogBot.AI.SharedStates;
-using BloogBot.Game.Enums;
-using BloogBot.Models.Enums;
+using System.Timers;
 
 namespace BloogBot.UI
 {
@@ -31,23 +23,17 @@ namespace BloogBot.UI
 
         static readonly string[] CityNames = { "Orgrimmar", "Thunder Bluff", "Undercity", "Stormwind", "Darnassus", "Ironforge" };
 
-        readonly BotLoader botLoader = new BotLoader();
-        readonly CharacterState instanceUpdate;
+        readonly BotRunner botRunner;
+        readonly CharacterState characterState;
         readonly BotSettings botSettings;
         bool readyForCommands;
-
-        IDependencyContainer dependencyContainer;
+        Timer timer;
 
         public IntPtr processPointer;
 
         private Socket _socket;
         private Task _heartbeatTask;
         private Task _commandListenerTask;
-
-        private string _activity;
-        private Race _race;
-        private Class _class;
-        private Role _role;
 
         public MainViewModel()
         {
@@ -59,7 +45,9 @@ namespace BloogBot.UI
             Logger.Initialize(botSettings);
             SqliteRepository.Initialize();
             DiscordClientWrapper.Initialize(botSettings);
+
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
             try
             {
                 _socket.Connect(IPAddress.Parse(botSettings.ListenAddress), botSettings.Port);
@@ -68,43 +56,37 @@ namespace BloogBot.UI
             {
                 Logger.Log(e.Message);
             }
-            void killswitch()
-            {
-                Stop();
-            }
-            instanceUpdate = new CharacterState(killswitch)
+            characterState = new CharacterState()
             {
                 ProcessId = Process.GetCurrentProcess().Id
             };
+
+            botRunner = new BotRunner(characterState);
 
             InitializeObjectManager();
 
             _commandListenerTask = Task.Run(AsyncCommandListenerStart);
             _heartbeatTask = Task.Run(AsyncHeartbeatStart);
         }
-        public ObservableCollection<IBot> Bots { get; private set; }
 
         #region Commands
 
         // Start command
         ICommand startCommand;
 
+        public ICommand StartCommand =>
+            startCommand ?? (startCommand = new CommandHandler(UiStart, true));
+
         void UiStart()
         {
             Start();
-        }
-        void StopCallback()
-        {
-            Stop();
         }
 
         void Start()
         {
             try
             {
-                ReloadBots();
-
-                currentBot.Start(dependencyContainer, StopCallback);
+                botRunner.Start();
 
                 OnPropertyChanged(nameof(StartCommandEnabled));
                 OnPropertyChanged(nameof(StopCommandEnabled));
@@ -113,94 +95,6 @@ namespace BloogBot.UI
             {
                 Console.WriteLine(e.Message);
             }
-        }
-
-        private void ReloadBots()
-        {
-            Bots = new ObservableCollection<IBot>(botLoader.ReloadBots());
-
-            CurrentBot = GetPreferredBot();
-
-            dependencyContainer = CurrentBot.GetDependencyContainer(botSettings, instanceUpdate);
-            Console.WriteLine($"Bots: {CurrentBot.Name} {dependencyContainer.AccountName}");
-        }
-        private IBot GetPreferredBot()
-        {
-            switch (_class)
-            {
-                case Class.Druid:
-                    if ((_role & Role.Tank) == Role.Tank)
-                    {
-                        if ((_role & Role.Damage) == Role.Damage)
-                        {
-                            return Bots.First(b => b.Name == "Balance Druid");
-                        }
-                        else
-                        {
-                            return Bots.First(b => b.Name == "Restoration Druid");
-                        }
-                    }
-                    return Bots.First(b => b.Name == "Feral Druid");
-                case Class.Hunter:
-                    return Bots.First(b => b.Name == "Beastmaster Hunter");
-                case Class.Mage:
-                    return Bots.First(b => b.Name == "Frost Mage");
-                case Class.Paladin:
-                    if ((_role & Role.Tank) == Role.Tank)
-                    {
-                        return Bots.First(b => b.Name == "Protection Paladin");
-                    }
-                    else if ((_role & Role.Damage) == Role.Damage)
-                    {
-                        return Bots.First(b => b.Name == "Retribution Paladin");
-                    }
-                    return Bots.First(b => b.Name == "Holy Paladin");
-                case Class.Priest:
-                    if ((_role & Role.Healer) == Role.Healer)
-                    {
-                        if (_activity == "PvP")
-                        {
-                            return Bots.First(b => b.Name == "Discipline Priest");
-                        }
-                        else
-                        {
-                            return Bots.First(b => b.Name == "Holy Priest");
-                        }
-                    }
-                    return Bots.First(b => b.Name == "Shadow Priest");
-                case Class.Rogue:
-                    if (_activity == "PvP")
-                    {
-                        return Bots.First(b => b.Name == "Backstab Rogue");
-                    }
-                    else
-                    {
-                        return Bots.First(b => b.Name == "Combat Rogue");
-                    }
-                case Class.Shaman:
-                    if ((_role & Role.Tank) == Role.Tank)
-                    {
-                        return Bots.First(b => b.Name == "Enhancement Shaman");
-                    }
-                    else if ((_role & Role.Damage) == Role.Damage)
-                    {
-                        return Bots.First(b => b.Name == "Elemental Shaman");
-                    }
-                    return Bots.First(b => b.Name == "Elemental Shaman");
-                case Class.Warlock:
-                    return Bots.First(b => b.Name == "Frost Mage");
-                case Class.Warrior:
-                    if ((_role & Role.Tank) == Role.Tank)
-                    {
-                        return Bots.First(b => b.Name == "Protection Warrior");
-                    }
-                    else if (_activity == "PvP")
-                    {
-                        return Bots.First(b => b.Name == "Arms Warrior");
-                    }
-                    break;
-            }
-            return Bots.First(b => b.Name == "Fury Warrior");
         }
 
         private async Task AsyncCommandListenerStart()
@@ -215,7 +109,7 @@ namespace BloogBot.UI
                     OnPropertyChanged(nameof(StartCommandEnabled));
                     OnPropertyChanged(nameof(StopCommandEnabled));
 
-                    if (instanceUpdate != null)
+                    if (characterState != null)
                     {
                         try
                         {
@@ -250,26 +144,26 @@ namespace BloogBot.UI
 
                                             if (instanceCommand != null)
                                             {
-                                                if (instanceCommand.StateName == InstanceCommand.LOGIN)
+                                                if (instanceCommand.CommandName == InstanceCommand.START)
                                                 {
-                                                    instanceUpdate.LoginRequested = true;
-
-                                                    Enum.TryParse(instanceCommand.CommandParam1, out _race);
-                                                    Enum.TryParse(instanceCommand.CommandParam2, out _class);
-                                                    Enum.TryParse(instanceCommand.CommandParam3, out _role);
-
-                                                    instanceUpdate.Role = _role;
-                                                    _activity = instanceCommand.CommandParam4;
-
-                                                    ReloadBots();
-
-                                                    currentBot.Login(AccountHelper.GetAccountByRaceAndClass(_race, _class));
+                                                    Start();
+                                                    characterState.StartRequested = true;
+                                                }
+                                                else if (instanceCommand.CommandName == InstanceCommand.STOP)
+                                                {
+                                                    Stop();
+                                                    characterState.StopRequested = true;
+                                                }
+                                                else if (instanceCommand.CommandName == InstanceCommand.SET_ACCOUNT_INFO)
+                                                {
+                                                    botRunner.SetAccountInfo(instanceCommand.CommandParam1, int.Parse(instanceCommand.CommandParam2), instanceCommand.CommandParam3);
+                                                    characterState.SetAccountInfoRequested = true;
                                                 }
                                             }
                                         }
                                         catch (Exception e)
                                         {
-                                            Console.WriteLine(string.Format("{0} caused by {1}", e.Message, json));
+                                            Console.WriteLine(string.Format("{0}", e.Message));
                                         }
                                         Array.Clear(buffer, 0, buffer.Length);
                                     }
@@ -299,7 +193,6 @@ namespace BloogBot.UI
         }
         private async Task AsyncHeartbeatStart()
         {
-            byte[] buffer = new byte[1024];
             string json = "";
 
             while (true)
@@ -309,8 +202,9 @@ namespace BloogBot.UI
                     OnPropertyChanged(nameof(StartCommandEnabled));
                     OnPropertyChanged(nameof(StopCommandEnabled));
 
-                    if (instanceUpdate != null)
+                    if (characterState != null)
                     {
+                        characterState.IsRunning = botRunner.Running();
                         try
                         {
                             if (_socket == null)
@@ -330,8 +224,8 @@ namespace BloogBot.UI
                             }
                             if (_socket.Connected)
                             {
-                                string instanceUpdateJson = JsonConvert.SerializeObject(instanceUpdate);
-                                //Console.WriteLine(string.Format("Sending message: {0}", instanceUpdateJson));
+                                string instanceUpdateJson = JsonConvert.SerializeObject(characterState);
+
                                 _socket.Send(Encoding.ASCII.GetBytes(instanceUpdateJson));
                             }
                         }
@@ -351,14 +245,11 @@ namespace BloogBot.UI
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(string.Format($"{0} caused by {1}", e.Message, json));
+                    Console.WriteLine(string.Format("{0} caused by {1}", e.Message, json));
                 }
                 await Task.Delay(500);
             }
         }
-
-        public ICommand StartCommand =>
-            startCommand ?? (startCommand = new CommandHandler(UiStart, true));
 
         // Stop command
         ICommand stopCommand;
@@ -372,7 +263,7 @@ namespace BloogBot.UI
         {
             try
             {
-                CurrentBot.Stop();
+                botRunner.Stop();
             }
             catch (Exception e)
             {
@@ -392,26 +283,15 @@ namespace BloogBot.UI
         #endregion
 
         #region Observables
-        public bool StartCommandEnabled => !currentBot.Running();
+        public bool StartCommandEnabled => !botRunner.Running();
 
-        public bool StopCommandEnabled => currentBot.Running();
-
-        // General
-        IBot currentBot;
-        public IBot CurrentBot
-        {
-            get => currentBot;
-            set
-            {
-                currentBot = value;
-            }
-        }
+        public bool StopCommandEnabled => botRunner.Running();
 
         #endregion
 
         public void InitializeObjectManager()
         {
-            ObjectManager.Initialize(instanceUpdate);
+            ObjectManager.Initialize(characterState);
             ObjectManager.StartEnumeration();
         }
 

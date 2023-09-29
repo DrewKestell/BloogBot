@@ -8,21 +8,21 @@ using System.Collections.Generic;
 
 namespace BeastmasterHunterBot
 {
-    class PetManagerState : IBotState
+    class PetManagerState : IBotTask
     {
         const string CallPet = "Call Pet";
         const string RevivePet = "Revive Pet";
         const string FeedPet = "Feed Pet";
 
 
-        readonly Stack<IBotState> botStates;
-        readonly IDependencyContainer container;
+        readonly Stack<IBotTask> botTasks;
+        readonly IClassContainer container;
         readonly LocalPlayer player;
         readonly LocalPet pet;
 
-        public PetManagerState(Stack<IBotState> botStates, IDependencyContainer container)
+        public PetManagerState(Stack<IBotTask> botTasks, IClassContainer container)
         {
-            this.botStates = botStates;
+            this.botTasks = botTasks;
             this.container = container;
             player = ObjectManager.Player;
             pet = ObjectManager.Pet;
@@ -36,8 +36,8 @@ namespace BeastmasterHunterBot
             if (!player.KnowsSpell(CallPet) || ObjectManager.Pet != null)
             {
                 player.Stand();
-                botStates.Pop();
-                botStates.Push(new BuffSelfState(botStates, container));
+                botTasks.Pop();
+                botTasks.Push(new BuffTask(container, botTasks, new List<WoWUnit>() { ObjectManager.Pet }));
                 return;
             }
 

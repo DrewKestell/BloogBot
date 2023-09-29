@@ -42,13 +42,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArcaneMageBot.cs" />
-    <Compile Include="BuffSelfState.cs" />
-    <Compile Include="CombatState.cs" />
-    <Compile Include="ConjureItemsState.cs" />
-    <Compile Include="MoveToTargetState.cs" />
-    <Compile Include="PowerlevelCombatState.cs" />
+    <Compile Include="Tasks\BuffTask.cs" />
+    <Compile Include="Tasks\CombatTask.cs" />
+    <Compile Include="Tasks\ConjureItemsTask.cs" />
+    <Compile Include="Tasks\MoveToTargetTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RestState.cs" />
+    <Compile Include="Tasks\RestTask.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BloogBot\BloogBot.csproj">
@@ -59,5 +58,6 @@
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

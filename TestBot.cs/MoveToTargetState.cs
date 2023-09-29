@@ -4,18 +4,18 @@ using System.Collections.Generic;
 
 namespace TestBot
 {
-    class MoveToTargetState : IBotState
+    class MoveToTargetState : IBotTask
     {
-        readonly Stack<IBotState> botStates;
+        readonly Stack<IBotTask> botTasks;
 
-        internal MoveToTargetState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target)
+        internal MoveToTargetState(Stack<IBotTask> botTasks, IClassContainer container, WoWUnit target)
         {
-            this.botStates = botStates;
+            this.botTasks = botTasks;
         }
 
         public void Update()
         {
-            botStates.Pop();
+            botTasks.Pop();
         }
     }
 }

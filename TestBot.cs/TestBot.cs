@@ -18,24 +18,24 @@ namespace TestBot
 
         bool AdditionalTargetingCriteria(WoWUnit u) => true;
 
-        IBotState CreateRestState(Stack<IBotState> botStates, IDependencyContainer container) =>
-            new RestState(botStates, container);
+        IBotTask CreateRestState(Stack<IBotTask> botTasks, IClassContainer container) =>
+            new RestState(botTasks, container);
 
-        IBotState CreateMoveToTargetState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) =>
-            new MoveToTargetState(botStates, container, target);
+        IBotTask CreateMoveToTargetState(Stack<IBotTask> botTasks, IClassContainer container, WoWUnit target) =>
+            new MoveToTargetState(botTasks, container, target);
 
-        IBotState CreatePowerlevelCombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target, WoWPlayer powerlevelTarget) =>
-            new PowerlevelCombatState(botStates, container, target, powerlevelTarget);
+        IBotTask CreatePowerlevelCombatState(Stack<IBotTask> botTasks, IClassContainer container, WoWUnit target, WoWPlayer powerlevelTarget) =>
+            new PowerlevelCombatState(botTasks, container, target, powerlevelTarget);
 
-        public IDependencyContainer GetDependencyContainer(BotSettings botSettings, CharacterState probe) =>
-            new DependencyContainer(
+        public IClassContainer GetClassContainer(BotSettings botSettings, CharacterState probe) =>
+            new ClassContainer(
                 AdditionalTargetingCriteria,
                 CreateRestState,
                 CreateMoveToTargetState,
                 botSettings,
                 probe);
 
-        public void Test(IDependencyContainer container)
+        public void Test(IClassContainer container)
         {
             ThreadSynchronizer.RunOnMainThread(() =>
             {

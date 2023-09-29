@@ -1,10 +1,4 @@
-﻿using BloogBot.Game;
-using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Threading;
+﻿using System.Windows;
 
 namespace BloogBot.UI
 {

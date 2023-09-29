@@ -4,15 +4,15 @@ using System.Collections.Generic;
 
 namespace TestBot
 {
-    class PowerlevelCombatState : IBotState
+    class PowerlevelCombatState : IBotTask
     {
-        readonly Stack<IBotState> botStates;
-        readonly IDependencyContainer container;
+        readonly Stack<IBotTask> botTasks;
+        readonly IClassContainer container;
         readonly WoWUnit target;
 
-        public PowerlevelCombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target, WoWPlayer powerlevelTarget)
+        public PowerlevelCombatState(Stack<IBotTask> botTasks, IClassContainer container, WoWUnit target, WoWPlayer powerlevelTarget)
         {
-            this.botStates = botStates;
+            this.botTasks = botTasks;
             this.container = container;
             this.target = target;
         }

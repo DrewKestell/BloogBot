@@ -1,43 +1,40 @@
-﻿using BloogBot;
-using BloogBot.AI;
+﻿using BloogBot.AI;
 using BloogBot.Game.Objects;
 using BloogBot.Models.Dto;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 
 namespace AfflictionWarlockBot
 {
     [Export(typeof(IBot))]
-    class AfflictionWarlockBot : Bot, IBot
+    class AfflictionWarlockBot : IBot
     {
         public string Name => "Affliction Warlock";
 
         public string FileName => "AfflictionWarlockBot.dll";
 
-        bool AdditionalTargetingCriteria(WoWUnit unit) => true;
-
-        IBotState CreateRestState(Stack<IBotState> botStates, IDependencyContainer container) =>
-            new RestState(botStates, container);
-
-        IBotState CreateMoveToTargetState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) =>
-            new MoveToTargetState(botStates, container, target);
-
-        public IDependencyContainer GetDependencyContainer(BotSettings botSettings, CharacterState probe) =>
-            new DependencyContainer(
-                AdditionalTargetingCriteria,
-                CreateRestState,
-                CreateMoveToTargetState,
-                botSettings,
+        public IClassContainer GetClassContainer(CharacterState probe) =>
+            new ClassContainer(
+                CreateRestTask,
+                CreateMoveToTargetTask,
+                CreateBuffTask,
+                CreateOffensiveRotationTask,
+                CreateDefensiveRotationTask,
                 probe);
 
-        public void Test(IDependencyContainer container)
-        {
-        }
+        public IBotTask CreateRestTask(IClassContainer container, Stack<IBotTask> botTasks) =>
+            new RestTask(container, botTasks);
 
-        public void Travel(IDependencyContainer container, bool reverseTravelPath, Action callback)
-        {
-            throw new NotImplementedException();
-        }
+        public IBotTask CreateMoveToTargetTask(IClassContainer container, Stack<IBotTask> botTasks,  WoWUnit target) =>
+            new MoveToTargetTask(container, botTasks, target);
+
+        public IBotTask CreateBuffTask(IClassContainer container, Stack<IBotTask> botTasks, List<WoWUnit> partyMembers) =>
+            new BuffTask(container, botTasks, partyMembers);
+
+        public IBotTask CreateOffensiveRotationTask(IClassContainer container, Stack<IBotTask> botTasks, List<WoWUnit> targets) =>
+            new CombatTask(container, botTasks, targets);
+
+        public IBotTask CreateDefensiveRotationTask(IClassContainer container, Stack<IBotTask> botTasks, List<WoWUnit> partyMembers) =>
+            new CombatTask(container, botTasks, partyMembers);
     }
 }

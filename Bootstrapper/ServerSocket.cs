@@ -1,5 +1,4 @@
-﻿using BloogBot;
-using BloogBot.Models.Dto;
+﻿using BloogBot.Models.Dto;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -68,10 +67,9 @@ namespace Bootstrapper
                     }
 
                     json = Encoding.UTF8.GetString(buffer, 0, receivedDataLength);
-                    //Console.WriteLine(string.Format("Received message: {0}", json));
 
                     CharacterState instanceUpdate = JsonConvert.DeserializeObject<CharacterState>(json);
-                    processId = instanceUpdate.ProcessId;
+                    processId = instanceUpdate.ProcessId;                    
 
                     if (processId != 0)
                     {
@@ -80,6 +78,7 @@ namespace Bootstrapper
                             _processIds.Add(processId, clientSocket);
                         }
 
+                        instanceUpdate.IsConnected = true;
                         _instanceUpdateSubject.OnNext(instanceUpdate);
                     }
 
@@ -89,10 +88,9 @@ namespace Bootstrapper
                 {
                     if (e.GetType() == typeof(SocketException))
                     {
-                        Console.WriteLine(string.Format($"Process {0} disconnected due to {1}", processId, e.GetType().ToString()));
-                        InstanceCoordinator.RemoveInstanceByProcessId(processId);
+                        Console.WriteLine(string.Format("Process {0} disconnected due to {1}", processId, e.GetType().ToString()));
 
-                        _instanceUpdateSubject.OnNext(new CharacterState() { ProcessId = processId });
+                        _instanceUpdateSubject.OnNext(new CharacterState() { ProcessId = processId, IsConnected = false });
                         break;
                     }
                 }

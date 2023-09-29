@@ -11,6 +11,8 @@
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -23,10 +25,8 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -78,7 +78,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BootstrapperSettings.cs" />
-    <Compile Include="InstanceCoordinator.cs" />
+    <Compile Include="CommandHandler.cs" />
+    <Compile Include="InverseBooleanConverter.cs" />
     <Compile Include="MainControllerWindow.xaml.cs">
       <DependentUpon>MainControllerWindow.xaml</DependentUpon>
     </Compile>
@@ -150,6 +151,39 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="AI\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\button_texture_back.png" />
+    <Resource Include="Resources\button_texture_back_disabled.png" />
+    <Resource Include="Resources\button_texture_back_mouseover.png" />
+    <Resource Include="Resources\button_texture_back_pressed.png" />
+    <Resource Include="Resources\button_texture_cancel.png" />
+    <Resource Include="Resources\button_texture_cancel_disabled.png" />
+    <Resource Include="Resources\button_texture_cancel_mouseover.png" />
+    <Resource Include="Resources\button_texture_cancel_pressed.png" />
+    <Resource Include="Resources\frame-texture-bottom.png" />
+    <Resource Include="Resources\frame-texture-bottomleft.png" />
+    <Resource Include="Resources\frame-texture-bottomright.png" />
+    <Resource Include="Resources\frame-texture-top.png" />
+    <Resource Include="Resources\frame-texture-upperleft.png" />
+    <Resource Include="Resources\frame-texture-upperright.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\app_interface_frame.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\UI-MinusButton-Disabled.png" />
+    <Resource Include="Resources\UI-MinusButton-Down.png" />
+    <Resource Include="Resources\UI-MinusButton-Up.png" />
+    <Resource Include="Resources\UI-PlusButton-Disabled.png" />
+    <Resource Include="Resources\UI-PlusButton-Down.png" />
+    <Resource Include="Resources\UI-PlusButton-Up.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\button_texture_save.png" />
+    <Resource Include="Resources\button_texture_save_disabled.png" />
+    <Resource Include="Resources\button_texture_save_mouseover.png" />
+    <Resource Include="Resources\button_texture_save_pressed.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

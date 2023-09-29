@@ -1,4 +1,4 @@
-﻿using BloogBot.AI.SharedStates;
+﻿using BloogBot.AI.SharedTasks;
 using BloogBot.Game;
 using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
@@ -14,11 +14,11 @@ namespace BloogBot.AI
     {
         public static Position GetNextPositionHotSpot()
         {
-            QuestObjective closestObjective = GrindingState.ClosestObjective;
+            QuestObjective closestObjective = QuestingTask.ClosestObjective;
 
             if (closestObjective != null)
             {
-                Position currentHotSpot = GrindingState.CurrentHotSpot;
+                Position currentHotSpot = QuestingTask.CurrentHotSpot;
 
                 if (currentHotSpot != null && !closestObjective.HotSpots.Contains(currentHotSpot))
                 {
@@ -41,18 +41,18 @@ namespace BloogBot.AI
                     }
                     else
                     {
-                        currentHotSpot = GrindingState.RemainingQuestObjectives.FindAll(x => x != closestObjective)
+                        currentHotSpot = QuestingTask.RemainingQuestObjectives.FindAll(x => x != closestObjective)
                                                         .SelectMany(x => x.HotSpots)
                                                         .OrderBy(spot => spot.DistanceTo(ObjectManager.Player.Position))
                                                         .ToList()[0];
                     }
                 }
-                GrindingState.CurrentHotSpot = currentHotSpot;
-                return GrindingState.CurrentHotSpot;
+                QuestingTask.CurrentHotSpot = currentHotSpot;
+                return QuestingTask.CurrentHotSpot;
             }
-            else if (GrindingState.GetQuestTasks().Count > 0 && GrindingState.GetQuestTasks().All(x => x.IsComplete()))
+            else if (QuestingTask.GetQuestTasks().Count > 0 && QuestingTask.GetQuestTasks().All(x => x.IsComplete()))
             {
-                return GrindingState.GetQuestTasks().Where(x => x.IsComplete())
+                return QuestingTask.GetQuestTasks().Where(x => x.IsComplete())
                                                 .OrderBy(x => Navigation.DistanceViaPath(ObjectManager.MapId, x.TurnInNpc.Position, ObjectManager.Player.Position))
                                                 .ToArray()[0].TurnInNpc.Position;
             }
@@ -80,7 +80,7 @@ namespace BloogBot.AI
                                 .ToList();
             }
         }
-        public static QuestTask GetQuestTaskById(int id)
+        public static QuestDescription GetQuestTaskById(int id)
         {
             QuestTemplate questTemplate = SqliteRepository.GetQuestTemplateByID(id);
             if (questTemplate == null)
@@ -92,7 +92,7 @@ namespace BloogBot.AI
 
             List<Creature> relatedNpcs = new List<Creature>();
 
-            QuestTask questTask = new QuestTask
+            QuestDescription questTask = new QuestDescription
             {
                 QuestId = questTemplate.Entry,
                 Name = questTemplate.Title,

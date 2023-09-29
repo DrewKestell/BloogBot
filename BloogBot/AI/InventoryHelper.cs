@@ -427,7 +427,7 @@ namespace BloogBot.AI
             return newCharacterEquip;
         }
 
-        public static int GetBestQuestReward(QuestTask task)
+        public static int GetBestQuestReward(QuestDescription task)
         {
             int rewardChoice = 1;
             CharacterEquip characterEquip = new CharacterEquip();

@@ -1,4 +1,4 @@
-﻿using BloogBot.AI.SharedStates;
+﻿using BloogBot.AI.SharedTasks;
 using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
 using BloogBot.Models.Dto;
@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Windows.Navigation;
 
 namespace BloogBot.Game
 {
@@ -274,7 +273,7 @@ namespace BloogBot.Game
                 } else
                 {
                     probe.Guid = 0;
-                    probe.Position = new Position(0,0,0);
+                    probe.Position = null;
                     probe.Zone = string.Empty;
                     probe.CurrentTask = "Offline";
                     probe.Health = 0;
@@ -355,13 +354,14 @@ namespace BloogBot.Game
 
         static void UpdateProbe()
         {
+            probe.SetAccountInfoRequested = false;
             probe.Guid = Player.Guid;
             probe.Position = Player.Position;
             probe.Zone = MinimapZoneText;
-            probe.CurrentTask = GrindingState.CurrentTask;
-            probe.Health = (short)Player.Health;
-            probe.Mana = (short)Player.Mana;
-            probe.Energy = (byte)Player.Energy;
+            probe.CurrentTask = QuestingTask.CurrentTask;
+            probe.Health = Player.Health;
+            probe.Mana = Player.Mana;
+            probe.Energy = Player.Energy;
             probe.IsCasting = Player.IsCasting;
             probe.IsChanneling = Player.IsChanneling;
 
@@ -375,6 +375,9 @@ namespace BloogBot.Game
                 probe.TargetGuid = target.Guid.ToString();
                 probe.TargetId = target.Id.ToString();
                 probe.TargetClass = (Class)Enum.Parse(typeof(Class), Player.LuaCallWithResults($"{{0}} = UnitClass(\"target\")")[0]);
+                probe.TargetMana = target.Mana;
+                probe.TargetRage = target.Rage;
+                probe.TargetEnergy = target.Energy;
                 probe.TargetCreatureType = target.CreatureType;
                 probe.TargetPosition = target.Position;
                 probe.TargetFactionId = target.FactionId.ToString();
