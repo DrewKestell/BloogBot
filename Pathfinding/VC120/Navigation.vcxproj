@@ -45,17 +45,17 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\..\Bot\</OutDir>
+    <OutDir>..\..\Bot\Release\</OutDir>
     <TargetExt>.mmap</TargetExt>
     <IntDir>..\Release\</IntDir>
     <TargetName>038</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\..\Bot\</OutDir>
+    <OutDir>..\..\Bot\Debug\</OutDir>
     <TargetExt>.mmap</TargetExt>
-    <IntDir>..\Release_temp\</IntDir>
     <TargetName>038</TargetName>
+    <IntDir>..\Debug\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

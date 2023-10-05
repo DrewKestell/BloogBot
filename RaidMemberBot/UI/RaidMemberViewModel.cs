@@ -160,6 +160,11 @@ namespace RaidMemberBot.UI
                                                 else if (instanceCommand.CommandName == InstanceCommand.SET_RAID_LEADER)
                                                 {
                                                     characterState.RaidLeader = instanceCommand.CommandParam1;
+
+                                                    WoWEventHandler.Instance.OnPartyInvite += (sender, args) =>
+                                                    {
+                                                        Lua.Instance.Execute($"AcceptGroup()");
+                                                    };
                                                 }
                                                 else if (instanceCommand.CommandName == InstanceCommand.ADD_PARTY_MEMBER)
                                                 {

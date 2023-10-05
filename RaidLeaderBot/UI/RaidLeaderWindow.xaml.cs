@@ -253,9 +253,12 @@ namespace RaidLeaderBot
 
                                     _socketServer.SendCommandToProcess(characterState.ProcessId, setActivityCommand);
                                 }
-                                else if (RaidLeader == null || RaidLeader.ProcessId == 0)
+                                else if (RaidLeader == null || RaidLeader.CharacterName != characterState.RaidLeader)
                                 {
-                                    RaidLeader = characterState;
+                                    if (RaidLeader == null || RaidLeader.ProcessId == 0)
+                                    {
+                                        RaidLeader = characterState;
+                                    }
 
                                     var setLeaderCommand = new InstanceCommand()
                                     {
@@ -265,7 +268,7 @@ namespace RaidLeaderBot
 
                                     _socketServer.SendCommandToProcess(characterState.ProcessId, setLeaderCommand);
                                 }
-                                else if (RaidLeader.CharacterName != characterState.RaidLeader)
+                                else if (RaidLeader.CharacterName != characterState.RaidLeader && !characterState.InParty)
                                 {
                                     var setLeaderCommand = new InstanceCommand()
                                     {
