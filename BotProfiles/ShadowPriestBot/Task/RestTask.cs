@@ -1,0 +1,118 @@
+﻿using RaidMemberBot.AI;
+using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Helpers;
+using RaidMemberBot.Objects;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace ShadowPriestBot
+{
+    class RestTask : IBotTask
+    {
+        const int stackCount = 5;
+
+        const string AbolishDisease = "Abolish Disease";
+        const string CureDisease = "Cure Disease";
+        const string LesserHeal = "Lesser Heal";
+        const string Heal = "Heal";
+        const string ShadowForm = "Shadowform";
+
+        readonly Stack<IBotTask> botTasks;
+        readonly IClassContainer container;
+        readonly LocalPlayer player;
+        readonly WoWItem drinkItem;
+
+        public RestTask(IClassContainer container, Stack<IBotTask> botTasks)
+        {
+            this.botTasks = botTasks;
+            this.container = container;
+            player = ObjectManager.Instance.Player;
+
+            //drinkItem = Inventory.GetAllItems()
+            //    .FirstOrDefault(i => i.Info.Name == container.BotSettings.Drink);
+        }
+
+        public void Update()
+        {
+            if (player.Casting > 0) return;
+
+            if (InCombat || (HealthOk && ManaOk))
+            {
+                if (Spellbook.Instance.IsSpellReady(ShadowForm) && !player.GotAura(ShadowForm) && player.IsDiseased)
+                {
+                    if (Spellbook.Instance.IsSpellReady(AbolishDisease))
+                        Lua.Instance.Execute($"CastSpellByName('{AbolishDisease}',1)");
+                    else if (Spellbook.Instance.IsSpellReady(CureDisease))
+                        Lua.Instance.Execute($"CastSpellByName('{CureDisease}',2)");
+
+                    return;
+                }
+
+                if (Spellbook.Instance.IsSpellReady(ShadowForm) && !player.GotAura(ShadowForm))
+                    Lua.Instance.Execute($"CastSpellByName('{ShadowForm}')");
+
+                Wait.RemoveAll();
+                player.Stand();
+                botTasks.Pop();
+
+                var drinkCount = drinkItem == null ? 0 : Inventory.Instance.GetItemCount(drinkItem.Id);
+
+                if (!InCombat && drinkCount == 0)
+                {
+                    var drinkToBuy = 28 - (drinkCount / stackCount);
+                    //var itemsToBuy = new Dictionary<string, int>
+                    //{
+                    //    { container.BotSettings.Drink, drinkToBuy }
+                    //};
+
+                    //var currentHotspot = container.GetCurrentHotspot();
+                    //if (currentHotspot.TravelPath != null)
+                    //{
+                    //    botTasks.Push(new TravelState(botTasks, container, currentHotspot.TravelPath.Waypoints, 0));
+                    //    botTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.TravelPath.Waypoints[0]));
+                    //}
+
+                    //botTasks.Push(new BuyItemsState(botTasks, currentHotspot.Innkeeper.Name, itemsToBuy));
+                    //botTasks.Push(new SellItemsState(botTasks, container, currentHotspot.Innkeeper.Name));
+                    //botTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.Innkeeper.Location));
+                    //container.CheckForTravelPath(botTasks, true, false);
+                }
+                else
+                    botTasks.Push(new BuffTask(container, botTasks, new List<WoWUnit>() { ObjectManager.Instance.Player }));
+
+                return;
+            }
+
+            if (!player.IsDrinking && Wait.For("HealSelfDelay", 3500, true))
+            {
+                player.Stand();
+
+                if (player.HealthPercent < 70)
+                {
+                    if (player.GotAura(ShadowForm))
+                        Lua.Instance.Execute($"CastSpellByName('{ShadowForm}')");
+                }
+                
+                if (player.HealthPercent < 50)
+                {
+                    if (Spellbook.Instance.IsSpellReady(Heal))
+                        Lua.Instance.Execute($"CastSpellByName('{Heal}',1)");
+                    else
+                        Lua.Instance.Execute($"CastSpellByName('{LesserHeal}',1)");
+                }
+
+                if (player.HealthPercent < 70)
+                    Lua.Instance.Execute($"CastSpellByName('{LesserHeal}',1)");
+            }
+
+            if (player.Level >= 5 && drinkItem != null && !player.IsDrinking && player.ManaPercent < 60)
+                drinkItem.Use();
+        }
+
+        bool HealthOk => player.HealthPercent > 90;
+
+        bool ManaOk => (player.Level < 5 && player.ManaPercent > 50) || player.ManaPercent >= 90 || (player.ManaPercent >= 65 && !player.IsDrinking);
+
+        bool InCombat => ObjectManager.Instance.Player.IsInCombat || ObjectManager.Instance.Units.Any(u => u.TargetGuid == ObjectManager.Instance.Player.Guid);
+    }
+}

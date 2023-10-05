@@ -1,0 +1,444 @@
+<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:System="clr-namespace:System;assembly=mscorlib" 
+        xmlns:local="clr-namespace:RaidLeaderBot"
+        x:Class="RaidLeaderBot.MainWindow"
+        x:Name="MainControllerWindow"
+        mc:Ignorable="d"
+        Title="Party Central" 
+        Width="652"
+        Height="875"
+        ResizeMode="CanMinimize"
+        SizeToContent="WidthAndHeight">
+    <Window.DataContext>
+        <local:RaidLeaderBotSettings/>
+    </Window.DataContext>
+    <Window.Resources>
+        <local:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+        <Style x:Key="ControlBaseStyle" TargetType="{x:Type Control}">
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+        </Style>
+        <FontFamily x:Key="WarcraftFont">pack://application:,,,/Fonts/#LifeCraft</FontFamily>
+        <Style TargetType="Button" BasedOn="{StaticResource ControlBaseStyle}">
+            <Setter Property="Width" Value="100"></Setter>
+            <Setter Property="Height" Value="31"></Setter>
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="Black"></Setter>
+            <Setter Property="FontFamily" Value="{StaticResource WarcraftFont}"></Setter>
+            <Setter Property="FontSize" Value="16"></Setter>
+        </Style>
+        <Style TargetType="RadioButton" BasedOn="{StaticResource ControlBaseStyle}">
+            <Setter Property="Foreground" Value="Black"></Setter>
+            <Setter Property="FontFamily" Value="{StaticResource WarcraftFont}"></Setter>
+            <Setter Property="FontSize" Value="16"></Setter>
+            <Setter Property="Height" Value="16"></Setter>
+        </Style>
+        <Style TargetType="GroupBox" BasedOn="{StaticResource ControlBaseStyle}">
+            <Setter Property="BorderBrush" Value="Black"></Setter>
+            <Setter Property="BorderThickness" Value="2"></Setter>
+            <Setter Property="Foreground" Value="Black"></Setter>
+            <Setter Property="FontFamily" Value="{StaticResource WarcraftFont}"></Setter>
+            <Setter Property="FontSize" Value="24"></Setter>
+        </Style>
+        <Style TargetType="ComboBox" BasedOn="{StaticResource ControlBaseStyle}">
+            <Setter Property="Foreground" Value="Black"></Setter>
+            <Setter Property="FontFamily" Value="{StaticResource WarcraftFont}"></Setter>
+            <Setter Property="FontSize" Value="16"></Setter>
+            <Setter Property="Height" Value="24"></Setter>
+        </Style>
+        <Style TargetType="CheckBox" BasedOn="{StaticResource ControlBaseStyle}">
+            <Setter Property="Foreground" Value="Black"></Setter>
+            <Setter Property="FontFamily" Value="{StaticResource WarcraftFont}"></Setter>
+            <Setter Property="FontSize" Value="16"></Setter>
+            <Setter Property="Height" Value="16"></Setter>
+        </Style>
+        <Style TargetType="TextBox" BasedOn="{StaticResource ControlBaseStyle}">
+        </Style>
+        <BitmapImage x:Key="BackgroundImageSource" UriSource="Resources/LoadScreen-BottomFillTile.PNG"/>
+        <BitmapImage x:Key="AppFrameImageSource" UriSource="Resources/app_interface_frame.PNG"/>
+
+        <ImageBrush x:Key="BackgroundImageBrush" ImageSource="{StaticResource BackgroundImageSource}"/>
+        <ImageBrush x:Key="AppFrameImageBrush" ImageSource="{StaticResource AppFrameImageSource}"/>
+        <BitmapImage x:Key="StartButtonImageSource" UriSource="Resources/button_texture_start.png"/>
+        <BitmapImage x:Key="StartButtonPressedImageSource" UriSource="Resources/button_texture_start_pressed.png"/>
+        <BitmapImage x:Key="StartButtonDisabledImageSource" UriSource="Resources/button_texture_start_disabled.png"/>
+        <BitmapImage x:Key="StartButtonMouseOverImageSource" UriSource="Resources/button_texture_start_mouseover.png"/>
+
+        <ImageBrush x:Key="StartButton.MouseOver.Background" ImageSource="{StaticResource StartButtonMouseOverImageSource}"/>
+        <ImageBrush x:Key="StartButton.Pressed.Background" ImageSource="{StaticResource StartButtonPressedImageSource}"/>
+        <ImageBrush x:Key="StartButton.IsEnabled.Background" ImageSource="{StaticResource StartButtonImageSource}"/>
+        <ImageBrush x:Key="StartButton.IsDisabled.Background" ImageSource="{StaticResource StartButtonDisabledImageSource}"/>
+        <ControlTemplate x:Key="StartButtonTemplate" TargetType="{x:Type ButtonBase}">
+            <Border  x:Name="border" Background="Transparent">
+                <ContentPresenter/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="Button.IsEnabled" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource StartButton.IsEnabled.Background}"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource StartButton.IsDisabled.Background}"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource StartButton.MouseOver.Background}"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource StartButton.Pressed.Background}"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+        <BitmapImage x:Key="StopButtonImageSource" UriSource="Resources/button_texture_stop.png"/>
+        <BitmapImage x:Key="StopButtonPressedImageSource" UriSource="Resources/button_texture_stop_pressed.png"/>
+        <BitmapImage x:Key="StopButtonDisabledImageSource" UriSource="Resources/button_texture_stop_disabled.png"/>
+        <BitmapImage x:Key="StopButtonMouseOverImageSource" UriSource="Resources/button_texture_stop_mouseover.png"/>
+
+        <ImageBrush x:Key="StopButton.MouseOver.Background" ImageSource="{StaticResource StopButtonMouseOverImageSource}"/>
+        <ImageBrush x:Key="StopButton.Pressed.Background" ImageSource="{StaticResource StopButtonPressedImageSource}"/>
+        <ImageBrush x:Key="StopButton.IsEnabled.Background" ImageSource="{StaticResource StopButtonImageSource}"/>
+        <ImageBrush x:Key="StopButton.IsDisabled.Background" ImageSource="{StaticResource StopButtonDisabledImageSource}"/>
+        <ControlTemplate x:Key="StopButtonTemplate" TargetType="{x:Type ButtonBase}">
+            <Border  x:Name="border" Background="Transparent">
+                <ContentPresenter/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="Button.IsEnabled" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource StopButton.IsEnabled.Background}"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource StopButton.IsDisabled.Background}"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource StopButton.MouseOver.Background}"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource StopButton.Pressed.Background}"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+        <BitmapImage x:Key="UpdateButtonImageSource" UriSource="Resources/button_texture_update.png"/>
+        <BitmapImage x:Key="UpdateButtonPressedImageSource" UriSource="Resources/button_texture_update_pressed.png"/>
+        <BitmapImage x:Key="UpdateButtonDisabledImageSource" UriSource="Resources/button_texture_update_disabled.png"/>
+        <BitmapImage x:Key="UpdateButtonMouseOverImageSource" UriSource="Resources/button_texture_update_mouseover.png"/>
+
+        <ImageBrush x:Key="UpdateButton.MouseOver.Background" ImageSource="{StaticResource UpdateButtonMouseOverImageSource}"/>
+        <ImageBrush x:Key="UpdateButton.Pressed.Background" ImageSource="{StaticResource UpdateButtonPressedImageSource}"/>
+        <ImageBrush x:Key="UpdateButton.IsEnabled.Background" ImageSource="{StaticResource UpdateButtonImageSource}"/>
+        <ImageBrush x:Key="UpdateButton.IsDisabled.Background" ImageSource="{StaticResource UpdateButtonDisabledImageSource}"/>
+        <ControlTemplate x:Key="UpdateButtonTemplate" TargetType="{x:Type ButtonBase}">
+            <Border  x:Name="border" Background="Transparent">
+                <ContentPresenter/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="Button.IsEnabled" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource UpdateButton.IsEnabled.Background}"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource UpdateButton.IsDisabled.Background}"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource UpdateButton.MouseOver.Background}"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource UpdateButton.Pressed.Background}"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+        <BitmapImage x:Key="SpawnButtonImageSource" UriSource="Resources/button_texture_spawn.png"/>
+        <BitmapImage x:Key="SpawnButtonPressedImageSource" UriSource="Resources/button_texture_spawn_pressed.png"/>
+        <BitmapImage x:Key="SpawnButtonDisabledImageSource" UriSource="Resources/button_texture_spawn_disabled.png"/>
+        <BitmapImage x:Key="SpawnButtonMouseOverImageSource" UriSource="Resources/button_texture_spawn_mouseover.png"/>
+
+        <ImageBrush x:Key="SpawnButton.MouseOver.Background" ImageSource="{StaticResource SpawnButtonMouseOverImageSource}"/>
+        <ImageBrush x:Key="SpawnButton.Pressed.Background" ImageSource="{StaticResource SpawnButtonPressedImageSource}"/>
+        <ImageBrush x:Key="SpawnButton.IsEnabled.Background" ImageSource="{StaticResource SpawnButtonImageSource}"/>
+        <ImageBrush x:Key="SpawnButton.IsDisabled.Background" ImageSource="{StaticResource SpawnButtonDisabledImageSource}"/>
+        <ControlTemplate x:Key="SpawnButtonTemplate" TargetType="{x:Type ButtonBase}">
+            <Border  x:Name="border" Background="Transparent">
+                <ContentPresenter/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="Button.IsEnabled" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource SpawnButton.IsEnabled.Background}"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource SpawnButton.IsDisabled.Background}"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource SpawnButton.MouseOver.Background}"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource SpawnButton.Pressed.Background}"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <BitmapImage x:Key="BackButtonImageSource" UriSource="Resources/button_texture_back.png"/>
+        <BitmapImage x:Key="BackButtonPressedImageSource" UriSource="Resources/button_texture_back_pressed.png"/>
+        <BitmapImage x:Key="BackButtonDisabledImageSource" UriSource="Resources/button_texture_back_disabled.png"/>
+        <BitmapImage x:Key="BackButtonMouseOverImageSource" UriSource="Resources/button_texture_back_mouseover.png"/>
+
+        <ImageBrush x:Key="BackButton.MouseOver.Background" ImageSource="{StaticResource BackButtonMouseOverImageSource}"/>
+        <ImageBrush x:Key="BackButton.Pressed.Background" ImageSource="{StaticResource BackButtonPressedImageSource}"/>
+        <ImageBrush x:Key="BackButton.IsEnabled.Background" ImageSource="{StaticResource BackButtonImageSource}"/>
+        <ImageBrush x:Key="BackButton.IsDisabled.Background" ImageSource="{StaticResource BackButtonDisabledImageSource}"/>
+        <ControlTemplate x:Key="BackButtonTemplate" TargetType="{x:Type ButtonBase}">
+            <Border  x:Name="border" Background="Transparent">
+                <ContentPresenter/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="Button.IsEnabled" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource BackButton.IsEnabled.Background}"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource BackButton.IsDisabled.Background}"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource BackButton.MouseOver.Background}"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource BackButton.Pressed.Background}"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+        <BitmapImage x:Key="CancelButtonImageSource" UriSource="Resources/button_texture_cancel.png"/>
+        <BitmapImage x:Key="CancelButtonPressedImageSource" UriSource="Resources/button_texture_cancel_pressed.png"/>
+        <BitmapImage x:Key="CancelButtonDisabledImageSource" UriSource="Resources/button_texture_cancel_disabled.png"/>
+        <BitmapImage x:Key="CancelButtonMouseOverImageSource" UriSource="Resources/button_texture_cancel_mouseover.png"/>
+
+        <ImageBrush x:Key="CancelButton.MouseOver.Background" ImageSource="{StaticResource CancelButtonMouseOverImageSource}"/>
+        <ImageBrush x:Key="CancelButton.Pressed.Background" ImageSource="{StaticResource CancelButtonPressedImageSource}"/>
+        <ImageBrush x:Key="CancelButton.IsEnabled.Background" ImageSource="{StaticResource CancelButtonImageSource}"/>
+        <ImageBrush x:Key="CancelButton.IsDisabled.Background" ImageSource="{StaticResource CancelButtonDisabledImageSource}"/>
+        <ControlTemplate x:Key="CancelButtonTemplate" TargetType="{x:Type ButtonBase}">
+            <Border  x:Name="border" Background="Transparent">
+                <ContentPresenter/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="Button.IsEnabled" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource CancelButton.IsEnabled.Background}"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource CancelButton.IsDisabled.Background}"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource CancelButton.MouseOver.Background}"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource CancelButton.Pressed.Background}"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+        <BitmapImage x:Key="AddPresetButtonImageSource" UriSource="Resources/UI-PlusButton-Up.png"/>
+        <BitmapImage x:Key="AddPresetButtonPressedImageSource" UriSource="Resources/UI-PlusButton-Down.png"/>
+        <BitmapImage x:Key="AddPresetButtonDisabledImageSource" UriSource="Resources/UI-PlusButton-Disabled.png"/>
+
+        <ImageBrush x:Key="AddPresetButton.Pressed.Background" ImageSource="{StaticResource AddPresetButtonPressedImageSource}"/>
+        <ImageBrush x:Key="AddPresetButton.IsEnabled.Background" ImageSource="{StaticResource AddPresetButtonImageSource}"/>
+        <ImageBrush x:Key="AddPresetButton.IsDisabled.Background" ImageSource="{StaticResource AddPresetButtonDisabledImageSource}"/>
+        <ControlTemplate x:Key="AddPresetButtonTemplate" TargetType="{x:Type ButtonBase}">
+            <Border  x:Name="border" Background="Transparent">
+                <ContentPresenter/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="Button.IsEnabled" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource AddPresetButton.IsEnabled.Background}"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource AddPresetButton.IsDisabled.Background}"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource AddPresetButton.Pressed.Background}"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+        <BitmapImage x:Key="RemovePresetButtonImageSource" UriSource="Resources/UI-MinusButton-Up.png"/>
+        <BitmapImage x:Key="RemovePresetButtonPressedImageSource" UriSource="Resources/UI-MinusButton-Down.png"/>
+        <BitmapImage x:Key="RemovePresetButtonDisabledImageSource" UriSource="Resources/UI-MinusButton-Disabled.png"/>
+
+        <ImageBrush x:Key="RemovePresetButton.Pressed.Background" ImageSource="{StaticResource RemovePresetButtonPressedImageSource}"/>
+        <ImageBrush x:Key="RemovePresetButton.IsEnabled.Background" ImageSource="{StaticResource RemovePresetButtonImageSource}"/>
+        <ImageBrush x:Key="RemovePresetButton.IsDisabled.Background" ImageSource="{StaticResource RemovePresetButtonDisabledImageSource}"/>
+        <ControlTemplate x:Key="RemovePresetButtonTemplate" TargetType="{x:Type ButtonBase}">
+            <Border  x:Name="border" Background="Transparent">
+                <ContentPresenter/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="Button.IsEnabled" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource RemovePresetButton.IsEnabled.Background}"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource RemovePresetButton.IsDisabled.Background}"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource RemovePresetButton.Pressed.Background}"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+        <BitmapImage x:Key="SaveButtonImageSource" UriSource="Resources/button_texture_save.png"/>
+        <BitmapImage x:Key="SaveButtonPressedImageSource" UriSource="Resources/button_texture_save_pressed.png"/>
+        <BitmapImage x:Key="SaveButtonDisabledImageSource" UriSource="Resources/button_texture_save_disabled.png"/>
+        <BitmapImage x:Key="SaveButtonMouseOverImageSource" UriSource="Resources/button_texture_save_mouseover.png"/>
+
+        <ImageBrush x:Key="SaveButton.Pressed.Background" ImageSource="{StaticResource SaveButtonPressedImageSource}"/>
+        <ImageBrush x:Key="SaveButton.IsEnabled.Background" ImageSource="{StaticResource SaveButtonImageSource}"/>
+        <ImageBrush x:Key="SaveButton.MouseOver.Background" ImageSource="{StaticResource SaveButtonMouseOverImageSource}"/>
+        <ImageBrush x:Key="SaveButton.IsDisabled.Background" ImageSource="{StaticResource SaveButtonDisabledImageSource}"/>
+        <ControlTemplate x:Key="SaveButtonTemplate" TargetType="{x:Type ButtonBase}">
+            <Border  x:Name="border" Background="Transparent">
+                <ContentPresenter/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsEnabled" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource SaveButton.IsEnabled.Background}"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource SaveButton.IsDisabled.Background}"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource SaveButton.MouseOver.Background}"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="{StaticResource SaveButton.Pressed.Background}"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+    </Window.Resources>
+    <Grid>
+        <StackPanel Background="{StaticResource BackgroundImageBrush}">
+            <GroupBox Header="Bot Settings" Height="123" Margin="6,6,0,0" Width="634">
+                <Grid>
+                    <Label Content="Members" FontSize="18" Margin="543,26,10,37"></Label>
+                    <Label Content="Preset" FontSize="18" Margin="481,26,89,37"></Label>
+                    <RadioButton x:Name="QuestingRadioButton" IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" Content="Questing" FontSize="22" Height="24" Click="ActivityRadioButton_Click" Margin="343,36,0,0"/>
+                    <RadioButton x:Name="InstanceRadioButton" IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" Content="Instance" d:IsChecked="True" FontSize="22" Height="24" Click="ActivityRadioButton_Click" Margin="10,36,0,0"></RadioButton>
+                    <CheckBox x:Name="PartyCheckBox" IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" Content="Party" d:IsChecked="True" d:IsEnabled="False" IsChecked="{Binding ShouldParty}" FontSize="22" Height="24" Margin="343,65,0,0" />
+                    <TextBox x:Name="PartySizeTextBox" IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" d:Text="4" FontSize="18" Text="{Binding PartySize}" HorizontalContentAlignment="Right" Width="32" Height="21" PreviewTextInput="PartySizeTextBox_PreviewTextInput" Margin="580,61,0,0"/>
+                    <ComboBox x:Name="InstanceComboBox" IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}"  FontSize="16" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="11" Height="24" Width="310" Margin="10,60,0,0" SelectionChanged="InstanceComboBox_SelectionChanged">
+                        <ComboBoxItem Content="10 [ Ragefire Chasm (13-18)"/>
+                        <ComboBoxItem Content="10 Wailing Caverns (15-25)"/>
+                        <ComboBoxItem Content="10 The Deadmines (18-23)"/>
+                        <ComboBoxItem Content="10 Shadowfang Keep (22-30)"/>
+                        <ComboBoxItem Content="10 ] The Stockade (22-30)"/>
+                        <ComboBoxItem Content="10 Blackfathom Deeps (24-32)"/>
+                        <ComboBoxItem Content="10 Gnomeregan (29-38)"/>
+                        <ComboBoxItem Content="10 Razorfen Kraul (30-40)"/>
+                        <ComboBoxItem Content="10 The Scarlet Monastery - Graveyard (28-38)"/>
+                        <ComboBoxItem Content="10 The Scarlet Monastery - Library (29-39)"/>
+                        <ComboBoxItem Content="10 The Scarlet Monastery - Armory (32-42)"/>
+                        <ComboBoxItem Content="10 The Scarlet Monastery - Cathedral (35-45)"/>
+                        <ComboBoxItem Content="10 Razorfen Downs (40-50)"/>
+                        <ComboBoxItem Content="10 Uldaman (42-52)"/>
+                        <ComboBoxItem Content="10 Zul'Farrak (42-46)"/>
+                        <ComboBoxItem Content="10 Maraudon - Wicked Grotto (Purple) (46-55)"/>
+                        <ComboBoxItem Content="10 Maraudon - Foulspore Cavern (Orange) (46-55)"/>
+                        <ComboBoxItem Content="10 Maraudon - Earth Song Falls (Inner) (46-55)"/>
+                        <ComboBoxItem Content="10 Temple of Atal'Hakkar (50-56)"/>
+                        <ComboBoxItem Content="40 Blackrock Depths (52-60)"/>
+                        <ComboBoxItem Content="10 Lower Blackrock Spire (55-60)"/>
+                        <ComboBoxItem Content="10 Upper Blackrock Spire (58-60)"/>
+                        <ComboBoxItem Content="5 Dire Maul (55-60)"/>
+                        <ComboBoxItem Content="5 Stratholme (58-60)"/>
+                        <ComboBoxItem Content="5 Scholomance (58-60)"/>
+                        <ComboBoxItem Content="40 Onyxia's Lair (60+)"/>
+                        <ComboBoxItem Content="20 Zul'Gurub (60+)"/>
+                        <ComboBoxItem Content="40 Molten Core (60+)"/>
+                        <ComboBoxItem Content="40 Blackwing Lair (60++)"/>
+                        <ComboBoxItem Content="20 Ruins of Ahn'Qiraj (60++)"/>
+                        <ComboBoxItem Content="40 Temple of Ahn'Qiraj (60+++)"/>
+                        <ComboBoxItem Content="40 Naxxramas (60++++)"/>
+                        <ComboBoxItem Content="10 Warsong Gultch"/>
+                        <ComboBoxItem Content="15 Arathi Basin"/>
+                        <ComboBoxItem Content="40 Alterac Valley"/>
+                    </ComboBox>
+                    <ComboBox Name="PresetSelectorComboBox" IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" Margin="485,59,0,0" Width="48" HorizontalContentAlignment="Right" SelectedIndex="0" SelectionChanged="PresetSelectorComboBox_SelectionChanged">
+                        <ComboBoxItem Content="1"/>
+                    </ComboBox>
+                    <Button x:Name="StartAllBotsButton" IsEnabled="{Binding CanStart}" Template="{DynamicResource StartButtonTemplate}" Click="AllBotsControlButton_Click" Margin="10,0,0,0"/>
+                    <Button x:Name="StopAllBotsButton" IsEnabled="{Binding CanStop}" d:IsEnabled="False" Template="{DynamicResource StopButtonTemplate}" Click="AllBotsControlButton_Click" Margin="115,0,0,0"/>
+                    <Button x:Name="NewWoWLaunchButton" IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" Template="{DynamicResource SpawnButtonTemplate}" Click="NewWoWLaunchButton_Click" Margin="220,0,0,0" />
+                    <Button x:Name="AddPresetButton" IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" Template="{DynamicResource AddPresetButtonTemplate}" Click="AddPresetButton_Click" Margin="439,65,0,0" Width="18" Height="18" />
+                    <Button x:Name="RemovePresetButton" IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" d:IsEnabled="false" Template="{DynamicResource RemovePresetButtonTemplate}" Click="RemovePresetButton_Click" Margin="462,65,0,0" Width="18" Height="18" />
+                    <Button x:Name="SaveConfigButton" IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" Template="{DynamicResource SaveButtonTemplate}" Click="SaveConfigButton_Click" Margin="512,-5,0,0" />
+                </Grid>
+            </GroupBox>
+            <ScrollViewer VerticalScrollBarVisibility="Hidden" Margin="6,6,6,6" Height="650">
+                <ItemsControl ItemsSource="{Binding Players}">
+                    <d:ItemsControl.ItemsSource>
+                        <x:Array Type="{x:Type local:PlayerViewModel}">
+                            <local:PlayerViewModel Header="Player 1 - Felhand" ProcessId="2124" CurrentTask="MoveToPosition" CurrentActivity="Dungeon" 
+                                                    Location="X: 128 Y: 4299 Z: 4535" Zone="Valley of Trials" IsRunning="True"/>
+
+                            <local:PlayerViewModel Header="Player 2 - Offline" ProcessId="11654" IsRunning="True"
+                                                   CurrentTask="Login" CurrentActivity="Dungeon" Zone="Login Screen"/>
+
+                            <local:PlayerViewModel Header="Player 3 - Offline" ProcessId="No Process" IsRunning="False"
+                                               CurrentTask="" CurrentActivity="Listening..."  Zone=""/>
+
+                            <local:PlayerViewModel Header="Player 4 - Offline" ProcessId="No Process" IsRunning="False"
+                                               CurrentTask="" CurrentActivity="Listening..." Zone=""/>
+
+                            <local:PlayerViewModel Header="Player 5 - Offline" ProcessId="No Process" IsRunning="False"
+                                               CurrentTask="" CurrentActivity="Listening..." Zone=""/>
+                        </x:Array>
+                    </d:ItemsControl.ItemsSource>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Grid.Row="0" Visibility="Visible">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="344"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="130"/>
+                                </Grid.RowDefinitions>
+                                <GroupBox Header="{Binding Header}" Grid.Column="0" VerticalAlignment="Center" Width="344">
+                                    <Grid>
+                                        <Button IsEnabled="{Binding IsRunning, Converter={StaticResource InverseBooleanConverter}}" Template="{DynamicResource StartButtonTemplate}" Margin="10,10,0,0" Command="{Binding StartCommand}"/>
+                                        <Button IsEnabled="{Binding IsRunning}" Template="{DynamicResource StopButtonTemplate}" Margin="115,10,0,0" Command="{Binding StopCommand}"/>
+                                        <Label Content="Account Name" Margin="10,39,222,36"/>
+                                        <Label Content="Slot" Margin="123,39,172,36"/>
+                                        <Label Content="Bot Profile Name" Margin="161,39,48,36"/>
+                                        <TextBox x:Name="AccountTextBox" Text="{Binding AccountName}" Width="100" FontSize="18" Margin="10,67,0,0"/>
+                                        <TextBox x:Name="CharacterSlotTextBox" d:Text="1" FontSize="18" Text="{Binding CharacterSlot}" HorizontalContentAlignment="Right" Width="29" Height="21" Margin="123,67,0,0"/>
+                                        <TextBox x:Name="BotProfileTextBox" Text="{Binding BotProfileName}" Width="161" FontSize="18" Margin="161,67,0,0"/>
+                                    </Grid>
+                                </GroupBox>
+                                <GroupBox Header="{Binding ProcessId}" Grid.Column="1" Margin="6,0,0,0" Width="286" VerticalAlignment="Center">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="24"/>
+                                            <RowDefinition Height="24"/>
+                                            <RowDefinition Height="24"/>
+                                            <RowDefinition Height="24"/>
+                                            <RowDefinition Height="24"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="64"/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Row="0" Grid.Column="0" Content="Activity:" HorizontalContentAlignment="Right"/>
+                                        <Label Grid.Row="0" Grid.Column="1" Content="{Binding CurrentActivity}" HorizontalContentAlignment="Center"/>
+
+                                        <Label Grid.Row="1" Grid.Column="0" Content="Zone:" HorizontalContentAlignment="Right"/>
+                                        <Label Grid.Row="1" Grid.Column="1" Content="{Binding Zone}" HorizontalContentAlignment="Center" Grid.ColumnSpan="3"/>
+
+                                        <Label Grid.Row="2" Grid.Column="0" Content="Location:" HorizontalContentAlignment="Right"/>
+                                        <Label Grid.Row="2" Grid.Column="1" Content="{Binding Location}" HorizontalContentAlignment="Center" Grid.ColumnSpan="3"/>
+
+                                        <Label Grid.Row="3" Grid.Column="0" Content="Task:" HorizontalContentAlignment="Right"/>
+                                        <Label Grid.Row="3" Grid.Column="1" Content="{Binding CurrentTask}" HorizontalContentAlignment="Center"/>
+                                    </Grid>
+                                </GroupBox>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -15,10 +15,10 @@
 */[Dd]ebugPublic/
 */[Rr]elease/
 */[Rr]eleases/
-[Dd]ebug/Bootstrapper.*
-[Dd]ebug/Internal/BloogBot.*
-[Rr]elease/Bootstrapper.*
-[Rr]elease/Internal/BloogBot.*
+[Dd]ebug/RaidLeaderBot.*
+[Dd]ebug/Internal/RaidMemberBot.*
+[Rr]elease/RaidLeaderBot.*
+[Rr]elease/Internal/RaidMemberBot.*
 [Dd]ebug/Internal/WinImports.dll
 [Rr]elease/Internal/WinImports.dll
 [Dd]ebug/Botbases/*
@@ -280,5 +280,5 @@ main.min.css
 *.min.js
 
 Bot
-bootstrapperSettings.json
-botSettings.json
+raidLeaderBotSettings.json
+raidMemberBotSettings.json

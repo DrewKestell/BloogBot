@@ -36,7 +36,7 @@ A few more important notes:
   - Build the solution - if you get compiler errors, you're likely missing some SDK / framework dependencies. Check the errors, consult Google, and use the Visual Studio installer to install any missing dependencies. For example, you'll definitely need some C++ Build Tools if you don't have them installed already.
   - Create required Azure infrastructure (alternatively, you can use a local sql database, or sqlite). Add your connection string to botSettings.json and a script should run to scaffold the necessary tables the first time you run the bot. Ask in Discord if this doesn't work for you.
   - Install version 1.12.1, 2.4.3, or 3.5.5 of the WoW client.
-  - Update values in `bootstrapperSettings.json` and `botSettings.json`
+  - Update values in `raidLeaderBotSettings.json` and `botSettings.json`
   - Generate movemaps and dump them into <repo>\Bot\mmaps (see FAQ for details).
   - Set Bootstrapper as your startup project, and fire up your debugger. You should see Wow.exe launch, and then you'll be prompted to attach a debugger to Visual Studio. To learn more about the overall flow of how the bot attached to the WoW process, [read my website](https://drewkestell.us/Article/6/Chapter/1)
   - View the documentation in the Docs folder to learn more.

@@ -22,19 +22,11 @@
 #include "CorError.h"
 #include <iostream>
 
-#include "_BotDomainManagerInterface.h"
-#include "BotHostControl.h"
-
 // No rough configuration needed. :)
 #pragma comment( lib, "mscoree" )
 
-//#define LOAD_DLL_FILE_NAME L"DomainManager.dll"
-//#define NAMESPACE_AND_CLASS L"DomainManager.EntryPoint"
-//#define MAIN_METHOD L"Main"
-//#define MAIN_METHOD_ARGS L"NONE"
-
-#define LOAD_DLL_FILE_NAME L"BloogBot.exe"
-#define NAMESPACE_AND_CLASS L"BloogBot.Loader"
+#define LOAD_DLL_FILE_NAME L"RaidMemberBot.exe"
+#define NAMESPACE_AND_CLASS L"RaidMemberBot.Loader"
 #define MAIN_METHOD L"Load"
 #define MAIN_METHOD_ARGS L"NONE"
 
