@@ -89,18 +89,6 @@ namespace RaidLeaderBot
 
             DataContext = this;
 
-            if (Activity == "Questing")
-            {
-                QuestingRadioButton.IsChecked = true;
-                PartyCheckBox.IsEnabled = true;
-            }
-            else
-            {
-                InstanceRadioButton.IsChecked = true;
-                PartyCheckBox.IsEnabled = false;
-                PartyCheckBox.IsChecked = true;
-            }
-
             for (int i = 0; i < InstanceComboBox.Items.Count; i++)
             {
                 if (((ComboBoxItem)InstanceComboBox.Items.GetItemAt(i)).Content.ToString() == Activity)
@@ -114,19 +102,19 @@ namespace RaidLeaderBot
             {
                 while (_raidLeaderBotSettings.ActivityPresets[Activity].Count < PresetSelectorComboBox.Items.Count)
                 {
-                    _raidLeaderBotSettings.ActivityPresets[Activity].Add(new List<PartyMemberPreset>() { new PartyMemberPreset() });
+                    _raidLeaderBotSettings.ActivityPresets[Activity].Add(new List<RaidMemberPreset>() { new RaidMemberPreset() });
                 }
-                PartyMemberPresets = _raidLeaderBotSettings.ActivityPresets[Activity][PresetSelectorComboBox.SelectedIndex < 0 ? 0 : PresetSelectorComboBox.SelectedIndex];
+                RaidMemberPresets = _raidLeaderBotSettings.ActivityPresets[Activity][PresetSelectorComboBox.SelectedIndex < 0 ? 0 : PresetSelectorComboBox.SelectedIndex];
             }
             else
             {
-                _raidLeaderBotSettings.ActivityPresets.Add(Activity, new List<List<PartyMemberPreset>>() { new List<PartyMemberPreset>() { new PartyMemberPreset() } });
-                PartyMemberPresets = _raidLeaderBotSettings.ActivityPresets[Activity][PresetSelectorComboBox.SelectedIndex < 0 ? 0 : PresetSelectorComboBox.SelectedIndex];
+                _raidLeaderBotSettings.ActivityPresets.Add(Activity, new List<List<RaidMemberPreset>>() { new List<RaidMemberPreset>() { new RaidMemberPreset() } });
+                RaidMemberPresets = _raidLeaderBotSettings.ActivityPresets[Activity][PresetSelectorComboBox.SelectedIndex < 0 ? 0 : PresetSelectorComboBox.SelectedIndex];
             }
 
             PresetSelectorComboBox.Items.Clear();
 
-            for (int i = 0; i < PartyMemberPresets.Count; i++)
+            for (int i = 0; i < RaidMemberPresets.Count; i++)
             {
                 PresetSelectorComboBox.Items.Add((i + 1).ToString());
             }
@@ -150,7 +138,7 @@ namespace RaidLeaderBot
         }
         public void ConsumeMessage(CharacterState characterState)
         {
-            for (int i = 0; i < PartyMemberPresets.Count; i++)
+            for (int i = 0; i < RaidMemberPresets.Count; i++)
             {
                 if (_characterStates[i].ProcessId == characterState.ProcessId)
                 {
@@ -164,18 +152,18 @@ namespace RaidLeaderBot
                     return;
                 }
             }
-            for (int i = 0; i < PartyMemberPresets.Count; i++)
+            for (int i = 0; i < RaidMemberPresets.Count; i++)
             {
                 if (_characterStates[i].ProcessId == 0
-                    && PartyMemberPresets[i].AccountName == _characterStates[i].AccountName
-                    && PartyMemberPresets[i].CharacterSlot == _characterStates[i].CharacterSlot
-                    && PartyMemberPresets[i].BotProfileName == _characterStates[i].BotProfileName)
+                    && RaidMemberPresets[i].AccountName == _characterStates[i].AccountName
+                    && RaidMemberPresets[i].CharacterSlot == _characterStates[i].CharacterSlot
+                    && RaidMemberPresets[i].BotProfileName == _characterStates[i].BotProfileName)
                 {
                     _characterStates[i] = characterState;
                     return;
                 }
             }
-            for (int i = 0; i < PartyMemberPresets.Count; i++)
+            for (int i = 0; i < RaidMemberPresets.Count; i++)
             {
                 if (_characterStates[i].ProcessId == 0)
                 {
@@ -194,6 +182,9 @@ namespace RaidLeaderBot
                 }
 
                 StartAllBotsButton.IsEnabled = false;
+
+                OnPropertyChanged(nameof(CanStart));
+                OnPropertyChanged(nameof(CanStop));
             }
             catch
             {
@@ -210,6 +201,9 @@ namespace RaidLeaderBot
                 }
 
                 StopAllBotsButton.IsEnabled = false;
+
+                OnPropertyChanged(nameof(CanStart));
+                OnPropertyChanged(nameof(CanStop));
             }
             catch
             {
@@ -220,45 +214,79 @@ namespace RaidLeaderBot
         {
             while (true)
             {
-                for (int i = 0; i < PartyMemberPresets.Count; i++)
+                for (int i = 0; i < RaidMemberPresets.Count; i++)
                 {
+                    CharacterState characterState = _characterStates[i];
+
                     if (Players[i].ShouldRun)
                     {
-                        if (_characterStates[i].ProcessId > 0)
+                        if (characterState.ProcessId > 0)
                         {
-                            if (_characterStates[i].IsRunning)
+                            if (characterState.IsRunning)
                             {
-                                if (_characterStates[i].Guid == 0
-                                        || _characterStates[i].AccountName != PartyMemberPresets[i].AccountName
-                                        || _characterStates[i].CharacterSlot != PartyMemberPresets[i].CharacterSlot
-                                        || _characterStates[i].BotProfileName != PartyMemberPresets[i].BotProfileName)
+                                if (characterState.Guid == 0
+                                        || characterState.AccountName != RaidMemberPresets[i].AccountName
+                                        || characterState.CharacterSlot != RaidMemberPresets[i].CharacterSlot
+                                        || characterState.BotProfileName != RaidMemberPresets[i].BotProfileName)
                                 {
-                                    if (!_characterStates[i].SetAccountInfoRequested)
+                                    if (!characterState.SetAccountInfoRequested)
                                     {
                                         var loginCommand = new InstanceCommand()
                                         {
                                             CommandName = InstanceCommand.SET_ACCOUNT_INFO,
-                                            CommandParam1 = PartyMemberPresets[i].AccountName,
-                                            CommandParam2 = PartyMemberPresets[i].CharacterSlot.ToString(),
-                                            CommandParam3 = PartyMemberPresets[i].BotProfileName
+                                            CommandParam1 = RaidMemberPresets[i].AccountName,
+                                            CommandParam2 = RaidMemberPresets[i].CharacterSlot.ToString(),
+                                            CommandParam3 = RaidMemberPresets[i].BotProfileName
                                         };
 
-                                        _socketServer.SendCommandToProcess(_characterStates[i].ProcessId, loginCommand);
-                                        _characterStates[i].SetAccountInfoRequested = true;
+                                        _socketServer.SendCommandToProcess(characterState.ProcessId, loginCommand);
+                                        characterState.SetAccountInfoRequested = true;
                                     }
+                                }
+                                else if (string.IsNullOrEmpty(characterState.CurrentActivity))
+                                {
+                                    var setActivityCommand = new InstanceCommand()
+                                    {
+                                        CommandName = InstanceCommand.SET_ACTIVITY,
+                                        CommandParam1 = Activity,
+                                    };
+
+                                    _socketServer.SendCommandToProcess(characterState.ProcessId, setActivityCommand);
+                                }
+                                else if (RaidLeader == null || RaidLeader.ProcessId == 0)
+                                {
+                                    RaidLeader = characterState;
+
+                                    var setLeaderCommand = new InstanceCommand()
+                                    {
+                                        CommandName = InstanceCommand.SET_RAID_LEADER,
+                                        CommandParam1 = RaidLeader.CharacterName,
+                                    };
+
+                                    _socketServer.SendCommandToProcess(characterState.ProcessId, setLeaderCommand);
+                                }
+                                else if (RaidLeader.CharacterName != characterState.RaidLeader)
+                                {
+                                    var setLeaderCommand = new InstanceCommand()
+                                    {
+                                        CommandName = InstanceCommand.ADD_PARTY_MEMBER,
+                                        CommandParam1 = characterState.CharacterName,
+                                    };
+
+                                    _socketServer.SendCommandToProcess(RaidLeader.ProcessId, setLeaderCommand);
                                 }
                             }
                             else
                             {
-                                if (!_characterStates[i].StartRequested)
+                                if (!characterState.StartRequested)
                                 {
                                     var startCommand = new InstanceCommand()
                                     {
                                         CommandName = InstanceCommand.START,
                                     };
 
-                                    _socketServer.SendCommandToProcess(_characterStates[i].ProcessId, startCommand);
-                                    _characterStates[i].StartRequested = true;
+                                    _socketServer.SendCommandToProcess(characterState.ProcessId, startCommand);
+                                    characterState.StartRequested = true;
                                 }
                             }
                         }
@@ -269,23 +297,25 @@ namespace RaidLeaderBot
                     }
                     else
                     {
-                        if (_characterStates[i].ProcessId > 0 && _characterStates[i].IsRunning && !_characterStates[i].StopRequested)
+                        if (characterState.ProcessId > 0 && characterState.IsRunning && !characterState.StopRequested)
                         {
                             var stopCommand = new InstanceCommand()
                             {
                                 CommandName = InstanceCommand.STOP,
                             };
 
-                            _socketServer.SendCommandToProcess(_characterStates[i].ProcessId, stopCommand);
-                            _characterStates[i].StopRequested = true;
+                            _socketServer.SendCommandToProcess(characterState.ProcessId, stopCommand);
+                            characterState.StopRequested = true;
                         }
                     }
+
+                    await Task.Delay(500);
                 }
 
                 OnPropertyChanged(nameof(CanStart));
                 OnPropertyChanged(nameof(CanStop));
 
-                await Task.Delay(100);
+                await Task.Delay(50);
             }
         }
 
@@ -297,8 +327,8 @@ namespace RaidLeaderBot
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        private List<PartyMemberPreset> _partyMemberPresets = new List<PartyMemberPreset>();
-        public List<PartyMemberPreset> PartyMemberPresets
+        private List<RaidMemberPreset> _partyMemberPresets = new List<RaidMemberPreset>();
+        public List<RaidMemberPreset> RaidMemberPresets
         {
             get
             {
@@ -336,33 +366,34 @@ namespace RaidLeaderBot
                 PresetSelectorComboBox.Items.Clear();
                 Players.Clear();
 
-                for (int i = 0; i < PartyMemberPresets.Count; i++)
+                for (int i = 0; i < RaidMemberPresets.Count; i++)
                 {
                     PresetSelectorComboBox.Items.Add((i + 1).ToString());
                 }
 
                 PresetSelectorComboBox.SelectedIndex = 0;
 
-                RegeneratePartyList();
+                RegenerateRaidList();
             }
         }
-        public bool ShouldParty
+        public CharacterState RaidLeader { set; get; }
+        public bool ShouldRaid
         {
             get
             {
-                return _raidLeaderBotSettings.ShouldParty;
+                return _raidLeaderBotSettings.ShouldRaid;
             }
             set
             {
-                _raidLeaderBotSettings.ShouldParty = value;
-                OnPropertyChanged(nameof(ShouldParty));
+                _raidLeaderBotSettings.ShouldRaid = value;
+                OnPropertyChanged(nameof(ShouldRaid));
             }
         }
-        public string PartySize
+        public string RaidSize
         {
             get
             {
-                return PartyMemberPresets.Count.ToString();
+                return RaidMemberPresets.Count.ToString();
             }
             set
             {
@@ -380,24 +411,24 @@ namespace RaidLeaderBot
                         {
                             partySize = 40;
                         }
-                        int difference = partySize - PartyMemberPresets.Count;
+                        int difference = partySize - RaidMemberPresets.Count;
 
                         if (difference > 0)
                         {
                             for (int i = 0; i < difference; i++)
                             {
-                                PartyMemberPresets.Add(new PartyMemberPreset());
+                                RaidMemberPresets.Add(new RaidMemberPreset());
                             }
                         }
                         else if (difference < 0)
                         {
-                            while (PartyMemberPresets.Count > partySize)
+                            while (RaidMemberPresets.Count > partySize)
                             {
-                                PartyMemberPresets.Remove(PartyMemberPresets.ElementAt(PartyMemberPresets.Count - 1));
+                                RaidMemberPresets.Remove(RaidMemberPresets.ElementAt(RaidMemberPresets.Count - 1));
                             }
                         }
 
-                        RegeneratePartyList();
+                        RegenerateRaidList();
                     }
                     catch (Exception)
                     {
@@ -406,30 +437,30 @@ namespace RaidLeaderBot
                 }
             }
         }
-        private void RegeneratePartyList()
+        private void RegenerateRaidList()
         {
-            for (int i = Players.Count; i < PartyMemberPresets.Count; i++)
+            for (int i = Players.Count; i < RaidMemberPresets.Count; i++)
             {
                 PlayerViewModel playerViewModel = new PlayerViewModel
                 {
-                    PartyMemberPreference = PartyMemberPresets[i],
+                    RaidMemberPreference = RaidMemberPresets[i],
                     ProcessId = "Not Connected",
-                    AccountName = PartyMemberPresets[i].AccountName,
-                    BotProfileName = PartyMemberPresets[i].BotProfileName,
-                    CharacterSlot = PartyMemberPresets[i].CharacterSlot.ToString(),
+                    AccountName = RaidMemberPresets[i].AccountName,
+                    BotProfileName = RaidMemberPresets[i].BotProfileName,
+                    CharacterSlot = RaidMemberPresets[i].CharacterSlot.ToString(),
                     Header = string.Format($"Player {i + 1}")
                 };
 
                 Players.Add(playerViewModel);
             }
 
-            while (Players.Count > PartyMemberPresets.Count)
+            while (Players.Count > RaidMemberPresets.Count)
             {
                 Players.RemoveAt(Players.Count - 1);
             }
 
             OnPropertyChanged(nameof(Players));
-            OnPropertyChanged(nameof(PartySize));
+            OnPropertyChanged(nameof(RaidSize));
         }
 
         private void UpdateBotLabels()
@@ -474,45 +505,27 @@ namespace RaidLeaderBot
                 }
             }
         }
-        private void ActivityRadioButton_Click(object sender, RoutedEventArgs e)
+        private void RaidSizeTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            if (sender is RadioButton radioButton && radioButton.IsChecked == true)
-            {
-                if (radioButton == QuestingRadioButton)
-                {
-                    Activity = "Questing";
-                    PartyCheckBox.IsEnabled = true;
-                }
-                else
-                {
-                    PartyCheckBox.IsEnabled = false;
-                    PartyCheckBox.IsChecked = true;
-
-                    Activity = ((ComboBoxItem)InstanceComboBox.SelectedItem).Content.ToString();
-                }
-            }
-        }
-        private void PartySizeTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-            if (_regex.IsMatch(PartySizeTextBox.Text))
+            if (_regex.IsMatch(RaidSizeTextBox.Text))
             {
                 try
                 {
-                    if (!string.IsNullOrEmpty(PartySizeTextBox.Text))
+                    if (!string.IsNullOrEmpty(RaidSizeTextBox.Text))
                     {
-                        int requestedPartySize = int.Parse(PartySizeTextBox.Text);
-                        if (requestedPartySize <= 0)
+                        int requestedRaidSize = int.Parse(RaidSizeTextBox.Text);
+                        if (requestedRaidSize <= 0)
                         {
-                            PartySizeTextBox.Text = "1";
-                            requestedPartySize = 1;
+                            RaidSizeTextBox.Text = "1";
+                            requestedRaidSize = 1;
                         }
-                        else if (requestedPartySize > 40)
+                        else if (requestedRaidSize > 40)
                         {
-                            PartySizeTextBox.Text = "40";
-                            requestedPartySize = 40;
+                            RaidSizeTextBox.Text = "40";
+                            requestedRaidSize = 40;
                         }
 
-                        e.Handled = requestedPartySize < 1 || requestedPartySize > 40;
+                        e.Handled = requestedRaidSize < 1 || requestedRaidSize > 40;
                     }
                 }
                 catch (Exception ex)
@@ -552,7 +565,7 @@ namespace RaidLeaderBot
             AddPresetButton.IsEnabled = _raidLeaderBotSettings.ActivityPresets[Activity].Count < 10;
             RemovePresetButton.IsEnabled = _raidLeaderBotSettings.ActivityPresets[Activity].Count > 1;
 
-            RegeneratePartyList();
+            RegenerateRaidList();
         }
 
         private void PresetSelectorComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -563,18 +576,18 @@ namespace RaidLeaderBot
                 {
                     while (_raidLeaderBotSettings.ActivityPresets[Activity].Count < PresetSelectorComboBox.Items.Count)
                     {
-                        _raidLeaderBotSettings.ActivityPresets[Activity].Add(new List<PartyMemberPreset>() { new PartyMemberPreset() });
+                        _raidLeaderBotSettings.ActivityPresets[Activity].Add(new List<RaidMemberPreset>() { new RaidMemberPreset() });
                     }
-                    PartyMemberPresets = _raidLeaderBotSettings.ActivityPresets[Activity][PresetSelectorComboBox.SelectedIndex < 0 ? 0 : PresetSelectorComboBox.SelectedIndex];
+                    RaidMemberPresets = _raidLeaderBotSettings.ActivityPresets[Activity][PresetSelectorComboBox.SelectedIndex < 0 ? 0 : PresetSelectorComboBox.SelectedIndex];
                 }
                 else
                 {
-                    _raidLeaderBotSettings.ActivityPresets.Add(Activity, new List<List<PartyMemberPreset>>() { new List<PartyMemberPreset>() { new PartyMemberPreset() } });
-                    PartyMemberPresets = _raidLeaderBotSettings.ActivityPresets[Activity][PresetSelectorComboBox.SelectedIndex < 0 ? 0 : PresetSelectorComboBox.SelectedIndex];
+                    _raidLeaderBotSettings.ActivityPresets.Add(Activity, new List<List<RaidMemberPreset>>() { new List<RaidMemberPreset>() { new RaidMemberPreset() } });
+                    RaidMemberPresets = _raidLeaderBotSettings.ActivityPresets[Activity][PresetSelectorComboBox.SelectedIndex < 0 ? 0 : PresetSelectorComboBox.SelectedIndex];
                 }
 
                 Players.Clear();
-                RegeneratePartyList();
+                RegenerateRaidList();
             }
         }
         private void SaveConfigButton_Click(object sender, RoutedEventArgs e)
@@ -594,7 +607,7 @@ namespace RaidLeaderBot
                 _raidLeaderBotSettings.ActivityPresets.ToList().RemoveAll(x => x.Value.Count == 0);
 
                 var currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                var botSettingsFilePath = Path.Combine(currentFolder, "raidLeaderBotSettings.json");
+                var botSettingsFilePath = Path.Combine(currentFolder, "Settings\\raidLeaderBotSettings.json");
                 var json = JsonConvert.SerializeObject(_raidLeaderBotSettings, Formatting.Indented);
                 File.WriteAllText(botSettingsFilePath, json);
 
@@ -753,16 +766,16 @@ namespace RaidLeaderBot
 
         public string AccountName
         {
-            get => PartyMemberPreference.AccountName;
+            get => RaidMemberPreference.AccountName;
             set
             {
-                PartyMemberPreference.AccountName = value;
+                RaidMemberPreference.AccountName = value;
             }
         }
 
         public string CharacterSlot
         {
-            get => PartyMemberPreference.CharacterSlot.ToString();
+            get => RaidMemberPreference.CharacterSlot.ToString();
             set
             {
                 try
@@ -778,7 +791,7 @@ namespace RaidLeaderBot
                         slot = 10;
                     }
 
-                    PartyMemberPreference.CharacterSlot = slot;
+                    RaidMemberPreference.CharacterSlot = slot;
                 }
                 catch (Exception)
                 {
@@ -789,10 +802,10 @@ namespace RaidLeaderBot
 
         public string BotProfileName
         {
-            get => PartyMemberPreference.BotProfileName;
+            get => RaidMemberPreference.BotProfileName;
             set
             {
-                PartyMemberPreference.BotProfileName = value;
+                RaidMemberPreference.BotProfileName = value;
             }
         }
 
@@ -856,7 +869,7 @@ namespace RaidLeaderBot
             }
         }
 
-        public PartyMemberPreset PartyMemberPreference;
+        public RaidMemberPreset RaidMemberPreference;
 
         public event PropertyChangedEventHandler PropertyChanged;
 

@@ -1,10 +1,10 @@
 //// dllmain.cpp : Definiert den Einstiegspunkt für die DLL-Anwendung.
-//#include "stdafx.h"
-#include <windows.h>
+#include "stdafx.h"
+//#include <windows.h>
 
-using namespace std;
+//using namespace std;
 
-#include <stdio.h>
+//#include <stdio.h>
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {

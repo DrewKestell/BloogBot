@@ -2,10 +2,12 @@
 {
     public class InstanceCommand
     {
-        public static readonly string SET_ACCOUNT_INFO = "SET_ACCOUNT_INFO";
         public static readonly string START = "START";
         public static readonly string STOP = "STOP";
-        public static readonly string SET = "SET";
+        public static readonly string SET_ACCOUNT_INFO = "SET_ACCOUNT_INFO";
+        public static readonly string SET_ACTIVITY = "SET_ACTIVITY";
+        public static readonly string SET_RAID_LEADER = "SET_RAID_LEADER";
+        public static readonly string ADD_PARTY_MEMBER = "ADD_PARTY_MEMBER";
         public static readonly string INVITE = "INVITE";
         public static readonly string JOIN = "JOIN";
         public static readonly string PULL = "PULL";

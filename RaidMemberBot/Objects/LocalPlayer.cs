@@ -423,7 +423,7 @@ namespace RaidMemberBot.Objects
         /// <param name="parBits">The movement bits</param>
         public void StartMovement(ControlBits parBits)
         {
-            ThreadSynchronizer.Instance.RunOnMainThread(() =>
+            ThreadSynchronizer.Instance.Invoke(() =>
             {
                 if (parBits != ControlBits.Nothing)
                 {
@@ -447,7 +447,6 @@ namespace RaidMemberBot.Objects
                         StopMovement(ControlBits.StrafeLeft);
 
                 }
-                Console.WriteLine("Starting movement");
                 Functions.SetControlBit((int)parBits, 1, Environment.TickCount);
             });
         }

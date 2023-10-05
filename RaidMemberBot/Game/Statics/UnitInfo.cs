@@ -46,7 +46,7 @@ namespace RaidMemberBot.Game.Statics
         {
             get
             {
-                return ThreadSynchronizer.Instance.RunOnMainThread(() =>
+                return ThreadSynchronizer.Instance.Invoke(() =>
                 {
                     lock (listLock)
                     {

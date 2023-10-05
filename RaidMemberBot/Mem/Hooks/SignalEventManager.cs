@@ -7,13 +7,22 @@ namespace RaidMemberBot.Mem.Hooks
 {
     public class SignalEventManager
     {
+        /// <summary>
+        ///     Delegate for our c# function
+        /// </summary>
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         delegate void SignalEventDelegate(string eventName, string format, uint firstArgPtr);
+
+        /// <summary>
+        ///     Delegate for our c# function
+        /// </summary>
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         delegate void SignalEventNoArgsDelegate(string eventName);
 
         static SignalEventManager()
         {
-            //InitializeSignalEventHook();
-            //InitializeSignalEventHookNoArgs();
+            InitializeSignalEventHook();
+            InitializeSignalEventHookNoArgs();
         }
 
         #region InitializeSignalEventHook
@@ -41,7 +50,7 @@ namespace RaidMemberBot.Mem.Hooks
                 $"call 0x{(uint) addrToDetour:X}",
                 "popad",
                 "popfd",
-                $"jmp 0x{(uint) (0x00703F76 + 7):X}"
+                $"jmp 0x{(uint) (Offsets.Hooks.SignalEvent + 7):X}"
             };
             // Inject the asm code which calls our c# function
             var codeCave = Memory.InjectAsm(instructions, "EventSignalDetour");
@@ -115,7 +124,7 @@ namespace RaidMemberBot.Mem.Hooks
                 $"call 0x{(uint) addrToDetour:X}",
                 "popad",
                 "popfd",
-                $"jmp 0x{(uint) (0x00703F76 + 7):X}"
+                $"jmp 0x{(uint) (Offsets.Hooks.SignalEvent_0 + 6):X}"
             };
             // Inject the asm code which calls our c# function
             var codeCave = Memory.InjectAsm(instructions, "EventSignal_0Detour");

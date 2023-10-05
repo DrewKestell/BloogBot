@@ -18,7 +18,6 @@ namespace RaidMemberBot.Game.Statics
 
         private WoWEventHandler()
         {
-            Console.WriteLine("WoWEventHandler created");
             SignalEventManager.OnNewSignalEvent += EvaluateEvent;
         }
 
@@ -361,8 +360,6 @@ namespace RaidMemberBot.Game.Statics
                 OnEvent.Invoke(this, args);
             }
 
-            //Console.WriteLine(parEvent);
-            //OUTPUTAssist.PrintEvent(parEvent, parArgs);
             if (parEvent == "PLAYER_TARGET_CHANGED")
             {
                 OnTargetChange?.Invoke(this, new EventArgs());
@@ -736,7 +733,7 @@ namespace RaidMemberBot.Game.Statics
                         thrLootUpdate.Start();
                     };
                     if (thrLootUpdate != null && thrLootUpdate.Status == TaskStatus.Running) return;
-                    ThreadSynchronizer.Instance.RunOnMainThread(tmpAction);
+                    ThreadSynchronizer.Instance.Invoke(tmpAction);
                     break;
 
                 case LootState.CLOSE:

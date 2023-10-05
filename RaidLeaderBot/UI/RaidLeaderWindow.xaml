@@ -8,7 +8,7 @@
         x:Class="RaidLeaderBot.MainWindow"
         x:Name="MainControllerWindow"
         mc:Ignorable="d"
-        Title="Party Central" 
+        Title="Raid Central" 
         Width="652"
         Height="875"
         ResizeMode="CanMinimize"
@@ -312,13 +312,11 @@
         <StackPanel Background="{StaticResource BackgroundImageBrush}">
             <GroupBox Header="Bot Settings" Height="123" Margin="6,6,0,0" Width="634">
                 <Grid>
-                    <Label Content="Members" FontSize="18" Margin="543,26,10,37"></Label>
+                    <Label Content="Members" FontSize="18" Margin="547,26,10,37"></Label>
                     <Label Content="Preset" FontSize="18" Margin="481,26,89,37"></Label>
-                    <RadioButton x:Name="QuestingRadioButton" IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" Content="Questing" FontSize="22" Height="24" Click="ActivityRadioButton_Click" Margin="343,36,0,0"/>
-                    <RadioButton x:Name="InstanceRadioButton" IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" Content="Instance" d:IsChecked="True" FontSize="22" Height="24" Click="ActivityRadioButton_Click" Margin="10,36,0,0"></RadioButton>
-                    <CheckBox x:Name="PartyCheckBox" IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" Content="Party" d:IsChecked="True" d:IsEnabled="False" IsChecked="{Binding ShouldParty}" FontSize="22" Height="24" Margin="343,65,0,0" />
-                    <TextBox x:Name="PartySizeTextBox" IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" d:Text="4" FontSize="18" Text="{Binding PartySize}" HorizontalContentAlignment="Right" Width="32" Height="21" PreviewTextInput="PartySizeTextBox_PreviewTextInput" Margin="580,61,0,0"/>
-                    <ComboBox x:Name="InstanceComboBox" IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}"  FontSize="16" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="11" Height="24" Width="310" Margin="10,60,0,0" SelectionChanged="InstanceComboBox_SelectionChanged">
+                    <TextBox x:Name="RaidSizeTextBox" IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" d:Text="4" FontSize="18" Text="{Binding RaidSize}" HorizontalContentAlignment="Right" Width="32" Height="21" PreviewTextInput="RaidSizeTextBox_PreviewTextInput" Margin="580,61,0,0"/>
+                    <ComboBox x:Name="InstanceComboBox" IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" FontSize="22" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" SelectedIndex="11" Height="39" Width="424" Margin="10,45,0,0" SelectionChanged="InstanceComboBox_SelectionChanged">
+                        <ComboBoxItem Content="Questing"/>
                         <ComboBoxItem Content="10 [ Ragefire Chasm (13-18)"/>
                         <ComboBoxItem Content="10 Wailing Caverns (15-25)"/>
                         <ComboBoxItem Content="10 The Deadmines (18-23)"/>
@@ -355,7 +353,7 @@
                         <ComboBoxItem Content="15 Arathi Basin"/>
                         <ComboBoxItem Content="40 Alterac Valley"/>
                     </ComboBox>
-                    <ComboBox Name="PresetSelectorComboBox" IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" Margin="485,59,0,0" Width="48" HorizontalContentAlignment="Right" SelectedIndex="0" SelectionChanged="PresetSelectorComboBox_SelectionChanged">
+                    <ComboBox Name="PresetSelectorComboBox" IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" Margin="485,61,0,0" Width="48" HorizontalContentAlignment="Right" SelectedIndex="0" SelectionChanged="PresetSelectorComboBox_SelectionChanged" Height="22">
                         <ComboBoxItem Content="1"/>
                     </ComboBox>
                     <Button x:Name="StartAllBotsButton" IsEnabled="{Binding CanStart}" Template="{DynamicResource StartButtonTemplate}" Click="AllBotsControlButton_Click" Margin="10,0,0,0"/>

@@ -23,14 +23,6 @@ namespace RaidMemberBot
 
         public BotLoader()
         {
-            AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
-            {
-
-                var currentAssembly = Assembly.GetExecutingAssembly();
-                var name = args.Name.Split(',')[0];
-                var assembly = Assembly.Load(name) ?? currentAssembly;
-                return assembly;
-            };
         }
 
         internal List<IBot> ReloadBots()
@@ -64,9 +56,13 @@ namespace RaidMemberBot
                     container = new CompositionContainer(catalog);
                     container.ComposeParts(this);
                 }
-                catch (Exception ex)
+                catch (ReflectionTypeLoadException ex)
                 {
-                    Console.WriteLine(botPath + " " + ex.ToString());
+                    // now look at ex.LoaderExceptions - this is an Exception[], so:
+                    foreach (Exception inner in ex.LoaderExceptions)
+                    {
+                        Console.WriteLine(inner.StackTrace);
+                    }
                 }
             }
 

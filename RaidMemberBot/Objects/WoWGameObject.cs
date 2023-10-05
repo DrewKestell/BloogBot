@@ -30,8 +30,6 @@ namespace RaidMemberBot.Objects
                 var cosFacing = (float)Math.Cos(facing);
                 var sinFacing = (float)Math.Sin(facing);
 
-                Console.WriteLine(facing);
-
                 var posMatrix2 = new Matrix(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
                 posMatrix2.M41 = posMatrix2.M31 * pos.Z + posMatrix2.M21 * pos.Y + posMatrix2.M11 * pos.X +
                                  posMatrix2.M41;

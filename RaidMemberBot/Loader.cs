@@ -12,6 +12,7 @@ namespace RaidMemberBot
             thread = new Thread(App.Main);
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
+
             return 1;
         }
     }

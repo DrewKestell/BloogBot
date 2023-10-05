@@ -54,7 +54,7 @@ namespace BackstabRogueBot
                 Lua.Instance.Execute($"CastSpellByName('{Stealth}')");
 
             // Weapon Swap Logic
-            ThreadSynchronizer.Instance.RunOnMainThread(() =>
+            ThreadSynchronizer.Instance.Invoke(() =>
             {                                             
 
                 WoWItem MainHand = Inventory.Instance.GetEquippedItem(EquipSlot.MainHand);

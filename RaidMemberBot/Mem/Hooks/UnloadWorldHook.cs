@@ -12,7 +12,6 @@ namespace RaidMemberBot.Mem.Hooks
 
         private UnloadWorldHook()
         {
-            Console.WriteLine("UnloadWorldHook loaded");
             _unloadWorldDelegate =
                 Memory.Reader.RegisterDelegate<FuncDelegate>((IntPtr)0x490CE0);
             _unloadWorldHook =

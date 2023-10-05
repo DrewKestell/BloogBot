@@ -1,7 +1,7 @@
 ﻿using Binarysharp.Assemblers.Fasm;
 using RaidMemberBot.Constants;
 using RaidMemberBot.ExtensionMethods;
-using RaidMemberBot.Helpers;
+using RaidMemberBot.Helpers.GreyMagic;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;

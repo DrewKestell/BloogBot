@@ -442,9 +442,9 @@ namespace RaidMemberBot.Objects
 
         public bool HasDebuff(string name) => Debuffs.Any(a => a.Name == name);
 
-        public bool IsChanneling => Casting > 0;
+        public bool IsChanneling => Channeling > 0;
 
-        public bool IsCasting => Channeling > 0;
+        public bool IsCasting => Casting > 0;
         /// <summary>
         ///     Tells if the unit can be looted
         /// </summary>

@@ -12,6 +12,7 @@ using System.Windows.Input;
 using RaidMemberBot.Models.Dto;
 using System.Threading.Tasks;
 using System.Timers;
+using RaidMemberBot.Game.Statics;
 
 namespace RaidMemberBot.UI
 {
@@ -152,6 +153,18 @@ namespace RaidMemberBot.UI
 
                                                     characterState.SetAccountInfoRequested = true;
                                                 }
+                                                else if (instanceCommand.CommandName == InstanceCommand.SET_ACTIVITY)
+                                                {
+                                                    characterState.CurrentActivity = instanceCommand.CommandParam1;
+                                                }
+                                                else if (instanceCommand.CommandName == InstanceCommand.SET_RAID_LEADER)
+                                                {
+                                                    characterState.RaidLeader = instanceCommand.CommandParam1;
+                                                }
+                                                else if (instanceCommand.CommandName == InstanceCommand.ADD_PARTY_MEMBER)
+                                                {
+                                                    Lua.Instance.Execute($"InviteByName(\"{instanceCommand.CommandParam1}\")");
+                                                }
                                             }
                                         }
                                         catch (Exception e)
@@ -181,7 +194,7 @@ namespace RaidMemberBot.UI
                 {
                     Console.WriteLine(string.Format($"{0} caused by {1}", e.Message, json));
                 }
-                await Task.Delay(500);
+                await Task.Delay(100);
             }
         }
         private async Task AsyncHeartbeatStart()
@@ -240,7 +253,7 @@ namespace RaidMemberBot.UI
                 {
                     Console.WriteLine(string.Format("{0} caused by {1}", e.Message, json));
                 }
-                await Task.Delay(500);
+                await Task.Delay(100);
             }
         }
 

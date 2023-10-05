@@ -2,7 +2,6 @@
 using RaidMemberBot.Helpers.GreyMagic.Native;
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -67,9 +66,10 @@ namespace RaidMemberBot.Helpers.GreyMagic
 
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
-            var name = new AssemblyName(args.Name).Name;
-            var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\" + name + ".dll";
-            return Assembly.LoadFile(path);
+            var currentAssembly = Assembly.GetExecutingAssembly();
+            var name = args.Name.Split(',')[0];
+            var assembly = Assembly.Load(name) ?? currentAssembly;
+            return assembly;
         }
 
         private void ext(Process proc)

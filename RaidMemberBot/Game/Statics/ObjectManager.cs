@@ -10,6 +10,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using static RaidMemberBot.Constants.Enums;
+using static RaidMemberBot.ThreadSynchronizer;
 
 namespace RaidMemberBot.Game.Statics
 {
@@ -20,6 +21,9 @@ namespace RaidMemberBot.Game.Statics
     {
         private static readonly object Locker = new object();
 
+        private static readonly Lazy<ObjectManager> _instance =
+            new Lazy<ObjectManager>(() => new ObjectManager());
+
         private readonly EnumVisibleObjectsCallback _callback;
 
         /// <summary>
@@ -28,39 +32,30 @@ namespace RaidMemberBot.Game.Statics
         private readonly Dictionary<ulong, WoWObject> _objects = new Dictionary<ulong, WoWObject>();
 
         private readonly IntPtr _ourCallback;
+        private readonly ThreadSynchronizer.Updater _updater;
 
         private volatile List<WoWObject> _finalObjects = new List<WoWObject>();
         private volatile bool _ingame1 = true;
         private volatile bool _ingame2 = true;
         private volatile Dictionary<int, IntPtr> _itemCachePtrs = new Dictionary<int, IntPtr>();
         private volatile Dictionary<int, IntPtr> _questCachePtrs = new Dictionary<int, IntPtr>();
+
         private volatile CharacterState _characterState;
+
+        private Task _enumTask;
 
         private ObjectManager()
         {
             _callback = Callback;
             _ourCallback = Marshal.GetFunctionPointerForDelegate(_callback);
-
+            _updater = new ThreadSynchronizer.Updater(_EnumObjects, 50);
+            _updater.Start();
             WoWEventHandler.Instance.OnEvent += OnEvent;
         }
 
-        public async void StartEnumeration(CharacterState characterState)
+        public void StartEnumeration(CharacterState characterState)
         {
             _characterState = characterState;
-            while (true)
-            {
-                try
-                {
-                    _EnumObjects();
-
-                    await Task.Delay(500);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    return;
-                }
-            }
         }
 
         /// <summary>
@@ -320,24 +315,28 @@ namespace RaidMemberBot.Game.Statics
             {
                 return;
             }
-            _ingame2 = ThreadSynchronizer.Instance.RunOnMainThread(() =>
+            _ingame2 = ThreadSynchronizer.Instance.Invoke(() =>
             {
                 // renew playerptr if invalid
                 // return if no pointer can be retrieved
                 var playerGuid = Functions.GetPlayerGuid();
                 if (playerGuid == 0)
                 {
-                    _characterState.IsCasting = false;
-                    _characterState.IsChanneling = false;
-                    _characterState.CharacterName = "";
-                    _characterState.Zone = "Offline";
-                    _characterState.CurrentTask = "Offline";
-                    _characterState.TargetGuid = 0;
-                    _characterState.Health = 0;
-                    _characterState.Mana = 0;
-                    _characterState.Rage = 0;
-                    _characterState.Energy = 0;
-                    _characterState.Location = "Offline";
+                    if (_characterState != null)
+                    {
+                        _characterState.IsCasting = false;
+                        _characterState.IsChanneling = false;
+                        _characterState.CharacterName = "";
+                        _characterState.Zone = "Offline";
+                        _characterState.CurrentTask = "Offline";
+                        _characterState.TargetGuid = 0;
+                        _characterState.Health = 0;
+                        _characterState.Mana = 0;
+                        _characterState.Rage = 0;
+                        _characterState.Energy = 0;
+                        _characterState.Location = "Offline";
+                    }
+
                     return false;
                 }
                 var playerObject = Functions.GetPtrForGuid(playerGuid);
@@ -365,23 +364,29 @@ namespace RaidMemberBot.Game.Statics
                     _objects.Remove(pair.Key);
 
                 // assign dictionary to list which is viewable from internal
-                _finalObjects = _objects.Values.ToList();
+                lock (Locker)
+                {
+                    _finalObjects = _objects.Values.ToList();
+                }
 
-                _characterState.Guid = playerGuid;
-                _characterState.CharacterName = Player.Name;
-                _characterState.IsCasting = Player.IsCasting;
-                _characterState.IsChanneling = Player.IsChanneling;
-                _characterState.Zone = Player.RealZoneText;
-                _characterState.CurrentTask = Player.IsMoving ? "Moving" :
-                                                Player.IsCasting ? "Casting" :
-                                                Player.IsChanneling ? "Channeling" :
-                                                "Idle";
-                _characterState.Health = Player.Health;
-                _characterState.Mana = 0;
-                _characterState.Rage = 0;
-                _characterState.Energy = 0;
-                _characterState.TargetGuid = Player.TargetGuid;
-                _characterState.Location = Player.Location.ToString();
+                if (_characterState != null)
+                {
+                    _characterState.Guid = playerGuid;
+                    _characterState.CharacterName = Player.Name;
+                    _characterState.IsCasting = Player.IsCasting;
+                    _characterState.IsChanneling = Player.IsChanneling;
+                    _characterState.Zone = Player.RealZoneText;
+                    _characterState.CurrentTask = Player.IsMoving ? "Moving" :
+                                                    Player.IsCasting ? "Casting" :
+                                                    Player.IsChanneling ? "Channeling" :
+                                                    "Idle";
+                    _characterState.Health = Player.Health;
+                    _characterState.Mana = 0;
+                    _characterState.Rage = 0;
+                    _characterState.Energy = 0;
+                    _characterState.TargetGuid = Player.TargetGuid;
+                    _characterState.Location = Player.Location.ToString();
+                }
 
                 return true;
             });

@@ -14,7 +14,6 @@ namespace RaidMemberBot.Mem
         private Libs()
         {
             File.Delete(pathFastCall);
-            Console.WriteLine("Constructor ");
 
             if (FastCallPtr == IntPtr.Zero)
             {

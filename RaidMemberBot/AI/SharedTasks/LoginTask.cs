@@ -1,6 +1,4 @@
 ﻿using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Helpers;
-using System;
 using System.Collections.Generic;
 
 namespace RaidMemberBot.AI.SharedStates
@@ -23,6 +21,12 @@ namespace RaidMemberBot.AI.SharedStates
         public void Update()
         {
             ObjectManager.Instance.AntiAfk();
+
+            if (ObjectManager.Instance.IsIngame)
+            {
+                botTasks.Pop();
+                return;
+            }
 
            if (Login.Instance.LoginState == Constants.Enums.LoginStates.charselect && Login.Instance.GlueDialogText == "Character list retrieved")
             {

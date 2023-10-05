@@ -175,7 +175,7 @@ namespace RaidMemberBot.Game.Statics
         /// </returns>
         public string GetLastItem(string[] parListOfNames)
         {
-            return ThreadSynchronizer.Instance.RunOnMainThread(() =>
+            return ThreadSynchronizer.Instance.Invoke(() =>
             {
                 try
                 {
@@ -215,7 +215,7 @@ namespace RaidMemberBot.Game.Statics
         /// <returns></returns>
         public int CountFreeSlots(bool parCountSpecialSlots)
         {
-            return ThreadSynchronizer.Instance.RunOnMainThread(() =>
+            return ThreadSynchronizer.Instance.Invoke(() =>
             {
                 var freeSlots = 0;
                 try

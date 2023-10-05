@@ -26,7 +26,6 @@ namespace RaidMemberBot.Mem
             {
                 lock (lockObject)
                 {
-                    Console.WriteLine("GetEndScene created");
                     return _instance.Value;
                 }
             }

@@ -47,7 +47,7 @@ namespace RaidMemberBot.Game.Frames
                     _Items.Clear();
                     CacheCallbacks.Instance.OnNewItemCacheCallback += ItemCallback;
                     var _gotCoins = Coins != 0;
-                    var list = ThreadSynchronizer.Instance.RunOnMainThread(() =>
+                    var list = ThreadSynchronizer.Instance.Invoke(() =>
                     {
                         var tmpItems = new List<LootItem>();
                         if (_gotCoins)

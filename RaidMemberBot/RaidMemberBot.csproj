@@ -369,7 +369,6 @@
     <Compile Include="Helpers\GreyMagic\Native\PetHeaderParser.cs" />
     <Compile Include="Helpers\GreyMagic\SafeMemoryHandle.cs" />
     <Compile Include="Helpers\GreyMagic\Utilities.cs" />
-    <Compile Include="Helpers\InProcessMemoryReader.cs" />
     <Compile Include="Helpers\Wait.cs" />
     <Compile Include="Repository\IRepository.cs" />
     <Compile Include="Mem\Functions.cs" />

@@ -90,7 +90,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Server\ServerSocket.cs" />
+    <Compile Include="Server\SocketServer.cs" />
     <Compile Include="Constants\WinImports.cs" />
   </ItemGroup>
   <ItemGroup>

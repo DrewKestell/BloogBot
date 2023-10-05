@@ -55,7 +55,7 @@ namespace RaidMemberBot.Game.Statics
                 parScript = parScript.Replace(currentPlaceHolder, randomName);
                 luaVarNames.Add(randomName);
             }
-            return ThreadSynchronizer.Instance.RunOnMainThread(() =>
+            return ThreadSynchronizer.Instance.Invoke(() =>
             {
                 Functions.DoString(parScript);
                 return Functions.GetText(luaVarNames.ToArray());

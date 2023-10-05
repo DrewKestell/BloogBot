@@ -50,7 +50,6 @@ namespace RaidMemberBot.Game.Statics
 
         private DirectX()
         {
-            Console.WriteLine("DirectX applied");
             var vTable = GetEndScene.Instance.ToVTablePointer();
             _endSceneOriginal = Memory.Reader.RegisterDelegate<Direct3D9EndScene>(vTable.ReadAs<IntPtr>());
             _endSceneDetour = new Direct3D9EndScene(EndSceneHook);

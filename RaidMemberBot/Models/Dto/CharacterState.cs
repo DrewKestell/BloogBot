@@ -1,7 +1,4 @@
-﻿using RaidMemberBot.Objects;
-using static RaidMemberBot.Constants.Enums;
-
-namespace RaidMemberBot.Models.Dto
+﻿namespace RaidMemberBot.Models.Dto
 {
     public class CharacterState
     {
@@ -11,9 +8,11 @@ namespace RaidMemberBot.Models.Dto
         public string CharacterName { get; set; }
         public string CurrentActivity { get; set; }
         public string BotProfileName { get; set; }
+        public string RaidLeader { get; set; }
         public bool ShouldRun { get; set; }
         public bool IsConnected { get; set; }
         public bool IsRunning { get; set; }
+        public bool InParty { get; set; }
         public bool SetAccountInfoRequested { get; set; }
         public bool StartRequested { get; set; }
         public bool StopRequested { get; set; }

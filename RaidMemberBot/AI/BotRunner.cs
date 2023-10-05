@@ -31,7 +31,6 @@ namespace RaidMemberBot.AI
         bool _shouldRun;
         bool _runningErrands;
 
-        string currentState;
         int currentLevel;
 
         string _accountName;
@@ -79,7 +78,6 @@ namespace RaidMemberBot.AI
         public void Stop()
         {
             _shouldRun = false;
-            ThreadSynchronizer.Instance.ClearQueue();
 
             while (botTasks.Count > 0)
             {
@@ -92,125 +90,117 @@ namespace RaidMemberBot.AI
             {
                 try
                 {
-                    if (ThreadSynchronizer.Instance.QueueCount() == 0)
+                    ThreadSynchronizer.Instance.Invoke(() =>
                     {
-                        ThreadSynchronizer.Instance.RunOnMainThread(() =>
+                        if (ObjectManager.Instance.IsIngame
+                            && characterState.AccountName == _accountName
+                            && characterState.CharacterSlot == _characterSlot
+                            && characterState.BotProfileName == _botProfileName)
                         {
-                            if (ObjectManager.Instance.IsIngame
-                                && characterState.AccountName == _accountName
-                                && characterState.CharacterSlot == _characterSlot
-                                && characterState.BotProfileName == _botProfileName)
+                            var player = ObjectManager.Instance.Player;
+
+                            if (player == null)
                             {
-                                var player = ObjectManager.Instance.Player;
+                                return;
+                            }
 
-                                if (player == null)
+                            characterState.SetAccountInfoRequested = false;
+                            characterState.StartRequested = false;
+                            characterState.StopRequested = false;
+
+                            if (player.Level > currentLevel)
+                            {
+                                currentLevel = player.Level;
+                                DiscordClientWrapper.SendMessage($"Ding! {player.Name} is now level {player.Level}!");
+                            }
+
+                            if (botTasks.Count > 0 && botTasks.Peek()?.GetType() == typeof(QuestingTask))
+                            {
+                                retrievingCorpse = false;
+                            }
+
+                            // if the player has been stuck in the same state for more than 5 minutes
+                            if (Environment.TickCount < 0)
+                            {
+                                var msg = $"Hey, it's {player.Name}, and I need help! I've been stuck in the same state for over 5 minutes. I'm stopping for now.";
+                                LogToFile(msg);
+                                DiscordClientWrapper.SendMessage(msg);
+                                Stop();
+                                return;
+                            }
+
+                            // if the player dies
+                            if ((player.Health <= 0 || player.InGhostForm) && !retrievingCorpse)
+                            {
+                                PopStackToBaseState();
+
+                                retrievingCorpse = true;
+
+                                botTasks.Push(container.CreateRestTask(container, botTasks));
+                                botTasks.Push(new RetrieveCorpseTask(container, botTasks));
+                                botTasks.Push(new MoveToCorpseTask(container, botTasks));
+                                botTasks.Push(new ReleaseCorpseTask(container, botTasks));
+                            }
+                            else
+                            {
+                                // if equipment needs to be repaired
+                                int mainhandDurability = Inventory.Instance.GetEquippedItem(EquipSlot.MainHand)?.DurabilityPercent ?? 100;
+                                int offhandDurability = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged)?.DurabilityPercent ?? 100;
+
+                                // offhand throwns don't have durability, but instead register `-2147483648`.
+                                // This is a workaround to prevent that from causing us to get caught in a loop.
+                                // We default to a durability value of 100 for items that are null because 100 will register them as not needing repaired.
+                                if ((mainhandDurability <= 20 && mainhandDurability > -1) || (offhandDurability <= 20 && offhandDurability > -1))
                                 {
-                                    return;
+                                    ShapeshiftToHumanForm();
+                                    PopStackToBaseState();
                                 }
 
-                                characterState.SetAccountInfoRequested = false;
-                                characterState.StartRequested = false;
-                                characterState.StopRequested = false;
-
-                                if (player.Level > currentLevel)
+                                // if inventory is full
+                                if (!_runningErrands && !player.IsInCombat && Inventory.Instance.CountFreeSlots(false) < 3)
                                 {
-                                    currentLevel = player.Level;
-                                    DiscordClientWrapper.SendMessage($"Ding! {player.Name} is now level {player.Level}!");
-                                }
-
-                                if (botTasks.Count > 0 && botTasks.Peek()?.GetType() == typeof(QuestingTask))
-                                {
-                                    retrievingCorpse = false;
-                                }
-
-                                // if the player has been stuck in the same state for more than 5 minutes
-                                if (Environment.TickCount < 0)
-                                {
-                                    var msg = $"Hey, it's {player.Name}, and I need help! I've been stuck in the {currentState} for over 5 minutes. I'm stopping for now.";
-                                    LogToFile(msg);
-                                    DiscordClientWrapper.SendMessage(msg);
-                                    Stop();
-                                    return;
-                                }
-
-                                if (botTasks.Count > 0 && botTasks.Peek()?.GetType().Name != currentState)
-                                {
-                                    currentState = botTasks.Peek()?.GetType().Name;
-                                }
-
-                                // if the player dies
-                                if ((player.Health <= 0 || player.InGhostForm) && !retrievingCorpse)
-                                {
+                                    ShapeshiftToHumanForm();
                                     PopStackToBaseState();
 
-                                    retrievingCorpse = true;
+                                    Creature vendor = SqliteRepository.GetAllVendors()
+                                                                        .Where(x => !string.IsNullOrEmpty(x.Name))
+                                                                        .OrderBy(x => new Location(x.LocationX, x.LocationY, x.LocationZ).GetDistanceTo(ObjectManager.Instance.Player.Location))
+                                                                        .First();
 
-                                    botTasks.Push(container.CreateRestTask(container, botTasks));
-                                    botTasks.Push(new RetrieveCorpseTask(container, botTasks));
-                                    botTasks.Push(new MoveToCorpseTask(container, botTasks));
-                                    botTasks.Push(new ReleaseCorpseTask(container, botTasks));
+                                    botTasks.Push(new SellItemsTask(container, botTasks, vendor));
+                                    _runningErrands = true;
                                 }
-                                else
-                                {
-                                    // if equipment needs to be repaired
-                                    int mainhandDurability = Inventory.Instance.GetEquippedItem(EquipSlot.MainHand)?.DurabilityPercent ?? 100;
-                                    int offhandDurability = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged)?.DurabilityPercent ?? 100;
-
-                                    // offhand throwns don't have durability, but instead register `-2147483648`.
-                                    // This is a workaround to prevent that from causing us to get caught in a loop.
-                                    // We default to a durability value of 100 for items that are null because 100 will register them as not needing repaired.
-                                    if ((mainhandDurability <= 20 && mainhandDurability > -1) || (offhandDurability <= 20 && offhandDurability > -1))
-                                    {
-                                        ShapeshiftToHumanForm();
-                                        PopStackToBaseState();
-                                    }
-
-                                    // if inventory is full
-                                    if (!_runningErrands && !player.IsInCombat && Inventory.Instance.CountFreeSlots(false) < 3)
-                                    {
-                                        ShapeshiftToHumanForm();
-                                        PopStackToBaseState();
-
-                                        Creature vendor = SqliteRepository.GetAllVendors()
-                                                                            .Where(x => !string.IsNullOrEmpty(x.Name))
-                                                                            .OrderBy(x => new Location(x.LocationX, x.LocationY, x.LocationZ).GetDistanceTo(ObjectManager.Instance.Player.Location))
-                                                                            .First();
-
-                                        botTasks.Push(new SellItemsTask(container, botTasks, vendor));
-                                        _runningErrands = true;
-                                    }
-                                }
-
-                                currentLevel = ObjectManager.Instance.Player.Level;
                             }
 
-                            if (characterState.AccountName != _accountName
-                                    || characterState.CharacterSlot != _characterSlot
-                                    || characterState.BotProfileName != _botProfileName)
-                            {
-                                while (botTasks.Count > 0)
-                                    botTasks.Pop();
+                            currentLevel = ObjectManager.Instance.Player.Level;
+                        }
 
-                                characterState.AccountName = _accountName;
-                                characterState.CharacterSlot = _characterSlot;
-                                characterState.BotProfileName = _botProfileName;
+                        if (characterState.AccountName != _accountName
+                                || characterState.CharacterSlot != _characterSlot
+                                || characterState.BotProfileName != _botProfileName)
+                        {
+                            while (botTasks.Count > 0)
+                                botTasks.Pop();
 
-                                botTasks.Push(new LoginTask(container, botTasks, _accountName, _characterSlot));
-                                botTasks.Push(new LogoutTask(container, botTasks));
-                            }
+                            characterState.AccountName = _accountName;
+                            characterState.CharacterSlot = _characterSlot;
+                            characterState.BotProfileName = _botProfileName;
 
-                            if (botTasks.Count > 0)
-                            {
-                                characterState.CurrentTask = string.Format("[{0}] {1}", botTasks.Peek()?.GetType()?.Name, botTasks.Count);
-                                botTasks.Peek()?.Update();
-                            }
-                            else if (ObjectManager.Instance.IsIngame)
-                            {
-                                //WoWGameObject questObject = NearestQuestObject;
-                                //WoWUnit questTarget = NearestQuestTarget;
-                            }
-                        });
-                    }
+                            botTasks.Push(new LoginTask(container, botTasks, _accountName, _characterSlot));
+                            botTasks.Push(new LogoutTask(container, botTasks));
+                        }
+
+                        if (botTasks.Count > 0)
+                        {
+                            characterState.CurrentTask = botTasks.Peek()?.GetType()?.Name;
+                            botTasks.Peek()?.Update();
+                        }
+                        else if (ObjectManager.Instance.IsIngame)
+                        {
+                            //WoWGameObject questObject = NearestQuestObject;
+                            //WoWUnit questTarget = NearestQuestTarget;
+                        }
+                    });
 
                     await Task.Delay(100);
                 }
