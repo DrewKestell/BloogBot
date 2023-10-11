@@ -23,6 +23,7 @@ namespace ProtectionWarriorBot
             this.container = container;
             this.target = target;
             player = ObjectManager.Instance.Player;
+            player.SetTarget(target);
             currentWaypoint = ObjectManager.Instance.Player.Location;
         }
 
@@ -30,7 +31,7 @@ namespace ProtectionWarriorBot
         {
             if (ObjectManager.Instance.Hostiles.Where(x => player.InLosWith(x)).ToList().Count > 0)
             {
-                WoWUnit potentialNewTarget = ObjectManager.Instance.Hostiles.Where(x => player.InLosWith(x)).First();
+                WoWUnit potentialNewTarget = ObjectManager.Instance.Hostiles.First(x => player.InLosWith(x));
 
                 if (potentialNewTarget != null && potentialNewTarget.Guid != target.Guid && player.InLosWith(potentialNewTarget))
                 {
@@ -46,12 +47,13 @@ namespace ProtectionWarriorBot
 
             if (distanceToTarget < 25 && distanceToTarget > 8 && !player.IsCasting && Spellbook.Instance.IsSpellReady("Charge") && player.InLosWith(target.Location))
             {
+                player.StopAllMovement();
+
                 if (!player.IsCasting)
                     Lua.Instance.Execute("CastSpellByName('Charge')");
 
                 if (player.IsInCombat)
                 {
-                    player.StopAllMovement();
                     botTasks.Pop();
                     botTasks.Push(new PvERotationTask(container, botTasks));
                     return;

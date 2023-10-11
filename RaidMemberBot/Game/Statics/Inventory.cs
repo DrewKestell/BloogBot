@@ -194,6 +194,59 @@ namespace RaidMemberBot.Game.Statics
                 return "";
             });
         }
+        public int GetBagId(ulong itemGuid)
+        {
+            var totalCount = 0;
+            for (var i = 0; i < 5; i++)
+            {
+                int slots;
+                if (i == 0)
+                {
+                    slots = 16;
+                }
+                else
+                {
+                    var iAdjusted = i - 1;
+                    var bag = GetExtraBag(iAdjusted);
+                    if (bag == null) continue;
+                    slots = bag.Slots;
+                }
+
+                for (var k = 0; k < slots; k++)
+                {
+                    var item = GetItem(i, k);
+                    if (item?.Guid == itemGuid) return i;
+                }
+            }
+            return totalCount;
+        }
+
+        public int GetSlotId(ulong itemGuid)
+        {
+            var totalCount = 0;
+            for (var i = 0; i < 5; i++)
+            {
+                int slots;
+                if (i == 0)
+                {
+                    slots = 16;
+                }
+                else
+                {
+                    var iAdjusted = i - 1;
+                    var bag = GetExtraBag(iAdjusted);
+                    if (bag == null) continue;
+                    slots = bag.Slots;
+                }
+
+                for (var k = 0; k < slots; k++)
+                {
+                    var item = GetItem(i, k);
+                    if (item?.Guid == itemGuid) return k + 1;
+                }
+            }
+            return totalCount;
+        }
 
         /// <summary>
         ///     Get an item equipped at a specific equipment slot

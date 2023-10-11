@@ -80,6 +80,9 @@ namespace RaidMemberBot.AI.SharedStates
                 {
                     ObjectManager.Instance.Player.StopAllMovement();
                 }
+
+                botTasks.Push(container.CreateBuffTask(container, botTasks));
+                botTasks.Push(container.CreateRestTask(container, botTasks));
             }
 
             encounters.RemoveAll(x => x.SpawnLocation.DistanceToPlayer() < 15);

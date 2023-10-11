@@ -2,6 +2,7 @@
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ShadowPriestBot
 {
@@ -21,11 +22,15 @@ namespace ShadowPriestBot
 
         public void Update()
         {
-            if ((!Spellbook.Instance.IsSpellReady(PowerWordFortitude) || player.GotAura(PowerWordFortitude)) && (!Spellbook.Instance.IsSpellReady(ShadowProtection) || player.GotAura(ShadowProtection)))
+            if ((!Spellbook.Instance.IsSpellReady(PowerWordFortitude) || ObjectManager.Instance.PartyMembers.All(x => x.GotAura(PowerWordFortitude))) && (!Spellbook.Instance.IsSpellReady(ShadowProtection) || ObjectManager.Instance.PartyMembers.All(x => x.GotAura(ShadowProtection))))
             {
                 botTasks.Pop();
                 return;
             }
+
+            WoWUnit woWUnit = ObjectManager.Instance.PartyMembers.First(x => !x.GotAura(PowerWordFortitude));
+
+            player.SetTarget(woWUnit);
 
             TryCastSpell(PowerWordFortitude);
 
@@ -35,7 +40,7 @@ namespace ShadowPriestBot
         void TryCastSpell(string name, int requiredLevel = 1)
         {
             if (!player.GotAura(name) && player.Level >= requiredLevel && Spellbook.Instance.IsSpellReady(name))
-                Lua.Instance.Execute($"CastSpellByName('{name}',1)");
+                Lua.Instance.Execute($"CastSpellByName('{name}')");
         }
     }
 }

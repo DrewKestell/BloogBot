@@ -23,7 +23,7 @@ namespace AfflictionWarlockBot
 
         public void Update()
         {
-            if (player.HasBuff(DemonSkin) || player.HasBuff(DemonArmor))
+            if ((!Spellbook.Instance.IsSpellReady(DemonSkin) || player.HasBuff(DemonSkin)) && (!Spellbook.Instance.IsSpellReady(DemonArmor) || player.HasBuff(DemonArmor)))
             {
                 if (HasEnoughSoulShards)
                 {
@@ -42,14 +42,15 @@ namespace AfflictionWarlockBot
 
         void TryCastSpell(string name, int requiredLevel = 1)
         {
-            
+            if (!player.GotAura(name) && player.Level >= requiredLevel && Spellbook.Instance.IsSpellReady(name))
+                Lua.Instance.Execute($"CastSpellByName('{name}')");
         }
 
         void DeleteSoulShard()
         {
             var ss = GetSoulShards.Last();
-            //Lua.Instance.Execute($"PickupContainerItem({Inventory.Instance.GetBagId(ss.Guid)},{Inventory.GetSlotId(ss.Guid)})");
-            //Lua.Instance.Execute("DeleteCursorItem()");
+            Lua.Instance.Execute($"PickupContainerItem({Inventory.Instance.GetBagId(ss.Guid)},{Inventory.Instance.GetSlotId(ss.Guid)})");
+            Lua.Instance.Execute("DeleteCursorItem()");
         }
 
         bool HasEnoughSoulShards => GetSoulShards.Count() <= 1;
