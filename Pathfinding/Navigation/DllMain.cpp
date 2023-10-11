@@ -10,20 +10,10 @@ extern "C"
 		return Navigation::GetInstance()->CalculatePath(mapId, start, end, parSmooth, length);
 	}
 
-	__declspec(dllexport) XYZ* CalculatePathV2(unsigned int mapId, XYZ start, int startZoneID, XYZ end, int endZoneID, bool parSmooth, int* length)
-	{
-		return Navigation::GetInstance()->CalculatePath(mapId, start, startZoneID, end, endZoneID,  parSmooth, length);
-	}
-
 	__declspec(dllexport) void FreePathArr(XYZ* pathArr)
 	{
 		return Navigation::GetInstance()->FreePathArr(pathArr);
 	}
-
-	/*__declspec(dllexport) void GetPathArray(XYZ* path, int length)
-	{
-		Navigation::GetInstance()->GetPath(path, length);
-	}*/
 };
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)

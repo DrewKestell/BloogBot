@@ -65,7 +65,7 @@ namespace FrostMageBot
 
         void TryCastSpell(string name)
         {
-            if (Spellbook.Instance.IsSpellReady(name) && player.Casting == 0)
+            if (Spellbook.Instance.IsSpellReady(name) && player.IsCasting)
                 Lua.Instance.Execute($"CastSpellByName('{name}')");
         }
     }

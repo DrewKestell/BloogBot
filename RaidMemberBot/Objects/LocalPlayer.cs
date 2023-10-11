@@ -460,6 +460,20 @@ namespace RaidMemberBot.Objects
             Functions.SetControlBit((int)parBits, 0, Environment.TickCount);
         }
 
+        /// <summary>
+        ///     Stops all movement
+        /// </summary>
+        /// <param name="parBits">The movement bits</param>
+        public void StopAllMovement()
+        {
+            Functions.SetControlBit((int)(ControlBits.CtmWalk | ControlBits.Front
+                                                            | ControlBits.Back
+                                                            | ControlBits.Left
+                                                            | ControlBits.Right
+                                                            | ControlBits.StrafeLeft
+                                                            | ControlBits.StrafeRight), 0, Environment.TickCount);
+        }
+
         public void Turn180()
         {
             var newFacing = Facing + Math.PI;

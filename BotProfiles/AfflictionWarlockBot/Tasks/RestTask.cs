@@ -40,12 +40,12 @@ namespace AfflictionWarlockBot
         {
             pet = ObjectManager.Instance.Pet;
 
-            if (pet != null && pet.HealthPercent < 60 && pet.CanUse(ConsumeShadows) && pet.Casting == 0 && pet.Channeling == 0)
+            if (pet != null && pet.HealthPercent < 60 && pet.CanUse(ConsumeShadows) && pet.IsCasting && pet.Channeling == 0)
                 pet.Cast(ConsumeShadows);
 
             if (InCombat || (HealthOk && ManaOk))
             {
-                if (player.Casting == 0 && player.Channeling == 0)
+                if (player.IsCasting && player.Channeling == 0)
                     player.Stand();
 
                 if (InCombat || PetHealthOk)
@@ -84,7 +84,7 @@ namespace AfflictionWarlockBot
                 }
                 else
                 {
-                    if (player.Channeling == 0 && player.Casting == 0 && Spellbook.Instance.IsSpellReady(HealthFunnel) && player.HealthPercent > 30)
+                    if (player.Channeling == 0 && player.IsCasting && Spellbook.Instance.IsSpellReady(HealthFunnel) && player.HealthPercent > 30)
                         Lua.Instance.Execute($"CastSpellByName('{HealthFunnel}')");
                 }
 

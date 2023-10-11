@@ -42,7 +42,7 @@ namespace RaidMemberBot.Helpers.GreyMagic
         /// </summary>
         internal PatchManager Patches
         {
-            get { return _patchManager ?? (_patchManager = new PatchManager(this)); }
+            get { return _patchManager ??= new PatchManager(this); }
         }
 
         /// <summary>

@@ -43,7 +43,7 @@
   <ItemGroup>
     <Compile Include="ArcaneMageBot.cs" />
     <Compile Include="Tasks\BuffTask.cs" />
-    <Compile Include="Tasks\CombatTask.cs" />
+    <Compile Include="Tasks\PvERotationTask.cs" />
     <Compile Include="Tasks\ConjureItemsTask.cs" />
     <Compile Include="Tasks\MoveToTargetTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

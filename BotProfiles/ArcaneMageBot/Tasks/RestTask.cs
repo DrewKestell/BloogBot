@@ -43,7 +43,7 @@ namespace ArcaneMageBot
             {
                 player.Stand();
                 botTasks.Pop();
-                botTasks.Push(new BuffTask(container, botTasks, new List<WoWUnit>() { ObjectManager.Instance.Player }));
+                botTasks.Push(new BuffTask(container, botTasks));
                 return;
             }
 

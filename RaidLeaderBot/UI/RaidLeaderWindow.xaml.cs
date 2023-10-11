@@ -1,4 +1,7 @@
 using Newtonsoft.Json;
+using RaidLeaderBot.Pathfinding;
+using RaidMemberBot;
+using RaidMemberBot.Models;
 using RaidMemberBot.Models.Dto;
 using System;
 using System.Collections.Generic;
@@ -13,7 +16,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -24,7 +26,7 @@ namespace RaidLeaderBot
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        private readonly SocketServer _socketServer;
+        private readonly CommandSockerServer _socketServer;
         private readonly RaidLeaderBotSettings _raidLeaderBotSettings;
 
         private static readonly string _PVP_WARSONG_GULTCH = "10 Warsong Gultch";
@@ -64,9 +66,11 @@ namespace RaidLeaderBot
         private static readonly string _DUNGEON_TEMPLE_OF_AHNQIRAJ = "40 Temple of Ahn'Qiraj (60+++)";
         private static readonly string _DUNGEON_NAXXRAMAS = "40 Naxxramas (60++++)";
 
-        private static readonly Regex _regex = new Regex("[0-9]+");
+        private static readonly Dictionary<string, Tuple<int, int>> _INSTANCE_ENTRANCE_IDS = new Dictionary<string, Tuple<int, int>>() {
+            { _DUNGEON_RAGEFIRE_CHASM, Tuple.Create(389, 2226) }
+        };
 
-        private Task _backgroundTask;
+        private static readonly Regex _regex = new Regex("[0-9]+");
 
         public readonly CharacterState[] _characterStates = {
             new CharacterState(), new CharacterState(), new CharacterState(), new CharacterState(), new CharacterState(),
@@ -79,9 +83,11 @@ namespace RaidLeaderBot
             new CharacterState(), new CharacterState(), new CharacterState(), new CharacterState(), new CharacterState(),
         };
 
-        public MainWindow(SocketServer socketServer, RaidLeaderBotSettings raidLeaderBotSettings)
+        public MainWindow(CommandSockerServer socketServer, RaidLeaderBotSettings raidLeaderBotSettings)
         {
             InitializeComponent();
+
+            SqliteRepository.Initialize();
 
             _raidLeaderBotSettings = raidLeaderBotSettings;
             _socketServer = socketServer;
@@ -121,12 +127,13 @@ namespace RaidLeaderBot
 
             PresetSelectorComboBox.SelectedIndex = 0;
 
-            _backgroundTask = Task.Run(StartSync);
-
             OnPropertyChanged(nameof(CanStart));
             OnPropertyChanged(nameof(CanStop));
 
             UpdateBotLabels();
+
+            Console.WriteLine($"Loading navigation tiles...");
+            Navigation.Instance.CalculatePath(1, new Objects.Location(), new Objects.Location(), true);
         }
         private void OnInstanceUpdate(CharacterState update)
         {
@@ -149,6 +156,7 @@ namespace RaidLeaderBot
                         _characterStates[i].ProcessId = 0;
                     }
 
+                    CheckForCommand(i, characterState);
                     return;
                 }
             }
@@ -160,6 +168,8 @@ namespace RaidLeaderBot
                     && RaidMemberPresets[i].BotProfileName == _characterStates[i].BotProfileName)
                 {
                     _characterStates[i] = characterState;
+
+                    CheckForCommand(i, characterState);
                     return;
                 }
             }
@@ -168,6 +178,8 @@ namespace RaidLeaderBot
                 if (_characterStates[i].ProcessId == 0)
                 {
                     _characterStates[i] = characterState;
+
+                    CheckForCommand(i, characterState);
                     return;
                 }
             }
@@ -180,8 +192,6 @@ namespace RaidLeaderBot
                 {
                     Players[i].ShouldRun = true;
                 }
-
-                StartAllBotsButton.IsEnabled = false;
 
                 OnPropertyChanged(nameof(CanStart));
                 OnPropertyChanged(nameof(CanStop));
@@ -200,8 +210,6 @@ namespace RaidLeaderBot
                     Players[i].ShouldRun = false;
                 }
 
-                StopAllBotsButton.IsEnabled = false;
-
                 OnPropertyChanged(nameof(CanStart));
                 OnPropertyChanged(nameof(CanStop));
             }
@@ -210,116 +218,102 @@ namespace RaidLeaderBot
                 Console.WriteLine("Error encountered starting bot.");
             }
         }
-        private async Task StartSync()
+        private void CheckForCommand(int index, CharacterState characterState)
         {
-            while (true)
+            if (Players[index].ShouldRun)
             {
-                for (int i = 0; i < RaidMemberPresets.Count; i++)
+                if (characterState.ProcessId > 0)
                 {
-                    CharacterState characterState = _characterStates[i];
-
-                    if (Players[i].ShouldRun)
+                    if (characterState.Guid == 0
+                            || characterState.AccountName != RaidMemberPresets[index].AccountName
+                            || characterState.CharacterSlot != RaidMemberPresets[index].CharacterSlot
+                            || characterState.BotProfileName != RaidMemberPresets[index].BotProfileName)
                     {
-                        if (characterState.ProcessId > 0)
+                        var loginCommand = new InstanceCommand()
                         {
-                            if (characterState.IsRunning)
+                            CommandAction = CommandAction.SetAccountInfo,
+                            CommandParam1 = RaidMemberPresets[index].AccountName,
+                            CommandParam2 = RaidMemberPresets[index].CharacterSlot.ToString(),
+                            CommandParam3 = RaidMemberPresets[index].BotProfileName
+                        };
+
+                        _socketServer.SendCommandToProcess(characterState.ProcessId, loginCommand);
+                        return;
+
+                    }
+                    else if (string.IsNullOrEmpty(characterState.CurrentActivity))
+                    {
+                        var setActivityCommand = new InstanceCommand()
+                        {
+                            CommandAction = CommandAction.SetActivity,
+                            CommandParam1 = Activity,
+                            CommandParam2 = _INSTANCE_ENTRANCE_IDS[Activity].Item1.ToString()
+                        };
+
+                        _socketServer.SendCommandToProcess(characterState.ProcessId, setActivityCommand);
+                        return;
+                    }
+                    else if (RaidLeader == null || RaidLeader.CharacterName != characterState.RaidLeader)
+                    {
+                        if (RaidLeader == null || RaidLeader.ProcessId == 0)
+                        {
+                            RaidLeader = characterState;
+                        }
+
+                        var setLeaderCommand = new InstanceCommand()
+                        {
+                            CommandAction = CommandAction.SetRaidLeader,
+                            CommandParam1 = RaidLeader.CharacterName,
+                        };
+
+                        _socketServer.SendCommandToProcess(characterState.ProcessId, setLeaderCommand);
+                        return;
+                    }
+                    else if (RaidLeader.CharacterName != characterState.RaidLeader && !characterState.InParty)
+                    {
+                        var addPartyMember = new InstanceCommand()
+                        {
+                            CommandAction = CommandAction.AddPartyMember,
+                            CommandParam1 = characterState.CharacterName,
+                        };
+
+                        _socketServer.SendCommandToProcess(RaidLeader.ProcessId, addPartyMember);
+                        return;
+                    }
+                    else if (PartyMembers.All(x => x.InParty))
+                    {
+                        if (PartyMembers.All(x => x.MapId == _INSTANCE_ENTRANCE_IDS[Activity].Item1))
+                        {
+
+                            var beginDungeon = new InstanceCommand()
                             {
-                                if (characterState.Guid == 0
-                                        || characterState.AccountName != RaidMemberPresets[i].AccountName
-                                        || characterState.CharacterSlot != RaidMemberPresets[i].CharacterSlot
-                                        || characterState.BotProfileName != RaidMemberPresets[i].BotProfileName)
-                                {
-                                    if (!characterState.SetAccountInfoRequested)
-                                    {
-                                        var loginCommand = new InstanceCommand()
-                                        {
-                                            CommandName = InstanceCommand.SET_ACCOUNT_INFO,
-                                            CommandParam1 = RaidMemberPresets[i].AccountName,
-                                            CommandParam2 = RaidMemberPresets[i].CharacterSlot.ToString(),
-                                            CommandParam3 = RaidMemberPresets[i].BotProfileName
-                                        };
+                                CommandAction = CommandAction.BeginDungeon,
+                            };
 
-                                        _socketServer.SendCommandToProcess(characterState.ProcessId, loginCommand);
-                                        characterState.SetAccountInfoRequested = true;
-                                    }
-                                }
-                                else if (string.IsNullOrEmpty(characterState.CurrentActivity))
-                                {
-                                    var setActivityCommand = new InstanceCommand()
-                                    {
-                                        CommandName = InstanceCommand.SET_ACTIVITY,
-                                        CommandParam1 = Activity,
-                                    };
-
-                                    _socketServer.SendCommandToProcess(characterState.ProcessId, setActivityCommand);
-                                }
-                                else if (RaidLeader == null || RaidLeader.CharacterName != characterState.RaidLeader)
-                                {
-                                    if (RaidLeader == null || RaidLeader.ProcessId == 0)
-                                    {
-                                        RaidLeader = characterState;
-                                    }
-
-                                    var setLeaderCommand = new InstanceCommand()
-                                    {
-                                        CommandName = InstanceCommand.SET_RAID_LEADER,
-                                        CommandParam1 = RaidLeader.CharacterName,
-                                    };
-
-                                    _socketServer.SendCommandToProcess(characterState.ProcessId, setLeaderCommand);
-                                }
-                                else if (RaidLeader.CharacterName != characterState.RaidLeader && !characterState.InParty)
-                                {
-                                    var setLeaderCommand = new InstanceCommand()
-                                    {
-                                        CommandName = InstanceCommand.ADD_PARTY_MEMBER,
-                                        CommandParam1 = characterState.CharacterName,
-                                    };
-
-                                    _socketServer.SendCommandToProcess(RaidLeader.ProcessId, setLeaderCommand);
-                                }
-                            }
-                            else
-                            {
-                                if (!characterState.StartRequested)
-                                {
-                                    var startCommand = new InstanceCommand()
-                                    {
-                                        CommandName = InstanceCommand.START,
-                                    };
-
-                                    _socketServer.SendCommandToProcess(characterState.ProcessId, startCommand);
-                                    characterState.StartRequested = true;
-                                }
-                            }
+                            _socketServer.SendCommandToProcess(characterState.ProcessId, beginDungeon);
+                            return;
                         }
                         else
                         {
-                            LaunchProcess();
-                        }
-                    }
-                    else
-                    {
-                        if (characterState.ProcessId > 0 && characterState.IsRunning && !characterState.StopRequested)
-                        {
-                            var stopCommand = new InstanceCommand()
+                            if (characterState.MapId != _INSTANCE_ENTRANCE_IDS[Activity].Item1)
                             {
-                                CommandName = InstanceCommand.STOP,
-                            };
+                                AreaTriggerTeleport areaTriggerTeleport = SqliteRepository.GetAreaTriggerTeleportById(_INSTANCE_ENTRANCE_IDS[Activity].Item2);
+                                var goToCommand = new InstanceCommand()
+                                {
+                                    CommandAction = CommandAction.GoTo,
+                                    CommandParam1 = areaTriggerTeleport.TargetPositionX.ToString(),
+                                    CommandParam2 = areaTriggerTeleport.TargetPositionY.ToString(),
+                                    CommandParam3 = areaTriggerTeleport.TargetPositionZ.ToString(),
+                                };
 
-                            _socketServer.SendCommandToProcess(characterState.ProcessId, stopCommand);
-                            characterState.StopRequested = true;
+                                _socketServer.SendCommandToProcess(characterState.ProcessId, goToCommand);
+                                return;
+                            }
                         }
                     }
-
-                    await Task.Delay(500);
                 }
-
-                OnPropertyChanged(nameof(CanStart));
-                OnPropertyChanged(nameof(CanStop));
-
-                await Task.Delay(50);
             }
+            _socketServer.SendCommandToProcess(characterState.ProcessId, new InstanceCommand());
         }
 
         public ObservableCollection<PlayerViewModel> Players { get; set; } = new ObservableCollection<PlayerViewModel>();
@@ -346,14 +340,23 @@ namespace RaidLeaderBot
         {
             get
             {
-                return !Players.All(x => x.IsRunning);
+                return !Players.All(x => x.ShouldRun);
             }
         }
         public bool CanStop
         {
             get
             {
-                return Players.Any(x => x.IsRunning);
+                return Players.Any(x => x.ShouldRun);
+            }
+        }
+        public List<CharacterState> PartyMembers
+        {
+            get
+            {
+                CharacterState[] relevantCharacters = new CharacterState[Players.Count];
+                Array.Copy(_characterStates, relevantCharacters, Players.Count);
+                return relevantCharacters.ToList();
             }
         }
         public string Activity
@@ -475,7 +478,6 @@ namespace RaidLeaderBot
                 if (characterState != null)
                 {
                     Players[i].ProcessId = characterState.ProcessId == 0 ? "Not Connected" : string.Format("Process Id - {0}", characterState.ProcessId.ToString());
-                    Players[i].IsRunning = characterState.IsRunning;
                     Players[i].Zone = characterState.Zone;
                     Players[i].Location = characterState.Location;
                     Players[i].CurrentTask = characterState.CurrentTask;
@@ -741,17 +743,6 @@ namespace RaidLeaderBot
             {
                 _shouldRun = value;
                 OnPropertyChanged(nameof(ShouldRun));
-            }
-        }
-        private bool _isRunning;
-
-        public bool IsRunning
-        {
-            get => _isRunning;
-            set
-            {
-                _isRunning = value;
-                OnPropertyChanged(nameof(IsRunning));
             }
         }
 

@@ -80,7 +80,7 @@ namespace FeralDruidBot
                         //container.CheckForTravelPath(botTasks, true, false);
                     }
                     else
-                        botTasks.Push(new BuffTask(container, botTasks, new List<WoWUnit>() { ObjectManager.Instance.Player }));
+                        botTasks.Push(new BuffTask(container, botTasks));
                 }
             }
 
@@ -114,7 +114,7 @@ namespace FeralDruidBot
 
         void TryCastSpell(string name)
         {
-            if (Spellbook.Instance.IsSpellReady(name) && player.Casting == 0 && player.Mana > player.GetManaCost(name) && !player.IsDrinking)
+            if (Spellbook.Instance.IsSpellReady(name) && player.IsCasting && player.Mana > player.GetManaCost(name) && !player.IsDrinking)
                 Lua.Instance.Execute($"CastSpellByName('{name}',1)");
         }
     }

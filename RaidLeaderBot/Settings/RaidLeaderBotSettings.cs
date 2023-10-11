@@ -5,6 +5,7 @@ namespace RaidLeaderBot
     public class RaidLeaderBotSettings
     {
         public string PathToWoW { get; set; }
+        public int PathfindingPort { get; set; }
         public int Port { get; set; }
         public string ListenAddress { get; set; }
         public string Activity { get; set; }

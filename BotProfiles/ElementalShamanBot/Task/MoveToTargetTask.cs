@@ -1,4 +1,5 @@
 ﻿using RaidMemberBot.AI;
+using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
@@ -13,11 +14,12 @@ namespace ElementalShamanBot
 
         readonly Stack<IBotTask> botTasks;
         readonly IClassContainer container;
-        readonly WoWUnit target;
         readonly LocalPlayer player;
         readonly StuckHelper stuckHelper;
 
         int stuckCount;
+        Location currentWaypoint;
+        WoWUnit target;
 
         internal MoveToTargetTask(IClassContainer container, Stack<IBotTask> botTasks, WoWUnit target)
         {
@@ -25,38 +27,44 @@ namespace ElementalShamanBot
             this.container = container;
             this.target = target;
             player = ObjectManager.Instance.Player;
+            currentWaypoint = player.Location;
             stuckHelper = new StuckHelper(container, botTasks);
         }
 
         public void Update()
         {
-            if (target.TappedByOther || (ObjectManager.Instance.Aggressors.Count() > 0 && !ObjectManager.Instance.Aggressors.Any(a => a.Guid == target.Guid)))
+            if (ObjectManager.Instance.Hostiles.Count > 0)
             {
-                player.StopMovement(ControlBits.Nothing);
-                botTasks.Pop();
-                return;
+                WoWUnit potentialNewTarget = ObjectManager.Instance.Hostiles.First();
+
+                if (potentialNewTarget != null && potentialNewTarget.Guid != target.Guid)
+                {
+                    target = potentialNewTarget;
+                    player.SetTarget(potentialNewTarget);
+                }
             }
-            if (stuckHelper.CheckIfStuck())
-                stuckCount++;
 
-            if (stuckCount > 20)
+            if (player.Location.GetDistanceTo(target.Location) < 30 && !player.IsCasting && Spellbook.Instance.IsSpellReady(LightningBolt) && player.InLosWith(target.Location))
             {
-                player.StopMovement(ControlBits.Nothing);
-                botTasks.Pop();
-                return;
-            } 
-
-            if (player.Location.GetDistanceTo(target.Location) < 30 && player.Casting == 0 && Spellbook.Instance.IsSpellReady(LightningBolt) && player.InLosWith(target.Location))
-            {
-                player.StopMovement(ControlBits.Nothing);
+                player.StopAllMovement();
 
                 botTasks.Pop();
-                botTasks.Push(new OffensiveRotationTask(container, botTasks, new List<WoWUnit>() { target }));
+                botTasks.Push(new PvERotationTask(container, botTasks));
                 return;
             }
 
-            var nextWaypoint = Navigation.Instance.CalculatePath(player.MapId, player.Location, target.Location, false);
-            player.MoveToward(nextWaypoint[0]);
+            var nextWaypoint = SocketClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, player.Location, target.Location, false);
+            if (nextWaypoint.Length > 1)
+            {
+                currentWaypoint = nextWaypoint[1];
+            }
+            else
+            {
+                botTasks.Pop();
+                return;
+            }
+
+            player.MoveToward(currentWaypoint);
         }
     }
 }

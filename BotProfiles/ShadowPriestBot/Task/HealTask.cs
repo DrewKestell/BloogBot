@@ -1,7 +1,9 @@
 ﻿using RaidMemberBot.AI;
+using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ShadowPriestBot
 {
@@ -13,6 +15,7 @@ namespace ShadowPriestBot
 
         readonly Stack<IBotTask> botTasks;
         readonly LocalPlayer player;
+        WoWUnit target;
 
         readonly string healingSpell;
 
@@ -31,16 +34,42 @@ namespace ShadowPriestBot
         {
             if (player.IsCasting) return;
 
-            if (player.HealthPercent > 70 || player.Mana < player.GetManaCost(healingSpell))
+            List<WoWUnit> unhealthyMembers = ObjectManager.Instance.PartyMembers.Where(x => x.HealthPercent < 60).OrderBy(x => x.Health).ToList();
+
+            if (unhealthyMembers.Count > 0)
             {
-                if (Spellbook.Instance.IsSpellReady(Renew) && player.Mana > player.GetManaCost(Renew))
-                    Lua.Instance.Execute($"CastSpellByName('{Renew}',1)");
+                target = unhealthyMembers[0];
+                player.SetTarget(target);
+            }
+            else
+            {
+                botTasks.Pop();
+                return;
+            }
+
+            if (target.HealthPercent > 70 || player.Mana < player.GetManaCost(healingSpell))
+            {
+                if (Spellbook.Instance.IsSpellReady(Renew) && player.Mana > player.GetManaCost(Renew) && !target.HasBuff("Renew"))
+                    Lua.Instance.Execute($"CastSpellByName('{Renew}')");
 
                 botTasks.Pop();
                 return;
             }
 
-            Lua.Instance.Execute($"CastSpellByName('{healingSpell}',1)");
+            if (!player.InLosWith(target))
+            {
+                Location[] waypoints = SocketClient.Instance.CalculatePath(player.MapId, player.Location, target.Location, false);
+
+                if (waypoints.Length > 1)
+                {
+                    player.MoveToward(waypoints[1]);
+                }
+            }
+            else
+            {
+                player.StopAllMovement();
+                Lua.Instance.Execute($"CastSpellByName('{healingSpell}')");
+            }
         }
     }
 }

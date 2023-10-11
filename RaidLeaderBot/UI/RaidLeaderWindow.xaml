@@ -369,18 +369,18 @@
                     <d:ItemsControl.ItemsSource>
                         <x:Array Type="{x:Type local:PlayerViewModel}">
                             <local:PlayerViewModel Header="Player 1 - Felhand" ProcessId="2124" CurrentTask="MoveToPosition" CurrentActivity="Dungeon" 
-                                                    Location="X: 128 Y: 4299 Z: 4535" Zone="Valley of Trials" IsRunning="True"/>
+                                                    Location="X: 128 Y: 4299 Z: 4535" Zone="Valley of Trials" ShouldRun="True"/>
 
-                            <local:PlayerViewModel Header="Player 2 - Offline" ProcessId="11654" IsRunning="True"
+                            <local:PlayerViewModel Header="Player 2 - Offline" ProcessId="11654" ShouldRun="True"
                                                    CurrentTask="Login" CurrentActivity="Dungeon" Zone="Login Screen"/>
 
-                            <local:PlayerViewModel Header="Player 3 - Offline" ProcessId="No Process" IsRunning="False"
+                            <local:PlayerViewModel Header="Player 3 - Offline" ProcessId="No Process" ShouldRun="False"
                                                CurrentTask="" CurrentActivity="Listening..."  Zone=""/>
 
-                            <local:PlayerViewModel Header="Player 4 - Offline" ProcessId="No Process" IsRunning="False"
+                            <local:PlayerViewModel Header="Player 4 - Offline" ProcessId="No Process" ShouldRun="False"
                                                CurrentTask="" CurrentActivity="Listening..." Zone=""/>
 
-                            <local:PlayerViewModel Header="Player 5 - Offline" ProcessId="No Process" IsRunning="False"
+                            <local:PlayerViewModel Header="Player 5 - Offline" ProcessId="No Process" ShouldRun="False"
                                                CurrentTask="" CurrentActivity="Listening..." Zone=""/>
                         </x:Array>
                     </d:ItemsControl.ItemsSource>
@@ -396,8 +396,8 @@
                                 </Grid.RowDefinitions>
                                 <GroupBox Header="{Binding Header}" Grid.Column="0" VerticalAlignment="Center" Width="344">
                                     <Grid>
-                                        <Button IsEnabled="{Binding IsRunning, Converter={StaticResource InverseBooleanConverter}}" Template="{DynamicResource StartButtonTemplate}" Margin="10,10,0,0" Command="{Binding StartCommand}"/>
-                                        <Button IsEnabled="{Binding IsRunning}" Template="{DynamicResource StopButtonTemplate}" Margin="115,10,0,0" Command="{Binding StopCommand}"/>
+                                        <Button IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" Template="{DynamicResource StartButtonTemplate}" Margin="10,10,0,0" Command="{Binding StartCommand}"/>
+                                        <Button IsEnabled="{Binding ShouldRun}" Template="{DynamicResource StopButtonTemplate}" Margin="115,10,0,0" Command="{Binding StopCommand}"/>
                                         <Label Content="Account Name" Margin="10,39,222,36"/>
                                         <Label Content="Slot" Margin="123,39,172,36"/>
                                         <Label Content="Bot Profile Name" Margin="161,39,48,36"/>

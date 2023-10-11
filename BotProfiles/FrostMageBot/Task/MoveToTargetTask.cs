@@ -1,4 +1,5 @@
 ﻿using RaidMemberBot.AI;
+using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
 using RaidMemberBot.Objects;
@@ -46,7 +47,7 @@ namespace FrostMageBot
 
             if (target.TappedByOther)
             {
-                player.StopMovement(ControlBits.Nothing);
+                player.StopAllMovement();
                 botTasks.Pop();
                 return;
             }
@@ -57,24 +58,24 @@ namespace FrostMageBot
             if (distanceToTarget <= range && player.InLosWith(target.Location))
             {
                 if (player.IsMoving)
-                    player.StopMovement(ControlBits.Nothing);
+                    player.StopAllMovement();
 
                 if (Wait.For(waitKey, 250))
                 {
-                    player.StopMovement(ControlBits.Nothing);
+                    player.StopAllMovement();
                     Wait.Remove(waitKey);
                     
                     if (!player.IsInCombat)
                         Lua.Instance.Execute($"CastSpellByName('{pullingSpell}')");
 
                     botTasks.Pop();
-                    botTasks.Push(new CombatTask(container, botTasks, new List<WoWUnit>() { target }));
+                    botTasks.Push(new PvERotationTask(container, botTasks));
                     return;
                 }
             }
             else
             {
-                var nextWaypoint = Navigation.Instance.CalculatePath(player.MapId, player.Location, target.Location, false);
+                var nextWaypoint = SocketClient.Instance.CalculatePath(player.MapId, player.Location, target.Location, false);
                 player.MoveToward(nextWaypoint[0]);
             }
         }

@@ -57,6 +57,9 @@ namespace RaidLeaderBot
             int nSize,
             MemoryFreeType dwFreeType);
 
+        [DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern IntPtr LoadLibrary(string lpFileName);
+
         internal enum MemoryAllocationType
         {
             MEM_COMMIT = 0x1000

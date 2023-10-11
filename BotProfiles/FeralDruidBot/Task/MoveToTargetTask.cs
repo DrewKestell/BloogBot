@@ -1,4 +1,5 @@
 ﻿using RaidMemberBot.AI;
+using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
 using RaidMemberBot.Objects;
@@ -31,7 +32,7 @@ namespace FeralDruidBot
         {
             if (target.TappedByOther || (ObjectManager.Instance.Aggressors.Count() > 0 && !ObjectManager.Instance.Aggressors.Any(a => a.Guid == target.Guid)))
             {
-                player.StopMovement(ControlBits.Nothing);
+                player.StopAllMovement();
                 Wait.RemoveAll();
                 botTasks.Pop();
                 return;
@@ -39,10 +40,10 @@ namespace FeralDruidBot
 
             stuckHelper.CheckIfStuck();
             
-            if (player.Location.GetDistanceTo(target.Location) < 27 && player.Casting == 0 && Spellbook.Instance.IsSpellReady(Wrath) && player.InLosWith(target.Location))
+            if (player.Location.GetDistanceTo(target.Location) < 27 && player.IsCasting && Spellbook.Instance.IsSpellReady(Wrath) && player.InLosWith(target.Location))
             {
                 if (player.IsMoving)
-                    player.StopMovement(ControlBits.Nothing);
+                    player.StopAllMovement();
 
                 if (Wait.For("PullWithWrathDelay", 100))
                 {
@@ -51,16 +52,16 @@ namespace FeralDruidBot
 
                     if (player.IsCasting || player.CurrentShapeshiftForm != "Human Form" || player.IsInCombat)
                     {
-                        player.StopMovement(ControlBits.Nothing);
+                        player.StopAllMovement();
                         Wait.RemoveAll();
                         botTasks.Pop();
-                        botTasks.Push(new CombatTask(container, botTasks, new List<WoWUnit>() { target }));
+                        botTasks.Push(new PvERotationTask(container, botTasks));
                     }
                 }
                 return;
             }
 
-            var nextWaypoint = Navigation.Instance.CalculatePath(player.MapId, player.Location, target.Location, false);
+            var nextWaypoint = SocketClient.Instance.CalculatePath(player.MapId, player.Location, target.Location, false);
             player.MoveToward(nextWaypoint[0]);
         }
     }

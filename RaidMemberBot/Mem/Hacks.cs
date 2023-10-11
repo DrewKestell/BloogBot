@@ -106,8 +106,7 @@ namespace RaidMemberBot.Mem
             {
                 if (!ObjectManager.Instance.IsIngame) return;
                 if (ObjectManager.Instance.Player == null) return;
-                if (_originalBytes == null)
-                    _originalBytes = Memory.Reader.ReadBytes(Address, _customBytes.Length);
+                _originalBytes ??= Memory.Reader.ReadBytes(Address, _customBytes.Length);
             }
             Memory.Reader.WriteBytes(Address, _customBytes);
         }

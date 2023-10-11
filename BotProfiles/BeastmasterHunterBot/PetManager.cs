@@ -37,7 +37,7 @@ namespace BeastmasterHunterBot
             {
                 player.Stand();
                 botTasks.Pop();
-                botTasks.Push(new BuffTask(container, botTasks, new List<WoWUnit>() { ObjectManager.Instance.Pet }));
+                botTasks.Push(new BuffTask(container, botTasks));
                 return;
             }
 

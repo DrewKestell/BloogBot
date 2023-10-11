@@ -1,8 +1,10 @@
 ﻿using RaidMemberBot.AI;
+using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
+using System.Linq;
 using static RaidMemberBot.Constants.Enums;
 
 namespace ShadowPriestBot
@@ -18,11 +20,12 @@ namespace ShadowPriestBot
 
         readonly Stack<IBotTask> botTasks;
         readonly IClassContainer container;
-        readonly WoWUnit target;
         readonly LocalPlayer player;
         readonly StuckHelper stuckHelper;
 
         readonly string pullingSpell;
+        Location currentWaypoint;
+        WoWUnit target;
 
         internal MoveToTargetTask(IClassContainer container, Stack<IBotTask> botTasks, WoWUnit target)
         {
@@ -30,6 +33,7 @@ namespace ShadowPriestBot
             this.botTasks = botTasks;
             this.target = target;
             player = ObjectManager.Instance.Player;
+            currentWaypoint = player.Location;
             stuckHelper = new StuckHelper(container, botTasks);
 
             if (player.HasBuff(ShadowForm))
@@ -42,20 +46,24 @@ namespace ShadowPriestBot
 
         public void Update()
         {
-            if (target.TappedByOther)
+            if (ObjectManager.Instance.Hostiles.Count > 0)
             {
-                player.StopMovement(ControlBits.Nothing);
-                botTasks.Pop();
-                return;
+                WoWUnit potentialNewTarget = ObjectManager.Instance.Hostiles.First();
+
+                if (potentialNewTarget != null && potentialNewTarget.Guid != target.Guid)
+                {
+                    target = potentialNewTarget;
+                    player.SetTarget(potentialNewTarget);
+                }
             }
 
             var distanceToTarget = player.Location.GetDistanceTo(target.Location);
             if (distanceToTarget < 27)
             {
                 if (player.IsMoving)
-                    player.StopMovement(ControlBits.Nothing);
+                    player.StopAllMovement();
 
-                if (player.Casting == 0 && Spellbook.Instance.IsSpellReady(pullingSpell))
+                if (player.IsCasting && Spellbook.Instance.IsSpellReady(pullingSpell))
                 {
                     if (!Spellbook.Instance.IsSpellReady(PowerWordShield) || player.HasBuff(PowerWordShield) || player.IsInCombat)
                     {
@@ -67,9 +75,9 @@ namespace ShadowPriestBot
                             if (!player.IsInCombat)
                                 Lua.Instance.Execute($"CastSpellByName('{pullingSpell}')");
 
-                            player.StopMovement(ControlBits.Nothing);
+                            player.StopAllMovement();
                             botTasks.Pop();
-                            botTasks.Push(new CombatTask(container, botTasks, new List<WoWUnit>() { target }));
+                            botTasks.Push(new PvERotationTask(container, botTasks));
                         }
                     }
 
@@ -81,10 +89,18 @@ namespace ShadowPriestBot
             }
             else
             {
-                stuckHelper.CheckIfStuck();
+                var nextWaypoint = SocketClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, player.Location, target.Location, false);
+                if (nextWaypoint.Length > 1)
+                {
+                    currentWaypoint = nextWaypoint[1];
+                }
+                else
+                {
+                    botTasks.Pop();
+                    return;
+                }
 
-                var nextWaypoint = Navigation.Instance.CalculatePath(player.MapId, player.Location, target.Location, false);
-                player.MoveToward(nextWaypoint[0]);
+                player.MoveToward(currentWaypoint);
             }
         }
     }

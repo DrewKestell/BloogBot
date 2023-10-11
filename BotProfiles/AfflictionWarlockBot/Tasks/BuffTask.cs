@@ -14,7 +14,7 @@ namespace AfflictionWarlockBot
         readonly Stack<IBotTask> botTasks;
         readonly LocalPlayer player;
 
-        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks, List<WoWUnit> partyMembers)
+        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks)
         {
             this.botTasks = botTasks;
             player = ObjectManager.Instance.Player;

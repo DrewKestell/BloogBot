@@ -27,20 +27,20 @@
 #include "MoveMap.h"
 #include "PathFinder.h"
 
+#include <iostream>
+#include <fstream>
+
 ////////////////// PathFinder //////////////////
 PathFinder::PathFinder(unsigned int mapId, unsigned int instanceId) :
-m_polyLength(0), m_type(PATHFIND_BLANK),
-m_useStraightPath(false), m_forceDestination(false), m_pointPathLimit(MAX_POINT_PATH_LENGTH),
-m_mapId(mapId), m_instanceId(instanceId), m_navMesh(NULL), m_navMeshQuery(NULL)
+	m_polyLength(0), m_type(PATHFIND_BLANK),
+	m_useStraightPath(false), m_forceDestination(false), m_pointPathLimit(MAX_POINT_PATH_LENGTH),
+	m_mapId(mapId), m_instanceId(instanceId), m_navMesh(NULL), m_navMeshQuery(NULL)
 {
 	//printf("++ PathFinder::PathInfo for ME \n");
 
-	if (MMAP::MMapFactory::IsPathfindingEnabled(m_mapId))
-	{
-		MMAP::MMapManager* mmap = MMAP::MMapFactory::createOrGetMMapManager();
-		m_navMesh = mmap->GetNavMesh(m_mapId);
-		m_navMeshQuery = mmap->GetNavMeshQuery(m_mapId, m_instanceId);
-	}
+	MMAP::MMapManager* mmap = MMAP::MMapFactory::createOrGetMMapManager();
+	m_navMesh = mmap->GetNavMesh(m_mapId);
+	m_navMeshQuery = mmap->GetNavMeshQuery(m_mapId, m_instanceId);
 
 	createFilter();
 }
@@ -66,7 +66,7 @@ bool PathFinder::calculate(float originX, float originY, float originZ, float de
 	// check if the start and end point have a .mmtile loaded (can we pass via not loaded tile on the way?)
 	if (!m_navMesh || !m_navMeshQuery || !HaveTile(start) || !HaveTile(dest))
 	{
-		BuildShortcut();
+		BuildError();
 
 		//printf("!!!!!!! 1 !!!!!!!\n");
 
@@ -142,7 +142,8 @@ dtPolyRef PathFinder::getPolyByLocation(const float* point, float* distance) con
 	// we don't have it in our old path
 	// try to get it by findNearestPoly()
 	// first try with low search box
-	float extents[VERTEX_SIZE] = { 3.0f, 5.0f, 3.0f };    // bounds of poly search area
+	//float extents[VERTEX_SIZE] = { 3.0f, 5.0f, 3.0f };    // bounds of poly search area
+	float extents[VERTEX_SIZE] = { 3.0f, 3.0f, 3.0f };
 	float closestPoint[VERTEX_SIZE] = { 0.0f, 0.0f, 0.0f };
 	dtStatus dtResult = m_navMeshQuery->findNearestPoly(point, extents, &m_filter, &polyRef, closestPoint);
 	if (dtStatusSucceed(dtResult) && polyRef != INVALID_POLYREF)
@@ -183,7 +184,7 @@ void PathFinder::BuildPolyPath(const Vector3& startPos, const Vector3& endPos)
 	if (startPoly == INVALID_POLYREF || endPoly == INVALID_POLYREF)
 	{
 		//printf("++ BuildPolyPath :: (startPoly == 0 || endPoly == 0)\n");
-		BuildShortcut();
+		BuildError();
 		//printf("!!!!!!! 2 !!!!!!!\n");
 		m_type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
 
@@ -195,12 +196,12 @@ void PathFinder::BuildPolyPath(const Vector3& startPos, const Vector3& endPos)
 	if (farFromPoly)
 	{
 		//printf("++ BuildPolyPath :: farFromPoly distToStartPoly=%.3f distToEndPoly=%.3f\n", distToStartPoly, distToEndPoly);
-		
+
 		bool isSwimming = false;
 
 		if (isSwimming)
 		{
-			BuildShortcut();
+			BuildError();
 			//printf("!!!!!!! 3 !!!!!!!\n");
 			m_type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
 			return;
@@ -259,11 +260,11 @@ void PathFinder::BuildPolyPath(const Vector3& startPos, const Vector3& endPos)
 		}
 
 		for (pathEndIndex = m_polyLength - 1; pathEndIndex > pathStartIndex; --pathEndIndex)
-		if (m_pathPolyRefs[pathEndIndex] == endPoly)
-		{
-			endPolyFound = true;
-			break;
-		}
+			if (m_pathPolyRefs[pathEndIndex] == endPoly)
+			{
+				endPolyFound = true;
+				break;
+			}
 	}
 
 	if (startPolyFound && endPolyFound)
@@ -293,7 +294,8 @@ void PathFinder::BuildPolyPath(const Vector3& startPos, const Vector3& endPos)
 
 		// take ~80% of the original length
 		// TODO : play with the values here
-		unsigned int prefixPolyLength = unsigned int(m_polyLength * 0.8f + 0.5f);
+		//unsigned int prefixPolyLength = unsigned int(m_polyLength * 0.8f + 0.5f);
+		unsigned int prefixPolyLength = unsigned int(m_polyLength * 0.4f + 0.5f);
 		memmove(m_pathPolyRefs, m_pathPolyRefs + pathStartIndex, prefixPolyLength * sizeof(dtPolyRef));
 
 		dtPolyRef suffixStartPoly = m_pathPolyRefs[prefixPolyLength - 1];
@@ -311,7 +313,7 @@ void PathFinder::BuildPolyPath(const Vector3& startPos, const Vector3& endPos)
 			if (dtStatusFailed(dtResult))
 			{
 				// suffixStartPoly is still invalid, error state
-				BuildShortcut();
+				BuildError();
 				m_type = PATHFIND_NOPATH;
 				return;
 			}
@@ -367,7 +369,7 @@ void PathFinder::BuildPolyPath(const Vector3& startPos, const Vector3& endPos)
 		{
 			// only happens if we passed bad data to findPath(), or navmesh is messed up
 			//sLog.outError("%u's Path Build failed: 0 length path", m_sourceUnit->GetGUIDLow());
-			BuildShortcut();
+			BuildError();
 			m_type = PATHFIND_NOPATH;
 			return;
 		}
@@ -423,7 +425,7 @@ void PathFinder::BuildPointPath(const float* startPoint, const float* endPoint)
 		// single point paths can be generated here
 		// TODO : check the exact cases
 		//printf("++ PathFinder::BuildPointPath FAILED! path sized %d returned\n", pointCount);
-		BuildShortcut();
+		BuildError();
 		m_type = PATHFIND_NOPATH;
 		return;
 	}
@@ -451,7 +453,7 @@ void PathFinder::BuildPointPath(const float* startPoint, const float* endPoint)
 		else
 		{
 			setActualEndPosition(getEndPosition());
-			BuildShortcut();
+			BuildError();
 		}
 
 		//printf("!!!!!!! 4 !!!!!!!\n");
@@ -459,6 +461,15 @@ void PathFinder::BuildPointPath(const float* startPoint, const float* endPoint)
 	}
 
 	//printf("++ PathFinder::BuildPointPath path type %d size %d poly-size %d\n", m_type, pointCount, m_polyLength);
+}
+
+void PathFinder::BuildError()
+{
+	clear();
+
+	m_pathPoints.resize(0);
+
+	m_type = PATHFIND_NOPATH;
 }
 
 void PathFinder::BuildShortcut()
@@ -481,8 +492,8 @@ void PathFinder::createFilter()
 {
 	unsigned short includeFlags = 0;
 	unsigned short excludeFlags = 0;
-	includeFlags |= (NAV_GROUND | NAV_WATER);
-	
+	includeFlags |= (NAV_GROUND);
+
 	m_filter.setIncludeFlags(includeFlags);
 	m_filter.setExcludeFlags(excludeFlags);
 
@@ -531,6 +542,15 @@ bool PathFinder::HaveTile(const Vector3& p) const
 	float point[VERTEX_SIZE] = { p.y, p.z, p.x };
 
 	m_navMesh->calcTileLoc(point, &tx, &ty);
+
+	if (m_navMesh->getTileAt(tx, ty, 0) == NULL)
+	{
+		std::ofstream myfile;
+		myfile.open("C:\\Users\\Drew\\Repos\\bloog-bot-v2\\Bot\\navigationDebug.txt");
+		myfile << "Tile failed to load: " << tx << "," << ty << std::endl;
+		myfile.close();
+	}
+
 	return (m_navMesh->getTileAt(tx, ty, 0) != NULL);
 }
 
@@ -641,7 +661,7 @@ dtStatus PathFinder::findSmoothPath(const float* startPos, const float* endPos,
 	unsigned int nsmoothPath = 0;
 
 	dtPolyRef polys[MAX_PATH_LENGTH];
-	memcpy(polys, polyPath, sizeof(dtPolyRef)*polyPathSize);
+	memcpy(polys, polyPath, sizeof(dtPolyRef) * polyPathSize);
 	unsigned int npolys = polyPathSize;
 
 	float iterPos[VERTEX_SIZE], targetPos[VERTEX_SIZE];

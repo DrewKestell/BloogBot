@@ -42,7 +42,6 @@ namespace RaidMemberBot.Mem.Hooks
                 "retn 0x8"
             };
             QuestCallbackPtr = Memory.InjectAsm(asmCode, "QuestCacheCallbackDetour");
-            Console.WriteLine(QuestCallbackPtr.ToString("X"));
         }
 
         private void InitItemCacheCallback()

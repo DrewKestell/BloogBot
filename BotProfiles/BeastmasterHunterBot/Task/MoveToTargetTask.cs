@@ -1,9 +1,11 @@
 ﻿// Friday owns this file!
 
 using RaidMemberBot.AI;
+using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
+using System.Linq;
 using static RaidMemberBot.Constants.Enums;
 
 namespace BeastMasterHunterBot
@@ -12,14 +14,14 @@ namespace BeastMasterHunterBot
     {
         readonly IClassContainer container;
         readonly Stack<IBotTask> botTasks;
-        readonly WoWUnit target;
         readonly LocalPlayer player;
-        readonly StuckHelper stuckHelper;
 
         const string GunLuaScript = "if IsAutoRepeatAction(11) == nil then CastSpellByName('Auto Shot') end";
         const string SerpentSting = "Serpent Sting";
         const string AspectOfTheMonkey = "Aspect Of The Monkey";
         const string AspectOfTheCheetah = "Aspect Of The Cheetah";
+
+        WoWUnit target;
 
         internal MoveToTargetTask(IClassContainer container, Stack<IBotTask> botTasks, WoWUnit target)
         {
@@ -27,32 +29,33 @@ namespace BeastMasterHunterBot
             this.container = container;
             this.target = target;
             player = ObjectManager.Instance.Player;
-            stuckHelper = new StuckHelper(container, botTasks);
         }
 
         public void Update()
         {
-            if (target.TappedByOther)
+            if (ObjectManager.Instance.Hostiles.Count > 0)
             {
-                player.StopMovement(ControlBits.Nothing);
-                botTasks.Pop();
-                return;
+                WoWUnit potentialNewTarget = ObjectManager.Instance.Hostiles.First();
+
+                if (potentialNewTarget != null && potentialNewTarget.Guid != target.Guid)
+                {
+                    target = potentialNewTarget;
+                    player.SetTarget(potentialNewTarget);
+                }
             }
 
-            stuckHelper.CheckIfStuck();
-
-            var distanceToTarget = player.Location.GetDistanceTo(target.Location);
-            if (distanceToTarget < 33 && player.Casting == 0)
+            if (player.Location.GetDistanceTo(target.Location) < 33)
             {
-                player.StopMovement(ControlBits.Nothing);
+                player.StopAllMovement();
                 Lua.Instance.Execute(GunLuaScript);
                 botTasks.Pop();
-                botTasks.Push(new CombatTask(container, botTasks, new List<WoWUnit>() { target }));
+                botTasks.Push(new PvERotationTask(container, botTasks));
                 return;
+            } else
+            {
+                var nextWaypoint = SocketClient.Instance.CalculatePath(player.MapId, player.Location, target.Location, false);
+                player.MoveToward(nextWaypoint[1]);
             }
-
-            var nextWaypoint = Navigation.Instance.CalculatePath(player.MapId, player.Location, target.Location, false);
-            player.MoveToward(nextWaypoint[0]);
         }
     }
 }

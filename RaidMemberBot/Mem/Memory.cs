@@ -19,7 +19,7 @@ namespace RaidMemberBot.Mem
         ///     Memory Reader Instance
         /// </summary>
         internal static InProcessMemoryReader Reader
-            => _Reader ?? (_Reader = new InProcessMemoryReader(Process.GetCurrentProcess()));
+            => _Reader ??= new InProcessMemoryReader(Process.GetCurrentProcess());
 
         internal static void ErasePeHeader(string name)
         {
@@ -112,7 +112,7 @@ namespace RaidMemberBot.Mem
 
         internal static IntPtr InjectAsm(string[] parInstructions, string parPatchName)
         {
-            if (Asm == null) Asm = new FasmNet();
+            Asm ??= new FasmNet();
             Asm.Clear();
             Asm.AddLine("use32");
             foreach (var x in parInstructions)

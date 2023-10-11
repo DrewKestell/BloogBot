@@ -1,4 +1,5 @@
 ﻿using RaidMemberBot.AI;
+using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
 using RaidMemberBot.Objects;
@@ -38,7 +39,7 @@ namespace ArcaneMageBot
         {
             if (target.TappedByOther)
             {
-                player.StopMovement(ControlBits.Nothing);
+                player.StopAllMovement();
                 botTasks.Pop();
                 return;
             }
@@ -49,21 +50,21 @@ namespace ArcaneMageBot
             if (distanceToTarget < 27)
             {
                 if (player.IsMoving)
-                    player.StopMovement(ControlBits.Nothing);
+                    player.StopAllMovement();
 
-                if (player.Casting == 0 && Spellbook.Instance.IsSpellReady(pullingSpell) && Wait.For("ArcaneMagePull", 500))
+                if (player.IsCasting && Spellbook.Instance.IsSpellReady(pullingSpell) && Wait.For("ArcaneMagePull", 500))
                 {
-                    player.StopMovement(ControlBits.Nothing);
+                    player.StopAllMovement();
                     Wait.RemoveAll();
                     Lua.Instance.Execute($"CastSpellByName('{pullingSpell}')");
                     botTasks.Pop();
-                    botTasks.Push(new CombatTask(container, botTasks, new List<WoWUnit>() { target }));
+                    botTasks.Push(new PvERotationTask(container, botTasks));
                     return;
                 }
             }
             else
             {
-                var nextWaypoint = Navigation.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, player.Location, target.Location, false);
+                var nextWaypoint = SocketClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, player.Location, target.Location, false);
                 player.MoveToward(nextWaypoint[0]);
             }
         }

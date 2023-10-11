@@ -68,7 +68,7 @@ namespace RaidMemberBot.Mem.Hooks
                 if (types[i] == "s")
                 {
                     var ptr = ((IntPtr)tmpPtr).ReadAs<int>();
-                    var str = ((IntPtr)ptr).ReadAs<int>();
+                    var str = ((IntPtr)ptr).ReadString();
 
                     list[i] = str;
                 }

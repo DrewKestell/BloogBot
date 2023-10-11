@@ -27,7 +27,7 @@ namespace RaidMemberBot.Constants
     /// </summary>
     public struct GatherInfo
     {
-        public Enums.GatherType Type { get; set; }
+        public GatherType Type { get; set; }
         public int RequiredSkill { get; set; }
     }
 

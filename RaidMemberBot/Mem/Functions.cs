@@ -82,16 +82,14 @@ namespace RaidMemberBot.Mem
 
         internal static void GetLocation(IntPtr ptr, IntPtr bytes)
         {
-            if (GameObjectGetLocationFunction == null)
-                GameObjectGetLocationFunction = Memory.Reader.RegisterDelegate<GameObjectGetLocationDelegate>((IntPtr)0x005F9F50);
+            GameObjectGetLocationFunction ??= Memory.Reader.RegisterDelegate<GameObjectGetLocationDelegate>((IntPtr)0x005F9F50);
             ThreadSynchronizer.Instance.Invoke(() => GameObjectGetLocationFunction(ptr, bytes));
         }
 
         internal static void AbandonQuest(int questRealQuestIndex)
         {
             if (!ObjectManager.Instance.IsIngame) return;
-            if (AbandonQuestFunction == null)
-                AbandonQuestFunction = Memory.Reader.RegisterDelegate<AbandonQuestDelegate>(funcs.AbandonQuest);
+            AbandonQuestFunction ??= Memory.Reader.RegisterDelegate<AbandonQuestDelegate>(funcs.AbandonQuest);
             ThreadSynchronizer.Instance.Invoke(() => AbandonQuestFunction(questRealQuestIndex));
         }
 
@@ -114,8 +112,7 @@ namespace RaidMemberBot.Mem
         internal static unsafe Location GetGameObjectLocation(WoWGameObject obj)
         {
             if (!ObjectManager.Instance.IsIngame) return new Location(0, 0, 0);
-            if (GetGameObjectLocationFunction == null)
-                GetGameObjectLocationFunction = Memory.Reader.RegisterDelegate<GetGameObjectLocationDelegate>(funcs.GetGameObjectLocation);
+            GetGameObjectLocationFunction ??= Memory.Reader.RegisterDelegate<GetGameObjectLocationDelegate>(funcs.GetGameObjectLocation);
             var xyzStruct = new _XYZ();
             GetGameObjectLocationFunction(obj.Pointer, &xyzStruct);
             return new Location(ref xyzStruct);
@@ -134,8 +131,7 @@ namespace RaidMemberBot.Mem
 
         internal static void CastAtPos(string parSpell, Location parPos, int parRank = -1)
         {
-            if (CastAtPosFunction == null)
-                CastAtPosFunction = Memory.Reader.RegisterDelegate<CastAtPosDelegate>(funcs.CastAtPos);
+            CastAtPosFunction ??= Memory.Reader.RegisterDelegate<CastAtPosDelegate>(funcs.CastAtPos);
             if (!ObjectManager.Instance.IsIngame) return;
             ThreadSynchronizer.Instance.Invoke(() =>
             {
@@ -168,8 +164,7 @@ namespace RaidMemberBot.Mem
         internal static bool CanCompleteQuest(int parQuestEntry)
         {
             if (!ObjectManager.Instance.IsIngame) return false;
-            if (CanCompleteQuestFunction == null)
-                CanCompleteQuestFunction =
+            CanCompleteQuestFunction ??=
                     Memory.Reader.RegisterDelegate<CanCompleteQuestDelegate>(funcs.CanCompleteQuest);
             var ret = ThreadSynchronizer.Instance.Invoke(() =>
             {
@@ -182,8 +177,7 @@ namespace RaidMemberBot.Mem
         internal static bool CanUseItem(int parItemId, PrivateEnums.ItemCacheLookupType parType)
         {
             if (!ObjectManager.Instance.IsIngame) return false;
-            if (CanUseItemFunction == null)
-                CanUseItemFunction = Memory.Reader.RegisterDelegate<CanUseItemDelegate>(funcs.CanUseItem);
+            CanUseItemFunction ??= Memory.Reader.RegisterDelegate<CanUseItemDelegate>(funcs.CanUseItem);
             var ret = ThreadSynchronizer.Instance.Invoke(() =>
             {
                 var ptr1 = ObjectManager.Instance.Player.Pointer;
@@ -215,24 +209,21 @@ namespace RaidMemberBot.Mem
         internal static int GetLootSlots()
         {
             if (!ObjectManager.Instance.IsIngame) return 0;
-            if (GetLootSlotsFunction == null)
-                GetLootSlotsFunction = Memory.Reader.RegisterDelegate<UnmanagedNoParamsDelegate>(funcs.GetLootSlots);
+            GetLootSlotsFunction ??= Memory.Reader.RegisterDelegate<UnmanagedNoParamsDelegate>(funcs.GetLootSlots);
             return ThreadSynchronizer.Instance.Invoke(() => GetLootSlotsFunction());
         }
 
         internal static void RetrieveCorpse()
         {
             if (!ObjectManager.Instance.IsIngame) return;
-            if (RetrieveCorpseFunction == null)
-                RetrieveCorpseFunction = Memory.Reader.RegisterDelegate<UnmanagedNoParamsDelegate>(funcs.RetrieveCorpse);
+            RetrieveCorpseFunction ??= Memory.Reader.RegisterDelegate<UnmanagedNoParamsDelegate>(funcs.RetrieveCorpse);
             ThreadSynchronizer.Instance.Invoke(() => RetrieveCorpseFunction());
         }
 
         internal static void RepopMe()
         {
             if (!ObjectManager.Instance.IsIngame) return;
-            if (RepopMeFunction == null)
-                RepopMeFunction = Memory.Reader.RegisterDelegate<RepopMeDelegate>(funcs.RepopMe);
+            RepopMeFunction ??= Memory.Reader.RegisterDelegate<RepopMeDelegate>(funcs.RepopMe);
             var player = ObjectManager.Instance.Player;
             if (player == null) return;
             ThreadSynchronizer.Instance.Invoke(() => RepopMeFunction(player.Pointer));
@@ -253,8 +244,7 @@ namespace RaidMemberBot.Mem
         internal static ulong GetPlayerGuid()
         {
             if (!ObjectManager.Instance.IsIngame) return 0;
-            if (GetPlayerGuidFunction == null)
-                GetPlayerGuidFunction =
+            GetPlayerGuidFunction ??=
                     Memory.Reader.RegisterDelegate<GetPlayerGuidDelegate>(funcs.ClntObjMgrGetActivePlayer);
             return ThreadSynchronizer.Instance.Invoke(() => GetPlayerGuidFunction());
         }
@@ -262,8 +252,7 @@ namespace RaidMemberBot.Mem
         internal static IntPtr GetPtrForGuid(ulong parGuid)
         {
             if (!ObjectManager.Instance.IsIngame) return IntPtr.Zero;
-            if (GetPtrForGuidFunction == null)
-                GetPtrForGuidFunction = Memory.Reader.RegisterDelegate<ClntObjMgrObjectPtr>(funcs.GetPtrForGuid);
+            GetPtrForGuidFunction ??= Memory.Reader.RegisterDelegate<ClntObjMgrObjectPtr>(funcs.GetPtrForGuid);
 
             return ThreadSynchronizer.Instance.Invoke(() => GetPtrForGuidFunction(parGuid));
         }
@@ -292,8 +281,7 @@ namespace RaidMemberBot.Mem
         internal static void SelectCharacterAtIndex(int index)
         {
             if (ObjectManager.Instance.IsIngame) return;
-            if (SelectCharacterFunction == null)
-                SelectCharacterFunction =
+            SelectCharacterFunction ??=
                     Memory.Reader.RegisterDelegate<RepopMeDelegate>(funcs.SelectCharacter);
             ThreadSynchronizer.Instance.Invoke(() => SelectCharacterFunction((IntPtr)index));
         }
@@ -308,8 +296,7 @@ namespace RaidMemberBot.Mem
         internal static void SetControlBit(int parBit, int parState, int parTickCount)
         {
             if (!ObjectManager.Instance.IsIngame) return;
-            if (SetControlBitFunction == null)
-                SetControlBitFunction =
+            SetControlBitFunction ??=
                     Memory.Reader.RegisterDelegate<SetControlBitDelegate>(funcs.CGInputControl__SetControlBit);
             var ptr = Memory.Reader.Read<IntPtr>(Offsets.Misc.CGInputControlActive);
 
@@ -319,16 +306,14 @@ namespace RaidMemberBot.Mem
         internal static void SetFacing(IntPtr parPlayerPtr, float parFacing)
         {
             if (!ObjectManager.Instance.IsIngame) return;
-            if (SetFacingFunction == null)
-                SetFacingFunction = Memory.Reader.RegisterDelegate<SetFacingDelegate>(funcs.SetFacing);
+            SetFacingFunction ??= Memory.Reader.RegisterDelegate<SetFacingDelegate>(funcs.SetFacing);
             ThreadSynchronizer.Instance.Invoke(() => SetFacingFunction(parPlayerPtr, parFacing));
         }
 
         internal static void SendMovementUpdate(IntPtr parPlayerPtr, int parTimeStamp, int parOpcode)
         {
             if (!ObjectManager.Instance.IsIngame) return;
-            if (SendMovementUpdateFunction == null)
-                SendMovementUpdateFunction =
+            SendMovementUpdateFunction ??=
                     Memory.Reader.RegisterDelegate<SendMovementUpdateDelegate>(funcs.SendMovementPacket);
 
             ThreadSynchronizer.Instance.Invoke(() => SendMovementUpdateFunction(parPlayerPtr, parTimeStamp, parOpcode, 0, 0));
@@ -337,8 +322,7 @@ namespace RaidMemberBot.Mem
         internal static void OnRightClickUnit(IntPtr parPlayerPtr, int parAutoLoot)
         {
             if (!ObjectManager.Instance.IsIngame) return;
-            if (OnRightClickUnitFunction == null)
-                OnRightClickUnitFunction =
+            OnRightClickUnitFunction ??=
                     Memory.Reader.RegisterDelegate<OnRightClickUnitDelegate>(funcs.OnRightClickUnit);
 
             ThreadSynchronizer.Instance.Invoke(() => OnRightClickUnitFunction(parPlayerPtr, parAutoLoot));
@@ -347,8 +331,7 @@ namespace RaidMemberBot.Mem
         internal static void OnRightClickObject(IntPtr parPlayerPtr, int parAutoLoot)
         {
             if (!ObjectManager.Instance.IsIngame) return;
-            if (OnRightClickObjectFunction == null)
-                OnRightClickObjectFunction =
+            OnRightClickObjectFunction ??=
                     Memory.Reader.RegisterDelegate<OnRightClickObjectDelegate>(funcs.OnRightClickObject);
 
             ThreadSynchronizer.Instance.Invoke(() => OnRightClickObjectFunction(parPlayerPtr, parAutoLoot));
@@ -357,16 +340,14 @@ namespace RaidMemberBot.Mem
         internal static void LootAll()
         {
             if (!ObjectManager.Instance.IsIngame) return;
-            if (LootAllFunction == null)
-                LootAllFunction = Memory.Reader.RegisterDelegate<LootAllDelegate>(funcs.AutoLoot);
+            LootAllFunction ??= Memory.Reader.RegisterDelegate<LootAllDelegate>(funcs.AutoLoot);
             ThreadSynchronizer.Instance.Invoke(() => LootAllFunction());
         }
 
         internal static Enums.UnitReaction UnitReaction(IntPtr unitPtr1, IntPtr unitPtr2)
         {
             if (!ObjectManager.Instance.IsIngame) return Enums.UnitReaction.Neutral;
-            if (UnitReactionFunction == null)
-                UnitReactionFunction = Memory.Reader.RegisterDelegate<UnitReactionDelegate>(funcs.UnitReaction);
+            UnitReactionFunction ??= Memory.Reader.RegisterDelegate<UnitReactionDelegate>(funcs.UnitReaction);
 
             var ret = UnitReactionFunction(unitPtr1, unitPtr2);
             if (Enum.IsDefined(typeof(Enums.UnitReaction), ret))
@@ -377,16 +358,14 @@ namespace RaidMemberBot.Mem
         internal static void SetTarget(ulong parGuid)
         {
             if (!ObjectManager.Instance.IsIngame) return;
-            if (SetTargetFunction == null)
-                SetTargetFunction = Memory.Reader.RegisterDelegate<SetTargetDelegate>(funcs.SetTarget);
+            SetTargetFunction ??= Memory.Reader.RegisterDelegate<SetTargetDelegate>(funcs.SetTarget);
             ThreadSynchronizer.Instance.Invoke(() => SetTargetFunction(parGuid));
         }
 
         internal static IntPtr QuestCacheGetRow(int parQuestId)
         {
             if (!ObjectManager.Instance.IsIngame) return IntPtr.Zero;
-            if (QuestCacheGetRowFunction == null)
-                QuestCacheGetRowFunction =
+            QuestCacheGetRowFunction ??=
                     Memory.Reader.RegisterDelegate<QuestCacheGetRowDelegate>(funcs.QuestCacheGetRow);
 
             ulong guid = 0;
@@ -401,8 +380,7 @@ namespace RaidMemberBot.Mem
         internal static IntPtr ItemCacheGetRow(int parItemId, PrivateEnums.ItemCacheLookupType parLookupType)
         {
             if (!ObjectManager.Instance.IsIngame) return IntPtr.Zero;
-            if (ItemCacheGetRowFunction == null)
-                ItemCacheGetRowFunction = Memory.Reader.RegisterDelegate<ItemCacheGetRowDelegate>(funcs.ItemCacheGetRow);
+            ItemCacheGetRowFunction ??= Memory.Reader.RegisterDelegate<ItemCacheGetRowDelegate>(funcs.ItemCacheGetRow);
 
             ulong val = 0;
             switch (parLookupType)
@@ -438,8 +416,7 @@ namespace RaidMemberBot.Mem
         internal static bool IsSpellReady(int spellId)
         {
             if (!ObjectManager.Instance.IsIngame) return false;
-            if (GetSpellCooldownFunction == null)
-                GetSpellCooldownFunction =
+            GetSpellCooldownFunction ??=
                     Memory.Reader.RegisterDelegate<GetSpellCooldownDelegate>(funcs.GetSpellCooldown);
 
             var CdDuration = 0;
@@ -455,8 +432,7 @@ namespace RaidMemberBot.Mem
         internal static void UseItem(IntPtr ptr, ulong guidOfOtherItem = 0)
         {
             if (!ObjectManager.Instance.IsIngame) return;
-            if (UseItemFunction == null)
-                UseItemFunction = Memory.Reader.RegisterDelegate<UseItemDelegate>(funcs.UseItem);
+            UseItemFunction ??= Memory.Reader.RegisterDelegate<UseItemDelegate>(funcs.UseItem);
             var ptrToGuid = guidOfOtherItem;
 
             ThreadSynchronizer.Instance.Invoke(() => UseItemFunction(ptr, ref ptrToGuid, 0));
@@ -464,8 +440,7 @@ namespace RaidMemberBot.Mem
 
         internal static void UseItemAtPos(IntPtr ptr, Location parPos)
         {
-            if (CastAtPosFunction == null)
-                CastAtPosFunction = Memory.Reader.RegisterDelegate<CastAtPosDelegate>(funcs.CastAtPos);
+            CastAtPosFunction ??= Memory.Reader.RegisterDelegate<CastAtPosDelegate>(funcs.CastAtPos);
             if (!ObjectManager.Instance.IsIngame) return;
             ThreadSynchronizer.Instance.Invoke(() =>
             {
@@ -479,8 +454,7 @@ namespace RaidMemberBot.Mem
         internal static void Ctm(IntPtr parPlayerPtr, PrivateEnums.CtmType parType, Location parLocation, ulong parGuid)
         {
             if (!ObjectManager.Instance.IsIngame) return;
-            if (CtmFunction == null)
-                CtmFunction = Memory.Reader.RegisterDelegate<CtmDelegate>(funcs.ClickToMove);
+            CtmFunction ??= Memory.Reader.RegisterDelegate<CtmDelegate>(funcs.ClickToMove);
             var guid = parGuid;
             var xyz = parLocation.ToStruct;
             ThreadSynchronizer.Instance.Invoke(() =>
@@ -493,8 +467,7 @@ namespace RaidMemberBot.Mem
         internal static void AcceptQuest(ulong parNpcGuid, int parQuestId)
         {
             if (!ObjectManager.Instance.IsIngame) return;
-            if (AcceptQuestFunction == null)
-                AcceptQuestFunction = Memory.Reader.RegisterDelegate<AcceptQuestDelegate>(funcs.AcceptQuest);
+            AcceptQuestFunction ??= Memory.Reader.RegisterDelegate<AcceptQuestDelegate>(funcs.AcceptQuest);
 
             ThreadSynchronizer.Instance.Invoke(() => AcceptQuestFunction(ref parNpcGuid, parQuestId));
         }
@@ -502,24 +475,21 @@ namespace RaidMemberBot.Mem
         internal static void CompleteQuest(ulong parNpcGuid, int parQuestId)
         {
             if (!ObjectManager.Instance.IsIngame) return;
-            if (CompleteQuestFunction == null)
-                CompleteQuestFunction = Memory.Reader.RegisterDelegate<AcceptQuestDelegate>(funcs.CompleteQuest);
+            CompleteQuestFunction ??= Memory.Reader.RegisterDelegate<AcceptQuestDelegate>(funcs.CompleteQuest);
             ThreadSynchronizer.Instance.Invoke(() => CompleteQuestFunction(ref parNpcGuid, parQuestId));
         }
 
         internal static void NetClientSend(IntPtr pDataStore)
         {
             if (!ObjectManager.Instance.IsIngame) return;
-            if (NetClientSendFunction == null)
-                NetClientSendFunction = Memory.Reader.RegisterDelegate<NetClientSendDelegate>(funcs.NetClientSend);
+            NetClientSendFunction ??= Memory.Reader.RegisterDelegate<NetClientSendDelegate>(funcs.NetClientSend);
             ThreadSynchronizer.Instance.Invoke(() => NetClientSendFunction(ClientConnection(), pDataStore.ToInt32()));
         }
 
         internal static IntPtr ClientConnection()
         {
             if (!ObjectManager.Instance.IsIngame) return IntPtr.Zero;
-            if (ClientConnectionFunction == null)
-                ClientConnectionFunction =
+            ClientConnectionFunction ??=
                     Memory.Reader.RegisterDelegate<ClientConnectionDelegate>(funcs.ClientConnection);
             return ThreadSynchronizer.Instance.Invoke(() => ClientConnectionFunction());
         }
@@ -527,23 +497,20 @@ namespace RaidMemberBot.Mem
         internal static int GetCreatureRank(IntPtr parUnitPtr)
         {
             if (!ObjectManager.Instance.IsIngame) return 0;
-            if (GetCreatureRankFunction == null)
-                GetCreatureRankFunction = Memory.Reader.RegisterDelegate<GetCreatureRankDelegate>(funcs.GetCreatureRank);
+            GetCreatureRankFunction ??= Memory.Reader.RegisterDelegate<GetCreatureRankDelegate>(funcs.GetCreatureRank);
             return ThreadSynchronizer.Instance.Invoke(() => GetCreatureRankFunction(parUnitPtr));
         }
 
         internal static Enums.CreatureType GetCreatureType(IntPtr parUnitPtr)
         {
             if (!ObjectManager.Instance.IsIngame) return 0;
-            if (GetCreatureTypeFunction == null)
-                GetCreatureTypeFunction = Memory.Reader.RegisterDelegate<GetCreatureTypeDelegate>(funcs.GetCreatureType);
+            GetCreatureTypeFunction ??= Memory.Reader.RegisterDelegate<GetCreatureTypeDelegate>(funcs.GetCreatureType);
             return (Enums.CreatureType)GetCreatureTypeFunction(parUnitPtr);
         }
 
         internal static int LuaGetArgCount(IntPtr parLuaState)
         {
-            if (LuaGetArgCountFunction == null)
-                LuaGetArgCountFunction = Memory.Reader.RegisterDelegate<LuaGetArgCountDelegate>(funcs.LuaGetArgCount);
+            LuaGetArgCountFunction ??= Memory.Reader.RegisterDelegate<LuaGetArgCountDelegate>(funcs.LuaGetArgCount);
             return ThreadSynchronizer.Instance.Invoke(() => LuaGetArgCountFunction(parLuaState));
         }
 

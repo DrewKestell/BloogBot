@@ -7,5 +7,6 @@
   "UseVerboseLogging": false,
   "PathToWoW": "E:\\repos\\Elysium Project Game Client\\WoW.exe",
   "Port": 8087,
+  "PathfindingPort": 8088,
   "ListenAddress": "127.0.0.1"
 }

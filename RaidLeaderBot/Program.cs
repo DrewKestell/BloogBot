@@ -11,13 +11,16 @@ namespace RaidLeaderBot
     {
         class App : Application
         {
-            private readonly SocketServer _socketServer;
+            private readonly CommandSockerServer _socketServer;
+            private readonly PathfindingSocketServer _pathfindingSocketServer;
             private readonly RaidLeaderBotSettings _raidLeaderBotSettings;
 
-            public App(SocketServer socketServer, RaidLeaderBotSettings raidLeaderBotSettings)
+            public App(CommandSockerServer socketServer, RaidLeaderBotSettings raidLeaderBotSettings)
             {
-                _socketServer = socketServer;
+                _socketServer = socketServer; 
                 _raidLeaderBotSettings = raidLeaderBotSettings;
+                _pathfindingSocketServer = new PathfindingSocketServer(raidLeaderBotSettings.PathfindingPort, IPAddress.Parse(raidLeaderBotSettings.ListenAddress));
+                _pathfindingSocketServer.Start();
             }
 
             protected override void OnStartup(StartupEventArgs e)
@@ -41,16 +44,16 @@ namespace RaidLeaderBot
             LaunchUI(LaunchServer(raidLeaderBotSettings), raidLeaderBotSettings);
         }
 
-        private static void LaunchUI(SocketServer launchServer, RaidLeaderBotSettings raidLeaderBotSettings)
+        private static void LaunchUI(CommandSockerServer launchServer, RaidLeaderBotSettings raidLeaderBotSettings)
         {
             Application app = new App(launchServer, raidLeaderBotSettings);
 
             app.Run();
         }
 
-        private static SocketServer LaunchServer(RaidLeaderBotSettings raidLeaderBotSettings)
+        private static CommandSockerServer LaunchServer(RaidLeaderBotSettings raidLeaderBotSettings)
         {
-            var socketServer = new SocketServer(raidLeaderBotSettings.Port, IPAddress.Parse(raidLeaderBotSettings.ListenAddress));
+            var socketServer = new CommandSockerServer(raidLeaderBotSettings.Port, IPAddress.Parse(raidLeaderBotSettings.ListenAddress));
             socketServer.Start();
             return socketServer;
         }

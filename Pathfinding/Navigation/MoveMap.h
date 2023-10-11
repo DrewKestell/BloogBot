@@ -26,6 +26,7 @@
 #define MANGOS_H_MOVE_MAP
 
 #include <unordered_map>
+#include <map>
 
 #include "DetourAlloc.h"
 #include "DetourNavMesh.h"
@@ -44,13 +45,11 @@ inline void dtCustomFree(void* ptr)
 	delete[](unsigned char*)ptr;
 }
 
-//  move map related classes
 namespace MMAP
 {
 	typedef std::unordered_map<unsigned int, dtTileRef> MMapTileSet;
 	typedef std::unordered_map<unsigned int, dtNavMeshQuery*> NavMeshQuerySet;
 
-	// dummy struct to hold map's mmap data
 	struct MMapData
 	{
 		MMapData(dtNavMesh* mesh) : navMesh(mesh) {}
@@ -74,48 +73,34 @@ namespace MMAP
 		MMapTileSet mmapLoadedTiles;        // maps [map grid coords] to [dtTile]
 	};
 
-
 	typedef std::unordered_map<unsigned int, MMapData*> MMapDataSet;
 
-	// singelton class
-	// holds all all access to mmap loading unloading and meshes
 	class MMapManager
 	{
 	public:
-		MMapManager() : loadedTiles(0) {}
 		~MMapManager();
 
+		std::map<unsigned int, bool> zoneMap = {};
+
 		bool loadMap(unsigned int mapId, int x, int y);
-		bool unloadMap(unsigned int mapId, int x, int y);
-		bool unloadMap(unsigned int mapId);
-		bool unloadMapInstance(unsigned int mapId, unsigned int instanceId);
-		bool hasLoadedMap(unsigned int mapId, int x, int y);
 
 		// the returned [dtNavMeshQuery const*] is NOT threadsafe
 		dtNavMeshQuery const* GetNavMeshQuery(unsigned int mapId, unsigned int instanceId);
 		dtNavMesh const* GetNavMesh(unsigned int mapId);
 
-		unsigned int getLoadedTilesCount() const { return loadedTiles; }
 		unsigned int getLoadedMapsCount() const { return loadedMMaps.size(); }
 	private:
 		bool loadMapData(unsigned int mapId);
 		unsigned int packTileID(int x, int y);
 
 		MMapDataSet loadedMMaps;
-		unsigned int loadedTiles;
 	};
 
-	// static class
-	// holds all mmap global data
-	// access point to MMapManager singelton
 	class MMapFactory
 	{
 	public:
 		static MMapManager* createOrGetMMapManager();
-		static void clear();
-		static void preventPathfindingOnMaps(const char* ignoreMapIds);
-		static bool IsPathfindingEnabled(unsigned int mapId);
 	};
 }
 
-#endif  // _MOVE_MAP_H
+#endif

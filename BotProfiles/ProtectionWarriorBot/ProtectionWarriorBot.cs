@@ -17,25 +17,25 @@ namespace ProtectionWarriorBot
             new ClassContainer(
                 Name,
                 CreateRestTask,
-                CreateMoveToTargetTask,
                 CreateBuffTask,
-                CreateOffensiveRotationTask,
-                CreateDefensiveRotationTask,
+                CreateMoveToTargetTask,
+                CreatePvERotationTask,
+                CreatePvPRotationTask,
                 probe);
 
         public IBotTask CreateRestTask(IClassContainer container, Stack<IBotTask> botTasks) =>
             new RestTask(container, botTasks);
 
+        public IBotTask CreateBuffTask(IClassContainer container, Stack<IBotTask> botTasks) =>
+            new BuffTask(container, botTasks);
+
         public IBotTask CreateMoveToTargetTask(IClassContainer container, Stack<IBotTask> botTasks, WoWUnit target) =>
             new MoveToTargetTask(container, botTasks, target);
 
-        public IBotTask CreateBuffTask(IClassContainer container, Stack<IBotTask> botTasks, List<WoWUnit> partyMembers) =>
-            new BuffTask(container, botTasks, partyMembers);
+        public IBotTask CreatePvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) =>
+            new PvERotationTask(container, botTasks);
 
-        public IBotTask CreateOffensiveRotationTask(IClassContainer container, Stack<IBotTask> botTasks, List<WoWUnit> targets) =>
-            new CombatTask(container, botTasks, targets);
-
-        public IBotTask CreateDefensiveRotationTask(IClassContainer container, Stack<IBotTask> botTasks, List<WoWUnit> partyMembers) =>
-            new CombatTask(container, botTasks, partyMembers);
+        public IBotTask CreatePvPRotationTask(IClassContainer container, Stack<IBotTask> botTasks) =>
+            new PvERotationTask(container, botTasks);
     }
 }

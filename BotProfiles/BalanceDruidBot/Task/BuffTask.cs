@@ -13,11 +13,13 @@ namespace BalanceDruidBot
         const string MoonkinForm = "Moonkin Form";
 
         readonly Stack<IBotTask> botTasks;
+        readonly IClassContainer container;
         readonly LocalPlayer player;
 
-        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks, List<WoWUnit> partyMembers)
+        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks)
         {
             this.botTasks = botTasks;
+            this.container = container;
             player = ObjectManager.Instance.Player;
         }
 

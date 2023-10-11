@@ -2,12 +2,10 @@
 using RaidMemberBot.Mem;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace RaidMemberBot
 {
@@ -41,6 +39,7 @@ namespace RaidMemberBot
         /// </value>
         public static ThreadSynchronizer Instance { get; } = new ThreadSynchronizer();
 
+        public int QueueCount => InvokeQueue.Count;
         private bool WindowProc(IntPtr hWnd, IntPtr lParam)
         {
             int procId;

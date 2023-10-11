@@ -18,5 +18,6 @@
         public string ListenAddress { get; set; }
 
         public int Port { get; set; }
+        public int PathfindingPort { get; set; }
     }
 }

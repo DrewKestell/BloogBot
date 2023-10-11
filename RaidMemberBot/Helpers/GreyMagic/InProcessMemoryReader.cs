@@ -20,7 +20,7 @@ namespace RaidMemberBot.Helpers.GreyMagic
         /// </summary>
         internal virtual DetourManager Detours
         {
-            get { return _detourManager ?? (_detourManager = new DetourManager(this)); }
+            get { return _detourManager ??= new DetourManager(this); }
         }
 
         [DllImport("Kernel32.dll", EntryPoint = "RtlMoveMemory", SetLastError = false)]

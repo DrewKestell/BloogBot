@@ -23,14 +23,14 @@ namespace AfflictionWarlockBot
 
         public void Update()
         {
-            if (player.Casting > 0)
+            if (player.IsCasting)
                 return;
 
             
             if ((!Spellbook.Instance.IsSpellReady(SummonImp) && !Spellbook.Instance.IsSpellReady(SummonVoidwalker)) || ObjectManager.Instance.Pet != null)
             {
                 botTasks.Pop();
-                botTasks.Push(new BuffTask(container, botTasks, new List<WoWUnit>()));
+                botTasks.Push(new BuffTask(container, botTasks));
                 return;
             }
 

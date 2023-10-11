@@ -89,8 +89,7 @@ namespace RaidMemberBot.ExtensionMethods
         {
             if (value == IntPtr.Zero) return "";
             if ((int)value < 00401000) return "";
-            if (encoding == null)
-                encoding = Encoding.ASCII;
+            encoding ??= Encoding.ASCII;
             try
             {
                 return Memory.Reader.ReadString(value, encoding, length);
@@ -105,8 +104,7 @@ namespace RaidMemberBot.ExtensionMethods
         {
             if (value == 0) return "";
             if (value < 00401000) return "";
-            if (encoding == null)
-                encoding = Encoding.ASCII;
+            encoding ??= Encoding.ASCII;
             try
             {
                 return Memory.Reader.ReadString((IntPtr)value, encoding, length);
@@ -121,8 +119,7 @@ namespace RaidMemberBot.ExtensionMethods
         {
             if (value == 0) return "";
             if ((int)value < 00401000) return "";
-            if (encoding == null)
-                encoding = Encoding.ASCII;
+            encoding ??= Encoding.ASCII;
             try
             {
                 return Memory.Reader.ReadString((IntPtr)value, encoding, length);

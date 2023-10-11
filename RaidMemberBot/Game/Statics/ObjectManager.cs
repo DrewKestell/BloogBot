@@ -10,7 +10,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using static RaidMemberBot.Constants.Enums;
-using static RaidMemberBot.ThreadSynchronizer;
 
 namespace RaidMemberBot.Game.Statics
 {
@@ -252,6 +251,13 @@ namespace RaidMemberBot.Game.Statics
                 return GetPartyMember(guid);
             }
         }
+        public List<WoWUnit> PartyMembers
+        {
+            get
+            {
+                return new List<WoWUnit>() { PartyLeader, Party1, Party2, Party3, Party4 }.Where(x => x != null).ToList();
+            }
+        }
 
         private WoWUnit GetPartyMember(ulong guid)
         {
@@ -262,16 +268,23 @@ namespace RaidMemberBot.Game.Statics
             }
         }
         public List<WoWUnit> Aggressors =>
-            Units
-                .Where(u => u.Health > 0)
+            Hostiles
                 .Where(u =>
                     u.TargetGuid == Player?.Guid ||
-                    u.TargetGuid == Pet?.Guid)
+                    u.TargetGuid == ((int)Offsets.Party.party1Guid).ReadAs<ulong>() ||
+                    u.TargetGuid == ((int)Offsets.Party.party2Guid).ReadAs<ulong>() ||
+                    u.TargetGuid == ((int)Offsets.Party.party3Guid).ReadAs<ulong>() ||
+                    u.TargetGuid == ((int)Offsets.Party.party4Guid).ReadAs<ulong>())
+            .ToList();
+
+        public List<WoWUnit> Hostiles =>
+            Units
+                .Where(u => u.Health > 0)
                 .Where(u =>
                     u.Reaction == UnitReaction.Hostile ||
                     u.Reaction == UnitReaction.Hostile2 ||
                     u.Reaction == UnitReaction.Neutral)
-                .Where(u => u.IsInCombat)
+            .OrderBy(u => u.Location.DistanceToPlayer())
             .ToList();
 
         internal ItemCacheEntry? LookupItemCacheEntry(int parItemId, PrivateEnums.ItemCacheLookupType parLookupType)
@@ -322,20 +335,17 @@ namespace RaidMemberBot.Game.Statics
                 var playerGuid = Functions.GetPlayerGuid();
                 if (playerGuid == 0)
                 {
-                    if (_characterState != null)
-                    {
-                        _characterState.IsCasting = false;
-                        _characterState.IsChanneling = false;
-                        _characterState.CharacterName = "";
-                        _characterState.Zone = "Offline";
-                        _characterState.CurrentTask = "Offline";
-                        _characterState.TargetGuid = 0;
-                        _characterState.Health = 0;
-                        _characterState.Mana = 0;
-                        _characterState.Rage = 0;
-                        _characterState.Energy = 0;
-                        _characterState.Location = "Offline";
-                    }
+                    _characterState.IsCasting = false;
+                    _characterState.IsChanneling = false;
+                    _characterState.InCombat = false;
+                    _characterState.CharacterName = "";
+                    _characterState.Zone = "Offline";
+                    _characterState.CurrentTask = "Offline";
+                    _characterState.HealthPercent = 0;
+                    _characterState.ManaPercent = 0;
+                    _characterState.Rage = 0;
+                    _characterState.Energy = 0;
+                    _characterState.Location = "Offline";
 
                     return false;
                 }
@@ -369,24 +379,19 @@ namespace RaidMemberBot.Game.Statics
                     _finalObjects = _objects.Values.ToList();
                 }
 
-                if (_characterState != null)
-                {
-                    _characterState.Guid = playerGuid;
-                    _characterState.CharacterName = Player.Name;
-                    _characterState.IsCasting = Player.IsCasting;
-                    _characterState.IsChanneling = Player.IsChanneling;
-                    _characterState.Zone = Player.RealZoneText;
-                    _characterState.CurrentTask = Player.IsMoving ? "Moving" :
-                                                    Player.IsCasting ? "Casting" :
-                                                    Player.IsChanneling ? "Channeling" :
-                                                    "Idle";
-                    _characterState.Health = Player.Health;
-                    _characterState.Mana = 0;
-                    _characterState.Rage = 0;
-                    _characterState.Energy = 0;
-                    _characterState.TargetGuid = Player.TargetGuid;
-                    _characterState.Location = Player.Location.ToString();
-                }
+                _characterState.Guid = playerGuid;
+                _characterState.CharacterName = Player.Name;
+                _characterState.IsCasting = Player.IsCasting;
+                _characterState.IsChanneling = Player.IsChanneling;
+                _characterState.InCombat = Player.IsInCombat;
+                _characterState.Zone = Player.RealZoneText;
+                _characterState.InParty = ((int)Offsets.Party.leaderGuid).ReadAs<ulong>() > 0;
+                _characterState.MapId = (int)Player.MapId;
+                _characterState.HealthPercent = Player.HealthPercent;
+                _characterState.ManaPercent = Player.ManaPercent;
+                _characterState.Rage = Player.Rage;
+                _characterState.Energy = Player.Energy;
+                _characterState.Location = $"X:{Player.Location.X} Y:{Player.Location.Y} Z{Player.Location.Z}".ToString();
 
                 return true;
             });

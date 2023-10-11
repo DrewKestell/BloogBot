@@ -45,16 +45,16 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\..\Bot\Release\</OutDir>
-    <TargetExt>.mmap</TargetExt>
+    <OutDir>..\..\Bot\$(Configuration)\</OutDir>
+    <TargetExt>.dll</TargetExt>
     <IntDir>..\Release\</IntDir>
-    <TargetName>038</TargetName>
+    <TargetName>Navigation</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\..\Bot\Debug\</OutDir>
+    <OutDir>..\..\Bot\$(Configuration)\</OutDir>
     <TargetExt>.mmap</TargetExt>
-    <TargetName>038</TargetName>
+    <TargetName>Navigation</TargetName>
     <IntDir>..\Debug\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -72,6 +72,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeaderFile />
       <DebugInformationFormat>None</DebugInformationFormat>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -100,7 +101,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <LanguageStandard>Default</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

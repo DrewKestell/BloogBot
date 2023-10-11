@@ -1,4 +1,5 @@
-﻿using RaidMemberBot.Game.Frames;
+﻿using Newtonsoft.Json;
+using RaidMemberBot.Game.Frames;
 using RaidMemberBot.Mem.Hooks;
 using RaidMemberBot.Objects;
 using System;
@@ -349,7 +350,18 @@ namespace RaidMemberBot.Game.Statics
 
         private void EvaluateEvent(string parEvent, params object[] parArgs)
         {
-            Task.Run(() => _evaluteEvent(parEvent, parArgs));
+            Task.Run(() =>
+            {
+                try
+                {
+                    _evaluteEvent(parEvent, parArgs); 
+                    Console.WriteLine($"EVENT HANDLER: {parEvent} {JsonConvert.SerializeObject(parArgs)}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"EVENT HANDLER: {parEvent} {JsonConvert.SerializeObject(parArgs)} {ex.Message}");
+                }
+            });
         }
 
         private void _evaluteEvent(string parEvent, object[] parArgs)
@@ -435,7 +447,7 @@ namespace RaidMemberBot.Game.Statics
             }
             else if (parEvent == "UI_ERROR_MESSAGE")
             {
-                OnErrorMessage?.Invoke(this, new OnUiMessageArgs((string)parArgs[0]));
+                OnErrorMessage?.Invoke(this, new OnUiMessageArgs(((int)parArgs[0]).ToString()));
             }
             else if (parEvent == "UI_INFO_MESSAGE")
             {
@@ -460,6 +472,7 @@ namespace RaidMemberBot.Game.Statics
                     OnBlockParryDodge?.Invoke(null, new EventArgs());
                 if ((string)parArgs[0] == "player" && (string)parArgs[1] == "PARRY")
                     OnParry?.Invoke(null, new EventArgs());
+
             }
             else if (parEvent == "CHAT_MSG_COMBAT_SELF_HITS" || parEvent == "CHAT_MSG_COMBAT_SELF_MISSES")
             {

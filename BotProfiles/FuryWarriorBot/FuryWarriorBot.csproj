@@ -42,7 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Task\BuffTask.cs" />
-    <Compile Include="Task\CombatTask.cs" />
+    <Compile Include="Task\PvERotationTask.cs" />
     <Compile Include="FuryWarriorBot.cs" />
     <Compile Include="Task\MoveToTargetTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

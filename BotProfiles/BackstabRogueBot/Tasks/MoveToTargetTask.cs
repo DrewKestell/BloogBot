@@ -7,6 +7,7 @@ using RaidMemberBot.AI;
 using RaidMemberBot.Game.Statics;
 using static RaidMemberBot.Constants.Enums;
 using RaidMemberBot;
+using RaidMemberBot.Client;
 
 namespace BackstabRogueBot
 {
@@ -42,7 +43,7 @@ namespace BackstabRogueBot
         {
             if (target.TappedByOther)
             {
-                player.StopMovement(ControlBits.Nothing);
+                player.StopAllMovement();
                 botTasks.Pop();
                 return;
             }
@@ -150,13 +151,13 @@ namespace BackstabRogueBot
 
             if (distanceToTarget < 2.5)
             {
-                player.StopMovement(ControlBits.Nothing);
+                player.StopAllMovement();
                 botTasks.Pop();
-                botTasks.Push(new CombatTask(container, botTasks, new List<WoWUnit>() { target }));
+                botTasks.Push(new PvERotationTask(container, botTasks));
                 return;
             }
 
-            var nextWaypoint = Navigation.Instance.CalculatePath(player.MapId, player.Location, target.Location, false);
+            var nextWaypoint = SocketClient.Instance.CalculatePath(player.MapId, player.Location, target.Location, false);
             player.MoveToward(nextWaypoint[0]);
         }
     }

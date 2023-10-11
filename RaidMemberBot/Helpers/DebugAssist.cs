@@ -1,10 +1,4 @@
-﻿using RaidMemberBot.Game;
-using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Objects;
-using System;
-using System.Threading.Tasks;
-
-namespace RaidMemberBot.Helpers
+﻿namespace RaidMemberBot.Helpers
 {
 #if DEBUG
     internal static class DebugAssist

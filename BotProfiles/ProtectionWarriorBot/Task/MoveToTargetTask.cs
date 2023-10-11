@@ -1,7 +1,10 @@
 ﻿using RaidMemberBot.AI;
+using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Objects;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using static RaidMemberBot.Constants.Enums;
 
 namespace ProtectionWarriorBot
@@ -10,55 +13,72 @@ namespace ProtectionWarriorBot
     {
         readonly Stack<IBotTask> botTasks;
         readonly IClassContainer container;
-        readonly WoWUnit target;
         readonly LocalPlayer player;
-        readonly StuckHelper stuckHelper;
+        WoWUnit target;
 
+        Location currentWaypoint;
         internal MoveToTargetTask(IClassContainer container, Stack<IBotTask> botTasks, WoWUnit target)
         {
             this.botTasks = botTasks;
             this.container = container;
             this.target = target;
             player = ObjectManager.Instance.Player;
-            stuckHelper = new StuckHelper(container, botTasks);
+            currentWaypoint = ObjectManager.Instance.Player.Location;
         }
 
         public void Update()
         {
-            if (target.TappedByOther)
+            if (ObjectManager.Instance.Hostiles.Where(x => player.InLosWith(x)).ToList().Count > 0)
             {
-                player.StopMovement(ControlBits.Nothing);
-                botTasks.Pop();
-                return;
+                WoWUnit potentialNewTarget = ObjectManager.Instance.Hostiles.Where(x => player.InLosWith(x)).First();
+
+                if (potentialNewTarget != null && potentialNewTarget.Guid != target.Guid && player.InLosWith(potentialNewTarget))
+                {
+                    target = potentialNewTarget;
+                    player.SetTarget(potentialNewTarget);
+                }
             }
 
-            stuckHelper.CheckIfStuck();
+            if (player.CurrentStance != "Battle Stance")
+                Lua.Instance.Execute("CastSpellByName('Battle Stance')");
 
             var distanceToTarget = player.Location.GetDistanceTo(target.Location);
-            if (distanceToTarget < 25 && distanceToTarget > 8 && player.Casting == 0 && Spellbook.Instance.IsSpellReady("Charge") && player.InLosWith(target.Location))
+
+            if (distanceToTarget < 25 && distanceToTarget > 8 && !player.IsCasting && Spellbook.Instance.IsSpellReady("Charge") && player.InLosWith(target.Location))
             {
-                if (player.Casting == 0)
+                if (!player.IsCasting)
                     Lua.Instance.Execute("CastSpellByName('Charge')");
 
                 if (player.IsInCombat)
                 {
-                    player.StopMovement(ControlBits.Nothing);
+                    player.StopAllMovement();
                     botTasks.Pop();
-                    botTasks.Push(new CombatTask(container, botTasks, new List<WoWUnit>() { target }));
+                    botTasks.Push(new PvERotationTask(container, botTasks));
                     return;
                 }
             }
 
             if (distanceToTarget < 3)
             {
-                player.StopMovement(ControlBits.Nothing);
+                player.StopAllMovement();
                 botTasks.Pop();
-                botTasks.Push(new CombatTask(container, botTasks, new List<WoWUnit>() { target }));
+                botTasks.Push(new PvERotationTask(container, botTasks));
                 return;
             }
 
-            var nextWaypoint = Navigation.Instance.CalculatePath(player.MapId, player.Location, target.Location, false);
-            player.MoveToward(nextWaypoint[0]);
+            var nextWaypoint = SocketClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, player.Location, target.Location, true);
+
+            if (nextWaypoint.Length > 1)
+            {
+                currentWaypoint = nextWaypoint[1];
+            }
+            else
+            {
+                botTasks.Pop();
+                return;
+            }
+
+            player.MoveToward(currentWaypoint);
         }
     }
 }

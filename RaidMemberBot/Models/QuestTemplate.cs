@@ -1,4 +1,4 @@
-﻿namespace WoWBot.Client.Models
+﻿namespace RaidMemberBot.Models
 {
     public class QuestTemplate
     {

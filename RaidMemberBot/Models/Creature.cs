@@ -1,4 +1,6 @@
-﻿namespace RaidMemberBot.Models
+﻿using RaidMemberBot.Objects;
+
+namespace RaidMemberBot.Models
 {
     public class Creature
     {
@@ -12,6 +14,7 @@
         public float LocationX { get; set; }
         public float LocationY { get; set; }
         public float LocationZ { get; set; }
+        public Location SpawnLocation { get; set; }
         public float Orientation { get; set; }
         public int SpawnTimeSecsMin { get; set; }
         public int SpawnTimeSecsMax { get; set; }

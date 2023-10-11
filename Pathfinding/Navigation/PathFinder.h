@@ -124,14 +124,14 @@ private:
 
 	const unsigned int      m_mapId;       // map id
 	const unsigned int      m_instanceId;       // instance id
-	const dtNavMesh*        m_navMesh;          // the nav mesh
-	const dtNavMeshQuery*   m_navMeshQuery;     // the nav mesh query used to find the path
+	const dtNavMesh* m_navMesh;          // the nav mesh
+	const dtNavMeshQuery* m_navMeshQuery;     // the nav mesh query used to find the path
 
 	dtQueryFilter m_filter;                     // use single filter for all movements, update it when needed
 
-	void setStartPosition(const Vector3 &point) { m_startPosition = point; }
-	void setEndPosition(const Vector3 &point) { m_actualEndPosition = point; m_endPosition = point; }
-	void setActualEndPosition(const Vector3 &point) { m_actualEndPosition = point; }
+	void setStartPosition(const Vector3& point) { m_startPosition = point; }
+	void setEndPosition(const Vector3& point) { m_actualEndPosition = point; m_endPosition = point; }
+	void setActualEndPosition(const Vector3& point) { m_actualEndPosition = point; }
 
 	void clear()
 	{
@@ -149,6 +149,7 @@ private:
 
 	void BuildPolyPath(const Vector3& startPos, const Vector3& endPos);
 	void BuildPointPath(const float* startPoint, const float* endPoint);
+	void BuildError();
 	void BuildShortcut();
 
 	NavTerrain getNavTerrain(float x, float y, float z);

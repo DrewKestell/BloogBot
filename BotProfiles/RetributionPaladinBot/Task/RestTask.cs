@@ -61,7 +61,7 @@ namespace RetributionPaladinBot
                     //container.CheckForTravelPath(botTasks, true, false);
                 }
                 else
-                    botTasks.Push(new BuffTask(container, botTasks, new List<WoWUnit>() { ObjectManager.Instance.Player }));
+                    botTasks.Push(new BuffTask(container, botTasks));
 
             }
             

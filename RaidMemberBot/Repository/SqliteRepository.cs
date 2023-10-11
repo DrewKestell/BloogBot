@@ -1,70 +1,19 @@
-﻿using RaidMemberBot.Models;
-using Microsoft.Data.Sqlite;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using WoWBot.Client.Models;
+using System.Data.SQLite;
+using RaidMemberBot.Models;
 
 namespace RaidMemberBot
 {
     internal class SqliteRepository
     {
         private static readonly string ConnectionString = "Data Source=database.db";
-        private static readonly string PreparedSql = @"database.sql";
-        private static readonly List<string> TableNames = new List<string>()
-        {
-            "items",
-            "creature",
-            "creature_involvedrelation",
-            "creature_template",
-            "creature_loot_template",
-            "gameobject",
-            "gameobject_template",
-            "gameobject_loot_template",
-            "npc_vendor",
-            "quest_poi_points",
-            "quest_template"
-        };
 
-        public static void Initialize()
-        {
-            try
-            {
-                using (var connection = new SqliteConnection(ConnectionString))
-                {
-                    connection.Open();
-
-                    var command = connection.CreateCommand();
-
-                    foreach (var table in TableNames)
-                    {
-                        command = connection.CreateCommand();
-                        command.CommandText = $@"
-                                                    SELECT *
-                                                    FROM {table}
-                                                    LIMIT 1;
-                                                ";
-
-                        command.ExecuteReader();
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                //using (var connection = new SqliteConnection(ConnectionString))
-                //{
-                //    connection.Open();
-
-                //    var command = new SqliteCommand(File.ReadAllText(PreparedSql), connection);
-
-                //    command.ExecuteReader();
-                //}
-            }
-        }
         public static Item GetItemById(ulong id)
         {
             Item item = null;
 
-            using (var connection = new SqliteConnection(ConnectionString))
+            using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
@@ -220,7 +169,7 @@ namespace RaidMemberBot
         public static QuestTemplate GetQuestTemplateByID(int id)
         {
             QuestTemplate questTemplate = null;
-            using (var connection = new SqliteConnection(ConnectionString))
+            using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
@@ -377,7 +326,7 @@ namespace RaidMemberBot
         public static List<Creature> GetCreaturesById(int id)
         {
             List<Creature> creatures = new List<Creature>();
-            using (var connection = new SqliteConnection(ConnectionString))
+            using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
@@ -404,6 +353,7 @@ namespace RaidMemberBot
                             LocationX = Convert.ToSingle(reader["position_x"]),
                             LocationY = Convert.ToSingle(reader["position_y"]),
                             LocationZ = Convert.ToSingle(reader["position_z"]),
+                            SpawnLocation = new Objects.Location(Convert.ToSingle(reader["position_x"]), Convert.ToSingle(reader["position_y"]), Convert.ToSingle(reader["position_z"])),
                             Orientation = Convert.ToSingle(reader["orientation"]),
                             SpawnTimeSecsMin = Convert.ToInt32(reader["spawntimesecsmin"]),
                             SpawnTimeSecsMax = Convert.ToInt32(reader["spawntimesecsmax"]),
@@ -421,10 +371,59 @@ namespace RaidMemberBot
             }
             return creatures;
         }
+        public static List<Creature> GetCreaturesByMapId(int id)
+        {
+            List<Creature> creatures = new List<Creature>();
+            using (var connection = new SQLiteConnection(ConnectionString))
+            {
+                connection.Open();
+
+                var command = connection.CreateCommand();
+                command.CommandText = @"
+                                            SELECT *
+                                            FROM creature
+                                            WHERE map = @id
+                                        ";
+                command.Parameters.AddWithValue("@id", id);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Creature creature = new Creature
+                        {
+                            Guid = Convert.ToInt32(reader["guid"]),
+                            Id = Convert.ToInt32(reader["id"]),
+                            Map = Convert.ToInt16(reader["map"]),
+                            SpawnMask = Convert.ToByte(reader["spawnMask"]),
+                            ModelId = Convert.ToInt32(reader["modelid"]),
+                            EquipmentId = Convert.ToInt32(reader["equipment_id"]),
+                            LocationX = Convert.ToSingle(reader["position_x"]),
+                            LocationY = Convert.ToSingle(reader["position_y"]),
+                            LocationZ = Convert.ToSingle(reader["position_z"]),
+                            SpawnLocation = new Objects.Location(Convert.ToSingle(reader["position_x"]), Convert.ToSingle(reader["position_y"]), Convert.ToSingle(reader["position_z"])),
+                            Orientation = Convert.ToSingle(reader["orientation"]),
+                            SpawnTimeSecsMin = Convert.ToInt32(reader["spawntimesecsmin"]),
+                            SpawnTimeSecsMax = Convert.ToInt32(reader["spawntimesecsmax"]),
+                            SpawnDist = Convert.ToSingle(reader["spawndist"]),
+                            CurrentWaypoint = Convert.ToInt32(reader["currentwaypoint"]),
+                            CurHealth = Convert.ToInt32(reader["curhealth"]),
+                            CurMana = Convert.ToInt32(reader["curmana"]),
+                            DeathState = Convert.ToByte(reader["DeathState"]),
+                            MovementType = Convert.ToByte(reader["MovementType"])
+                        };
+
+                        creatures.Add(creature);
+                    }
+                }
+                connection.Close();
+            }
+            return creatures;
+        }
         public static CreatureTemplate GetCreatureTemplateById(int id)
         {
             CreatureTemplate creatureTemplate = null;
-            using (var connection = new SqliteConnection(ConnectionString))
+            using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
@@ -533,7 +532,7 @@ namespace RaidMemberBot
         public static List<int> GetQuestRelatedNPCsByQuestId(int id)
         {
             List<int> questNpcs = new List<int>();
-            using (var connection = new SqliteConnection(ConnectionString))
+            using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
@@ -559,7 +558,7 @@ namespace RaidMemberBot
         public static List<GameObject> GetGameObjectsById(int id)
         {
             List<GameObject> gameObjects = new List<GameObject>();
-            using (var connection = new SqliteConnection(ConnectionString))
+            using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
@@ -604,7 +603,7 @@ namespace RaidMemberBot
         public static List<GameObject> GetGameObjectByLootableItemId(int itemId)
         {
             List<GameObject> gameObjects = new List<GameObject>();
-            using (var connection = new SqliteConnection(ConnectionString))
+            using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
@@ -651,7 +650,7 @@ namespace RaidMemberBot
         public static List<Creature> GetCreaturesByLootableItemId(int itemId)
         {
             List<Creature> creatures = new List<Creature>();
-            using (var connection = new SqliteConnection(ConnectionString))
+            using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
@@ -700,7 +699,7 @@ namespace RaidMemberBot
         public static List<CreatureTemplate> GetAllClassTrainers()
         {
             List<CreatureTemplate> creatureTemplates = new List<CreatureTemplate>();
-            using (var connection = new SqliteConnection(ConnectionString))
+            using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
@@ -811,7 +810,7 @@ namespace RaidMemberBot
         public static List<Creature> GetAllVendors()
         {
             List<Creature> creatures = new List<Creature>();
-            using (var connection = new SqliteConnection(ConnectionString))
+            using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
@@ -860,7 +859,7 @@ namespace RaidMemberBot
         public static List<NpcVendorEntry> GetAllItemsSoldByVendorByEntry(int entry)
         {
             List<NpcVendorEntry> npcVendorEntries = new List<NpcVendorEntry>();
-            using (var connection = new SqliteConnection(ConnectionString))
+            using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
