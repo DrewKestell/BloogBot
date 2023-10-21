@@ -8,52 +8,37 @@ namespace RaidMemberBot.AI.SharedStates
 {
     public class UseItemOnUnitTask : BotTask, IBotTask
     {
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
-
-        readonly WoWUnit targetUnit;
         readonly WoWItem usableItem;
-        readonly LocalPlayer player;
-        readonly StuckHelper stuckHelper;
 
-        int stuckCount;
         bool itemUsed;
 
-        public UseItemOnUnitTask(IClassContainer container, Stack<IBotTask> botTasks, WoWUnit target, WoWItem wowItem)
+        public UseItemOnUnitTask(IClassContainer container, Stack<IBotTask> botTasks, WoWItem wowItem) : base(container, botTasks, TaskType.Ordinary)
         {
-            this.container = container;
-            this.botTasks = botTasks;
-            targetUnit = target;
             usableItem = wowItem;
             itemUsed = false;
-            player = ObjectManager.Instance.Player;
-            stuckHelper = new StuckHelper(container, botTasks);
         }
 
         public void Update()
         {
-            if (stuckHelper.CheckIfStuck())
-                stuckCount++;
-
-            if (player.Location.GetDistanceTo(targetUnit.Location) < 3 || stuckCount > 20)
+            if (Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location) < 3)
             {
                 if (!itemUsed)
                 {
-                    player.SetTarget(targetUnit.Guid);
-                    player.StopMovement(Constants.Enums.ControlBits.Nothing);
+                    Container.Player.SetTarget(Container.HostileTarget.Guid);
+                    Container.Player.StopMovement(Constants.Enums.ControlBits.Nothing);
                     usableItem.Use();
 
                     itemUsed = true;
                 } else if (Wait.For("ItemUseAnim", 1000))
                 {
-                    botTasks.Pop();
+                    BotTasks.Pop();
                     return;
                 }
             }
             else
             {
-                var nextWaypoint = SocketClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, player.Location, targetUnit.Location, false);
-                player.MoveToward(nextWaypoint[0]);
+                var nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
+                Container.Player.MoveToward(nextWaypoint[0]);
             }
 
         }

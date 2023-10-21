@@ -6,22 +6,15 @@ namespace RaidMemberBot.AI.SharedStates
 {
     public class EquipBagsTask : BotTask, IBotTask
     {
-        readonly IClassContainer container;
-        readonly Stack<IBotTask> botTasks;
-
         WoWItem newBag;
 
-        public EquipBagsTask(IClassContainer container, Stack<IBotTask> botTasks)
-        {
-            this.container = container;
-            this.botTasks = botTasks;
-        }
+        public EquipBagsTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Ordinary) { }
 
         public void Update()
         {
             if (ObjectManager.Instance.Player.IsInCombat)
             {
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
 
@@ -33,8 +26,8 @@ namespace RaidMemberBot.AI.SharedStates
 
             //if (newBag == null || Inventory.Instance.EmptyBagSlots == 0)
             //{
-            //    botTasks.Pop();
-            //    botTasks.Push(new EquipArmorTask(container, botTasks));
+            //    BotTasks.Pop();
+            //    BotTasks.Push(new EquipArmorTask(Container, BotTasks));
             //    return;
             //}
 

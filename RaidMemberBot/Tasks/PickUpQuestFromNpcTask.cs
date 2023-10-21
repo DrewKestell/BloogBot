@@ -9,8 +9,6 @@ namespace RaidMemberBot.AI.SharedStates
 {
     public class PickUpQuestFromNpcTask : BotTask, IBotTask
     {
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
         readonly string npcName;
         readonly LocalPlayer player;
         readonly int startTime = Environment.TickCount;
@@ -19,10 +17,8 @@ namespace RaidMemberBot.AI.SharedStates
         WoWUnit npc;
         GossipFrame dialogFrame;
 
-        public PickUpQuestFromNpcTask(IClassContainer container, Stack<IBotTask> botTasks, string npcName)
+        public PickUpQuestFromNpcTask(IClassContainer container, Stack<IBotTask> botTasks, string npcName) : base(container, botTasks, TaskType.Ordinary)
         {
-            this.container = container;
-            this.botTasks = botTasks;
             this.npcName = npcName;
             player = ObjectManager.Instance.Player;
 
@@ -33,9 +29,9 @@ namespace RaidMemberBot.AI.SharedStates
 
         public void Update()
         {
-            if (player.IsInCombat || (Environment.TickCount - startTime > 5000))
+            if (Container.Player.IsInCombat || (Environment.TickCount - startTime > 5000))
             {
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
         }

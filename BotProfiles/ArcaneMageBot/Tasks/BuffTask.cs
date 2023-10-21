@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace ArcaneMageBot
 {
-    class BuffTask : IBotTask
+    class BuffTask : BotTask, IBotTask
     {
         const string ArcaneIntellect = "Arcane Intellect";
         const string FrostArmor = "Frost Armor";
@@ -16,19 +16,13 @@ namespace ArcaneMageBot
         readonly IClassContainer container;
         readonly LocalPlayer player;
 
-        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks)
-        {
-            this.botTasks = botTasks;
-            this.container = container;
-            player = ObjectManager.Instance.Player;
-        }
-
+        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
         {
-            if ((!Spellbook.Instance.IsSpellReady(ArcaneIntellect) || player.HasBuff(ArcaneIntellect)) && (player.HasBuff(FrostArmor) || player.HasBuff(IceArmor)) && (!Spellbook.Instance.IsSpellReady(DampenMagic) || player.HasBuff(DampenMagic)))
+            if ((!Spellbook.Instance.IsSpellReady(ArcaneIntellect) || Container.Player.HasBuff(ArcaneIntellect)) && (Container.Player.HasBuff(FrostArmor) || Container.Player.HasBuff(IceArmor)) && (!Spellbook.Instance.IsSpellReady(DampenMagic) || Container.Player.HasBuff(DampenMagic)))
             {
-                botTasks.Pop();
-                botTasks.Push(new ConjureItemsTask(botTasks, container));
+                BotTasks.Pop();
+                BotTasks.Push(new ConjureItemsTask(botTasks, container));
                 return;
             }
             
@@ -44,7 +38,7 @@ namespace ArcaneMageBot
 
         void TryCastSpell(string name, bool castOnSelf = false)
         {
-            if (!player.HasBuff(name) && Spellbook.Instance.IsSpellReady(name) && Spellbook.Instance.IsSpellReady(name))
+            if (!Container.Player.HasBuff(name) && Spellbook.Instance.IsSpellReady(name) && Spellbook.Instance.IsSpellReady(name))
             {
                 var castOnSelfString = castOnSelf ? ",1" : "";
                 Lua.Instance.Execute($"CastSpellByName('{name}'{castOnSelfString})");

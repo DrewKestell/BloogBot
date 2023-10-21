@@ -2,7 +2,6 @@
 using RaidMemberBot.Game.Frames;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
-using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +11,6 @@ namespace RaidMemberBot.AI.SharedStates
 {
     public class LootTask : BotTask, IBotTask
     {
-        readonly IClassContainer container;
-        readonly Stack<IBotTask> botTasks;
-        readonly WoWUnit target;
-        readonly LocalPlayer player;
-        readonly StuckHelper stuckHelper;
         readonly int startTime = Environment.TickCount;
 
         int stuckCount;
@@ -24,36 +18,23 @@ namespace RaidMemberBot.AI.SharedStates
         int lootIndex;
         LootStates currentState;
 
-        public LootTask(IClassContainer container, Stack<IBotTask> botTasks, WoWUnit target)
-        {
-            this.container = container;
-            this.botTasks = botTasks;
-            this.target = target;
-            player = ObjectManager.Instance.Player;
-            stuckHelper = new StuckHelper(container, botTasks);
-        }
+        public LootTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Ordinary) { }
 
         public void Update()
         {
-            if (player.Location.GetDistanceTo(target.Location) >= 5)
+            if (Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location) >= 5)
             {
-                var nextWaypoint = SocketClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, player.Location, target.Location, false);
-                player.MoveToward(nextWaypoint[0]);
-
-                if (!player.IsInCC)
-                {
-                    if (stuckHelper.CheckIfStuck())
-                        stuckCount++;
-                }
+                var nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
+                Container.Player.MoveToward(nextWaypoint[0]);
             }
 
-            if (target.CanBeLooted && currentState == LootStates.Initial && player.Location.GetDistanceTo(target.Location) < 5)
+            if (Container.HostileTarget.CanBeLooted && currentState == LootStates.Initial && Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location) < 5)
             {
-                player.StopAllMovement();
+                Container.Player.StopAllMovement();
                 
                 if (Wait.For("StartLootDelay", 200))
                 {
-                    target.Interact(true);
+                    Container.HostileTarget.Interact(true);
                     currentState = LootStates.RightClicked;
                     return;
                 }
@@ -64,12 +45,12 @@ namespace RaidMemberBot.AI.SharedStates
             //  - loot frame is open, but we've already looted everything we want
             //  - stuck count is greater than 5 (perhaps the corpse is in an awkward position the character can't reach)
             //  - we've been in the loot state for over 10 seconds (again, perhaps the corpse is unreachable. most common example of this is when a mob dies on a cliff that we can't climb)
-            if ((currentState == LootStates.Initial && !target.CanBeLooted) || (lootFrame != null && lootIndex == lootFrame.LootCount) || stuckCount > 5 || Environment.TickCount - startTime > 10000)
+            if ((currentState == LootStates.Initial && !Container.HostileTarget.CanBeLooted) || (lootFrame != null && lootIndex == lootFrame.LootCount) || stuckCount > 5 || Environment.TickCount - startTime > 10000)
             {
-                player.StopAllMovement();
-                botTasks.Pop();
-                botTasks.Push(new EquipBagsTask(container, botTasks));
-                if (player.IsSwimming)
+                Container.Player.StopAllMovement();
+                BotTasks.Pop();
+                BotTasks.Push(new EquipBagsTask(Container, BotTasks));
+                if (Container.Player.IsSwimming)
                 {
 
                 }
@@ -93,7 +74,7 @@ namespace RaidMemberBot.AI.SharedStates
                 var other = itemQuality != ItemQuality.Poor && itemQuality != ItemQuality.Common && itemQuality != ItemQuality.Uncommon;
 
                 //if (itemQuality == ItemQuality.Rare || itemQuality == ItemQuality.Epic)
-                //    DiscordClientWrapper.SendItemNotification(player.Name, itemQuality, itemToLoot.ItemId);
+                //    DiscordClientWrapper.SendItemNotification(Container.Player.Name, itemQuality, itemToLoot.ItemId);
 
                 if (itemToLoot.IsCoin || (poorQualityCondition || commonQualityCondition || uncommonQualityCondition || other))
                 {

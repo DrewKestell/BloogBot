@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BeastmasterHunterBot</RootNamespace>
     <AssemblyName>BeastmasterHunterBot</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -45,7 +45,7 @@
     <Compile Include="Task\BuffTask.cs" />
     <Compile Include="Task\PvERotationTask.cs" />
     <Compile Include="Task\HealTask.cs" />
-    <Compile Include="Task\MoveToTargetTask.cs" />
+    <Compile Include="Task\PullTargetTask.cs" />
     <Compile Include="PetManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Task\RestTask.cs" />

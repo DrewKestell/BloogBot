@@ -35,25 +35,18 @@ namespace RaidMemberBot.AI.SharedStates
             EquipSlot.Wrist
         };
 
-        readonly IClassContainer container;
-        readonly Stack<IBotTask> botTasks;
         readonly LocalPlayer player;
 
         EquipSlot? emptySlot;
         WoWItem itemToEquip;
 
-        public EquipArmorTask(IClassContainer container, Stack<IBotTask> botTasks)
-        {
-            this.container = container;
-            this.botTasks = botTasks;
-            player = ObjectManager.Instance.Player;
-        }
+        public EquipArmorTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Ordinary) { }
 
         public void Update()
         {
-            if (player.IsInCombat)
+            if (Container.Player.IsInCombat)
             {
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
 
@@ -75,9 +68,9 @@ namespace RaidMemberBot.AI.SharedStates
 
                     itemToEquip = Inventory.Instance.GetAllItems()
                         .FirstOrDefault(i =>
-                            //(i.Info.ItemSubclass == desiredArmorTypes[player.Class] || i.Info.ItemClass == ItemClass.Cloth && i.Info.EquipSlot == EquipSlot.Back) &&
+                            //(i.Info.ItemSubclass == desiredArmorTypes[Container.Player.Class] || i.Info.ItemClass == ItemClass.Cloth && i.Info.EquipSlot == EquipSlot.Back) &&
                             //i.Info.EquipSlot.ToString() == emptySlot.ToString() &&
-                            i.Info.RequiredLevel <= player.Level
+                            i.Info.RequiredLevel <= Container.Player.Level
                         );
 
                     if (itemToEquip == null)
@@ -89,7 +82,7 @@ namespace RaidMemberBot.AI.SharedStates
 
             if (itemToEquip == null && slotsToCheck.Count == 0)
             {
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
 

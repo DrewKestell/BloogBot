@@ -17,24 +17,17 @@ namespace RaidMemberBot.AI.SharedStates
         // in every direction, adding 1 to account for the center.
         static readonly int length = Convert.ToInt32(Math.Pow((resDistance * 2) + 1, 2.0));
         readonly Location[] resLocs = new Location[length];
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
         readonly LocalPlayer player;
 
         bool initialized;
 
-        public RetrieveCorpseTask(IClassContainer container, Stack<IBotTask> botTasks)
-        {
-            this.container = container;
-            this.botTasks = botTasks;
-            player = ObjectManager.Instance.Player;
-        }
+        public RetrieveCorpseTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Ordinary) { }
 
         public void Update()
         {
             if (ObjectManager.Instance.Player.Health > 0)
             {
-                botTasks.Pop();
+                BotTasks.Pop();
             }
 
             if (!initialized)
@@ -42,7 +35,7 @@ namespace RaidMemberBot.AI.SharedStates
                 // corpse position is wrong immediately after releasing, so we wait for 5s.
                 //Thread.Sleep(5000);
 
-                var resLocation = player.CorpseLocation;
+                var resLocation = Container.Player.CorpseLocation;
 
                 var threats = ObjectManager
                     .Instance
@@ -51,14 +44,14 @@ namespace RaidMemberBot.AI.SharedStates
                     .Where(u => !u.TappedByOther)
                     .Where(u => !u.IsPet)
                     .Where(u => u.Reaction == UnitReaction.Hostile2 || u.Reaction == UnitReaction.Hostile)
-                    .Where(u => u.Level > player.Level - 10);
+                    .Where(u => u.Level > Container.Player.Level - 10);
 
                 if (threats.FirstOrDefault() != null)
                 {
                     var index = 0;
-                    var currentFloatX = player.CorpseLocation.X;
-                    var currentFloatY = player.CorpseLocation.Y;
-                    var currentFloatZ = player.CorpseLocation.Z;
+                    var currentFloatX = Container.Player.CorpseLocation.X;
+                    var currentFloatY = Container.Player.CorpseLocation.Y;
+                    var currentFloatZ = Container.Player.CorpseLocation.Z;
 
                     for (var i = -resDistance; i <= resDistance; i++)
                     {
@@ -73,12 +66,12 @@ namespace RaidMemberBot.AI.SharedStates
 
                     foreach (var resLoc in resLocs)
                     {
-                        var path = SocketClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, player.CorpseLocation, resLoc, false);
+                        var path = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.CorpseLocation, resLoc, false);
                         if (path.Length == 0) continue;
                         var endPoint = path[path.Length - 1];
                         var distanceToClosestThreat = endPoint.GetDistanceTo(threats.OrderBy(u => u.Location.GetDistanceTo(resLoc)).First().Location);
 
-                        if (endPoint.GetDistanceTo(player.Location) < resDistance && distanceToClosestThreat > maxDistance)
+                        if (endPoint.GetDistanceTo(Container.Player.Location) < resDistance && distanceToClosestThreat > maxDistance)
                         {
                             maxDistance = distanceToClosestThreat;
                             resLocation = resLoc;
@@ -88,7 +81,8 @@ namespace RaidMemberBot.AI.SharedStates
 
                 initialized = true;
 
-                botTasks.Push(new MoveToLocationTask(container, botTasks, resLocation));
+                Container.CurrentWaypoint = resLocation;
+                BotTasks.Push(new MoveToWaypointTask(Container, BotTasks));
                 return;
             }
 
@@ -100,7 +94,7 @@ namespace RaidMemberBot.AI.SharedStates
                 {
                     if (Wait.For("LeaveRetrieveCorpseStateDelay", 2000))
                     {
-                        botTasks.Pop();
+                        BotTasks.Pop();
                         return;
                     }
                 }

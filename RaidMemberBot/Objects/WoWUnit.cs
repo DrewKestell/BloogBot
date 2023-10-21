@@ -739,7 +739,7 @@ namespace RaidMemberBot.Objects
         /// <summary>
         /// Checks to see if the unit is in the specified range.
         /// 
-        /// If target is passed, checks to see if the unit is in range to the given target.
+        /// If target is passed, checks to see if the unit is in range to the given Container.HostileTarget.
         /// </summary>
         /// <param name="range"></param>
         /// <param name="target"></param>

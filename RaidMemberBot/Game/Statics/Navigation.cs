@@ -1,10 +1,4 @@
-﻿using RaidMemberBot.Constants;
-using RaidMemberBot.Objects;
-using System.IO;
-using System.Reflection;
-using System.Runtime.InteropServices;
-
-namespace RaidMemberBot.Game.Statics
+﻿namespace RaidMemberBot.Game.Statics
 {
     /// <summary>
     /// Helps the bot generate paths through the world

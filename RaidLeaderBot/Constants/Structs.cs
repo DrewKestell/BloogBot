@@ -1,7 +1,4 @@
-﻿using RaidMemberBot.ExtensionMethods;
-using RaidMemberBot.Objects;
-using System.Runtime.InteropServices;
-using static RaidMemberBot.Constants.Enums;
+﻿using System.Runtime.InteropServices;
 
 namespace RaidLeaderBot.Constants
 {

@@ -17,7 +17,8 @@
 
         public string ListenAddress { get; set; }
 
-        public int Port { get; set; }
+        public int CommandPort { get; set; }
+        public int DatabasePort { get; set; }
         public int PathfindingPort { get; set; }
     }
 }

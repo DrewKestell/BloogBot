@@ -139,7 +139,7 @@ namespace RaidMemberBot.Objects
         ///     Is the bots current target attacking our pet
         /// </summary>
         /// <returns>
-        ///     returns <c>true</c> if the pet is tanking the target. Otherwise <c>false</c>
+        ///     returns <c>true</c> if the pet is tanking the Container.HostileTarget. Otherwise <c>false</c>
         /// </returns>
         public bool IsTanking()
         {
@@ -152,7 +152,7 @@ namespace RaidMemberBot.Objects
         ///     Determines if the pet is attacking our current target
         /// </summary>
         /// <returns>
-        ///     returns <c>true</c> if the pet is attacking our current target. <c>false</c> otherwise
+        ///     returns <c>true</c> if the pet is attacking our current Container.HostileTarget. <c>false</c> otherwise
         /// </returns>
         public bool IsOnMyTarget()
         {

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace FrostMageBot
 {
-    class ConjureItemsTask : IBotTask
+    class ConjureItemsTask : BotTask, IBotTask
     {
         const string ConjureFood = "Conjure Food";
         const string ConjureWater = "Conjure Water";
@@ -17,12 +17,7 @@ namespace FrostMageBot
         WoWItem foodItem;
         WoWItem drinkItem;
 
-        public ConjureItemsTask(Stack<IBotTask> botTasks, IClassContainer container)
-        {
-            this.botTasks = botTasks;
-            this.container = container;
-            player = ObjectManager.Instance.Player;
-        }
+        public ConjureItemsTask(Stack<IBotTask> botTasks, IClassContainer container) : base(container, botTasks, TaskType.Ordinary) { }
 
         public void Update()
         {
@@ -32,24 +27,24 @@ namespace FrostMageBot
             //drinkItem = Inventory.GetAllItems()
             //    .FirstOrDefault(i => i.Info.Name == container.BotSettings.Drink);
 
-            if (player.IsCasting)
+            if (Container.Player.IsCasting)
                 return;
 
-            //player.Stand();
+            //Container.Player.Stand();
 
-            if (player.ManaPercent < 20)
+            if (Container.Player.ManaPercent < 20)
             {
-                botTasks.Pop();
-                botTasks.Push(new RestTask(container, botTasks));
+                BotTasks.Pop();
+                BotTasks.Push(new RestTask(container, botTasks));
                 return;
             }
 
             if (Inventory.Instance.CountFreeSlots(false) == 0 || (foodItem != null || !Spellbook.Instance.IsSpellReady(ConjureFood)) && (drinkItem != null || !Spellbook.Instance.IsSpellReady(ConjureWater)))
             {
-                botTasks.Pop();
+                BotTasks.Pop();
 
-                if (player.ManaPercent <= 70)
-                    botTasks.Push(new RestTask(container, botTasks));
+                if (Container.Player.ManaPercent <= 70)
+                    BotTasks.Push(new RestTask(container, botTasks));
 
                 return;
             }
@@ -65,7 +60,7 @@ namespace FrostMageBot
 
         void TryCastSpell(string name)
         {
-            if (Spellbook.Instance.IsSpellReady(name) && player.IsCasting)
+            if (Spellbook.Instance.IsSpellReady(name) && Container.Player.IsCasting)
                 Lua.Instance.Execute($"CastSpellByName('{name}')");
         }
     }

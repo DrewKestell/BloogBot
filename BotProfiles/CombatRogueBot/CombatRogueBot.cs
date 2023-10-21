@@ -1,6 +1,5 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Models.Dto;
-using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 
@@ -27,8 +26,8 @@ namespace CombatRogueBot
         public IBotTask CreateRestTask(IClassContainer container, Stack<IBotTask> botTasks) =>
             new RestTask(container, botTasks);
 
-        public IBotTask CreateMoveToTargetTask(IClassContainer container, Stack<IBotTask> botTasks, WoWUnit target) =>
-            new MoveToTargetTask(container, botTasks, target);
+        public IBotTask CreateMoveToTargetTask(IClassContainer container, Stack<IBotTask> botTasks) =>
+            new PullTargetTask(container, botTasks);
 
         public IBotTask CreateBuffTask(IClassContainer container, Stack<IBotTask> botTasks) =>
             new BuffTask(container, botTasks);

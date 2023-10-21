@@ -6,28 +6,19 @@ using System.Linq;
 
 namespace AfflictionWarlockBot
 {
-    class BuffTask : IBotTask
+    class BuffTask : BotTask, IBotTask
     {
         const string DemonArmor = "Demon Armor";
         const string DemonSkin = "Demon Skin";
 
-        readonly Stack<IBotTask> botTasks;
-        readonly LocalPlayer player;
-
-        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks)
-        {
-            this.botTasks = botTasks;
-            player = ObjectManager.Instance.Player;
-            player.SetTarget(player.Guid);
-        }
-
+        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
         {
-            if ((!Spellbook.Instance.IsSpellReady(DemonSkin) || player.HasBuff(DemonSkin)) && (!Spellbook.Instance.IsSpellReady(DemonArmor) || player.HasBuff(DemonArmor)))
+            if ((!Spellbook.Instance.IsSpellReady(DemonSkin) || Container.Player.HasBuff(DemonSkin)) && (!Spellbook.Instance.IsSpellReady(DemonArmor) || Container.Player.HasBuff(DemonArmor)))
             {
                 if (HasEnoughSoulShards)
                 {
-                    botTasks.Pop();
+                    BotTasks.Pop();
                     return;
                 }
                 else
@@ -42,7 +33,7 @@ namespace AfflictionWarlockBot
 
         void TryCastSpell(string name, int requiredLevel = 1)
         {
-            if (!player.GotAura(name) && player.Level >= requiredLevel && Spellbook.Instance.IsSpellReady(name))
+            if (!Container.Player.GotAura(name) && Container.Player.Level >= requiredLevel && Spellbook.Instance.IsSpellReady(name))
                 Lua.Instance.Execute($"CastSpellByName('{name}')");
         }
 

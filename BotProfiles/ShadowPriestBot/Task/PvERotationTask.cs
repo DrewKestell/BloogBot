@@ -43,17 +43,17 @@ namespace ShadowPriestBot
         {
             if (ObjectManager.Instance.Aggressors.Count == 0)
             {
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
 
-            if (ObjectManager.Instance.PartyMembers.Any(x => x.HealthPercent < 70) && player.Mana >= player.GetManaCost(LesserHeal))
+            if (ObjectManager.Instance.PartyMembers.Any(x => x.HealthPercent < 70) && Container.Player.Mana >= Container.Player.GetManaCost(LesserHeal))
             {
-                botTasks.Push(new HealTask(botTasks));
+                BotTasks.Push(new HealTask(Container, BotTasks));
                 return;
             }
 
-            if (target == null || target.HealthPercent <= 0)
+            if (target == null || Container.HostileTarget.HealthPercent <= 0)
             {
                 target = ObjectManager.Instance.Aggressors.First();
             }
@@ -62,39 +62,39 @@ namespace ShadowPriestBot
                 return;
 
             var hasWand = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged) != null;
-            var useWand = hasWand && !player.IsCasting && !player.IsChanneling && (player.ManaPercent <= 10 || target.CreatureType == CreatureType.Totem || target.HealthPercent <= 10);
+            var useWand = hasWand && !Container.Player.IsCasting && !Container.Player.IsChanneling && (Container.Player.ManaPercent <= 10 || Container.HostileTarget.CreatureType == CreatureType.Totem || Container.HostileTarget.HealthPercent <= 10);
             if (useWand)
                 Lua.Instance.Execute(WandLuaScript);
             else
             {
                 var aggressors = ObjectManager.Instance.Aggressors;
 
-                //TryCastSpell(ShadowForm, 0, int.MaxValue, !player.HasBuff(ShadowForm));
+                //TryCastSpell(ShadowForm, 0, int.MaxValue, !Container.Player.HasBuff(ShadowForm));
 
-                //TryCastSpell(VampiricEmbrace, 0, 29, player.HealthPercent < 100 && !target.HasDebuff(VampiricEmbrace) && target.HealthPercent > 50);
+                //TryCastSpell(VampiricEmbrace, 0, 29, Container.Player.HealthPercent < 100 && !target.HasDebuff(VampiricEmbrace) && Container.HostileTarget.HealthPercent > 50);
 
-                var noNeutralsNearby = !ObjectManager.Instance.Units.Any(u => u.Guid != target.Guid && u.Reaction == UnitReaction.Neutral && u.Location.GetDistanceTo(player.Location) <= 10);
-                TryCastSpell(PsychicScream, 0, 7, (target.Location.GetDistanceTo(player.Location) < 8 && !player.HasBuff(PowerWordShield)) || ObjectManager.Instance.Aggressors.Count() > 1 && target.CreatureType != CreatureType.Elemental);
+                var noNeutralsNearby = !ObjectManager.Instance.Units.Any(u => u.Guid != Container.HostileTarget.Guid && u.Reaction == UnitReaction.Neutral && u.Location.GetDistanceTo(Container.Player.Location) <= 10);
+                TryCastSpell(PsychicScream, 0, 7, (target.Location.GetDistanceTo(Container.Player.Location) < 8 && !Container.Player.HasBuff(PowerWordShield)) || ObjectManager.Instance.Aggressors.Count() > 1 && Container.HostileTarget.CreatureType != CreatureType.Elemental);
 
-                TryCastSpell(ShadowWordPain, 0, 29, target.HealthPercent > 70 && !target.HasDebuff(ShadowWordPain));
+                TryCastSpell(ShadowWordPain, 0, 29, Container.HostileTarget.HealthPercent > 70 && !target.HasDebuff(ShadowWordPain));
 
-                TryCastSpell(DispelMagic, 0, int.MaxValue, player.HasMagicDebuff, castOnSelf: true);
+                TryCastSpell(DispelMagic, 0, int.MaxValue, Container.Player.HasMagicDebuff, castOnSelf: true);
 
                 if (Spellbook.Instance.IsSpellReady(AbolishDisease))
-                    TryCastSpell(AbolishDisease, 0, int.MaxValue, player.IsDiseased && !player.HasBuff(ShadowForm), castOnSelf: true);
+                    TryCastSpell(AbolishDisease, 0, int.MaxValue, Container.Player.IsDiseased && !Container.Player.HasBuff(ShadowForm), castOnSelf: true);
                 else if (Spellbook.Instance.IsSpellReady(CureDisease))
-                    TryCastSpell(CureDisease, 0, int.MaxValue, player.IsDiseased && !player.HasBuff(ShadowForm), castOnSelf: true);
+                    TryCastSpell(CureDisease, 0, int.MaxValue, Container.Player.IsDiseased && !Container.Player.HasBuff(ShadowForm), castOnSelf: true);
 
-                TryCastSpell(InnerFire, 0, int.MaxValue, !player.HasBuff(InnerFire));
+                TryCastSpell(InnerFire, 0, int.MaxValue, !Container.Player.HasBuff(InnerFire));
 
-                //TryCastSpell(PowerWordShield, 0, int.MaxValue, !player.HasDebuff(WeakenedSoul) && !player.HasBuff(PowerWordShield) && (target.HealthPercent > 20 || player.HealthPercent < 10), castOnSelf: true);
+                //TryCastSpell(PowerWordShield, 0, int.MaxValue, !Container.Player.HasDebuff(WeakenedSoul) && !Container.Player.HasBuff(PowerWordShield) && (target.HealthPercent > 20 || Container.Player.HealthPercent < 10), castOnSelf: true);
 
                 //TryCastSpell(MindBlast, 0, 29);
 
-                //if (Spellbook.Instance.IsSpellReady(MindFlay) && target.Location.GetDistanceTo(player.Location) <= 19 && (!Spellbook.Instance.IsSpellReady(PowerWordShield) || player.HasBuff(PowerWordShield)))
+                //if (Spellbook.Instance.IsSpellReady(MindFlay) && Container.HostileTarget.Location.GetDistanceTo(Container.Player.Location) <= 19 && (!Spellbook.Instance.IsSpellReady(PowerWordShield) || Container.Player.HasBuff(PowerWordShield)))
                 //    TryCastSpell(MindFlay, 0, 19);
                 //else
-                //    TryCastSpell(Smite, 0, 29, !player.HasBuff(ShadowForm));
+                //    TryCastSpell(Smite, 0, 29, !Container.Player.HasBuff(ShadowForm));
             }
         }
     }

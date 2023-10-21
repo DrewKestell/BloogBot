@@ -1,30 +1,21 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Objects;
 using System.Collections.Generic;
 
 namespace ProtectionPaladinBot
 {
-    class BuffTask : IBotTask
+    class BuffTask : BotTask, IBotTask
     {
         const string BlessingOfKings = "Blessing of Kings";
         const string BlessingOfMight = "Blessing of Might";
         const string BlessingOfSanctuary = "Blessing of Sanctuary";
 
-        readonly Stack<IBotTask> botTasks;
-        readonly LocalPlayer player;
-
-        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks)
-        {
-            this.botTasks = botTasks;
-            player = ObjectManager.Instance.Player;
-        }
-
+        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
         {
-            if (!Spellbook.Instance.IsSpellReady(BlessingOfMight) || player.HasBuff(BlessingOfMight) || player.HasBuff(BlessingOfKings) || player.HasBuff(BlessingOfSanctuary))
+            if (!Spellbook.Instance.IsSpellReady(BlessingOfMight) || Container.Player.HasBuff(BlessingOfMight) || Container.Player.HasBuff(BlessingOfKings) || Container.Player.HasBuff(BlessingOfSanctuary))
             {
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
 
@@ -40,7 +31,7 @@ namespace ProtectionPaladinBot
 
         void TryCastSpell(string name)
         {
-            if (!player.HasBuff(name) && Spellbook.Instance.IsSpellReady(name) && player.Mana > player.GetManaCost(name))
+            if (!Container.Player.HasBuff(name) && Spellbook.Instance.IsSpellReady(name) && Container.Player.Mana > Container.Player.GetManaCost(name))
             {
                 Lua.Instance.Execute($"CastSpellByName(\"{name}\",1)");
             }

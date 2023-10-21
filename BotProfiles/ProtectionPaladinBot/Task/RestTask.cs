@@ -7,37 +7,25 @@ using System.Linq;
 
 namespace ProtectionPaladinBot
 {
-    class RestTask : IBotTask
+    class RestTask : BotTask, IBotTask
     {
         const int stackCount = 5;
 
         const string HolyLight = "Holy Light";
 
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
-        readonly LocalPlayer player;
         readonly WoWItem drinkItem;
-        
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks)
-        {
-            this.botTasks = botTasks;
-            this.container = container;
-            player = ObjectManager.Instance.Player;
-            player.SetTarget(player.Guid);
 
-            //drinkItem = Inventory.GetAllItems()
-            //    .FirstOrDefault(i => i.Info.Name == container.BotSettings.Drink);
-        }
+        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) { }
 
         public void Update()
         {
-            if (player.IsCasting) return;
+            if (Container.Player.IsCasting) return;
 
             if (InCombat || (HealthOk && ManaOk))
             {
                 Wait.RemoveAll();
-                player.Stand();
-                botTasks.Pop();
+                Container.Player.Stand();
+                BotTasks.Pop();
 
                 var drinkCount = drinkItem == null ? 0 : Inventory.Instance.GetItemCount(drinkItem.Id);
                 if (!InCombat && drinkCount == 0)
@@ -51,36 +39,36 @@ namespace ProtectionPaladinBot
                     //var currentHotspot = container.GetCurrentHotspot();
                     //if (currentHotspot.TravelPath != null)
                     //{
-                    //    botTasks.Push(new TravelState(botTasks, container, currentHotspot.TravelPath.Waypoints, 0));
-                    //    botTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.TravelPath.Waypoints[0]));
+                    //    BotTasks.Push(new TravelState(botTasks, container, currentHotspot.TravelPath.Waypoints, 0));
+                    //    BotTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.TravelPath.Waypoints[0]));
                     //}
 
-                    //botTasks.Push(new BuyItemsState(botTasks, currentHotspot.Innkeeper.Name, itemsToBuy));
-                    //botTasks.Push(new SellItemsState(botTasks, container, currentHotspot.Innkeeper.Name));
-                    //botTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.Innkeeper.Location));
+                    //BotTasks.Push(new BuyItemsState(botTasks, currentHotspot.Innkeeper.Name, itemsToBuy));
+                    //BotTasks.Push(new SellItemsState(botTasks, container, currentHotspot.Innkeeper.Name));
+                    //BotTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.Innkeeper.Location));
                     //container.CheckForTravelPath(botTasks, true, false);
                 }
                 else
-                    botTasks.Push(new BuffTask(container, botTasks));
+                    BotTasks.Push(new BuffTask(Container, BotTasks));
 
             }
             
-            if (!player.IsDrinking && Wait.For("HealSelfDelay", 3500, true))
+            if (!Container.Player.IsDrinking && Wait.For("HealSelfDelay", 3500, true))
             {
-                player.Stand();
-                if (player.HealthPercent < 70)
+                Container.Player.Stand();
+                if (Container.Player.HealthPercent < 70)
                     Lua.Instance.Execute($"CastSpellByName('{HolyLight}')");
-                if (player.HealthPercent > 70 && player.HealthPercent < 90)
+                if (Container.Player.HealthPercent > 70 && Container.Player.HealthPercent < 90)
                     Lua.Instance.Execute($"CastSpellByName('{HolyLight}(Rank 1)')");
             }
 
-            if (player.Level > 10 && drinkItem != null && !player.IsDrinking && player.ManaPercent < 60 && Wait.For("UseDrinkDelay", 1000, true))
+            if (Container.Player.Level > 10 && drinkItem != null && !Container.Player.IsDrinking && Container.Player.ManaPercent < 60 && Wait.For("UseDrinkDelay", 1000, true))
                 drinkItem.Use();
         }
 
-        bool HealthOk => player.HealthPercent > 90;
+        bool HealthOk => Container.Player.HealthPercent > 90;
 
-        bool ManaOk => (player.Level <= 10 && player.ManaPercent > 50) || player.ManaPercent >= 90 || (player.ManaPercent >= 65 && !player.IsDrinking);
+        bool ManaOk => (Container.Player.Level <= 10 && Container.Player.ManaPercent > 50) || Container.Player.ManaPercent >= 90 || (Container.Player.ManaPercent >= 65 && !Container.Player.IsDrinking);
 
         bool InCombat => ObjectManager.Instance.Player.IsInCombat || ObjectManager.Instance.Units.Any(u => u.TargetGuid == ObjectManager.Instance.Player.Guid);
     }

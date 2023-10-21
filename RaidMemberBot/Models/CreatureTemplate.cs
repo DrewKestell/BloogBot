@@ -2,7 +2,7 @@
 {
     public class CreatureTemplate
     {
-        public int Entry { get; set; }
+        public long Entry { get; set; }
         public string Name { get; set; }
         public string SubName { get; set; }
         public byte MinLevel { get; set; }

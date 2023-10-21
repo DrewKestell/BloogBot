@@ -63,6 +63,11 @@ namespace RaidMemberBot.Game.Statics
         public bool IsIngame => _ingame1 && _ingame2 && Offsets.Player.IsIngame.ReadAs<byte>() == 1;
 
         /// <summary>
+        ///     Tells if we are ingame
+        /// </summary>
+        public bool IsInClient => _ingame1;
+
+        /// <summary>
         ///     Access to the instance
         /// </summary>
         public static ObjectManager Instance { get; } = new ObjectManager();
@@ -251,13 +256,13 @@ namespace RaidMemberBot.Game.Statics
                 return GetPartyMember(guid);
             }
         }
-        public List<WoWUnit> PartyMembers
-        {
-            get
-            {
-                return new List<WoWUnit>() { PartyLeader, Party1, Party2, Party3, Party4 }.Where(x => x != null).ToList();
-            }
-        }
+        public List<WoWUnit> PartyMembers => new List<WoWUnit>() { GetPartyMember(((int)Offsets.Party.leaderGuid).ReadAs<ulong>()),
+                                                                    GetPartyMember(((int)Offsets.Party.party1Guid).ReadAs<ulong>()),
+                                                                    GetPartyMember(((int)Offsets.Party.party2Guid).ReadAs<ulong>()),
+                                                                    GetPartyMember(((int)Offsets.Party.party3Guid).ReadAs<ulong>()),
+                                                                    GetPartyMember(((int)Offsets.Party.party4Guid).ReadAs<ulong>())
+                                                                    }.Where(x => x != null)
+                                                                .ToList();
 
         private WoWUnit GetPartyMember(ulong guid)
         {
@@ -269,12 +274,7 @@ namespace RaidMemberBot.Game.Statics
         }
         public List<WoWUnit> Aggressors =>
             Hostiles
-                .Where(u =>
-                    u.TargetGuid == Player?.Guid ||
-                    u.TargetGuid == ((int)Offsets.Party.party1Guid).ReadAs<ulong>() ||
-                    u.TargetGuid == ((int)Offsets.Party.party2Guid).ReadAs<ulong>() ||
-                    u.TargetGuid == ((int)Offsets.Party.party3Guid).ReadAs<ulong>() ||
-                    u.TargetGuid == ((int)Offsets.Party.party4Guid).ReadAs<ulong>())
+                .Where(u => u.IsInCombat)
             .ToList();
 
         public List<WoWUnit> Hostiles =>
@@ -391,7 +391,7 @@ namespace RaidMemberBot.Game.Statics
                 _characterState.ManaPercent = Player.ManaPercent;
                 _characterState.Rage = Player.Rage;
                 _characterState.Energy = Player.Energy;
-                _characterState.Location = $"X:{Player.Location.X} Y:{Player.Location.Y} Z{Player.Location.Z}".ToString();
+                _characterState.Location = $"X:{Player.Location.X:0.00} Y:{Player.Location.Y:0.00} Z{Player.Location.Z:0.00}";
 
                 return true;
             });

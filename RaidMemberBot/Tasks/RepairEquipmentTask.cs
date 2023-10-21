@@ -9,18 +9,14 @@ namespace RaidMemberBot.AI.SharedStates
 {
     public class RepairEquipmentTask : BotTask, IBotTask
     {
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
         readonly string npcName;
         readonly LocalPlayer player;
 
         State state = State.Uninitialized;
         WoWUnit npc;
 
-        public RepairEquipmentTask(IClassContainer container, Stack<IBotTask> botTasks, string npcName)
+        public RepairEquipmentTask(IClassContainer container, Stack<IBotTask> botTasks, string npcName) : base(container, botTasks, TaskType.Ordinary)
         {
-            this.container = container;
-            this.botTasks = botTasks;
             this.npcName = npcName;
             player = ObjectManager.Instance.Player;
         }
@@ -66,7 +62,7 @@ namespace RaidMemberBot.AI.SharedStates
             if (state == State.ReadyToPop && Wait.For("BuyItemsPopBuyItemsStateDelay", 5000))
             {
                 Wait.RemoveAll();
-                botTasks.Pop();
+                BotTasks.Pop();
             }
         }
 

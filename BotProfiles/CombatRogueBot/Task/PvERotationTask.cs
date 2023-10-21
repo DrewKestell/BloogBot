@@ -19,60 +19,51 @@ namespace CombatRogueBot
         const string Riposte = "Riposte";
         const string SinisterStrike = "Sinister Strike";
         const string SliceAndDice = "Slice and Dice";
-
-        readonly IClassContainer container;
-        readonly Stack<IBotTask> botTasks;
-        readonly LocalPlayer player;
-        WoWUnit target;
-
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
-        {
-            player = ObjectManager.Instance.Player;
-        }
+        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 
         public void Update()
         {
 
             if (ObjectManager.Instance.Aggressors.Count == 0)
             {
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
 
-            if (target == null || target.HealthPercent <= 0)
+            if (Container.HostileTarget == null || Container.HostileTarget.HealthPercent <= 0)
             {
-                target = ObjectManager.Instance.Aggressors.First();
+                Container.HostileTarget = ObjectManager.Instance.Aggressors.First();
             }
 
-            if (Update(target, 3))
+            if (Update(Container.HostileTarget, 3))
                 return;
 
-            TryUseAbility(AdrenalineRush, 0, ObjectManager.Instance.Aggressors.Count() == 3 && player.HealthPercent > 80);
+            TryUseAbility(AdrenalineRush, 0, ObjectManager.Instance.Aggressors.Count() == 3 && Container.Player.HealthPercent > 80);
 
-            TryUseAbilityById(BloodFury, 3, 0, target.HealthPercent > 80);
+            TryUseAbilityById(BloodFury, 3, 0, Container.HostileTarget.HealthPercent > 80);
 
             TryUseAbility(Evasion, 0, ObjectManager.Instance.Aggressors.Count() > 1);
 
             TryUseAbility(BladeFlurry, 25, ObjectManager.Instance.Aggressors.Count() > 1);
 
-            TryUseAbility(SliceAndDice, 25, !player.HasBuff(SliceAndDice) && target.HealthPercent > 70 && player.ComboPoints == 2);
+            TryUseAbility(SliceAndDice, 25, !Container.Player.HasBuff(SliceAndDice) && Container.HostileTarget.HealthPercent > 70 && Container.Player.ComboPoints == 2);
 
-            TryUseAbility(Riposte, 10, player.CanRiposte);
+            TryUseAbility(Riposte, 10, Container.Player.CanRiposte);
 
-            TryUseAbility(Kick, 25, ReadyToInterrupt(target));
+            TryUseAbility(Kick, 25, ReadyToInterrupt(Container.HostileTarget));
 
-            TryUseAbility(Gouge, 45, ReadyToInterrupt(target) && !Spellbook.Instance.IsSpellReady(Kick));
+            TryUseAbility(Gouge, 45, ReadyToInterrupt(Container.HostileTarget) && !Spellbook.Instance.IsSpellReady(Kick));
 
             var readyToEviscerate =
-                target.HealthPercent <= 15 && player.ComboPoints >= 2
-                || target.HealthPercent <= 25 && player.ComboPoints >= 3
-                || target.HealthPercent <= 35 && player.ComboPoints >= 4
-                || player.ComboPoints == 5;
+                Container.HostileTarget.HealthPercent <= 15 && Container.Player.ComboPoints >= 2
+                || Container.HostileTarget.HealthPercent <= 25 && Container.Player.ComboPoints >= 3
+                || Container.HostileTarget.HealthPercent <= 35 && Container.Player.ComboPoints >= 4
+                || Container.Player.ComboPoints == 5;
             TryUseAbility(Eviscerate, 35, readyToEviscerate);
 
-            TryUseAbility(SinisterStrike, 45, player.ComboPoints < 5);
+            TryUseAbility(SinisterStrike, 45, Container.Player.ComboPoints < 5);
         }
 
-        bool ReadyToInterrupt(WoWUnit target) => target.Mana > 0 && (target.IsCasting || target.IsChanneling);
+        bool ReadyToInterrupt(WoWUnit target) => Container.HostileTarget.Mana > 0 && (target.IsCasting || Container.HostileTarget.IsChanneling);
     }
 }

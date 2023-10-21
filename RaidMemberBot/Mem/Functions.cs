@@ -1,4 +1,5 @@
-﻿using RaidMemberBot.Constants;
+﻿using Newtonsoft.Json;
+using RaidMemberBot.Constants;
 using RaidMemberBot.ExtensionMethods;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Mem.Hooks;
@@ -95,6 +96,7 @@ namespace RaidMemberBot.Mem
 
         internal static Intersection Intersect(Location parStart, Location parEnd)
         {
+            //Console.WriteLine($"Intersect: {JsonConvert.SerializeObject(parStart)} => {JsonConvert.SerializeObject(parEnd)}");
             if (!ObjectManager.Instance.IsIngame) new Intersection();
             var points = new _XYZXYZ(parStart.X, parStart.Y, parStart.Z,
                 parEnd.X, parEnd.Y, parEnd.Z);

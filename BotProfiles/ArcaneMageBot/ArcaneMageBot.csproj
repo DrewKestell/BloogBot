@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ArcaneMageBot</RootNamespace>
     <AssemblyName>ArcaneMageBot</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -45,7 +45,7 @@
     <Compile Include="Tasks\BuffTask.cs" />
     <Compile Include="Tasks\PvERotationTask.cs" />
     <Compile Include="Tasks\ConjureItemsTask.cs" />
-    <Compile Include="Tasks\MoveToTargetTask.cs" />
+    <Compile Include="Tasks\PullTargetTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tasks\RestTask.cs" />
   </ItemGroup>

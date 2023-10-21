@@ -7,67 +7,51 @@ using System.Threading;
 
 namespace FrostMageBot
 {
-    class RestTask : IBotTask
+    class RestTask : BotTask, IBotTask
     {
         const string Evocation = "Evocation";
 
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
-        readonly LocalPlayer player;
-
         readonly WoWItem foodItem;
         readonly WoWItem drinkItem;
-
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks)
-        {
-            this.botTasks = botTasks;
-            this.container = container;
-            player = ObjectManager.Instance.Player;
-
-            //foodItem = Inventory.GetAllItems()
-            //    .FirstOrDefault(i => i.Info.Name == container.BotSettings.Food);
-
-            //drinkItem = Inventory.GetAllItems()
-            //    .FirstOrDefault(i => i.Info.Name == container.BotSettings.Drink);
-        }
+        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) { }
 
         public void Update()
         {
-            if (player.IsChanneling)
+            if (Container.Player.IsChanneling)
                 return;
 
             if (InCombat)
             {
-                player.Stand();
-                botTasks.Pop();
+                Container.Player.Stand();
+                BotTasks.Pop();
                 return;
             }
 
             if (HealthOk && ManaOk)
             {
-                player.Stand();
-                botTasks.Pop();
-                botTasks.Push(new BuffTask(container, botTasks));
+                Container.Player.Stand();
+                BotTasks.Pop();
+                BotTasks.Push(new BuffTask(Container, BotTasks));
                 return;
             }
 
-            if (player.ManaPercent < 20 && Spellbook.Instance.IsSpellReady(Evocation))
+            if (Container.Player.ManaPercent < 20 && Spellbook.Instance.IsSpellReady(Evocation))
             {
                 Lua.Instance.Execute($"CastSpellByName('{Evocation}')");
                 Thread.Sleep(200);
                 return;
             }
 
-            if (foodItem != null && !player.IsEating && player.HealthPercent < 80)
+            if (foodItem != null && !Container.Player.IsEating && Container.Player.HealthPercent < 80)
                 foodItem.Use();
 
-            if (drinkItem != null && !player.IsDrinking)
+            if (drinkItem != null && !Container.Player.IsDrinking)
                 drinkItem.Use();
         }
 
-        bool HealthOk => foodItem == null || player.HealthPercent >= 90 || (player.HealthPercent >= 80 && !player.IsEating);
+        bool HealthOk => foodItem == null || Container.Player.HealthPercent >= 90 || (Container.Player.HealthPercent >= 80 && !Container.Player.IsEating);
 
-        bool ManaOk => drinkItem == null || player.ManaPercent >= 90 || (player.ManaPercent >= 80 && !player.IsDrinking);
+        bool ManaOk => drinkItem == null || Container.Player.ManaPercent >= 90 || (Container.Player.ManaPercent >= 80 && !Container.Player.IsDrinking);
 
         bool InCombat => ObjectManager.Instance.Player.IsInCombat || ObjectManager.Instance.Units.Any(u => u.TargetGuid == ObjectManager.Instance.Player.Guid);
     }

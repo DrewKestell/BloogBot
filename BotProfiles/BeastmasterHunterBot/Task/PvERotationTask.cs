@@ -33,45 +33,37 @@ namespace BeastMasterHunterBot
         const string DistractingShot = "Distracting Shot";
         const string WingClip = "Wing Clip";
 
-        readonly IClassContainer container;
-        readonly Stack<IBotTask> botTasks;
-        readonly LocalPlayer player;
         //readonly pet;
         WoWUnit target;
 
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
-        {
-            this.container = container;
-            this.botTasks = botTasks;
-            player = ObjectManager.Instance.Player;
-        }
+        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 
         public void Update()
         {
 
             if (ObjectManager.Instance.Aggressors.Count == 0)
             {
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
 
-            if (target == null || target.HealthPercent <= 0)
+            if (Container.HostileTarget == null || Container.HostileTarget.HealthPercent <= 0)
             {
-                target = ObjectManager.Instance.Aggressors[0];
+                Container.HostileTarget = ObjectManager.Instance.Aggressors[0];
             }
 
-            if (Update(target, 30))
+            if (Update(target, 28))
                 return;
 
-            player.StopAllMovement();
+            Container.Player.StopAllMovement();
 
             var gun = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged);
-            var canUseRanged = gun != null && player.Location.GetDistanceTo(target.Location) > 5 && player.Location.GetDistanceTo(target.Location) < 34;
+            var canUseRanged = gun != null && Container.Player.Location.GetDistanceTo(target.Location) > 5 && Container.Player.Location.GetDistanceTo(target.Location) < 34;
             if (gun == null)
             {
                 Lua.Instance.Execute(AutoAttackLuaScript);
             }
-            else if (canUseRanged && player.ManaPercent < 60)
+            else if (canUseRanged && Container.Player.ManaPercent < 60)
             {
                 Lua.Instance.Execute(GunLuaScript);
             } 
@@ -82,11 +74,11 @@ namespace BeastMasterHunterBot
                 //     TryCastSpell(HuntersMark, 0, 34);
                 //}
                 //else 
-                if (!target.HasDebuff(SerpentSting))
+                if (!Container.HostileTarget.HasDebuff(SerpentSting))
                 { 
                     TryCastSpell(SerpentSting, 0, 34);
                 }
-                else if (player.ManaPercent > 60)
+                else if (Container.Player.ManaPercent > 60)
                 {
                     TryCastSpell(ArcaneShot, 0, 34);
                 }

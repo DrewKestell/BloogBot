@@ -1,13 +1,12 @@
 ﻿// Friday owns this file!
 
 using RaidMemberBot.AI;
-using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 
 namespace BeastMasterHunterBot
 {
-    class HealTask : IBotTask
+    class HealTask : BotTask, IBotTask
     {
         const string LesserHeal = "Lesser Heal";
 
@@ -15,22 +14,16 @@ namespace BeastMasterHunterBot
         readonly LocalPlayer player;
         readonly ulong targetGuid;
 
-        public HealTask(IClassContainer container, Stack<IBotTask> botTasks, WoWUnit target)
-        {
-            this.botTasks = botTasks;
-            player = ObjectManager.Instance.Player;
-            targetGuid = player.TargetGuid;
-            player.SetTarget(player.Guid);
-        }
+        public HealTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Heal) { }
 
         public void Update()
         {
-            //if (player.IsCasting) return;
+            //if (Container.Player.IsCasting) return;
 
-            //if (player.HealthPercent > 70 || player.Mana < player.GetManaCost(LesserHeal))
+            //if (Container.Player.HealthPercent > 70 || Container.Player.Mana < Container.Player.GetManaCost(LesserHeal))
             //{
-            //    player.SetTarget(targetGuid);
-            //    botTasks.Pop();
+            //    Container.Player.SetTarget(targetGuid);
+            //    BotTasks.Pop();
             //    return;
             //}
 

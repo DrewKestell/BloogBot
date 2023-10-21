@@ -123,7 +123,7 @@ namespace RaidMemberBot.Constants
         [FieldOffset(0x1C)] public int Quality;
         [FieldOffset(0x24)] public int BuyPrice;
         [FieldOffset(0x28)] public int SellPrice;
-        [FieldOffset(0x2c)] public int InventoryType;
+        [FieldOffset(0x2C)] public int InventoryType;
         [FieldOffset(0x38)] public int ItemLevel;
         [FieldOffset(0x3C)] public int RequiredLevel;
         [FieldOffset(0x5C)] public int MaxCount;
@@ -139,7 +139,6 @@ namespace RaidMemberBot.Constants
         [FieldOffset(0x114)] public int AmmoType;
 
         [FieldOffset(0x1C4)] public int MaxDurability;
-
         [FieldOffset(0x1D0)] public int BagFamily;
 
         [StructLayout(LayoutKind.Sequential)]
@@ -165,9 +164,15 @@ namespace RaidMemberBot.Constants
 
             private readonly float BaseDmgMax;
             private readonly float ExtraDmgMax;
-        }
 
-        [FieldOffset(0x0)] public ItemClass ItemClass;
+        }
+        public ItemClass ItemClass
+        {
+            get
+            {
+                return ItemClass.Consumable;
+            }
+        }
         public string Name => NamePtr.ReadString();
     }
 }

@@ -1,7 +1,5 @@
 ﻿using RaidMemberBot.AI.SharedStates;
-using RaidMemberBot.AI.SharedTasks;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Models;
 using RaidMemberBot.Models.Dto;
 using RaidMemberBot.Objects;
 using System;
@@ -35,6 +33,9 @@ namespace RaidMemberBot.AI
         Task _asyncBotTaskRunnerTask;
         Task _asyncServerFeedbackTask;
 
+        // General
+        IBot currentBot;
+
         public BotRunner()
         {
             characterState = new CharacterState()
@@ -54,14 +55,11 @@ namespace RaidMemberBot.AI
             _asyncBotTaskRunnerTask = Task.Run(StartBotTaskRunnerAsync);
             _asyncServerFeedbackTask = Task.Run(StartServerFeedbackAsync);
         }
-
-        // General
-        IBot currentBot;
         private async void StartServerFeedbackAsync()
         {
             while (true)
             {
-                InstanceCommand instanceCommand = SocketClient.Instance.GetCommandBasedOnState(characterState);
+                InstanceCommand instanceCommand = CommandClient.Instance.GetCommandBasedOnState(characterState);
 
                 if (_lastCommand.CommandAction != instanceCommand.CommandAction
                     || _lastCommand.CommandParam1 != instanceCommand.CommandParam1
@@ -118,7 +116,8 @@ namespace RaidMemberBot.AI
                         Location destinaton = new Location(float.Parse(instanceCommand.CommandParam1),
                                                                 float.Parse(instanceCommand.CommandParam2),
                                                                 float.Parse(instanceCommand.CommandParam3));
-                        botTasks.Push(new MoveToLocationTask(container, botTasks, destinaton));
+                        container.CurrentWaypoint = destinaton;
+                        botTasks.Push(new MoveToWaypointTask(container, botTasks));
 
                         Console.WriteLine($"BOT RUNNER: GoTo {destinaton}");
                     }
@@ -145,11 +144,15 @@ namespace RaidMemberBot.AI
                     {
                         try
                         {
-                            ObjectManager.Instance.AntiAfk();
+                            if (ObjectManager.Instance.IsInClient)
+                            {
+                                ObjectManager.Instance.AntiAfk();
+                            }
 
                             if (botTasks.Count > 0)
                             {
                                 characterState.CurrentTask = botTasks.Peek()?.GetType()?.Name;
+
                                 botTasks.Peek()?.Update();
                             }
                             else

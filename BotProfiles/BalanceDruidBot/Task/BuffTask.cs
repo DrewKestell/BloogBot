@@ -1,41 +1,30 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Objects;
 using System.Collections.Generic;
 
 namespace BalanceDruidBot
 {
-    class BuffTask : IBotTask
+    class BuffTask : BotTask, IBotTask
     {
         const string MarkOfTheWild = "Mark of the Wild";
         const string Thorns = "Thorns";
         const string OmenOfClarity = "Omen of Clarity";
         const string MoonkinForm = "Moonkin Form";
 
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
-        readonly LocalPlayer player;
-
-        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks)
-        {
-            this.botTasks = botTasks;
-            this.container = container;
-            player = ObjectManager.Instance.Player;
-        }
-
+        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
         {
-            if ((player.HasBuff(MarkOfTheWild) || !Spellbook.Instance.IsSpellReady(MarkOfTheWild)) &&
-                (player.HasBuff(Thorns) || !Spellbook.Instance.IsSpellReady(Thorns)) &&
-                (player.HasBuff(OmenOfClarity) || !Spellbook.Instance.IsSpellReady(OmenOfClarity)))
+            if ((Container.Player.HasBuff(MarkOfTheWild) || !Spellbook.Instance.IsSpellReady(MarkOfTheWild)) &&
+                (Container.Player.HasBuff(Thorns) || !Spellbook.Instance.IsSpellReady(Thorns)) &&
+                (Container.Player.HasBuff(OmenOfClarity) || !Spellbook.Instance.IsSpellReady(OmenOfClarity)))
             {
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
 
-            if (!player.HasBuff(MarkOfTheWild))
+            if (!Container.Player.HasBuff(MarkOfTheWild))
             {
-                if (player.HasBuff(MoonkinForm))
+                if (Container.Player.HasBuff(MoonkinForm))
                 {
                     Lua.Instance.Execute($"CastSpellByName('{MoonkinForm}')");
                 }
@@ -49,7 +38,7 @@ namespace BalanceDruidBot
 
         void TryCastSpell(string name)
         {
-            if (!player.HasBuff(name) && Spellbook.Instance.IsSpellReady(name))
+            if (!Container.Player.HasBuff(name) && Spellbook.Instance.IsSpellReady(name))
                 Lua.Instance.Execute($"CastSpellByName('{name}',1)");
         }
     }

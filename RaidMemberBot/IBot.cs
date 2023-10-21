@@ -1,5 +1,4 @@
 ﻿using RaidMemberBot.Models.Dto;
-using RaidMemberBot.Objects;
 using System.Collections.Generic;
 
 namespace RaidMemberBot.AI
@@ -16,7 +15,7 @@ namespace RaidMemberBot.AI
 
         IBotTask CreateBuffTask(IClassContainer container, Stack<IBotTask> botTasks);
 
-        IBotTask CreateMoveToTargetTask(IClassContainer container, Stack<IBotTask> botTasks, WoWUnit target);
+        IBotTask CreateMoveToTargetTask(IClassContainer container, Stack<IBotTask> botTasks);
 
         IBotTask CreatePvERotationTask(IClassContainer container, Stack<IBotTask> botTasks);
 

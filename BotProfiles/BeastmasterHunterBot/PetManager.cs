@@ -3,41 +3,28 @@
 using BeastMasterHunterBot;
 using RaidMemberBot.AI;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Objects;
 using System.Collections.Generic;
 
 namespace BeastmasterHunterBot
 {
-    class PetManagerState : IBotTask
+    class PetManagerState : BotTask, IBotTask
     {
         const string CallPet = "Call Pet";
         const string RevivePet = "Revive Pet";
         const string FeedPet = "Feed Pet";
 
-
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
-        readonly LocalPlayer player;
-        readonly LocalPet pet;
-
-        public PetManagerState(Stack<IBotTask> botTasks, IClassContainer container)
-        {
-            this.botTasks = botTasks;
-            this.container = container;
-            player = ObjectManager.Instance.Player;
-            pet = ObjectManager.Instance.Pet;
-        }
+        public PetManagerState(Stack<IBotTask> botTasks, IClassContainer container) : base(container, botTasks, TaskType.Buff) { }
 
         public void Update()
         {
-            if (player.IsCasting)
+            if (Container.Player.IsCasting)
                 return;
 
             if (!Spellbook.Instance.IsSpellReady(CallPet) || ObjectManager.Instance.Pet != null)
             {
-                player.Stand();
-                botTasks.Pop();
-                botTasks.Push(new BuffTask(container, botTasks));
+                Container.Player.Stand();
+                BotTasks.Pop();
+                BotTasks.Push(new BuffTask(Container, BotTasks));
                 return;
             }
 

@@ -52,35 +52,35 @@ namespace FrostMageBot
 
             if (!Spellbook.Instance.IsSpellReady(Frostbolt))
                 nuke = Fireball;
-            else if (player.Level >= 8)
+            else if (Container.Player.Level >= 8)
                 nuke = Frostbolt;
-            else if (player.Level >= 6)
+            else if (Container.Player.Level >= 6)
                 nuke = Fireball;
-            else if (player.Level >= 4)
+            else if (Container.Player.Level >= 4)
                 nuke = Frostbolt;
             else
                 nuke = Fireball;
 
-            range = 29 + (player.GetTalentRank(3, 11) * 3);
+            range = 29 + (Container.Player.GetTalentRank(3, 11) * 3);
         }
 
         public void Update()
         {
             if (frostNovaBackpedaling && !frostNovaStartedMoving && Environment.TickCount - frostNovaBackpedalStartTime > 200)
             {
-                player.Turn180();
-                player.StartMovement(ControlBits.Front);
+                Container.Player.Turn180();
+                Container.Player.StartMovement(ControlBits.Front);
                 frostNovaStartedMoving = true;
             }
             if (frostNovaBackpedaling && !frostNovaJumped && Environment.TickCount - frostNovaBackpedalStartTime > 500)
             {
-                player.Jump();
+                Container.Player.Jump();
                 frostNovaJumped = true;
             }
             if (frostNovaBackpedaling && Environment.TickCount - frostNovaBackpedalStartTime > 2500)
             {
-                player.StopMovement(ControlBits.Front);
-                player.Face(target.Location);
+                Container.Player.StopMovement(ControlBits.Front);
+                Container.Player.Face(target.Location);
                 frostNovaBackpedaling = false;
             }
 
@@ -92,11 +92,11 @@ namespace FrostMageBot
 
             if (ObjectManager.Instance.Aggressors.Count == 0)
             {
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
 
-            if (target == null || target.HealthPercent <= 0)
+            if (target == null || Container.HostileTarget.HealthPercent <= 0)
             {
                 target = ObjectManager.Instance.Aggressors.First();
             }
@@ -104,30 +104,30 @@ namespace FrostMageBot
             if (base.Update(target, 29 + (ObjectManager.Instance.Player.GetTalentRank(3, 11) * 3)))
                 return;
 
-            TryCastSpell(Evocation, 0, int.MaxValue, (player.HealthPercent > 50 || player.HasBuff(IceBarrier)) && player.ManaPercent < 8 && target.HealthPercent > 15);
+            TryCastSpell(Evocation, 0, int.MaxValue, (Container.Player.HealthPercent > 50 || Container.Player.HasBuff(IceBarrier)) && Container.Player.ManaPercent < 8 && Container.HostileTarget.HealthPercent > 15);
 
             var wand = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged);
-            if (wand != null && player.ManaPercent <= 10 && player.IsCasting && player.Channeling == 0)
+            if (wand != null && Container.Player.ManaPercent <= 10 && Container.Player.IsCasting && Container.Player.Channeling == 0)
                 Lua.Instance.Execute(WandLuaScript);
             else
             {
-                TryCastSpell(SummonWaterElemental, !ObjectManager.Instance.Units.Any(u => u.Name == "Water Elemental" && u.SummonedByGuid == player.Guid));
+                TryCastSpell(SummonWaterElemental, !ObjectManager.Instance.Units.Any(u => u.Name == "Water Elemental" && u.SummonedByGuid == Container.Player.Guid));
 
                 TryCastSpell(ColdSnap, !Spellbook.Instance.IsSpellReady(SummonWaterElemental));
 
                 TryCastSpell(IcyVeins, ObjectManager.Instance.Aggressors.Count() > 1);
 
-                TryCastSpell(FireWard, 0, int.MaxValue, FireWardTargets.Any(c => target.Name.Contains(c)) && (target.HealthPercent > 20 || player.HealthPercent < 10));
+                TryCastSpell(FireWard, 0, int.MaxValue, FireWardTargets.Any(c => Container.HostileTarget.Name.Contains(c)) && (target.HealthPercent > 20 || Container.Player.HealthPercent < 10));
 
-                TryCastSpell(FrostWard, 0, int.MaxValue, FrostWardTargets.Any(c => target.Name.Contains(c)) && (target.HealthPercent > 20 || player.HealthPercent < 10));
+                TryCastSpell(FrostWard, 0, int.MaxValue, FrostWardTargets.Any(c => Container.HostileTarget.Name.Contains(c)) && (target.HealthPercent > 20 || Container.Player.HealthPercent < 10));
 
-                TryCastSpell(Counterspell, 0, 30, target.Mana > 0 && target.IsCasting);
+                TryCastSpell(Counterspell, 0, 30, Container.HostileTarget.Mana > 0 && Container.HostileTarget.IsCasting);
 
-                TryCastSpell(IceBarrier, 0, 50, !player.HasBuff(IceBarrier) && (ObjectManager.Instance.Aggressors.Count() >= 2 || (!Spellbook.Instance.IsSpellReady(FrostNova) && player.HealthPercent < 95 && player.ManaPercent > 40 && (target.HealthPercent > 20 || player.HealthPercent < 10))));
+                TryCastSpell(IceBarrier, 0, 50, !Container.Player.HasBuff(IceBarrier) && (ObjectManager.Instance.Aggressors.Count() >= 2 || (!Spellbook.Instance.IsSpellReady(FrostNova) && Container.Player.HealthPercent < 95 && Container.Player.ManaPercent > 40 && (target.HealthPercent > 20 || Container.Player.HealthPercent < 10))));
 
-                TryCastSpell(FrostNova, 0, 9, target.TargetGuid == player.Guid && (target.HealthPercent > 20 || player.HealthPercent < 30) && !IsTargetFrozen && !ObjectManager.Instance.Units.Any(u => u.Guid != target.Guid && u.HealthPercent > 0 && u.Guid != player.Guid && u.Location.GetDistanceTo(player.Location) <= 12), callback: FrostNovaCallback);
+                TryCastSpell(FrostNova, 0, 9, Container.HostileTarget.TargetGuid == Container.Player.Guid && (target.HealthPercent > 20 || Container.Player.HealthPercent < 30) && !IsTargetFrozen && !ObjectManager.Instance.Units.Any(u => u.Guid != Container.HostileTarget.Guid && u.HealthPercent > 0 && u.Guid != Container.Player.Guid && u.Location.GetDistanceTo(Container.Player.Location) <= 12), callback: FrostNovaCallback);
 
-                TryCastSpell(ConeOfCold, 0, 8, player.Level >= 30 && target.HealthPercent > 20 && IsTargetFrozen);
+                TryCastSpell(ConeOfCold, 0, 8, Container.Player.Level >= 30 && Container.HostileTarget.HealthPercent > 20 && IsTargetFrozen);
 
                 TryCastSpell(FireBlast, 0, 20, !IsTargetFrozen);
 
@@ -144,6 +144,6 @@ namespace FrostMageBot
             frostNovaBackpedalStartTime = Environment.TickCount;
         };
 
-        bool IsTargetFrozen => target.HasDebuff(Frostbite) || target.HasDebuff(FrostNova);
+        bool IsTargetFrozen => Container.HostileTarget.HasDebuff(Frostbite) || Container.HostileTarget.HasDebuff(FrostNova);
     }
 }

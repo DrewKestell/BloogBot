@@ -1,4 +1,4 @@
-﻿using RaidMemberBot.Objects;
+﻿using System.Numerics;
 
 namespace RaidMemberBot.Models
 {
@@ -14,7 +14,7 @@ namespace RaidMemberBot.Models
         public float LocationX { get; set; }
         public float LocationY { get; set; }
         public float LocationZ { get; set; }
-        public Location SpawnLocation { get; set; }
+        public Vector3 SpawnLocation { get; set; }
         public float Orientation { get; set; }
         public int SpawnTimeSecsMin { get; set; }
         public int SpawnTimeSecsMax { get; set; }

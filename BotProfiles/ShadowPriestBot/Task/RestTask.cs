@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace ShadowPriestBot
 {
-    class RestTask : IBotTask
+    class RestTask : BotTask, IBotTask
     {
         const int stackCount = 5;
 
@@ -16,29 +16,17 @@ namespace ShadowPriestBot
         const string LesserHeal = "Lesser Heal";
         const string Heal = "Heal";
         const string ShadowForm = "Shadowform";
-
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
-        readonly LocalPlayer player;
         readonly WoWItem drinkItem;
 
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks)
-        {
-            this.botTasks = botTasks;
-            this.container = container;
-            player = ObjectManager.Instance.Player;
-
-            //drinkItem = Inventory.GetAllItems()
-            //    .FirstOrDefault(i => i.Info.Name == container.BotSettings.Drink);
-        }
+        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) { }
 
         public void Update()
         {
-            if (player.IsCasting) return;
+            if (Container.Player.IsCasting) return;
 
             if (InCombat || (HealthOk && ManaOk))
             {
-                if (Spellbook.Instance.IsSpellReady(ShadowForm) && !player.GotAura(ShadowForm) && player.IsDiseased)
+                if (Spellbook.Instance.IsSpellReady(ShadowForm) && !Container.Player.GotAura(ShadowForm) && Container.Player.IsDiseased)
                 {
                     if (Spellbook.Instance.IsSpellReady(AbolishDisease))
                         Lua.Instance.Execute($"CastSpellByName('{AbolishDisease}',1)");
@@ -48,12 +36,12 @@ namespace ShadowPriestBot
                     return;
                 }
 
-                if (Spellbook.Instance.IsSpellReady(ShadowForm) && !player.GotAura(ShadowForm))
+                if (Spellbook.Instance.IsSpellReady(ShadowForm) && !Container.Player.GotAura(ShadowForm))
                     Lua.Instance.Execute($"CastSpellByName('{ShadowForm}')");
 
                 Wait.RemoveAll();
-                player.Stand();
-                botTasks.Pop();
+                Container.Player.Stand();
+                BotTasks.Pop();
 
                 var drinkCount = drinkItem == null ? 0 : Inventory.Instance.GetItemCount(drinkItem.Id);
 
@@ -68,32 +56,36 @@ namespace ShadowPriestBot
                     //var currentHotspot = container.GetCurrentHotspot();
                     //if (currentHotspot.TravelPath != null)
                     //{
-                    //    botTasks.Push(new TravelState(botTasks, container, currentHotspot.TravelPath.Waypoints, 0));
-                    //    botTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.TravelPath.Waypoints[0]));
+                    //    BotTasks.Push(new TravelState(botTasks, container, currentHotspot.TravelPath.Waypoints, 0));
+                    //    BotTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.TravelPath.Waypoints[0]));
                     //}
 
-                    //botTasks.Push(new BuyItemsState(botTasks, currentHotspot.Innkeeper.Name, itemsToBuy));
-                    //botTasks.Push(new SellItemsState(botTasks, container, currentHotspot.Innkeeper.Name));
-                    //botTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.Innkeeper.Location));
+                    //BotTasks.Push(new BuyItemsState(botTasks, currentHotspot.Innkeeper.Name, itemsToBuy));
+                    //BotTasks.Push(new SellItemsState(botTasks, container, currentHotspot.Innkeeper.Name));
+                    //BotTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.Innkeeper.Location));
                     //container.CheckForTravelPath(botTasks, true, false);
                 }
                 else
-                    botTasks.Push(new BuffTask(container, botTasks));
+                    BotTasks.Push(new BuffTask(Container, BotTasks));
 
                 return;
             }
-
-            if (!player.IsDrinking && Wait.For("HealSelfDelay", 3500, true))
+            else
             {
-                player.Stand();
+                Container.Player.StopAllMovement();
+            }
 
-                if (player.HealthPercent < 70)
+            if (!Container.Player.IsDrinking && Wait.For("HealSelfDelay", 3500, true))
+            {
+                Container.Player.Stand();
+
+                if (Container.Player.HealthPercent < 70)
                 {
-                    if (player.GotAura(ShadowForm))
+                    if (Container.Player.GotAura(ShadowForm))
                         Lua.Instance.Execute($"CastSpellByName('{ShadowForm}')");
                 }
-                
-                if (player.HealthPercent < 50)
+
+                if (Container.Player.HealthPercent < 50)
                 {
                     if (Spellbook.Instance.IsSpellReady(Heal))
                         Lua.Instance.Execute($"CastSpellByName('{Heal}',1)");
@@ -101,17 +93,17 @@ namespace ShadowPriestBot
                         Lua.Instance.Execute($"CastSpellByName('{LesserHeal}',1)");
                 }
 
-                if (player.HealthPercent < 70)
+                if (Container.Player.HealthPercent < 70)
                     Lua.Instance.Execute($"CastSpellByName('{LesserHeal}',1)");
             }
 
-            if (player.Level >= 5 && drinkItem != null && !player.IsDrinking && player.ManaPercent < 60)
+            if (Container.Player.Level >= 5 && drinkItem != null && !Container.Player.IsDrinking && Container.Player.ManaPercent < 60)
                 drinkItem.Use();
         }
 
-        bool HealthOk => player.HealthPercent > 90;
+        bool HealthOk => Container.Player.HealthPercent > 90;
 
-        bool ManaOk => (player.Level < 5 && player.ManaPercent > 50) || player.ManaPercent >= 90 || (player.ManaPercent >= 65 && !player.IsDrinking);
+        bool ManaOk => (Container.Player.Level < 5 && Container.Player.ManaPercent > 50) || Container.Player.ManaPercent >= 90 || (Container.Player.ManaPercent >= 65 && !Container.Player.IsDrinking);
 
         bool InCombat => ObjectManager.Instance.Player.IsInCombat || ObjectManager.Instance.Units.Any(u => u.TargetGuid == ObjectManager.Instance.Player.Guid);
     }

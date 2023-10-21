@@ -65,11 +65,11 @@ namespace BackstabRogueBot
             
             if (ObjectManager.Instance.Aggressors.Count == 0)
             {
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
 
-            if (target == null || target.HealthPercent <= 0)
+            if (target == null || Container.HostileTarget.HealthPercent <= 0)
             {
                 target = ObjectManager.Instance.Aggressors.First();
             }
@@ -137,33 +137,33 @@ namespace BackstabRogueBot
 
             // set secondaryTarget
             // if (ObjectManager.Instance.Aggressors.Count() == 2 && secondaryTarget == null)
-            //    secondaryTarget = ObjectManager.Instance.Aggressors.Single(u => u.Guid != target.Guid);
+            //    secondaryTarget = ObjectManager.Instance.Aggressors.Single(u => u.Guid != Container.HostileTarget.Guid);
 
             //if (secondaryTarget != null && !secondaryTarget.HasDebuff(Blind))
             // {
-            //    player.SetTarget(secondaryTarget.Guid);
+            //    Container.Player.SetTarget(secondaryTarget.Guid);
             //     TryUseAbility(Blind, 30, Spellbook.Instance.IsSpellReady(Blind) && !secondaryTarget.HasDebuff(Blind));
             // }
 
             // ----- COMBAT ROTATION -----
 
             var readyToEviscerate =
-                target.HealthPercent <= 20 && player.ComboPoints >= 2
-                || target.HealthPercent <= 30 && player.ComboPoints >= 3
-                || target.HealthPercent <= 40 && player.ComboPoints >= 4
-                || player.ComboPoints == 5;
+                Container.HostileTarget.HealthPercent <= 20 && Container.Player.ComboPoints >= 2
+                || Container.HostileTarget.HealthPercent <= 30 && Container.Player.ComboPoints >= 3
+                || Container.HostileTarget.HealthPercent <= 40 && Container.Player.ComboPoints >= 4
+                || Container.Player.ComboPoints == 5;
             
             TryUseAbility(Eviscerate, 35, readyToEviscerate);
 
-            TryUseAbility(SliceAndDice, 25, !player.HasBuff(SliceAndDice) && target.HealthPercent > 40 && player.ComboPoints <= 3 && player.ComboPoints >= 2);
+            TryUseAbility(SliceAndDice, 25, !Container.Player.HasBuff(SliceAndDice) && Container.HostileTarget.HealthPercent > 40 && Container.Player.ComboPoints <= 3 && Container.Player.ComboPoints >= 2);
 
-            // TryUseAbility(ExposeArmor, 25, player.HasBuff(SliceAndDice) && target.HealthPercent > 50 && player.ComboPoints <= 2 && player.ComboPoints >= 1);
+            // TryUseAbility(ExposeArmor, 25, Container.Player.HasBuff(SliceAndDice) && Container.HostileTarget.HealthPercent > 50 && Container.Player.ComboPoints <= 2 && Container.Player.ComboPoints >= 1);
 
-            TryUseAbility(SinisterStrike, 45, !Spellbook.Instance.IsSpellReady(GhostlyStrike) && !ReadyToInterrupt(target) && player.ComboPoints < 5 && !readyToEviscerate);
+            TryUseAbility(SinisterStrike, 45, !Spellbook.Instance.IsSpellReady(GhostlyStrike) && !ReadyToInterrupt(target) && Container.Player.ComboPoints < 5 && !readyToEviscerate);
         
-            TryUseAbility(GhostlyStrike, 40, Spellbook.Instance.IsSpellReady(GhostlyStrike) && Spellbook.Instance.IsSpellReady(GhostlyStrike) && !ReadyToInterrupt(target) && player.ComboPoints < 5 && !readyToEviscerate);
+            TryUseAbility(GhostlyStrike, 40, Spellbook.Instance.IsSpellReady(GhostlyStrike) && Spellbook.Instance.IsSpellReady(GhostlyStrike) && !ReadyToInterrupt(target) && Container.Player.ComboPoints < 5 && !readyToEviscerate);
 
-            TryUseAbilityById(BloodFury, 3, 0, Spellbook.Instance.IsSpellReady(BloodFury) && target.HealthPercent > 80);
+            TryUseAbilityById(BloodFury, 3, 0, Spellbook.Instance.IsSpellReady(BloodFury) && Container.HostileTarget.HealthPercent > 80);
 
             TryUseAbility(Evasion, 0, ObjectManager.Instance.Aggressors.Count() > 1);
 
@@ -177,7 +177,7 @@ namespace BackstabRogueBot
 
             // we use Kidneyshot (with 1 or 2 combo points only) before Gouge as Gouge has a longer cooldown and requires more energy, so sometimes gouge doesn't fire before casting is done.
             
-            TryUseAbility(KidneyShot, 25, ReadyToInterrupt(target) && !Spellbook.Instance.IsSpellReady(Kick) && player.ComboPoints >= 1 && player.ComboPoints <=2);
+            TryUseAbility(KidneyShot, 25, ReadyToInterrupt(target) && !Spellbook.Instance.IsSpellReady(Kick) && Container.Player.ComboPoints >= 1 && Container.Player.ComboPoints <=2);
                         
             TryUseAbility(Gouge, 45, ReadyToInterrupt(target) && !Spellbook.Instance.IsSpellReady(Kick));
         }
@@ -188,7 +188,7 @@ namespace BackstabRogueBot
             riposteStartTime = Environment.TickCount;
         }
 
-        bool ReadyToInterrupt(WoWUnit target) => target.Mana > 0 && (target.IsCasting || target.IsChanneling);
+        bool ReadyToInterrupt(WoWUnit target) => Container.HostileTarget.Mana > 0 && (target.IsCasting || Container.HostileTarget.IsChanneling);
 
         Action RiposteCallback => () => readyToRiposte = false;
 

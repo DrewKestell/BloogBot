@@ -6,7 +6,8 @@
   "DiscordChannelId": "706714451000426596",
   "UseVerboseLogging": false,
   "PathToWoW": "E:\\repos\\Elysium Project Game Client\\WoW.exe",
-  "Port": 8087,
+  "CommandPort": 8087,
   "PathfindingPort": 8088,
+  "DatabasePort": 8089,
   "ListenAddress": "127.0.0.1"
 }

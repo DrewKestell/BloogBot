@@ -55,37 +55,37 @@ namespace BalanceDruidBot
                 {
                     backpedaling = true;
                     backpedalStartTime = Environment.TickCount;
-                    player.StartMovement(ControlBits.Back);
+                    Container.Player.StartMovement(ControlBits.Back);
                 }
 
-                player.SetTarget(target.Guid);
+                Container.Player.SetTarget(target.Guid);
                 castingEntanglingRoots = false;
             }
 
             // handle backpedaling during entangling roots
             if (Environment.TickCount - backpedalStartTime > 1500)
             {
-                player.StopMovement(ControlBits.Back);
+                Container.Player.StopMovement(ControlBits.Back);
                 backpedaling = false;
             }
             if (backpedaling)
                 return;
 
             // heal self if we're injured
-            if (player.HealthPercent < 30 && (player.Mana >= player.GetManaCost(HealingTouch) || player.Mana >= player.GetManaCost(Rejuvenation)))
+            if (Container.Player.HealthPercent < 30 && (Container.Player.Mana >= Container.Player.GetManaCost(HealingTouch) || Container.Player.Mana >= Container.Player.GetManaCost(Rejuvenation)))
             {
                 Wait.RemoveAll();
-                botTasks.Push(new HealTask(container, botTasks, target));
+                BotTasks.Push(new HealTask(Container, BotTasks));
                 return;
             }
 
             if (ObjectManager.Instance.Aggressors.Count == 0)
             {
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
 
-            if (target == null || target.HealthPercent <= 0)
+            if (target == null || Container.HostileTarget.HealthPercent <= 0)
             {
                 target = ObjectManager.Instance.Aggressors[0];
             }
@@ -95,27 +95,27 @@ namespace BalanceDruidBot
 
             // if we get an add, root it with Entangling Roots
             if (ObjectManager.Instance.Aggressors.Count() == 2 && secondaryTarget == null)
-                secondaryTarget = ObjectManager.Instance.Aggressors.Single(u => u.Guid != target.Guid);
+                secondaryTarget = ObjectManager.Instance.Aggressors.Single(u => u.Guid != Container.HostileTarget.Guid);
 
             if (secondaryTarget != null && !secondaryTarget.HasDebuff(EntanglingRoots))
             {
-                player.SetTarget(secondaryTarget.Guid);
+                Container.Player.SetTarget(secondaryTarget.Guid);
                 TryCastSpell(EntanglingRoots, 0, 30, !secondaryTarget.HasDebuff(EntanglingRoots), EntanglingRootsCallback);
             }
 
-            TryCastSpell(MoonkinForm, !player.HasBuff(MoonkinForm));
+            TryCastSpell(MoonkinForm, !Container.Player.HasBuff(MoonkinForm));
 
-            TryCastSpell(Innervate, player.ManaPercent < 10, castOnSelf: true);
+            TryCastSpell(Innervate, Container.Player.ManaPercent < 10, castOnSelf: true);
 
-            TryCastSpell(RemoveCurse, 0, int.MaxValue, player.IsCursed && !player.HasBuff(MoonkinForm), castOnSelf: true);
+            TryCastSpell(RemoveCurse, 0, int.MaxValue, Container.Player.IsCursed && !Container.Player.HasBuff(MoonkinForm), castOnSelf: true);
 
-            TryCastSpell(AbolishPoison, 0, int.MaxValue, player.IsPoisoned && !player.HasBuff(MoonkinForm), castOnSelf: true);
+            TryCastSpell(AbolishPoison, 0, int.MaxValue, Container.Player.IsPoisoned && !Container.Player.HasBuff(MoonkinForm), castOnSelf: true);
 
-            TryCastSpell(InsectSwarm, 0, 30, !target.HasDebuff(InsectSwarm) && target.HealthPercent > 20 && !ImmuneToNatureDamage.Any(s => target.Name.Contains(s)));
+            TryCastSpell(InsectSwarm, 0, 30, !target.HasDebuff(InsectSwarm) && Container.HostileTarget.HealthPercent > 20 && !ImmuneToNatureDamage.Any(s => Container.HostileTarget.Name.Contains(s)));
 
             TryCastSpell(Moonfire, 0, 30, !target.HasDebuff(Moonfire));
 
-            TryCastSpell(Wrath, 0, 30, !ImmuneToNatureDamage.Any(s => target.Name.Contains(s)));
+            TryCastSpell(Wrath, 0, 30, !ImmuneToNatureDamage.Any(s => Container.HostileTarget.Name.Contains(s)));
         }
     }
 }

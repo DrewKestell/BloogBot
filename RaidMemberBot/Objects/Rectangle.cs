@@ -17,18 +17,14 @@ namespace RaidMemberBot.Objects
             var maxX = minX + _xLength;
             if (minX > maxX)
             {
-                var trade = minX;
-                minX = maxX;
-                maxX = trade;
+                (maxX, minX) = (minX, maxX);
             }
             var minY = _points[0].Y;
             var maxY = minY + _yLength;
             // ReSharper disable once InvertIf
             if (minY > maxY)
             {
-                var trade = minY;
-                minY = maxY;
-                maxY = trade;
+                (maxY, minY) = (minY, maxY);
             }
             return loc.X >= minX && loc.X <= maxX && loc.Y >= minY && loc.Y <= maxY;
         }

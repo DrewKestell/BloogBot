@@ -4,17 +4,10 @@ namespace RaidMemberBot.AI.SharedStates
 {
     public class LogoutTask : BotTask, IBotTask
     {
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
-
-        public LogoutTask(IClassContainer container, Stack<IBotTask> botTasks)
-        {
-            this.botTasks = botTasks;
-            this.container = container;
-        }
+        public LogoutTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Ordinary) { }
         public void Update()
         {
-            botTasks.Pop();
+            BotTasks.Pop();
         }
     }
 }

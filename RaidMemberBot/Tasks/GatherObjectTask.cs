@@ -8,18 +8,14 @@ namespace RaidMemberBot.AI.SharedStates
 {
     class GatherObjectTask : BotTask, IBotTask
     {
-        readonly IClassContainer container;
-        readonly Stack<IBotTask> botTasks;
         readonly WoWGameObject target;
         readonly LocalPlayer player;
         readonly int initialCount = 0;
 
         readonly int startTime = Environment.TickCount;
 
-        internal GatherObjectTask(IClassContainer container, Stack<IBotTask> botTasks, WoWGameObject target)
+        internal GatherObjectTask(IClassContainer container, Stack<IBotTask> botTasks, WoWGameObject target) : base(container, botTasks, TaskType.Ordinary)
         {
-            this.container = container;
-            this.botTasks = botTasks;
             this.target = target;
             player = ObjectManager.Instance.Player;
             initialCount = Inventory.Instance.GetItemCount(target.Name);
@@ -27,17 +23,17 @@ namespace RaidMemberBot.AI.SharedStates
 
         public void Update()
         {
-            if (player.IsInCombat || (Environment.TickCount - startTime > 15000))
+            if (Container.Player.IsInCombat || (Environment.TickCount - startTime > 15000))
             {
-                Console.WriteLine("GatherObjectTask player.IsInCombat || (Environment.TickCount - startTime > 15000)");
-                botTasks.Pop();
+                Console.WriteLine("GatherObjectTask Container.Player.IsInCombat || (Environment.TickCount - startTime > 15000)");
+                BotTasks.Pop();
                 return;
             }
 
             if (Wait.For("InteractWithObjectDelay", 15000, true))
             {
                 Console.WriteLine("GatherObjectTask Wait.For(\"InteractWithObjectDelay\", 15000, true)");
-                target.Interact(false);
+                Container.HostileTarget.Interact(false);
             }
 
             if (Inventory.Instance.GetItemCount(target.Name) > initialCount)
@@ -47,7 +43,7 @@ namespace RaidMemberBot.AI.SharedStates
                 {
                     Console.WriteLine("GatherObjectTask Wait.For(\"PopGatherObjectStateDelay\", 2000)");
                     Wait.RemoveAll();
-                    botTasks.Pop();
+                    BotTasks.Pop();
                     return;
                 }
             }

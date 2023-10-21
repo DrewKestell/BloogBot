@@ -10,8 +10,6 @@ namespace RaidMemberBot.AI.SharedStates
 {
     public class SellItemsTask : BotTask, IBotTask
     {
-        readonly IClassContainer container;
-        readonly Stack<IBotTask> botTasks;
         readonly string npcName;
         readonly LocalPlayer player;
         readonly IEnumerable<WoWItem> itemsToSell;
@@ -23,10 +21,8 @@ namespace RaidMemberBot.AI.SharedStates
         MerchantFrame merchantFrame;
         int itemIndex;
 
-        public SellItemsTask(IClassContainer container, Stack<IBotTask> botTasks, Creature vendorNpc)
+        public SellItemsTask(IClassContainer container, Stack<IBotTask> botTasks, Creature vendorNpc) : base(container, botTasks, TaskType.Ordinary)
         {
-            this.container = container;
-            this.botTasks = botTasks;
             npcLocation = new Location(vendorNpc.LocationX, vendorNpc.LocationY, vendorNpc.LocationZ);
             player = ObjectManager.Instance.Player;
 
@@ -43,9 +39,10 @@ namespace RaidMemberBot.AI.SharedStates
 
         public void Update()
         {
-            if (npcLocation.GetDistanceTo(player.Location) > 5)
+            if (npcLocation.GetDistanceTo(Container.Player.Location) > 5)
             {
-                botTasks.Push(new MoveToLocationTask(container, botTasks, npcLocation));
+                Container.CurrentWaypoint = npcLocation;
+                BotTasks.Push(new MoveToWaypointTask(Container, BotTasks));
                 return;
             }
             if (state == State.Uninitialized)
@@ -101,7 +98,7 @@ namespace RaidMemberBot.AI.SharedStates
             if (state == State.ReadyToPop && Wait.For("BuyItemsPopBuyItemsStateDelay", 5000))
             {
                 Wait.RemoveAll();
-                botTasks.Pop();
+                BotTasks.Pop();
             }
         }
 

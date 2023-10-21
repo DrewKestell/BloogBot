@@ -7,23 +7,16 @@ using System.Linq;
 
 namespace ShadowPriestBot
 {
-    class HealTask : IBotTask
+    class HealTask : BotTask, IBotTask
     {
         const string LesserHeal = "Lesser Heal";
         const string Heal = "Heal";
         const string Renew = "Renew";
 
-        readonly Stack<IBotTask> botTasks;
-        readonly LocalPlayer player;
-        WoWUnit target;
-
         readonly string healingSpell;
 
-        public HealTask(Stack<IBotTask> botTasks)
+        public HealTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Heal)
         {
-            this.botTasks = botTasks;
-            player = ObjectManager.Instance.Player;
-
             if (Spellbook.Instance.IsSpellReady(Heal))
                 healingSpell = Heal;
             else
@@ -32,42 +25,51 @@ namespace ShadowPriestBot
 
         public void Update()
         {
-            if (player.IsCasting) return;
+            if (Container.Player.IsCasting) return;
 
             List<WoWUnit> unhealthyMembers = ObjectManager.Instance.PartyMembers.Where(x => x.HealthPercent < 60).OrderBy(x => x.Health).ToList();
 
             if (unhealthyMembers.Count > 0)
             {
-                target = unhealthyMembers[0];
-                player.SetTarget(target);
+                Container.FriendlyTarget = unhealthyMembers[0];
+                Container.Player.SetTarget(Container.FriendlyTarget);
             }
             else
             {
-                botTasks.Pop();
+                Container.Player.StopAllMovement();
+                BotTasks.Pop();
                 return;
             }
 
-            if (target.HealthPercent > 70 || player.Mana < player.GetManaCost(healingSpell))
+            if (Container.FriendlyTarget.HealthPercent > 70 || Container.Player.Mana < Container.Player.GetManaCost(healingSpell))
             {
-                if (Spellbook.Instance.IsSpellReady(Renew) && player.Mana > player.GetManaCost(Renew) && !target.HasBuff("Renew"))
+                if (Spellbook.Instance.IsSpellReady(Renew) && Container.Player.Mana > Container.Player.GetManaCost(Renew) && !Container.FriendlyTarget.HasBuff("Renew"))
                     Lua.Instance.Execute($"CastSpellByName('{Renew}')");
 
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
 
-            if (!player.InLosWith(target))
+            if (!Container.Player.InLosWith(Container.FriendlyTarget))
             {
-                Location[] waypoints = SocketClient.Instance.CalculatePath(player.MapId, player.Location, target.Location, false);
+                var nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
 
-                if (waypoints.Length > 1)
+                if (nextWaypoint.Length > 1)
                 {
-                    player.MoveToward(waypoints[1]);
+                    Container.CurrentWaypoint = nextWaypoint[1];
                 }
+                else
+                {
+                    Container.Player.StopAllMovement();
+                    BotTasks.Pop();
+                    return;
+                }
+
+                Container.Player.MoveToward(Container.CurrentWaypoint);
             }
             else
             {
-                player.StopAllMovement();
+                Container.Player.StopAllMovement();
                 Lua.Instance.Execute($"CastSpellByName('{healingSpell}')");
             }
         }

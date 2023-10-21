@@ -7,8 +7,6 @@ namespace RaidMemberBot.AI.SharedStates
 {
     public class BuyItemsTask : BotTask, IBotTask
     {
-        readonly IClassContainer container;
-        readonly Stack<IBotTask> botTasks;
         readonly string npcName;
         readonly LocalPlayer player;
         readonly IDictionary<string, int> itemsToBuy;
@@ -17,10 +15,8 @@ namespace RaidMemberBot.AI.SharedStates
         GossipFrame dialogFrame;
         MerchantFrame merchantFrame;
         
-        public BuyItemsTask(IClassContainer container, Stack<IBotTask> botTasks, string npcName, IDictionary<string, int> itemsToBuy)
+        public BuyItemsTask(IClassContainer container, Stack<IBotTask> botTasks, string npcName, IDictionary<string, int> itemsToBuy) : base(container, botTasks, TaskType.Ordinary)
         {
-            this.container = container;
-            this.botTasks = botTasks;
             this.npcName = npcName;
             this.itemsToBuy = itemsToBuy;
             player = ObjectManager.Instance.Player;

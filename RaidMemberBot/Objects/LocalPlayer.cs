@@ -675,7 +675,7 @@ namespace RaidMemberBot.Objects
         }
 
         /// <summary>
-        ///     Sets the target.
+        ///     Sets the Container.HostileTarget.
         /// </summary>
         /// <param name="parGuid">The targets guid</param>
         public void SetTarget(ulong parGuid)
@@ -697,7 +697,7 @@ namespace RaidMemberBot.Objects
         /// <value>
         ///     <c>true</c> if we are too close.
         /// </value>
-        public bool ToCloseForRanged => ObjectManager.Instance.Target.Location.DistanceToPlayer() < 5;
+        public bool TooCloseForRanged => ObjectManager.Instance.Target?.Location.DistanceToPlayer() < 5;
 
         internal IntPtr SkillField => Pointer.Add(8).ReadAs<IntPtr>().Add(0xB38);
 

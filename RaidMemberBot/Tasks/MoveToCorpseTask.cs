@@ -1,6 +1,5 @@
 ﻿using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using static RaidMemberBot.Constants.Enums;
 
@@ -8,23 +7,12 @@ namespace RaidMemberBot.AI.SharedStates
 {
     public class MoveToCorpseTask : BotTask, IBotTask
     {
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
-        readonly LocalPlayer player;
-        readonly StuckHelper stuckHelper;
-
         bool walkingOnWater;
         int stuckCount;
 
         bool initialized;
         
-        public MoveToCorpseTask(IClassContainer container, Stack<IBotTask> botTasks)
-        {
-            this.container = container;
-            this.botTasks = botTasks;
-            player = ObjectManager.Instance.Player;
-            stuckHelper = new StuckHelper(container, botTasks);
-        }
+        public MoveToCorpseTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Ordinary) { }
 
         public void Update()
         {
@@ -35,43 +23,40 @@ namespace RaidMemberBot.AI.SharedStates
 
             if (stuckCount == 10)
             {
-                DiscordClientWrapper.SendMessage($"{player.Name} is stuck in the MoveToCorpseState. Stopping.");
+                DiscordClientWrapper.SendMessage($"{Container.Player.Name} is stuck in the MoveToCorpseState. Stopping.");
 
-                while (botTasks.Count > 0)
-                    botTasks.Pop();
+                while (BotTasks.Count > 0)
+                    BotTasks.Pop();
 
                 return;
             }
 
-            if (stuckHelper.CheckIfStuck())
-                stuckCount++;
-
-            if (player.Location.GetDistanceTo2D(player.CorpseLocation) < 3)
+            if (Container.Player.Location.GetDistanceTo2D(Container.Player.CorpseLocation) < 3)
             {
-                player.StopAllMovement();
-                botTasks.Pop();
+                Container.Player.StopAllMovement();
+                BotTasks.Pop();
                 return;
             }
 
-            var nextWaypoint = SocketClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, player.Location, player.CorpseLocation, false);
+            var nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.Player.CorpseLocation, true);
 
-            if (player.Location.Z - nextWaypoint[0].Z > 5)
+            if (Container.Player.Location.Z - nextWaypoint[0].Z > 5)
                 walkingOnWater = true;
 
             if (walkingOnWater)
             {
-                if (player.MovementState != MovementFlags.None)
-                    player.StartMovement(ControlBits.Front);
+                if (Container.Player.MovementState != MovementFlags.None)
+                    Container.Player.StartMovement(ControlBits.Front);
 
-                if (player.Location.Z - nextWaypoint[0].Z < .05)
+                if (Container.Player.Location.Z - nextWaypoint[0].Z < .05)
                 {
                     walkingOnWater = false;
-                    player.StopMovement(ControlBits.Front);
+                    Container.Player.StopMovement(ControlBits.Front);
                 }
             }
 
             else
-                player.MoveToward(nextWaypoint[0]);
+                Container.Player.MoveToward(nextWaypoint[0]);
         }
     }
 }

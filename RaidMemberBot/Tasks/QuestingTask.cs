@@ -10,27 +10,20 @@ namespace RaidMemberBot.AI.SharedTasks
 {
     public class QuestingTask : BotTask, IBotTask
     {
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
-
         public static readonly Dictionary<ulong, Stopwatch> TargetGuidBlacklist = new Dictionary<ulong, Stopwatch>();
 
         public static Location CurrentHotSpot;
 
-        public QuestingTask(IClassContainer container, Stack<IBotTask> botTasks)
-        {
-            this.container = container;
-            this.botTasks = botTasks;
-        }
+        public QuestingTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Ordinary) { }
 
         public void Update()
         {
             Functions.DoString("QUEST_FADING_DISABLE = \"1\"");
-            botTasks.Pop();
+            BotTasks.Pop();
 
             if (ObjectManager.Instance.Player.IsInCombat)
             {
-                botTasks.Push(container.CreatePvERotationTask(container, botTasks));
+                BotTasks.Push(Container.CreatePvERotationTask(Container, BotTasks));
             }
 
             List<QuestObjective> questObjectives = QuestLog.Instance.Quests.SelectMany(x => x.Objectives).ToList();

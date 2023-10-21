@@ -1,11 +1,10 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Objects;
 using System.Collections.Generic;
 
 namespace FrostMageBot
 {
-    class BuffTask : IBotTask
+    class BuffTask : BotTask, IBotTask
     {
         const string ArcaneIntellect = "Arcane Intellect";
         const string DampenMagic = "Dampen Magic";
@@ -13,23 +12,13 @@ namespace FrostMageBot
         const string IceArmor = "Ice Armor";
         const string MageArmor = "Mage Armor";
 
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
-        readonly LocalPlayer player;
-
-        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks)
-        {
-            this.botTasks = botTasks;
-            this.container = container;
-            player = ObjectManager.Instance.Player;
-        }
-
+        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
         {
-            if ((!Spellbook.Instance.IsSpellReady(ArcaneIntellect) || player.HasBuff(ArcaneIntellect)) && (player.HasBuff(FrostArmor) || player.HasBuff(IceArmor) || player.HasBuff(MageArmor)) && (!Spellbook.Instance.IsSpellReady(DampenMagic) || player.HasBuff(DampenMagic)))
+            if ((!Spellbook.Instance.IsSpellReady(ArcaneIntellect) || Container.Player.HasBuff(ArcaneIntellect)) && (Container.Player.HasBuff(FrostArmor) || Container.Player.HasBuff(IceArmor) || Container.Player.HasBuff(MageArmor)) && (!Spellbook.Instance.IsSpellReady(DampenMagic) || Container.Player.HasBuff(DampenMagic)))
             {
-                botTasks.Pop();
-                botTasks.Push(new ConjureItemsTask(botTasks, container));
+                BotTasks.Pop();
+                BotTasks.Push(new ConjureItemsTask(BotTasks, Container));
                 return;
             }
 
@@ -47,7 +36,7 @@ namespace FrostMageBot
 
         void TryCastSpell(string name, bool castOnSelf = false)
         {
-            if (!player.HasBuff(name) && Spellbook.Instance.IsSpellReady(name) && Spellbook.Instance.IsSpellReady(name))
+            if (!Container.Player.HasBuff(name) && Spellbook.Instance.IsSpellReady(name) && Spellbook.Instance.IsSpellReady(name))
             {
                 if (castOnSelf)
                 {

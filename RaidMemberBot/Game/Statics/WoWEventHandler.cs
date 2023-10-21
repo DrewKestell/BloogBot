@@ -355,7 +355,7 @@ namespace RaidMemberBot.Game.Statics
                 try
                 {
                     _evaluteEvent(parEvent, parArgs); 
-                    Console.WriteLine($"EVENT HANDLER: {parEvent} {JsonConvert.SerializeObject(parArgs)}");
+                    //Console.WriteLine($"EVENT HANDLER: {parEvent} {JsonConvert.SerializeObject(parArgs)}");
                 }
                 catch (Exception ex)
                 {
@@ -447,7 +447,7 @@ namespace RaidMemberBot.Game.Statics
             }
             else if (parEvent == "UI_ERROR_MESSAGE")
             {
-                OnErrorMessage?.Invoke(this, new OnUiMessageArgs(((int)parArgs[0]).ToString()));
+                OnErrorMessage?.Invoke(this, new OnUiMessageArgs((string)parArgs[0]));
             }
             else if (parEvent == "UI_INFO_MESSAGE")
             {

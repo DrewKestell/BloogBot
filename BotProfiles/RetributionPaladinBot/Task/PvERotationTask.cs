@@ -22,34 +22,25 @@ namespace RetributionPaladinBot
         const string SealOfCommand = "Seal of Command";
         const string SealOfRighteousness = "Seal of Righteousness";
         const string SealOfTheCrusader = "Seal of the Crusader";
-
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
-        readonly LocalPlayer player;
         WoWUnit target;
 
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
-        {
-            this.botTasks = botTasks;
-            this.container = container;
-            player = ObjectManager.Instance.Player;
-        }
+        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 
         public void Update()
         {
-            if (player.HealthPercent < 30 && target.HealthPercent > 50 && player.Mana >= player.GetManaCost(HolyLight))
+            if (Container.Player.HealthPercent < 30 && Container.HostileTarget.HealthPercent > 50 && Container.Player.Mana >= Container.Player.GetManaCost(HolyLight))
             {
-                botTasks.Push(new HealTask(container, botTasks, target));
+                BotTasks.Push(new HealTask(Container, BotTasks));
                 return;
             }
 
             if (ObjectManager.Instance.Aggressors.Count == 0)
             {
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
 
-            if (target == null || target.HealthPercent <= 0)
+            if (target == null || Container.HostileTarget.HealthPercent <= 0)
             {
                 target = ObjectManager.Instance.Aggressors[0];
             }
@@ -57,27 +48,27 @@ namespace RetributionPaladinBot
             if (Update(target, 3))
                 return;
 
-            TryCastSpell(Purify, player.IsPoisoned || player.IsDiseased, castOnSelf: true);
+            TryCastSpell(Purify, Container.Player.IsPoisoned || Container.Player.IsDiseased, castOnSelf: true);
 
-            TryCastSpell(DevotionAura, !player.HasBuff(DevotionAura) && !Spellbook.Instance.IsSpellReady(RetributionAura) && !Spellbook.Instance.IsSpellReady(SanctityAura));
+            TryCastSpell(DevotionAura, !Container.Player.HasBuff(DevotionAura) && !Spellbook.Instance.IsSpellReady(RetributionAura) && !Spellbook.Instance.IsSpellReady(SanctityAura));
 
-            TryCastSpell(RetributionAura, !player.HasBuff(RetributionAura) && !Spellbook.Instance.IsSpellReady(SanctityAura));
+            TryCastSpell(RetributionAura, !Container.Player.HasBuff(RetributionAura) && !Spellbook.Instance.IsSpellReady(SanctityAura));
 
-            TryCastSpell(SanctityAura, !player.HasBuff(SanctityAura));
+            TryCastSpell(SanctityAura, !Container.Player.HasBuff(SanctityAura));
 
-            TryCastSpell(Exorcism, target.CreatureType == CreatureType.Undead || target.CreatureType == CreatureType.Demon);
+            TryCastSpell(Exorcism, Container.HostileTarget.CreatureType == CreatureType.Undead || Container.HostileTarget.CreatureType == CreatureType.Demon);
 
-            TryCastSpell(HammerOfJustice, target.CreatureType != CreatureType.Humanoid || (target.CreatureType == CreatureType.Humanoid && target.HealthPercent < 20));
+            TryCastSpell(HammerOfJustice, Container.HostileTarget.CreatureType != CreatureType.Humanoid || (target.CreatureType == CreatureType.Humanoid && Container.HostileTarget.HealthPercent < 20));
             
-            TryCastSpell(SealOfTheCrusader, !player.HasBuff(SealOfTheCrusader) && !target.HasDebuff(JudgementOfTheCrusader));
+            TryCastSpell(SealOfTheCrusader, !Container.Player.HasBuff(SealOfTheCrusader) && !target.HasDebuff(JudgementOfTheCrusader));
 
-            TryCastSpell(SealOfRighteousness, !player.HasBuff(SealOfRighteousness) && target.HasDebuff(JudgementOfTheCrusader) && !Spellbook.Instance.IsSpellReady(SealOfCommand));
+            TryCastSpell(SealOfRighteousness, !Container.Player.HasBuff(SealOfRighteousness) && Container.HostileTarget.HasDebuff(JudgementOfTheCrusader) && !Spellbook.Instance.IsSpellReady(SealOfCommand));
 
-            TryCastSpell(SealOfCommand, !player.HasBuff(SealOfCommand) && target.HasDebuff(JudgementOfTheCrusader));
+            TryCastSpell(SealOfCommand, !Container.Player.HasBuff(SealOfCommand) && Container.HostileTarget.HasDebuff(JudgementOfTheCrusader));
 
-            TryCastSpell(HolyShield, !player.HasBuff(HolyShield) && target.HealthPercent > 50);
+            TryCastSpell(HolyShield, !Container.Player.HasBuff(HolyShield) && Container.HostileTarget.HealthPercent > 50);
 
-            TryCastSpell(Judgement, player.HasBuff(SealOfTheCrusader) || ((player.HasBuff(SealOfRighteousness) || player.HasBuff(SealOfCommand)) && (player.ManaPercent >= 95 || target.HealthPercent <= 3)));
+            TryCastSpell(Judgement, Container.Player.HasBuff(SealOfTheCrusader) || ((Container.Player.HasBuff(SealOfRighteousness) || Container.Player.HasBuff(SealOfCommand)) && (Container.Player.ManaPercent >= 95 || Container.HostileTarget.HealthPercent <= 3)));
         }
     }
 }

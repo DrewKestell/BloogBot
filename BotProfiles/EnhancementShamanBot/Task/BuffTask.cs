@@ -1,27 +1,14 @@
 ﻿using RaidMemberBot.AI;
-using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Objects;
 using System.Collections.Generic;
 
 namespace EnhancementShamanBot
 {
-    class BuffTask : IBotTask
+    class BuffTask : BotTask, IBotTask
     {
-
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
-        readonly LocalPlayer player;
-
-        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks)
-        {
-            this.botTasks = botTasks;
-            this.container = container;
-            player = ObjectManager.Instance.Player;
-        }
-
+        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
         {
-            botTasks.Pop();
+            BotTasks.Pop();
         }
     }
 }

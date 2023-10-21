@@ -8,8 +8,6 @@ namespace RaidMemberBot.AI.SharedStates
 {
     public class TurnInQuestFromNpcTask : BotTask, IBotTask
     {
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
         readonly LocalPlayer player;
         readonly int startTime = Environment.TickCount;
         readonly string questName;
@@ -17,11 +15,8 @@ namespace RaidMemberBot.AI.SharedStates
 
         WoWUnit npc;
 
-        public TurnInQuestFromNpcTask(IClassContainer container, Stack<IBotTask> botTasks, string npcName, string questName)
+        public TurnInQuestFromNpcTask(IClassContainer container, Stack<IBotTask> botTasks, string npcName, string questName) : base(container, botTasks, TaskType.Ordinary)
         {
-            this.container = container;
-            this.botTasks = botTasks;
-            this.container = container;
             player = ObjectManager.Instance.Player;
 
             npc = ObjectManager.Instance
@@ -33,9 +28,9 @@ namespace RaidMemberBot.AI.SharedStates
 
         public void Update()
         {
-            if (player.IsInCombat || (Environment.TickCount - startTime > 5000))
+            if (Container.Player.IsInCombat || (Environment.TickCount - startTime > 5000))
             {
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
 

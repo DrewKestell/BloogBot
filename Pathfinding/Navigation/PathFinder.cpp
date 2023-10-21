@@ -122,7 +122,7 @@ dtPolyRef PathFinder::getPathPolyByPosition(const dtPolyRef* polyPath, unsigned 
 
 	if (distance)
 	{
-		*distance = dtSqrt(minDist3d);
+		*distance = dtSqr(minDist3d);
 	}
 
 	return (minDist2d < 3.0f) ? nearestPoly : INVALID_POLYREF;
@@ -700,7 +700,7 @@ dtStatus PathFinder::findSmoothPath(const float* startPos, const float* endPos,
 		// Find movement delta.
 		float delta[VERTEX_SIZE];
 		dtVsub(delta, steerPos, iterPos);
-		float len = dtSqrt(dtVdot(delta, delta));
+		float len = dtSqr(dtVdot(delta, delta));
 		// If the steer target is end of path or off-mesh link, do not move past the location.
 		if ((endOfPath || offMeshConnection) && len < SMOOTH_PATH_STEP_SIZE)
 		{

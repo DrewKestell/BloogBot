@@ -1,7 +1,6 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.AI.SharedStates;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using System.Linq;
 using static RaidMemberBot.Constants.Enums;
@@ -26,66 +25,55 @@ namespace ProtectionPaladinBot
         const string RighteousFury = "Righteous Fury";
         const string SealOfRighteousness = "Seal of Righteousness";
         const string SealOfTheCrusader = "Seal of the Crusader";
-
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
-        readonly LocalPlayer player;
-        WoWUnit target;
-
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
-        {
-            this.botTasks = botTasks;
-            this.container = container;
-            player = ObjectManager.Instance.Player;
-        }
+        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 
         public void Update()
         {
-            if (player.HealthPercent < 30 && target.HealthPercent > 50 && player.Mana >= player.GetManaCost(HolyLight))
+            if (Container.Player.HealthPercent < 30 && Container.HostileTarget.HealthPercent > 50 && Container.Player.Mana >= Container.Player.GetManaCost(HolyLight))
             {
-                botTasks.Push(new HealTask(container, botTasks, target));
+                BotTasks.Push(new HealTask(Container, BotTasks));
                 return;
             }
 
             if (ObjectManager.Instance.Aggressors.Count == 0)
             {
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
 
-            if (target == null || target.HealthPercent <= 0)
+            if (Container.HostileTarget == null || Container.HostileTarget.HealthPercent <= 0)
             {
-                target = ObjectManager.Instance.Aggressors.First();
+                Container.HostileTarget = ObjectManager.Instance.Aggressors.First();
             }
 
-            if (Update(target, 4))
+            if (Update(Container.HostileTarget, 4))
                 return;
 
-            TryCastSpell(LayOnHands, player.Mana < player.GetManaCost(HolyLight) && player.HealthPercent < 10, castOnSelf: true);
+            TryCastSpell(LayOnHands, Container.Player.Mana < Container.Player.GetManaCost(HolyLight) && Container.Player.HealthPercent < 10, castOnSelf: true);
 
-            TryCastSpell(Purify, player.IsPoisoned || player.IsDiseased, castOnSelf: true);
+            TryCastSpell(Purify, Container.Player.IsPoisoned || Container.Player.IsDiseased, castOnSelf: true);
 
-            TryCastSpell(RighteousFury, !player.HasBuff(RighteousFury));
+            TryCastSpell(RighteousFury, !Container.Player.HasBuff(RighteousFury));
 
-            TryCastSpell(DevotionAura, !player.HasBuff(DevotionAura) && !Spellbook.Instance.IsSpellReady(RetributionAura));
+            TryCastSpell(DevotionAura, !Container.Player.HasBuff(DevotionAura) && !Spellbook.Instance.IsSpellReady(RetributionAura));
 
-            TryCastSpell(RetributionAura, !player.HasBuff(RetributionAura) && Spellbook.Instance.IsSpellReady(RetributionAura));
+            TryCastSpell(RetributionAura, !Container.Player.HasBuff(RetributionAura) && Spellbook.Instance.IsSpellReady(RetributionAura));
 
-            TryCastSpell(Exorcism, 0, 30, target.CreatureType == CreatureType.Undead || target.CreatureType == CreatureType.Demon);
+            TryCastSpell(Exorcism, 0, 30, Container.HostileTarget.CreatureType == CreatureType.Undead || Container.HostileTarget.CreatureType == CreatureType.Demon);
 
-            TryCastSpell(HammerOfJustice, 0, 10, target.CreatureType != CreatureType.Humanoid || (target.CreatureType == CreatureType.Humanoid && target.HealthPercent < 20));
+            TryCastSpell(HammerOfJustice, 0, 10, Container.HostileTarget.CreatureType != CreatureType.Humanoid || (Container.HostileTarget.CreatureType == CreatureType.Humanoid && Container.HostileTarget.HealthPercent < 20));
 
             TryCastSpell(Consecration, ObjectManager.Instance.Aggressors.Count() > 1);
 
             // do we need to use JudgementOfWisdom? prot pally seems to always be at full mana.
 
-            TryCastSpell(JudgementOfLight, 0, 10, !target.HasDebuff(JudgementOfLight) && player.Buffs.Any(b => b.Name.StartsWith("Seal of")));
+            TryCastSpell(JudgementOfLight, 0, 10, !Container.HostileTarget.HasDebuff(JudgementOfLight) && Container.Player.Buffs.Any(b => b.Name.StartsWith("Seal of")));
 
-            TryCastSpell(SealOfTheCrusader, !player.HasBuff(SealOfTheCrusader) && !target.HasDebuff(JudgementOfTheCrusader));
+            TryCastSpell(SealOfTheCrusader, !Container.Player.HasBuff(SealOfTheCrusader) && !Container.HostileTarget.HasDebuff(JudgementOfTheCrusader));
 
-            TryCastSpell(SealOfRighteousness, !player.HasBuff(SealOfRighteousness) && (target.HasDebuff(JudgementOfTheCrusader) || !Spellbook.Instance.IsSpellReady(JudgementOfTheCrusader)));
+            TryCastSpell(SealOfRighteousness, !Container.Player.HasBuff(SealOfRighteousness) && (Container.HostileTarget.HasDebuff(JudgementOfTheCrusader) || !Spellbook.Instance.IsSpellReady(JudgementOfTheCrusader)));
 
-            TryCastSpell(HolyShield, !player.HasBuff(HolyShield) && target.HealthPercent > 50);
+            TryCastSpell(HolyShield, !Container.Player.HasBuff(HolyShield) && Container.HostileTarget.HealthPercent > 50);
         }
     }
 }

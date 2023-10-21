@@ -6,24 +6,15 @@ using System.Collections.Generic;
 
 namespace ArcaneMageBot
 {
-    class ConjureItemsTask : IBotTask
+    class ConjureItemsTask : BotTask, IBotTask
     {
         const string ConjureFood = "Conjure Food";
         const string ConjureWater = "Conjure Water";
 
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
-        readonly LocalPlayer player;
-
         WoWItem foodItem;
         WoWItem drinkItem;
 
-        public ConjureItemsTask(Stack<IBotTask> botTasks, IClassContainer container)
-        {
-            this.botTasks = botTasks;
-            this.container = container;
-            player = ObjectManager.Instance.Player;
-        }
+        public ConjureItemsTask(Stack<IBotTask> botTasks, IClassContainer container) : base(container, botTasks, TaskType.Ordinary) { }
 
         public void Update()
         {
@@ -33,22 +24,22 @@ namespace ArcaneMageBot
             //drinkItem = Inventory.GetAllItems()
             //    .FirstOrDefault(i => i.Info.Name == container.BotSettings.Drink);
 
-            if (player.IsCasting)
+            if (Container.Player.IsCasting)
                 return;
 
-            if (player.ManaPercent < 20)
+            if (Container.Player.ManaPercent < 20)
             {
-                botTasks.Pop();
-                botTasks.Push(new RestTask(container, botTasks));
+                BotTasks.Pop();
+                BotTasks.Push(new RestTask(Container, BotTasks));
                 return;
             }
 
             if ((foodItem != null || !Spellbook.Instance.IsSpellReady(ConjureFood)) && (drinkItem != null || !Spellbook.Instance.IsSpellReady(ConjureWater)))
             {
-                botTasks.Pop();
+                BotTasks.Pop();
 
-                if (player.ManaPercent <= 80)
-                    botTasks.Push(new RestTask(container, botTasks));
+                if (Container.Player.ManaPercent <= 80)
+                    BotTasks.Push(new RestTask(Container, BotTasks));
 
                 return;
             }
@@ -64,7 +55,7 @@ namespace ArcaneMageBot
 
         void TryCastSpell(string name)
         {
-            if (Spellbook.Instance.IsSpellReady(name) && player.IsCasting)
+            if (Spellbook.Instance.IsSpellReady(name) && Container.Player.IsCasting)
                 Lua.Instance.Execute($"CastSpellByName('{name}')");
         }
     }

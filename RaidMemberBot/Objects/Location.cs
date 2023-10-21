@@ -1,5 +1,6 @@
 ﻿using RaidMemberBot.Constants;
 using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Mem;
 using System;
 
 namespace RaidMemberBot.Objects
@@ -121,6 +122,17 @@ namespace RaidMemberBot.Objects
             var deltaX = X - location.X;
             var deltaY = Y - location.Y;
             return (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+        }
+
+        /// <summary>
+        /// Returns the distance to the x/y coordinate of the location
+        /// </summary>
+        /// <param name="location"></param>
+        /// <returns></returns>
+        public bool InLosWith(Location parLocation)
+        {
+            var i = Functions.Intersect(this, parLocation);
+            return i.R == 0 && i.X == 0 && i.Y == 0 && i.Z == 0;
         }
 
         /// <summary>

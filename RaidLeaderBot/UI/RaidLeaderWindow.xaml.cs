@@ -87,8 +87,6 @@ namespace RaidLeaderBot
         {
             InitializeComponent();
 
-            SqliteRepository.Initialize();
-
             _raidLeaderBotSettings = raidLeaderBotSettings;
             _socketServer = socketServer;
             _socketServer.InstanceUpdateObservable.Subscribe(OnInstanceUpdate);
@@ -132,8 +130,9 @@ namespace RaidLeaderBot
 
             UpdateBotLabels();
 
-            Console.WriteLine($"Loading navigation tiles...");
+            Console.WriteLine($"RAIDLEADER: Loading navigation tiles...");
             Navigation.Instance.CalculatePath(1, new Objects.Location(), new Objects.Location(), true);
+            Console.WriteLine($"RAIDLEADER: Navigation tiles loaded");
         }
         private void OnInstanceUpdate(CharacterState update)
         {
@@ -144,6 +143,11 @@ namespace RaidLeaderBot
             });
         }
         public void ConsumeMessage(CharacterState characterState)
+        {            
+            CheckForCommand(UpdateCharacterState(characterState), characterState);
+        }
+
+        private int UpdateCharacterState(CharacterState characterState)
         {
             for (int i = 0; i < RaidMemberPresets.Count; i++)
             {
@@ -156,8 +160,7 @@ namespace RaidLeaderBot
                         _characterStates[i].ProcessId = 0;
                     }
 
-                    CheckForCommand(i, characterState);
-                    return;
+                    return i;
                 }
             }
             for (int i = 0; i < RaidMemberPresets.Count; i++)
@@ -168,9 +171,7 @@ namespace RaidLeaderBot
                     && RaidMemberPresets[i].BotProfileName == _characterStates[i].BotProfileName)
                 {
                     _characterStates[i] = characterState;
-
-                    CheckForCommand(i, characterState);
-                    return;
+                    return i;
                 }
             }
             for (int i = 0; i < RaidMemberPresets.Count; i++)
@@ -178,12 +179,12 @@ namespace RaidLeaderBot
                 if (_characterStates[i].ProcessId == 0)
                 {
                     _characterStates[i] = characterState;
-
-                    CheckForCommand(i, characterState);
-                    return;
+                    return i;
                 }
             }
+            return -1;
         }
+
         private void StartAll()
         {
             try
@@ -225,9 +226,9 @@ namespace RaidLeaderBot
                 if (characterState.ProcessId > 0)
                 {
                     if (characterState.Guid == 0
-                            || characterState.AccountName != RaidMemberPresets[index].AccountName
-                            || characterState.CharacterSlot != RaidMemberPresets[index].CharacterSlot
-                            || characterState.BotProfileName != RaidMemberPresets[index].BotProfileName)
+                        || characterState.AccountName != RaidMemberPresets[index].AccountName
+                        || characterState.CharacterSlot != RaidMemberPresets[index].CharacterSlot
+                        || characterState.BotProfileName != RaidMemberPresets[index].BotProfileName)
                     {
                         var loginCommand = new InstanceCommand()
                         {
@@ -238,6 +239,8 @@ namespace RaidLeaderBot
                         };
 
                         _socketServer.SendCommandToProcess(characterState.ProcessId, loginCommand);
+                        Console.WriteLine($"{index}: {JsonConvert.SerializeObject(characterState, Formatting.Indented)}");
+                        Console.WriteLine($"{index}: {CommandAction.SetAccountInfo} => {characterState.CharacterName}");
                         return;
 
                     }
@@ -251,14 +254,13 @@ namespace RaidLeaderBot
                         };
 
                         _socketServer.SendCommandToProcess(characterState.ProcessId, setActivityCommand);
+                        Console.WriteLine($"{index}: {JsonConvert.SerializeObject(characterState, Formatting.Indented)}");
+                        Console.WriteLine($"{index}: {CommandAction.SetActivity} => {characterState.CharacterName} => {Activity}:{setActivityCommand.CommandParam2}");
                         return;
                     }
-                    else if (RaidLeader == null || RaidLeader.CharacterName != characterState.RaidLeader)
+                    else if (RaidLeader == null || RaidLeader.ProcessId == 0)
                     {
-                        if (RaidLeader == null || RaidLeader.ProcessId == 0)
-                        {
-                            RaidLeader = characterState;
-                        }
+                        RaidLeader = characterState;
 
                         var setLeaderCommand = new InstanceCommand()
                         {
@@ -267,9 +269,24 @@ namespace RaidLeaderBot
                         };
 
                         _socketServer.SendCommandToProcess(characterState.ProcessId, setLeaderCommand);
+
+                        Console.WriteLine($"{index}: {JsonConvert.SerializeObject(characterState, Formatting.Indented)}");
+                        Console.WriteLine($"{index}: {CommandAction.SetRaidLeader} => {characterState.CharacterName} => {RaidLeader.CharacterName}");
                         return;
                     }
-                    else if (RaidLeader.CharacterName != characterState.RaidLeader && !characterState.InParty)
+                    else if (RaidLeader.CharacterName != characterState.RaidLeader)
+                    {
+                        var setLeaderCommand = new InstanceCommand()
+                        {
+                            CommandAction = CommandAction.SetRaidLeader,
+                            CommandParam1 = RaidLeader.CharacterName,
+                        };
+
+                        _socketServer.SendCommandToProcess(characterState.ProcessId, setLeaderCommand);
+                        return;
+
+                    }
+                    else if (RaidLeader.CharacterName != characterState.CharacterName && !characterState.InParty)
                     {
                         var addPartyMember = new InstanceCommand()
                         {
@@ -278,6 +295,8 @@ namespace RaidLeaderBot
                         };
 
                         _socketServer.SendCommandToProcess(RaidLeader.ProcessId, addPartyMember);
+                        Console.WriteLine($"{index}: {JsonConvert.SerializeObject(characterState, Formatting.Indented)}");
+                        Console.WriteLine($"{index}: {CommandAction.AddPartyMember} => {RaidLeader.CharacterName} : {characterState.CharacterName}");
                         return;
                     }
                     else if (PartyMembers.All(x => x.InParty))
@@ -291,6 +310,8 @@ namespace RaidLeaderBot
                             };
 
                             _socketServer.SendCommandToProcess(characterState.ProcessId, beginDungeon);
+                            Console.WriteLine($"{index}: {JsonConvert.SerializeObject(characterState, Formatting.Indented)}");
+                            Console.WriteLine($"{index}: {CommandAction.BeginDungeon} => {characterState.CharacterName}");
                             return;
                         }
                         else
@@ -307,6 +328,8 @@ namespace RaidLeaderBot
                                 };
 
                                 _socketServer.SendCommandToProcess(characterState.ProcessId, goToCommand);
+                                Console.WriteLine($"{index}: {JsonConvert.SerializeObject(characterState, Formatting.Indented)}");
+                                Console.WriteLine($"{index}: {CommandAction.GoTo} => {characterState.CharacterName}");
                                 return;
                             }
                         }
@@ -594,6 +617,8 @@ namespace RaidLeaderBot
                 Players.Clear();
                 RegenerateRaidList();
             }
+            OnPropertyChanged(nameof(CanStart));
+            OnPropertyChanged(nameof(CanStop));
         }
         private void SaveConfigButton_Click(object sender, RoutedEventArgs e)
         {

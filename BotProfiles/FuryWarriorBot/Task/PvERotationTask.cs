@@ -72,9 +72,9 @@ namespace FuryWarriorBot
         {
             if (Environment.TickCount - backpedalStartTime > backpedalDuration)
             {
-                player.StopMovement(ControlBits.Back);
-                // player.StopMovement(ControlBits.StrafeLeft);
-                // player.StopMovement(ControlBits.Right);
+                Container.Player.StopMovement(ControlBits.Back);
+                // Container.Player.StopMovement(ControlBits.StrafeLeft);
+                // Container.Player.StopMovement(ControlBits.Right);
                 backpedaling = false;
             }
 
@@ -94,11 +94,11 @@ namespace FuryWarriorBot
 
             if (ObjectManager.Instance.Aggressors.Count == 0)
             {
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
 
-            if (target == null || target.HealthPercent <= 0)
+            if (target == null || Container.HostileTarget.HealthPercent <= 0)
             {
                 target = ObjectManager.Instance.Aggressors.First();
             }
@@ -106,40 +106,40 @@ namespace FuryWarriorBot
             if (Update(target, 5))
                 return;
 
-            var currentStance = player.CurrentStance;
+            var currentStance = Container.Player.CurrentStance;
             var spellcastingAggressors = ObjectManager.Instance.Aggressors
                 .Where(a => a.Mana > 0);
             // Use these abilities when fighting any number of mobs.   
-            TryUseAbility(BerserkerStance, condition: player.Level >= 30 && currentStance == BattleStance && (target.HasDebuff(Rend) || target.HealthPercent < 80 || target.CreatureType == CreatureType.Elemental || target.CreatureType == CreatureType.Undead));
+            TryUseAbility(BerserkerStance, condition: Container.Player.Level >= 30 && currentStance == BattleStance && (target.HasDebuff(Rend) || Container.HostileTarget.HealthPercent < 80 || Container.HostileTarget.CreatureType == CreatureType.Elemental || Container.HostileTarget.CreatureType == CreatureType.Undead));
 
-            TryUseAbility(Pummel, 10, currentStance == BerserkerStance && target.Mana > 0 && (target.IsCasting || target.IsChanneling));
+            TryUseAbility(Pummel, 10, currentStance == BerserkerStance && Container.HostileTarget.Mana > 0 && (target.IsCasting || Container.HostileTarget.IsChanneling));
 
-            // TryUseAbility(Rend, 10, (currentStance == BattleStance && target.HealthPercent > 50 && !target.HasDebuff(Rend) && (target.CreatureType != CreatureType.Elemental && target.CreatureType != CreatureType.Undead)));
+            // TryUseAbility(Rend, 10, (currentStance == BattleStance && Container.HostileTarget.HealthPercent > 50 && !target.HasDebuff(Rend) && (target.CreatureType != CreatureType.Elemental && Container.HostileTarget.CreatureType != CreatureType.Undead)));
 
-            TryUseAbility(DeathWish, 10, Spellbook.Instance.IsSpellReady(DeathWish) && target.HealthPercent > 80);
+            TryUseAbility(DeathWish, 10, Spellbook.Instance.IsSpellReady(DeathWish) && Container.HostileTarget.HealthPercent > 80);
 
-            TryUseAbility(BattleShout, 10, !player.HasBuff(BattleShout));
+            TryUseAbility(BattleShout, 10, !Container.Player.HasBuff(BattleShout));
 
-            TryUseAbilityById(BloodFury, 4, 0, target.HealthPercent > 80);
+            TryUseAbilityById(BloodFury, 4, 0, Container.HostileTarget.HealthPercent > 80);
 
-            TryUseAbility(Bloodrage, condition: target.HealthPercent > 50);
+            TryUseAbility(Bloodrage, condition: Container.HostileTarget.HealthPercent > 50);
 
-            TryUseAbility(Execute, 15, target.HealthPercent < 20);
+            TryUseAbility(Execute, 15, Container.HostileTarget.HealthPercent < 20);
 
-            TryUseAbility(BerserkerRage, condition: target.HealthPercent > 70 && currentStance == BerserkerStance);
+            TryUseAbility(BerserkerRage, condition: Container.HostileTarget.HealthPercent > 70 && currentStance == BerserkerStance);
 
-            TryUseAbility(Overpower, 5, currentStance == BattleStance && player.CanOverpower);
+            TryUseAbility(Overpower, 5, currentStance == BattleStance && Container.Player.CanOverpower);
 
             // Use these abilities if you are fighting TWO OR MORE mobs at once.
             if (ObjectManager.Instance.Aggressors.Count() >= 2)
             {
-                TryUseAbility(IntimidatingShout, 25, !(target.HasDebuff(IntimidatingShout) || player.HasBuff(Retaliation)) && ObjectManager.Instance.Aggressors.All(a => a.Location.GetDistanceTo(player.Location) < 10));
+                TryUseAbility(IntimidatingShout, 25, !(target.HasDebuff(IntimidatingShout) || Container.Player.HasBuff(Retaliation)) && ObjectManager.Instance.Aggressors.All(a => a.Location.GetDistanceTo(Container.Player.Location) < 10));
 
                 TryUseAbility(DemoralizingShout, 10, !target.HasDebuff(DemoralizingShout));
 
-                // TryUseAbility(Cleave, 20, target.HealthPercent > 20 && FacingAllTargets);
+                // TryUseAbility(Cleave, 20, Container.HostileTarget.HealthPercent > 20 && FacingAllTargets);
 
-                TryUseAbility(Whirlwind, 25, target.HealthPercent > 20 && currentStance == BerserkerStance && !target.HasDebuff(IntimidatingShout) && AggressorsInMelee);
+                TryUseAbility(Whirlwind, 25, Container.HostileTarget.HealthPercent > 20 && currentStance == BerserkerStance && !target.HasDebuff(IntimidatingShout) && AggressorsInMelee);
 
                 // if our target uses melee, but there's a caster attacking us, do not use retaliation
                 TryUseAbility(Retaliation, 0, Spellbook.Instance.IsSpellReady(Retaliation) && spellcastingAggressors.Count() == 0 && currentStance == BattleStance && FacingAllTargets && !ObjectManager.Instance.Aggressors.Any(a => a.HasDebuff(IntimidatingShout)));
@@ -148,19 +148,19 @@ namespace FuryWarriorBot
             // Use these abilities if you are fighting only one mob at a time, or multiple and one or more are not in melee range.
             if (ObjectManager.Instance.Aggressors.Count() >= 1 || (ObjectManager.Instance.Aggressors.Count() > 1 && !AggressorsInMelee))
             {
-                TryUseAbility(Slam, 15, target.HealthPercent > 20 && slamReady, SlamCallback);
+                TryUseAbility(Slam, 15, Container.HostileTarget.HealthPercent > 20 && slamReady, SlamCallback);
                 
-                // TryUseAbility(Rend, 10, (currentStance == BattleStance && target.HealthPercent > 50 && !target.HasDebuff(Rend) && (target.CreatureType != CreatureType.Elemental && target.CreatureType != CreatureType.Undead)));
+                // TryUseAbility(Rend, 10, (currentStance == BattleStance && Container.HostileTarget.HealthPercent > 50 && !target.HasDebuff(Rend) && (target.CreatureType != CreatureType.Elemental && Container.HostileTarget.CreatureType != CreatureType.Undead)));
 
                 TryUseAbility(Bloodthirst, 30);
 
-                TryUseAbility(Hamstring, 10, target.CreatureType == CreatureType.Humanoid && !target.HasDebuff(Hamstring));
+                TryUseAbility(Hamstring, 10, Container.HostileTarget.CreatureType == CreatureType.Humanoid && !target.HasDebuff(Hamstring));
 
-                TryUseAbility(HeroicStrike, player.Level < 30 ? 15 : 45, target.HealthPercent > 30);
+                TryUseAbility(HeroicStrike, Container.Player.Level < 30 ? 15 : 45, Container.HostileTarget.HealthPercent > 30);
 
-                TryUseAbility(Execute, 15, target.HealthPercent < 20);
+                TryUseAbility(Execute, 15, Container.HostileTarget.HealthPercent < 20);
 
-                TryUseAbility(SunderArmor, 15, target.HealthPercent < 80 && !target.HasDebuff(SunderArmor));
+                TryUseAbility(SunderArmor, 15, Container.HostileTarget.HealthPercent < 80 && !target.HasDebuff(SunderArmor));
             }
         }
 
@@ -185,7 +185,7 @@ namespace FuryWarriorBot
         {
             get
             {
-                return ObjectManager.Instance.Aggressors.All(a => a.Location.GetDistanceTo(player.Location) < 7);
+                return ObjectManager.Instance.Aggressors.All(a => a.Location.GetDistanceTo(Container.Player.Location) < 7);
             }
         }
 
@@ -194,7 +194,7 @@ namespace FuryWarriorBot
         {
             get
             {
-                return ObjectManager.Instance.Aggressors.All(a => a.Location.GetDistanceTo(player.Location) < 7);
+                return ObjectManager.Instance.Aggressors.All(a => a.Location.GetDistanceTo(Container.Player.Location) < 7);
             }
         }
 
@@ -203,9 +203,9 @@ namespace FuryWarriorBot
             backpedaling = true;
             backpedalStartTime = Environment.TickCount;
             backpedalDuration = milleseconds;
-            player.StartMovement(ControlBits.Back);
-            // player.StartMovement(ControlBits.StrafeLeft);
-            // player.StartMovement(ControlBits.Right);
+            Container.Player.StartMovement(ControlBits.Back);
+            // Container.Player.StartMovement(ControlBits.StrafeLeft);
+            // Container.Player.StartMovement(ControlBits.Right);
         }
     }
 }

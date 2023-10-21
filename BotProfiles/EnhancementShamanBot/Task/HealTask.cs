@@ -1,36 +1,27 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Objects;
 using System.Collections.Generic;
 
 namespace EnhancementShamanBot
 {
-    class HealTask : IBotTask
+    class HealTask : BotTask, IBotTask
     {
         const string WarStomp = "War Stomp";
         const string HealingWave = "Healing Wave";
-
-        readonly Stack<IBotTask> botTasks;
-        readonly LocalPlayer player;
-
-        public HealTask(IClassContainer container, Stack<IBotTask> botTasks, WoWUnit target)
-        {
-            this.botTasks = botTasks;
-            player = ObjectManager.Instance.Player;
-
-            if (Spellbook.Instance.IsSpellReady(WarStomp))
-                Lua.Instance.Execute($"CastSpellByName('{WarStomp}')");
-        }
+        public HealTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Heal) { }
 
         public void Update()
         {
-            if (player.IsCasting) return;
+            if (Container.Player.IsCasting) return;
 
-            if (player.HealthPercent > 70 || player.Mana < player.GetManaCost(HealingWave))
+            if (Container.Player.HealthPercent > 70 || Container.Player.Mana < Container.Player.GetManaCost(HealingWave))
             {
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
+
+            if (Spellbook.Instance.IsSpellReady(WarStomp))
+                Lua.Instance.Execute($"CastSpellByName('{WarStomp}')");
 
             Lua.Instance.Execute($"CastSpellByName('{HealingWave}',1)");
         }

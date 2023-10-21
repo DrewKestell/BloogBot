@@ -1,38 +1,29 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Objects;
 using System.Collections.Generic;
 
 namespace RetributionPaladinBot
 {
-    class HealTask : IBotTask
+    class HealTask : BotTask, IBotTask
     {
         const string DivineProtection = "Divine Protection";
         const string HolyLight = "Holy Light";
-
-        readonly Stack<IBotTask> botTasks;
-        readonly LocalPlayer player;
-
-        public HealTask(IClassContainer container, Stack<IBotTask> botTasks, WoWUnit target)
-        {
-            this.botTasks = botTasks;
-            player = ObjectManager.Instance.Player;
-        }
+        public HealTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Heal) { }
 
         public void Update()
         {
-            if (player.IsCasting) return;
+            if (Container.Player.IsCasting) return;
 
-            if (player.HealthPercent > 70 || player.Mana < player.GetManaCost(HolyLight))
+            if (Container.Player.HealthPercent > 70 || Container.Player.Mana < Container.Player.GetManaCost(HolyLight))
             {
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
 
-            if (player.Mana > player.GetManaCost(DivineProtection) && Spellbook.Instance.IsSpellReady(DivineProtection))
+            if (Container.Player.Mana > Container.Player.GetManaCost(DivineProtection) && Spellbook.Instance.IsSpellReady(DivineProtection))
                 Lua.Instance.Execute($"CastSpellByName('{DivineProtection}')");
 
-            if (player.Mana > player.GetManaCost(HolyLight) && Spellbook.Instance.IsSpellReady(HolyLight))
+            if (Container.Player.Mana > Container.Player.GetManaCost(HolyLight) && Spellbook.Instance.IsSpellReady(HolyLight))
                 Lua.Instance.Execute($"CastSpellByName('{HolyLight}',1)");
         }
     }

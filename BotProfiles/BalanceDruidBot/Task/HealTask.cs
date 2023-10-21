@@ -1,12 +1,11 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
-using RaidMemberBot.Objects;
 using System.Collections.Generic;
 
 namespace BalanceDruidBot
 {
-    class HealTask : IBotTask
+    class HealTask : BotTask, IBotTask
     {
         const string WarStomp = "War Stomp";
         const string HealingTouch = "Healing Touch";
@@ -14,38 +13,27 @@ namespace BalanceDruidBot
         const string Barkskin = "Barkskin";
         const string MoonkinForm = "Moonkin Form";
 
-        readonly IClassContainer container;
-        readonly Stack<IBotTask> botTasks;
-        readonly WoWUnit target;
-        readonly LocalPlayer player;
-
-        public HealTask(IClassContainer container, Stack<IBotTask> botTasks, WoWUnit target)
-        {
-            this.container = container;
-            this.botTasks = botTasks;
-            this.target = target;
-            player = ObjectManager.Instance.Player;
-        }
+        public HealTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Heal) { }
 
         public void Update()
         {
-            if (player.IsCasting) return;
+            if (Container.Player.IsCasting) return;
 
-            if (player.HealthPercent > 70 || (player.Mana < player.GetManaCost(HealingTouch) && player.Mana < player.GetManaCost(Rejuvenation)))
+            if (Container.Player.HealthPercent > 70 || (Container.Player.Mana < Container.Player.GetManaCost(HealingTouch) && Container.Player.Mana < Container.Player.GetManaCost(Rejuvenation)))
             {
                 Wait.RemoveAll();
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
 
-            if (Spellbook.Instance.IsSpellReady(WarStomp) && player.Location.GetDistanceTo(target.Location) <= 8)
+            if (Spellbook.Instance.IsSpellReady(WarStomp) && Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location) <= 8)
                 Lua.Instance.Execute($"CastSpellByName('{WarStomp}')");
 
-            TryCastSpell(MoonkinForm, player.HasBuff(MoonkinForm));
+            TryCastSpell(MoonkinForm, Container.Player.HasBuff(MoonkinForm));
 
             TryCastSpell(Barkskin);
 
-            TryCastSpell(Rejuvenation, !player.HasBuff(Rejuvenation));
+            TryCastSpell(Rejuvenation, !Container.Player.HasBuff(Rejuvenation));
 
             TryCastSpell(HealingTouch);
         }

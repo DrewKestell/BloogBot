@@ -12,15 +12,20 @@ namespace RaidLeaderBot
         class App : Application
         {
             private readonly CommandSockerServer _socketServer;
-            private readonly PathfindingSocketServer _pathfindingSocketServer;
+            private readonly NavigationSocketServer _pathfindingSocketServer;
+            private readonly DatabaseSocketServer _databaseSocketServer;
             private readonly RaidLeaderBotSettings _raidLeaderBotSettings;
 
             public App(CommandSockerServer socketServer, RaidLeaderBotSettings raidLeaderBotSettings)
             {
                 _socketServer = socketServer; 
                 _raidLeaderBotSettings = raidLeaderBotSettings;
-                _pathfindingSocketServer = new PathfindingSocketServer(raidLeaderBotSettings.PathfindingPort, IPAddress.Parse(raidLeaderBotSettings.ListenAddress));
+
+                _pathfindingSocketServer = new NavigationSocketServer(raidLeaderBotSettings.PathfindingPort, IPAddress.Parse(raidLeaderBotSettings.ListenAddress));
                 _pathfindingSocketServer.Start();
+
+                _databaseSocketServer = new DatabaseSocketServer(raidLeaderBotSettings.DatabasePort, IPAddress.Parse(raidLeaderBotSettings.ListenAddress));
+                _databaseSocketServer.Start();
             }
 
             protected override void OnStartup(StartupEventArgs e)
@@ -53,7 +58,7 @@ namespace RaidLeaderBot
 
         private static CommandSockerServer LaunchServer(RaidLeaderBotSettings raidLeaderBotSettings)
         {
-            var socketServer = new CommandSockerServer(raidLeaderBotSettings.Port, IPAddress.Parse(raidLeaderBotSettings.ListenAddress));
+            var socketServer = new CommandSockerServer(raidLeaderBotSettings.CommandPort, IPAddress.Parse(raidLeaderBotSettings.ListenAddress));
             socketServer.Start();
             return socketServer;
         }

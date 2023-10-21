@@ -40,7 +40,7 @@ namespace ArcaneMageBot
         {
             if (frostNovaBackpedaling && Environment.TickCount - frostNovaBackpedalStartTime > 1500)
             {
-                player.StopMovement(ControlBits.Back);
+                Container.Player.StopMovement(ControlBits.Back);
                 frostNovaBackpedaling = false;
             }
             if (frostNovaBackpedaling)
@@ -49,11 +49,11 @@ namespace ArcaneMageBot
 
             if (ObjectManager.Instance.Aggressors.Count == 0)
             {
-                botTasks.Pop();
+                BotTasks.Pop();
                 return;
             }
 
-            if (target == null || target.HealthPercent <= 0)
+            if (target == null || Container.HostileTarget.HealthPercent <= 0)
             {
                 target = ObjectManager.Instance.Aggressors[0];
             }
@@ -62,32 +62,32 @@ namespace ArcaneMageBot
                 return;
 
             var hasWand = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged) != null;
-            var useWand = hasWand && player.ManaPercent <= 10 && player.IsCasting && player.Channeling == 0;
+            var useWand = hasWand && Container.Player.ManaPercent <= 10 && Container.Player.IsCasting && Container.Player.Channeling == 0;
             if (useWand)
                 Lua.Instance.Execute(WandLuaScript);
 
-            TryCastSpell(PresenceOfMind, 0, 50, target.HealthPercent > 80);
+            TryCastSpell(PresenceOfMind, 0, 50, Container.HostileTarget.HealthPercent > 80);
 
-            TryCastSpell(ArcanePower, 0, 50, target.HealthPercent > 80);
+            TryCastSpell(ArcanePower, 0, 50, Container.HostileTarget.HealthPercent > 80);
 
-            TryCastSpell(Counterspell, 0, 29, target.Mana > 0 && target.IsCasting);
+            TryCastSpell(Counterspell, 0, 29, Container.HostileTarget.Mana > 0 && Container.HostileTarget.IsCasting);
 
-            TryCastSpell(ManaShield, 0, 50, !player.HasBuff(ManaShield) && player.HealthPercent < 20);
+            TryCastSpell(ManaShield, 0, 50, !Container.Player.HasBuff(ManaShield) && Container.Player.HealthPercent < 20);
 
-            TryCastSpell(FireBlast, 0, 19, !player.HasBuff(Clearcasting));
+            TryCastSpell(FireBlast, 0, 19, !Container.Player.HasBuff(Clearcasting));
 
-            TryCastSpell(FrostNova, 0, 10, !ObjectManager.Instance.Units.Any(u => u.Guid != target.Guid && u.Health > 0 && u.Location.GetDistanceTo(player.Location) < 15), callback: FrostNovaCallback);
+            TryCastSpell(FrostNova, 0, 10, !ObjectManager.Instance.Units.Any(u => u.Guid != Container.HostileTarget.Guid && u.Health > 0 && u.Location.GetDistanceTo(Container.Player.Location) < 15), callback: FrostNovaCallback);
 
-            TryCastSpell(Fireball, 0, 34, player.Level < 15 || player.HasBuff(PresenceOfMind));
+            TryCastSpell(Fireball, 0, 34, Container.Player.Level < 15 || Container.Player.HasBuff(PresenceOfMind));
 
-            TryCastSpell(ArcaneMissiles, 0, 29, player.Level >= 15);
+            TryCastSpell(ArcaneMissiles, 0, 29, Container.Player.Level >= 15);
         }
 
         Action FrostNovaCallback => () =>
         {
             frostNovaBackpedaling = true;
             frostNovaBackpedalStartTime = Environment.TickCount;
-            player.StartMovement(ControlBits.Back);
+            Container.Player.StartMovement(ControlBits.Back);
         };
     }
 }

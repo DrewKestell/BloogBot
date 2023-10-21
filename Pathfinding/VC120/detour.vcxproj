@@ -124,6 +124,7 @@
     <ClCompile Include="..\Navigation\Include\recastnavigation\Detour\Source\DetourNavMesh.cpp" />
     <ClCompile Include="..\Navigation\Include\recastnavigation\Detour\Source\DetourNavMeshQuery.cpp" />
     <ClCompile Include="..\Navigation\Include\recastnavigation\Detour\Source\DetourNode.cpp" />
+    <ClCompile Include="DetourAssert.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

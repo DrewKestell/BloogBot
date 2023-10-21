@@ -37,12 +37,12 @@ inline unsigned int dtHashRef(dtPolyRef a)
 #else
 inline unsigned int dtHashRef(dtPolyRef a)
 {
-	a += ~(a<<15);
-	a ^=  (a>>10);
-	a +=  (a<<3);
-	a ^=  (a>>6);
-	a += ~(a<<11);
-	a ^=  (a>>16);
+	a += ~(a << 15);
+	a ^= (a >> 10);
+	a += (a << 3);
+	a ^= (a >> 6);
+	a += ~(a << 11);
+	a ^= (a >> 16);
 	return (unsigned int)a;
 }
 #endif
@@ -57,18 +57,20 @@ dtNodePool::dtNodePool(int maxNodes, int hashSize) :
 	m_nodeCount(0)
 {
 	dtAssert(dtNextPow2(m_hashSize) == (unsigned int)m_hashSize);
-	dtAssert(m_maxNodes > 0);
+	// pidx is special as 0 means "none" and 1 is the first node. For that reason
+	// we have 1 fewer nodes available than the number of values it can contain.
+	dtAssert(m_maxNodes > 0 && m_maxNodes <= DT_NULL_IDX && m_maxNodes <= (1 << DT_NODE_PARENT_BITS) - 1);
 
-	m_nodes = (dtNode*)dtAlloc(sizeof(dtNode)*m_maxNodes, DT_ALLOC_PERM);
-	m_next = (dtNodeIndex*)dtAlloc(sizeof(dtNodeIndex)*m_maxNodes, DT_ALLOC_PERM);
-	m_first = (dtNodeIndex*)dtAlloc(sizeof(dtNodeIndex)*hashSize, DT_ALLOC_PERM);
+	m_nodes = (dtNode*)dtAlloc(sizeof(dtNode) * m_maxNodes, DT_ALLOC_PERM);
+	m_next = (dtNodeIndex*)dtAlloc(sizeof(dtNodeIndex) * m_maxNodes, DT_ALLOC_PERM);
+	m_first = (dtNodeIndex*)dtAlloc(sizeof(dtNodeIndex) * hashSize, DT_ALLOC_PERM);
 
 	dtAssert(m_nodes);
 	dtAssert(m_next);
 	dtAssert(m_first);
 
-	memset(m_first, 0xff, sizeof(dtNodeIndex)*m_hashSize);
-	memset(m_next, 0xff, sizeof(dtNodeIndex)*m_maxNodes);
+	memset(m_first, 0xff, sizeof(dtNodeIndex) * m_hashSize);
+	memset(m_next, 0xff, sizeof(dtNodeIndex) * m_maxNodes);
 }
 
 dtNodePool::~dtNodePool()
@@ -80,14 +82,14 @@ dtNodePool::~dtNodePool()
 
 void dtNodePool::clear()
 {
-	memset(m_first, 0xff, sizeof(dtNodeIndex)*m_hashSize);
+	memset(m_first, 0xff, sizeof(dtNodeIndex) * m_hashSize);
 	m_nodeCount = 0;
 }
 
 unsigned int dtNodePool::findNodes(dtPolyRef id, dtNode** nodes, const int maxNodes)
 {
 	int n = 0;
-	unsigned int bucket = dtHashRef(id) & (m_hashSize-1);
+	unsigned int bucket = dtHashRef(id) & (m_hashSize - 1);
 	dtNodeIndex i = m_first[bucket];
 	while (i != DT_NULL_IDX)
 	{
@@ -105,7 +107,7 @@ unsigned int dtNodePool::findNodes(dtPolyRef id, dtNode** nodes, const int maxNo
 
 dtNode* dtNodePool::findNode(dtPolyRef id, unsigned char state)
 {
-	unsigned int bucket = dtHashRef(id) & (m_hashSize-1);
+	unsigned int bucket = dtHashRef(id) & (m_hashSize - 1);
 	dtNodeIndex i = m_first[bucket];
 	while (i != DT_NULL_IDX)
 	{
@@ -118,7 +120,7 @@ dtNode* dtNodePool::findNode(dtPolyRef id, unsigned char state)
 
 dtNode* dtNodePool::getNode(dtPolyRef id, unsigned char state)
 {
-	unsigned int bucket = dtHashRef(id) & (m_hashSize-1);
+	unsigned int bucket = dtHashRef(id) & (m_hashSize - 1);
 	dtNodeIndex i = m_first[bucket];
 	dtNode* node = 0;
 	while (i != DT_NULL_IDX)
@@ -127,13 +129,13 @@ dtNode* dtNodePool::getNode(dtPolyRef id, unsigned char state)
 			return &m_nodes[i];
 		i = m_next[i];
 	}
-	
+
 	if (m_nodeCount >= m_maxNodes)
 		return 0;
-	
+
 	i = (dtNodeIndex)m_nodeCount;
 	m_nodeCount++;
-	
+
 	// Init node
 	node = &m_nodes[i];
 	node->pidx = 0;
@@ -142,10 +144,10 @@ dtNode* dtNodePool::getNode(dtPolyRef id, unsigned char state)
 	node->id = id;
 	node->state = state;
 	node->flags = 0;
-	
+
 	m_next[i] = m_first[bucket];
 	m_first[bucket] = i;
-	
+
 	return node;
 }
 
@@ -157,8 +159,8 @@ dtNodeQueue::dtNodeQueue(int n) :
 	m_size(0)
 {
 	dtAssert(m_capacity > 0);
-	
-	m_heap = (dtNode**)dtAlloc(sizeof(dtNode*)*(m_capacity+1), DT_ALLOC_PERM);
+
+	m_heap = (dtNode**)dtAlloc(sizeof(dtNode*) * (m_capacity + 1), DT_ALLOC_PERM);
 	dtAssert(m_heap);
 }
 
@@ -169,30 +171,30 @@ dtNodeQueue::~dtNodeQueue()
 
 void dtNodeQueue::bubbleUp(int i, dtNode* node)
 {
-	int parent = (i-1)/2;
+	int parent = (i - 1) / 2;
 	// note: (index > 0) means there is a parent
 	while ((i > 0) && (m_heap[parent]->total > node->total))
 	{
 		m_heap[i] = m_heap[parent];
 		i = parent;
-		parent = (i-1)/2;
+		parent = (i - 1) / 2;
 	}
 	m_heap[i] = node;
 }
 
 void dtNodeQueue::trickleDown(int i, dtNode* node)
 {
-	int child = (i*2)+1;
+	int child = (i * 2) + 1;
 	while (child < m_size)
 	{
-		if (((child+1) < m_size) && 
-			(m_heap[child]->total > m_heap[child+1]->total))
+		if (((child + 1) < m_size) &&
+			(m_heap[child]->total > m_heap[child + 1]->total))
 		{
 			child++;
 		}
 		m_heap[i] = m_heap[child];
 		i = child;
-		child = (i*2)+1;
+		child = (i * 2) + 1;
 	}
 	bubbleUp(i, node);
 }

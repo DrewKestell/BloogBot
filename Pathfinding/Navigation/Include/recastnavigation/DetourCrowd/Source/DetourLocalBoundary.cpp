@@ -134,4 +134,3 @@ bool dtLocalBoundary::isValid(dtNavMeshQuery* navquery, const dtQueryFilter* fil
 	
 	return true;
 }
-
