@@ -26,7 +26,7 @@ namespace RaidMemberBot.AI.SharedStates
         int lastTickTime;
         int stuckDuration;
         private bool CanProceed => ObjectManager.Instance.PartyMembers.All(x => (x.ManaPercent < 0 || x.ManaPercent > 80) && x.HealthPercent > 85);
-        private bool NeedsGuidance => Container.CurrentWaypoint.DistanceToPlayer() < 1 || !Container.Player.IsFacing(Container.CurrentWaypoint) || !Container.Player.IsMoving;
+        private bool NeedsGuidance => Container.CurrentWaypoint.DistanceToPlayer() < 3 || !Container.Player.IsFacing(Container.CurrentWaypoint) || !Container.Player.IsMoving;
         public DungeoneeringTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Ordinary)
         {
             isPartyLeader = ObjectManager.Instance.PartyLeader?.Guid == Container.Player.Guid;
@@ -81,7 +81,7 @@ namespace RaidMemberBot.AI.SharedStates
                     {
                         //Console.WriteLine($"DUNGEON: NeedsGuidance");
                         // if we are near our destination?
-                        if (destination.DistanceToPlayer() < 1)
+                        if (destination.DistanceToPlayer() < 3)
                         {
                             //Console.WriteLine($"DUNGEON: if we are near our destination?");
                             SetNextWaypoint();
@@ -109,6 +109,12 @@ namespace RaidMemberBot.AI.SharedStates
                 }
                 else
                 {
+                    if (ObjectManager.Instance.Aggressors.Count > 0)
+                    {
+                        Container.Player.StopAllMovement();
+                        BotTasks.Push(Container.CreatePvERotationTask(Container, BotTasks));
+                        return;
+                    }
                     Container.Player.StopAllMovement();
                 }
             }
@@ -123,11 +129,11 @@ namespace RaidMemberBot.AI.SharedStates
 
         private void SetNextWaypoint()
         {
-            if (minorWaypoints.TryGetValue(currentMajorWaypoint, out List<Location> minorWaypointsList))
+            if (minorWaypoints.TryGetValue(currentMajorWaypoint, out List<Location> minorWaypointsListFinal))
             {
-                if (minorWaypointsList.Count > 0)
+                if (minorWaypointsListFinal.Count > 0)
                 {
-                    currentMinorWaypoint = minorWaypointsList.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, Container.Player.Location, x, true)).First();
+                    currentMinorWaypoint = minorWaypointsListFinal.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, x, currentMajorWaypoint, true)).Reverse().First();
                     destination = currentMinorWaypoint;
                 } else
                 {
@@ -152,7 +158,7 @@ namespace RaidMemberBot.AI.SharedStates
         private void CleanupWaypoints()
         {
             //Console.WriteLine($"DUNGEON: CleanupWaypoints");
-            dungeonWaypoints.RemoveAll(x => x.DistanceToPlayer() < 5);
+            dungeonWaypoints.RemoveAll(x => Container.Player.InLosWith(x) && NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, Container.Player.Location, x, true) < 20);
 
             Location[] minorWaypointKeys = minorWaypoints.Keys.ToArray();
 
@@ -160,9 +166,9 @@ namespace RaidMemberBot.AI.SharedStates
             {
                 if (minorWaypoints.TryGetValue(location, out List<Location> minorWaypointsList))
                 {
-                    minorWaypointsList.RemoveAll(x => x.DistanceToPlayer() < 5);
+                    minorWaypointsList.RemoveAll(x => Container.Player.InLosWith(x) && NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, Container.Player.Location, x, true) < 20);
 
-                    if (location.DistanceToPlayer() < 5 && minorWaypointsList.Count == 0)
+                    if (Container.Player.InLosWith(location) && minorWaypointsList.Count == 0 && NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, Container.Player.Location, location, true) < 20)
                     {
                         majorWaypoints.Remove(location);
                         minorWaypoints.Remove(location);
@@ -249,13 +255,14 @@ namespace RaidMemberBot.AI.SharedStates
             //Console.WriteLine($"DUNGEONEERING TASK: Optimizing sub routes");
             for (int i = 0; i < dungeonWaypoints.Count; i++)
             {
-                if (minorWaypoints.TryGetValue(majorWaypoints.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, dungeonWaypoints[i], x, true)).First(), out List<Location> minorWaypointsList))
+                if (!majorWaypoints.Contains(dungeonWaypoints[i]))
                 {
-                    minorWaypointsList.Add(dungeonWaypoints[i]);
+                    if (minorWaypoints.TryGetValue(majorWaypoints.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, dungeonWaypoints[i], x, true)).First(), out List<Location> minorWaypointsList))
+                    {
+                        minorWaypointsList.Add(dungeonWaypoints[i]);
+                    }
                 }
             }
-
-            minorWaypoints.TryGetValue(majorWaypoints.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, x, destination, true)).First(), out List<Location> locations);
 
             foreach (var minorWaypoint in minorWaypoints)
             {
@@ -274,7 +281,8 @@ namespace RaidMemberBot.AI.SharedStates
 
             if (minorWaypoints.TryGetValue(currentMajorWaypoint, out List<Location> minorWaypointsListFinal))
             {
-                currentMinorWaypoint = minorWaypointsListFinal.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, x, Container.Player.Location, true)).First();
+                currentMinorWaypoint = minorWaypointsListFinal.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, Container.Player.Location, x, true)).First();
+                destination = currentMinorWaypoint;
             }
         }
 

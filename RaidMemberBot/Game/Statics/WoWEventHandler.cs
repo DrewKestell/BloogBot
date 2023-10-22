@@ -44,6 +44,11 @@ namespace RaidMemberBot.Game.Statics
         /// <summary>
         ///     Occurs when the login is rejected by the authentication server
         /// </summary>
+        public event EventHandler OnHandshakeBegin;
+
+        /// <summary>
+        ///     Occurs when the login is rejected by the authentication server
+        /// </summary>
         public event EventHandler OnWrongLogin;
 
         /// <summary>
@@ -354,8 +359,8 @@ namespace RaidMemberBot.Game.Statics
             {
                 try
                 {
-                    _evaluteEvent(parEvent, parArgs); 
-                    //Console.WriteLine($"EVENT HANDLER: {parEvent} {JsonConvert.SerializeObject(parArgs)}");
+                    _evaluteEvent(parEvent, parArgs);
+                    Console.WriteLine($"EVENT HANDLER: {parEvent} {JsonConvert.SerializeObject(parArgs)}");
                 }
                 catch (Exception ex)
                 {
@@ -422,8 +427,16 @@ namespace RaidMemberBot.Game.Statics
                 if (OnWrongLogin == null) return;
                 if (parArgs.Length != 2) return;
                 if ((string)parArgs[0] != "OKAY") return;
-                if ((string)parArgs[1] != "The information you have entered is not valid.") return;
-                OnWrongLogin.Invoke(this, new EventArgs());
+                if (((string)parArgs[1]).Contains("The information you have entered is not valid."))
+                {
+                    OnWrongLogin.Invoke(this, new EventArgs()); 
+                    return;
+                }
+                if (((string)parArgs[1]).Contains("Handshaking"))
+                {
+                    OnHandshakeBegin.Invoke(this, new EventArgs());
+                    return;
+                }
             }
             else if (parEvent == "UPDATE_SELECTED_CHARACTER")
             {

@@ -157,7 +157,12 @@ namespace RaidMemberBot.AI
                             }
                             else
                             {
-                                characterState.CurrentTask = "Idle";
+                                characterState.CurrentTask = "Idle"; 
+                                
+                                if (ObjectManager.Instance.IsIngame)
+                                {
+                                    container.Player.StopAllMovement();
+                                }
                             }
                         }
                         catch (Exception ex)

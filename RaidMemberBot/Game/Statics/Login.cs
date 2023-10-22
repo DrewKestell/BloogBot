@@ -72,8 +72,14 @@ namespace RaidMemberBot.Game.Statics
         /// </summary>
         public void DefaultServerLogin(string accountName)
         {
-            if (LoginState != LoginStates.login) return;
             Lua.Instance.Execute("DefaultServerLogin('" + accountName + "', 'password');");
+        }
+
+        private int MaxCharacterCount => 0x00B42140.ReadAs<int>();
+
+        private string GetCharacterNameAtPos(int index)
+        {
+            return 0xB42144.ReadAs<IntPtr>().Add(0x120 * index + 0x8).ReadString();
         }
 
         /// <summary>
@@ -81,10 +87,23 @@ namespace RaidMemberBot.Game.Statics
         /// </summary>
         public void EnterWorld(int characterSlot)
         {
+            string characterName = GetCharacterNameAtPos(characterSlot);
             if (!Wait.For2("AntiEnterWorldCrash", 500, true)) return;
-
-            Functions.SelectCharacterAtIndex(characterSlot);
+            if (!string.IsNullOrWhiteSpace(characterName))
+            {
+                int? charIndex = null;
+                for (var i = 0; i < MaxCharacterCount; i++)
+                {
+                    var charName = GetCharacterNameAtPos(i);
+                    if (!string.Equals(characterName, charName, StringComparison.InvariantCultureIgnoreCase)) continue;
+                    charIndex = i;
+                    break;
+                }
+                if (charIndex == null) return;
+                Functions.SelectCharacterAtIndex(charIndex.Value);
+            }
             Functions.EnterWorld();
+            return;
         }
     }
 }
