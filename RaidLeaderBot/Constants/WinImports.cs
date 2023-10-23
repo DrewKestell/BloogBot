@@ -58,7 +58,10 @@ namespace RaidLeaderBot
             MemoryFreeType dwFreeType);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        internal static extern IntPtr LoadLibrary(string lpFileName);
+        internal static extern IntPtr LoadLibrary(string lpFileName); 
+        
+        [DllImport("user32.dll")]
+        internal static extern int SetWindowText(IntPtr hWnd, string text);
 
         internal enum MemoryAllocationType
         {

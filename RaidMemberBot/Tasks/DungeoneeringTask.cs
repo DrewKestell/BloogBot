@@ -135,7 +135,8 @@ namespace RaidMemberBot.AI.SharedStates
                 {
                     currentMinorWaypoint = minorWaypointsListFinal.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, x, currentMajorWaypoint, true)).Reverse().First();
                     destination = currentMinorWaypoint;
-                } else
+                }
+                else
                 {
                     destination = currentMajorWaypoint;
                 }
@@ -146,7 +147,8 @@ namespace RaidMemberBot.AI.SharedStates
                 {
                     currentMajorWaypoint = majorWaypoints[0];
                     destination = currentMajorWaypoint;
-                } else
+                }
+                else
                 {
                     Console.WriteLine($"Job's Finished!");
                     Container.Player.StopAllMovement();

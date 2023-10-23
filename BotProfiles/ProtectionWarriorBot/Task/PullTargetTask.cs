@@ -3,7 +3,6 @@ using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
 using RaidMemberBot.Objects;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using static RaidMemberBot.Constants.Enums;

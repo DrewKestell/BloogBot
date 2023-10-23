@@ -47,15 +47,15 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\..\Bot\$(Configuration)\</OutDir>
     <TargetExt>.dll</TargetExt>
-    <IntDir>..\Release\</IntDir>
+    <IntDir>..\$(Configuration)\</IntDir>
     <TargetName>Navigation</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\..\Bot\$(Configuration)\</OutDir>
-    <TargetExt>.mmap</TargetExt>
+    <TargetExt>.dll</TargetExt>
     <TargetName>Navigation</TargetName>
-    <IntDir>..\Debug\</IntDir>
+    <IntDir>..\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

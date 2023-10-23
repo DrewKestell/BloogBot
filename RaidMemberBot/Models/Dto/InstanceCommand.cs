@@ -16,9 +16,14 @@
         SetActivity,
         SetRaidLeader,
         AddPartyMember,
+        SetRaidMember,
+        ConvertToRaid,
+        ConvertToParty,
         GoTo,
+        TeleportTo,
         BeginDungeon,
         MarkTarget,
+        QueuePvP,
         Pull
     }
 }

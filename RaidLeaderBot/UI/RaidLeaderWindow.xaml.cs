@@ -66,8 +66,8 @@ namespace RaidLeaderBot
         private static readonly string _DUNGEON_TEMPLE_OF_AHNQIRAJ = "40 Temple of Ahn'Qiraj (60+++)";
         private static readonly string _DUNGEON_NAXXRAMAS = "40 Naxxramas (60++++)";
 
-        private static readonly Dictionary<string, Tuple<int, int>> _INSTANCE_ENTRANCE_IDS = new Dictionary<string, Tuple<int, int>>() {
-            { _DUNGEON_RAGEFIRE_CHASM, Tuple.Create(389, 2226) }
+        private static readonly Dictionary<string, Tuple<int, int>> _ACTIVITY_TELE_IDS = new Dictionary<string, Tuple<int, int>>() {
+            { _DUNGEON_RAGEFIRE_CHASM, Tuple.Create(389, 209) }
         };
 
         private static readonly Regex _regex = new Regex("[0-9]+");
@@ -158,6 +158,9 @@ namespace RaidLeaderBot
                     if (!_characterStates[i].IsConnected)
                     {
                         _characterStates[i].ProcessId = 0;
+                    } else
+                    {
+                        SetWindowText(Process.GetProcessById((int)_characterStates[i].ProcessId).MainWindowHandle, $"WoW - {_characterStates[i].CharacterName}");
                     }
 
                     return i;
@@ -239,8 +242,6 @@ namespace RaidLeaderBot
                         };
 
                         _socketServer.SendCommandToProcess(characterState.ProcessId, loginCommand);
-                        Console.WriteLine($"{index}: {JsonConvert.SerializeObject(characterState, Formatting.Indented)}");
-                        Console.WriteLine($"{index}: {CommandAction.SetAccountInfo} => {characterState.CharacterName}");
                         return;
 
                     }
@@ -250,12 +251,10 @@ namespace RaidLeaderBot
                         {
                             CommandAction = CommandAction.SetActivity,
                             CommandParam1 = Activity,
-                            CommandParam2 = _INSTANCE_ENTRANCE_IDS[Activity].Item1.ToString()
+                            CommandParam2 = _ACTIVITY_TELE_IDS[Activity].Item1.ToString()
                         };
 
                         _socketServer.SendCommandToProcess(characterState.ProcessId, setActivityCommand);
-                        Console.WriteLine($"{index}: {JsonConvert.SerializeObject(characterState, Formatting.Indented)}");
-                        Console.WriteLine($"{index}: {CommandAction.SetActivity} => {characterState.CharacterName} => {Activity}:{setActivityCommand.CommandParam2}");
                         return;
                     }
                     else if (RaidLeader == null || RaidLeader.ProcessId == 0)
@@ -269,9 +268,6 @@ namespace RaidLeaderBot
                         };
 
                         _socketServer.SendCommandToProcess(characterState.ProcessId, setLeaderCommand);
-
-                        Console.WriteLine($"{index}: {JsonConvert.SerializeObject(characterState, Formatting.Indented)}");
-                        Console.WriteLine($"{index}: {CommandAction.SetRaidLeader} => {characterState.CharacterName} => {RaidLeader.CharacterName}");
                         return;
                     }
                     else if (RaidLeader.CharacterName != characterState.RaidLeader)
@@ -295,13 +291,11 @@ namespace RaidLeaderBot
                         };
 
                         _socketServer.SendCommandToProcess(RaidLeader.ProcessId, addPartyMember);
-                        Console.WriteLine($"{index}: {JsonConvert.SerializeObject(characterState, Formatting.Indented)}");
-                        Console.WriteLine($"{index}: {CommandAction.AddPartyMember} => {RaidLeader.CharacterName} : {characterState.CharacterName}");
                         return;
                     }
                     else if (PartyMembers.All(x => x.InParty))
                     {
-                        if (PartyMembers.All(x => x.MapId == _INSTANCE_ENTRANCE_IDS[Activity].Item1))
+                        if (PartyMembers.All(x => x.MapId == _ACTIVITY_TELE_IDS[Activity].Item1))
                         {
 
                             var beginDungeon = new InstanceCommand()
@@ -310,15 +304,13 @@ namespace RaidLeaderBot
                             };
 
                             _socketServer.SendCommandToProcess(characterState.ProcessId, beginDungeon);
-                            Console.WriteLine($"{index}: {JsonConvert.SerializeObject(characterState, Formatting.Indented)}");
-                            Console.WriteLine($"{index}: {CommandAction.BeginDungeon} => {characterState.CharacterName}");
                             return;
                         }
                         else
                         {
-                            if (characterState.MapId != _INSTANCE_ENTRANCE_IDS[Activity].Item1)
+                            if (characterState.MapId != _ACTIVITY_TELE_IDS[Activity].Item1)
                             {
-                                AreaTriggerTeleport areaTriggerTeleport = SqliteRepository.GetAreaTriggerTeleportById(_INSTANCE_ENTRANCE_IDS[Activity].Item2);
+                                AreaTriggerTeleport areaTriggerTeleport = SqliteRepository.GetAreaTriggerTeleportById(_ACTIVITY_TELE_IDS[Activity].Item2);
                                 var goToCommand = new InstanceCommand()
                                 {
                                     CommandAction = CommandAction.GoTo,
@@ -328,8 +320,6 @@ namespace RaidLeaderBot
                                 };
 
                                 _socketServer.SendCommandToProcess(characterState.ProcessId, goToCommand);
-                                Console.WriteLine($"{index}: {JsonConvert.SerializeObject(characterState, Formatting.Indented)}");
-                                Console.WriteLine($"{index}: {CommandAction.GoTo} => {characterState.CharacterName}");
                                 return;
                             }
                         }
@@ -683,7 +673,7 @@ namespace RaidLeaderBot
                 MemoryProtectionType.PAGE_EXECUTE_READWRITE);
 
             // this seems to help prevent timing issues
-            Thread.Sleep(500);
+            Thread.Sleep(1000);
 
             int error = Marshal.GetLastWin32Error();
             if (error > 0)

@@ -55,7 +55,7 @@ namespace RaidMemberBot.Helpers.GreyMagic
 
             SizeU = (uint)Size;
 
-            Debug.Write("[MarshalCache] " + typeof(T) + " Size: " + SizeU);
+            //Debug.Write("[MarshalCache] " + typeof(T) + " Size: " + SizeU);
 
             // Basically, if any members of the type have a MarshalAs attrib, then we can't just pointer deref. :(
             // This literally means any kind of MarshalAs. Strings, arrays, custom type sizes, etc.

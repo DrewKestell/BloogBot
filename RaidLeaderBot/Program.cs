@@ -18,7 +18,7 @@ namespace RaidLeaderBot
 
             public App(CommandSockerServer socketServer, RaidLeaderBotSettings raidLeaderBotSettings)
             {
-                _socketServer = socketServer; 
+                _socketServer = socketServer;
                 _raidLeaderBotSettings = raidLeaderBotSettings;
 
                 _pathfindingSocketServer = new NavigationSocketServer(raidLeaderBotSettings.PathfindingPort, IPAddress.Parse(raidLeaderBotSettings.ListenAddress));
@@ -38,7 +38,7 @@ namespace RaidLeaderBot
                 base.OnStartup(e);
             }
         }
-        
+
         [STAThread]
         static void Main()
         {

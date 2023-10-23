@@ -160,6 +160,12 @@ namespace RaidMemberBot.Client
             int totalBytesReceived = 0;
 
             int bytesReceived;
+
+            int arrayBeginTokens = 0;
+            int arrayEndTokens = 0;
+
+            int objectBeginTokens = 0;
+            int objectEndTokens = 0;
             do
             {
                 byte[] buffer = new byte[BufferSize];
@@ -179,9 +185,15 @@ namespace RaidMemberBot.Client
 
                 totalBytesReceived += bytesReceived;
 
-                string s = Encoding.UTF8.GetString(messageBuffer);
+                string s = Encoding.UTF8.GetString(buffer);
 
-                if (s.Count(x => x == '{') == s.Count(x => x == '}') && s.Count(x => x == '[') == s.Count(x => x == ']'))
+                arrayBeginTokens += s.Count(x => x == '[');
+                arrayEndTokens += s.Count(x => x == ']');
+
+                objectBeginTokens += s.Count(x => x == '{');
+                objectEndTokens += s.Count(x => x == '}');
+
+                if (arrayBeginTokens == arrayEndTokens && objectBeginTokens == objectEndTokens)
                 {
                     break;
                 }

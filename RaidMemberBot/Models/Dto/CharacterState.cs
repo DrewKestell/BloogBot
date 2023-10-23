@@ -10,6 +10,7 @@
         public string RaidLeader { get; set; }
         public bool IsConnected { get; set; }
         public bool InParty { get; set; }
+        public bool InRaid { get; set; }
         public string CurrentTask { get; set; }
         public ulong Guid { get; set; }
         public string CharacterName { get; set; }
@@ -20,8 +21,8 @@
         public int Rage { get; set; }
         public int Energy { get; set; }
         public bool InCombat { get; set; }
-        public bool IsCasting { get; set; }
-        public bool IsChanneling { get; set; }
+        public int Casting { get; set; }
+        public int Channeling { get; set; }
         public string Location { get; set; }
     }
 }

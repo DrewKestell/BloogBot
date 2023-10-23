@@ -14,6 +14,11 @@ namespace RaidMemberBot.AI
         public Location CurrentWaypoint { get; set; }
         public WoWUnit HostileTarget { get; set; }
         public WoWUnit FriendlyTarget { get; set; }
+        public Func<IClassContainer, Stack<IBotTask>, IBotTask> CreateRestTask { get; }
+        public Func<IClassContainer, Stack<IBotTask>, IBotTask> CreateBuffTask { get; }
+        public Func<IClassContainer, Stack<IBotTask>, IBotTask> CreatePullTargetTask { get; }
+        public Func<IClassContainer, Stack<IBotTask>, IBotTask> CreatePvERotationTask { get; }
+        public Func<IClassContainer, Stack<IBotTask>, IBotTask> CreatePvPRotationTask { get; }
         public ClassContainer(string name,
             Func<IClassContainer, Stack<IBotTask>, IBotTask> createRestState,
             Func<IClassContainer, Stack<IBotTask>, IBotTask> createBuffRotationTask,
@@ -33,15 +38,5 @@ namespace RaidMemberBot.AI
 
             Console.WriteLine($"CLASS CONTAINER: {Name}");
         }
-
-        public Func<IClassContainer, Stack<IBotTask>, IBotTask> CreateRestTask { get; }
-
-        public Func<IClassContainer, Stack<IBotTask>, IBotTask> CreateBuffTask { get; }
-
-        public Func<IClassContainer, Stack<IBotTask>, IBotTask> CreatePullTargetTask { get; }
-
-        public Func<IClassContainer, Stack<IBotTask>, IBotTask> CreatePvERotationTask { get; }
-
-        public Func<IClassContainer, Stack<IBotTask>, IBotTask> CreatePvPRotationTask { get; }
     }
 }

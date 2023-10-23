@@ -48,25 +48,25 @@ namespace RaidMemberBot.Client
                     {
                         _commandSocket.Connect(IPAddress.Parse(raidMemberSettings.ListenAddress), raidMemberSettings.CommandPort);
                     }
-                    catch (Exception e)
+                    catch (SocketException e)
                     {
-                        Console.WriteLine(e.Message);
+                        Console.WriteLine($"{e.Message} {e.ErrorCode} {e.NativeErrorCode} {e.SocketErrorCode}");
                     }
                 }
                 if (_commandSocket.Connected)
                 {
-                    string databaseRequestJson = JsonConvert.SerializeObject(characterState);
+                    string json = JsonConvert.SerializeObject(characterState);
 
-                    _commandSocket.Send(Encoding.ASCII.GetBytes(databaseRequestJson));
+                    _commandSocket.Send(Encoding.ASCII.GetBytes(json));
 
                     byte[] buffer = ReceiveMessage();
 
                     return Encoding.UTF8.GetString(buffer, 0, buffer.Length);
                 }
             }
-            catch (Exception e)
+            catch (SocketException e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine($"{e.Message} {e.ErrorCode} {e.NativeErrorCode} {e.SocketErrorCode}");
                 try
                 {
                     _commandSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -86,6 +86,12 @@ namespace RaidMemberBot.Client
             int totalBytesReceived = 0;
 
             int bytesReceived;
+
+            int arrayBeginTokens = 0;
+            int arrayEndTokens = 0;
+
+            int objectBeginTokens = 0;
+            int objectEndTokens = 0;
             do
             {
                 byte[] buffer = new byte[BufferSize];
@@ -105,9 +111,15 @@ namespace RaidMemberBot.Client
 
                 totalBytesReceived += bytesReceived;
 
-                string s = Encoding.UTF8.GetString(messageBuffer);
+                string s = Encoding.UTF8.GetString(buffer);
 
-                if (s.Count(x => x == '{') == s.Count(x => x == '}') && s.Count(x => x == '[') == s.Count(x => x == ']'))
+                arrayBeginTokens += s.Count(x => x == '[');
+                arrayEndTokens += s.Count(x => x == ']');
+
+                objectBeginTokens += s.Count(x => x == '{');
+                objectEndTokens += s.Count(x => x == '}');
+
+                if (arrayBeginTokens == arrayEndTokens && objectBeginTokens == objectEndTokens)
                 {
                     break;
                 }

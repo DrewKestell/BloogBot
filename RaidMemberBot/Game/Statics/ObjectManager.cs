@@ -335,8 +335,8 @@ namespace RaidMemberBot.Game.Statics
                 var playerGuid = Functions.GetPlayerGuid();
                 if (playerGuid == 0)
                 {
-                    _characterState.IsCasting = false;
-                    _characterState.IsChanneling = false;
+                    _characterState.Casting = 0;
+                    _characterState.Channeling = 0;
                     _characterState.InCombat = false;
                     _characterState.CharacterName = "";
                     _characterState.Zone = "Offline";
@@ -381,11 +381,12 @@ namespace RaidMemberBot.Game.Statics
 
                 _characterState.Guid = playerGuid;
                 _characterState.CharacterName = Player.Name;
-                _characterState.IsCasting = Player.IsCasting;
-                _characterState.IsChanneling = Player.IsChanneling;
+                _characterState.Casting = Player.Casting;
+                _characterState.Channeling = Player.Channeling;
                 _characterState.InCombat = Player.IsInCombat;
                 _characterState.Zone = Player.RealZoneText;
                 _characterState.InParty = ((int)Offsets.Party.leaderGuid).ReadAs<ulong>() > 0;
+                _characterState.InRaid = int.Parse(Lua.Instance.ExecuteWithResult("{0} = GetNumRaidMembers()")[0]) > 0;
                 _characterState.MapId = (int)Player.MapId;
                 _characterState.HealthPercent = Player.HealthPercent;
                 _characterState.ManaPercent = Player.ManaPercent;
