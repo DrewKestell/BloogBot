@@ -10,10 +10,10 @@ namespace RaidMemberBot.ExtensionMethods
     {
         internal static string WriteDown4X4Matrix(this IntPtr ptr)
         {
-            var retList = new List<string[]>();
+            List<string[]> retList = new List<string[]>();
             for (int i = 0; i < 4; i++)
             {
-                var row = new string[4];
+                string[] row = new string[4];
                 for (int x = 0; x < 4; x++)
                 {
                     row[x] = ptr.Add(i * 4 + x * 4 * 4).ReadAs<float>().ToString();
@@ -26,16 +26,16 @@ namespace RaidMemberBot.ExtensionMethods
         private static string PadElementsInLines(this List<string[]> lines, int padding = 1)
         {
             // Calculate maximum numbers for each element accross all lines
-            var numElements = lines[0].Length;
-            var maxValues = new int[numElements];
+            int numElements = lines[0].Length;
+            int[] maxValues = new int[numElements];
             for (int i = 0; i < numElements; i++)
             {
                 maxValues[i] = lines.Max(x => (x.Length > i + 1 && x[i] != null ? x[i].Length : 0)) + padding;
             }
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             // Build the output
             bool isFirst = true;
-            foreach (var line in lines)
+            foreach (string[] line in lines)
             {
                 if (!isFirst)
                 {
@@ -44,7 +44,7 @@ namespace RaidMemberBot.ExtensionMethods
                 isFirst = false;
                 for (int i = 0; i < line.Length; i++)
                 {
-                    var value = line[i];
+                    string value = line[i];
                     // Append the value with padding of the maximum length of any value for this element
                     if (value != null)
                     {

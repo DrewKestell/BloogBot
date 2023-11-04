@@ -443,7 +443,7 @@ namespace RaidMemberBot.Constants
             {
                 get
                 {
-                    var fwdAddr = Flink.ToInt32();
+                    int fwdAddr = Flink.ToInt32();
                     return new ListEntryWrapper()
                     {
                         Header = Flink.ReadAs<LIST_ENTRY>(),
@@ -455,7 +455,7 @@ namespace RaidMemberBot.Constants
             {
                 get
                 {
-                    var bwAddr = Blink.ToInt32();
+                    int bwAddr = Blink.ToInt32();
                     return new ListEntryWrapper()
                     {
                         Header = Flink.ReadAs<LIST_ENTRY>(),

@@ -109,13 +109,17 @@
     <Compile Include="ActivityContainer.cs" />
     <Compile Include="Objects\Location.cs" />
     <Compile Include="Pathfinding\Navigation.cs" />
+    <Compile Include="RaidMemberLauncher.cs" />
     <Compile Include="Repository\SqliteRepository.cs" />
     <Compile Include="Server\DatabaseSocketServer.cs" />
     <Compile Include="Server\BaseSocketServer.cs" />
     <Compile Include="Server\NavigationSocketServer.cs" />
+    <Compile Include="Server\ServerManager.cs" />
     <Compile Include="Settings\RaidLeaderBotSettings.cs" />
+    <Compile Include="RaidLeaderViewModel.cs" />
     <Compile Include="UI\Handlers\CommandHandler.cs" />
     <Compile Include="UI\Converters\InverseBooleanConverter.cs" />
+    <Compile Include="RaidMemberViewModel.cs" />
     <Compile Include="UI\RaidLeaderWindow.xaml.cs">
       <DependentUpon>RaidLeaderWindow.xaml</DependentUpon>
     </Compile>
@@ -128,10 +132,11 @@
     </Compile>
     <Compile Include="Server\CommandSockerServer.cs" />
     <Compile Include="Constants\WinImports.cs" />
+    <Compile Include="RaidPresetViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <Content Include="Settings\raidLeaderBotSettings.json">
+    <Content Include="Settings\RaidLeaderBotSettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="packages.config" />

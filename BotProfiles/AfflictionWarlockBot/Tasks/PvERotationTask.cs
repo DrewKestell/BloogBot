@@ -49,7 +49,7 @@ namespace AfflictionWarlockBot
                 TryCastSpell(DrainSoul, 0, 29);
             }
 
-            var wand = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged);
+            RaidMemberBot.Objects.WoWItem wand = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged);
             if (wand != null && (ObjectManager.Instance.Player.ManaPercent <= 10 || Container.HostileTarget.HealthPercent <= 60 && Container.HostileTarget.HealthPercent > 20 && ObjectManager.Instance.Player.Channeling == 0 && ObjectManager.Instance.Player.IsCasting))
                 Lua.Instance.Execute(WandLuaScript);
             else

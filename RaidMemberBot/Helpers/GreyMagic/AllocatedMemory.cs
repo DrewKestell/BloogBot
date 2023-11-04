@@ -245,7 +245,7 @@ namespace RaidMemberBot.Helpers.GreyMagic
         /// <remarks>Created 2012-02-15</remarks>
         internal static void AlignTo(ref uint address, uint align)
         {
-            var rest = address % align;
+            uint rest = address % align;
             if (rest != 0)
                 address += align - rest;
         }
@@ -259,7 +259,7 @@ namespace RaidMemberBot.Helpers.GreyMagic
         internal static uint CalculateTotalSize(params uint[] sizes)
         {
             uint totalSize = 0;
-            for (var i = 0; i < sizes.Length; i++)
+            for (int i = 0; i < sizes.Length; i++)
             {
                 totalSize += sizes[i];
                 AlignTo(ref totalSize, 4);

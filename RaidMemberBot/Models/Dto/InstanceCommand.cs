@@ -12,7 +12,10 @@
     public enum CommandAction
     {
         None,
-        SetAccountInfo,
+        SetCharacterParams,
+        SetGearParams,
+        SetTalentParams,
+        SetSkillsParams,
         SetActivity,
         SetRaidLeader,
         AddPartyMember,
@@ -21,6 +24,8 @@
         ConvertToParty,
         GoTo,
         TeleportTo,
+        InteractWithWoWObject,
+        UseItemOnWoWObject,
         BeginDungeon,
         MarkTarget,
         QueuePvP,

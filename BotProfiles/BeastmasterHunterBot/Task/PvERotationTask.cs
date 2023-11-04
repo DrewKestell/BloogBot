@@ -57,8 +57,8 @@ namespace BeastMasterHunterBot
 
             Container.Player.StopAllMovement();
 
-            var gun = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged);
-            var canUseRanged = gun != null && Container.Player.Location.GetDistanceTo(target.Location) > 5 && Container.Player.Location.GetDistanceTo(target.Location) < 34;
+            WoWItem gun = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged);
+            bool canUseRanged = gun != null && Container.Player.Location.GetDistanceTo(target.Location) > 5 && Container.Player.Location.GetDistanceTo(target.Location) < 34;
             if (gun == null)
             {
                 Lua.Instance.Execute(AutoAttackLuaScript);

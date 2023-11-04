@@ -75,18 +75,18 @@ namespace RaidMemberBot.Mem
                     if (!ObjectManager.Instance.IsIngame) return false;
                     if (ObjectManager.Instance.Player == null) return false;
                 }
-                var curBytes = Memory.Reader.ReadBytes(Address, _originalBytes.Length);
+                byte[] curBytes = Memory.Reader.ReadBytes(Address, _originalBytes.Length);
                 return !curBytes.SequenceEqual(_originalBytes);
             }
         }
 
         internal bool IsWithinScan(IntPtr scanStartAddress, int size)
         {
-            var scanStart = (int)scanStartAddress;
-            var scanEnd = (int)IntPtr.Add(scanStartAddress, size);
+            int scanStart = (int)scanStartAddress;
+            int scanEnd = (int)IntPtr.Add(scanStartAddress, size);
 
-            var hackStart = (int)Address;
-            var hackEnd = (int)Address + _customBytes.Length;
+            int hackStart = (int)Address;
+            int hackEnd = (int)Address + _customBytes.Length;
 
             if (hackStart >= scanStart && hackStart < scanEnd)
                 return true;

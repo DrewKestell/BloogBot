@@ -11,7 +11,7 @@ namespace RaidMemberBot.Game.Frames.FrameObjects
         internal TaxiNode(int parNodeNumber)
         {
             NodeNumber = parNodeNumber;
-            var result = Lua.Instance.ExecuteWithResult(
+            string[] result = Lua.Instance.ExecuteWithResult(
                 $"{{0}} = TaxiNodeCost({parNodeNumber}) {{1}} = TaxiNodeName({parNodeNumber}) {{2}} = TaxiNodeGetType({parNodeNumber})");
             Cost = Convert.ToInt32(result[0]);
             Name = result[1];

@@ -1,102 +1,63 @@
 {
   "PathToWoW": "E:\\repos\\Elysium Project Game Client\\WoW.exe",
   "CommandPort": 8087,
-  "PathfindingPort": 8088,
   "DatabasePort": 8089,
+  "PathfindingPort": 8088,
   "ListenAddress": "0.0.0.0",
-  "Activity": "10 [ Ragefire Chasm (13-18)",
-  "ShouldRaid": false,
-  "ActivityPresets": {
-    "Questing": [
-      [
-        {
-          "AccountName": "OrSh1",
-          "CharacterSlot": 1,
-          "BotProfileName": "Elemental Shaman"
-        }
-      ]
-    ],
-    "10 [ Ragefire Chasm (13-18)": [
-      [
-        {
-          "AccountName": "OrWr1",
-          "CharacterSlot": 1,
-          "BotProfileName": "Protection Warrior"
-        },
-        {
-          "AccountName": "OrSh1",
-          "CharacterSlot": 1,
-          "BotProfileName": "Elemental Shaman"
-        },
-        {
-          "AccountName": "OrWl1",
-          "CharacterSlot": 1,
-          "BotProfileName": "Affliction Warlock"
-        },
-        {
-          "AccountName": "OrHu1",
-          "CharacterSlot": 1,
-          "BotProfileName": "Beast Master Hunter"
-        },
-        {
-          "AccountName": "TrPr1",
-          "CharacterSlot": 1,
-          "BotProfileName": "Shadow Priest"
-        }
-      ],
-      [
-        {
-          "AccountName": "OrWr1",
-          "CharacterSlot": 1,
-          "BotProfileName": "Protection Warrior"
-        },
-        {
-          "AccountName": "OrSh1",
-          "CharacterSlot": 1,
-          "BotProfileName": "Elemental Shaman"
-        }
-      ]
-    ],
-    "10 The Scarlet Monastery - Library (29-39)": [
-      [
-        {
-          "AccountName": "OrWr1",
-          "CharacterSlot": 1,
-          "BotProfileName": "Protection Warrior"
-        },
-        {
-          "AccountName": "OrSh1",
-          "CharacterSlot": 1,
-          "BotProfileName": "Elemental Shaman"
-        }
-      ],
-      [
-        {
-          "AccountName": "OrWr1",
-          "CharacterSlot": 1,
-          "BotProfileName": "Protection Warrior"
-        },
-        {
-          "AccountName": "OrWl1",
-          "CharacterSlot": 1,
-          "BotProfileName": "Affliction Warlock"
-        },
-        {
-          "AccountName": "OrHu1",
-          "CharacterSlot": 2,
-          "BotProfileName": "Beast Master Hunter"
-        },
-        {
-          "AccountName": "TrMa1",
-          "CharacterSlot": 5,
-          "BotProfileName": "Frost Mage"
-        },
-        {
-          "AccountName": "OrSh1",
-          "CharacterSlot": 1,
-          "BotProfileName": "Elemental Shaman"
-        }
-      ]
+  "ActivityPresets": [
+    [
+      {
+        "Activity": 1,
+        "IsAlliance": true,
+        "RaidMemberPresets": [
+          {
+            "Level": 14,
+            "Race": 0,
+            "Class": 1,
+            "IsMainTank": true,
+            "IsOffTank": false,
+            "IsMainHealer": false,
+            "IsOffHealer": false,
+            "ShouldCleanse": false,
+            "ShouldRebuff": false,
+            "IsRole1": false,
+            "IsRole2": false,
+            "IsRole3": false,
+            "IsRole4": false,
+            "IsRole5": false,
+            "IsRole6": false,
+            "TalentsAndSpells": [],
+            "EquipmentItems": {},
+            "EquipmentEnchants": {}
+          }
+        ]
+      },
+      {
+        "Activity": 1,
+        "IsAlliance": false,
+        "RaidMemberPresets": [
+          {
+            "Level": 14,
+            "Race": 4,
+            "Class": 1,
+            "IsMainTank": true,
+            "IsOffTank": false,
+            "IsMainHealer": false,
+            "IsOffHealer": false,
+            "ShouldCleanse": false,
+            "ShouldRebuff": false,
+            "IsRole1": false,
+            "IsRole2": false,
+            "IsRole3": false,
+            "IsRole4": false,
+            "IsRole5": false,
+            "IsRole6": false,
+            "TalentsAndSpells": [],
+            "EquipmentItems": {},
+            "EquipmentEnchants": {}
+          }
+        ]
+      }
     ]
-  }
+  ]
 }

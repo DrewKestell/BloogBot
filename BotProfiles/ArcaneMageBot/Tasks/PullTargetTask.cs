@@ -30,7 +30,7 @@ namespace ArcaneMageBot
                 return;
             }
 
-            var distanceToTarget = Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location);
+            float distanceToTarget = Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location);
             if (distanceToTarget < 27)
             {
                 if (Container.Player.IsMoving)
@@ -48,7 +48,7 @@ namespace ArcaneMageBot
             }
             else
             {
-                var nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
+                RaidMemberBot.Objects.Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
                 Container.Player.MoveToward(nextWaypoint[0]);
             }
         }

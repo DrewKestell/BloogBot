@@ -21,7 +21,7 @@ namespace RaidMemberBot.Game.Statics
             WoWEventHandler.Instance.AuraChanged += (sender, args) =>
             {
                 if (args.AffectedUnit.ToLower() != "target") return;
-                var guid = ObjectManager.Instance.Player.TargetGuid;
+                ulong guid = ObjectManager.Instance.Player.TargetGuid;
                 if (guid == 0) return;
                 if (ObjectManager.Instance.Npcs.FirstOrDefault(i => i.Guid == guid) == null) return;
                 AddDottedUnit(guid);
@@ -50,24 +50,24 @@ namespace RaidMemberBot.Game.Statics
                 {
                     lock (listLock)
                     {
-                        var dottedUnitsToRemove =
+                        List<KeyValuePair<ulong, int>> dottedUnitsToRemove =
                             dottedUnits.Where(kvp => Environment.TickCount - kvp.Value >= 40000).ToList();
                         foreach (
-                            var item in dottedUnitsToRemove)
+                            KeyValuePair<ulong, int> item in dottedUnitsToRemove)
                             dottedUnits.Remove(item.Key);
-                        var player = ObjectManager.Instance.Player;
-                        var tmp = new List<WoWUnit>();
-                        var maybe = new List<WoWUnit>();
-                        var units = ObjectManager.Instance.Units;
-                        foreach (var i in units)
+                        LocalPlayer player = ObjectManager.Instance.Player;
+                        List<WoWUnit> tmp = new List<WoWUnit>();
+                        List<WoWUnit> maybe = new List<WoWUnit>();
+                        List<WoWUnit> units = ObjectManager.Instance.Units;
+                        foreach (WoWUnit i in units)
                         {
-                            var basicCheck = i.IsMob &&
+                            bool basicCheck = i.IsMob &&
                                              i.Health > 0 &&
                                              i.Reaction != UnitReaction.Friendly
                                              && !i.IsPlayerPet;
                             if (!basicCheck) continue;
 
-                            var OnMe = i.TargetGuid == player.Guid;
+                            bool OnMe = i.TargetGuid == player.Guid;
                             if (OnMe)
                             {
                                 tmp.Add(i);
@@ -75,22 +75,22 @@ namespace RaidMemberBot.Game.Statics
                             }
                             if (player.HasPet)
                             {
-                                var pet = ObjectManager.Instance.Pet;
-                                var OnPet = pet != null && i.TargetGuid == pet.Guid;
+                                LocalPet pet = ObjectManager.Instance.Pet;
+                                bool OnPet = pet != null && i.TargetGuid == pet.Guid;
                                 if (OnPet)
                                 {
                                     tmp.Add(i);
                                     continue;
                                 }
                             }
-                            var TappedButNoTarget = i.TappedByMe && i.TargetGuid == 0;
-                            var Under100 = i.HealthPercent != 100;
+                            bool TappedButNoTarget = i.TappedByMe && i.TargetGuid == 0;
+                            bool Under100 = i.HealthPercent != 100;
                             if (TappedButNoTarget && Under100)
                             {
                                 tmp.Add(i);
                                 continue;
                             }
-                            var DebuffedByPlayer = i.HealthPercent == 100 &&
+                            bool DebuffedByPlayer = i.HealthPercent == 100 &&
                                                    (i.Debuffs.Count > 0 || i.IsCrowdControlled) &&
                                                    dottedUnits.ContainsKey(i.Guid);
                             if (TappedButNoTarget && DebuffedByPlayer)

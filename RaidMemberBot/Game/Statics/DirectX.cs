@@ -50,15 +50,15 @@ namespace RaidMemberBot.Game.Statics
 
         private DirectX()
         {
-            var vTable = GetEndScene.Instance.ToVTablePointer();
+            IntPtr vTable = GetEndScene.Instance.ToVTablePointer();
             _endSceneOriginal = Memory.Reader.RegisterDelegate<Direct3D9EndScene>(vTable.ReadAs<IntPtr>());
             _endSceneDetour = new Direct3D9EndScene(EndSceneHook);
 
-            var addrToDetour = Marshal.GetFunctionPointerForDelegate(_endSceneDetour);
+            IntPtr addrToDetour = Marshal.GetFunctionPointerForDelegate(_endSceneDetour);
 
             _mtId = Process.GetCurrentProcess().Threads[0].Id;
 
-            var directXvTableHook = new Hack(vTable, BitConverter.GetBytes((int)addrToDetour), "DirectXVTableHook");
+            Hack directXvTableHook = new Hack(vTable, BitConverter.GetBytes((int)addrToDetour), "DirectXVTableHook");
             directXvTableHook.Apply();
         }
 
@@ -95,7 +95,7 @@ namespace RaidMemberBot.Game.Statics
                     _timeBetweenFrame = Environment.TickCount - _lastFrameTick;
                     if (_timeBetweenFrame < 15)
                     {
-                        var newCount = Environment.TickCount;
+                        int newCount = Environment.TickCount;
                         _waitTilNextFrame = 15 - _timeBetweenFrame;
                         newCount += _waitTilNextFrame;
                         while (Environment.TickCount < newCount)
@@ -138,16 +138,16 @@ namespace RaidMemberBot.Game.Statics
         /// <returns></returns>
         public Camera GetCurrentCamera()
         {
-            var basePtr = (Memory.Reader.ImageBase + 0x0074B2BC).ReadAs<IntPtr>().Add(0x000065B8).ReadAs<IntPtr>();
-            var aspectRatio = basePtr.Add(0x44).ReadAs<float>();
-            var fov = basePtr.Add(0x40).ReadAs<float>();
-            var nearClip = basePtr.Add(0x38).ReadAs<float>();
-            var farClip = basePtr.Add(0x3C).ReadAs<float>();
-            var xyz = basePtr.Add(0x8).ReadAs<_XYZ>();
-            var eye = new Vector3(xyz.X, xyz.Y, xyz.Z);
+            IntPtr basePtr = (Memory.Reader.ImageBase + 0x0074B2BC).ReadAs<IntPtr>().Add(0x000065B8).ReadAs<IntPtr>();
+            float aspectRatio = basePtr.Add(0x44).ReadAs<float>();
+            float fov = basePtr.Add(0x40).ReadAs<float>();
+            float nearClip = basePtr.Add(0x38).ReadAs<float>();
+            float farClip = basePtr.Add(0x3C).ReadAs<float>();
+            _XYZ xyz = basePtr.Add(0x8).ReadAs<_XYZ>();
+            Vector3 eye = new Vector3(xyz.X, xyz.Y, xyz.Z);
 
-            var mat = basePtr.Add(0x14);
-            var matrix = new Matrix()
+            IntPtr mat = basePtr.Add(0x14);
+            Matrix matrix = new Matrix()
             {
                 M11 = mat.ReadAs<float>(),
                 M12 = mat.Add(4).ReadAs<float>(),
@@ -159,11 +159,11 @@ namespace RaidMemberBot.Game.Statics
                 M32 = mat.Add(28).ReadAs<float>(),
                 M33 = mat.Add(32).ReadAs<float>(),
             };
-            var projectionMatrix = Matrix.PerspectiveFovRH(fov * 0.6f, aspectRatio, nearClip, farClip);
-            var lookAt = new Vector3(eye.X + matrix.M11, eye.Y + matrix.M12, eye.Z + matrix.M13);
-            var up = new Vector3(0, 0, 1);
-            var viewport = Viewport;
-            var viewMatrix = Matrix.LookAtRH(eye, lookAt, up);
+            Matrix projectionMatrix = Matrix.PerspectiveFovRH(fov * 0.6f, aspectRatio, nearClip, farClip);
+            Vector3 lookAt = new Vector3(eye.X + matrix.M11, eye.Y + matrix.M12, eye.Z + matrix.M13);
+            Vector3 up = new Vector3(0, 0, 1);
+            RawViewport viewport = Viewport;
+            Matrix viewMatrix = Matrix.LookAtRH(eye, lookAt, up);
 
             return new Camera
             {
@@ -186,10 +186,10 @@ namespace RaidMemberBot.Game.Statics
         /// <returns></returns>
         public Vector2 World2Screen(Location worldLocation)
         {
-            var worldMatrix = Matrix.Identity;
-            var cam = GetCurrentCamera();
-            var pos = new Vector3(worldLocation.X, worldLocation.Y, worldLocation.Z);
-            var projected = Vector3.Project(pos, 0f, 0f, cam.Viewport.Width, cam.Viewport.Height, cam.NearClip, cam.FarClip, worldMatrix * cam.ViewMatrix * cam.ProjectionMatrix);
+            Matrix worldMatrix = Matrix.Identity;
+            Camera cam = GetCurrentCamera();
+            Vector3 pos = new Vector3(worldLocation.X, worldLocation.Y, worldLocation.Z);
+            Vector3 projected = Vector3.Project(pos, 0f, 0f, cam.Viewport.Width, cam.Viewport.Height, cam.NearClip, cam.FarClip, worldMatrix * cam.ViewMatrix * cam.ProjectionMatrix);
             return new Vector2(projected.X, projected.Y);
         }
     }

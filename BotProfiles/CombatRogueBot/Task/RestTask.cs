@@ -17,7 +17,7 @@ namespace CombatRogueBot
 
         public void Update()
         {
-            var readyToPop = Container.Player.HealthPercent >= 95
+            bool readyToPop = Container.Player.HealthPercent >= 95
                 || Container.Player.HealthPercent >= 80 && !Container.Player.IsEating
                 || ObjectManager.Instance.Player.IsInCombat
                 || ObjectManager.Instance.Units.Any(u => u.TargetGuid == ObjectManager.Instance.Player.Guid);
@@ -28,11 +28,11 @@ namespace CombatRogueBot
                 Container.Player.Stand();
                 BotTasks.Pop();
 
-                var foodCount = foodItem == null ? 0 : Inventory.Instance.GetItemCount(foodItem.Id);
+                int foodCount = foodItem == null ? 0 : Inventory.Instance.GetItemCount(foodItem.Id);
 
                 if (!InCombat && foodCount == 0)
                 {
-                    var foodToBuy = 28 - (foodCount / stackCount);
+                    int foodToBuy = 28 - (foodCount / stackCount);
                     //var itemsToBuy = new Dictionary<string, int>
                     //{
                     //    { container.BotSettings.Food, foodToBuy }

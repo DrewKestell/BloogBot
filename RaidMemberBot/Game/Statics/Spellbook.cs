@@ -36,18 +36,18 @@ namespace RaidMemberBot.Game.Statics
 
         private Spellbook()
         {
-            var tmpPlayerSpells = new Dictionary<string, uint[]>();
+            Dictionary<string, uint[]> tmpPlayerSpells = new Dictionary<string, uint[]>();
             const uint currentPlayerSpellPtr = 0x00B700F0;
             uint index = 0;
             while (index < 1024)
             {
-                var currentSpellId = (currentPlayerSpellPtr + 4 * index).ReadAs<uint>();
+                uint currentSpellId = (currentPlayerSpellPtr + 4 * index).ReadAs<uint>();
                 if (currentSpellId == 0) break;
-                var entryPtr = ((0x00C0D780 + 8).ReadAs<uint>() + currentSpellId * 4).ReadAs<uint>();
+                uint entryPtr = ((0x00C0D780 + 8).ReadAs<uint>() + currentSpellId * 4).ReadAs<uint>();
 
-                var entrySpellId = entryPtr.ReadAs<uint>();
-                var namePtr = (entryPtr + 0x1E0).ReadAs<uint>();
-                var name = namePtr.ReadString();
+                uint entrySpellId = entryPtr.ReadAs<uint>();
+                uint namePtr = (entryPtr + 0x1E0).ReadAs<uint>();
+                string name = namePtr.ReadString();
 
 #if DEBUG
                 Console.WriteLine(entrySpellId + " " + name);
@@ -55,7 +55,7 @@ namespace RaidMemberBot.Game.Statics
 
                 if (tmpPlayerSpells.ContainsKey(name))
                 {
-                    var tmpIds = new List<uint>();
+                    List<uint> tmpIds = new List<uint>();
                     tmpIds.AddRange(tmpPlayerSpells[name]);
                     tmpIds.Add(entrySpellId);
                     tmpPlayerSpells[name] = tmpIds.ToArray();
@@ -86,7 +86,7 @@ namespace RaidMemberBot.Game.Statics
         {
             get
             {
-                var player = ObjectManager.Instance.Player;
+                LocalPlayer player = ObjectManager.Instance.Player;
                 if (player == null) return false;
                 // ReSharper disable once SwitchStatementMissingSomeCases
                 switch (player.Class)
@@ -117,15 +117,15 @@ namespace RaidMemberBot.Game.Statics
             if (parId >= (0x00C0D780 + 0xC).ReadAs<uint>() ||
                 parId <= 0)
                 return "";
-            var entryPtr = ((uint)((0x00C0D780 + 8).ReadAs<uint>() + parId * 4)).ReadAs<uint>();
-            var namePtr = (entryPtr + 0x1E0).ReadAs<uint>();
+            uint entryPtr = ((uint)((0x00C0D780 + 8).ReadAs<uint>() + parId * 4)).ReadAs<uint>();
+            uint namePtr = (entryPtr + 0x1E0).ReadAs<uint>();
             return namePtr.ReadString();
         }
 
         public int GetId(string parName, int parRank = -1)
         {
             if (!PlayerSpells.ContainsKey(parName)) return 0;
-            var maxRank = PlayerSpells[parName].Length;
+            int maxRank = PlayerSpells[parName].Length;
             if (parRank < 1 || parRank > maxRank)
                 return (int)PlayerSpells[parName][maxRank - 1];
             return (int)PlayerSpells[parName][parRank - 1];
@@ -155,9 +155,9 @@ namespace RaidMemberBot.Game.Statics
             }
 
 
-            var spellEscaped = parName.Replace("'", "\\'");
-            var rankText = parRank != -1 ? $"(Rank {parRank})" : "";
-            var spellCastString = $"CastSpellByName('{spellEscaped}{rankText}')";
+            string spellEscaped = parName.Replace("'", "\\'");
+            string rankText = parRank != -1 ? $"(Rank {parRank})" : "";
+            string spellCastString = $"CastSpellByName('{spellEscaped}{rankText}')";
             Lua.Instance.Execute(spellCastString);
         }
 
@@ -169,7 +169,7 @@ namespace RaidMemberBot.Game.Statics
         /// <param name="parRank">Rank of the spell</param>
         public void CastWait(string parName, int parBlacklistForMs, int parRank = -1)
         {
-            var currentCast = ObjectManager.Instance.Player.CastingAsName;
+            string currentCast = ObjectManager.Instance.Player.CastingAsName;
             //If we are casting do nothing
             if (currentCast != "")
                 return;
@@ -211,7 +211,7 @@ namespace RaidMemberBot.Game.Statics
         /// <returns></returns>
         public bool IsSpellReady(string parName)
         {
-            var id = GetId(parName);
+            int id = GetId(parName);
             return id != 0 && Functions.IsSpellReady(id);
         }
 
@@ -235,7 +235,7 @@ namespace RaidMemberBot.Game.Statics
             Lua.Instance.Execute(attack);
             if (Wait.For("AutoAttackTimer12", 1250))
             {
-                var target = ObjectManager.Instance.Target;
+                WoWUnit target = ObjectManager.Instance.Target;
                 if (target == null) return;
                 ObjectManager.Instance.Player.DisableCtm();
                 ObjectManager.Instance.Player.RightClick(target);
@@ -306,10 +306,10 @@ namespace RaidMemberBot.Game.Statics
         /// </summary>
         public void CancelShapeshift()
         {
-            var player = ObjectManager.Instance.Player;
+            LocalPlayer player = ObjectManager.Instance.Player;
             if (player == null) return;
             if (!IsShapeShifted) return;
-            foreach (var x in player.Buffs)
+            foreach (Spell x in player.Buffs)
             {
                 if (x.Name.Contains("Form"))
                     Lua.Instance.Execute("CastSpellByName('" + x.Name + "')");

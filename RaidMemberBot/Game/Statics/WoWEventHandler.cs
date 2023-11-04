@@ -373,7 +373,7 @@ namespace RaidMemberBot.Game.Statics
         {
             if (OnEvent != null)
             {
-                var args = new OnEventArgs(parEvent, parArgs);
+                OnEventArgs args = new OnEventArgs(parEvent, parArgs);
                 OnEvent.Invoke(this, args);
             }
 
@@ -413,11 +413,11 @@ namespace RaidMemberBot.Game.Statics
                 // You receive loot: |cff9d9d9d|Hitem:7098:0:0:0|h[Splintered Tusk]|h|rx2.
                 if (OnLoot == null)
                     return;
-                var arg1 = (string)parArgs[0];
-                var argArr = arg1.Split('|');
-                var itemId = Convert.ToInt32(argArr[2].Split(':')[1]);
-                var itemName = argArr[3].Substring(2, argArr[3].Length - 3);
-                var itemCount = 1;
+                string arg1 = (string)parArgs[0];
+                string[] argArr = arg1.Split('|');
+                int itemId = Convert.ToInt32(argArr[2].Split(':')[1]);
+                string itemName = argArr[3].Substring(2, argArr[3].Length - 3);
+                int itemCount = 1;
                 if (argArr[5].Length != 2)
                     itemCount = Convert.ToInt32(argArr[5].Substring(2, argArr[5].Length - 3));
                 OnLoot.Invoke(this, new OnLootArgs(itemId, itemName, itemCount));
@@ -493,7 +493,7 @@ namespace RaidMemberBot.Game.Statics
             }
             else if (parEvent == "CHAT_MSG_SPELL_SELF_DAMAGE")
             {
-                var messageText = (string)parArgs[0];
+                string messageText = (string)parArgs[0];
                 if (messageText.Contains("Heroic Strike") || messageText.Contains("Cleave"))
                     OnSlamReady?.Invoke(null, new EventArgs());
             }
@@ -506,92 +506,92 @@ namespace RaidMemberBot.Game.Statics
             else if (parEvent == "CHAT_MSG_SAY")
             {
                 if (OnChatMessage == null) return;
-                var unitName = (string)parArgs[1];
-                var chatType = "Say";
-                var chatTag = (string)parArgs[5];
-                var chatMessage = (string)parArgs[0];
+                string unitName = (string)parArgs[1];
+                string chatType = "Say";
+                string chatTag = (string)parArgs[5];
+                string chatMessage = (string)parArgs[0];
 
-                var args = new ChatMessageArgs(ChatSenderType.Player, chatTag, unitName, chatType, chatMessage);
+                ChatMessageArgs args = new ChatMessageArgs(ChatSenderType.Player, chatTag, unitName, chatType, chatMessage);
 
                 OnChatMessage.Invoke(this, args);
             }
             else if (parEvent == "CHAT_MSG_MONSTER_SAY")
             {
                 if (OnChatMessage == null) return;
-                var unitName = (string)parArgs[1];
-                var chatType = "Say";
-                var chatTag = (string)parArgs[5];
-                var chatMessage = (string)parArgs[0];
-                var args = new ChatMessageArgs(ChatSenderType.Npc, chatTag, unitName, chatType, chatMessage);
+                string unitName = (string)parArgs[1];
+                string chatType = "Say";
+                string chatTag = (string)parArgs[5];
+                string chatMessage = (string)parArgs[0];
+                ChatMessageArgs args = new ChatMessageArgs(ChatSenderType.Npc, chatTag, unitName, chatType, chatMessage);
                 OnChatMessage.Invoke(this, args);
             }
             else if (parEvent == "CHAT_MSG_MONSTER_YELL")
             {
                 if (OnChatMessage == null) return;
-                var unitName = (string)parArgs[1];
-                var chatType = "Yell";
-                var chatTag = (string)parArgs[5];
-                var chatMessage = (string)parArgs[0];
-                var args = new ChatMessageArgs(ChatSenderType.Npc, chatTag, unitName, chatType, chatMessage);
+                string unitName = (string)parArgs[1];
+                string chatType = "Yell";
+                string chatTag = (string)parArgs[5];
+                string chatMessage = (string)parArgs[0];
+                ChatMessageArgs args = new ChatMessageArgs(ChatSenderType.Npc, chatTag, unitName, chatType, chatMessage);
                 OnChatMessage.Invoke(this, args);
             }
             else if (parEvent == "CHAT_MSG_YELL")
             {
                 if (OnChatMessage == null) return;
-                var unitName = (string)parArgs[1];
-                var chatType = "Yell";
-                var chatTag = (string)parArgs[5];
-                var chatMessage = (string)parArgs[0];
-                var args = new ChatMessageArgs(ChatSenderType.Player, chatTag, unitName, chatType, chatMessage);
+                string unitName = (string)parArgs[1];
+                string chatType = "Yell";
+                string chatTag = (string)parArgs[5];
+                string chatMessage = (string)parArgs[0];
+                ChatMessageArgs args = new ChatMessageArgs(ChatSenderType.Player, chatTag, unitName, chatType, chatMessage);
                 OnChatMessage.Invoke(this, args);
             }
             else if (parEvent == "CHAT_MSG_CHANNEL")
             {
                 if (OnChatMessage == null) return;
-                var unitName = (string)parArgs[1];
-                var chatType = "Channel " + (int)parArgs[7];
-                var chatTag = (string)parArgs[5];
-                var chatMessage = (string)parArgs[0];
-                var args = new ChatMessageArgs(ChatSenderType.Player, chatTag, unitName, chatType, chatMessage);
+                string unitName = (string)parArgs[1];
+                string chatType = "Channel " + (int)parArgs[7];
+                string chatTag = (string)parArgs[5];
+                string chatMessage = (string)parArgs[0];
+                ChatMessageArgs args = new ChatMessageArgs(ChatSenderType.Player, chatTag, unitName, chatType, chatMessage);
                 OnChatMessage.Invoke(this, args);
             }
             else if (parEvent == "CHAT_MSG_RAID")
             {
                 if (OnChatMessage == null) return;
-                var unitName = (string)parArgs[1];
-                var chatType = "Raid";
-                var chatTag = (string)parArgs[5];
-                var chatMessage = (string)parArgs[0];
-                var args = new ChatMessageArgs(ChatSenderType.Player, chatTag, unitName, chatType, chatMessage);
+                string unitName = (string)parArgs[1];
+                string chatType = "Raid";
+                string chatTag = (string)parArgs[5];
+                string chatMessage = (string)parArgs[0];
+                ChatMessageArgs args = new ChatMessageArgs(ChatSenderType.Player, chatTag, unitName, chatType, chatMessage);
                 OnChatMessage.Invoke(this, args);
             }
             else if (parEvent == "CHAT_MSG_GUILD")
             {
                 if (OnChatMessage == null) return;
-                var unitName = (string)parArgs[1];
-                var chatTag = (string)parArgs[5];
-                var chatMessage = (string)parArgs[0];
-                var args = new ChatMessageArgs(ChatSenderType.Player, chatTag, unitName, "Guild", chatMessage);
+                string unitName = (string)parArgs[1];
+                string chatTag = (string)parArgs[5];
+                string chatMessage = (string)parArgs[0];
+                ChatMessageArgs args = new ChatMessageArgs(ChatSenderType.Player, chatTag, unitName, "Guild", chatMessage);
                 OnChatMessage.Invoke(this, args);
             }
             else if (parEvent == "CHAT_MSG_PARTY")
             {
                 if (OnChatMessage == null) return;
-                var unitName = (string)parArgs[1];
-                var chatType = "Party";
-                var chatTag = (string)parArgs[5];
-                var chatMessage = (string)parArgs[0];
-                var args = new ChatMessageArgs(ChatSenderType.Player, chatTag, unitName, chatType, chatMessage);
+                string unitName = (string)parArgs[1];
+                string chatType = "Party";
+                string chatTag = (string)parArgs[5];
+                string chatMessage = (string)parArgs[0];
+                ChatMessageArgs args = new ChatMessageArgs(ChatSenderType.Player, chatTag, unitName, chatType, chatMessage);
                 OnChatMessage.Invoke(this, args);
             }
             else if (parEvent == "CHAT_MSG_WHISPER")
             {
                 if (OnChatMessage == null) return;
-                var unitName = (string)parArgs[1];
-                var chatType = "Whisper";
-                var chatTag = (string)parArgs[5];
-                var chatMessage = (string)parArgs[0];
-                var args = new ChatMessageArgs(ChatSenderType.Player, chatTag, unitName, chatType, chatMessage);
+                string unitName = (string)parArgs[1];
+                string chatType = "Whisper";
+                string chatTag = (string)parArgs[5];
+                string chatMessage = (string)parArgs[0];
+                ChatMessageArgs args = new ChatMessageArgs(ChatSenderType.Player, chatTag, unitName, chatType, chatMessage);
                 OnChatMessage.Invoke(this, args);
             }
             else if (parEvent == "DUEL_REQUESTED")
@@ -601,8 +601,8 @@ namespace RaidMemberBot.Game.Statics
             else if (parEvent == "GUILD_INVITE_REQUEST")
             {
                 if (OnGuildInvite == null) return;
-                var player = (string)parArgs[0];
-                var guild = (string)parArgs[1];
+                string player = (string)parArgs[0];
+                string guild = (string)parArgs[1];
                 OnGuildInvite.Invoke(this, new GuildInviteArgs(player, guild));
             }
             else if (parEvent == "TRADE_SHOW")
@@ -648,9 +648,9 @@ namespace RaidMemberBot.Game.Statics
             else if (parEvent == "CHAT_MSG_COMBAT_XP_GAIN")
             {
                 if (OnXpGain == null) return;
-                var str = (string)parArgs[0];
-                var regex = new Regex("(?i)you gain [0-9]+");
-                var match = regex.Match(str);
+                string str = (string)parArgs[0];
+                Regex regex = new Regex("(?i)you gain [0-9]+");
+                Match match = regex.Match(str);
                 regex = new Regex("[0-9]+");
                 str = regex.Match(match.Value).Value;
                 OnXpGain?.Invoke(this, new OnXpGainArgs(Convert.ToInt32(str)));

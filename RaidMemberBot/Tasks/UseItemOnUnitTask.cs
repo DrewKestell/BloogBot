@@ -37,7 +37,7 @@ namespace RaidMemberBot.AI.SharedStates
             }
             else
             {
-                var nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
+                Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
                 Container.Player.MoveToward(nextWaypoint[0]);
             }
 

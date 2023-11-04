@@ -21,12 +21,12 @@ namespace RaidMemberBot.Game.Frames
 
         private TaxiFrame()
         {
-            var result = Lua.Instance.ExecuteWithResult("{0} = NumTaxiNodes()");
+            string[] result = Lua.Instance.ExecuteWithResult("{0} = NumTaxiNodes()");
             NodesAvailable = Convert.ToInt32(result[0]);
             _Nodes.Clear();
-            for (var i = 0; i < NodesAvailable; i++)
+            for (int i = 0; i < NodesAvailable; i++)
             {
-                var tni = new TaxiNodeInterface(i + 1);
+                TaxiNodeInterface tni = new TaxiNodeInterface(i + 1);
                 if (tni.Status == "NONE") continue;
                 _Nodes.Add(tni);
                 if (tni.Status == "CURRENT")
@@ -82,7 +82,7 @@ namespace RaidMemberBot.Game.Frames
                 _isOpen = false;
                 _abort = false;
 
-                var tmp = new TaxiFrame();
+                TaxiFrame tmp = new TaxiFrame();
                 if (_abort) return;
                 _instance = tmp;
                 _isOpen = true;
@@ -114,7 +114,7 @@ namespace RaidMemberBot.Game.Frames
         /// <param name="parNodeName">Name of the node.</param>
         public void SelectNodeByName(string parNodeName)
         {
-            foreach (var x in Nodes)
+            foreach (TaxiNode x in Nodes)
                 if (x.Name == parNodeName)
                 {
                     Lua.Instance.Execute("TakeTaxiNode(" + x.NodeNumber + ")");

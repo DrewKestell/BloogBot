@@ -41,7 +41,7 @@ namespace ProtectionWarriorBot
                 return;
             }
 
-            var distanceToTarget = Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location);
+            float distanceToTarget = Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location);
 
             if (distanceToTarget < 25 && distanceToTarget > 8 && Container.Player.InLosWith(Container.HostileTarget))
             {

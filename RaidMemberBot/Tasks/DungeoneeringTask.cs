@@ -164,7 +164,7 @@ namespace RaidMemberBot.AI.SharedStates
 
             Location[] minorWaypointKeys = minorWaypoints.Keys.ToArray();
 
-            foreach (var location in minorWaypointKeys)
+            foreach (Location location in minorWaypointKeys)
             {
                 if (minorWaypoints.TryGetValue(location, out List<Location> minorWaypointsList))
                 {
@@ -266,7 +266,7 @@ namespace RaidMemberBot.AI.SharedStates
                 }
             }
 
-            foreach (var minorWaypoint in minorWaypoints)
+            foreach (KeyValuePair<Location, List<Location>> minorWaypoint in minorWaypoints)
             {
                 if (minorWaypoints.TryGetValue(minorWaypoint.Key, out List<Location> minorWaypointsList))
                 {
@@ -441,7 +441,7 @@ namespace RaidMemberBot.AI.SharedStates
                 CreatureTemplate creatureTemplate = DatabaseClient.Instance.GetCreatureTemplateById(encounters[i].Id);
                 List<CreatureLinking> creatureLinkings = DatabaseClient.Instance.GetCreatureLinkedByGuid(encounters[i].Guid);
 
-                foreach (var creatureLinking in creatureLinkings)
+                foreach (CreatureLinking creatureLinking in creatureLinkings)
                 {
                     if (!creatureLinkedMapping.ContainsKey(creatureLinking.MasterGuid))
                     {
@@ -456,7 +456,7 @@ namespace RaidMemberBot.AI.SharedStates
 
                 bool isLinked = false;
 
-                foreach (var creatureLinkMappingValues in creatureLinkedMapping)
+                foreach (KeyValuePair<int, HashSet<int>> creatureLinkMappingValues in creatureLinkedMapping)
                 {
                     if (creatureLinkMappingValues.Value.Any(x => x == encounters[i].Guid))
                     {
@@ -466,7 +466,7 @@ namespace RaidMemberBot.AI.SharedStates
                         float centerY = 0;
                         float centerZ = 0;
 
-                        foreach (var packMember in creatureLinkMappingValues.Value)
+                        foreach (int packMember in creatureLinkMappingValues.Value)
                         {
                             Creature creature = encounters.First(x => x.Guid == packMember);
 

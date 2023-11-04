@@ -40,9 +40,9 @@ namespace RaidLeaderBot.Pathfinding
             uint mapId, Location start, Location end, bool parSmooth)
         {
             int length;
-            var ret = _calculatePath(mapId, start.ToStruct, end.ToStruct, parSmooth, out length);
-            var list = new Location[length];
-            for (var i = 0; i < length; i++)
+            _XYZ* ret = _calculatePath(mapId, start.ToStruct, end.ToStruct, parSmooth, out length);
+            Location[] list = new Location[length];
+            for (int i = 0; i < length; i++)
             {
                 list[i] = new Location(ret[i]);
             }
@@ -52,15 +52,15 @@ namespace RaidLeaderBot.Pathfinding
 
         private Navigation()
         {
-            var currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var mapsPath = $"{currentFolder}\\Navigation.dll";
+            string currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string mapsPath = $"{currentFolder}\\Navigation.dll";
 
-            var navProcPtr = WinImports.LoadLibrary(mapsPath);
+            System.IntPtr navProcPtr = WinImports.LoadLibrary(mapsPath);
 
-            var calculatePathPtr = WinImports.GetProcAddress(navProcPtr, "CalculatePath");
+            System.IntPtr calculatePathPtr = WinImports.GetProcAddress(navProcPtr, "CalculatePath");
             _calculatePath = Marshal.GetDelegateForFunctionPointer<CalculatePathDelegate>(calculatePathPtr);
 
-            var freePathPtr = WinImports.GetProcAddress(navProcPtr, "FreePathArr");
+            System.IntPtr freePathPtr = WinImports.GetProcAddress(navProcPtr, "FreePathArr");
             _freePathArr = Marshal.GetDelegateForFunctionPointer<FreePathArr>(freePathPtr);
         }
     }

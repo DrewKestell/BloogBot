@@ -27,10 +27,10 @@ namespace ProtectionPaladinBot
                 Container.Player.Stand();
                 BotTasks.Pop();
 
-                var drinkCount = drinkItem == null ? 0 : Inventory.Instance.GetItemCount(drinkItem.Id);
+                int drinkCount = drinkItem == null ? 0 : Inventory.Instance.GetItemCount(drinkItem.Id);
                 if (!InCombat && drinkCount == 0)
                 {
-                    var drinkToBuy = 28 - (drinkCount / stackCount);
+                    int drinkToBuy = 28 - (drinkCount / stackCount);
                     //var itemsToBuy = new Dictionary<string, int>
                     //{
                     //    { container.BotSettings.Drink, drinkToBuy }

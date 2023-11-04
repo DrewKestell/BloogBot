@@ -5,6 +5,7 @@ using RaidMemberBot.Mem;
 using RaidMemberBot.Models.Dto;
 using RaidMemberBot.Objects;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -200,7 +201,7 @@ namespace RaidMemberBot.Game.Statics
         {
             get
             {
-                var guid = ((int)Offsets.Party.leaderGuid).ReadAs<ulong>();
+                ulong guid = ((int)Offsets.Party.leaderGuid).ReadAs<ulong>();
                 if (guid == 0) return null;
                 lock (Locker)
                 {
@@ -216,7 +217,7 @@ namespace RaidMemberBot.Game.Statics
         {
             get
             {
-                var guid = ((int)Offsets.Party.party1Guid).ReadAs<ulong>();
+                ulong guid = ((int)Offsets.Party.party1Guid).ReadAs<ulong>();
                 return GetPartyMember(guid);
             }
         }
@@ -228,7 +229,7 @@ namespace RaidMemberBot.Game.Statics
         {
             get
             {
-                var guid = ((int)Offsets.Party.party2Guid).ReadAs<ulong>();
+                ulong guid = ((int)Offsets.Party.party2Guid).ReadAs<ulong>();
                 return GetPartyMember(guid);
             }
         }
@@ -240,7 +241,7 @@ namespace RaidMemberBot.Game.Statics
         {
             get
             {
-                var guid = ((int)Offsets.Party.party3Guid).ReadAs<ulong>();
+                ulong guid = ((int)Offsets.Party.party3Guid).ReadAs<ulong>();
                 return GetPartyMember(guid);
             }
         }
@@ -252,7 +253,7 @@ namespace RaidMemberBot.Game.Statics
         {
             get
             {
-                var guid = ((int)Offsets.Party.party4Guid).ReadAs<ulong>();
+                ulong guid = ((int)Offsets.Party.party4Guid).ReadAs<ulong>();
                 return GetPartyMember(guid);
             }
         }
@@ -291,7 +292,7 @@ namespace RaidMemberBot.Game.Statics
         {
             if (_itemCachePtrs.ContainsKey(parItemId))
                 return Memory.Reader.Read<ItemCacheEntry>(_itemCachePtrs[parItemId]);
-            var res = Functions.ItemCacheGetRow(parItemId, parLookupType);
+            IntPtr res = Functions.ItemCacheGetRow(parItemId, parLookupType);
             if (res == IntPtr.Zero) return null;
             _itemCachePtrs.Add(parItemId, res);
             return Memory.Reader.Read<ItemCacheEntry>(res);
@@ -301,7 +302,7 @@ namespace RaidMemberBot.Game.Statics
         {
             if (_itemCachePtrs.ContainsKey(parItemId))
                 return _itemCachePtrs[parItemId];
-            var res = Functions.ItemCacheGetRow(parItemId, parLookupType);
+            IntPtr res = Functions.ItemCacheGetRow(parItemId, parLookupType);
             if (res == IntPtr.Zero) return IntPtr.Zero;
             _itemCachePtrs.Add(parItemId, res);
             return _itemCachePtrs[parItemId];
@@ -311,7 +312,7 @@ namespace RaidMemberBot.Game.Statics
         {
             if (_questCachePtrs.ContainsKey(parItemId))
                 return _questCachePtrs[parItemId];
-            var res = Functions.QuestCacheGetRow(parItemId);
+            IntPtr res = Functions.QuestCacheGetRow(parItemId);
             if (res == IntPtr.Zero) return IntPtr.Zero;
             _questCachePtrs.Add(parItemId, res);
             return _questCachePtrs[parItemId];
@@ -332,24 +333,42 @@ namespace RaidMemberBot.Game.Statics
             {
                 // renew playerptr if invalid
                 // return if no pointer can be retrieved
-                var playerGuid = Functions.GetPlayerGuid();
+                ulong playerGuid = Functions.GetPlayerGuid();
                 if (playerGuid == 0)
                 {
+                    _characterState.MapId = 0;
+                    _characterState.Location = new System.Numerics.Vector3();
+                    _characterState.Waypoint = new System.Numerics.Vector3();
+                    _characterState.Level = 0;
+                    _characterState.Class = ClassId.Warrior;
+                    _characterState.Race = Race.Human;
+                    _characterState.CharacterName = string.Empty;
+                    _characterState.Zone = string.Empty;
+                    _characterState.CurrentTask = string.Empty;
+                    _characterState.HostileTargetGuid = 0;
+                    _characterState.FriendlyTargetGuid = 0;
+                    _characterState.CurrentHealth = 0;
+                    _characterState.CurrentMana = 0;
+                    _characterState.MaxHealth = 0;
+                    _characterState.MaxMana = 0;
+                    _characterState.Rage = 0;
+                    _characterState.ComboPoints = 0;
+                    _characterState.Energy = 0;
                     _characterState.Casting = 0;
                     _characterState.Channeling = 0;
+                    _characterState.InParty = false;
                     _characterState.InCombat = false;
-                    _characterState.CharacterName = "";
-                    _characterState.Zone = "Offline";
-                    _characterState.CurrentTask = "Offline";
-                    _characterState.HealthPercent = 0;
-                    _characterState.ManaPercent = 0;
-                    _characterState.Rage = 0;
-                    _characterState.Energy = 0;
-                    _characterState.Location = "Offline";
+                    _characterState.IsMoving = false;
+                    _characterState.IsMounted = false;
+                    _characterState.IsFalling = false;
+                    _characterState.IsStunned = false;
+                    _characterState.IsConfused = false;
+                    _characterState.IsPoisoned = false;
+                    _characterState.IsDiseased = false;
 
                     return false;
                 }
-                var playerObject = Functions.GetPtrForGuid(playerGuid);
+                IntPtr playerObject = Functions.GetPtrForGuid(playerGuid);
                 if (playerObject == IntPtr.Zero) return false;
                 if (Player == null || playerObject != Player.Pointer)
                 {
@@ -363,14 +382,14 @@ namespace RaidMemberBot.Game.Statics
                     Player.RefreshSpells();
 
                 // set the pointer of all objects to 0
-                foreach (var obj in _objects.Values)
+                foreach (WoWObject obj in _objects.Values)
                     obj.CanRemove = true;
 
                 Functions.EnumVisibleObjects(_ourCallback, -1);
 
                 // remove the pointer that are stil zero 
                 // (pointer not updated from 0 = object not in manager anymore)
-                foreach (var pair in _objects.Where(p => p.Value.CanRemove).ToList())
+                foreach (KeyValuePair<ulong, WoWObject> pair in _objects.Where(p => p.Value.CanRemove).ToList())
                     _objects.Remove(pair.Key);
 
                 // assign dictionary to list which is viewable from internal
@@ -384,15 +403,29 @@ namespace RaidMemberBot.Game.Statics
                 _characterState.Casting = Player.Casting;
                 _characterState.Channeling = Player.Channeling;
                 _characterState.InCombat = Player.IsInCombat;
+                _characterState.IsMoving = Player.IsMoving;
+                _characterState.IsMounted = Player.IsMounted;
+                _characterState.IsFalling = Player.IsFalling;
+                _characterState.IsStunned = Player.IsStunned;
+                _characterState.IsConfused = Player.IsConfused;
+                _characterState.IsPoisoned = Player.IsPoisoned;
+                _characterState.IsDiseased = Player.IsDiseased;
                 _characterState.Zone = Player.RealZoneText;
                 _characterState.InParty = ((int)Offsets.Party.leaderGuid).ReadAs<ulong>() > 0;
                 _characterState.InRaid = int.Parse(Lua.Instance.ExecuteWithResult("{0} = GetNumRaidMembers()")[0]) > 0;
                 _characterState.MapId = (int)Player.MapId;
-                _characterState.HealthPercent = Player.HealthPercent;
-                _characterState.ManaPercent = Player.ManaPercent;
+                _characterState.Class = Player.Class;
+                _characterState.Race = Enum.GetValues(typeof(Race)).Cast<Race>().Where(x => x.GetDescription() == Player.Race).First();
+                _characterState.Level = Player.Level;
+                _characterState.CurrentHealth = Player.Health;
+                _characterState.CurrentMana = Player.Mana;
+                _characterState.MaxHealth = Player.MaxHealth;
+                _characterState.MaxMana = Player.MaxMana;
                 _characterState.Rage = Player.Rage;
                 _characterState.Energy = Player.Energy;
-                _characterState.Location = $"X:{Player.Location.X:0.00} Y:{Player.Location.Y:0.00} Z{Player.Location.Z:0.00}";
+                _characterState.ComboPoints = Player.ComboPoints;
+                _characterState.Facing = Player.Facing;
+                _characterState.Location = new System.Numerics.Vector3(Player.Location.X,Player.Location.Y,Player.Location.Z);
 
                 return true;
             });
@@ -408,7 +441,7 @@ namespace RaidMemberBot.Game.Statics
         {
             if (args.EventName == "CURSOR_UPDATE")
             {
-                var online = Offsets.Player.IsIngame.ReadAs<byte>() == 1;
+                bool online = Offsets.Player.IsIngame.ReadAs<byte>() == 1;
                 if (!online) _ingame1 = false;
             }
             if (args.EventName != "UNIT_MODEL_CHANGED" &&
@@ -424,7 +457,7 @@ namespace RaidMemberBot.Game.Statics
         private int Callback(int filter, ulong guid)
         {
             if (guid == 0) return 0;
-            var ptr = Functions.GetPtrForGuid(guid);
+            IntPtr ptr = Functions.GetPtrForGuid(guid);
             if (ptr == IntPtr.Zero) return 0;
             if (_objects.ContainsKey(guid))
             {
@@ -433,21 +466,21 @@ namespace RaidMemberBot.Game.Statics
             }
             else
             {
-                var objType =
+                WoWObjectTypes objType =
                     (WoWObjectTypes)
                     Memory.Reader.Read<byte>(IntPtr.Add(ptr, (int)Offsets.ObjectManager.ObjType));
                 switch (objType)
                 {
                     case WoWObjectTypes.OT_CONTAINER:
                     case WoWObjectTypes.OT_ITEM:
-                        var tmpItem = new WoWItem(guid, ptr, objType);
+                        WoWItem tmpItem = new WoWItem(guid, ptr, objType);
 
                         _objects.Add(guid, tmpItem);
                         break;
 
                     case WoWObjectTypes.OT_UNIT:
 
-                        var owner = ptr.Add(0x8)
+                        ulong owner = ptr.Add(0x8)
                             .PointsTo()
                             .Add(Offsets.Descriptors.SummonedByGuid)
                             .ReadAs<ulong>();
@@ -459,18 +492,18 @@ namespace RaidMemberBot.Game.Statics
                         }
                         else
                         {
-                            var tmpUnit = new WoWUnit(guid, ptr, objType);
+                            WoWUnit tmpUnit = new WoWUnit(guid, ptr, objType);
                             _objects.Add(guid, tmpUnit);
                         }
                         break;
 
                     case WoWObjectTypes.OT_PLAYER:
-                        var tmpPlayer = new WoWUnit(guid, ptr, objType);
+                        WoWUnit tmpPlayer = new WoWUnit(guid, ptr, objType);
                         _objects.Add(guid, tmpPlayer);
                         break;
 
                     case WoWObjectTypes.OT_GAMEOBJ:
-                        var tmpGameObject = new WoWGameObject(guid, ptr, objType);
+                        WoWGameObject tmpGameObject = new WoWGameObject(guid, ptr, objType);
                         _objects.Add(guid, tmpGameObject);
                         break;
                 }

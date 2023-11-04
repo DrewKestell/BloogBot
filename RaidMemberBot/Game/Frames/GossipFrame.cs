@@ -27,31 +27,31 @@ namespace RaidMemberBot.Game.Frames
             _Options.Clear();
             _Quests.Clear();
 
-            var currentItem = (IntPtr)0xBBBE90;
+            IntPtr currentItem = (IntPtr)0xBBBE90;
             while ((int)currentItem < 0xBC3F50)
             {
                 if ((currentItem + 0x800).ReadAs<int>() == -1) break;
-                var optionText = currentItem.ReadString();
-                var optionType = (currentItem + 0x808).ReadAs<int>();
+                string optionText = currentItem.ReadString();
+                int optionType = (currentItem + 0x808).ReadAs<int>();
 
                 _Options.Add(new GossipOptionInterface(optionText,
                     (GossipTypes)optionType));
                 currentItem = IntPtr.Add(currentItem, 0x80C);
             }
 
-            var QuestBaseId = 0x00BB74C0;
-            var QuestTypeId = 0x00BB74C8;
-            var currentIndex = 0;
+            int QuestBaseId = 0x00BB74C0;
+            int QuestTypeId = 0x00BB74C8;
+            int currentIndex = 0;
             while (ObjectManager.Instance.Player.GossipNpcGuid != 0)
             {
-                var tmpQuestId = (QuestBaseId + currentIndex * 4).ReadAs<int>();
-                var tmpQuestType = (QuestTypeId + currentIndex * 4).ReadAs<int>();
+                int tmpQuestId = (QuestBaseId + currentIndex * 4).ReadAs<int>();
+                int tmpQuestType = (QuestTypeId + currentIndex * 4).ReadAs<int>();
                 if (tmpQuestId == 0) break;
                 if (tmpQuestType != 3 && tmpQuestType != 4 && tmpQuestType != 5) break;
 
 
-                var tmpQuestName = (QuestBaseId + currentIndex * 4 + 0xC).ReadString();
-                var tmpState = (QuestGossipState)tmpQuestType;
+                string tmpQuestName = (QuestBaseId + currentIndex * 4 + 0xC).ReadString();
+                QuestGossipState tmpState = (QuestGossipState)tmpQuestType;
 
                 _Quests.Add(new QuestOptionInterface(tmpQuestId, tmpQuestName, tmpState));
 
@@ -114,7 +114,7 @@ namespace RaidMemberBot.Game.Frames
                 _isOpen = false;
                 _abort = false;
 
-                var tmp = new GossipFrame();
+                GossipFrame tmp = new GossipFrame();
                 if (_abort || ObjectManager.Instance.Player.GossipNpcGuid == 0) return;
 
                 _instance = tmp;
@@ -146,7 +146,7 @@ namespace RaidMemberBot.Game.Frames
         /// <param name="parType">Type of the wanted Gossip-Option</param>
         public void SelectFirstGossipOfType(GossipTypes parType)
         {
-            for (var i = 0; i < Options.Count; i++)
+            for (int i = 0; i < Options.Count; i++)
             {
                 if (Options[i].Type != parType) continue;
                 Lua.Instance.Execute("SelectGossipOption(" + (i + 1) + ")");
@@ -160,7 +160,7 @@ namespace RaidMemberBot.Game.Frames
         /// <param name="parId">The Id.</param>
         public void AcceptQuest(int parId)
         {
-            foreach (var q in _Quests)
+            foreach (QuestOption q in _Quests)
                 if (parId == q.Id)
                     Functions.AcceptQuest(NpcGuid, parId);
         }
@@ -171,7 +171,7 @@ namespace RaidMemberBot.Game.Frames
         /// <param name="parId">The Id.</param>
         public void CompleteQuest(int parId)
         {
-            foreach (var q in _Quests)
+            foreach (QuestOption q in _Quests)
                 if (parId == q.Id)
                     Functions.CompleteQuest(NpcGuid, parId);
         }

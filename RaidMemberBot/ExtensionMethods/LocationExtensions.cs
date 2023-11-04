@@ -29,18 +29,18 @@ namespace RaidMemberBot.ExtensionMethods
         public static Location GetAbsoluteFromRelativeTransportLocation(this Location loc, WoWGameObject transport)
         {
             if (transport == null) return null;
-            var matrix = transport.TransportMatrix;
-            var x = matrix.M31 * loc.Z +
+            Matrix matrix = transport.TransportMatrix;
+            float x = matrix.M31 * loc.Z +
                         matrix.M11 * loc.X +
                         matrix.M21 * loc.Y +
                         matrix.M41;
 
-            var y = matrix.M32 * loc.Z +
+            float y = matrix.M32 * loc.Z +
                     matrix.M12 * loc.X +
                     matrix.M22 * loc.Y +
                     matrix.M42;
 
-            var z = matrix.M33 * loc.Z +
+            float z = matrix.M33 * loc.Z +
                     matrix.M13 * loc.X +
                     matrix.M23 * loc.Y +
                     matrix.M43;
@@ -55,23 +55,23 @@ namespace RaidMemberBot.ExtensionMethods
         /// <returns>The location relative to the transport the player is on</returns>
         public static Location GetRelativeToPlayerTransport(this Location loc)
         {
-            var player = ObjectManager.Instance.Player;
-            var transport = player?.CurrentTransport;
+            LocalPlayer player = ObjectManager.Instance.Player;
+            WoWGameObject transport = player?.CurrentTransport;
             if (transport == null) return null;
             Matrix inverse;
-            var transportMatrix = transport.TransportMatrix;
+            Matrix transportMatrix = transport.TransportMatrix;
             Matrix.Invert(ref transportMatrix, out inverse);
-            var x = inverse.M31 * loc.Z +
+            float x = inverse.M31 * loc.Z +
                         inverse.M11 * loc.X +
                         inverse.M21 * loc.Y +
                         inverse.M41;
 
-            var y = inverse.M32 * loc.Z +
+            float y = inverse.M32 * loc.Z +
                     inverse.M12 * loc.X +
                     inverse.M22 * loc.Y +
                     inverse.M42;
 
-            var z = inverse.M33 * loc.Z +
+            float z = inverse.M33 * loc.Z +
                     inverse.M13 * loc.X +
                     inverse.M23 * loc.Y +
                     inverse.M43;
@@ -86,21 +86,21 @@ namespace RaidMemberBot.ExtensionMethods
         /// <returns>The absolute position</returns>
         public static Location GetAbsoluteFromRelativeTransportLocation(this Location loc)
         {
-            var player = ObjectManager.Instance.Player;
-            var transport = player?.CurrentTransport;
+            LocalPlayer player = ObjectManager.Instance.Player;
+            WoWGameObject transport = player?.CurrentTransport;
             if (transport == null) return null;
-            var matrix = transport.TransportMatrix;
-            var x = matrix.M31 * loc.Z +
+            Matrix matrix = transport.TransportMatrix;
+            float x = matrix.M31 * loc.Z +
                         matrix.M11 * loc.X +
                         matrix.M21 * loc.Y +
                         matrix.M41;
 
-            var y = matrix.M32 * loc.Z +
+            float y = matrix.M32 * loc.Z +
                     matrix.M12 * loc.X +
                     matrix.M22 * loc.Y +
                     matrix.M42;
 
-            var z = matrix.M33 * loc.Z +
+            float z = matrix.M33 * loc.Z +
                     matrix.M13 * loc.X +
                     matrix.M23 * loc.Y +
                     matrix.M43;

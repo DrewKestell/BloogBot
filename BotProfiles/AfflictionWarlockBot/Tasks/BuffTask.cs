@@ -39,7 +39,7 @@ namespace AfflictionWarlockBot
 
         void DeleteSoulShard()
         {
-            var ss = GetSoulShards.Last();
+            WoWItem ss = GetSoulShards.Last();
             Lua.Instance.Execute($"PickupContainerItem({Inventory.Instance.GetBagId(ss.Guid)},{Inventory.Instance.GetSlotId(ss.Guid)})");
             Lua.Instance.Execute("DeleteCursorItem()");
         }

@@ -131,7 +131,7 @@ namespace FeralDruidBot
                 // ensure we're in melee range
                 if ((Container.Player.Location.GetDistanceTo(target.Location) > 3 && Container.Player.CurrentShapeshiftForm == BearForm && Container.HostileTarget.IsInCombat && !TargetMovingTowardPlayer) || (!target.IsInCombat && Container.Player.IsCasting))
                 {
-                    var nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
+                    Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
                     Container.Player.MoveToward(nextWaypoint[0]);
                 }
                 else
@@ -154,7 +154,7 @@ namespace FeralDruidBot
                 // ensure we're in melee range
                 if ((Container.Player.Location.GetDistanceTo(target.Location) > 3 && Container.Player.CurrentShapeshiftForm == CatForm && Container.HostileTarget.IsInCombat && !TargetMovingTowardPlayer) || (!target.IsInCombat && Container.Player.IsCasting))
                 {
-                    var nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
+                    Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
                     Container.Player.MoveToward(nextWaypoint[0]);
                 }
                 else
@@ -200,7 +200,7 @@ namespace FeralDruidBot
 
         void TryCastSpell(string name, int minRange, int maxRange, bool condition = true, Action callback = null)
         {
-            var distanceToTarget = Container.Player.Location.GetDistanceTo(target.Location);
+            float distanceToTarget = Container.Player.Location.GetDistanceTo(target.Location);
 
             if (Spellbook.Instance.IsSpellReady(name) && Container.Player.Mana >= Container.Player.GetManaCost(name) && distanceToTarget >= minRange && distanceToTarget <= maxRange && condition && !Container.Player.IsStunned && Container.Player.IsCasting && Container.Player.Channeling == 0)
             {

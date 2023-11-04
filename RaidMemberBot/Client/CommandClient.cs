@@ -23,8 +23,8 @@ namespace RaidMemberBot.Client
 
         private CommandClient()
         {
-            var currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var botSettingsFilePath = Path.Combine(currentFolder, "Settings\\raidMemberSettings.json");
+            string currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string botSettingsFilePath = Path.Combine(currentFolder, "Settings\\raidMemberSettings.json");
             raidMemberSettings = JsonConvert.DeserializeObject<RaidMemberSettings>(File.ReadAllText(botSettingsFilePath));
         }
 

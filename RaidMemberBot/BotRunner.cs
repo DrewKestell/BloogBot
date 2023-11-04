@@ -22,9 +22,10 @@ namespace RaidMemberBot.AI
         IClassContainer container;
         ObservableCollection<IBot> Bots = new ObservableCollection<IBot>();
 
-        string _accountName;
         string _botProfileName;
-        int _characterSlot;
+
+        Race _race;
+        ClassId _class;
 
         int _activityMapId;
 
@@ -67,30 +68,28 @@ namespace RaidMemberBot.AI
                     || _lastCommand.CommandParam3 != instanceCommand.CommandParam3
                     || _lastCommand.CommandParam4 != instanceCommand.CommandParam4)
                 {
-                    if (instanceCommand.CommandAction == CommandAction.SetAccountInfo)
+                    if (instanceCommand.CommandAction == CommandAction.SetCharacterParams)
                     {
-                        _accountName = instanceCommand.CommandParam1;
-                        _characterSlot = int.Parse(instanceCommand.CommandParam2);
-                        _botProfileName = instanceCommand.CommandParam3;
+                        _race = (Race)Enum.Parse(typeof(Race), instanceCommand.CommandParam1);
+                        _class = (ClassId)Enum.Parse(typeof(ClassId), instanceCommand.CommandParam2);
 
                         ReloadBots();
 
-                        if (characterState.AccountName != _accountName
-                                || characterState.CharacterSlot != _characterSlot
-                                || characterState.BotProfileName != _botProfileName)
+                        if (characterState.Race != _race || characterState.Class != _class)
                         {
                             while (botTasks.Count > 0)
                                 botTasks.Pop();
 
-                            characterState.AccountName = _accountName;
-                            characterState.CharacterSlot = _characterSlot;
-                            characterState.BotProfileName = _botProfileName;
+                            characterState.Race = _race;
+                            characterState.Class = _class;
 
-                            botTasks.Push(new LoginTask(container, botTasks, _accountName, _characterSlot));
+                            string _accountName = GetAccountName();
+
+                            botTasks.Push(new LoginTask(container, botTasks, _accountName));
                             botTasks.Push(new LogoutTask(container, botTasks));
                         }
 
-                        Console.WriteLine($"BOT RUNNER: SetAccountInfo {_accountName} {_characterSlot} {_botProfileName}");
+                        Console.WriteLine($"BOT RUNNER: SetAccountInfo {_race} {_class} {_botProfileName}");
                     }
                     else if (instanceCommand.CommandAction == CommandAction.SetActivity)
                     {
@@ -134,6 +133,12 @@ namespace RaidMemberBot.AI
                 await Task.Delay(100);
             }
         }
+
+        private string GetAccountName()
+        {
+            throw new NotImplementedException();
+        }
+
         private async void StartBotTaskRunnerAsync()
         {
             while (true)

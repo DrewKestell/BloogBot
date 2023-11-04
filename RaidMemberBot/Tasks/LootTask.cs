@@ -24,7 +24,7 @@ namespace RaidMemberBot.AI.SharedStates
         {
             if (Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location) >= 5)
             {
-                var nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
+                Objects.Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
                 Container.Player.MoveToward(nextWaypoint[0]);
             }
 
@@ -65,13 +65,13 @@ namespace RaidMemberBot.AI.SharedStates
 
             if (currentState == LootStates.LootFrameReady && Wait.For("LootDelay", 150))
             {
-                var itemToLoot = lootFrame.Items.ElementAt(lootIndex);
-                var itemQuality = (ItemQuality) itemToLoot.Info.Quality;
+                Game.Frames.FrameObjects.LootItem itemToLoot = lootFrame.Items.ElementAt(lootIndex);
+                ItemQuality itemQuality = (ItemQuality) itemToLoot.Info.Quality;
 
-                var poorQualityCondition = itemToLoot.IsCoin || itemQuality == ItemQuality.Poor;
-                var commonQualityCondition = itemToLoot.IsCoin || itemQuality == ItemQuality.Common;
-                var uncommonQualityCondition = itemToLoot.IsCoin || itemQuality == ItemQuality.Uncommon;
-                var other = itemQuality != ItemQuality.Poor && itemQuality != ItemQuality.Common && itemQuality != ItemQuality.Uncommon;
+                bool poorQualityCondition = itemToLoot.IsCoin || itemQuality == ItemQuality.Poor;
+                bool commonQualityCondition = itemToLoot.IsCoin || itemQuality == ItemQuality.Common;
+                bool uncommonQualityCondition = itemToLoot.IsCoin || itemQuality == ItemQuality.Uncommon;
+                bool other = itemQuality != ItemQuality.Poor && itemQuality != ItemQuality.Common && itemQuality != ItemQuality.Uncommon;
 
                 //if (itemQuality == ItemQuality.Rare || itemQuality == ItemQuality.Epic)
                 //    DiscordClientWrapper.SendItemNotification(Container.Player.Name, itemQuality, itemToLoot.ItemId);

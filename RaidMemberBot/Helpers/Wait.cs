@@ -39,7 +39,7 @@ namespace RaidMemberBot.Helpers
                     return false;
                 }
                 // the item exists! lets check when it got created
-                var elapsed = (DateTime.UtcNow - tmpItem.Added).TotalMilliseconds >= parMs;
+                bool elapsed = (DateTime.UtcNow - tmpItem.Added).TotalMilliseconds >= parMs;
                 // the time passed in parMs elapsed since the item creation
                 // remove the item and return true
                 if (elapsed && tmpItem.AutoReset)
@@ -62,7 +62,7 @@ namespace RaidMemberBot.Helpers
                     return trueOnNonExist;
                 }
                 // the item exists! lets check when it got created
-                var elapsed = (DateTime.UtcNow - tmpItem.Added).TotalMilliseconds >= parMs;
+                bool elapsed = (DateTime.UtcNow - tmpItem.Added).TotalMilliseconds >= parMs;
                 // the time passed in parMs elapsed since the item creation
                 // remove the item and return true
                 if (elapsed && tmpItem.AutoReset)

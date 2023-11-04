@@ -40,7 +40,7 @@ namespace ArcaneMageBot
         {
             if (!Container.Player.HasBuff(name) && Spellbook.Instance.IsSpellReady(name) && Spellbook.Instance.IsSpellReady(name))
             {
-                var castOnSelfString = castOnSelf ? ",1" : "";
+                string castOnSelfString = castOnSelf ? ",1" : "";
                 Lua.Instance.Execute($"CastSpellByName('{name}'{castOnSelfString})");
             }
         }

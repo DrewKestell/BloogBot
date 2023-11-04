@@ -39,15 +39,15 @@ namespace AfflictionWarlockBot
                     pet?.FollowPlayer();
                     BotTasks.Pop();
 
-                    var foodCount = foodItem == null ? 0 : Inventory.Instance.GetItemCount(foodItem.Id);
-                    var drinkCount = drinkItem == null ? 0 : Inventory.Instance.GetItemCount(drinkItem.Id);
+                    int foodCount = foodItem == null ? 0 : Inventory.Instance.GetItemCount(foodItem.Id);
+                    int drinkCount = drinkItem == null ? 0 : Inventory.Instance.GetItemCount(drinkItem.Id);
 
                     if (!InCombat && (foodCount == 0 || drinkCount == 0))
                     {
-                        var foodToBuy = 12 - (foodCount / stackCount);
-                        var drinkToBuy = 28 - (drinkCount / stackCount);
+                        int foodToBuy = 12 - (foodCount / stackCount);
+                        int drinkToBuy = 28 - (drinkCount / stackCount);
 
-                        var itemsToBuy = new Dictionary<string, int>();
+                        Dictionary<string, int> itemsToBuy = new Dictionary<string, int>();
                         //if (foodToBuy > 0)
                         //    itemsToBuy.Add(container.BotSettings.Food, foodToBuy);
                         //if (drinkToBuy > 0)

@@ -27,7 +27,7 @@ namespace ProtectionPaladinBot
                 return;
             }
 
-            var nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
+            RaidMemberBot.Objects.Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
             Container.Player.MoveToward(nextWaypoint[0]);
         }
     }

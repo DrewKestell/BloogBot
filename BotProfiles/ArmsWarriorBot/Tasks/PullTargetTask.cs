@@ -26,7 +26,7 @@ namespace ArmsWarriorBot
                 return;
             }
 
-            var distanceToTarget = Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location);
+            float distanceToTarget = Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location);
             if (distanceToTarget < 25 && distanceToTarget > 8 && Container.Player.IsCasting && Spellbook.Instance.IsSpellReady("Charge") && Container.Player.InLosWith(Container.HostileTarget.Location))
             {
                 if (Container.Player.IsCasting)
@@ -43,7 +43,7 @@ namespace ArmsWarriorBot
                 return;
             }
 
-            var nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
+            RaidMemberBot.Objects.Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
             Container.Player.MoveToward(nextWaypoint[0]);
         }
     }

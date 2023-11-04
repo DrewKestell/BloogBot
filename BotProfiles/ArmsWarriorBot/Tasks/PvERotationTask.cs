@@ -82,7 +82,7 @@ namespace ArmsWarriorBot
 
                 TryUseAbility(Rend, 10, Container.HostileTarget.HealthPercent > 50 && !target.HasDebuff(Rend) && Container.HostileTarget.CreatureType != CreatureType.Elemental && Container.HostileTarget.CreatureType != CreatureType.Undead);
 
-                var sunderDebuff = Container.HostileTarget.GetDebuffs().FirstOrDefault(f => f.Icon == SunderArmorIcon);
+                SpellEffect sunderDebuff = Container.HostileTarget.GetDebuffs().FirstOrDefault(f => f.Icon == SunderArmorIcon);
                 TryUseAbility(SunderArmor, 15, (sunderDebuff == null || sunderDebuff.StackCount < 5) && Container.HostileTarget.Level >= Container.Player.Level - 2 && Container.HostileTarget.Health > 40 && SunderTargets.Any(s => Container.HostileTarget.Name.Contains(s)));
 
                 TryUseAbility(MortalStrike, 30);
@@ -103,9 +103,9 @@ namespace ArmsWarriorBot
 
                 TryUseAbility(SweepingStrikes, 30, !Container.Player.HasBuff(SweepingStrikes) && Container.HostileTarget.HealthPercent > 30);
 
-                var thunderClapCondition = Container.HostileTarget.HasDebuff(ThunderClap) || !Spellbook.Instance.IsSpellReady(ThunderClap) || Container.HostileTarget.HealthPercent < 50;
-                var demoShoutCondition = Container.HostileTarget.HasDebuff(DemoralizingShout) || !Spellbook.Instance.IsSpellReady(DemoralizingShout) || Container.HostileTarget.HealthPercent < 50;
-                var sweepingStrikesCondition = Container.Player.HasBuff(SweepingStrikes) || !Spellbook.Instance.IsSpellReady(SweepingStrikes);
+                bool thunderClapCondition = Container.HostileTarget.HasDebuff(ThunderClap) || !Spellbook.Instance.IsSpellReady(ThunderClap) || Container.HostileTarget.HealthPercent < 50;
+                bool demoShoutCondition = Container.HostileTarget.HasDebuff(DemoralizingShout) || !Spellbook.Instance.IsSpellReady(DemoralizingShout) || Container.HostileTarget.HealthPercent < 50;
+                bool sweepingStrikesCondition = Container.Player.HasBuff(SweepingStrikes) || !Spellbook.Instance.IsSpellReady(SweepingStrikes);
                 if (thunderClapCondition && demoShoutCondition && sweepingStrikesCondition)
                 {
                     TryUseAbility(Rend, 10, Container.HostileTarget.HealthPercent > 50 && !target.HasDebuff(Rend) && Container.HostileTarget.CreatureType != CreatureType.Elemental && Container.HostileTarget.CreatureType != CreatureType.Undead);

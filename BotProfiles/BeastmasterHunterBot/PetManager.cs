@@ -36,7 +36,7 @@ namespace BeastmasterHunterBot
             if (true /*Inventory.Instance.GetItemCount(parFoodName) != 0*/)
             {
                 const string checkFeedPet = "{0} = 0; if CursorHasSpell() then CanFeedMyPet = 1 end;";
-                var result = Lua.Instance.ExecuteWithResult(checkFeedPet);
+                string[] result = Lua.Instance.ExecuteWithResult(checkFeedPet);
                 if (result[0].Trim().Contains("0"))
                 {
                     const string feedPet = "CastSpellByName('Feed Pet'); TargetUnit('Pet');";

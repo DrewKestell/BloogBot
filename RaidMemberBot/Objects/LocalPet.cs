@@ -32,7 +32,7 @@ namespace RaidMemberBot.Objects
                 if (Inventory.Instance.GetItemCount(parFoodName) != 0)
                 {
                     const string checkFeedPet = "{0} = 0; if CursorHasSpell() then CanFeedMyPet = 1 end;";
-                    var result = Lua.Instance.ExecuteWithResult(checkFeedPet);
+                    string[] result = Lua.Instance.ExecuteWithResult(checkFeedPet);
                     if (result[0].Trim().Contains("0"))
                     {
                         const string feedPet = "CastSpellByName('Feed Pet'); TargetUnit('Pet');";
@@ -103,7 +103,7 @@ namespace RaidMemberBot.Objects
                 "{0} = 0; for index = 1,11,1 do {1} = GetPetActionInfo(index); if {1} == '";
             const string getPetSpellCd2 =
                 "' then startTime, duration, enable = GetPetActionCooldown(index); PetSpellEnabled = duration; end end";
-            var result = Lua.Instance.ExecuteWithResult(getPetSpellCd1 + parPetSpell + getPetSpellCd2);
+            string[] result = Lua.Instance.ExecuteWithResult(getPetSpellCd1 + parPetSpell + getPetSpellCd2);
             return result[0].Trim().Equals("0");
         }
 
@@ -115,7 +115,7 @@ namespace RaidMemberBot.Objects
         {
             const string getPetHappiness =
                 "happiness, damagePercentage, loyaltyRate = GetPetHappiness(); {0} = happiness;";
-            var result = Lua.Instance.ExecuteWithResult(getPetHappiness);
+            string[] result = Lua.Instance.ExecuteWithResult(getPetHappiness);
             return result[0].Trim().Equals("3");
         }
 
@@ -143,7 +143,7 @@ namespace RaidMemberBot.Objects
         /// </returns>
         public bool IsTanking()
         {
-            var unit = ObjectManager.Instance.Target;
+            WoWUnit unit = ObjectManager.Instance.Target;
             if (unit == null) return true;
             return TargetGuid != 0 && Guid == unit.TargetGuid ? true : false;
         }
@@ -156,7 +156,7 @@ namespace RaidMemberBot.Objects
         /// </returns>
         public bool IsOnMyTarget()
         {
-            var unit = ObjectManager.Instance.Target;
+            WoWUnit unit = ObjectManager.Instance.Target;
             if (unit == null) return true;
             return TargetGuid == unit.Guid;
         }

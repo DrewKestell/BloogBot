@@ -53,7 +53,7 @@ namespace RaidMemberBot.Game.Frames.FrameObjects
             string res = $"############\nQuest: {Id}\nState: {State}\nObjectives:";
             if (Objectives.Count == 0)
                 res += "\n";
-            foreach (var x in Objectives)
+            foreach (QuestObjective x in Objectives)
                 res += $"\n\tType: {x.Type}" +
                        $"\n\tInvolved Id: {x.ObjectId}" +
                        $"\n\tRequired: {x.ObjectsRequired}" +

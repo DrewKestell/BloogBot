@@ -11,7 +11,7 @@ namespace RaidMemberBot.Game.Frames.FrameObjects
         internal LootItem(int lootSlotNumber, int memoryLootSlotNumber, int parItemId, ref ItemCacheEntry? tmpInfo)
         {
             _memLootSlot = memoryLootSlotNumber;
-            var start = 0xB71974 + 0x1c * memoryLootSlotNumber;
+            int start = 0xB71974 + 0x1c * memoryLootSlotNumber;
             Quantity = start.ReadAs<int>();
             LootSlot = lootSlotNumber;
             // ReSharper disable once PossibleInvalidOperationException

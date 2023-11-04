@@ -17,7 +17,7 @@ namespace RaidMemberBot.Game.Frames.FrameObjects
             ItemId = parItemId;
             // ReSharper disable once PossibleInvalidOperationException
             Info = tmpInfo.Value;
-            var ptr = 0xBDD118 + 0x1C * (parVendorItemNumber - 1);
+            int ptr = 0xBDD118 + 0x1C * (parVendorItemNumber - 1);
             Price = (ptr + 0x10).ReadAs<int>();
             Quantity = (ptr + 0x18).ReadAs<int>();
             NumAvaible = (ptr + 0xC).ReadAs<int>();

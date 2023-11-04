@@ -49,11 +49,11 @@ namespace FrostMageBot
                 return;
             }
 
-            var foodCount = foodItem == null ? 0 : Inventory.Instance.GetItemCount(foodItem.Id);
+            int foodCount = foodItem == null ? 0 : Inventory.Instance.GetItemCount(foodItem.Id);
             if (foodItem == null || foodCount <= 2)
                 TryCastSpell(ConjureFood);
 
-            var drinkCount = drinkItem == null ? 0 : Inventory.Instance.GetItemCount(drinkItem.Id);
+            int drinkCount = drinkItem == null ? 0 : Inventory.Instance.GetItemCount(drinkItem.Id);
             if (drinkItem == null || drinkCount <= 2)
                 TryCastSpell(ConjureWater);
         }

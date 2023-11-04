@@ -25,10 +25,10 @@ namespace ArmsWarriorBot
                 Container.Player.Stand();
                 BotTasks.Pop();
 
-                var foodCount = foodItem == null ? 0 : Inventory.Instance.GetItemCount(foodItem.Id);
+                int foodCount = foodItem == null ? 0 : Inventory.Instance.GetItemCount(foodItem.Id);
                 if (!InCombat && foodCount == 0)
                 {
-                    var foodToBuy = 28 - (foodCount / stackCount);
+                    int foodToBuy = 28 - (foodCount / stackCount);
                     //var itemsToBuy = new Dictionary<string, int>
                     //{
                     //    { container.BotSettings.Food, foodToBuy }

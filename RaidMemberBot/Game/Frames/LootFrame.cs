@@ -37,7 +37,7 @@ namespace RaidMemberBot.Game.Frames
             {
                 try
                 {
-                    var tmpGuid = ObjectManager.Instance.Player.CurrentLootGuid;
+                    ulong tmpGuid = ObjectManager.Instance.Player.CurrentLootGuid;
                     if (tmpGuid == 0)
                     {
                         Destroy();
@@ -46,19 +46,19 @@ namespace RaidMemberBot.Game.Frames
                     MissingIds.Clear();
                     _Items.Clear();
                     CacheCallbacks.Instance.OnNewItemCacheCallback += ItemCallback;
-                    var _gotCoins = Coins != 0;
-                    var list = ThreadSynchronizer.Instance.Invoke(() =>
+                    bool _gotCoins = Coins != 0;
+                    List<LootItem> list = ThreadSynchronizer.Instance.Invoke(() =>
                     {
-                        var tmpItems = new List<LootItem>();
+                        List<LootItem> tmpItems = new List<LootItem>();
                         if (_gotCoins)
                             tmpItems.Add(new LootItemInterface());
-                        for (var i = 0; i <= 15; i++)
+                        for (int i = 0; i <= 15; i++)
                         {
-                            var lootSlot = _gotCoins ? i + 1 : i;
+                            int lootSlot = _gotCoins ? i + 1 : i;
 
-                            var itemId = (0x00B7196C + i * 0x1c).ReadAs<int>();
+                            int itemId = (0x00B7196C + i * 0x1c).ReadAs<int>();
                             if (itemId == 0) break;
-                            var entry = ObjectManager.Instance.LookupItemCacheEntry(itemId,
+                            ItemCacheEntry? entry = ObjectManager.Instance.LookupItemCacheEntry(itemId,
                                 PrivateEnums.ItemCacheLookupType.None);
                             if (!entry.HasValue)
                             {
@@ -66,7 +66,7 @@ namespace RaidMemberBot.Game.Frames
                             }
                             else
                             {
-                                var item = new LootItemInterface(lootSlot, i, itemId, ref entry);
+                                LootItemInterface item = new LootItemInterface(lootSlot, i, itemId, ref entry);
                                 tmpItems.Add(item);
                             }
                         }
@@ -82,7 +82,7 @@ namespace RaidMemberBot.Game.Frames
                     }
                     while (MissingIds.Count != 0)
                     {
-                        var guidNow = ObjectManager.Instance.Player.CurrentLootGuid;
+                        ulong guidNow = ObjectManager.Instance.Player.CurrentLootGuid;
                         if (guidNow != tmpGuid || guidNow == 0)
                         {
                             Destroy();
@@ -95,7 +95,7 @@ namespace RaidMemberBot.Game.Frames
 
                     CacheCallbacks.Instance.OnNewItemCacheCallback -= ItemCallback;
                     list.Clear();
-                    var guidNow2 = ObjectManager.Instance.Player.CurrentLootGuid;
+                    ulong guidNow2 = ObjectManager.Instance.Player.CurrentLootGuid;
                     if (guidNow2 != 0) return;
                     Destroy();
                 }
@@ -154,7 +154,7 @@ namespace RaidMemberBot.Game.Frames
         {
             get
             {
-                var val = 0xB71BA0.ReadAs<int>();
+                int val = 0xB71BA0.ReadAs<int>();
                 return val == -1 ? 0 : val;
             }
         }
@@ -162,8 +162,8 @@ namespace RaidMemberBot.Game.Frames
         private void ItemCallback(int parItemId)
         {
             if (!MissingIds.ContainsKey(parItemId)) return;
-            var entry = ObjectManager.Instance.LookupItemCacheEntry(parItemId, PrivateEnums.ItemCacheLookupType.None);
-            var lootSlot = MissingIds[parItemId];
+            ItemCacheEntry? entry = ObjectManager.Instance.LookupItemCacheEntry(parItemId, PrivateEnums.ItemCacheLookupType.None);
+            int lootSlot = MissingIds[parItemId];
             _Items.Add(new LootItemInterface(lootSlot, _gotCoins ? lootSlot - 1 : lootSlot, parItemId, ref entry));
             int val;
             MissingIds.TryRemove(parItemId, out val);
@@ -202,7 +202,7 @@ namespace RaidMemberBot.Game.Frames
             {
                 _abort = false;
                 _isOpen = false;
-                var tmp = new LootFrame();
+                LootFrame tmp = new LootFrame();
                 _instance = tmp;
                 _isOpen = true;
                 if (!_abort && ObjectManager.Instance.Player.CurrentLootGuid != 0) return;

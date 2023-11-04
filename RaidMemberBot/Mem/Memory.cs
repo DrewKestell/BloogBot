@@ -23,7 +23,7 @@ namespace RaidMemberBot.Mem
 
         internal static void ErasePeHeader(string name)
         {
-            var handle = WinImports.GetModuleHandle(name);
+            IntPtr handle = WinImports.GetModuleHandle(name);
             ErasePeHeader(handle);
         }
 
@@ -32,21 +32,21 @@ namespace RaidMemberBot.Mem
             if (modulePtr == IntPtr.Zero) return;
             WinImports.Protection prot;
 
-            var dosHeader = modulePtr.ReadAs<WinImports.IMAGE_DOS_HEADER>();
-            var sizeDosHeader = Marshal.SizeOf(typeof(WinImports.IMAGE_DOS_HEADER));
-            var sizePeHeader = Marshal.SizeOf(typeof(WinImports.IMAGE_FILE_HEADER));
+            WinImports.IMAGE_DOS_HEADER dosHeader = modulePtr.ReadAs<WinImports.IMAGE_DOS_HEADER>();
+            int sizeDosHeader = Marshal.SizeOf(typeof(WinImports.IMAGE_DOS_HEADER));
+            int sizePeHeader = Marshal.SizeOf(typeof(WinImports.IMAGE_FILE_HEADER));
 
-            var peHeaderPtr = modulePtr.Add(dosHeader.e_lfanew);
-            var fileHeader = peHeaderPtr.ReadAs<WinImports.IMAGE_FILE_HEADER>();
+            IntPtr peHeaderPtr = modulePtr.Add(dosHeader.e_lfanew);
+            WinImports.IMAGE_FILE_HEADER fileHeader = peHeaderPtr.ReadAs<WinImports.IMAGE_FILE_HEADER>();
 
-            var optionalHeaderSize = fileHeader.mSizeOfOptionalHeader;
+            ushort optionalHeaderSize = fileHeader.mSizeOfOptionalHeader;
             if (optionalHeaderSize != 0)
             {
-                var optionalHeaderPtr = modulePtr.Add(dosHeader.e_lfanew).Add(sizePeHeader);
-                var optionalHeader = optionalHeaderPtr.ReadAs<WinImports.IMAGE_OPTIONAL_HEADER32>();
+                IntPtr optionalHeaderPtr = modulePtr.Add(dosHeader.e_lfanew).Add(sizePeHeader);
+                WinImports.IMAGE_OPTIONAL_HEADER32 optionalHeader = optionalHeaderPtr.ReadAs<WinImports.IMAGE_OPTIONAL_HEADER32>();
 
                 WinImports.VirtualProtect(optionalHeaderPtr, (uint)optionalHeaderSize, WinImports.Protection.PAGE_EXECUTE_READWRITE, out prot);
-                for (var i = 0; i < optionalHeaderSize; i++)
+                for (int i = 0; i < optionalHeaderSize; i++)
                 {
                     optionalHeaderPtr.Add(i).WriteTo<byte>(0);
                 }
@@ -54,14 +54,14 @@ namespace RaidMemberBot.Mem
             }
 
             WinImports.VirtualProtect(modulePtr, (uint)sizeDosHeader, WinImports.Protection.PAGE_EXECUTE_READWRITE, out prot);
-            for (var i = 0; i < sizeDosHeader; i++)
+            for (int i = 0; i < sizeDosHeader; i++)
             {
                 modulePtr.Add(i).WriteTo<byte>(0);
             }
             WinImports.VirtualProtect(modulePtr, (uint)sizeDosHeader, prot, out prot);
 
             WinImports.VirtualProtect(peHeaderPtr, (uint)sizePeHeader, WinImports.Protection.PAGE_EXECUTE_READWRITE, out prot);
-            for (var i = 0; i < sizePeHeader; i++)
+            for (int i = 0; i < sizePeHeader; i++)
             {
                 peHeaderPtr.Add(i).WriteTo<byte>(0);
             }
@@ -70,8 +70,8 @@ namespace RaidMemberBot.Mem
 
         internal static void UnlinkFromPeb(string moduleName)
         {
-            var store = Reader.Alloc(4);
-            var addrToAsm = InjectAsm(new[]
+            IntPtr store = Reader.Alloc(4);
+            IntPtr addrToAsm = InjectAsm(new[]
             {
                 "push ebp",
                 "mov ebp, esp",
@@ -83,22 +83,22 @@ namespace RaidMemberBot.Mem
                 "pop ebp",
                 "retn"
             }, "GetPeb");
-            var callAsm = Reader.RegisterDelegate<NoParamFunc>(addrToAsm);
+            NoParamFunc callAsm = Reader.RegisterDelegate<NoParamFunc>(addrToAsm);
             callAsm();
-            var pebPtr = store.ReadAs<IntPtr>();
+            IntPtr pebPtr = store.ReadAs<IntPtr>();
             Reader.Dealloc(store);
             Reader.Dealloc(addrToAsm);
-            var ldrData = pebPtr.Add(12).ReadAs<IntPtr>().ReadAs<WinImports.PEB_LDR_DATA>();
+            WinImports.PEB_LDR_DATA ldrData = pebPtr.Add(12).ReadAs<IntPtr>().ReadAs<WinImports.PEB_LDR_DATA>();
 
-            var startModulePtr = ldrData.InInitOrderModuleListPtr;
-            var curEntry = ldrData.InInitOrderModuleList;
+            IntPtr startModulePtr = ldrData.InInitOrderModuleListPtr;
+            WinImports.ListEntryWrapper curEntry = ldrData.InInitOrderModuleList;
             while (true)
             {
-                var curEntryPtr = curEntry.Header.Flink;
+                IntPtr curEntryPtr = curEntry.Header.Flink;
                 curEntry = curEntry.Header.Fwd;
                 if (curEntryPtr == startModulePtr) break;
-                var nextModule = curEntry.Header.Flink;
-                var prevModule = curEntry.Header.Blink;
+                IntPtr nextModule = curEntry.Header.Flink;
+                IntPtr prevModule = curEntry.Header.Blink;
                 if (curEntry.Body.BaseDllName != moduleName) continue;
                 prevModule.WriteTo(nextModule);
                 nextModule.Add(4).WriteTo(prevModule);
@@ -115,10 +115,10 @@ namespace RaidMemberBot.Mem
             Asm ??= new FasmNet();
             Asm.Clear();
             Asm.AddLine("use32");
-            foreach (var x in parInstructions)
+            foreach (string x in parInstructions)
                 Asm.AddLine(x);
 
-            var byteCode = new byte[0];
+            byte[] byteCode = new byte[0];
             try
             {
                 byteCode = Asm.Assemble();
@@ -129,17 +129,17 @@ namespace RaidMemberBot.Mem
                     $"Error definition: {ex.ErrorCode}; Error code: {(int)ex.ErrorCode}; Error line: {ex.ErrorLine}; Error offset: {ex.ErrorOffset}; Mnemonics: {ex.Mnemonics}");
             }
 
-            var start = Reader.Alloc(byteCode.Length);
+            IntPtr start = Reader.Alloc(byteCode.Length);
             Asm.Clear();
             Asm.AddLine("use32");
-            foreach (var x in parInstructions)
+            foreach (string x in parInstructions)
                 Asm.AddLine(x);
             byteCode = Asm.Assemble(start);
 
-            var originalBytes = Reader.ReadBytes(start, byteCode.Length);
+            byte[] originalBytes = Reader.ReadBytes(start, byteCode.Length);
             if (parPatchName != "")
             {
-                var parHack = new Hack(start,
+                Hack parHack = new Hack(start,
                     byteCode,
                     originalBytes, parPatchName);
 
@@ -156,7 +156,7 @@ namespace RaidMemberBot.Mem
             Asm.Clear();
             Asm.AddLine("use32");
             Asm.AddLine(parInstructions);
-            var start = new IntPtr(parPtr);
+            IntPtr start = new IntPtr(parPtr);
 
             byte[] byteCode;
             try
@@ -170,10 +170,10 @@ namespace RaidMemberBot.Mem
                 return;
             }
 
-            var originalBytes = Reader.ReadBytes(start, byteCode.Length);
+            byte[] originalBytes = Reader.ReadBytes(start, byteCode.Length);
             if (parPatchName != "")
             {
-                var parHack = new Hack(start,
+                Hack parHack = new Hack(start,
                     byteCode,
                     originalBytes, parPatchName);
                 parHack.Apply();

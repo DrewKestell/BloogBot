@@ -75,7 +75,7 @@ namespace RaidMemberBot.AI.SharedStates
             {
                 if (Wait.For("SellItemDelay", 200))
                 {
-                    var itemToSell = itemsToSell.ElementAt(itemIndex);
+                    WoWItem itemToSell = itemsToSell.ElementAt(itemIndex);
                     MerchantFrame.Instance.VendorByGuid(itemToSell.Guid);
 
                     itemIndex++;

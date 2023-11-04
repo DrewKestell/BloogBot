@@ -52,13 +52,13 @@ namespace RaidMemberBot.Objects
         /// </summary>
         internal T GetDescriptor<T>(int descriptor) where T : struct
         {
-            var ptr = Memory.Reader.Read<uint>(IntPtr.Add(Pointer, Offsets.ObjectManager.DescriptorOffset));
+            uint ptr = Memory.Reader.Read<uint>(IntPtr.Add(Pointer, Offsets.ObjectManager.DescriptorOffset));
             return Memory.Reader.Read<T>(new IntPtr(ptr + descriptor));
         }
 
         internal void SetDescriptor<T>(int descriptor, T parValue) where T : struct
         {
-            var ptr = Memory.Reader.Read<uint>(IntPtr.Add(Pointer, Offsets.ObjectManager.DescriptorOffset));
+            uint ptr = Memory.Reader.Read<uint>(IntPtr.Add(Pointer, Offsets.ObjectManager.DescriptorOffset));
             Memory.Reader.Write(new IntPtr(ptr + descriptor), parValue);
         }
 

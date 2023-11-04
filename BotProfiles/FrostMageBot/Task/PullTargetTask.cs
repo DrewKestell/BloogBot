@@ -38,7 +38,7 @@ namespace FrostMageBot
                 return;
             }
 
-            var distanceToTarget = Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location);
+            float distanceToTarget = Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location);
             if (distanceToTarget <= range && Container.Player.InLosWith(Container.HostileTarget.Location))
             {
                 if (Container.Player.IsMoving)
@@ -59,7 +59,7 @@ namespace FrostMageBot
             }
             else
             {
-                var nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
+                RaidMemberBot.Objects.Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
                 Container.Player.MoveToward(nextWaypoint[0]);
             }
         }

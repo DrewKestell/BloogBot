@@ -40,7 +40,7 @@ namespace BeastMasterHunterBot
                 return;
             } else
             {
-                var nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
+                Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
                 Container.Player.MoveToward(nextWaypoint[1]);
             }
         }

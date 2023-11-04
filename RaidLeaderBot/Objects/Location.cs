@@ -101,9 +101,9 @@ namespace RaidLeaderBot.Objects
         /// <returns></returns>
         public float GetDistanceTo(Location location)
         {
-            var deltaX = X - location.X;
-            var deltaY = Y - location.Y;
-            var deltaZ = Z - location.Z;
+            float deltaX = X - location.X;
+            float deltaY = Y - location.Y;
+            float deltaZ = Z - location.Z;
             return (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
         }
 
@@ -114,8 +114,8 @@ namespace RaidLeaderBot.Objects
         /// <returns></returns>
         public float GetDistanceTo2D(Location location)
         {
-            var deltaX = X - location.X;
-            var deltaY = Y - location.Y;
+            float deltaX = X - location.X;
+            float deltaY = Y - location.Y;
             return (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
         }
     }

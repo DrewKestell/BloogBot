@@ -94,8 +94,8 @@ namespace RaidMemberBot
         {
             if (discordBotEnabled)
             {
-                var sb = new StringBuilder();
-                var article = quality == ItemQuality.Rare ? "a" : "an";
+                StringBuilder sb = new StringBuilder();
+                string article = quality == ItemQuality.Rare ? "a" : "an";
                 sb.Append($"{playerName} here! I just found {article} {quality} item!\n");
                 sb.Append($"https://classic.wowhead.com/item={itemId}");
 

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Reflection;
 
 namespace RaidMemberBot.Constants
 {
@@ -309,6 +311,46 @@ namespace RaidMemberBot.Constants
             Mage = 8,
             Warlock = 9,
             Druid = 11
+        }
+        public enum Race
+        {
+            [Description("Human")]
+            Human,
+            [Description("Dwarf")]
+            Dwarf,
+            [Description("Night Elf")]
+            NightElf,
+            [Description("Gnome")]
+            Gnome,
+            [Description("Orc")]
+            Orc,
+            [Description("Undead")]
+            Undead,
+            [Description("Tauren")]
+            Tauren,
+            [Description("Troll")]
+            Troll
+        }
+        public enum TargetMarkers
+        {
+            [Description("None")]
+            None,
+            [Description("Star")]
+            Star,
+            [Description("Circle")]
+            Circle,
+            [Description("Diamond")]
+            Diamond,
+            [Description("Triangle")]
+            Triangle,
+            [Description("Moon")]
+            Moon,
+            [Description("Square")]
+            Square,
+            [Description("Cross")]
+            Cross,
+            [Description("Skull")]
+            Skull
         }
 
         /// <summary>
@@ -663,6 +705,30 @@ namespace RaidMemberBot.Constants
             OT_GAMEOBJ = 5,
             OT_DYNOBJ = 6,
             OT_CORPSE = 7
+        }
+    }
+
+    public static class EnumCustomAttributeHelper
+    {
+        public static string GetDescription(this Enum value)
+        {
+            Type type = value.GetType();
+            string name = Enum.GetName(type, value);
+            if (name != null)
+            {
+                FieldInfo field = type.GetField(name);
+                if (field != null)
+                {
+                    DescriptionAttribute attr =
+                           Attribute.GetCustomAttribute(field,
+                             typeof(DescriptionAttribute)) as DescriptionAttribute;
+                    if (attr != null)
+                    {
+                        return attr.Description;
+                    }
+                }
+            }
+            return null;
         }
     }
 }

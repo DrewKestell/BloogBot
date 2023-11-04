@@ -30,16 +30,16 @@ namespace RaidMemberBot
             bots?.Clear();
             container?.Dispose();
 
-            var currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var botPaths = new[] { "AfflictionWarlockBot.dll", "ArcaneMageBot.dll", "ArmsWarriorBot.dll", "BackstabRogueBot.dll", "BalanceDruidBot.dll", "BeastMasterHunterBot.dll", "CombatRogueBot.dll", "ElementalShamanBot.dll", "EnhancementShamanBot.dll", "FeralDruidBot.dll", "FrostMageBot.dll", "FuryWarriorBot.dll", "ProtectionPaladinBot.dll", "ProtectionWarriorBot.dll", "RetributionPaladinBot.dll", "ShadowPriestBot.dll" };
+            string currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string[] botPaths = new[] { "AfflictionWarlockBot.dll", "ArcaneMageBot.dll", "ArmsWarriorBot.dll", "BackstabRogueBot.dll", "BalanceDruidBot.dll", "BeastMasterHunterBot.dll", "CombatRogueBot.dll", "ElementalShamanBot.dll", "EnhancementShamanBot.dll", "FeralDruidBot.dll", "FrostMageBot.dll", "FuryWarriorBot.dll", "ProtectionPaladinBot.dll", "ProtectionWarriorBot.dll", "RetributionPaladinBot.dll", "ShadowPriestBot.dll" };
 
-            foreach (var botPath in botPaths)
+            foreach (string botPath in botPaths)
             {
                 try
                 {
-                    var path = Path.Combine(currentFolder, botPath);
-                    var assembly = Assembly.Load(File.ReadAllBytes(path));
-                    var assemblyName = assembly.FullName.Split(',')[0];
+                    string path = Path.Combine(currentFolder, botPath);
+                    Assembly assembly = Assembly.Load(File.ReadAllBytes(path));
+                    string assemblyName = assembly.FullName.Split(',')[0];
                     if (assemblies.ContainsKey(assemblyName))
                     {
                         if (assemblies[assemblyName] != assembly.FullName)

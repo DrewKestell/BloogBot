@@ -25,12 +25,12 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var pos = Location;
-                var facing = Facing;
-                var cosFacing = (float)Math.Cos(facing);
-                var sinFacing = (float)Math.Sin(facing);
+                Location pos = Location;
+                float facing = Facing;
+                float cosFacing = (float)Math.Cos(facing);
+                float sinFacing = (float)Math.Sin(facing);
 
-                var posMatrix2 = new Matrix(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+                Matrix posMatrix2 = new Matrix(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
                 posMatrix2.M41 = posMatrix2.M31 * pos.Z + posMatrix2.M21 * pos.Y + posMatrix2.M11 * pos.X +
                                  posMatrix2.M41;
 
@@ -42,7 +42,7 @@ namespace RaidMemberBot.Objects
 
                 //var facingMatrix2 = new Matrix4x4(cosFacing, -1 * sinFacing, 0, 0, sinFacing, cosFacing, 0, 0, 0, 0, 1,
                 //    0, 0, 0, 0, 1);
-                var facingMatrix2 = new Matrix(cosFacing, sinFacing, 0, 0, -1 * sinFacing, cosFacing, 0, 0, 0, 0,
+                Matrix facingMatrix2 = new Matrix(cosFacing, sinFacing, 0, 0, -1 * sinFacing, cosFacing, 0, 0, 0, 0,
                     1 - cosFacing + cosFacing, 0, 0, 0, 0, 1);
                 return Matrix.Multiply(facingMatrix2, posMatrix2);
             }
@@ -67,11 +67,11 @@ namespace RaidMemberBot.Objects
                         z = GetDescriptor<float>(0x3C + 8);
                         return new Location(x, y, z);
                     }
-                    var v2 = Pointer.Add(0x210).ReadAs<int>();
+                    int v2 = Pointer.Add(0x210).ReadAs<int>();
                     IntPtr xyzStruct;
                     if (v2 != 0)
                     {
-                        var underlyingFuncPtr = v2.ReadAs<IntPtr>().Add(0x44).ReadAs<int>();
+                        int underlyingFuncPtr = v2.ReadAs<IntPtr>().Add(0x44).ReadAs<int>();
                         switch (underlyingFuncPtr)
                         {
                             case 0x005F5C10:
@@ -112,12 +112,12 @@ namespace RaidMemberBot.Objects
             {
                 try
                 {
-                    var facing = 0f;
-                    var v1 = Pointer.Add(0x210).ReadAs<IntPtr>();
+                    float facing = 0f;
+                    IntPtr v1 = Pointer.Add(0x210).ReadAs<IntPtr>();
                     // ReSharper disable once ConvertIfStatementToReturnStatement
                     if (v1 != IntPtr.Zero)
                     {
-                        var v2 = v1.ReadAs<IntPtr>().Add(0x48).ReadAs<IntPtr>();
+                        IntPtr v2 = v1.ReadAs<IntPtr>().Add(0x48).ReadAs<IntPtr>();
                         if (v2 == (IntPtr)0x005F36C0)
                         {
                             //return *(*(*(this + 4) + 272) + 48);
@@ -155,25 +155,25 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var gameObjType = GetDescriptor<int>(0x54);
+                int gameObjType = GetDescriptor<int>(0x54);
                 if (gameObjType != 3)
                 {
                     return new GatherInfo { RequiredSkill = 0, Type = Enums.GatherType.None };
                 }
-                var lockRowId = Pointer.Add(0x214).ReadAs<IntPtr>().Add(0x1c).ReadAs<int>();
-                var maxLockRowId = 0xc0dae8.ReadAs<int>();
+                int lockRowId = Pointer.Add(0x214).ReadAs<IntPtr>().Add(0x1c).ReadAs<int>();
+                int maxLockRowId = 0xc0dae8.ReadAs<int>();
                 if (lockRowId > maxLockRowId)
                 {
                     return new GatherInfo { RequiredSkill = 0, Type = Enums.GatherType.None };
                 }
-                var lockRowPtr = 0xc0dae4.ReadAs<IntPtr>().Add(lockRowId * 4).ReadAs<IntPtr>();
-                var isGatherType = lockRowPtr.Add(0x4).ReadAs<int>();
+                IntPtr lockRowPtr = 0xc0dae4.ReadAs<IntPtr>().Add(lockRowId * 4).ReadAs<IntPtr>();
+                int isGatherType = lockRowPtr.Add(0x4).ReadAs<int>();
                 if (isGatherType != 2)
                 {
                     return new GatherInfo { RequiredSkill = 0, Type = Enums.GatherType.None };
                 }
-                var gatherType = lockRowPtr.Add(0x24).ReadAs<int>();
-                var requiredSkill = lockRowPtr.Add(0x11 * 4).ReadAs<int>();
+                int gatherType = lockRowPtr.Add(0x24).ReadAs<int>();
+                int requiredSkill = lockRowPtr.Add(0x11 * 4).ReadAs<int>();
                 return new GatherInfo { RequiredSkill = requiredSkill, Type = (Enums.GatherType)gatherType };
             }
         }
@@ -187,8 +187,8 @@ namespace RaidMemberBot.Objects
             {
                 try
                 {
-                    var ptr1 = ReadRelative<IntPtr>(Offsets.GameObject.NameBase);
-                    var ptr2 = Memory.Reader.Read<IntPtr>(IntPtr.Add(ptr1, Offsets.GameObject.NameBasePtr1));
+                    IntPtr ptr1 = ReadRelative<IntPtr>(Offsets.GameObject.NameBase);
+                    IntPtr ptr2 = Memory.Reader.Read<IntPtr>(IntPtr.Add(ptr1, Offsets.GameObject.NameBasePtr1));
                     return ptr2.ReadString();
                 }
                 catch (Exception)

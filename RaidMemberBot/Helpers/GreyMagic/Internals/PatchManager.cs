@@ -17,7 +17,7 @@ namespace RaidMemberBot.Helpers.GreyMagic.Internals
         /// </summary>
         internal override void ApplyAll()
         {
-            foreach (var patch in Applications.Values)
+            foreach (Patch patch in Applications.Values)
                 if (patch.Enabled && !patch.IsApplied)
                     patch.Apply();
         }
@@ -27,7 +27,7 @@ namespace RaidMemberBot.Helpers.GreyMagic.Internals
         /// </summary>
         internal override void RemoveAll()
         {
-            foreach (var patch in Applications.Values)
+            foreach (Patch patch in Applications.Values)
                 if (patch.IsApplied)
                     patch.Remove();
         }
@@ -43,7 +43,7 @@ namespace RaidMemberBot.Helpers.GreyMagic.Internals
         {
             if (!Applications.ContainsKey(name))
             {
-                var p = new Patch(address, patchWith, name, Memory);
+                Patch p = new Patch(address, patchWith, name, Memory);
                 Applications.Add(name, p);
                 return p;
             }
@@ -59,7 +59,7 @@ namespace RaidMemberBot.Helpers.GreyMagic.Internals
         /// <returns>A patch object that exposes the required methods to apply and remove the patch.</returns>
         internal Patch CreateAndApply(IntPtr address, byte[] patchWith, string name)
         {
-            var p = Create(address, patchWith, name);
+            Patch p = Create(address, patchWith, name);
             if (p != null)
                 p.Apply();
 

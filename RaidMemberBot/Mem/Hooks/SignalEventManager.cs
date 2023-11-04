@@ -31,9 +31,9 @@ namespace RaidMemberBot.Mem.Hooks
         static void InitializeSignalEventHook()
         {
             signalEventDelegate = new SignalEventDelegate(SignalEventHook);
-            var addrToDetour = Marshal.GetFunctionPointerForDelegate(signalEventDelegate);
+            IntPtr addrToDetour = Marshal.GetFunctionPointerForDelegate(signalEventDelegate);
 
-            var instructions = new[]
+            string[] instructions = new[]
             {
                 "push ebx",
                 "push esi",
@@ -53,43 +53,43 @@ namespace RaidMemberBot.Mem.Hooks
                 $"jmp 0x{(uint) (Offsets.Hooks.SignalEvent + 7):X}"
             };
             // Inject the asm code which calls our c# function
-            var codeCave = Memory.InjectAsm(instructions, "EventSignalDetour");
+            IntPtr codeCave = Memory.InjectAsm(instructions, "EventSignalDetour");
             // set the jmp from WoWs code to my injected code
             Memory.InjectAsm((uint)Offsets.Hooks.SignalEvent, "jmp " + codeCave, "EventSignalDetourJmp");
         }
 
         static void SignalEventHook(string eventName, string typesArg, uint firstArgPtr)
         {
-            var types = typesArg.TrimStart('%').Split('%');
-            var list = new object[types.Length];
-            for (var i = 0; i < types.Length; i++)
+            string[] types = typesArg.TrimStart('%').Split('%');
+            object[] list = new object[types.Length];
+            for (int i = 0; i < types.Length; i++)
             {
-                var tmpPtr = firstArgPtr + (uint)i * 4;
+                uint tmpPtr = firstArgPtr + (uint)i * 4;
                 if (types[i] == "s")
                 {
-                    var ptr = ((IntPtr)tmpPtr).ReadAs<int>();
-                    var str = ((IntPtr)ptr).ReadString();
+                    int ptr = ((IntPtr)tmpPtr).ReadAs<int>();
+                    string str = ((IntPtr)ptr).ReadString();
 
                     list[i] = str;
                 }
                 else if (types[i] == "f")
                 {
-                    var val = ((IntPtr)tmpPtr).ReadAs<float>();
+                    float val = ((IntPtr)tmpPtr).ReadAs<float>();
                     list[i] = val;
                 }
                 else if (types[i] == "u")
                 {
-                    var val = ((IntPtr)tmpPtr).ReadAs<uint>();
+                    uint val = ((IntPtr)tmpPtr).ReadAs<uint>();
                     list[i] = val;
                 }
                 else if (types[i] == "d")
                 {
-                    var val = ((IntPtr)tmpPtr).ReadAs<int>();
+                    int val = ((IntPtr)tmpPtr).ReadAs<int>();
                     list[i] = val;
                 }
                 else if (types[i] == "b")
                 {
-                    var val = ((IntPtr)tmpPtr).ReadAs<int>();
+                    int val = ((IntPtr)tmpPtr).ReadAs<int>();
                     list[i] = Convert.ToBoolean(val);
                 }
             }
@@ -111,9 +111,9 @@ namespace RaidMemberBot.Mem.Hooks
         static void InitializeSignalEventHookNoArgs()
         {
             signalEventNoArgsDelegate = new SignalEventNoArgsDelegate(SignalEventNoArgsHook);
-            var addrToDetour = Marshal.GetFunctionPointerForDelegate(signalEventNoArgsDelegate);
+            IntPtr addrToDetour = Marshal.GetFunctionPointerForDelegate(signalEventNoArgsDelegate);
 
-            var instructions = new[]
+            string[] instructions = new[]
             {
                 "push esi",
                 "call 0x007040D0",
@@ -127,7 +127,7 @@ namespace RaidMemberBot.Mem.Hooks
                 $"jmp 0x{(uint) (Offsets.Hooks.SignalEvent_0 + 6):X}"
             };
             // Inject the asm code which calls our c# function
-            var codeCave = Memory.InjectAsm(instructions, "EventSignal_0Detour");
+            IntPtr codeCave = Memory.InjectAsm(instructions, "EventSignal_0Detour");
             // set the jmp from WoWs code to my injected code
             Memory.InjectAsm((uint)Offsets.Hooks.SignalEvent_0, "jmp " + codeCave, "EventSignal_0DetourJmp");
         }

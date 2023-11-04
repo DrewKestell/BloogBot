@@ -29,7 +29,7 @@ namespace RaidMemberBot.Helpers.GreyMagic
         [HandleProcessCorruptedStateExceptions]
         private T InternalRead<T>(IntPtr address) where T : struct
         {
-            var value = address.ToInt32();
+            int value = address.ToInt32();
             if (value < 00401000) return default(T);
             try
             {
@@ -48,8 +48,8 @@ namespace RaidMemberBot.Helpers.GreyMagic
                         // If the type doesn't require an explicit Marshal call, then ignore it and memcpy the fuckin thing.
                         if (!MarshalCache<T>.TypeRequiresMarshal)
                         {
-                            var o = default(T);
-                            var ptr = MarshalCache<T>.GetUnsafePtr(ref o);
+                            T o = default(T);
+                            void* ptr = MarshalCache<T>.GetUnsafePtr(ref o);
 
                             MoveMemory(ptr, (void*)address, MarshalCache<T>.Size);
 
@@ -179,8 +179,8 @@ namespace RaidMemberBot.Helpers.GreyMagic
 
             using (new MemoryProtectionOperation(ProcessHandle, address, bytes.Length, 0x40))
             {
-                var ptr = (byte*)address;
-                for (var i = 0; i < bytes.Length; i++)
+                byte* ptr = (byte*)address;
+                for (int i = 0; i < bytes.Length; i++)
                     ptr[i] = bytes[i];
             }
             return bytes.Length;
@@ -198,9 +198,9 @@ namespace RaidMemberBot.Helpers.GreyMagic
             if (isRelative)
                 address = GetAbsolute(address);
 
-            var ret = new byte[count];
-            var ptr = (byte*)address;
-            for (var i = 0; i < count; i++)
+            byte[] ret = new byte[count];
+            byte* ptr = (byte*)address;
+            for (int i = 0; i < count; i++)
                 ret[i] = ptr[i];
             return ret;
         }
@@ -244,9 +244,9 @@ namespace RaidMemberBot.Helpers.GreyMagic
         /// <returns> . </returns>
         internal override T[] Read<T>(IntPtr address, int count, bool isRelative = false)
         {
-            var size = MarshalCache<T>.Size;
-            var ret = new T[count];
-            for (var i = 0; i < count; i++)
+            int size = MarshalCache<T>.Size;
+            T[] ret = new T[count];
+            for (int i = 0; i < count; i++)
                 ret[i] = Read<T>(address + i * size, isRelative);
             return ret;
         }
@@ -263,10 +263,10 @@ namespace RaidMemberBot.Helpers.GreyMagic
             if (isRelative)
                 address = GetAbsolute(address);
 
-            var size = MarshalCache<T>.Size;
-            for (var i = 0; i < value.Length; i++)
+            int size = MarshalCache<T>.Size;
+            for (int i = 0; i < value.Length; i++)
             {
-                var val = value[i];
+                T val = value[i];
                 Write(address + i * size, val);
             }
             return true;
@@ -286,9 +286,9 @@ namespace RaidMemberBot.Helpers.GreyMagic
             if (addresses.Length == 1)
                 return Read<T>(addresses[0], isRelative);
 
-            var temp = Read<IntPtr>(addresses[0], isRelative);
+            IntPtr temp = Read<IntPtr>(addresses[0], isRelative);
 
-            for (var i = 1; i < addresses.Length - 1; i++)
+            for (int i = 1; i < addresses.Length - 1; i++)
                 temp = Read<IntPtr>(temp + (int)addresses[i]);
             return Read<T>(temp + (int)addresses[addresses.Length - 1]);
         }
@@ -307,8 +307,8 @@ namespace RaidMemberBot.Helpers.GreyMagic
             if (addresses.Length == 1)
                 return Write(addresses[0], value, isRelative);
 
-            var temp = Read<IntPtr>(addresses[0], isRelative);
-            for (var i = 1; i < addresses.Length - 1; i++)
+            IntPtr temp = Read<IntPtr>(addresses[0], isRelative);
+            for (int i = 1; i < addresses.Length - 1; i++)
                 temp = Read<IntPtr>(temp + (int)addresses[i]);
             return Write(temp + (int)addresses[addresses.Length - 1], value);
         }

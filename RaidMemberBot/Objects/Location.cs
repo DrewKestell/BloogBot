@@ -106,9 +106,9 @@ namespace RaidMemberBot.Objects
         /// <returns></returns>
         public float GetDistanceTo(Location location)
         {
-            var deltaX = X - location.X;
-            var deltaY = Y - location.Y;
-            var deltaZ = Z - location.Z;
+            float deltaX = X - location.X;
+            float deltaY = Y - location.Y;
+            float deltaZ = Z - location.Z;
             return (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
         }
 
@@ -119,8 +119,8 @@ namespace RaidMemberBot.Objects
         /// <returns></returns>
         public float GetDistanceTo2D(Location location)
         {
-            var deltaX = X - location.X;
-            var deltaY = Y - location.Y;
+            float deltaX = X - location.X;
+            float deltaY = Y - location.Y;
             return (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
         }
 
@@ -131,7 +131,7 @@ namespace RaidMemberBot.Objects
         /// <returns></returns>
         public bool InLosWith(Location parLocation)
         {
-            var i = Functions.Intersect(this, parLocation);
+            Intersection i = Functions.Intersect(this, parLocation);
             return i.R == 0 && i.X == 0 && i.Y == 0 && i.Z == 0;
         }
 

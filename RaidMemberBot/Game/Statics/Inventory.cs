@@ -60,9 +60,9 @@ namespace RaidMemberBot.Game.Statics
                 case 3:
                 case 4:
                 case 5:
-                    var tmpBag = GetExtraBag(parBag - 2);
+                    WoWItem tmpBag = GetExtraBag(parBag - 2);
                     if (tmpBag == null) return null;
-                    var tmpItemGuid = tmpBag.GetDescriptor<ulong>(0xC0 + (parSlot + 1) * 8);
+                    ulong tmpItemGuid = tmpBag.GetDescriptor<ulong>(0xC0 + (parSlot + 1) * 8);
                     if (tmpItemGuid == 0) return null;
                     return ObjectManager.Instance.Items.FirstOrDefault(i => i.Guid == tmpItemGuid);
 
@@ -91,7 +91,7 @@ namespace RaidMemberBot.Game.Statics
         public WoWItem GetExtraBag(int parSlot)
         {
             if (parSlot > 3 || parSlot < 0) return null;
-            var bagGuid = Memory.Reader.Read<ulong>(IntPtr.Add(new IntPtr(0xBDD060), parSlot * 8));
+            ulong bagGuid = Memory.Reader.Read<ulong>(IntPtr.Add(new IntPtr(0xBDD060), parSlot * 8));
             return bagGuid == 0 ? null : ObjectManager.Instance.Items.FirstOrDefault(i => i.Guid == bagGuid);
         }
 
@@ -102,8 +102,8 @@ namespace RaidMemberBot.Game.Statics
         /// <returns>The total count of the item specified</returns>
         public int GetItemCount(int parItemId)
         {
-            var totalCount = 0;
-            for (var i = 0; i < 5; i++)
+            int totalCount = 0;
+            for (int i = 0; i < 5; i++)
             {
                 int slots;
                 if (i == 0)
@@ -112,15 +112,15 @@ namespace RaidMemberBot.Game.Statics
                 }
                 else
                 {
-                    var iAdjusted = i - 1;
-                    var bag = GetExtraBag(iAdjusted);
+                    int iAdjusted = i - 1;
+                    WoWItem bag = GetExtraBag(iAdjusted);
                     if (bag == null) continue;
                     slots = bag.Slots;
                 }
 
-                for (var k = 0; k < slots; k++)
+                for (int k = 0; k < slots; k++)
                 {
-                    var item = GetItem(i, k);
+                    WoWItem item = GetItem(i, k);
                     if (item?.Id == parItemId) totalCount += item.StackCount;
                 }
             }
@@ -134,8 +134,8 @@ namespace RaidMemberBot.Game.Statics
         /// <returns>The total count of the item specified</returns>
         public int GetItemCount(string parItemName)
         {
-            var totalCount = 0;
-            for (var i = 0; i < 5; i++)
+            int totalCount = 0;
+            for (int i = 0; i < 5; i++)
             {
                 int slots;
                 if (i == 0)
@@ -144,15 +144,15 @@ namespace RaidMemberBot.Game.Statics
                 }
                 else
                 {
-                    var iAdjusted = i - 1;
-                    var bag = GetExtraBag(iAdjusted);
+                    int iAdjusted = i - 1;
+                    WoWItem bag = GetExtraBag(iAdjusted);
                     if (bag == null) continue;
                     slots = bag.Slots;
                 }
 
-                for (var k = 0; k <= slots; k++)
+                for (int k = 0; k <= slots; k++)
                 {
-                    var item = GetItem(i, k);
+                    WoWItem item = GetItem(i, k);
                     if (item?.Name == parItemName) totalCount += item.StackCount;
                 }
             }
@@ -179,10 +179,10 @@ namespace RaidMemberBot.Game.Statics
             {
                 try
                 {
-                    for (var i = parListOfNames.Length - 1; i > 0; i--)
+                    for (int i = parListOfNames.Length - 1; i > 0; i--)
                     {
-                        var i1 = i;
-                        var tmpList = ObjectManager.Instance.Items.Where(a => a.Name == parListOfNames[i1]).ToList();
+                        int i1 = i;
+                        List<WoWItem> tmpList = ObjectManager.Instance.Items.Where(a => a.Name == parListOfNames[i1]).ToList();
                         if (tmpList.Count != 0)
                             return parListOfNames[i];
                     }
@@ -196,8 +196,8 @@ namespace RaidMemberBot.Game.Statics
         }
         public int GetBagId(ulong itemGuid)
         {
-            var totalCount = 0;
-            for (var i = 0; i < 5; i++)
+            int totalCount = 0;
+            for (int i = 0; i < 5; i++)
             {
                 int slots;
                 if (i == 0)
@@ -206,15 +206,15 @@ namespace RaidMemberBot.Game.Statics
                 }
                 else
                 {
-                    var iAdjusted = i - 1;
-                    var bag = GetExtraBag(iAdjusted);
+                    int iAdjusted = i - 1;
+                    WoWItem bag = GetExtraBag(iAdjusted);
                     if (bag == null) continue;
                     slots = bag.Slots;
                 }
 
-                for (var k = 0; k < slots; k++)
+                for (int k = 0; k < slots; k++)
                 {
-                    var item = GetItem(i, k);
+                    WoWItem item = GetItem(i, k);
                     if (item?.Guid == itemGuid) return i;
                 }
             }
@@ -223,8 +223,8 @@ namespace RaidMemberBot.Game.Statics
 
         public int GetSlotId(ulong itemGuid)
         {
-            var totalCount = 0;
-            for (var i = 0; i < 5; i++)
+            int totalCount = 0;
+            for (int i = 0; i < 5; i++)
             {
                 int slots;
                 if (i == 0)
@@ -233,15 +233,15 @@ namespace RaidMemberBot.Game.Statics
                 }
                 else
                 {
-                    var iAdjusted = i - 1;
-                    var bag = GetExtraBag(iAdjusted);
+                    int iAdjusted = i - 1;
+                    WoWItem bag = GetExtraBag(iAdjusted);
                     if (bag == null) continue;
                     slots = bag.Slots;
                 }
 
-                for (var k = 0; k < slots; k++)
+                for (int k = 0; k < slots; k++)
                 {
-                    var item = GetItem(i, k);
+                    WoWItem item = GetItem(i, k);
                     if (item?.Guid == itemGuid) return k + 1;
                 }
             }
@@ -255,8 +255,8 @@ namespace RaidMemberBot.Game.Statics
         /// <returns>null or the item represented as WoWItem</returns>
         public WoWItem GetEquippedItem(EquipSlot parSlot)
         {
-            var slot = (int)parSlot;
-            var guid = ObjectManager.Instance.Player.ReadRelative<ulong>(0x2508 + (slot - 1) * 0x8);
+            int slot = (int)parSlot;
+            ulong guid = ObjectManager.Instance.Player.ReadRelative<ulong>(0x2508 + (slot - 1) * 0x8);
             if (guid == 0) return null;
             return ObjectManager.Instance.Items.FirstOrDefault(i => i.Guid == guid);
         }
@@ -270,37 +270,37 @@ namespace RaidMemberBot.Game.Statics
         {
             return ThreadSynchronizer.Instance.Invoke(() =>
             {
-                var freeSlots = 0;
+                int freeSlots = 0;
                 try
                 {
                     // Itera through base bag
-                    for (var i = 0; i < 16; i++)
+                    for (int i = 0; i < 16; i++)
                     {
                         // get guid of the item stored in current slot (i = slot number)
-                        var tmpSlotGuid = ObjectManager.Instance.Player.GetDescriptor<ulong>(0x850 + i * 8);
+                        ulong tmpSlotGuid = ObjectManager.Instance.Player.GetDescriptor<ulong>(0x850 + i * 8);
                         // current slot empty? +1 free slot
                         if (tmpSlotGuid == 0) freeSlots++;
                     }
                     // List where we store guids of our equipped bags
-                    var BagGuids = new List<ulong>();
-                    for (var i = 0; i < 4; i++)
+                    List<ulong> BagGuids = new List<ulong>();
+                    for (int i = 0; i < 4; i++)
                         BagGuids.Add(Memory.Reader.Read<ulong>(IntPtr.Add(new IntPtr(0xBDD060), i * 8)));
                     // Filter out our bags from the item list maintained
                     // by the object manager
-                    var tmpItems = ObjectManager.Instance.Items
+                    List<WoWItem> tmpItems = ObjectManager.Instance.Items
                         .Where(i => i.Slots != 0
                                     && BagGuids.Contains(i.Guid)).ToList();
 
                     // iterate over the bag list
-                    foreach (var bag in tmpItems)
+                    foreach (WoWItem bag in tmpItems)
                     {
                         if ((bag.Name.Contains("Quiver") || bag.Name.Contains("Ammo") || bag.Name.Contains("Shot") ||
                              bag.Name.Contains("Herb") || bag.Name.Contains("Soul")) && !parCountSpecialSlots) continue;
                         // iterate over the current bag and count free slots
                         // i = current slot
-                        for (var i = 1; i < bag.Slots + 1; i++)
+                        for (int i = 1; i < bag.Slots + 1; i++)
                         {
-                            var tmpSlotGuid = bag.GetDescriptor<ulong>(0xC0 + i * 8);
+                            ulong tmpSlotGuid = bag.GetDescriptor<ulong>(0xC0 + i * 8);
                             if (tmpSlotGuid == 0) freeSlots++;
                         }
                     }

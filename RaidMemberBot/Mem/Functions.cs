@@ -97,12 +97,12 @@ namespace RaidMemberBot.Mem
         {
             //Console.WriteLine($"Intersect: {JsonConvert.SerializeObject(parStart)} => {JsonConvert.SerializeObject(parEnd)}");
             if (!ObjectManager.Instance.IsIngame) new Intersection();
-            var points = new _XYZXYZ(parStart.X, parStart.Y, parStart.Z,
+            _XYZXYZ points = new _XYZXYZ(parStart.X, parStart.Y, parStart.Z,
                 parEnd.X, parEnd.Y, parEnd.Z);
             points.Z1 += 2;
             points.Z2 += 2;
-            var intersection = new Intersection();
-            var distance = parStart.GetDistanceTo(parEnd);
+            Intersection intersection = new Intersection();
+            float distance = parStart.GetDistanceTo(parEnd);
             return ThreadSynchronizer.Instance.Invoke(() =>
             {
                 _Intersect(ref points, ref distance, ref intersection, 0x100111, funcs.Intersect);
@@ -114,7 +114,7 @@ namespace RaidMemberBot.Mem
         {
             if (!ObjectManager.Instance.IsIngame) return new Location(0, 0, 0);
             GetGameObjectLocationFunction ??= Memory.Reader.RegisterDelegate<GetGameObjectLocationDelegate>(funcs.GetGameObjectLocation);
-            var xyzStruct = new _XYZ();
+            _XYZ xyzStruct = new _XYZ();
             GetGameObjectLocationFunction(obj.Pointer, &xyzStruct);
             return new Location(ref xyzStruct);
         }
@@ -138,7 +138,7 @@ namespace RaidMemberBot.Mem
             {
                 Memory.Reader.Write((IntPtr)0xCECAC0, 0);
                 Spellbook.Instance.Cast(parSpell, parRank);
-                var pos = parPos.ToStruct;
+                _XYZ pos = parPos.ToStruct;
                 CastAtPosFunction(ref pos);
             });
         }
@@ -157,7 +157,7 @@ namespace RaidMemberBot.Mem
         {
             return ThreadSynchronizer.Instance.Invoke(delegate
             {
-                var addr = _CppGetText(parVarName, funcs.GetText);
+                IntPtr addr = _CppGetText(parVarName, funcs.GetText);
                 return addr.ReadString();
             });
         }
@@ -167,9 +167,9 @@ namespace RaidMemberBot.Mem
             if (!ObjectManager.Instance.IsIngame) return false;
             CanCompleteQuestFunction ??=
                     Memory.Reader.RegisterDelegate<CanCompleteQuestDelegate>(funcs.CanCompleteQuest);
-            var ret = ThreadSynchronizer.Instance.Invoke(() =>
+            int ret = ThreadSynchronizer.Instance.Invoke(() =>
             {
-                var result = CanCompleteQuestFunction(parQuestEntry);
+                int result = CanCompleteQuestFunction(parQuestEntry);
                 return result;
             });
             return ret == 1;
@@ -179,14 +179,14 @@ namespace RaidMemberBot.Mem
         {
             if (!ObjectManager.Instance.IsIngame) return false;
             CanUseItemFunction ??= Memory.Reader.RegisterDelegate<CanUseItemDelegate>(funcs.CanUseItem);
-            var ret = ThreadSynchronizer.Instance.Invoke(() =>
+            int ret = ThreadSynchronizer.Instance.Invoke(() =>
             {
-                var ptr1 = ObjectManager.Instance.Player.Pointer;
+                IntPtr ptr1 = ObjectManager.Instance.Player.Pointer;
                 if (ptr1 == IntPtr.Zero) return 0;
-                var ptr2 = ObjectManager.Instance.LookupItemCachePtr(parItemId, parType);
+                IntPtr ptr2 = ObjectManager.Instance.LookupItemCachePtr(parItemId, parType);
                 if (ptr2 == IntPtr.Zero) return 0;
-                var randomInt = 1;
-                var result = CanUseItemFunction(ptr1, ptr2, ref randomInt);
+                int randomInt = 1;
+                int result = CanUseItemFunction(ptr1, ptr2, ref randomInt);
                 return result;
             });
             return ret == 1;
@@ -196,11 +196,11 @@ namespace RaidMemberBot.Mem
         {
             return ThreadSynchronizer.Instance.Invoke(delegate
             {
-                var ret = new List<string>();
+                List<string> ret = new List<string>();
                 // ReSharper disable once LoopCanBeConvertedToQuery
-                foreach (var x in parVarName)
+                foreach (string x in parVarName)
                 {
-                    var addr = _CppGetText(x, funcs.GetText);
+                    IntPtr addr = _CppGetText(x, funcs.GetText);
                     ret.Add(addr.ReadString());
                 }
                 return ret.ToArray();
@@ -225,7 +225,7 @@ namespace RaidMemberBot.Mem
         {
             if (!ObjectManager.Instance.IsIngame) return;
             RepopMeFunction ??= Memory.Reader.RegisterDelegate<RepopMeDelegate>(funcs.RepopMe);
-            var player = ObjectManager.Instance.Player;
+            LocalPlayer player = ObjectManager.Instance.Player;
             if (player == null) return;
             ThreadSynchronizer.Instance.Invoke(() => RepopMeFunction(player.Pointer));
         }
@@ -269,10 +269,10 @@ namespace RaidMemberBot.Mem
             if (!ObjectManager.Instance.IsIngame) return;
             if (parItemIndex < 1) return;
 
-            var ptr1 = 0xBDD118 + 0x1C * (parItemIndex - 1);
+            int ptr1 = 0xBDD118 + 0x1C * (parItemIndex - 1);
             if (ptr1.ReadAs<int>() == 0) return;
 
-            var itemId = (ptr1 + 4).ReadAs<int>();
+            int itemId = (ptr1 + 4).ReadAs<int>();
 
             ThreadSynchronizer.Instance.Invoke(
                 () =>
@@ -299,7 +299,7 @@ namespace RaidMemberBot.Mem
             if (!ObjectManager.Instance.IsIngame) return;
             SetControlBitFunction ??=
                     Memory.Reader.RegisterDelegate<SetControlBitDelegate>(funcs.CGInputControl__SetControlBit);
-            var ptr = Memory.Reader.Read<IntPtr>(Offsets.Misc.CGInputControlActive);
+            IntPtr ptr = Memory.Reader.Read<IntPtr>(Offsets.Misc.CGInputControlActive);
 
             ThreadSynchronizer.Instance.Invoke(() => SetControlBitFunction(ptr, parBit, parState, parTickCount));
         }
@@ -350,7 +350,7 @@ namespace RaidMemberBot.Mem
             if (!ObjectManager.Instance.IsIngame) return Enums.UnitReaction.Neutral;
             UnitReactionFunction ??= Memory.Reader.RegisterDelegate<UnitReactionDelegate>(funcs.UnitReaction);
 
-            var ret = UnitReactionFunction(unitPtr1, unitPtr2);
+            int ret = UnitReactionFunction(unitPtr1, unitPtr2);
             if (Enum.IsDefined(typeof(Enums.UnitReaction), ret))
                 return (Enums.UnitReaction)ret;
             return Enums.UnitReaction.Neutral;
@@ -420,9 +420,9 @@ namespace RaidMemberBot.Mem
             GetSpellCooldownFunction ??=
                     Memory.Reader.RegisterDelegate<GetSpellCooldownDelegate>(funcs.GetSpellCooldown);
 
-            var CdDuration = 0;
-            var CdStartedAt = 0;
-            var third = false;
+            int CdDuration = 0;
+            int CdStartedAt = 0;
+            bool third = false;
             ThreadSynchronizer.Instance.Invoke(
                 () =>
                     GetSpellCooldownFunction(funcs.GetSpellCooldownPtr1, spellId, 0, ref CdDuration, ref CdStartedAt,
@@ -434,7 +434,7 @@ namespace RaidMemberBot.Mem
         {
             if (!ObjectManager.Instance.IsIngame) return;
             UseItemFunction ??= Memory.Reader.RegisterDelegate<UseItemDelegate>(funcs.UseItem);
-            var ptrToGuid = guidOfOtherItem;
+            ulong ptrToGuid = guidOfOtherItem;
 
             ThreadSynchronizer.Instance.Invoke(() => UseItemFunction(ptr, ref ptrToGuid, 0));
         }
@@ -447,7 +447,7 @@ namespace RaidMemberBot.Mem
             {
                 Memory.Reader.Write((IntPtr)0xCECAC0, 64);
                 UseItem(ptr);
-                var pos = parPos.ToStruct;
+                _XYZ pos = parPos.ToStruct;
                 CastAtPosFunction(ref pos);
             });
         }
@@ -456,8 +456,8 @@ namespace RaidMemberBot.Mem
         {
             if (!ObjectManager.Instance.IsIngame) return;
             CtmFunction ??= Memory.Reader.RegisterDelegate<CtmDelegate>(funcs.ClickToMove);
-            var guid = parGuid;
-            var xyz = parLocation.ToStruct;
+            ulong guid = parGuid;
+            _XYZ xyz = parLocation.ToStruct;
             ThreadSynchronizer.Instance.Invoke(() =>
             {
                 CtmFunction(parPlayerPtr, (uint)parType, ref guid,
@@ -517,7 +517,7 @@ namespace RaidMemberBot.Mem
 
         internal static string LuaToString(IntPtr parLuaState, int number)
         {
-            var ptr = ThreadSynchronizer.Instance.Invoke(() => _CppLuaToString(parLuaState, number, funcs.LuaToString));
+            IntPtr ptr = ThreadSynchronizer.Instance.Invoke(() => _CppLuaToString(parLuaState, number, funcs.LuaToString));
             return ptr.ReadString();
         }
 

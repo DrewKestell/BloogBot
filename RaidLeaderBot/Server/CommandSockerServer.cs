@@ -1,13 +1,10 @@
 ﻿using Newtonsoft.Json;
 using RaidMemberBot.Models.Dto;
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Reactive.Subjects;
 using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace RaidLeaderBot
 {
@@ -45,7 +42,7 @@ namespace RaidLeaderBot
         {
             if (_processIds.ContainsKey(processId))
             {
-                _processIds.TryGetValue(processId, out var clientSocket);
+                _processIds.TryGetValue(processId, out Socket clientSocket);
                 try
                 {
                     if (clientSocket != null && clientSocket.Connected)

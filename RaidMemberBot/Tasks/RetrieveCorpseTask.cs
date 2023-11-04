@@ -35,9 +35,9 @@ namespace RaidMemberBot.AI.SharedStates
                 // corpse position is wrong immediately after releasing, so we wait for 5s.
                 //Thread.Sleep(5000);
 
-                var resLocation = Container.Player.CorpseLocation;
+                Location resLocation = Container.Player.CorpseLocation;
 
-                var threats = ObjectManager
+                IEnumerable<WoWUnit> threats = ObjectManager
                     .Instance
                     .Units
                     .Where(u => u.Health > 0)
@@ -48,28 +48,28 @@ namespace RaidMemberBot.AI.SharedStates
 
                 if (threats.FirstOrDefault() != null)
                 {
-                    var index = 0;
-                    var currentFloatX = Container.Player.CorpseLocation.X;
-                    var currentFloatY = Container.Player.CorpseLocation.Y;
-                    var currentFloatZ = Container.Player.CorpseLocation.Z;
+                    int index = 0;
+                    float currentFloatX = Container.Player.CorpseLocation.X;
+                    float currentFloatY = Container.Player.CorpseLocation.Y;
+                    float currentFloatZ = Container.Player.CorpseLocation.Z;
 
-                    for (var i = -resDistance; i <= resDistance; i++)
+                    for (int i = -resDistance; i <= resDistance; i++)
                     {
-                        for (var j = -resDistance; j <= resDistance; j++)
+                        for (int j = -resDistance; j <= resDistance; j++)
                         {
                             resLocs[index] = new Location(currentFloatX + i, currentFloatY + j, currentFloatZ);
                             index++;
                         }
                     }
 
-                    var maxDistance = 0f;
+                    float maxDistance = 0f;
 
-                    foreach (var resLoc in resLocs)
+                    foreach (Location resLoc in resLocs)
                     {
-                        var path = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.CorpseLocation, resLoc, false);
+                        Location[] path = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.CorpseLocation, resLoc, false);
                         if (path.Length == 0) continue;
-                        var endPoint = path[path.Length - 1];
-                        var distanceToClosestThreat = endPoint.GetDistanceTo(threats.OrderBy(u => u.Location.GetDistanceTo(resLoc)).First().Location);
+                        Location endPoint = path[path.Length - 1];
+                        float distanceToClosestThreat = endPoint.GetDistanceTo(threats.OrderBy(u => u.Location.GetDistanceTo(resLoc)).First().Location);
 
                         if (endPoint.GetDistanceTo(Container.Player.Location) < resDistance && distanceToClosestThreat > maxDistance)
                         {

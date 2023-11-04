@@ -7,7 +7,7 @@ namespace RaidMemberBot.ExtensionMethods
     {
         internal static string SecureStringToString(this SecureString value)
         {
-            var bstr = Marshal.SecureStringToBSTR(value);
+            System.IntPtr bstr = Marshal.SecureStringToBSTR(value);
             try
             {
                 return Marshal.PtrToStringBSTR(bstr);

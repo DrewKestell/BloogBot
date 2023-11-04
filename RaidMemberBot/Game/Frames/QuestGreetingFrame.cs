@@ -24,20 +24,20 @@ namespace RaidMemberBot.Game.Frames
         {
             _Quests.Clear();
 
-            var availableQuestsCount = 0xBE0834.ReadAs<int>();
-            var activeQuestsCount = 0xBE0838.ReadAs<int>();
+            int availableQuestsCount = 0xBE0834.ReadAs<int>();
+            int activeQuestsCount = 0xBE0838.ReadAs<int>();
 
-            for (var i = 0; i < availableQuestsCount; i++)
+            for (int i = 0; i < availableQuestsCount; i++)
             {
-                var id = (0xBDFE60 + 0x4c * i).ReadAs<int>();
-                var name = (0xBDFE68 + 0x4c * i).ReadString();
+                int id = (0xBDFE60 + 0x4c * i).ReadAs<int>();
+                string name = (0xBDFE68 + 0x4c * i).ReadString();
                 _Quests.Add(new QuestOptionInterface(id, name, QuestGossipState.Available));
             }
 
-            for (var i = 0; i < activeQuestsCount; i++)
+            for (int i = 0; i < activeQuestsCount; i++)
             {
-                var id = (0xBDE690 + 0x4c * i).ReadAs<int>();
-                var name = (0xBDE698 + 0x4c * i).ReadString();
+                int id = (0xBDE690 + 0x4c * i).ReadAs<int>();
+                string name = (0xBDE698 + 0x4c * i).ReadString();
                 _Quests.Add(new QuestOptionInterface(id, name, QuestGossipState.Accepted));
             }
         }
@@ -80,7 +80,7 @@ namespace RaidMemberBot.Game.Frames
                 _isOpen = false;
                 _abort = false;
 
-                var tmp = new QuestGreetingFrame();
+                QuestGreetingFrame tmp = new QuestGreetingFrame();
                 if (_abort || ObjectManager.Instance.Player.QuestNpcGuid == 0) return;
 
                 _instance = tmp;
@@ -105,7 +105,7 @@ namespace RaidMemberBot.Game.Frames
         /// <param name="parId">The Id.</param>
         public void AcceptQuest(int parId)
         {
-            foreach (var q in _Quests)
+            foreach (QuestOption q in _Quests)
                 if (parId == q.Id)
                 {
                     Functions.AcceptQuest(NpcGuid, parId);
@@ -119,7 +119,7 @@ namespace RaidMemberBot.Game.Frames
         /// <param name="parId">The Id.</param>
         public void CompleteQuest(int parId)
         {
-            foreach (var q in _Quests)
+            foreach (QuestOption q in _Quests)
                 if (parId == q.Id)
                 {
                     Functions.CompleteQuest(NpcGuid, parId);

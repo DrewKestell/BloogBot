@@ -42,7 +42,7 @@ namespace EnhancementShamanBot
                 return;
             }
 
-            var nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
+            RaidMemberBot.Objects.Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
             Container.Player.MoveToward(nextWaypoint[0]);
         }
     }

@@ -52,7 +52,7 @@ namespace RaidMemberBot.Game.Statics
         {
             get
             {
-                var result = Lua.Instance.ExecuteWithResult("{0} = GlueDialogText:GetText()");
+                string[] result = Lua.Instance.ExecuteWithResult("{0} = GlueDialogText:GetText()");
                 return result[0];
             }
         }
@@ -92,9 +92,9 @@ namespace RaidMemberBot.Game.Statics
             if (!string.IsNullOrWhiteSpace(characterName))
             {
                 int? charIndex = null;
-                for (var i = 0; i < MaxCharacterCount; i++)
+                for (int i = 0; i < MaxCharacterCount; i++)
                 {
-                    var charName = GetCharacterNameAtPos(i);
+                    string charName = GetCharacterNameAtPos(i);
                     if (!string.Equals(characterName, charName, StringComparison.InvariantCultureIgnoreCase)) continue;
                     charIndex = i;
                     break;

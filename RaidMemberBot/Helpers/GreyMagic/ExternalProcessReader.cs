@@ -134,7 +134,7 @@ namespace RaidMemberBot.Helpers.GreyMagic
             if (isRelative)
                 address = GetAbsolute(address);
 
-            var buffer = new byte[count];
+            byte[] buffer = new byte[count];
             fixed (byte* buf = buffer)
             {
                 int numRead;
@@ -161,7 +161,7 @@ namespace RaidMemberBot.Helpers.GreyMagic
                 address = GetAbsolute(address);
 
             int numWritten;
-            var success = WriteProcessMemory(ProcessHandle, address, bytes, bytes.Length, out numWritten);
+            bool success = WriteProcessMemory(ProcessHandle, address, bytes, bytes.Length, out numWritten);
 
             if (!success || numWritten != bytes.Length)
                 throw new AccessViolationException(string.Format(
@@ -217,11 +217,11 @@ namespace RaidMemberBot.Helpers.GreyMagic
 
         internal override T[] Read<T>(IntPtr address, int count, bool isRelative = false)
         {
-            var ret = new T[count];
-            var size = MarshalCache<T>.Size;
+            T[] ret = new T[count];
+            int size = MarshalCache<T>.Size;
             fixed (byte* buffer = ReadBytes(address, size * count, isRelative))
             {
-                for (var i = 0; i < count; i++)
+                for (int i = 0; i < count; i++)
                     ret[i] = base.Read<T>((IntPtr)(buffer + i * size));
             }
             return ret;
@@ -240,7 +240,7 @@ namespace RaidMemberBot.Helpers.GreyMagic
                 address = GetAbsolute(address);
 
             byte[] buffer;
-            var hObj = Marshal.AllocHGlobal(MarshalCache<T>.Size);
+            IntPtr hObj = Marshal.AllocHGlobal(MarshalCache<T>.Size);
             try
             {
                 Marshal.StructureToPtr(value, hObj, false);
@@ -259,7 +259,7 @@ namespace RaidMemberBot.Helpers.GreyMagic
             // make sure we put back the old protection when we're done!
             // dwSize should be IntPtr or UIntPtr because the underlying type is SIZE_T and varies with the platform.
             VirtualProtectEx(ProcessHandle, address, (IntPtr)MarshalCache<T>.Size, 0x40, out oldProtect);
-            var ret = WriteProcessMemory(ProcessHandle, address, buffer, MarshalCache<T>.Size, out numWritten);
+            bool ret = WriteProcessMemory(ProcessHandle, address, buffer, MarshalCache<T>.Size, out numWritten);
             VirtualProtectEx(ProcessHandle, address, (IntPtr)MarshalCache<T>.Size, oldProtect, out oldProtect);
 
             return ret;

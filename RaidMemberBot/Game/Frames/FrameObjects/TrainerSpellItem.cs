@@ -9,14 +9,14 @@ namespace RaidMemberBot.Game.Frames.FrameObjects
     {
         internal TrainerSpellItem(int parSpellIndex)
         {
-            var result =
+            string[] result =
                 Lua.Instance.ExecuteWithResult("{0}, {2}, {1}, _ = GetTrainerServiceInfo(" + parSpellIndex + ");");
             Name = result[0];
 
             CanLearn = result[1] == "available";
 
-            var tmpRank = result[2];
-            var tmpArr = tmpRank.Split(' ');
+            string tmpRank = result[2];
+            string[] tmpArr = tmpRank.Split(' ');
             if (tmpArr.Length == 2)
             {
                 int intRank;

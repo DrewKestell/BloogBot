@@ -105,8 +105,8 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var tmpId = base.Casting;
-                var tmpName = Spellbook.Instance.GetName(tmpId);
+                int tmpId = base.Casting;
+                string tmpName = Spellbook.Instance.GetName(tmpId);
                 if (tmpName == "Heroic Strike" || tmpName == "Maul")
                     return 0;
                 return tmpId;
@@ -170,8 +170,8 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var playerPos = ObjectManager.Instance.Player.Location;
-                var tmp = ObjectManager.Instance.GameObjects
+                Location playerPos = ObjectManager.Instance.Player.Location;
+                WoWGameObject tmp = ObjectManager.Instance.GameObjects
                     .FirstOrDefault(i => i.Name == "Campfire" && i.Location.GetDistanceTo(playerPos) <= 2.9f);
                 return tmp != null;
             }
@@ -209,11 +209,11 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var ptr1 = ReadRelative<IntPtr>(Offsets.Player.ComboPoints1);
-                var ptr2 = IntPtr.Add(ptr1, Offsets.Player.ComboPoints2);
+                IntPtr ptr1 = ReadRelative<IntPtr>(Offsets.Player.ComboPoints1);
+                IntPtr ptr2 = IntPtr.Add(ptr1, Offsets.Player.ComboPoints2);
                 if (ComboPointGuid == 0)
                     Memory.Reader.Write(ptr2, 0);
-                var points = Memory.Reader.Read<byte>(ptr2);
+                byte points = Memory.Reader.Read<byte>(ptr2);
                 if (points == 0)
                 {
                     ComboPointGuid = TargetGuid;
@@ -253,7 +253,7 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var results = Lua.Instance.ExecuteWithResult("{0} = IsUsableSpell(\"Riposte\")");
+                string[] results = Lua.Instance.ExecuteWithResult("{0} = IsUsableSpell(\"Riposte\")");
                 if (results.Length > 0)
                     return results[0] == "1";
                 else
@@ -311,7 +311,7 @@ namespace RaidMemberBot.Objects
             get
             {
                 const string getUnitRace = "{0} = UnitRace('player')";
-                var result = Lua.Instance.ExecuteWithResult(getUnitRace);
+                string[] result = Lua.Instance.ExecuteWithResult(getUnitRace);
                 return result[0];
             }
         }
@@ -328,7 +328,7 @@ namespace RaidMemberBot.Objects
         }
         public sbyte GetTalentRank(int tabIndex, int talentIndex)
         {
-            var results = Lua.Instance.ExecuteWithResult($"{{0}}, {{1}}, {{2}}, {{3}}, {{4}} = GetTalentInfo({tabIndex},{talentIndex})");
+            string[] results = Lua.Instance.ExecuteWithResult($"{{0}}, {{1}}, {{2}}, {{3}}, {{4}} = GetTalentInfo({tabIndex},{talentIndex})");
 
             if (results.Length == 5)
                 return Convert.ToSByte(results[4]);
@@ -337,12 +337,12 @@ namespace RaidMemberBot.Objects
         }
         public int GetManaCost(string spellName, int rank = -1)
         {
-            var parId = Spellbook.Instance.GetId(spellName, rank);
+            int parId = Spellbook.Instance.GetId(spellName, rank);
 
             if (parId >= (0x00C0D780 + 0xC).ReadAs<uint>() || parId <= 0)
                 return 0;
 
-            var entryPtr = ((IntPtr)((0x00C0D780 + 8).ReadAs<uint>() + parId * 4)).ReadAs<uint>();
+            uint entryPtr = ((IntPtr)((0x00C0D780 + 8).ReadAs<uint>() + parId * 4)).ReadAs<uint>();
             return (entryPtr + 0x0080).ReadAs<int>();
         }
         /// <summary>
@@ -352,7 +352,7 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var result = Lua.Instance.ExecuteWithResult("{0} = GetCorpseRecoveryDelay()");
+                string[] result = Lua.Instance.ExecuteWithResult("{0} = GetCorpseRecoveryDelay()");
                 return Convert.ToInt32(result[0]);
             }
         }
@@ -427,7 +427,7 @@ namespace RaidMemberBot.Objects
             {
                 if (parBits != ControlBits.Nothing)
                 {
-                    var movementState = MovementState;
+                    MovementFlags movementState = MovementState;
                     if (parBits.HasFlag(ControlBits.Front) && movementState.HasFlag(MovementFlags.Back))
                         StopMovement(ControlBits.Back);
 
@@ -476,7 +476,7 @@ namespace RaidMemberBot.Objects
 
         public void Turn180()
         {
-            var newFacing = Facing + Math.PI;
+            double newFacing = Facing + Math.PI;
             if (newFacing > (Math.PI * 2))
                 newFacing -= Math.PI * 2;
             Face((float)newFacing);
@@ -505,7 +505,7 @@ namespace RaidMemberBot.Objects
             if (CtmState != (int)PrivateEnums.CtmType.None &&
                 CtmState != 12) //&& CtmState != (int)Enums.CtmType.Face)
             {
-                var pos = ObjectManager.Instance.Player.Location;
+                Location pos = ObjectManager.Instance.Player.Location;
                 Functions.Ctm(Pointer, PrivateEnums.CtmType.None, pos, 0);
                 WoWEventHandler.Instance.TriggerCtmEvent(new WoWEventHandler.OnCtmArgs(pos,
                     (int)PrivateEnums.CtmType.None));
@@ -513,7 +513,7 @@ namespace RaidMemberBot.Objects
             else if ((CtmState == 12 || CtmState == (int)PrivateEnums.CtmType.None) &&
                      ObjectManager.Instance.Player.MovementState != 0)
             {
-                var tmp =
+                ControlBits tmp =
                     Enum.GetValues(typeof(ControlBits))
                         .Cast<ControlBits>()
                         .Aggregate(ControlBits.Nothing, (current, bits) => current | bits);
@@ -555,7 +555,7 @@ namespace RaidMemberBot.Objects
         public int GetLatency()
         {
             const string getLatency = "_, _, {0} = GetNetStats()";
-            var result = Lua.Instance.ExecuteWithResult(getLatency);
+            string[] result = Lua.Instance.ExecuteWithResult(getLatency);
             return Convert.ToInt32(result[0]);
         }
 
@@ -575,7 +575,7 @@ namespace RaidMemberBot.Objects
         /// <param name="parAuto">Send shift</param>
         internal void RightClick(WoWUnit parUnit, bool parAuto)
         {
-            var type = 0;
+            int type = 0;
             if (parAuto) type = 1;
             Functions.OnRightClickUnit(parUnit.Pointer, type);
         }
@@ -587,7 +587,7 @@ namespace RaidMemberBot.Objects
         /// <param name="parObject">The Object.</param>
         public void CtmFace(WoWObject parObject)
         {
-            var tmp = parObject.Location;
+            Location tmp = parObject.Location;
             Functions.Ctm(Pointer, PrivateEnums.CtmType.FaceTarget,
                 tmp, parObject.Guid);
         }
@@ -609,7 +609,7 @@ namespace RaidMemberBot.Objects
         /// <returns></returns>
         public bool InLosWith(Location parLocation)
         {
-            var i = Functions.Intersect(Location, parLocation);
+            Intersection i = Functions.Intersect(Location, parLocation);
             return i.R == 0 && i.X == 0 && i.Y == 0 && i.Z == 0;
         }
 
@@ -712,7 +712,7 @@ namespace RaidMemberBot.Objects
             try
             {
                 const string isMainhandEnchanted = "{0} = GetWeaponEnchantInfo()";
-                var result = Lua.Instance.ExecuteWithResult(isMainhandEnchanted);
+                string[] result = Lua.Instance.ExecuteWithResult(isMainhandEnchanted);
                 return result[0] == "1";
             }
             catch
@@ -732,7 +732,7 @@ namespace RaidMemberBot.Objects
             try
             {
                 const string isOffhandEnchanted = "_, _, _, {0} = GetWeaponEnchantInfo()";
-                var result = Lua.Instance.ExecuteWithResult(isOffhandEnchanted);
+                string[] result = Lua.Instance.ExecuteWithResult(isOffhandEnchanted);
                 return result[0] == "1";
             }
             catch
@@ -772,7 +772,7 @@ namespace RaidMemberBot.Objects
         public bool IsWandEquipped()
         {
             const string checkWand = "{0} = HasWandEquipped()";
-            var result = Lua.Instance.ExecuteWithResult(checkWand);
+            string[] result = Lua.Instance.ExecuteWithResult(checkWand);
             return result[0].Contains("1");
         }
 
@@ -785,11 +785,11 @@ namespace RaidMemberBot.Objects
         /// </returns>
         public bool IsAoeSafe(int parRange)
         {
-            var mobs = ObjectManager.Instance.Npcs.
+            System.Collections.Generic.List<WoWUnit> mobs = ObjectManager.Instance.Npcs.
                 FindAll(i => (i.Reaction == UnitReaction.Hostile || i.Reaction == UnitReaction.Neutral) &&
                              i.Location.DistanceToPlayer() < parRange).ToList();
 
-            foreach (var mob in mobs)
+            foreach (WoWUnit mob in mobs)
                 if (mob.TargetGuid != Guid)
                     return false;
             return true;
@@ -805,7 +805,7 @@ namespace RaidMemberBot.Objects
         /// </returns>
         public float IsTotemSpawned(string parName)
         {
-            var totem = ObjectManager.Instance.Npcs.FirstOrDefault(i => i.IsTotem && i.Name.ToLower().Contains(parName.ToLower())
+            WoWUnit totem = ObjectManager.Instance.Npcs.FirstOrDefault(i => i.IsTotem && i.Name.ToLower().Contains(parName.ToLower())
                                                                             &&
                                                                             i.SummonedBy ==
                                                                             ObjectManager.Instance.Player.Guid);

@@ -51,9 +51,9 @@ namespace RaidMemberBot.Objects
             {
                 try
                 {
-                    var X = ReadRelative<float>(Unit.PosX);
-                    var Y = ReadRelative<float>(Unit.PosY);
-                    var Z = ReadRelative<float>(Unit.PosZ);
+                    float X = ReadRelative<float>(Unit.PosX);
+                    float Y = ReadRelative<float>(Unit.PosY);
+                    float Z = ReadRelative<float>(Unit.PosZ);
                     return new Location(X, Y, Z);
                 }
                 catch
@@ -65,10 +65,10 @@ namespace RaidMemberBot.Objects
         }
         public bool IsBehind(WoWUnit target)
         {
-            var halfPi = Math.PI / 2;
-            var twoPi = Math.PI * 2;
-            var leftThreshold = target.Facing - halfPi;
-            var rightThreshold = target.Facing + halfPi;
+            double halfPi = Math.PI / 2;
+            double twoPi = Math.PI * 2;
+            double leftThreshold = target.Facing - halfPi;
+            double rightThreshold = target.Facing + halfPi;
 
             bool condition;
             if (leftThreshold < 0)
@@ -83,7 +83,7 @@ namespace RaidMemberBot.Objects
         public bool IsFacing(Location position) => Math.Abs(GetFacingForPosition(position) - Facing) < 0.05f;
         public float GetFacingForPosition(Location position)
         {
-            var f = (float)Math.Atan2(position.Y - Location.Y, position.X - Location.X);
+            float f = (float)Math.Atan2(position.Y - Location.Y, position.X - Location.X);
             if (f < 0.0f)
                 f += (float)Math.PI * 2.0f;
             else
@@ -103,8 +103,8 @@ namespace RaidMemberBot.Objects
 
         public IEnumerable<SpellEffect> GetDebuffs()
         {
-            var debuffs = new List<SpellEffect>();
-            var target = string.Empty;
+            List<SpellEffect> debuffs = new List<SpellEffect>();
+            string target = string.Empty;
 
             if (Guid == ObjectManager.Instance.Player.Guid)
             {
@@ -116,18 +116,18 @@ namespace RaidMemberBot.Objects
 
             if (!string.IsNullOrEmpty(target))
             {
-                for (var i = 1; i <= 16; i++)
+                for (int i = 1; i <= 16; i++)
                 {
-                    var result = Lua.Instance.ExecuteWithResult("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10} = UnitDebuff('" + target + "', " + i + ")");
+                    string[] result = Lua.Instance.ExecuteWithResult("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10} = UnitDebuff('" + target + "', " + i + ")");
 
-                    var icon = result[0];
-                    var stackCount = result[1];
-                    var debuffTypeString = result[2];
+                    string icon = result[0];
+                    string stackCount = result[1];
+                    string debuffTypeString = result[2];
 
                     if (string.IsNullOrEmpty(icon))
                         break;
 
-                    var success = Enum.TryParse(debuffTypeString, out EffectType type);
+                    bool success = Enum.TryParse(debuffTypeString, out EffectType type);
                     if (!success)
                         type = EffectType.None;
 
@@ -150,7 +150,7 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var level = Level;
+                int level = Level;
                 level = level > 60 ? 60 : level;
                 if (level > 10)
                 {
@@ -181,7 +181,7 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var guid = TransportGuid;
+                ulong guid = TransportGuid;
                 return guid == 0 ? null : ObjectManager.Instance.GameObjects.FirstOrDefault(x => x.Guid == guid);
             }
         }
@@ -198,12 +198,12 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var tmpAuras = new List<int>();
-                var auraBase = Unit.AuraBase;
-                var curCount = 0;
+                List<int> tmpAuras = new List<int>();
+                int auraBase = Unit.AuraBase;
+                int curCount = 0;
                 while (true)
                 {
-                    var auraId = GetDescriptor<int>(auraBase);
+                    int auraId = GetDescriptor<int>(auraBase);
                     if (curCount == 10) break;
                     if (auraId != 0)
                         tmpAuras.Add(auraId);
@@ -221,12 +221,12 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var tmpAuras = new List<int>();
-                var auraBase = 0x13C;
-                var curCount = 0;
+                List<int> tmpAuras = new List<int>();
+                int auraBase = 0x13C;
+                int curCount = 0;
                 while (true)
                 {
-                    var auraId = GetDescriptor<int>(auraBase);
+                    int auraId = GetDescriptor<int>(auraBase);
                     if (curCount == 16) break;
                     if (auraId != 0)
                         tmpAuras.Add(auraId);
@@ -267,9 +267,9 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var ptr1 = ReadRelative<IntPtr>(Unit.NameBase);
+                IntPtr ptr1 = ReadRelative<IntPtr>(Unit.NameBase);
                 if (ptr1 == IntPtr.Zero) return "";
-                var ptr2 = Memory.Reader.Read<IntPtr>(ptr1);
+                IntPtr ptr2 = Memory.Reader.Read<IntPtr>(ptr1);
                 if (ptr2 == IntPtr.Zero) return "";
                 return ptr2.ReadString();
             }
@@ -279,10 +279,10 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var nameBasePtr = Memory.Reader.Read<IntPtr>(PlayerObject.NameBase);
+                IntPtr nameBasePtr = Memory.Reader.Read<IntPtr>(PlayerObject.NameBase);
                 while (true)
                 {
-                    var nextGuid =
+                    ulong nextGuid =
                         Memory.Reader.Read<ulong>(IntPtr.Add(nameBasePtr, PlayerObject.NameBaseNextGuid));
                     if (nextGuid == 0)
                         return "";
@@ -334,7 +334,7 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var flag = UnitFlags.UNIT_FLAG_FLEEING;
+                UnitFlags flag = UnitFlags.UNIT_FLAG_FLEEING;
                 return (Flags & flag) ==
                        flag;
             }
@@ -347,7 +347,7 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var flag = UnitFlags.UNIT_FLAG_CONFUSED;
+                UnitFlags flag = UnitFlags.UNIT_FLAG_CONFUSED;
                 return (Flags & flag) ==
                        flag;
             }
@@ -360,7 +360,7 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var flag = UnitFlags.UNIT_FLAG_IN_COMBAT;
+                UnitFlags flag = UnitFlags.UNIT_FLAG_IN_COMBAT;
                 return (Flags & flag) ==
                        flag;
             }
@@ -373,7 +373,7 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var flag = UnitFlags.UNIT_FLAG_SKINNABLE;
+                UnitFlags flag = UnitFlags.UNIT_FLAG_SKINNABLE;
                 return (Flags & flag) ==
                        flag;
             }
@@ -386,7 +386,7 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var flag = UnitFlags.UNIT_FLAG_STUNNED;
+                UnitFlags flag = UnitFlags.UNIT_FLAG_STUNNED;
                 return (Flags & flag) ==
                        flag;
             }
@@ -405,7 +405,7 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var flag = UnitFlags.UNIT_FLAG_CLIENT_CONTROL_LOST;
+                UnitFlags flag = UnitFlags.UNIT_FLAG_CLIENT_CONTROL_LOST;
                 return (Flags & flag) ==
                        flag;
             }
@@ -465,7 +465,7 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var ret = int.MaxValue;
+                int ret = int.MaxValue;
                 try
                 {
                     ret = GetDescriptor<int>(Descriptors.Health);
@@ -556,8 +556,8 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var pi2 = (float)(2 * Math.PI);
-                var facing = ReadRelative<float>(0x9C4);
+                float pi2 = (float)(2 * Math.PI);
+                float facing = ReadRelative<float>(0x9C4);
                 //if (facing >= pi2)
                 //    facing -= pi2;
                 //else if (facing < 0)
@@ -611,9 +611,9 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var tmpGuid = SummonedBy;
+                ulong tmpGuid = SummonedBy;
                 if (tmpGuid == 0) return false;
-                var obj = ObjectManager.Instance.Players.FirstOrDefault(i => i.Guid == tmpGuid);
+                WoWUnit obj = ObjectManager.Instance.Players.FirstOrDefault(i => i.Guid == tmpGuid);
                 return obj != null;
             }
         }
@@ -673,7 +673,7 @@ namespace RaidMemberBot.Objects
         /// <returns></returns>
         public float RequiredFacing(Location parLocation)
         {
-            var f = (float)Math.Atan2(parLocation.Y - Location.Y, parLocation.X - Location.X);
+            float f = (float)Math.Atan2(parLocation.Y - Location.Y, parLocation.X - Location.X);
             if (f < 0.0f)
             {
                 f = f + (float)Math.PI * 2.0f;
@@ -694,7 +694,7 @@ namespace RaidMemberBot.Objects
         /// <returns></returns>
         public bool GotAura(string parName)
         {
-            var tmpAuras = Buffs;
+            List<Spell> tmpAuras = Buffs;
             return
                 tmpAuras.Select(
                     i =>
@@ -709,7 +709,7 @@ namespace RaidMemberBot.Objects
         /// <returns></returns>
         public bool GotDebuff(string parName)
         {
-            var tmpAuras = Debuffs;
+            List<Spell> tmpAuras = Debuffs;
             return
                 tmpAuras.Select(
                     i =>
@@ -726,11 +726,11 @@ namespace RaidMemberBot.Objects
         /// </returns>
         public bool IsAoeSafe(int parRange)
         {
-            var mobs = ObjectManager.Instance.Npcs.
+            List<WoWUnit> mobs = ObjectManager.Instance.Npcs.
                 FindAll(i => (i.Reaction == UnitReaction.Hostile || i.Reaction == UnitReaction.Neutral) &&
                              i.Location.DistanceToPlayer() < parRange).ToList();
 
-            foreach (var mob in mobs)
+            foreach (WoWUnit mob in mobs)
                 if (mob.TargetGuid != ObjectManager.Instance.Player.Guid)
                     return false;
             return true;

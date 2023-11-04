@@ -106,7 +106,7 @@ namespace FrostMageBot
 
             TryCastSpell(Evocation, 0, int.MaxValue, (Container.Player.HealthPercent > 50 || Container.Player.HasBuff(IceBarrier)) && Container.Player.ManaPercent < 8 && Container.HostileTarget.HealthPercent > 15);
 
-            var wand = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged);
+            WoWItem wand = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged);
             if (wand != null && Container.Player.ManaPercent <= 10 && Container.Player.IsCasting && Container.Player.Channeling == 0)
                 Lua.Instance.Execute(WandLuaScript);
             else

@@ -105,7 +105,7 @@ namespace RaidMemberBot.Game.Frames
                 _abort = false;
                 _isOpen = false;
                 Console.WriteLine("Creating new MerchantFrame");
-                var tmp = new MerchantFrame();
+                MerchantFrame tmp = new MerchantFrame();
                 _instance = tmp;
                 _isOpen = true;
                 if (!_abort && ObjectManager.Instance.Player.VendorGuid != 0)
@@ -147,7 +147,7 @@ namespace RaidMemberBot.Game.Frames
         /// <param name="parMultiplier">How many times to buy</param>
         public void BuyByName(string parItemName, int parMultiplier = 1)
         {
-            foreach (var x in Items)
+            foreach (MerchantItem x in Items)
             {
                 if (x.Name != parItemName) continue;
                 Functions.BuyVendorItem(x.VendorItemNumber, parMultiplier);
@@ -163,7 +163,7 @@ namespace RaidMemberBot.Game.Frames
         /// <param name="parMultiplier">How many times to buy</param>
         public void BuyById(int parItemId, int parMultiplier = 1)
         {
-            foreach (var x in Items)
+            foreach (MerchantItem x in Items)
             {
                 if (x.ItemId != parItemId) continue;
                 Functions.BuyVendorItem(x.VendorItemNumber, parMultiplier);
@@ -217,11 +217,11 @@ namespace RaidMemberBot.Game.Frames
                     }
                     MissingIds.Clear();
                     _Items.Clear();
-                    var tmpItems = new List<MerchantItem>();
+                    List<MerchantItem> tmpItems = new List<MerchantItem>();
                     Console.WriteLine("Adding OnNewItem callback");
                     CacheCallbacks.Instance.OnNewItemCacheCallback += ItemCallback;
-                    var tmpTotal = TotalVendorItems;
-                    for (var i = 0; i < tmpTotal; i++)
+                    int tmpTotal = TotalVendorItems;
+                    for (int i = 0; i < tmpTotal; i++)
                     {
                         if (ObjectManager.Instance.Player.VendorGuid != VenGuid || VenGuid == 0 ||
                             tmpTotal != TotalVendorItems)
@@ -229,9 +229,9 @@ namespace RaidMemberBot.Game.Frames
                             Destroy();
                             return;
                         }
-                        var itemNumber = i + 1;
-                        var itemId = (0x00BDD11C + i * 0x1C).ReadAs<int>();
-                        var entry = ObjectManager.Instance.LookupItemCacheEntry(itemId,
+                        int itemNumber = i + 1;
+                        int itemId = (0x00BDD11C + i * 0x1C).ReadAs<int>();
+                        ItemCacheEntry? entry = ObjectManager.Instance.LookupItemCacheEntry(itemId,
                             PrivateEnums.ItemCacheLookupType.Vendor);
                         if (!entry.HasValue)
                         {
@@ -262,7 +262,7 @@ namespace RaidMemberBot.Game.Frames
                     _Items = _Items.OrderBy(i => i.VendorItemNumber).ToList();
 
 
-                    var result = Lua.Instance.ExecuteWithResult(
+                    string[] result = Lua.Instance.ExecuteWithResult(
                         "{0} = CanMerchantRepair() {1} = GetRepairAllCost()");
                     CanRepair = result[0] == "1";
                     TotalRepairCost = Convert.ToInt32(result[1]);
@@ -283,7 +283,7 @@ namespace RaidMemberBot.Game.Frames
         private void ItemCallback(int parItemId)
         {
             if (!MissingIds.ContainsKey(parItemId)) return;
-            var entry = ObjectManager.Instance.LookupItemCacheEntry(parItemId, PrivateEnums.ItemCacheLookupType.Vendor);
+            ItemCacheEntry? entry = ObjectManager.Instance.LookupItemCacheEntry(parItemId, PrivateEnums.ItemCacheLookupType.Vendor);
             _Items.Add(new MerchantItemInterface(MissingIds[parItemId], parItemId, ref entry));
             int val;
             MissingIds.TryRemove(parItemId, out val);

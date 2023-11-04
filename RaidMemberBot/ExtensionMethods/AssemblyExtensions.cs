@@ -7,8 +7,8 @@ namespace RaidMemberBot.ExtensionMethods
     {
         internal static string ExtJumpUp(this Assembly value, int parLevels)
         {
-            var tmp = value.Location;
-            for (var i = 0; i < parLevels; i++)
+            string tmp = value.Location;
+            for (int i = 0; i < parLevels; i++)
                 tmp = Path.GetDirectoryName(tmp);
             return tmp;
         }

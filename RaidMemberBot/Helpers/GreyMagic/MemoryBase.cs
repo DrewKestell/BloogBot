@@ -66,9 +66,9 @@ namespace RaidMemberBot.Helpers.GreyMagic
 
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
-            var currentAssembly = Assembly.GetExecutingAssembly();
-            var name = args.Name.Split(',')[0];
-            var assembly = Assembly.Load(name) ?? currentAssembly;
+            Assembly currentAssembly = Assembly.GetExecutingAssembly();
+            string name = args.Name.Split(',')[0];
+            Assembly assembly = Assembly.Load(name) ?? currentAssembly;
             return assembly;
         }
 
@@ -88,7 +88,7 @@ namespace RaidMemberBot.Helpers.GreyMagic
             proc.OutputDataReceived += OutputDataReceived;
 
             Process.EnterDebugMode();
-            var a = ProcessAccessFlags.PROCESS_CREATE_THREAD |
+            ProcessAccessFlags a = ProcessAccessFlags.PROCESS_CREATE_THREAD |
                     ProcessAccessFlags.PROCESS_QUERY_INFORMATION |
                     ProcessAccessFlags.PROCESS_SET_INFORMATION | ProcessAccessFlags.PROCESS_TERMINATE |
                     ProcessAccessFlags.PROCESS_VM_OPERATION | ProcessAccessFlags.PROCESS_VM_READ |
@@ -169,7 +169,7 @@ namespace RaidMemberBot.Helpers.GreyMagic
         /// <remarks>Created 2012-01-16 20:40 by Nesox.</remarks>
         internal IntPtr GetVFTableEntry(IntPtr address, int index)
         {
-            var vftable = Read<IntPtr>(address);
+            IntPtr vftable = Read<IntPtr>(address);
             return Read<IntPtr>(vftable + index * 4);
         }
 
@@ -208,9 +208,9 @@ namespace RaidMemberBot.Helpers.GreyMagic
             if (isRelative)
                 address = GetAbsolute(address);
 
-            var ret = new T[elements];
+            T[] ret = new T[elements];
 
-            for (var i = 0; i < elements; i++)
+            for (int i = 0; i < elements; i++)
                 ret[i] = Read<T>(address + i * MarshalCache<T>.Size);
 
             return ret;
@@ -282,8 +282,8 @@ namespace RaidMemberBot.Helpers.GreyMagic
         /// <returns> The string. </returns>
         internal virtual string ReadString(IntPtr address, Encoding encoding, int maxLength = 512, bool relative = false)
         {
-            var buffer = ReadBytes(address, maxLength, relative);
-            var ret = encoding.GetString(buffer);
+            byte[] buffer = ReadBytes(address, maxLength, relative);
+            string ret = encoding.GetString(buffer);
             if (ret.IndexOf('\0') != -1)
                 ret = ret.Remove(ret.IndexOf('\0'));
             return ret;
@@ -300,8 +300,8 @@ namespace RaidMemberBot.Helpers.GreyMagic
             if (value[value.Length - 1] != '\0')
                 value += '\0';
 
-            var b = encoding.GetBytes(value);
-            var written = WriteBytes(address, b, relative);
+            byte[] b = encoding.GetBytes(value);
+            int written = WriteBytes(address, b, relative);
             return written == b.Length;
         }
 

@@ -61,19 +61,19 @@ namespace ShadowPriestBot
             if (Update(target, 30))
                 return;
 
-            var hasWand = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged) != null;
-            var useWand = hasWand && !Container.Player.IsCasting && !Container.Player.IsChanneling && (Container.Player.ManaPercent <= 10 || Container.HostileTarget.CreatureType == CreatureType.Totem || Container.HostileTarget.HealthPercent <= 10);
+            bool hasWand = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged) != null;
+            bool useWand = hasWand && !Container.Player.IsCasting && !Container.Player.IsChanneling && (Container.Player.ManaPercent <= 10 || Container.HostileTarget.CreatureType == CreatureType.Totem || Container.HostileTarget.HealthPercent <= 10);
             if (useWand)
                 Lua.Instance.Execute(WandLuaScript);
             else
             {
-                var aggressors = ObjectManager.Instance.Aggressors;
+                List<WoWUnit> aggressors = ObjectManager.Instance.Aggressors;
 
                 //TryCastSpell(ShadowForm, 0, int.MaxValue, !Container.Player.HasBuff(ShadowForm));
 
                 //TryCastSpell(VampiricEmbrace, 0, 29, Container.Player.HealthPercent < 100 && !target.HasDebuff(VampiricEmbrace) && Container.HostileTarget.HealthPercent > 50);
 
-                var noNeutralsNearby = !ObjectManager.Instance.Units.Any(u => u.Guid != Container.HostileTarget.Guid && u.Reaction == UnitReaction.Neutral && u.Location.GetDistanceTo(Container.Player.Location) <= 10);
+                bool noNeutralsNearby = !ObjectManager.Instance.Units.Any(u => u.Guid != Container.HostileTarget.Guid && u.Reaction == UnitReaction.Neutral && u.Location.GetDistanceTo(Container.Player.Location) <= 10);
                 TryCastSpell(PsychicScream, 0, 7, (target.Location.GetDistanceTo(Container.Player.Location) < 8 && !Container.Player.HasBuff(PowerWordShield)) || ObjectManager.Instance.Aggressors.Count() > 1 && Container.HostileTarget.CreatureType != CreatureType.Elemental);
 
                 TryCastSpell(ShadowWordPain, 0, 29, Container.HostileTarget.HealthPercent > 70 && !target.HasDebuff(ShadowWordPain));

@@ -28,7 +28,7 @@ namespace RaidMemberBot.Mem.Hooks
         private void InitQuestCacheCallback()
         {
             _questCacheCallbackDelegate = QuestCacheCallbackHookFunc;
-            var addrToDetour = Marshal.GetFunctionPointerForDelegate(_questCacheCallbackDelegate);
+            IntPtr addrToDetour = Marshal.GetFunctionPointerForDelegate(_questCacheCallbackDelegate);
 
             string[] asmCode =
             {
@@ -49,7 +49,7 @@ namespace RaidMemberBot.Mem.Hooks
             // Pointer the delegate to our c# function
             _itemCacheCallbackDelegate = ItemCacheCallbackHookFunc;
             // get PTR for our c# function
-            var addrToDetour = Marshal.GetFunctionPointerForDelegate(_itemCacheCallbackDelegate);
+            IntPtr addrToDetour = Marshal.GetFunctionPointerForDelegate(_itemCacheCallbackDelegate);
             // Alloc space for the ASM part of our detour
             string[] asmCode =
             {

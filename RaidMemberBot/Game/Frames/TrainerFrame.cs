@@ -63,7 +63,7 @@ namespace RaidMemberBot.Game.Frames
                 _isOpen = false;
                 _abort = false;
 
-                var tmp = new TrainerFrame();
+                TrainerFrame tmp = new TrainerFrame();
                 if (_abort) return;
 
                 _instance = tmp;
@@ -86,7 +86,7 @@ namespace RaidMemberBot.Game.Frames
         /// <param name="parSpell">The par spell.</param>
         public void LearnSpellByName(string parSpell)
         {
-            foreach (var x in Spells)
+            foreach (TrainerSpellItem x in Spells)
                 if (x.Name == parSpell)
                 {
                     Lua.Instance.Execute("BuyTrainerService(" + x.Index + ")");
@@ -118,13 +118,13 @@ namespace RaidMemberBot.Game.Frames
 
         private void Update()
         {
-            var result = Lua.Instance.ExecuteWithResult(
+            string[] result = Lua.Instance.ExecuteWithResult(
                 "SetTrainerServiceTypeFilter('available', 1) SetTrainerServiceTypeFilter('unavailable', 0) SetTrainerServiceTypeFilter('used', 0) " +
                 "{0} = GetNumTrainerServices()");
 
             AvaibleSpells = Convert.ToInt32(result[0]);
 
-            for (var i = 0; i < AvaibleSpells; i++)
+            for (int i = 0; i < AvaibleSpells; i++)
             {
                 TrainerSpellItem tsi = new TrainerSpellItemInterface(i + 1);
                 if (tsi.CanLearn)

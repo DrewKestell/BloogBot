@@ -38,7 +38,7 @@ namespace RaidMemberBot.AI.SharedStates
                 return;
             }
 
-            var nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.Player.CorpseLocation, true);
+            Objects.Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.Player.CorpseLocation, true);
 
             if (Container.Player.Location.Z - nextWaypoint[0].Z > 5)
                 walkingOnWater = true;

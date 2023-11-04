@@ -71,7 +71,7 @@ namespace RaidMemberBot.Helpers.GreyMagic.Internals
         /// </summary>
         internal virtual void ApplyAll()
         {
-            foreach (var dictionary in Applications)
+            foreach (KeyValuePair<string, T> dictionary in Applications)
                 dictionary.Value.Apply();
         }
 
@@ -80,7 +80,7 @@ namespace RaidMemberBot.Helpers.GreyMagic.Internals
         /// </summary>
         internal virtual void RemoveAll()
         {
-            foreach (var dictionary in Applications)
+            foreach (KeyValuePair<string, T> dictionary in Applications)
                 dictionary.Value.Remove();
         }
 
@@ -89,7 +89,7 @@ namespace RaidMemberBot.Helpers.GreyMagic.Internals
         /// </summary>
         internal virtual void DeleteAll()
         {
-            foreach (var dictionary in Applications)
+            foreach (KeyValuePair<string, T> dictionary in Applications)
                 dictionary.Value.Dispose();
             Applications.Clear();
         }

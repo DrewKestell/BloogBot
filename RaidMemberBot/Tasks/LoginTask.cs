@@ -8,17 +8,15 @@ namespace RaidMemberBot.AI.SharedStates
     public class LoginTask : BotTask, IBotTask
     {
         string accountName;
-        int characterSlot;
 
         bool isHandShaking;
 
         int lastTickTime;
         int handshakeDuration;
 
-        public LoginTask(IClassContainer container, Stack<IBotTask> botTasks, string accountName, int characterSlot) : base(container, botTasks, TaskType.Ordinary)
+        public LoginTask(IClassContainer container, Stack<IBotTask> botTasks, string accountName) : base(container, botTasks, TaskType.Ordinary)
         {
             this.accountName = accountName;
-            this.characterSlot = characterSlot;
 
             WoWEventHandler.Instance.OnWrongLogin += Instance_OnWrongLogin;
             WoWEventHandler.Instance.OnHandshakeBegin += Instance_OnHandshakeBegin;
@@ -44,7 +42,7 @@ namespace RaidMemberBot.AI.SharedStates
         {
             if (Login.Instance.LoginState == Constants.Enums.LoginStates.charselect && Login.Instance.GlueDialogText == "Character list retrieved" && Wait.For("CharSelectAnim", 500))
             {
-                Login.Instance.EnterWorld(characterSlot);
+                Login.Instance.EnterWorld(0);
                 BotTasks.Pop();
             }
             else if (Login.Instance.LoginState == Constants.Enums.LoginStates.login && string.IsNullOrEmpty(Login.Instance.GlueDialogText))

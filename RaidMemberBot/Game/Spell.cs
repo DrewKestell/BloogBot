@@ -25,7 +25,7 @@ namespace RaidMemberBot.Game
 
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.AppendLine($"Spell {Id}:");
             sb.AppendLine($"  Cost: {Cost}");
             sb.AppendLine($"  Name: {Name}");

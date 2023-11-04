@@ -44,16 +44,16 @@ namespace RaidMemberBot.Game
 
         internal void BuildBehaviorTree()
         {
-            var builder = new BehaviourTreeBuilder();
+            BehaviourTreeBuilder builder = new BehaviourTreeBuilder();
             _behavior = builder.Sequence("Transport")
                 .Selector("Transport")
                 .Do("WalkToEndpoint", data =>
                 {
                     if (!_leftTransport) return BehaviourTreeStatus.Failure;
-                    var player = ObjectManager.Instance.Player;
-                    var playerPos = player.Location;
-                    var transport = player.CurrentTransport;
-                    var loc = transport == null ? TransportEnd : TransportEnd.GetRelativeToPlayerTransport();
+                    LocalPlayer player = ObjectManager.Instance.Player;
+                    Location playerPos = player.Location;
+                    WoWGameObject transport = player.CurrentTransport;
+                    Location loc = transport == null ? TransportEnd : TransportEnd.GetRelativeToPlayerTransport();
                     if (playerPos.GetDistanceTo(loc) >= 1.3f)
                     {
                         player.CtmTo(loc);
@@ -65,10 +65,10 @@ namespace RaidMemberBot.Game
                 .Do("WaitForArrivalAndWalk", data =>
                 {
                     if (!_onTransport) return BehaviourTreeStatus.Failure;
-                    var player = ObjectManager.Instance.Player;
-                    var transport = player.CurrentTransport;
+                    LocalPlayer player = ObjectManager.Instance.Player;
+                    WoWGameObject transport = player.CurrentTransport;
 
-                    var transportArrived = ObjectManager.Instance.GameObjects.FirstOrDefault(x => x.Location.GetDistanceTo(TransportArrivedState) <= 0.1f) != null;
+                    bool transportArrived = ObjectManager.Instance.GameObjects.FirstOrDefault(x => x.Location.GetDistanceTo(TransportArrivedState) <= 0.1f) != null;
                     if (transport == null)
                     {
                         if (transportArrived)
@@ -86,8 +86,8 @@ namespace RaidMemberBot.Game
                 .Do("WaitAndWalkOnTransport", data =>
                 {
                     if (!_arrivedAtWaitPoint) return BehaviourTreeStatus.Failure;
-                    var player = ObjectManager.Instance.Player;
-                    var myTransport =
+                    LocalPlayer player = ObjectManager.Instance.Player;
+                    WoWGameObject myTransport =
                         ObjectManager.Instance.GameObjects.FirstOrDefault(
                             x => x.Location.GetDistanceTo(TransportRestState) <= 0.1f);
                     Location loc;
@@ -105,7 +105,7 @@ namespace RaidMemberBot.Game
                         }
                         return BehaviourTreeStatus.Running;
                     }
-                    var playerPos = player.Location;
+                    Location playerPos = player.Location;
                     loc = TransportMovingPoints[_movingIndex];
                     if (playerPos.GetDistanceTo(loc) < 1.3)
                     {
@@ -122,10 +122,10 @@ namespace RaidMemberBot.Game
                 })
                 .Do("GoToWaitingPoint", data =>
                 {
-                    var player = ObjectManager.Instance.Player;
+                    LocalPlayer player = ObjectManager.Instance.Player;
                     if (player.CurrentTransport == null && !_onTransport && !_leftTransport)
                     {
-                        var pos = player.Location;
+                        Location pos = player.Location;
 
                         if (pos.GetDistanceTo(TransportWait) >= 1.3f)
                         {

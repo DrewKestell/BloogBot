@@ -46,9 +46,9 @@ namespace RaidMemberBot
             WinImports.GetWindowThreadProcessId(hWnd, out procId);
             if (procId != Memory.Reader.Process.Id) return true;
             if (!WinImports.IsWindowVisible(hWnd)) return true;
-            var l = WinImports.GetWindowTextLength(hWnd);
+            int l = WinImports.GetWindowTextLength(hWnd);
             if (l == 0) return true;
-            var builder = new StringBuilder(l + 1);
+            StringBuilder builder = new StringBuilder(l + 1);
             WinImports.GetWindowText(hWnd, builder, builder.Capacity);
             if (builder.ToString() == "World of Warcraft")
                 _hWnd = (int)hWnd;
@@ -113,14 +113,14 @@ namespace RaidMemberBot
         private int WndProc(IntPtr hWnd, int Msg, int wParam, int lParam)
         {
             if (Msg != WM_USER) return WinImports.CallWindowProc(_oldCallback, hWnd, Msg, wParam, lParam);
-            var tmpMsg = (UserMessage)wParam;
+            UserMessage tmpMsg = (UserMessage)wParam;
             switch (tmpMsg)
             {
                 case UserMessage.RunDelegateReturn:
                     Delegate result;
                     if (InvokeReturnFunction.TryDequeue(out result))
                     {
-                        var invokeTarget = result;
+                        Delegate invokeTarget = result;
                         InvokeReturnValue.Enqueue(invokeTarget.DynamicInvoke());
                     }
                     return 0;

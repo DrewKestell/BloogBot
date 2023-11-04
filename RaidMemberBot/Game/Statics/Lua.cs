@@ -46,12 +46,12 @@ namespace RaidMemberBot.Game.Statics
         /// <returns>The string return values</returns>
         public string[] ExecuteWithResult(string parScript)
         {
-            var luaVarNames = new List<string>();
-            for (var i = 0; i < 11; i++)
+            List<string> luaVarNames = new List<string>();
+            for (int i = 0; i < 11; i++)
             {
-                var currentPlaceHolder = "{" + i + "}";
+                string currentPlaceHolder = "{" + i + "}";
                 if (!parScript.Contains(currentPlaceHolder)) break;
-                var randomName = GetRandomLuaVarName();
+                string randomName = GetRandomLuaVarName();
                 parScript = parScript.Replace(currentPlaceHolder, randomName);
                 luaVarNames.Add(randomName);
             }

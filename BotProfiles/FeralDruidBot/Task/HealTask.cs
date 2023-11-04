@@ -41,7 +41,7 @@ namespace FeralDruidBot
         {
             if (Spellbook.Instance.IsSpellReady(name))
             {
-                var castOnSelfString = castOnSelf ? ",1" : "";
+                string castOnSelfString = castOnSelf ? ",1" : "";
                 Lua.Instance.Execute($"CastSpellByName('{name}'{castOnSelfString})");
             }
         }

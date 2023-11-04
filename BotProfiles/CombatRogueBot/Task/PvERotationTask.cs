@@ -54,7 +54,7 @@ namespace CombatRogueBot
 
             TryUseAbility(Gouge, 45, ReadyToInterrupt(Container.HostileTarget) && !Spellbook.Instance.IsSpellReady(Kick));
 
-            var readyToEviscerate =
+            bool readyToEviscerate =
                 Container.HostileTarget.HealthPercent <= 15 && Container.Player.ComboPoints >= 2
                 || Container.HostileTarget.HealthPercent <= 25 && Container.Player.ComboPoints >= 3
                 || Container.HostileTarget.HealthPercent <= 35 && Container.Player.ComboPoints >= 4

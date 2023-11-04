@@ -9,8 +9,8 @@ namespace RaidMemberBot.ExtensionMethods
         {
             try
             {
-                var keysVal = Convert.ToUInt64(keys);
-                var flagVal = Convert.ToUInt64(flag);
+                ulong keysVal = Convert.ToUInt64(keys);
+                ulong flagVal = Convert.ToUInt64(flag);
 
                 return (keysVal | flagVal) == flagVal;
             }

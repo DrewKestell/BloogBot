@@ -61,8 +61,8 @@ namespace ArcaneMageBot
             if (Update(target, 30))
                 return;
 
-            var hasWand = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged) != null;
-            var useWand = hasWand && Container.Player.ManaPercent <= 10 && Container.Player.IsCasting && Container.Player.Channeling == 0;
+            bool hasWand = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged) != null;
+            bool useWand = hasWand && Container.Player.ManaPercent <= 10 && Container.Player.IsCasting && Container.Player.Channeling == 0;
             if (useWand)
                 Lua.Instance.Execute(WandLuaScript);
 

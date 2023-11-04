@@ -147,7 +147,7 @@ namespace BackstabRogueBot
 
             // ----- COMBAT ROTATION -----
 
-            var readyToEviscerate =
+            bool readyToEviscerate =
                 Container.HostileTarget.HealthPercent <= 20 && Container.Player.ComboPoints >= 2
                 || Container.HostileTarget.HealthPercent <= 30 && Container.Player.ComboPoints >= 3
                 || Container.HostileTarget.HealthPercent <= 40 && Container.Player.ComboPoints >= 4

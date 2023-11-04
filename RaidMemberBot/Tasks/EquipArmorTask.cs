@@ -52,9 +52,9 @@ namespace RaidMemberBot.AI.SharedStates
 
             if (itemToEquip == null)
             {
-                foreach (var slot in slotsToCheck)
+                foreach (EquipSlot slot in slotsToCheck)
                 {
-                    var equippedItem = Inventory.Instance.GetEquippedItem(slot);
+                    WoWItem equippedItem = Inventory.Instance.GetEquippedItem(slot);
                     if (equippedItem == null)
                     {
                         emptySlot = slot;

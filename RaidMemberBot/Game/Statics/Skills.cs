@@ -33,18 +33,18 @@ namespace RaidMemberBot.Game.Statics
         public List<Skill> GetAllPlayerSkills()
         {
             if (!ObjectManager.Instance.IsIngame) return new List<Skill>();
-            var start = ObjectManager.Instance.Player.SkillField;
-            var list = new List<Skill>();
-            var maxSkills = 0x00B700B4.ReadAs<int>();
-            for (var i = 0; i < maxSkills + 5; i++)
+            IntPtr start = ObjectManager.Instance.Player.SkillField;
+            List<Skill> list = new List<Skill>();
+            int maxSkills = 0x00B700B4.ReadAs<int>();
+            for (int i = 0; i < maxSkills + 5; i++)
             {
-                var curPointer = start.Add(i * 12);
-                var id = curPointer.ReadAs<Enums.Skills>();
+                IntPtr curPointer = start.Add(i * 12);
+                Enums.Skills id = curPointer.ReadAs<Enums.Skills>();
                 if (!Enum.IsDefined(typeof(Enums.Skills), id))
                 {
                     continue;
                 }
-                var minMax = curPointer.Add(4).ReadAs<int>();
+                int minMax = curPointer.Add(4).ReadAs<int>();
 
                 list.Add(new Skill
                 {

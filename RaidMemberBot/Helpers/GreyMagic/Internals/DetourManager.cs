@@ -46,7 +46,7 @@ namespace RaidMemberBot.Helpers.GreyMagic.Internals
             if (Applications.ContainsKey(name))
                 throw new ArgumentException(string.Format("The {0} detour already exists!", name), "name");
 
-            var d = new Detour(target, newTarget, name, Memory);
+            Detour d = new Detour(target, newTarget, name, Memory);
             Applications.Add(name, d);
             return d;
         }
@@ -66,7 +66,7 @@ namespace RaidMemberBot.Helpers.GreyMagic.Internals
         /// </returns>
         internal Detour CreateAndApply(Delegate target, Delegate newTarget, string name)
         {
-            var ret = Create(target, newTarget, name);
+            Detour ret = Create(target, newTarget, name);
             if (ret != null)
                 ret.Apply();
             return ret;
@@ -108,11 +108,11 @@ namespace RaidMemberBot.Helpers.GreyMagic.Internals
 
             //Setup the detour bytes
             _new = new List<byte> { 0x68 };
-            var tmp = BitConverter.GetBytes(_hook.ToInt32());
+            byte[] tmp = BitConverter.GetBytes(_hook.ToInt32());
             _new.AddRange(tmp);
             _new.Add(0xC3);
 
-            var parHack = new Hack(_target, _orginal.ToArray(), _new.ToArray(), Name);
+            Hack parHack = new Hack(_target, _orginal.ToArray(), _new.ToArray(), Name);
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace RaidMemberBot.Helpers.GreyMagic.Internals
         internal object CallOriginal(params object[] args)
         {
             Remove();
-            var ret = _targetDelegate.DynamicInvoke(args);
+            object ret = _targetDelegate.DynamicInvoke(args);
             Apply();
             return ret;
         }

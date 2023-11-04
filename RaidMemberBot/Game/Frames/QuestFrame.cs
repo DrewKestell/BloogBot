@@ -12,10 +12,10 @@ namespace RaidMemberBot.Game.Frames
     {
         private QuestFrame()
         {
-            var rewardCount = 0;
+            int rewardCount = 0;
             while (true)
             {
-                var id = (0xbdf02c + (rewardCount + rewardCount * 8) * 4).ReadAs<int>();
+                int id = (0xbdf02c + (rewardCount + rewardCount * 8) * 4).ReadAs<int>();
                 if (id == 0) break;
                 rewardCount++;
             }
@@ -47,7 +47,7 @@ namespace RaidMemberBot.Game.Frames
         {
             get
             {
-                var tmp = 0xBE0818.ReadAs<int>();
+                int tmp = 0xBE0818.ReadAs<int>();
                 return (QuestFrameState)tmp;
             }
         }

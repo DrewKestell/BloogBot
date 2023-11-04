@@ -40,7 +40,7 @@ namespace RaidMemberBot.Helpers.GreyMagic
             }
             else if (typeof(T).IsEnum)
             {
-                var underlying = typeof(T).GetEnumUnderlyingType();
+                Type underlying = typeof(T).GetEnumUnderlyingType();
                 Size = Marshal.SizeOf(underlying);
                 RealType = underlying;
                 TypeCode = Type.GetTypeCode(underlying);
@@ -66,9 +66,9 @@ namespace RaidMemberBot.Helpers.GreyMagic
                     m => m.GetCustomAttributes(typeof(MarshalAsAttribute), true).Any());
 
             // Generate a method to get the address of a generic type. We'll be using this for RtlMoveMemory later for much faster structure reads.
-            var method = new DynamicMethod(string.Format("GetPinnedPtr<{0}>", typeof(T).FullName.Replace(".", "<>")),
+            DynamicMethod method = new DynamicMethod(string.Format("GetPinnedPtr<{0}>", typeof(T).FullName.Replace(".", "<>")),
                 typeof(void*), new[] { typeof(T).MakeByRefType() }, typeof(MarshalCache<>).Module);
-            var generator = method.GetILGenerator();
+            ILGenerator generator = method.GetILGenerator();
             generator.Emit(OpCodes.Ldarg_0);
             generator.Emit(OpCodes.Conv_U);
             generator.Emit(OpCodes.Ret);

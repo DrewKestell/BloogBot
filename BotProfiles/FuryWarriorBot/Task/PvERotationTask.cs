@@ -106,8 +106,8 @@ namespace FuryWarriorBot
             if (Update(target, 5))
                 return;
 
-            var currentStance = Container.Player.CurrentStance;
-            var spellcastingAggressors = ObjectManager.Instance.Aggressors
+            string currentStance = Container.Player.CurrentStance;
+            IEnumerable<WoWUnit> spellcastingAggressors = ObjectManager.Instance.Aggressors
                 .Where(a => a.Mana > 0);
             // Use these abilities when fighting any number of mobs.   
             TryUseAbility(BerserkerStance, condition: Container.Player.Level >= 30 && currentStance == BattleStance && (target.HasDebuff(Rend) || Container.HostileTarget.HealthPercent < 80 || Container.HostileTarget.CreatureType == CreatureType.Elemental || Container.HostileTarget.CreatureType == CreatureType.Undead));

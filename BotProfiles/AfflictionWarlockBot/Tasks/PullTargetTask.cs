@@ -36,7 +36,7 @@ namespace AfflictionWarlockBot
                 return;
             }
 
-            var distanceToTarget = Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location);
+            float distanceToTarget = Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location);
             if (distanceToTarget < 27 && Container.Player.IsCasting && Spellbook.Instance.IsSpellReady(pullingSpell))
             {
                 if (Container.Player.MovementState != MovementFlags.None)
@@ -53,7 +53,7 @@ namespace AfflictionWarlockBot
                 return;
             }
 
-            var nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
+            Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
             if (nextWaypoint.Length > 1)
             {
                 currentWaypoint = nextWaypoint[1];

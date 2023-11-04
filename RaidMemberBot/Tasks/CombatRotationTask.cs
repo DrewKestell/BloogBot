@@ -104,25 +104,25 @@ namespace RaidMemberBot.AI.SharedStates
             //}
 
             // ensure auto-attack is turned on ONLY if player does not have a wand
-            var wand = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged);
+            WoWItem wand = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged);
             if (wand != null)
             {
                 ItemClass itemClass = wand.Info.ItemClass;
             }
             if (Container.Player.Class != ClassId.Warlock && Container.Player.Class != ClassId.Priest && Container.Player.Class != ClassId.Mage && Container.Player.Class != ClassId.Hunter)
             {
-                var autoAttackAction = Container.Player.Class == ClassId.Warrior ? 84 : 12;
+                int autoAttackAction = Container.Player.Class == ClassId.Warrior ? 84 : 12;
 
                 // first check if auto attack is in the correct action slot
-                var isInCorrectSpot = Lua.Instance.ExecuteWithResult($"{{0}} = IsAttackAction({autoAttackAction})");
+                string[] isInCorrectSpot = Lua.Instance.ExecuteWithResult($"{{0}} = IsAttackAction({autoAttackAction})");
                 if (isInCorrectSpot.Length == 0 || isInCorrectSpot[0] != "1")
                 {
-                    var error = "You must place the <Attack> action from your spellbook on the last slot on your primary action bar.";
+                    string error = "You must place the <Attack> action from your spellbook on the last slot on your primary action bar.";
                     Lua.Instance.Execute($"message('{error}')");
                     return false;
                 }
 
-                var autoAttackLuaScript = $"if IsCurrentAction('{autoAttackAction}') == nil then CastSpellByName('Attack') end";
+                string autoAttackLuaScript = $"if IsCurrentAction('{autoAttackAction}') == nil then CastSpellByName('Attack') end";
                 Lua.Instance.Execute(autoAttackLuaScript);
             }
 
@@ -145,7 +145,7 @@ namespace RaidMemberBot.AI.SharedStates
 
         void TryCastSpellInternal(string name, int minRange, int maxRange, bool condition = true, Action callback = null, bool castOnSelf = false)
         {
-            var distanceToTarget = Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location);
+            float distanceToTarget = Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location);
 
             if (Spellbook.Instance.IsSpellReady(name) && distanceToTarget >= minRange && distanceToTarget <= maxRange && condition && !Container.Player.IsStunned && ((!Container.Player.IsCasting && !Container.Player.IsChanneling) || Container.Player.Class == ClassId.Warrior))
             {

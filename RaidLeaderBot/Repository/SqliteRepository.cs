@@ -21,7 +21,7 @@ namespace RaidMemberBot
                 {
                     connection.Open();
 
-                    var command = connection.CreateCommand();
+                    SQLiteCommand command = connection.CreateCommand();
                     command.CommandText = @"
                                             SELECT *
                                             FROM areatrigger_teleport
@@ -67,7 +67,7 @@ namespace RaidMemberBot
                 {
                     connection.Open();
 
-                    var command = connection.CreateCommand();
+                    SQLiteCommand command = connection.CreateCommand();
                     command.CommandText = @"
                                             SELECT *
                                             FROM areatrigger_teleport
@@ -106,11 +106,11 @@ namespace RaidMemberBot
         {
             Item item = null;
 
-            using (var connection = new SQLiteConnection(ConnectionString))
+            using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
-                var command = connection.CreateCommand();
+                SQLiteCommand command = connection.CreateCommand();
                 command.CommandText = @"
                                             SELECT *
                                             FROM items
@@ -118,7 +118,7 @@ namespace RaidMemberBot
                                         ";
 
                 command.Parameters.AddWithValue("$itemId", id.ToString());
-                using (var reader = command.ExecuteReader())
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -262,11 +262,11 @@ namespace RaidMemberBot
         public static QuestTemplate GetQuestTemplateByID(int id)
         {
             QuestTemplate questTemplate = null;
-            using (var connection = new SQLiteConnection(ConnectionString))
+            using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
-                var command = connection.CreateCommand();
+                SQLiteCommand command = connection.CreateCommand();
                 command.CommandText = @"
                                             SELECT *
                                             FROM quest_template
@@ -274,7 +274,7 @@ namespace RaidMemberBot
                                         ";
                 command.Parameters.AddWithValue("$id", id);
 
-                using (var reader = command.ExecuteReader())
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -419,11 +419,11 @@ namespace RaidMemberBot
         public static List<Creature> GetCreaturesById(int id)
         {
             List<Creature> creatures = new List<Creature>();
-            using (var connection = new SQLiteConnection(ConnectionString))
+            using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
-                var command = connection.CreateCommand();
+                SQLiteCommand command = connection.CreateCommand();
                 command.CommandText = @"
                                             SELECT *
                                             FROM creature
@@ -431,7 +431,7 @@ namespace RaidMemberBot
                                         ";
                 command.Parameters.AddWithValue("$id", id.ToString());
 
-                using (var reader = command.ExecuteReader())
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -467,11 +467,11 @@ namespace RaidMemberBot
         public static List<Creature> GetCreaturesByMapId(int mapId)
         {
             List<Creature> creatures = new List<Creature>();
-            using (var connection = new SQLiteConnection(ConnectionString))
+            using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
-                var command = connection.CreateCommand();
+                SQLiteCommand command = connection.CreateCommand();
                 command.CommandText = @"
                                             SELECT *
                                             FROM creature
@@ -479,7 +479,7 @@ namespace RaidMemberBot
                                         ";
 
                 command.Parameters.AddWithValue("$map", mapId.ToString());
-                using (var reader = command.ExecuteReader())
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -514,11 +514,11 @@ namespace RaidMemberBot
         public static List<Creature> GetCreaturesByLootableItemId(int itemId)
         {
             List<Creature> creatures = new List<Creature>();
-            using (var connection = new SQLiteConnection(ConnectionString))
+            using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
-                var command = connection.CreateCommand();
+                SQLiteCommand command = connection.CreateCommand();
                 command.CommandText = @"
                                             SELECT      crt.*
                                             FROM        creature crt
@@ -528,7 +528,7 @@ namespace RaidMemberBot
                                         ";
                 command.Parameters.AddWithValue("@itemId", itemId.ToString());
 
-                using (var reader = command.ExecuteReader())
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -564,11 +564,11 @@ namespace RaidMemberBot
         public static List<Creature> GetAllVendors()
         {
             List<Creature> creatures = new List<Creature>();
-            using (var connection = new SQLiteConnection(ConnectionString))
+            using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
-                var command = connection.CreateCommand();
+                SQLiteCommand command = connection.CreateCommand();
                 command.CommandText = @"
                                             SELECT      ct.Name name, crt.* 
                                             FROM        creature            crt
@@ -577,7 +577,7 @@ namespace RaidMemberBot
                                             GROUP BY    npcv.Entry
                                         ";
 
-                using (var reader = command.ExecuteReader())
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -614,11 +614,11 @@ namespace RaidMemberBot
         public static List<CreatureLinking> GetCreatureLinkedByGuid(int guid)
         {
             List<CreatureLinking> creatureLinkings = new List<CreatureLinking>();
-            using (var connection = new SQLiteConnection(ConnectionString))
+            using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
-                var command = connection.CreateCommand();
+                SQLiteCommand command = connection.CreateCommand();
                 command.CommandText = @"
                                             SELECT *
                                             FROM creature_linking
@@ -627,7 +627,7 @@ namespace RaidMemberBot
                                         ";
 
                 command.Parameters.AddWithValue("$guid", guid.ToString());
-                using (var reader = command.ExecuteReader())
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -648,11 +648,11 @@ namespace RaidMemberBot
         public static CreatureEquipTemplate GetCreatureEquipTemplateById(int id)
         {
             CreatureEquipTemplate creatureEquipTemplate = new CreatureEquipTemplate();
-            using (var connection = new SQLiteConnection(ConnectionString))
+            using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
-                var command = connection.CreateCommand();
+                SQLiteCommand command = connection.CreateCommand();
                 command.CommandText = @"
                                             SELECT *
                                             FROM creature_equip_template
@@ -660,7 +660,7 @@ namespace RaidMemberBot
                                         ";
 
                 command.Parameters.AddWithValue("$entry", id.ToString());
-                using (var reader = command.ExecuteReader())
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -679,11 +679,11 @@ namespace RaidMemberBot
         public static List<CreatureMovement> GetCreatureMovementById(int id)
         {
             List<CreatureMovement> creatureMovements = new List<CreatureMovement>();
-            using (var connection = new SQLiteConnection(ConnectionString))
+            using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
-                var command = connection.CreateCommand();
+                SQLiteCommand command = connection.CreateCommand();
                 command.CommandText = @"
                                             SELECT *
                                             FROM creature_movement
@@ -691,7 +691,7 @@ namespace RaidMemberBot
                                         ";
 
                 command.Parameters.AddWithValue("id", id.ToString());
-                using (var reader = command.ExecuteReader())
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -717,18 +717,18 @@ namespace RaidMemberBot
         public static CreatureTemplate GetCreatureTemplateById(int id)
         {
             CreatureTemplate creatureTemplate = null;
-            using (var connection = new SQLiteConnection(ConnectionString))
+            using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
-                var command = connection.CreateCommand();
+                SQLiteCommand command = connection.CreateCommand();
                 command.CommandText = @"
                                             SELECT *
                                             FROM creature_template
                                             WHERE Entry = $Entry
                                         ";
                 command.Parameters.AddWithValue("$Entry", id.ToString());
-                using (var reader = command.ExecuteReader())
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -825,11 +825,11 @@ namespace RaidMemberBot
         public static List<CreatureTemplate> GetAllClassTrainers()
         {
             List<CreatureTemplate> creatureTemplates = new List<CreatureTemplate>();
-            using (var connection = new SQLiteConnection(ConnectionString))
+            using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
-                var command = connection.CreateCommand();
+                SQLiteCommand command = connection.CreateCommand();
                 command.CommandText = @"
                                             SELECT      ct.*
                                             FROM        creature_template   ct
@@ -837,7 +837,7 @@ namespace RaidMemberBot
                                             AND         ct.TrainerType      == 0
                                         ";
 
-                using (var reader = command.ExecuteReader())
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -936,11 +936,11 @@ namespace RaidMemberBot
         public static List<int> GetQuestRelatedNPCsByQuestId(int id)
         {
             List<int> questNpcs = new List<int>();
-            using (var connection = new SQLiteConnection(ConnectionString))
+            using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
-                var command = connection.CreateCommand();
+                SQLiteCommand command = connection.CreateCommand();
                 command.CommandText = @"
                                             SELECT A.*, ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS rn
                                             FROM creature_involvedrelation A
@@ -949,7 +949,7 @@ namespace RaidMemberBot
                                         ";
                 command.Parameters.AddWithValue("@id", id.ToString());
 
-                using (var reader = command.ExecuteReader())
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -962,11 +962,11 @@ namespace RaidMemberBot
         public static List<GameObject> GetGameObjectsById(int id)
         {
             List<GameObject> gameObjects = new List<GameObject>();
-            using (var connection = new SQLiteConnection(ConnectionString))
+            using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
-                var command = connection.CreateCommand();
+                SQLiteCommand command = connection.CreateCommand();
                 command.CommandText = @"
                                             SELECT *
                                             FROM gameobject
@@ -974,7 +974,7 @@ namespace RaidMemberBot
                                         ";
                 command.Parameters.AddWithValue("@id", id.ToString());
 
-                using (var reader = command.ExecuteReader())
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -1007,11 +1007,11 @@ namespace RaidMemberBot
         public static List<GameObject> GetGameObjectByLootableItemId(int itemId)
         {
             List<GameObject> gameObjects = new List<GameObject>();
-            using (var connection = new SQLiteConnection(ConnectionString))
+            using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
-                var command = connection.CreateCommand();
+                SQLiteCommand command = connection.CreateCommand();
                 command.CommandText = @"
                                             SELECT DISTINCT gob.*
                                             FROM        gameobject                  gob
@@ -1021,7 +1021,7 @@ namespace RaidMemberBot
                                         ";
                 command.Parameters.AddWithValue("@itemId", itemId.ToString());
 
-                using (var reader = command.ExecuteReader())
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -1054,11 +1054,11 @@ namespace RaidMemberBot
         public static List<NpcVendorEntry> GetAllItemsSoldByVendorByEntry(int entry)
         {
             List<NpcVendorEntry> npcVendorEntries = new List<NpcVendorEntry>();
-            using (var connection = new SQLiteConnection(ConnectionString))
+            using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
-                var command = connection.CreateCommand();
+                SQLiteCommand command = connection.CreateCommand();
                 command.CommandText = @"
                                             SELECT      npcv.*
                                             FROM        npc_vendor   npcv
@@ -1066,7 +1066,7 @@ namespace RaidMemberBot
                                         ";
 
                 command.Parameters.AddWithValue("@entry", entry.ToString());
-                using (var reader = command.ExecuteReader())
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
