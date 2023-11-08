@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RaidMemberBot.Models.Dto;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -10,223 +11,385 @@ namespace RaidLeaderBot
 {
     public sealed class RaidLeaderViewModel : INotifyPropertyChanged
     {
-        private ActivityContainer _activityContainer;
-        public ObservableCollection<int> ActivityPresetIndexes { get; set; } = new ObservableCollection<int>();
-        public ObservableCollection<RaidPresetViewModel> RaidPresetViewModels { get; set; } = new ObservableCollection<RaidPresetViewModel>();
+        private readonly ActivityManager _activityContainer;
+        private readonly RaidPreset _preset;
+        public int Index { get; set; }
+        public IEnumerable<ActivityType> EnumActivityTypes => Enum.GetValues(typeof(ActivityType)).Cast<ActivityType>();
         public ObservableCollection<RaidMemberViewModel> RaidMemberViewModels { get; set; } = new ObservableCollection<RaidMemberViewModel>();
         public RaidLeaderViewModel()
         {
-            ActivityPresetIndexes.Clear();
+            _preset = new RaidPreset();
+        }
+        public RaidLeaderViewModel(RaidPreset raidPreset)
+        {
+            _preset = raidPreset;
+            _activityContainer = new ActivityManager(_preset.RaidLeaderPort);
 
-            for (int i = 0; i < RaidLeaderBotSettings.Instance.ActivityPresets.Count; i++)
+            _preset.RaidMemberPresets ??= new List<RaidMemberPreset>() { new RaidMemberPreset() };
+
+            for (int i = 0; i < _preset.RaidMemberPresets.Count; i++)
             {
-                ActivityPresetIndexes.Add(i + 1);
+                AddRaidMember(new RaidMemberViewModel(_preset.RaidMemberPresets[i])
+                {
+                    Index = i,
+                    IsAlliance = IsAlliance
+                });
             }
 
-            ActivityPresetIndex = 1;
-            SelectedRaidMemberIndex = 0;
-
-            _activityContainer = new ActivityContainer();
-
-            OnPropertyChanged(nameof(ActivityPresetIndexes));
+            OnPropertyChanged(nameof(CurrentActivity));
+            OnPropertyChanged(nameof(IsAlliance));
+            OnPropertyChanged(nameof(IsHorde));
         }
-        public void AddPreset()
+
+        public CharacterState GetCharacterStateByRaidMemberViewModel(RaidMemberViewModel index) => _activityContainer.PartyMembersToStates[index];
+
+        private ICommand _startAllRaidMembersCommand;
+        private ICommand _stopAllRaidMembersCommand;
+        private ICommand _setMaxRaidSizeCommand;
+
+        private ICommand _addRaidMemberCommand;
+        private ICommand _removeRaidMemberCommand;
+
+        public ICommand StartAllRaidMembersCommand => _startAllRaidMembersCommand ??= new CommandHandler(StartAllRaidMembers, true);
+        public ICommand StopAllRaidMembersCommand => _stopAllRaidMembersCommand ??= new CommandHandler(StopAllRaidMembers, true);
+        public ICommand AddRaidMemberCommand => _addRaidMemberCommand ??= new CommandHandler(AddRaidMember, true);
+        public ICommand RemoveRaidMemberCommand => _removeRaidMemberCommand ??= new CommandHandler(RemoveRaidMember, true);
+        public ICommand SetMaxRaidSizeCommand => _setMaxRaidSizeCommand ??= new CommandHandler(SetMaxRaidSize, true);
+
+        public bool CanAddMember => !ShouldRun && IsFocused && RaidMemberViewModels.Count < MaxGroupSize;
+        public bool CanRemoveMember => !ShouldRun && IsFocused && RaidMemberViewModels.Count > 1;
+        public bool CanStart => RaidMemberViewModels.Any(x => !x.ShouldRun);
+        public bool CanStop => RaidMemberViewModels.Any(x => x.ShouldRun);
+        public int MaxGroupSize
         {
-            RaidLeaderBotSettings.Instance.ActivityPresets.Add(new List<RaidPreset>());
-
-            RaidLeaderBotSettings.Instance.ActivityPresets
-                .Last()
-                .Add(new RaidPreset());
-
-            ActivityPresetIndexes.Add(ActivityPresetIndexes.Count + 1);
-
-            ActivityPresetIndex = ActivityPresetIndexes.Count;
-
-            SetRaidFocusState (0, true);
-
-            OnPropertyChanged(nameof(ActivityPresetIndexes));
-            OnPropertyChanged(nameof(CanAddPreset));
-            OnPropertyChanged(nameof(CanRemovePreset));
-        }
-        public void RemovePreset()
-        {
-            ActivityPresetIndexes.RemoveAt(ActivityPresetIndexes.Count - 1);
-
-            RaidLeaderBotSettings.Instance.ActivityPresets.RemoveAt(_activityPresetIndex);
-
-            int newIndexValue = _activityPresetIndex - 1;
-            newIndexValue = Math.Max(newIndexValue, 0);
-            newIndexValue = Math.Min(newIndexValue, ActivityPresetIndexes.Count - 1);
-
-            ActivityPresetIndex = newIndexValue + 1;
-
-            OnPropertyChanged(nameof(ActivityPresetIndexes));
-            OnPropertyChanged(nameof(CanAddPreset));
-            OnPropertyChanged(nameof(CanRemovePreset));
-        }
-        public void AddRaid()
-        {
-            for (int i = 0; i < RaidPresetViewModels.Count; i++)
+            get
             {
-                SetRaidFocusState(i, false);
-            }
-
-            RaidLeaderBotSettings.Instance.ActivityPresets[_activityPresetIndex]
-                .Add(new RaidPreset() { RaidMemberPresets = new List<RaidMemberPreset>() { new RaidMemberPreset() }, Activity = RaidLeaderBotSettings.Instance.ActivityPresets[_activityPresetIndex][SelectedRaidIndex].Activity });
-
-            RaidPresetViewModels.Add(new RaidPresetViewModel(RaidLeaderBotSettings.Instance.ActivityPresets[_activityPresetIndex].Last()) { Index = RaidPresetViewModels.Count });
-
-            SetRaidFocusState(RaidPresetViewModels.Count - 1, true);
-
-            OnPropertyChanged(nameof(CanAddRaid));
-            OnPropertyChanged(nameof(CanRemoveRaid));
-        }
-        public void RemoveRaid()
-        {
-            RaidLeaderBotSettings.Instance.ActivityPresets[ActivityPresetIndex - 1]
-                .RemoveAt(SelectedRaidIndex);
-
-            RaidPresetViewModels.RemoveAt(SelectedRaidIndex);
-
-            int newIndex = SelectedRaidIndex - 1;
-            newIndex = Math.Max(newIndex, 0);
-            newIndex = Math.Min(newIndex, RaidLeaderBotSettings.Instance.ActivityPresets[ActivityPresetIndex - 1].Count - 1);
-
-            SetRaidFocusState(newIndex, true);
-
-            OnPropertyChanged(nameof(CanAddRaid));
-            OnPropertyChanged(nameof(CanRemoveRaid));
-        }
-        public void SaveConfig()
-        {
-            RaidLeaderBotSettings.Instance.SaveConfig();
-        }
-        public void SetRaidFocusState(int index, bool isFocused)
-        {
-            RaidPresetViewModels[index].IsFocused = isFocused;
-            if (isFocused)
-            {
-                SelectedRaidIndex = index;
-
-                SetMemberFocusState(0, true);
+                switch (CurrentActivity)
+                {
+                    case ActivityType.BlackrockDepths:
+                    case ActivityType.DireMaul:
+                    case ActivityType.Scholomance:
+                    case ActivityType.StratholmeAlive:
+                    case ActivityType.StratholmeUndead:
+                        return 5;
+                    case ActivityType.UpperBlackrockSpire:
+                    case ActivityType.WarsongGulch19:
+                    case ActivityType.WarsongGulch29:
+                    case ActivityType.WarsongGulch39:
+                    case ActivityType.WarsongGulch49:
+                    case ActivityType.WarsongGulch59:
+                    case ActivityType.WarsongGulch60:
+                        return 10;
+                    case ActivityType.ArathiBasin29:
+                    case ActivityType.ArathiBasin39:
+                    case ActivityType.ArathiBasin49:
+                    case ActivityType.ArathiBasin59:
+                    case ActivityType.ArathiBasin60:
+                        return 15;
+                    case ActivityType.ZulGurub:
+                    case ActivityType.RuinsOfAhnQiraj:
+                        return 20;
+                    case ActivityType.Idle:
+                    case ActivityType.AlteracValley:
+                    case ActivityType.BlackwingLair:
+                    case ActivityType.MoltenCore:
+                    case ActivityType.Naxxramas:
+                    case ActivityType.OnyxiasLair:
+                    case ActivityType.TempleOfAhnQiraj:
+                        return 40;
+                }
+                return 10;
             }
         }
-        public void SetMemberFocusState(int index, bool isFocused)
+        public int MinLevelRequirement
         {
-            RaidPresetViewModels[SelectedRaidIndex].RaidMemberViewModels[index].IsFocused = isFocused;
-            if (isFocused)
+            get
             {
-                SelectedRaidMemberIndex = index;
+                switch (CurrentActivity)
+                {
+                    case ActivityType.RagefireChasm:
+                        return 8;
+                    case ActivityType.WarsongGulch19:
+                    case ActivityType.ShadowfangKeep:
+                    case ActivityType.TheDeadmines:
+                    case ActivityType.WailingCaverns:
+                        return 10;
+                    case ActivityType.TheStockade:
+                        return 15;
+                    case ActivityType.RazorfenKraul:
+                        return 17;
+                    case ActivityType.BlackfathomDeeps:
+                        return 19;
+                    case ActivityType.ArathiBasin29:
+                    case ActivityType.WarsongGulch29:
+                    case ActivityType.Gnomeregan:
+                    case ActivityType.SMGraveyard:
+                    case ActivityType.SMLibrary:
+                    case ActivityType.SMArmory:
+                    case ActivityType.SMCathedral:
+                        return 20;
+                    case ActivityType.RazorfenDowns:
+                        return 25;
+                    case ActivityType.ArathiBasin39:
+                    case ActivityType.WarsongGulch39:
+                    case ActivityType.Uldaman:
+                    case ActivityType.MaraudonEarthSongFalls:
+                    case ActivityType.MaraudonFoulsporeCavern:
+                    case ActivityType.MaraudonWickedGrotto:
+                        return 30;
+                    case ActivityType.TempleOfAtalHakkar:
+                    case ActivityType.ZulFarrak:
+                        return 35;
+                    case ActivityType.ArathiBasin49:
+                    case ActivityType.WarsongGulch49:
+                    case ActivityType.BlackrockDepths:
+                        return 40;
+                    case ActivityType.LowerBlackrockSpire:
+                    case ActivityType.UpperBlackrockSpire:
+                    case ActivityType.Scholomance:
+                    case ActivityType.StratholmeAlive:
+                    case ActivityType.StratholmeUndead:
+                    case ActivityType.DireMaul:
+                        return 45;
+                    case ActivityType.ArathiBasin59:
+                    case ActivityType.WarsongGulch59:
+                    case ActivityType.MoltenCore:
+                    case ActivityType.OnyxiasLair:
+                    case ActivityType.ZulGurub:
+                        return 50;
+                    case ActivityType.AlteracValley:
+                        return 51;
+                    case ActivityType.ArathiBasin60:
+                    case ActivityType.WarsongGulch60:
+                    case ActivityType.BlackwingLair:
+                    case ActivityType.RuinsOfAhnQiraj:
+                    case ActivityType.TempleOfAhnQiraj:
+                    case ActivityType.Naxxramas:
+                        return 60;
+                }
+                return 1;
             }
         }
-        private int _activityPresetIndex;
-        public int ActivityPresetIndex
+        public int MaxLevelRequirement
         {
-            get { return _activityPresetIndex + 1; }
-            set
+            get
             {
-                _activityPresetIndex = value - 1;
-
-                RegenerateRaidPresetCollection();
-                SetRaidFocusState(0, true);
-
-                OnPropertyChanged(nameof(ActivityPresetIndex));
+                switch (CurrentActivity)
+                {
+                    case ActivityType.WarsongGulch19:
+                        return 19;
+                    case ActivityType.WarsongGulch29:
+                    case ActivityType.ArathiBasin29:
+                        return 29;
+                    case ActivityType.WarsongGulch39:
+                    case ActivityType.ArathiBasin39:
+                        return 39;
+                    case ActivityType.WarsongGulch49:
+                    case ActivityType.ArathiBasin49:
+                        return 49;
+                    case ActivityType.WarsongGulch59:
+                    case ActivityType.ArathiBasin59:
+                        return 59;
+                }
+                return 60;
             }
         }
-        private int _selectedRaidIndex;
-        public int SelectedRaidIndex
+
+        public void StartAllRaidMembers()
         {
-            get { return _selectedRaidIndex; }
-            set
+            try
             {
-                _selectedRaidIndex = value;
+                for (int i = 0; i < RaidMemberViewModels.Count; i++)
+                {
+                    RaidMemberViewModels[i].ShouldRun = true;
 
-                RenegerateRaidMembersCollection();
-                SetMemberFocusState(0, true);
+                    if (_activityContainer.PartyMembersToStates[RaidMemberViewModels[i]].ProcessId == 0)
+                    {
+                        RaidMemberLauncher.Instance.LaunchProcess(RaidLeaderPortNumber);
+                    }
+                }
 
-                OnPropertyChanged(nameof(SelectedRaidIndex));
+                OnPropertyChanged(nameof(CanStart));
+                OnPropertyChanged(nameof(CanStop));
+            }
+            catch
+            {
+                Console.WriteLine("Error encountered starting bot.");
             }
         }
-        private int _selectedRaidMemberIndex;
-        public int SelectedRaidMemberIndex
+        public void StopAllRaidMembers()
         {
-            get { return _selectedRaidMemberIndex; }
-            set
+            try
             {
-                _selectedRaidMemberIndex = value;
+                for (int i = 0; i < RaidMemberViewModels.Count; i++)
+                {
+                    RaidMemberViewModels[i].ShouldRun = false;
+                }
 
-                OnPropertyChanged(nameof(SelectedRaidMemberIndex));
+                OnPropertyChanged(nameof(CanStart));
+                OnPropertyChanged(nameof(CanStop));
+            }
+            catch
+            {
+                Console.WriteLine("Error encountered starting bot.");
             }
         }
-        private void RegenerateRaidPresetCollection()
+        public void AddRaidMember()
         {
-            for (int i = 0; i < RaidPresetViewModels.Count; i++)
+            RaidMemberPreset raidMemberPreset = new RaidMemberPreset();
+            _preset.RaidMemberPresets.Add(raidMemberPreset);
+
+            RaidMemberViewModel raidMemberViewModel = new RaidMemberViewModel(raidMemberPreset)
             {
-                SetRaidFocusState(i, false);
-            }
+                Index = RaidMemberViewModels.Count,
+                IsAlliance = IsAlliance
+            };
 
-            RaidPresetViewModels.Clear();
-
-            List<RaidPreset> raidPresets = RaidLeaderBotSettings.Instance.ActivityPresets[ActivityPresetIndex - 1];
-
-            for (int i = 0; i < raidPresets.Count; i++)
-            {
-                RaidPresetViewModels.Add(new RaidPresetViewModel(raidPresets[i]) { Index = i });
-            }
-
-            OnPropertyChanged(nameof(RaidPresetViewModels));
-            OnPropertyChanged(nameof(CanAddRaid));
-            OnPropertyChanged(nameof(CanRemoveRaid));
-        }
-        private void RenegerateRaidMembersCollection()
-        {
-            for (int i = 0; i < RaidPresetViewModels[SelectedRaidIndex].RaidMemberViewModels.Count; i++)
-            {
-                SetMemberFocusState(i, false);
-            }
-
-            RaidMemberViewModels = RaidPresetViewModels[SelectedRaidIndex].RaidMemberViewModels;
+            AddRaidMember(raidMemberViewModel);
 
             OnPropertyChanged(nameof(RaidMemberViewModels));
+            OnPropertyChanged(nameof(CanAddMember));
+            OnPropertyChanged(nameof(CanRemoveMember));
         }
-        private bool _isRunning;
-        public bool IsRunning
+
+        private void AddRaidMember(RaidMemberViewModel raidMemberViewModel)
         {
-            get => _isRunning;
+            RaidMemberViewModels.Add(raidMemberViewModel);
+            _activityContainer.AddRaidMember(raidMemberViewModel);
+        }
+        public void RemoveRaidMember()
+        {
+            RaidMemberViewModel raidMemberViewModel = RaidMemberViewModels.First(x => x.IsFocused);
+            int focusedIndex = RaidMemberViewModels.IndexOf(raidMemberViewModel);
+
+            RaidMemberViewModels.RemoveAt(focusedIndex);
+            _preset.RaidMemberPresets.RemoveAt(focusedIndex);
+            _activityContainer.RemoveRaidMember(raidMemberViewModel);
+
+            int newIndex = focusedIndex - 1;
+            newIndex = Math.Max(newIndex, 0);
+            newIndex = Math.Min(newIndex, RaidMemberViewModels.Count - 1);
+
+            RaidMemberViewModels[newIndex].IsFocused = true;
+
+            OnPropertyChanged(nameof(RaidMemberViewModels));
+            OnPropertyChanged(nameof(CanAddMember));
+            OnPropertyChanged(nameof(CanRemoveMember));
+        }
+        public void SetMaxRaidSize()
+        {
+            for (int i = RaidMemberViewModels.Count; i < MaxGroupSize; i++)
+                AddRaidMember();
+        }
+        public ActivityType CurrentActivity
+        {
+            get
+            {
+                return _preset.Activity;
+            }
             set
             {
-                _isRunning = value;
-
-                OnPropertyChanged(nameof(IsRunning));
-
-                OnPropertyChanged(nameof(CanAddRaid));
-                OnPropertyChanged(nameof(CanRemoveRaid));
-                OnPropertyChanged(nameof(CanAddPreset));
-                OnPropertyChanged(nameof(CanRemovePreset));
+                _preset.Activity = value;
+                OnPropertyChanged(nameof(CurrentActivity));
             }
         }
-        public bool CanAddPreset => !IsRunning && RaidLeaderBotSettings.Instance.ActivityPresets.Count < 10;
-        public bool CanRemovePreset => !IsRunning && RaidLeaderBotSettings.Instance.ActivityPresets.Count > 1;
-        public bool CanAddRaid => !IsRunning && RaidLeaderBotSettings.Instance.ActivityPresets[ActivityPresetIndex - 1].Count < 4;
-        public bool CanRemoveRaid => !IsRunning && RaidLeaderBotSettings.Instance.ActivityPresets[ActivityPresetIndex - 1].Count > 1;
+        public bool IsAlliance
+        {
+            get
+            {
+                return _preset.IsAlliance;
+            }
+            set
+            {
+                if (!_preset.IsAlliance)
+                {
+                    for (int i = 0; i < RaidMemberViewModels.Count; i++)
+                    {
+                        RaidMemberViewModels[i].SwapFaction();
+                    }
+                    OnPropertyChanged(nameof(RaidMemberViewModels));
+                }
+                _preset.IsAlliance = true;
 
-        public ICommand SaveConfigCommand => _saveConfigCommand ??= new CommandHandler(SaveConfig, true);
-        public ICommand AddPresetCommand => _addPresetCommand ??= new CommandHandler(AddPreset, true);
-        public ICommand RemovePresetCommand => _removePresetCommand ??= new CommandHandler(RemovePreset, true);
-        public ICommand AddRaidCommand => _addRaidCommand ??= new CommandHandler(AddRaid, true);
-        public ICommand RemoveRaidCommand => _removeRaidCommand ??= new CommandHandler(RemoveRaid, true);
+                OnPropertyChanged(nameof(IsAlliance));
+                OnPropertyChanged(nameof(IsHorde));
+            }
+        }
+        public bool IsHorde
+        {
+            get
+            {
+                return !_preset.IsAlliance;
+            }
+            set
+            {
+                if (_preset.IsAlliance)
+                {
+                    for (int i = 0; i < RaidMemberViewModels.Count; i++)
+                    {
+                        RaidMemberViewModels[i].SwapFaction();
+                    }
+                    OnPropertyChanged(nameof(RaidMemberViewModels));
+                }
+                _preset.IsAlliance = false;
 
-        private ICommand _saveConfigCommand;
-        private ICommand _addPresetCommand;
-        private ICommand _removePresetCommand;
+                OnPropertyChanged(nameof(IsAlliance));
+                OnPropertyChanged(nameof(IsHorde));
+            }
+        }
 
-        private ICommand _addRaidCommand;
-        private ICommand _removeRaidCommand;
+        private bool _shouldRun;
+        public bool ShouldRun
+        {
+            get => _shouldRun;
+            set
+            {
+                _shouldRun = value;
 
+                OnPropertyChanged(nameof(ShouldRun));
+                OnPropertyChanged(nameof(CanAddMember));
+                OnPropertyChanged(nameof(CanRemoveMember));
+            }
+        }
+        private bool _isFocused;
+        public bool IsFocused
+        {
+            get
+            {
+                return _isFocused;
+            }
+            set
+            {
+                _isFocused = value;
+
+                OnPropertyChanged(nameof(IsFocused));
+                OnPropertyChanged(nameof(CanAddMember));
+                OnPropertyChanged(nameof(CanRemoveMember));
+            }
+        }
+        public int RaidLeaderPortNumber
+        {
+            get
+            {
+                return _preset.RaidLeaderPort;
+            }
+            set
+            {
+                _preset.RaidLeaderPort = value;
+
+                OnPropertyChanged(nameof(RaidLeaderPortNumber));
+            }
+        }
         public event PropertyChangedEventHandler PropertyChanged;
+
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        internal void QueueCommandToProcess(int processId, InstanceCommand command)
+        {
+            _activityContainer.QueueCommandToProcess(processId, command);
         }
     }
 }

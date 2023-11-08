@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static RaidMemberBot.Constants.Enums;
-using ItemCacheEntry = RaidMemberBot.Constants.ItemCacheEntry;
 
 namespace RaidMemberBot.Game.Statics
 {

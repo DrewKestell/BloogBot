@@ -1,13 +1,13 @@
-﻿using RaidMemberBot.Constants;
-using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Mem;
-using System;
+﻿using System;
 using System.Linq;
-using RaidMemberBot.ExtensionMethods;
-using RaidMemberBot.Helpers;
-using static RaidMemberBot.Constants.Enums;
 using ObjectManager = RaidMemberBot.Game.Statics.ObjectManager;
 using Functions = RaidMemberBot.Mem.Functions;
+using static RaidMemberBot.Constants.Enums;
+using RaidMemberBot.Mem;
+using RaidMemberBot.Constants;
+using RaidMemberBot.Game.Statics;
+using RaidMemberBot.ExtensionMethods;
+using RaidMemberBot.Helpers;
 
 namespace RaidMemberBot.Objects
 {

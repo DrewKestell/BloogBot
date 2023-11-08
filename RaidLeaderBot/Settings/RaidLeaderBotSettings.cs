@@ -24,13 +24,6 @@ namespace RaidLeaderBot
                 return _instance;
             }
         }
-        private RaidLeaderBotSettings() { }
-        public string PathToWoW { get; set; }
-        public int CommandPort { get; set; }
-        public int DatabasePort { get; set; }
-        public int PathfindingPort { get; set; }
-        public string ListenAddress { get; set; }
-        public List<List<RaidPreset>> ActivityPresets { get; set; }
         public void SaveConfig()
         {
             try
@@ -48,9 +41,17 @@ namespace RaidLeaderBot
                 Console.WriteLine(ex);
             }
         }
+        private RaidLeaderBotSettings() { }
+        public string PathToWoW { get; set; }
+        public int ConfigServerPort { get; set; }
+        public int DatabasePort { get; set; }
+        public int NavigationPort { get; set; }
+        public string ListenAddress { get; set; }
+        public List<List<RaidPreset>> ActivityPresets { get; set; }
     }
     public class RaidPreset
     {
+        public int RaidLeaderPort { get; set; }
         public bool IsAlliance { get; set; }
         public ActivityType Activity { get; set; }
         public List<RaidMemberPreset> RaidMemberPresets { get; set; }
@@ -72,8 +73,8 @@ namespace RaidLeaderBot
         public bool IsRole4 { get; set; }
         public bool IsRole5 { get; set; }
         public bool IsRole6 { get; set; }
-        public List<int> TalentsAndSpells { get; set; }
-        public Dictionary<InventoryType, int> EquipmentItems { get; set; }
-        public Dictionary<InventoryType, int> EquipmentEnchants { get; set; }
+        public List<int> Talents { get; set; } = new List<int>();
+        public Dictionary<InventoryType, int> EquipmentItems { get; set; } = new Dictionary<InventoryType, int>();
+        public Dictionary<InventoryType, int> EquipmentEnchants { get; set; } = new Dictionary<InventoryType, int>();
     }
 }

@@ -5,7 +5,6 @@ using RaidMemberBot.Mem;
 using RaidMemberBot.Models.Dto;
 using RaidMemberBot.Objects;
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -71,7 +70,7 @@ namespace RaidMemberBot.Game.Statics
         /// <summary>
         ///     Access to the instance
         /// </summary>
-        public static ObjectManager Instance { get; } = new ObjectManager();
+        public static ObjectManager Instance => _instance.Value;
 
 
         /// <summary>
@@ -327,15 +326,9 @@ namespace RaidMemberBot.Game.Statics
         {
             if (!IsIngame)
             {
-                return;
-            }
-            _ingame2 = ThreadSynchronizer.Instance.Invoke(() =>
-            {
-                // renew playerptr if invalid
-                // return if no pointer can be retrieved
-                ulong playerGuid = Functions.GetPlayerGuid();
-                if (playerGuid == 0)
+                if (_characterState != null)
                 {
+                    _characterState.Guid = 0;
                     _characterState.MapId = 0;
                     _characterState.Location = new System.Numerics.Vector3();
                     _characterState.Waypoint = new System.Numerics.Vector3();
@@ -343,8 +336,7 @@ namespace RaidMemberBot.Game.Statics
                     _characterState.Class = ClassId.Warrior;
                     _characterState.Race = Race.Human;
                     _characterState.CharacterName = string.Empty;
-                    _characterState.Zone = string.Empty;
-                    _characterState.CurrentTask = string.Empty;
+                    _characterState.Zone = Login.Instance.LoginState == LoginStates.charselect ? "Character Select Screen" : "Login Screen";
                     _characterState.HostileTargetGuid = 0;
                     _characterState.FriendlyTargetGuid = 0;
                     _characterState.CurrentHealth = 0;
@@ -359,12 +351,55 @@ namespace RaidMemberBot.Game.Statics
                     _characterState.InParty = false;
                     _characterState.InCombat = false;
                     _characterState.IsMoving = false;
-                    _characterState.IsMounted = false;
+                    _characterState.IsOnMount = false;
                     _characterState.IsFalling = false;
                     _characterState.IsStunned = false;
                     _characterState.IsConfused = false;
                     _characterState.IsPoisoned = false;
                     _characterState.IsDiseased = false;
+                    _characterState.WoWObjects = new Dictionary<ulong, string>();
+                    _characterState.WoWUnits = new Dictionary<ulong, string>();
+                }
+                return;
+            }
+            _ingame2 = ThreadSynchronizer.Instance.Invoke(() =>
+            {
+                // renew playerptr if invalid
+                // return if no pointer can be retrieved
+                ulong playerGuid = Functions.GetPlayerGuid();
+                if (playerGuid == 0)
+                {
+                    _characterState.Guid = 0;
+                    _characterState.MapId = 0;
+                    _characterState.Location = new System.Numerics.Vector3();
+                    _characterState.Waypoint = new System.Numerics.Vector3();
+                    _characterState.Level = 0;
+                    _characterState.Class = ClassId.Warrior;
+                    _characterState.Race = Race.Human;
+                    _characterState.CharacterName = string.Empty;
+                    _characterState.Zone = string.Empty;
+                    _characterState.HostileTargetGuid = 0;
+                    _characterState.FriendlyTargetGuid = 0;
+                    _characterState.CurrentHealth = 0;
+                    _characterState.CurrentMana = 0;
+                    _characterState.MaxHealth = 0;
+                    _characterState.MaxMana = 0;
+                    _characterState.Rage = 0;
+                    _characterState.ComboPoints = 0;
+                    _characterState.Energy = 0;
+                    _characterState.Casting = 0;
+                    _characterState.Channeling = 0;
+                    _characterState.InParty = false;
+                    _characterState.InCombat = false;
+                    _characterState.IsMoving = false;
+                    _characterState.IsOnMount = false;
+                    _characterState.IsFalling = false;
+                    _characterState.IsStunned = false;
+                    _characterState.IsConfused = false;
+                    _characterState.IsPoisoned = false;
+                    _characterState.IsDiseased = false;
+                    _characterState.WoWObjects = new Dictionary<ulong, string>();
+                    _characterState.WoWUnits = new Dictionary<ulong, string>();
 
                     return false;
                 }
@@ -404,7 +439,7 @@ namespace RaidMemberBot.Game.Statics
                 _characterState.Channeling = Player.Channeling;
                 _characterState.InCombat = Player.IsInCombat;
                 _characterState.IsMoving = Player.IsMoving;
-                _characterState.IsMounted = Player.IsMounted;
+                _characterState.IsOnMount = Player.IsMounted;
                 _characterState.IsFalling = Player.IsFalling;
                 _characterState.IsStunned = Player.IsStunned;
                 _characterState.IsConfused = Player.IsConfused;
@@ -425,7 +460,15 @@ namespace RaidMemberBot.Game.Statics
                 _characterState.Energy = Player.Energy;
                 _characterState.ComboPoints = Player.ComboPoints;
                 _characterState.Facing = Player.Facing;
-                _characterState.Location = new System.Numerics.Vector3(Player.Location.X,Player.Location.Y,Player.Location.Z);
+                _characterState.Location = new System.Numerics.Vector3(Player.Location.X, Player.Location.Y, Player.Location.Z);
+
+                List<WoWUnit> units = Npcs.OrderBy(x => x.DistanceToPlayer)
+                                        .ToList();
+                units.Insert(0, Player);
+
+                _characterState.WoWUnits = units.ToDictionary(x => x.Guid, x => x.Name);
+                _characterState.WoWObjects = GameObjects.OrderBy(x => x.Location.DistanceToPlayer())
+                                            .ToDictionary(x => x.Guid, x => x.Name);
 
                 return true;
             });

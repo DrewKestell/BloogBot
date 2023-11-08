@@ -291,6 +291,7 @@
     <Compile Include="BotRunner.cs" />
     <Compile Include="BotTask.cs" />
     <Compile Include="ClassContainer.cs" />
+    <Compile Include="Client\ConfigClient.cs" />
     <Compile Include="Client\DatabaseClient.cs" />
     <Compile Include="Client\NavigationClient.cs" />
     <Compile Include="IBot.cs" />
@@ -301,6 +302,8 @@
     <Compile Include="Models\CreatureLinkingTemplate.cs" />
     <Compile Include="Models\CreatureMovement.cs" />
     <Compile Include="Models\CreatureMovementTemplate.cs" />
+    <Compile Include="Models\Dto\ConfigurationRequest.cs" />
+    <Compile Include="Models\Dto\ConfigurationResponse.cs" />
     <Compile Include="Models\Dto\DatabaseRequest.cs" />
     <Compile Include="Models\Dto\PathfindingRequest.cs" />
     <Compile Include="Tasks\BuyItemsTask.cs" />
@@ -437,7 +440,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="packages.config" />
-    <None Include="Settings\raidMemberSettings.json">
+    <None Include="Settings\RaidMemberSettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Properties\Settings.settings">

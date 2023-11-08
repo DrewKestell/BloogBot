@@ -24,7 +24,7 @@ namespace RaidMemberBot.AI.SharedStates
 
             npc = ObjectManager.Instance
                 .Units
-.First(x => x.Name == npcName);
+                .First(x => x.Name == npcName);
         }
 
         public void Update()

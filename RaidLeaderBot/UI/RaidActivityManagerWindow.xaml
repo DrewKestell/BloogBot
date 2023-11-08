@@ -5,15 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:System="clr-namespace:System;assembly=mscorlib" 
         xmlns:local="clr-namespace:RaidLeaderBot"
-        x:Class="RaidLeaderBot.MainWindow"
+        x:Class="RaidLeaderBot.RaidActivityManagerWindow"
         x:Name="MainControllerWindow"
         mc:Ignorable="d"
         Title="Raid Activity Manager" 
         Width="1740"
-        Height="594"
+        Height="556"
         ResizeMode="CanMinimize">
     <Window.DataContext>
-        <local:RaidLeaderViewModel/>
+        <local:RaidActivityViewModel/>
     </Window.DataContext>
     <Window.Resources>
         <local:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
@@ -384,21 +384,23 @@
         <StackPanel Grid.Row="1">
             <ItemsControl ItemsSource="{Binding RaidPresetViewModels}">
                 <d:ItemsControl.ItemsSource>
-                    <x:Array Type="{x:Type local:RaidPresetViewModel}">
-                        <local:RaidPresetViewModel CurrentActivity="WarsongGulch19" 
+                    <x:Array Type="{x:Type local:RaidLeaderViewModel}">
+                        <local:RaidLeaderViewModel CurrentActivity="WarsongGulch19" 
                                                    ShouldRun="True" 
                                                    IsFocused="True"
                                                    IsAlliance="True"
-                                                   IsHorde="False"/>
-                        <local:RaidPresetViewModel CurrentActivity="WarsongGulch19" 
+                                                   IsHorde="False"
+                                                   RaidLeaderPortNumber="8089"/>
+                        <local:RaidLeaderViewModel CurrentActivity="WarsongGulch19" 
                                                    ShouldRun="False" 
                                                    IsFocused="False"
                                                    IsAlliance="False"
-                                                   IsHorde="True"/>
+                                                   IsHorde="True"
+                                                   RaidLeaderPortNumber="8090"/>
                     </x:Array>
                 </d:ItemsControl.ItemsSource>
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="{x:Type local:RaidPresetViewModel}">
+                    <DataTemplate DataType="{x:Type local:RaidLeaderViewModel}">
                         <GroupBox Header="Party/Raid Settings" Height="90" MouseLeftButtonDown="RaidPresetGroupBox_MouseLeftClick">
                             <GroupBox.Style>
                                 <Style TargetType="GroupBox">
@@ -469,6 +471,7 @@
                                     Margin="164,15,0,0"
                                     IsEnabled="{Binding IsFocused}"
                                     IsChecked="{Binding IsHorde}">Horde</RadioButton>
+                                <TextBox Text="{Binding RaidLeaderPortNumber}" Width="50" Margin="229,0,0,0"/>
                             </Grid>
                         </GroupBox>
                     </DataTemplate>
@@ -482,30 +485,28 @@
                         <local:RaidMemberViewModel Header="Player 1 - Felhand" 
                                                    IsFocused="True"
                                                    Race="Tauren"
-                                                   Class="Warrior"
-                                                   Level="14"/>
+                                                   Class="Warrior"/>
                         <local:RaidMemberViewModel Header="Player 2 - Jmr" 
                                                    IsFocused="False"
                                                    Race="Undead"
-                                                   Class="Priest"
-                                                   Level="14"/>
+                                                   Class="Priest"/>
                     </x:Array>
                 </d:ItemsControl.ItemsSource>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type local:RaidMemberViewModel}">
-                        <GroupBox Header="{Binding Header}" HorizontalAlignment="Stretch"  MouseLeftButtonDown="MemberPresetGroupBox_MouseLeftClick">
+                        <GroupBox Header="{Binding Header}" HorizontalAlignment="Stretch" MouseLeftButtonDown="MemberPresetGroupBox_MouseLeftClick">
                             <GroupBox.Style>
                                 <Style TargetType="GroupBox">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsFocused}" Value="True">
                                             <Setter Property="Foreground" Value="OrangeRed"/>
                                             <Setter Property="Background" Value="DarkOrange"/>
-                                            <Setter Property="Height" Value="555"/>
+                                            <Setter Property="Height" Value="516"/>
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding IsFocused}" Value="False">
                                             <Setter Property="Foreground" Value="Black"/>
                                             <Setter Property="Background" Value="White"/>
-                                            <Setter Property="Height" Value="86"/>
+                                            <Setter Property="Height" Value="54"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -519,52 +520,49 @@
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="36"></RowDefinition>
-                                    <RowDefinition Height="28"></RowDefinition>
                                     <RowDefinition Height="72"></RowDefinition>
-                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="384"></RowDefinition>
                                 </Grid.RowDefinitions>
                                 <Button Content="Start" 
                                             IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" 
                                             Command="{Binding StartCommand}" 
                                             Grid.ColumnSpan="2"/>
-                                <Button Content="Stop" 
-                                            IsEnabled="{Binding ShouldRun}"
-                                            Command="{Binding StopCommand}" 
-                                            Grid.Column="1" 
-                                            Grid.ColumnSpan="2"/>
-                                <ComboBox SelectedValue="{Binding Race}"
-                                              ItemsSource="{Binding Races}"
-                                              Grid.Column="0" 
-                                              Grid.Row="1" 
-                                              Width="100"/>
-                                <ComboBox SelectedValue="{Binding Class}"
-                                          ItemsSource="{Binding Path=ClassIds}"
+                                <Button Content="Stop"
+                                        IsEnabled="{Binding ShouldRun}"
+                                        Command="{Binding StopCommand}"
+                                        Grid.ColumnSpan="2" Margin="105,0,0,0"/>
+                                <ComboBox IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}"  
+                                          SelectedValue="{Binding Race}"
+                                          ItemsSource="{Binding Races}"
                                           Grid.Column="1"
-                                          Grid.Row="1"
+                                          Width="100" Margin="38,0,0,0"/>
+                                <ComboBox IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" 
+                                          SelectedValue="{Binding Class}"
+                                          ItemsSource="{Binding Path=ClassIds}"
+                                          Grid.Column="2"
                                           Width="100"/>
                                 <Label Grid.Column="2"
                                        Padding="0"
-                                       Grid.Row="1"
-                                       Margin="78,0,0,0"
+                                       Margin="126,0,0,17"
                                        HorizontalAlignment="Left"
                                        Width="36"
                                        Content="Level"/>
-                                <TextBox Grid.Column="2"
-                                         Grid.Row="1"
+                                <TextBox IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" 
+                                         Grid.Column="2"
                                          HorizontalContentAlignment="Right"
                                          HorizontalAlignment="Right"
                                          Width="36"
-                                         Text="{Binding Level}"/>
-                                <Button Content="Apply"
-                                        IsEnabled="{Binding ShouldRun}"
+                                         Text="{Binding RaidMemberPreset.Level}" Grid.ColumnSpan="2" Margin="0,0,127,0"/>
+                                <Button IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" 
+                                        Content="Apply"
                                         HorizontalAlignment="Right"
-                                        Grid.Row="1"
                                         Grid.Column="3"
                                         Height="26"
                                         Width="69"/>
-                                <GroupBox Header="Roles"
+                                <GroupBox IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" 
+                                          Header="Roles"
                                           Grid.Column="0"
-                                          Grid.Row="2"
+                                          Grid.Row="1"
                                           Grid.ColumnSpan="4"
                                           VerticalAlignment="Stretch"
                                           HorizontalAlignment="Stretch">
@@ -579,28 +577,30 @@
                                             <ColumnDefinition Width="92"/>
                                         </Grid.ColumnDefinitions>
                                         <Grid.RowDefinitions>
+                                            <RowDefinition Height="22"/>
                                             <RowDefinition Height="24"/>
-                                            <RowDefinition Height="42"/>
                                         </Grid.RowDefinitions>
-                                        <CheckBox   x:Name="RolesMainTankCheckBox"  Grid.Column="0" Grid.Row="0">Main Tank</CheckBox>
-                                        <CheckBox   x:Name="RolesOffTankCheckBox"   Grid.Column="0" Grid.Row="1">Off Tank</CheckBox>
-                                        <CheckBox   x:Name="RolesMainHealCheckBox"  Grid.Column="1" Grid.Row="0">Main Heal</CheckBox>
-                                        <CheckBox   x:Name="RolesOffHealCheckBox"   Grid.Column="1" Grid.Row="1">Off Heal</CheckBox>
-                                        <CheckBox   x:Name="RolesCleanseCheckBox"   Grid.Column="2" Grid.Row="0">Cleanse</CheckBox>
-                                        <CheckBox   x:Name="RolesRebuffCheckBox"    Grid.Column="2" Grid.Row="1">Rebuff</CheckBox>
-                                        <CheckBox   x:Name="RolesRole1CheckBox"     Grid.Column="3" Grid.Row="0">Role 1</CheckBox>
-                                        <CheckBox   x:Name="RolesRole2CheckBox"     Grid.Column="3" Grid.Row="1">Role 2</CheckBox>
-                                        <CheckBox   x:Name="RolesRole3CheckBox"     Grid.Column="4" Grid.Row="0">Role 3</CheckBox>
-                                        <CheckBox   x:Name="RolesRole4CheckBox"     Grid.Column="4" Grid.Row="1">Role 4</CheckBox>
-                                        <CheckBox   x:Name="RolesRole5CheckBox"     Grid.Column="5" Grid.Row="0">Role 5</CheckBox>
-                                        <CheckBox   x:Name="RolesRole6CheckBox"     Grid.Column="5" Grid.Row="1">Role 6</CheckBox>
+                                        <CheckBox IsChecked="{Binding RaidMemberPreset.IsMainTank}"    x:Name="RolesMainTankCheckBox"  Grid.Column="0" Grid.Row="0">Main Tank</CheckBox>
+                                        <CheckBox IsChecked="{Binding RaidMemberPreset.IsMainHealer}"  x:Name="RolesMainHealCheckBox"  Grid.Column="1" Grid.Row="0">Main Heal</CheckBox>
+                                        <CheckBox IsChecked="{Binding RaidMemberPreset.ShouldCleanse}" x:Name="RolesCleanseCheckBox"   Grid.Column="2" Grid.Row="0">Cleanse</CheckBox>
+                                        <CheckBox IsChecked="{Binding RaidMemberPreset.IsRole1}"       x:Name="RolesRole1CheckBox"     Grid.Column="3" Grid.Row="0">Role 1</CheckBox>
+                                        <CheckBox IsChecked="{Binding RaidMemberPreset.IsRole3}"       x:Name="RolesRole3CheckBox"     Grid.Column="4" Grid.Row="0">Role 3</CheckBox>
+                                        <CheckBox IsChecked="{Binding RaidMemberPreset.IsRole5}"       x:Name="RolesRole5CheckBox"     Grid.Column="5" Grid.Row="0">Role 5</CheckBox>
+                                        
                                         <Label Grid.Column="6" Grid.Row="0" VerticalAlignment="Top" Padding="0">CC Marker</Label>
+
+                                        <CheckBox IsChecked="{Binding RaidMemberPreset.IsOffTank}"     x:Name="RolesOffTankCheckBox"   Grid.Column="0" Grid.Row="1" VerticalAlignment="Bottom">Off Tank</CheckBox>
+                                        <CheckBox IsChecked="{Binding RaidMemberPreset.IsOffHealer}"   x:Name="RolesOffHealCheckBox"   Grid.Column="1" Grid.Row="1" VerticalAlignment="Bottom">Off Heal</CheckBox>
+                                        <CheckBox IsChecked="{Binding RaidMemberPreset.ShouldRebuff}"  x:Name="RolesRebuffCheckBox"    Grid.Column="2" Grid.Row="1" VerticalAlignment="Bottom">Rebuff</CheckBox>
+                                        <CheckBox IsChecked="{Binding RaidMemberPreset.IsRole2}"       x:Name="RolesRole2CheckBox"     Grid.Column="3" Grid.Row="1" VerticalAlignment="Bottom">Role 2</CheckBox>
+                                        <CheckBox IsChecked="{Binding RaidMemberPreset.IsRole4}"       x:Name="RolesRole4CheckBox"     Grid.Column="4" Grid.Row="1" VerticalAlignment="Bottom">Role 4</CheckBox>
+                                        <CheckBox IsChecked="{Binding RaidMemberPreset.IsRole6}"       x:Name="RolesRole6CheckBox"     Grid.Column="5" Grid.Row="1" VerticalAlignment="Bottom">Role 6</CheckBox>
                                         <ComboBox x:Name="CrowdControlMarkerComboBox"
                                                   Grid.Column="6"
                                                   Grid.Row="1" 
                                                   SelectedIndex="0" 
                                                   HorizontalAlignment="Stretch" 
-                                                  ItemsSource="{Binding Path=EnumTargetMarkers}">
+                                                  ItemsSource="{Binding EnumTargetMarkers}">
                                             <ComboBox.ItemTemplate>
                                                 <DataTemplate>
                                                     <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
@@ -609,8 +609,9 @@
                                         </ComboBox>
                                     </Grid>
                                 </GroupBox>
-                                <GroupBox Header="Equipment" 
-                                          Grid.Row="3" 
+                                <GroupBox IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" 
+                                          Header="Equipment" 
+                                          Grid.Row="2" 
                                           VerticalAlignment="Stretch">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -694,7 +695,8 @@
                                         <TextBox    x:Name="EnchantRangedTextBox" Margin="0,0,0,0" Grid.Row="19"  Grid.Column="2" FontSize="10" Padding="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">8035</TextBox>
                                     </Grid>
                                 </GroupBox>
-                                <GroupBox Header="Talent Tree 1" Grid.Column="1" Grid.Row="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                                <GroupBox IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" 
+                                          Header="{Binding TalentTree1Header}" Grid.Column="1" Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="36"/>
@@ -720,46 +722,31 @@
                                             <RowDefinition Height="24"/>
                                             <RowDefinition Height="24"/>
                                         </Grid.RowDefinitions>
-                                        <Label  Name="Talent1Index1Label"   Grid.Column="0" Grid.Row="0"    Content="Talent 1"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent1Index2Label"   Grid.Column="1" Grid.Row="0"    Content="Talent 2"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent1Index3Label"   Grid.Column="0" Grid.Row="2"    Content="Talent 5"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent1Index4Label"   Grid.Column="1" Grid.Row="2"    Content="Talent 6"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent1Index5Label"   Grid.Column="2" Grid.Row="2"    Content="Talent 7"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent1Index6Label"   Grid.Column="3" Grid.Row="2"    Content="Talent 8"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent1Index7Label"   Grid.Column="0" Grid.Row="4"    Content="Talent 9"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent1Index8Label"   Grid.Column="1" Grid.Row="4"    Content="Talent 10" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent1Index9Label"   Grid.Column="2" Grid.Row="4"    Content="Talent 11" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent1Index10Label"  Grid.Column="3" Grid.Row="4"    Content="Talent 12" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent1Index11Label"  Grid.Column="0" Grid.Row="6"    Content="Talent 13" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent1Index12Label"  Grid.Column="1" Grid.Row="6"    Content="Talent 14" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent1Index13Label"  Grid.Column="2" Grid.Row="6"    Content="Talent 15" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent1Index14Label"  Grid.Column="3" Grid.Row="6"    Content="Talent 16" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent1Index15Label"  Grid.Column="0" Grid.Row="8"    Content="Talent 17" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent1Index16Label"  Grid.Column="1" Grid.Row="8"    Content="Talent 18" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent1Index17Label"  Grid.Column="2" Grid.Row="8"    Content="Talent 17" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent1Index18Label"  Grid.Column="3" Grid.Row="8"    Content="Talent 18" Style="{StaticResource TalentLabelStyle}"/>
+                                        <Label  Name="Talent1TooltipHeader"     Grid.Column="0" Grid.Row="12" Grid.ColumnSpan="4" HorizontalContentAlignment="Center" Content="{Binding TalentTree1TooltipHeader}"  Style="{StaticResource TalentLabelStyle}"/>
+                                        <Label  Name="Talent1TooltipSubtext"    Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="4" HorizontalContentAlignment="Center" Content="{Binding TalentTree1TooltipSubtext}" Style="{StaticResource TalentLabelStyle}"/>
 
-                                        <Button Name="Talent1Index1Button"  Grid.Column="0" Grid.Row="1"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index2Button"  Grid.Column="1" Grid.Row="1"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index3Button"  Grid.Column="0" Grid.Row="3"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index4Button"  Grid.Column="1" Grid.Row="3"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index5Button"  Grid.Column="2" Grid.Row="3"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index6Button"  Grid.Column="3" Grid.Row="3"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index7Button"  Grid.Column="0" Grid.Row="5"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index8Button"  Grid.Column="1" Grid.Row="5"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index9Button"  Grid.Column="2" Grid.Row="5"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index10Button" Grid.Column="3" Grid.Row="5"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index11Button" Grid.Column="0" Grid.Row="7"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index12Button" Grid.Column="1" Grid.Row="7"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index13Button" Grid.Column="2" Grid.Row="7"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index14Button" Grid.Column="3" Grid.Row="7"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index15Button" Grid.Column="0" Grid.Row="9"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index16Button" Grid.Column="1" Grid.Row="9"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index17Button" Grid.Column="2" Grid.Row="9"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index18Button" Grid.Column="3" Grid.Row="9"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent1Index1Button" IsEnabled="{Binding Talent1Index1Enabled}"  Grid.Column="{Binding Talent1Index1Column}"     Grid.Row="{Binding Talent1Index1Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent1Index2Button" IsEnabled="{Binding Talent1Index2Enabled}"  Grid.Column="{Binding Talent1Index2Column}"     Grid.Row="{Binding Talent1Index2Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent1Index3Button" IsEnabled="{Binding Talent1Index3Enabled}"  Grid.Column="{Binding Talent1Index3Column}"     Grid.Row="{Binding Talent1Index3Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent1Index4Button" IsEnabled="{Binding Talent1Index4Enabled}"  Grid.Column="{Binding Talent1Index4Column}"     Grid.Row="{Binding Talent1Index4Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent1Index5Button" IsEnabled="{Binding Talent1Index5Enabled}"  Grid.Column="{Binding Talent1Index5Column}"     Grid.Row="{Binding Talent1Index5Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent1Index6Button" IsEnabled="{Binding Talent1Index6Enabled}"  Grid.Column="{Binding Talent1Index6Column}"     Grid.Row="{Binding Talent1Index6Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent1Index7Button" IsEnabled="{Binding Talent1Index7Enabled}"  Grid.Column="{Binding Talent1Index7Column}"     Grid.Row="{Binding Talent1Index7Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent1Index8Button" IsEnabled="{Binding Talent1Index8Enabled}"  Grid.Column="{Binding Talent1Index8Column}"     Grid.Row="{Binding Talent1Index8Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent1Index9Button" IsEnabled="{Binding Talent1Index9Enabled}"  Grid.Column="{Binding Talent1Index9Column}"     Grid.Row="{Binding Talent1Index9Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent1Index10Button" IsEnabled="{Binding Talent1Index10Enabled}" Grid.Column="{Binding Talent1Index10Column}"    Grid.Row="{Binding Talent1Index10Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent1Index11Button" IsEnabled="{Binding Talent1Index11Enabled}" Grid.Column="{Binding Talent1Index11Column}"    Grid.Row="{Binding Talent1Index11Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent1Index12Button" IsEnabled="{Binding Talent1Index12Enabled}" Grid.Column="{Binding Talent1Index12Column}"    Grid.Row="{Binding Talent1Index12Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent1Index13Button" IsEnabled="{Binding Talent1Index13Enabled}" Grid.Column="{Binding Talent1Index13Column}"    Grid.Row="{Binding Talent1Index13Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent1Index14Button" IsEnabled="{Binding Talent1Index14Enabled}" Grid.Column="{Binding Talent1Index14Column}"    Grid.Row="{Binding Talent1Index14Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent1Index15Button" IsEnabled="{Binding Talent1Index15Enabled}" Grid.Column="{Binding Talent1Index15Column}"    Grid.Row="{Binding Talent1Index15Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent1Index16Button" Visibility="{Binding Talent1Index16Visibility}" IsEnabled="{Binding Talent1Index16Enabled}" Grid.Column="{Binding Talent1Index16Column}"  Grid.Row="{Binding Talent1Index16Row}"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent1Index17Button" Visibility="{Binding Talent1Index17Visibility}" IsEnabled="{Binding Talent1Index17Enabled}" Grid.Column="{Binding Talent1Index17Column}"  Grid.Row="{Binding Talent1Index17Row}"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent1Index18Button" Visibility="{Binding Talent1Index18Visibility}" IsEnabled="{Binding Talent1Index18Enabled}" Grid.Column="{Binding Talent1Index18Column}"  Grid.Row="{Binding Talent1Index18Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
                                     </Grid>
                                 </GroupBox>
-                                <GroupBox Header="Talent Tree 2" Grid.Column="2" Grid.Row="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                                <GroupBox IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" 
+                                          Header="{Binding TalentTree2Header}" Grid.Column="2" Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="36"/>
@@ -785,48 +772,32 @@
                                             <RowDefinition Height="24"/>
                                             <RowDefinition Height="24"/>
                                         </Grid.RowDefinitions>
-                                        <Label  Name="Talent2Index1Label"   Grid.Column="0" Grid.Row="0"    Content="Talent 1"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent2Index2Label"   Grid.Column="1" Grid.Row="0"    Content="Talent 2"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent2Index3Label"   Grid.Column="0" Grid.Row="2"    Content="Talent 5"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent2Index4Label"   Grid.Column="1" Grid.Row="2"    Content="Talent 6"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent2Index5Label"   Grid.Column="2" Grid.Row="2"    Content="Talent 7"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent2Index6Label"   Grid.Column="3" Grid.Row="2"    Content="Talent 8"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent2Index7Label"   Grid.Column="0" Grid.Row="4"    Content="Talent 9"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent2Index8Label"   Grid.Column="1" Grid.Row="4"    Content="Talent 10" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent2Index9Label"   Grid.Column="2" Grid.Row="4"    Content="Talent 11" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent2Index10Label"  Grid.Column="3" Grid.Row="4"    Content="Talent 12" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent2Index11Label"  Grid.Column="0" Grid.Row="6"    Content="Talent 13" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent2Index12Label"  Grid.Column="1" Grid.Row="6"    Content="Talent 14" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent2Index13Label"  Grid.Column="2" Grid.Row="6"    Content="Talent 15" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent2Index14Label"  Grid.Column="3" Grid.Row="6"    Content="Talent 16" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent2Index15Label"  Grid.Column="0" Grid.Row="8"    Content="Talent 17" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent2Index16Label"  Grid.Column="1" Grid.Row="8"    Content="Talent 18" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent2Index17Label"  Grid.Column="2" Grid.Row="8"    Content="Talent 17" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent2Index18Label"  Grid.Column="3" Grid.Row="8"    Content="Talent 18" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent2Index19Label"  Grid.Column="2" Grid.Row="10"   Content="Talent 18" Style="{StaticResource TalentLabelStyle}"/>
+                                        <Label  Name="Talent2TooltipHeader"     Grid.Column="0" Grid.Row="12" Grid.ColumnSpan="4" HorizontalContentAlignment="Center" Content="{Binding TalentTree2TooltipHeader}"  Style="{StaticResource TalentLabelStyle}"/>
+                                        <Label  Name="Talent2TooltipSubtext"    Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="4" HorizontalContentAlignment="Center" Content="{Binding TalentTree2TooltipSubtext}" Style="{StaticResource TalentLabelStyle}"/>
 
-                                        <Button Name="Talent2Index1Button"  Grid.Column="0" Grid.Row="1"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index2Button"  Grid.Column="1" Grid.Row="1"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index3Button"  Grid.Column="0" Grid.Row="3"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index4Button"  Grid.Column="1" Grid.Row="3"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index5Button"  Grid.Column="2" Grid.Row="3"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index6Button"  Grid.Column="3" Grid.Row="3"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index7Button"  Grid.Column="0" Grid.Row="5"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index8Button"  Grid.Column="1" Grid.Row="5"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index9Button"  Grid.Column="2" Grid.Row="5"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index10Button" Grid.Column="3" Grid.Row="5"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index11Button" Grid.Column="0" Grid.Row="7"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index12Button" Grid.Column="1" Grid.Row="7"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index13Button" Grid.Column="2" Grid.Row="7"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index14Button" Grid.Column="3" Grid.Row="7"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index15Button" Grid.Column="0" Grid.Row="9"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index16Button" Grid.Column="1" Grid.Row="9"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index17Button" Grid.Column="2" Grid.Row="9"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index18Button" Grid.Column="3" Grid.Row="9"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index19Button" Grid.Column="2" Grid.Row="11"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent2Index1Button" IsEnabled="{Binding Talent2Index1Enabled}"  Grid.Column="{Binding Talent2Index1Column}"     Grid.Row="{Binding Talent2Index1Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent2Index2Button" IsEnabled="{Binding Talent2Index2Enabled}"  Grid.Column="{Binding Talent2Index2Column}"     Grid.Row="{Binding Talent2Index2Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent2Index3Button" IsEnabled="{Binding Talent2Index3Enabled}"  Grid.Column="{Binding Talent2Index3Column}"     Grid.Row="{Binding Talent2Index3Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent2Index4Button" IsEnabled="{Binding Talent2Index4Enabled}"  Grid.Column="{Binding Talent2Index4Column}"     Grid.Row="{Binding Talent2Index4Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent2Index5Button" IsEnabled="{Binding Talent2Index5Enabled}"  Grid.Column="{Binding Talent2Index5Column}"     Grid.Row="{Binding Talent2Index5Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent2Index6Button" IsEnabled="{Binding Talent2Index6Enabled}"  Grid.Column="{Binding Talent2Index6Column}"     Grid.Row="{Binding Talent2Index6Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent2Index7Button" IsEnabled="{Binding Talent2Index7Enabled}"  Grid.Column="{Binding Talent2Index7Column}"     Grid.Row="{Binding Talent2Index7Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent2Index8Button" IsEnabled="{Binding Talent2Index8Enabled}"  Grid.Column="{Binding Talent2Index8Column}"     Grid.Row="{Binding Talent2Index8Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent2Index9Button" IsEnabled="{Binding Talent2Index9Enabled}"  Grid.Column="{Binding Talent2Index9Column}"     Grid.Row="{Binding Talent2Index9Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent2Index10Button" IsEnabled="{Binding Talent2Index10Enabled}" Grid.Column="{Binding Talent2Index10Column}"    Grid.Row="{Binding Talent2Index10Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent2Index11Button" IsEnabled="{Binding Talent2Index11Enabled}" Grid.Column="{Binding Talent2Index11Column}"    Grid.Row="{Binding Talent2Index11Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent2Index12Button" IsEnabled="{Binding Talent2Index12Enabled}" Grid.Column="{Binding Talent2Index12Column}"    Grid.Row="{Binding Talent2Index12Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent2Index13Button" IsEnabled="{Binding Talent2Index13Enabled}" Grid.Column="{Binding Talent2Index13Column}"    Grid.Row="{Binding Talent2Index13Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent2Index14Button" IsEnabled="{Binding Talent2Index14Enabled}" Grid.Column="{Binding Talent2Index14Column}"    Grid.Row="{Binding Talent2Index14Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent2Index15Button" IsEnabled="{Binding Talent2Index15Enabled}" Grid.Column="{Binding Talent2Index15Column}"    Grid.Row="{Binding Talent2Index15Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent2Index16Button" Visibility="{Binding Talent2Index16Visibility}" IsEnabled="{Binding Talent2Index16Enabled}" Grid.Column="{Binding Talent2Index16Column}"    Grid.Row="{Binding Talent2Index16Row}"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent2Index17Button" Visibility="{Binding Talent2Index17Visibility}" IsEnabled="{Binding Talent2Index17Enabled}" Grid.Column="{Binding Talent2Index17Column}"    Grid.Row="{Binding Talent2Index17Row}"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent2Index18Button" Visibility="{Binding Talent2Index18Visibility}" IsEnabled="{Binding Talent2Index18Enabled}" Grid.Column="{Binding Talent2Index18Column}"    Grid.Row="{Binding Talent2Index18Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent2Index19Button" Visibility="{Binding Talent2Index19Visibility}" IsEnabled="{Binding Talent2Index19Enabled}" Grid.Column="{Binding Talent2Index19Column}"    Grid.Row="{Binding Talent2Index19Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
                                     </Grid>
                                 </GroupBox>
-                                <GroupBox Header="Talent Tree 3" Grid.Column="3" Grid.Row="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                                <GroupBox IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" 
+                                          Header="{Binding TalentTree3Header}" Grid.Column="3" Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="36"/>
@@ -850,43 +821,27 @@
                                             <RowDefinition Height="24"/>
                                             <RowDefinition Height="24"/>
                                         </Grid.RowDefinitions>
-                                        <Label  Name="Talent3Index1Label"   Grid.Column="0" Grid.Row="0"    Content="Talent 1"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent3Index2Label"   Grid.Column="1" Grid.Row="0"    Content="Talent 2"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent3Index3Label"   Grid.Column="0" Grid.Row="2"    Content="Talent 5"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent3Index4Label"   Grid.Column="1" Grid.Row="2"    Content="Talent 6"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent3Index5Label"   Grid.Column="2" Grid.Row="2"    Content="Talent 7"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent3Index6Label"   Grid.Column="3" Grid.Row="2"    Content="Talent 8"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent3Index7Label"   Grid.Column="0" Grid.Row="4"    Content="Talent 9"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent3Index8Label"   Grid.Column="1" Grid.Row="4"    Content="Talent 10" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent3Index9Label"   Grid.Column="2" Grid.Row="4"    Content="Talent 11" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent3Index10Label"  Grid.Column="3" Grid.Row="4"    Content="Talent 12" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent3Index11Label"  Grid.Column="0" Grid.Row="6"    Content="Talent 13" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent3Index12Label"  Grid.Column="1" Grid.Row="6"    Content="Talent 14" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent3Index13Label"  Grid.Column="2" Grid.Row="6"    Content="Talent 15" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent3Index14Label"  Grid.Column="3" Grid.Row="6"    Content="Talent 16" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent3Index15Label"  Grid.Column="0" Grid.Row="8"    Content="Talent 17" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent3Index16Label"  Grid.Column="1" Grid.Row="8"    Content="Talent 18" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent3Index17Label"  Grid.Column="2" Grid.Row="8"    Content="Talent 17" Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent3Index18Label"  Grid.Column="3" Grid.Row="8"    Content="Talent 18" Style="{StaticResource TalentLabelStyle}"/>
+                                        <Label  Name="Talent3TooltipHeader"     Grid.Column="0" Grid.Row="12" Grid.ColumnSpan="4" HorizontalContentAlignment="Center" Content="{Binding TalentTree1TooltipHeader}"  Style="{StaticResource TalentLabelStyle}"/>
+                                        <Label  Name="Talent3TooltipSubtext"    Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="4" HorizontalContentAlignment="Center" Content="{Binding TalentTree1TooltipSubtext}" Style="{StaticResource TalentLabelStyle}"/>
 
-                                        <Button Name="Talent3Index1Button"  Grid.Column="0" Grid.Row="1"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index2Button"  Grid.Column="1" Grid.Row="1"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index3Button"  Grid.Column="0" Grid.Row="3"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index4Button"  Grid.Column="1" Grid.Row="3"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index5Button"  Grid.Column="2" Grid.Row="3"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index6Button"  Grid.Column="3" Grid.Row="3"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index7Button"  Grid.Column="0" Grid.Row="5"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index8Button"  Grid.Column="1" Grid.Row="5"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index9Button"  Grid.Column="2" Grid.Row="5"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index10Button" Grid.Column="3" Grid.Row="5"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index11Button" Grid.Column="0" Grid.Row="7"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index12Button" Grid.Column="1" Grid.Row="7"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index13Button" Grid.Column="2" Grid.Row="7"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index14Button" Grid.Column="3" Grid.Row="7"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index15Button" Grid.Column="0" Grid.Row="9"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index16Button" Grid.Column="1" Grid.Row="9"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index17Button" Grid.Column="2" Grid.Row="9"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index18Button" Grid.Column="3" Grid.Row="9"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index1Button" IsEnabled="{Binding Talent3Index1Enabled}"  Grid.Column="{Binding Talent3Index1Column}"     Grid.Row="{Binding Talent3Index1Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index2Button" IsEnabled="{Binding Talent3Index2Enabled}"  Grid.Column="{Binding Talent3Index2Column}"     Grid.Row="{Binding Talent3Index2Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index3Button" IsEnabled="{Binding Talent3Index3Enabled}"  Grid.Column="{Binding Talent3Index3Column}"     Grid.Row="{Binding Talent3Index3Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index4Button" IsEnabled="{Binding Talent3Index4Enabled}"  Grid.Column="{Binding Talent3Index4Column}"     Grid.Row="{Binding Talent3Index4Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index5Button" IsEnabled="{Binding Talent3Index5Enabled}"  Grid.Column="{Binding Talent3Index5Column}"     Grid.Row="{Binding Talent3Index5Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index6Button"  IsEnabled="{Binding Talent3Index6Enabled}" Grid.Column="{Binding Talent3Index6Column}"     Grid.Row="{Binding Talent3Index6Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index7Button" IsEnabled="{Binding Talent3Index7Enabled}"  Grid.Column="{Binding Talent3Index7Column}"     Grid.Row="{Binding Talent3Index7Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index8Button" IsEnabled="{Binding Talent3Index8Enabled}"  Grid.Column="{Binding Talent3Index8Column}"     Grid.Row="{Binding Talent3Index8Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index9Button" IsEnabled="{Binding Talent3Index9Enabled}"  Grid.Column="{Binding Talent3Index9Column}"     Grid.Row="{Binding Talent3Index9Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index10Button" IsEnabled="{Binding Talent3Index10Enabled}" Grid.Column="{Binding Talent3Index10Column}"    Grid.Row="{Binding Talent3Index10Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index11Button" IsEnabled="{Binding Talent3Index11Enabled}" Grid.Column="{Binding Talent3Index11Column}"    Grid.Row="{Binding Talent3Index11Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index12Button" IsEnabled="{Binding Talent3Index12Enabled}" Grid.Column="{Binding Talent3Index12Column}"    Grid.Row="{Binding Talent3Index12Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index13Button" IsEnabled="{Binding Talent3Index13Enabled}" Grid.Column="{Binding Talent3Index13Column}"    Grid.Row="{Binding Talent3Index13Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index14Button" IsEnabled="{Binding Talent3Index14Enabled}" Grid.Column="{Binding Talent3Index14Column}"    Grid.Row="{Binding Talent3Index14Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index15Button" IsEnabled="{Binding Talent3Index15Enabled}" Grid.Column="{Binding Talent3Index15Column}"    Grid.Row="{Binding Talent3Index15Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index16Button" Visibility="{Binding Talent3Index16Visibility}" IsEnabled="{Binding Talent3Index16Enabled}" Grid.Column="{Binding Talent3Index16Column}"    Grid.Row="{Binding Talent3Index16Row}"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index17Button" Visibility="{Binding Talent3Index17Visibility}" IsEnabled="{Binding Talent3Index17Enabled}" Grid.Column="{Binding Talent3Index17Column}"    Grid.Row="{Binding Talent3Index17Row}"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index18Button" Visibility="{Binding Talent3Index18Visibility}" IsEnabled="{Binding Talent3Index18Enabled}" Grid.Column="{Binding Talent3Index18Column}"    Grid.Row="{Binding Talent3Index18Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
                                     </Grid>
                                 </GroupBox>
                             </Grid>
@@ -895,11 +850,9 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
-        <GroupBox Header="{Binding ProcessId}" Grid.Column="2" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <StackPanel Grid.Column="2" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="28"/>
-                    <RowDefinition Height="28"/>
                     <RowDefinition Height="28"/>
                     <RowDefinition Height="28"/>
                     <RowDefinition Height="28"/>
@@ -932,138 +885,151 @@
                     <ColumnDefinition Width="64"/>
                 </Grid.ColumnDefinitions>
                 <Label Grid.Row="0" Grid.Column="0" Content="Task:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="0" Grid.Column="1" Content="{Binding CurrentTask}" Grid.ColumnSpan="3" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="0" Grid.Column="1" Content="{Binding CharacterState.Task}" Grid.ColumnSpan="5" HorizontalContentAlignment="Left"/>
 
                 <Label Grid.Row="1" Grid.Column="0" Content="Zone:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="1" Grid.Column="1" Content="{Binding Zone}" HorizontalContentAlignment="Left" Grid.ColumnSpan="3"/>
+                <Label Grid.Row="1" Grid.Column="1" Content="{Binding CharacterState.Zone}" Grid.ColumnSpan="5" HorizontalContentAlignment="Left"/>
+
+                <Label Grid.Row="2" Grid.Column="1" HorizontalContentAlignment="Left" Content="{Binding CharacterState.WaypointMapId}"/>
+                <Label Grid.Row="2" Grid.Column="2" HorizontalContentAlignment="Left" Content="{Binding WaypointX}"/>
+                <Label Grid.Row="2" Grid.Column="3" HorizontalContentAlignment="Left" Content="{Binding WaypointY}"/>
+                <Label Grid.Row="2" Grid.Column="4" HorizontalContentAlignment="Left" Content="{Binding WaypointZ}"/>
+
+                <Label Grid.Row="3" Grid.Column="1" HorizontalContentAlignment="Left" Content="{Binding CharacterState.MapId}"/>
+                <Label Grid.Row="3" Grid.Column="2" HorizontalContentAlignment="Left" Content="{Binding LocationX}"/>
+                <Label Grid.Row="3" Grid.Column="3" HorizontalContentAlignment="Left" Content="{Binding LocationY}"/>
+                <Label Grid.Row="3" Grid.Column="4" HorizontalContentAlignment="Left" Content="{Binding LocationZ}"/>
 
                 <Label Grid.Row="0" Grid.Column="6" Content="GUID:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="0" Grid.Column="7" d:Content="0000003452" Grid.ColumnSpan="3" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="0" Grid.Column="7" Content="{Binding CharacterState.Guid}" Grid.ColumnSpan="3" HorizontalContentAlignment="Left"/>
 
                 <Label Grid.Row="1" Grid.Column="6" Content="Health:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="1" Grid.Column="7" d:Content="3452" HorizontalContentAlignment="Left"/>
-                <Label Grid.Row="1" Grid.Column="8" d:Content="/ 4302" HorizontalContentAlignment="Left"/>
-                <Label Grid.Row="1" Grid.Column="9" d:Content="80%" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="1" Grid.Column="7" Content="{Binding CharacterState.CurrentHealth}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="1" Grid.Column="8" Content="{Binding CharacterState.MaxHealth}" HorizontalContentAlignment="Left"/>
 
                 <Label Grid.Row="2" Grid.Column="6" Content="Mana:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="2" Grid.Column="7" d:Content="3452" HorizontalContentAlignment="Left"/>
-                <Label Grid.Row="2" Grid.Column="8" d:Content="/ 4302" HorizontalContentAlignment="Left"/>
-                <Label Grid.Row="2" Grid.Column="9" d:Content="80%" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="2" Grid.Column="7" Content="{Binding CharacterState.CurrentMana}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="2" Grid.Column="8" Content="{Binding CharacterState.MaxMana}" HorizontalContentAlignment="Left"/>
 
                 <Label Grid.Row="3" Grid.Column="6" Content="Rage:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="3" Grid.Column="7" d:Content="12" HorizontalContentAlignment="Left"/>
-                <Label Grid.Row="3" Grid.Column="8" d:Content="/ 100" HorizontalContentAlignment="Left"/>
-                <Label Grid.Row="3" Grid.Column="9" d:Content="12%" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="3" Grid.Column="7" Content="{Binding CharacterState.Rage}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="3" Grid.Column="8" Content="100" HorizontalContentAlignment="Left"/>
 
                 <Label Grid.Row="4" Grid.Column="6" Content="Energy:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="4" Grid.Column="7" d:Content="3" HorizontalContentAlignment="Left"/>
-                <Label Grid.Row="4" Grid.Column="8" d:Content="/ 100" HorizontalContentAlignment="Left"/>
-                <Label Grid.Row="4" Grid.Column="9" d:Content="3%" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="4" Grid.Column="7" Content="{Binding CharacterState.Energy}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="4" Grid.Column="8" Content="{Binding CharacterState.MaxEnergy}" HorizontalContentAlignment="Left"/>
 
                 <Label Grid.Row="5" Grid.Column="6" Content="Combo Pts:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="5" Grid.Column="7" d:Content="3" HorizontalContentAlignment="Left"/>
-                <Label Grid.Row="5" Grid.Column="8" d:Content="/ 5" HorizontalContentAlignment="Left"/>
-                <Label Grid.Row="5" Grid.Column="9" d:Content="60%" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="5" Grid.Column="7" Content="{Binding CharacterState.ComboPoints}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="5" Grid.Column="8" d:Content="5" HorizontalContentAlignment="Left"/>
 
                 <Label Grid.Row="6" Grid.Column="6" Content="Casting:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="6" Grid.Column="7" Grid.ColumnSpan="3" d:Content="(25306) Fireball" HorizontalContentAlignment="Left"/>
-
                 <Label Grid.Row="7" Grid.Column="6" Content="Channeling:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="7" Grid.Column="7" Grid.ColumnSpan="3" d:Content="(1120) Drain Soul" HorizontalContentAlignment="Left"/>
-
                 <Label Grid.Row="8" Grid.Column="6" Content="Hostile:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="8" Grid.Column="7" Grid.ColumnSpan="3" d:Content="0000003454" HorizontalContentAlignment="Left"/>
-
                 <Label Grid.Row="9" Grid.Column="6" Content="Friendly:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="9" Grid.Column="7" Grid.ColumnSpan="3" d:Content="0000003455" HorizontalContentAlignment="Left"/>
-
                 <Label Grid.Row="10" Grid.Column="6" Content="Diseased:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="10" Grid.Column="7" d:Content="False" HorizontalContentAlignment="Left"/>
-
                 <Label Grid.Row="11" Grid.Column="6" Content="Poisoned:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="11" Grid.Column="7" d:Content="False" HorizontalContentAlignment="Left"/>
-
                 <Label Grid.Row="12" Grid.Column="6" Content="Cursed:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="12" Grid.Column="7" d:Content="False" HorizontalContentAlignment="Left"/>
-
                 <Label Grid.Row="13" Grid.Column="6" Content="Confused:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="13" Grid.Column="7" d:Content="False" HorizontalContentAlignment="Left"/>
-
                 <Label Grid.Row="14" Grid.Column="6" Content="Polyed:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="14" Grid.Column="7" d:Content="False" HorizontalContentAlignment="Left"/>
-
                 <Label Grid.Row="15" Grid.Column="6" Content="Sleeping:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="15" Grid.Column="7" d:Content="False" HorizontalContentAlignment="Left"/>
-
                 <Label Grid.Row="16" Grid.Column="6" Content="Stunned:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="16" Grid.Column="7" d:Content="False" HorizontalContentAlignment="Left"/>
-
                 <Label Grid.Row="17" Grid.Column="6" Content="Fleeing:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="17" Grid.Column="7" d:Content="False" HorizontalContentAlignment="Left"/>
-
-                <Label Grid.Row="18" Grid.Column="6" Content="Possessed:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="18" Grid.Column="7" d:Content="False" HorizontalContentAlignment="Left"/>
-
+                <Label Grid.Row="18" Grid.Column="8" Content="Possessed:" HorizontalContentAlignment="Right"/>
                 <Label Grid.Row="10" Grid.Column="8" Content="Dead:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="10" Grid.Column="9" d:Content="False" HorizontalContentAlignment="Left"/>
-
                 <Label Grid.Row="12" Grid.Column="8" Content="Moving:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="12" Grid.Column="9" d:Content="False" HorizontalContentAlignment="Left"/>
-
                 <Label Grid.Row="11" Grid.Column="8" Content="In Combat:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="11" Grid.Column="9" d:Content="False" HorizontalContentAlignment="Left"/>
-
                 <Label Grid.Row="13" Grid.Column="8" Content="Falling:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="13" Grid.Column="9" d:Content="False" HorizontalContentAlignment="Left"/>
-
                 <Label Grid.Row="14" Grid.Column="8" Content="Mounted:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="14" Grid.Column="9" d:Content="False" HorizontalContentAlignment="Left"/>
-
                 <Label Grid.Row="15" Grid.Column="8" Content="Flying:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="15" Grid.Column="9" d:Content="False" HorizontalContentAlignment="Left"/>
-
                 <Label Grid.Row="16" Grid.Column="8" Content="On Taxi:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="16" Grid.Column="9" d:Content="False" HorizontalContentAlignment="Left"/>
+
+                <Label Grid.Row="6" Grid.Column="7" Grid.ColumnSpan="3" Content="{Binding CharacterState.Casting}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="7" Grid.Column="7" Grid.ColumnSpan="3" Content="{Binding CharacterState.Channeling}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="8" Grid.Column="7" Grid.ColumnSpan="3" Content="{Binding CharacterState.HostileTargetGuid}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="9" Grid.Column="7" Grid.ColumnSpan="3" Content="{Binding CharacterState.FriendlyTargetGuid}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="10" Grid.Column="7" Content="{Binding CharacterState.IsDiseased}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="11" Grid.Column="7" Content="{Binding CharacterState.IsPoisoned}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="12" Grid.Column="7" Content="{Binding CharacterState.IsCursed}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="13" Grid.Column="7" Content="{Binding CharacterState.IsConfused}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="14" Grid.Column="7" Content="{Binding CharacterState.IsPolymorphed}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="15" Grid.Column="7" Content="{Binding CharacterState.IsSleeping}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="16" Grid.Column="7" Content="{Binding CharacterState.IsStunned}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="17" Grid.Column="7" Content="{Binding CharacterState.IsFleeing}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="18" Grid.Column="9" Content="{Binding CharacterState.IsPossessed}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="10" Grid.Column="9" Content="{Binding CharacterState.IsDead}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="12" Grid.Column="9" Content="{Binding CharacterState.IsMoving}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="11" Grid.Column="9" Content="{Binding CharacterState.InCombat}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="13" Grid.Column="9" Content="{Binding CharacterState.IsFalling}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="14" Grid.Column="9" Content="{Binding CharacterState.IsOnMount}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="15" Grid.Column="9" Content="{Binding CharacterState.IsFlying}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="16" Grid.Column="9" Content="{Binding CharacterState.IsOnTaxi}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="6" Grid.Column="1" Content="{Binding CharacterState.Facing}"  HorizontalContentAlignment="Right" VerticalContentAlignment="Bottom" />
 
                 <Label Grid.Row="2" Grid.Column="0" Content="Waypoint:" HorizontalContentAlignment="Right"/>
                 <Label Grid.Row="3" Grid.Column="0" Content="Location:" HorizontalContentAlignment="Right"/>
                 <Label Grid.Row="4" Grid.Column="0" Content="Destination:" HorizontalContentAlignment="Right"/>
                 <Label Grid.Row="6" Grid.Column="0" Content="Facing:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="6" Grid.Column="1" HorizontalContentAlignment="Left" d:Content="4.21"/>
+                <Label Grid.Row="6" Grid.Column="3" Content="Distance:" HorizontalContentAlignment="Right"/>
+                <Label Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Content="WoW Units:" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="8" Grid.Column="3" Grid.ColumnSpan="2" Content="WoW Objects:" HorizontalContentAlignment="Left"/>
 
-                <Label Grid.Row="3" Grid.Column="1" HorizontalContentAlignment="Left" Content="Map: 389"/>
-                <Label Grid.Row="3" Grid.Column="2" HorizontalContentAlignment="Left" Content="X: 399.99"/>
-                <Label Grid.Row="3" Grid.Column="3" HorizontalContentAlignment="Left" Content="Y: -18.02"/>
-                <Label Grid.Row="3" Grid.Column="4" HorizontalContentAlignment="Left" Content="Z: 1550.32"/>
+                <Button IsEnabled="{Binding CanSendCommand}" Grid.Row="4" Grid.Column="5" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding CurrentLocationToDestinationCommand}" Width="64">Current</Button>
+                <Button IsEnabled="{Binding CanSendCommand}" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding MoveToCommand}">Move To</Button>
+                <Button IsEnabled="{Binding CanSendCommand}" Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="2" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding TeleportToCommand}">Teleport To</Button>
+                <Button IsEnabled="{Binding CanSendCommand}" Grid.Row="5" Grid.Column="4" Grid.ColumnSpan="2" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding JumpAtCommand}">Jump At</Button>
+                <Button IsEnabled="{Binding CanSendCommand}" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding SetFacingCommand}">Set Facing</Button>
+                <Button IsEnabled="{Binding CanSendCommand}" Grid.Row="7" Grid.Column="3" Grid.ColumnSpan="2" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding MoveForwardCommand}">Forward</Button>
 
-                <Label Grid.Row="2" Grid.Column="1" HorizontalContentAlignment="Left" Content="Map: 389"/>
-                <Label Grid.Row="2" Grid.Column="2" HorizontalContentAlignment="Left" Content="X: 4400.00"/>
-                <Label Grid.Row="2" Grid.Column="3" HorizontalContentAlignment="Left" Content="Y: 4400.00"/>
-                <Label Grid.Row="2" Grid.Column="4" HorizontalContentAlignment="Left" Content="Z: 4400.00"/>
+                <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding DestinationMapId}"  HorizontalContentAlignment="Right" VerticalContentAlignment="Bottom" HorizontalAlignment="Center" Width="64" Height="28" VerticalAlignment="Center"></TextBox>
+                <TextBox Grid.Row="4" Grid.Column="2" Text="{Binding DestinationX}"  HorizontalContentAlignment="Right" VerticalContentAlignment="Bottom"  HorizontalAlignment="Center" Width="64" Height="28" VerticalAlignment="Center"></TextBox>
+                <TextBox Grid.Row="4" Grid.Column="3" Text="{Binding DestinationY}"  HorizontalContentAlignment="Right" VerticalContentAlignment="Bottom"  HorizontalAlignment="Center" Width="64" Height="28" VerticalAlignment="Center"></TextBox>
+                <TextBox Grid.Row="4" Grid.Column="4" Text="{Binding DestinationZ}"  HorizontalContentAlignment="Right" VerticalContentAlignment="Bottom"  HorizontalAlignment="Center" Width="64" Height="28" VerticalAlignment="Center"></TextBox>
 
-                <Button Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" Width="NaN" Height="28" Margin="14,0,14,0" VerticalAlignment="Center">Move To</Button>
-                <Button Grid.Row="5" Grid.Column="3" Grid.ColumnSpan="2" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" Width="NaN" Height="28" Margin="14,0,14,0" VerticalAlignment="Center">Teleport To</Button>
-                <Button Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" Width="NaN" Height="28" Margin="14,0,14,0" VerticalAlignment="Center">Set Facing</Button>
+                <TextBox Grid.Row="6" Grid.Column="2" Text="{Binding DestinationFacing}"  HorizontalContentAlignment="Right" VerticalContentAlignment="Bottom"  HorizontalAlignment="Center" Width="64" Height="28" VerticalAlignment="Center" d:Text="4.21"/>
+                <TextBox Grid.Row="6" Grid.Column="4" Text="{Binding DistanceToMove}" HorizontalContentAlignment="Right" VerticalContentAlignment="Bottom"  HorizontalAlignment="Center" Width="64" Height="28" VerticalAlignment="Center" d:Text="10"/>
 
-                <TextBox Grid.Row="4" Grid.Column="1" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Width="64" Height="28" VerticalAlignment="Center"></TextBox>
-                <TextBox Grid.Row="4" Grid.Column="2" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Width="64" Height="28" VerticalAlignment="Center"></TextBox>
-                <TextBox Grid.Row="4" Grid.Column="3" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Width="64" Height="28" VerticalAlignment="Center"></TextBox>
-                <TextBox Grid.Row="4" Grid.Column="4" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Width="64" Height="28" VerticalAlignment="Center"></TextBox>
-
-                <TextBox Grid.Row="6" Grid.Column="2" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Width="64" Height="28" VerticalAlignment="Center"></TextBox>
-
-                <ScrollViewer Grid.Row="9" Grid.ColumnSpan="3" Grid.RowSpan="9">
-
+                <ScrollViewer Grid.Row="9" Grid.ColumnSpan="3" Grid.RowSpan="7">
+                    <ItemsControl  ItemsSource="{Binding CharacterState.WoWUnits}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0" Text="{Binding Value,Mode=OneWay}"/>
+                                    <TextBox Grid.Column="1" Text="{Binding Key,Mode=OneWay}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </ScrollViewer>
-                <ScrollViewer Grid.Row="9" Grid.Column="3" Grid.ColumnSpan="3" Grid.RowSpan="9">
-
+                <ScrollViewer Grid.Row="9" Grid.Column="3" Grid.ColumnSpan="3" Grid.RowSpan="7">
+                    <ItemsControl ItemsSource="{Binding CharacterState.WoWObjects}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0" Text="{Binding Value,Mode=OneWay}"/>
+                                    <TextBox Grid.Column="1" Text="{Binding Key,Mode=OneWay}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </ScrollViewer>
-                <Button Grid.Row="18" Grid.Column="0" Grid.ColumnSpan="2" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" Height="28" Margin="22,0,14,0" VerticalAlignment="Center">Interact/Attack</Button>
-                <Button Grid.Row="18" Grid.Column="2" HorizontalContentAlignment="Center" Height="28" Width="64" VerticalAlignment="Center" HorizontalAlignment="Center">Cast</Button>
-                <Button Grid.Row="18" Grid.Column="4" HorizontalContentAlignment="Center" Height="28" Width="64" VerticalAlignment="Center" HorizontalAlignment="Center">Use Item</Button>
-                <TextBox Grid.Row="18" Grid.Column="3" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Width="64" Height="28" VerticalAlignment="Center"></TextBox>
-                <TextBox Grid.Row="18" Grid.Column="5" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Width="64" Height="28" VerticalAlignment="Center"></TextBox>
+                <Button IsEnabled="{Binding CanSendCommand}" Grid.Row="16" Grid.Column="0" Grid.ColumnSpan="2" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" Height="28" Margin="22,0,14,0" VerticalAlignment="Center" Command="{Binding InteractWithCommand}">Interact/Attack</Button>
+                <Button IsEnabled="{Binding CanSendCommand}" Grid.Row="16" Grid.Column="2" HorizontalContentAlignment="Center" Height="28" Width="64" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding CastSpellCommand}">Cast</Button>
+                <Button IsEnabled="{Binding CanSendCommand}" Grid.Row="16" Grid.Column="4" HorizontalContentAlignment="Center" Height="28" Width="64" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding UseItemCommand}">Use Item</Button>
+                <TextBox Grid.Row="16" Grid.Column="3" HorizontalContentAlignment="Right" VerticalContentAlignment="Bottom" HorizontalAlignment="Center" Width="64" Height="28" VerticalAlignment="Center" Text="{Binding SpellIdToCast}"/>
+                <TextBox Grid.Row="16" Grid.Column="5" HorizontalContentAlignment="Right" VerticalContentAlignment="Bottom" HorizontalAlignment="Center" Width="64" Height="28" VerticalAlignment="Center" Text="{Binding ItemIdToUse}"/>
+
+                <Button Grid.Row="17" Grid.Column="0" Grid.ColumnSpan="2" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" Height="28" Margin="22,0,14,0" VerticalAlignment="Center" Command="{Binding ExecuteChatCommandCommand}">Exe Command</Button>
+                <TextBox Grid.Row="17" Grid.Column="2" Grid.ColumnSpan="4" HorizontalContentAlignment="Left" VerticalContentAlignment="Bottom" HorizontalAlignment="Stretch" Height="28" VerticalAlignment="Center" Text="{Binding ChatCommandToExecute}"/>
             </Grid>
-        </GroupBox>
+        </StackPanel>
     </Grid>
 </Window>

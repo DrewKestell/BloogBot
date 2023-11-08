@@ -1,5 +1,4 @@
-﻿using RaidMemberBot.UI;
-using System.Threading;
+﻿using System.Threading;
 
 namespace RaidMemberBot
 {

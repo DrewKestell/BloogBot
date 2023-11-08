@@ -1,4 +1,5 @@
 ﻿using RaidMemberBot.AI.SharedStates;
+using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Models.Dto;
 using RaidMemberBot.Objects;
@@ -7,9 +8,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using static RaidMemberBot.Constants.Enums;
 using System.Threading.Tasks;
-using RaidMemberBot.Client;
+using static RaidMemberBot.Constants.Enums;
 
 namespace RaidMemberBot.AI
 {
@@ -21,11 +21,6 @@ namespace RaidMemberBot.AI
 
         IClassContainer container;
         ObservableCollection<IBot> Bots = new ObservableCollection<IBot>();
-
-        string _botProfileName;
-
-        Race _race;
-        ClassId _class;
 
         int _activityMapId;
 
@@ -58,6 +53,7 @@ namespace RaidMemberBot.AI
         }
         private async void StartServerFeedbackAsync()
         {
+            Console.WriteLine($"BOTRUNNER: Start server feedback task started.");
             while (true)
             {
                 InstanceCommand instanceCommand = CommandClient.Instance.GetCommandBasedOnState(characterState);
@@ -68,28 +64,20 @@ namespace RaidMemberBot.AI
                     || _lastCommand.CommandParam3 != instanceCommand.CommandParam3
                     || _lastCommand.CommandParam4 != instanceCommand.CommandParam4)
                 {
-                    if (instanceCommand.CommandAction == CommandAction.SetCharacterParams)
+                    if (instanceCommand.CommandAction == CommandAction.SetAccountInfo)
                     {
-                        _race = (Race)Enum.Parse(typeof(Race), instanceCommand.CommandParam1);
-                        _class = (ClassId)Enum.Parse(typeof(ClassId), instanceCommand.CommandParam2);
-
-                        ReloadBots();
-
-                        if (characterState.Race != _race || characterState.Class != _class)
+                        if (instanceCommand.CommandParam1 != characterState.AccountName)
                         {
                             while (botTasks.Count > 0)
                                 botTasks.Pop();
 
-                            characterState.Race = _race;
-                            characterState.Class = _class;
-
-                            string _accountName = GetAccountName();
-
-                            botTasks.Push(new LoginTask(container, botTasks, _accountName));
+                            botTasks.Push(new LoginTask(container, botTasks, instanceCommand.CommandParam1));
                             botTasks.Push(new LogoutTask(container, botTasks));
                         }
 
-                        Console.WriteLine($"BOT RUNNER: SetAccountInfo {_race} {_class} {_botProfileName}");
+                        ReloadBots();
+
+                        Console.WriteLine($"BOT RUNNER: SetAccountInfo [{instanceCommand.CommandParam1}] [{instanceCommand.CommandParam2}]");
                     }
                     else if (instanceCommand.CommandAction == CommandAction.SetActivity)
                     {
@@ -113,8 +101,8 @@ namespace RaidMemberBot.AI
                     else if (instanceCommand.CommandAction == CommandAction.GoTo)
                     {
                         Location destinaton = new Location(float.Parse(instanceCommand.CommandParam1),
-                                                                float.Parse(instanceCommand.CommandParam2),
-                                                                float.Parse(instanceCommand.CommandParam3));
+                                                            float.Parse(instanceCommand.CommandParam2),
+                                                            float.Parse(instanceCommand.CommandParam3));
                         container.CurrentWaypoint = destinaton;
                         botTasks.Push(new MoveToWaypointTask(container, botTasks));
 
@@ -126,6 +114,15 @@ namespace RaidMemberBot.AI
 
                         Console.WriteLine($"BOT RUNNER: Begin dungeon");
                     }
+                    else if (instanceCommand.CommandAction == CommandAction.SetFacing)
+                    {
+                        ObjectManager.Instance.Player.Face(float.Parse(instanceCommand.CommandParam1));
+                    }
+                    else if (instanceCommand.CommandAction == CommandAction.ExecuteLuaCommand)
+                    {
+                        Console.WriteLine($"BOT RUNNER: ExecuteChatCommand - {instanceCommand.CommandParam1}");
+                        Lua.Instance.Execute(instanceCommand.CommandParam1);
+                    }
 
                     _lastCommand = instanceCommand;
                 }
@@ -134,13 +131,9 @@ namespace RaidMemberBot.AI
             }
         }
 
-        private string GetAccountName()
-        {
-            throw new NotImplementedException();
-        }
-
         private async void StartBotTaskRunnerAsync()
         {
+            Console.WriteLine($"BOTRUNNER: Bot Task Runner started.");
             while (true)
             {
                 if (ThreadSynchronizer.Instance.QueueCount == 0)
@@ -156,15 +149,15 @@ namespace RaidMemberBot.AI
 
                             if (botTasks.Count > 0)
                             {
-                                characterState.CurrentTask = botTasks.Peek()?.GetType()?.Name;
+                                characterState.Task = botTasks.Peek()?.GetType()?.Name;
 
                                 botTasks.Peek()?.Update();
                             }
                             else
                             {
-                                characterState.CurrentTask = "Idle"; 
+                                characterState.Task = "Idle"; 
                                 
-                                if (ObjectManager.Instance.IsIngame)
+                                if (ObjectManager.Instance.IsIngame && container != null)
                                 {
                                     container.Player.StopAllMovement();
                                 }
@@ -188,7 +181,7 @@ namespace RaidMemberBot.AI
             {
                 Bots = new ObservableCollection<IBot>(botLoader.ReloadBots());
 
-                currentBot = Bots.First(b => b.Name == _botProfileName);
+                currentBot = Bots.First(b => b.Name == characterState.BotProfileName);
 
                 container = currentBot.GetClassContainer(characterState);
             }

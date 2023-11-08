@@ -1,7 +1,5 @@
 ﻿using RaidMemberBot.Constants;
 using System;
-using System.ComponentModel;
-using System.Reflection;
 using System.Windows.Data;
 
 namespace RaidLeaderBot

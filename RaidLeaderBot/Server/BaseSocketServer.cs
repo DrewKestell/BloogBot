@@ -25,7 +25,7 @@ namespace RaidLeaderBot
             _port = port;
             _ipAddress = ipAddress;
         }
-
+        public List<int> ConnectedProcessIds { get { return _processIds.Keys.ToList(); } }
         public void Start()
         {
             _listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -40,7 +40,10 @@ namespace RaidLeaderBot
         public void Stop()
         {
             _listen = false;
-            _backgroundTask.Wait(TimeSpan.FromSeconds(5));
+            if (_backgroundTask != null)
+            {
+                _backgroundTask.Wait(TimeSpan.FromSeconds(5));
+            }
             _listener?.Close();
             _listener = null;
         }

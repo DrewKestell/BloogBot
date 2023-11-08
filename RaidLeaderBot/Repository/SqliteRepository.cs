@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Numerics;
 
-namespace RaidMemberBot
+namespace RaidLeaderBot
 {
     internal class SqliteRepository
     {
@@ -464,6 +464,117 @@ namespace RaidMemberBot
             }
             return creatures;
         }
+        public static CreatureTemplate GetCreatureTemplateByGuid(ulong guid)
+        {
+            CreatureTemplate creatureTemplate = new CreatureTemplate();
+            using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))
+            {
+                connection.Open();
+
+                SQLiteCommand command = connection.CreateCommand();
+                command.CommandText = @"
+                                            SELECT      ct.*
+                                            FROM        creature_template           ct
+                                            LEFT JOIN   creature                    crea
+                                            WHERE       ct.entry            ==      crea.id
+                                            AND         ct.guid             ==      $guid
+                                        ";
+                command.Parameters.AddWithValue("$guid", guid);
+
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        creatureTemplate = new CreatureTemplate()
+                        {
+                            Entry = Convert.ToInt64(reader["Entry"]),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            SubName = reader["SubName"] == null ? string.Empty : reader.GetString(reader.GetOrdinal("SubName")),
+                            MinLevel = Convert.ToByte(reader["MinLevel"]),
+                            MaxLevel = Convert.ToByte(reader["MaxLevel"]),
+                            ModelId1 = Convert.ToInt32(reader["ModelId1"]),
+                            ModelId2 = Convert.ToInt32(reader["ModelId2"]),
+                            ModelId3 = Convert.ToInt32(reader["ModelId3"]),
+                            ModelId4 = Convert.ToInt32(reader["ModelId4"]),
+                            Faction = Convert.ToInt16(reader["Faction"]),
+                            Scale = Convert.ToSingle(reader["Scale"]),
+                            Family = Convert.ToByte(reader["Family"]),
+                            CreatureType = Convert.ToByte(reader["CreatureType"]),
+                            InhabitType = Convert.ToByte(reader["InhabitType"]),
+                            RegenerateStats = Convert.ToByte(reader["RegenerateStats"]),
+                            RacialLeader = Convert.ToByte(reader["RacialLeader"]),
+                            NpcFlags = Convert.ToInt32(reader["NpcFlags"]),
+                            UnitFlags = Convert.ToInt32(reader["UnitFlags"]),
+                            DynamicFlags = Convert.ToInt32(reader["DynamicFlags"]),
+                            ExtraFlags = Convert.ToInt32(reader["ExtraFlags"]),
+                            CreatureTypeFlags = Convert.ToInt32(reader["CreatureTypeFlags"]),
+                            SpeedWalk = Convert.ToSingle(reader["SpeedWalk"]),
+                            SpeedRun = Convert.ToSingle(reader["SpeedRun"]),
+                            Detection = Convert.ToInt32(reader["Detection"]),
+                            CallForHelp = Convert.ToInt32(reader["CallForHelp"]),
+                            Pursuit = Convert.ToInt32(reader["Pursuit"]),
+                            Leash = Convert.ToInt32(reader["Leash"]),
+                            Timeout = Convert.ToInt32(reader["Timeout"]),
+                            UnitClass = Convert.ToByte(reader["UnitClass"]),
+                            Rank = Convert.ToByte(reader["Rank"]),
+                            HealthMultiplier = Convert.ToSingle(reader["HealthMultiplier"]),
+                            PowerMultiplier = Convert.ToSingle(reader["PowerMultiplier"]),
+                            DamageMultiplier = Convert.ToSingle(reader["DamageMultiplier"]),
+                            DamageVariance = Convert.ToSingle(reader["DamageVariance"]),
+                            ArmorMultiplier = Convert.ToSingle(reader["ArmorMultiplier"]),
+                            ExperienceMultiplier = Convert.ToSingle(reader["ExperienceMultiplier"]),
+                            MinLevelHealth = Convert.ToInt32(reader["MinLevelHealth"]),
+                            MaxLevelHealth = Convert.ToInt32(reader["MaxLevelHealth"]),
+                            MinLevelMana = Convert.ToInt32(reader["MinLevelMana"]),
+                            MaxLevelMana = Convert.ToInt32(reader["MaxLevelMana"]),
+                            MinMeleeDmg = Convert.ToSingle(reader["MinMeleeDmg"]),
+                            MaxMeleeDmg = Convert.ToSingle(reader["MaxMeleeDmg"]),
+                            MinRangedDmg = Convert.ToSingle(reader["MinRangedDmg"]),
+                            MaxRangedDmg = Convert.ToSingle(reader["MaxRangedDmg"]),
+                            Armor = Convert.ToInt32(reader["Armor"]),
+                            MeleeAttackPower = Convert.ToInt32(reader["MeleeAttackPower"]),
+                            RangedAttackPower = Convert.ToInt16(reader["RangedAttackPower"]),
+                            MeleeBaseAttackTime = Convert.ToInt32(reader["MeleeBaseAttackTime"]),
+                            RangedBaseAttackTime = Convert.ToInt32(reader["RangedBaseAttackTime"]),
+                            DamageSchool = Convert.ToByte(reader["DamageSchool"]),
+                            MinLootGold = Convert.ToInt32(reader["MinLootGold"]),
+                            MaxLootGold = Convert.ToInt32(reader["MaxLootGold"]),
+                            LootId = Convert.ToInt32(reader["LootId"]),
+                            PickpocketLootId = Convert.ToInt32(reader["PickpocketLootId"]),
+                            SkinningLootId = Convert.ToInt32(reader["SkinningLootId"]),
+                            KillCredit1 = Convert.ToInt32(reader["KillCredit1"]),
+                            KillCredit2 = Convert.ToInt32(reader["KillCredit2"]),
+                            MechanicImmuneMask = Convert.ToInt32(reader["MechanicImmuneMask"]),
+                            SchoolImmuneMask = Convert.ToInt32(reader["SchoolImmuneMask"]),
+                            ResistanceHoly = Convert.ToByte(reader["ResistanceHoly"]),
+                            ResistanceFire = Convert.ToByte(reader["ResistanceFire"]),
+                            ResistanceNature = Convert.ToByte(reader["ResistanceNature"]),
+                            ResistanceFrost = Convert.ToByte(reader["ResistanceFrost"]),
+                            ResistanceShadow = Convert.ToByte(reader["ResistanceShadow"]),
+                            ResistanceArcane = Convert.ToByte(reader["ResistanceArcane"]),
+                            PetSpellDataId = Convert.ToInt32(reader["PetSpellDataId"]),
+                            MovementType = Convert.ToByte(reader["MovementType"]),
+                            TrainerType = Convert.ToByte(reader["TrainerType"]),
+                            TrainerSpell = Convert.ToInt32(reader["TrainerSpell"]),
+                            TrainerClass = Convert.ToByte(reader["TrainerClass"]),
+                            TrainerRace = Convert.ToByte(reader["TrainerRace"]),
+                            TrainerTemplateId = Convert.ToInt32(reader["TrainerTemplateId"]),
+                            VendorTemplateId = Convert.ToInt32(reader["VendorTemplateId"]),
+                            GossipMenuId = Convert.ToInt32(reader["GossipMenuId"]),
+                            InteractionPauseTimer = Convert.ToInt32(reader["InteractionPauseTimer"]),
+                            VisibilityDistanceType = Convert.ToByte(reader["visibilityDistanceType"]),
+                            CorpseDecay = Convert.ToInt32(reader["CorpseDecay"]),
+                            SpellList = Convert.ToInt32(reader["SpellList"]),
+                            EquipmentTemplateId = Convert.ToInt32(reader["EquipmentTemplateId"]),
+                            Civilian = Convert.ToByte(reader["Civilian"]),
+                            AIName = reader.GetString(reader.GetOrdinal("AIName")),
+                            ScriptName = reader.GetString(reader.GetOrdinal("ScriptName")),
+                        };
+                    }
+                }
+            }
+            return creatureTemplate;
+        }
         public static List<Creature> GetCreaturesByMapId(int mapId)
         {
             List<Creature> creatures = new List<Creature>();
@@ -714,7 +825,7 @@ namespace RaidMemberBot
             }
             return creatureMovements;
         }
-        public static CreatureTemplate GetCreatureTemplateById(int id)
+        public static CreatureTemplate GetCreatureTemplateById(ulong id)
         {
             CreatureTemplate creatureTemplate = null;
             using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))

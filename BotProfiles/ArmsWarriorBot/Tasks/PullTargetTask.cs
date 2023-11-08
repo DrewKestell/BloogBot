@@ -1,6 +1,7 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Objects;
 using System.Collections.Generic;
 
 namespace ArmsWarriorBot
@@ -43,7 +44,7 @@ namespace ArmsWarriorBot
                 return;
             }
 
-            RaidMemberBot.Objects.Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
+            Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
             Container.Player.MoveToward(nextWaypoint[0]);
         }
     }

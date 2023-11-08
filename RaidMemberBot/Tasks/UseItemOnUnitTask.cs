@@ -29,7 +29,8 @@ namespace RaidMemberBot.AI.SharedStates
                     usableItem.Use();
 
                     itemUsed = true;
-                } else if (Wait.For("ItemUseAnim", 1000))
+                }
+                else if (Wait.For("ItemUseAnim", 1000))
                 {
                     BotTasks.Pop();
                     return;

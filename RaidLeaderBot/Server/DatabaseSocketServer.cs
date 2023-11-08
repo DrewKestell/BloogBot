@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using RaidMemberBot;
 using RaidMemberBot.Models.Dto;
 using System;
 using System.Net;
@@ -10,7 +9,10 @@ namespace RaidLeaderBot
 {
     public class DatabaseSocketServer : BaseSocketServer
     {
-        public DatabaseSocketServer(int port, IPAddress ipAddress) : base(port, ipAddress) { }
+        public DatabaseSocketServer(int port, IPAddress ipAddress) : base(port, ipAddress)
+        {
+            Console.WriteLine($"DATABASE SERVER:Port {port}");
+        }
 
         public override int HandleRequest(string payload, Socket clientSocket)
         {
@@ -26,7 +28,7 @@ namespace RaidLeaderBot
                     response = JsonConvert.SerializeObject(SqliteRepository.GetCreatureLinkedByGuid(int.Parse(request.QueryParam1)));
                     break;
                 case QueryType.GetCreatureTemplateById:
-                    response = JsonConvert.SerializeObject(SqliteRepository.GetCreatureTemplateById(int.Parse(request.QueryParam1)));
+                    response = JsonConvert.SerializeObject(SqliteRepository.GetCreatureTemplateById(ulong.Parse(request.QueryParam1)));
                     break;
                 case QueryType.GetCreaturesById:
                     response = JsonConvert.SerializeObject(SqliteRepository.GetCreaturesById(int.Parse(request.QueryParam1)));

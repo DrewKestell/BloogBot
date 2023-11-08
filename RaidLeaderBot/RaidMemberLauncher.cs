@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RaidLeaderBot.Server;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -13,7 +14,7 @@ namespace RaidLeaderBot
     {
         public static RaidMemberLauncher Instance { get; private set; } = new RaidMemberLauncher();
         private RaidMemberLauncher() { }
-        public void LaunchProcess()
+        public int LaunchProcess(int raidLeaderPortNumber)
         {
             string currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             STARTUPINFO startupInfo = new STARTUPINFO();
@@ -30,6 +31,8 @@ namespace RaidLeaderBot
                 ref startupInfo,
                 out PROCESS_INFORMATION processInfo);
 
+            ConfigSockerServer.Instance.AddProcessToCommandPortMapping((int)processInfo.dwProcessId, raidLeaderPortNumber);
+
             // this seems to help prevent timing issues
             Thread.Sleep(1000);
 
@@ -39,7 +42,7 @@ namespace RaidLeaderBot
             // resolve the file path to Loader.dll relative to our current working directory
             string loaderPath = Path.Combine(currentFolder, "Loader.dll");
 
-            // allocate enough memory to hold the full file path to Loader.dll within the BloogBot process
+            // allocate enough memory to hold the full file path to Loader.dll within the WoW.exe process
             IntPtr loaderPathPtr = VirtualAllocEx(
                 processHandle,
                 (IntPtr)0,
@@ -92,6 +95,8 @@ namespace RaidLeaderBot
 
             // free the memory that was allocated by VirtualAllocEx
             VirtualFreeEx(processHandle, loaderPathPtr, 0, MemoryFreeType.MEM_RELEASE);
+
+            return (int)processInfo.dwProcessId;
         }
     }
 }

@@ -3,7 +3,7 @@ using System;
 using System.Windows;
 using System.Windows.Threading;
 
-namespace RaidMemberBot.UI
+namespace RaidMemberBot
 {
     public partial class App : Application
     {

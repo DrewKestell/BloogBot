@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace RaidLeaderBot
 {
@@ -62,6 +63,9 @@ namespace RaidLeaderBot
         
         [DllImport("user32.dll")]
         internal static extern int SetWindowText(IntPtr hWnd, string text);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
         internal enum MemoryAllocationType
         {

@@ -2,11 +2,11 @@
 
 using System.Collections.Generic;
 using System;
-using RaidMemberBot.Objects;
 using RaidMemberBot.AI;
 using RaidMemberBot.Game.Statics;
-using static RaidMemberBot.Constants.Enums;
 using RaidMemberBot;
+using RaidMemberBot.Objects;
+using static RaidMemberBot.Constants.Enums;
 using RaidMemberBot.Client;
 
 namespace BackstabRogueBot

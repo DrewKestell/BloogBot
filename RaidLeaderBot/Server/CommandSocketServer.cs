@@ -8,11 +8,11 @@ using System.Text;
 
 namespace RaidLeaderBot
 {
-    public class CommandSockerServer : BaseSocketServer
+    public class CommandSocketServer : BaseSocketServer
     {
         private readonly Subject<CharacterState> _instanceUpdateSubject;
 
-        public CommandSockerServer(int port, IPAddress ipAddress) : base(port, ipAddress)
+        public CommandSocketServer(int port, IPAddress ipAddress) : base(port, ipAddress)
         {
             _instanceUpdateSubject = new Subject<CharacterState>();
         }

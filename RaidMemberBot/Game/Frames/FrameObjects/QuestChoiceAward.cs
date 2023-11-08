@@ -1,5 +1,4 @@
-﻿
-using RaidMemberBot.Constants;
+﻿using RaidMemberBot.Constants;
 
 namespace RaidMemberBot.Game.Frames.FrameObjects
 {

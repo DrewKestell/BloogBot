@@ -1,4 +1,5 @@
-﻿using RaidMemberBot.Constants;
+﻿
+using RaidMemberBot.Constants;
 using RaidMemberBot.ExtensionMethods;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Mem.Hooks;

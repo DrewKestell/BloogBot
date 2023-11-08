@@ -1,6 +1,7 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.AI.SharedStates;
 using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using System.Linq;
 using static RaidMemberBot.Constants.Enums;
@@ -49,7 +50,7 @@ namespace AfflictionWarlockBot
                 TryCastSpell(DrainSoul, 0, 29);
             }
 
-            RaidMemberBot.Objects.WoWItem wand = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged);
+            WoWItem wand = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged);
             if (wand != null && (ObjectManager.Instance.Player.ManaPercent <= 10 || Container.HostileTarget.HealthPercent <= 60 && Container.HostileTarget.HealthPercent > 20 && ObjectManager.Instance.Player.Channeling == 0 && ObjectManager.Instance.Player.IsCasting))
                 Lua.Instance.Execute(WandLuaScript);
             else

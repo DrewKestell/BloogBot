@@ -14,8 +14,6 @@ namespace RaidMemberBot.Client
     {
         private Socket _commandSocket;
 
-        readonly RaidMemberSettings raidMemberSettings;
-
         bool isRaidLeader;
         readonly int BufferSize = 1024;
 
@@ -23,9 +21,6 @@ namespace RaidMemberBot.Client
 
         private CommandClient()
         {
-            string currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string botSettingsFilePath = Path.Combine(currentFolder, "Settings\\raidMemberSettings.json");
-            raidMemberSettings = JsonConvert.DeserializeObject<RaidMemberSettings>(File.ReadAllText(botSettingsFilePath));
         }
 
         public InstanceCommand GetCommandBasedOnState(CharacterState characterState)
@@ -46,7 +41,7 @@ namespace RaidMemberBot.Client
                 {
                     try
                     {
-                        _commandSocket.Connect(IPAddress.Parse(raidMemberSettings.ListenAddress), raidMemberSettings.CommandPort);
+                        _commandSocket.Connect(IPAddress.Parse(RaidMemberSettings.Instance.ListenAddress), ConfigClient.Instance.ConfigurationResponse.RaidLeaderServerPort);
                     }
                     catch (SocketException e)
                     {

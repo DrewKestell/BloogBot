@@ -1,41 +1,37 @@
-using Newtonsoft.Json;
 using RaidLeaderBot.Pathfinding;
 using System;
 using System.ComponentModel;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace RaidLeaderBot
 {
-    public partial class MainWindow : Window
+    public partial class RaidActivityManagerWindow : Window
     {
-        private readonly CommandSockerServer _commandSocketServer;
-        private readonly RaidLeaderViewModel _activityPresetSettingsViewModel;
-
-        public MainWindow(CommandSockerServer commandSocketServer)
+        RaidActivityViewModel _raidActivityPresetViewModel;
+        public RaidActivityManagerWindow()
         {
             InitializeComponent();
 
-            _commandSocketServer = commandSocketServer;
-            _activityPresetSettingsViewModel = new RaidLeaderViewModel();
+            _raidActivityPresetViewModel = new RaidActivityViewModel();
+            DataContext = _raidActivityPresetViewModel;
 
-            DataContext = _activityPresetSettingsViewModel;
+            _raidActivityPresetViewModel.Initialize();
 
-            Console.WriteLine($"RAIDLEADER: Loading navigation tiles...");
+            Console.Write($"RAIDLEADER: Loading navigation tiles...");
             Navigation.Instance.CalculatePath(1, new Objects.Location(), new Objects.Location(), true);
-            Console.WriteLine($"RAIDLEADER: Navigation tiles loaded");
-        }
+            Console.WriteLine($" Loaded.");
+        }        
 
         private void RaidPresetGroupBox_MouseLeftClick(object sender, MouseEventArgs e)
         {
             GroupBox groupBox = sender as GroupBox;
-            RaidPresetViewModel raidPresetViewModel = groupBox.DataContext as RaidPresetViewModel;
+            RaidLeaderViewModel raidPresetViewModel = groupBox.DataContext as RaidLeaderViewModel;
 
-            for (int i = 0; i < _activityPresetSettingsViewModel.RaidPresetViewModels.Count; i++)
+            for (int i = 0; i < _raidActivityPresetViewModel.RaidPresetViewModels.Count; i++)
             {
-                _activityPresetSettingsViewModel.SetRaidFocusState(i, _activityPresetSettingsViewModel.RaidPresetViewModels[i].Index == raidPresetViewModel.Index);
+                _raidActivityPresetViewModel.SetRaidFocusState(i, _raidActivityPresetViewModel.RaidPresetViewModels[i].Index == raidPresetViewModel.Index);
             }
         }
         private void MemberPresetGroupBox_MouseLeftClick(object sender, MouseEventArgs e)
@@ -43,9 +39,9 @@ namespace RaidLeaderBot
             GroupBox groupBox = sender as GroupBox;
             RaidMemberViewModel raidMemberViewModel = groupBox.DataContext as RaidMemberViewModel;
 
-            for (int i = 0; i < _activityPresetSettingsViewModel.RaidPresetViewModels[_activityPresetSettingsViewModel.SelectedRaidIndex].RaidMemberViewModels.Count; i++)
+            for (int i = 0; i < _raidActivityPresetViewModel.RaidPresetViewModels[_raidActivityPresetViewModel.SelectedRaidIndex].RaidMemberViewModels.Count; i++)
             {
-                _activityPresetSettingsViewModel.SetMemberFocusState(i, _activityPresetSettingsViewModel.RaidPresetViewModels[_activityPresetSettingsViewModel.SelectedRaidIndex].RaidMemberViewModels[i].Index == raidMemberViewModel.Index);
+                _raidActivityPresetViewModel.SetMemberFocusState(i, _raidActivityPresetViewModel.RaidPresetViewModels[_raidActivityPresetViewModel.SelectedRaidIndex].RaidMemberViewModels[i].Index == raidMemberViewModel.Index);
             }
         }
     }

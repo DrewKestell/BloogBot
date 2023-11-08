@@ -15,7 +15,10 @@ namespace RaidLeaderBot
     {
         private Location _lastKnownPlayerLoc = new Location();
 
-        public NavigationSocketServer(int port, IPAddress ipAddress) : base(port, ipAddress) { }
+        public NavigationSocketServer(int port, IPAddress ipAddress) : base(port, ipAddress)
+        {
+            Console.WriteLine($"NAVIGATION SERVER:Port {port}");
+        }
 
         public override int HandleRequest(string payload, Socket clientSocket)
         {

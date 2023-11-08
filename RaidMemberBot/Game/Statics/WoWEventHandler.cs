@@ -360,7 +360,7 @@ namespace RaidMemberBot.Game.Statics
                 try
                 {
                     _evaluteEvent(parEvent, parArgs);
-                    Console.WriteLine($"EVENT HANDLER: {parEvent} {JsonConvert.SerializeObject(parArgs)}");
+                    //Console.WriteLine($"EVENT HANDLER: {parEvent} {JsonConvert.SerializeObject(parArgs)}");
                 }
                 catch (Exception ex)
                 {

@@ -3,11 +3,9 @@ using RaidMemberBot.Models;
 using RaidMemberBot.Models.Dto;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Text;
 
 namespace RaidMemberBot.Client
@@ -16,16 +14,13 @@ namespace RaidMemberBot.Client
     {
         private Socket _databaseSocket;
 
-        readonly RaidMemberSettings raidMemberSettings;
         readonly int BufferSize = 1024;
 
         public static DatabaseClient Instance { get; private set; } = new DatabaseClient();
 
         private DatabaseClient()
         {
-            string currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string botSettingsFilePath = Path.Combine(currentFolder, "Settings\\raidMemberSettings.json");
-            raidMemberSettings = JsonConvert.DeserializeObject<RaidMemberSettings>(File.ReadAllText(botSettingsFilePath));
+
         }
 
         public List<CreatureMovement> GetCreatureMovementByGuid(int guid)
@@ -120,7 +115,7 @@ namespace RaidMemberBot.Client
                 {
                     try
                     {
-                        _databaseSocket.Connect(IPAddress.Parse(raidMemberSettings.ListenAddress), raidMemberSettings.DatabasePort);
+                        _databaseSocket.Connect(IPAddress.Parse(RaidMemberSettings.Instance.ListenAddress), ConfigClient.Instance.ConfigurationResponse.DatabaseServerPort);
                     }
                     catch (Exception e)
                     {

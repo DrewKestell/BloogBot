@@ -1,4 +1,5 @@
-﻿using RaidMemberBot.Game.Frames;
+﻿using RaidMemberBot.Constants;
+using RaidMemberBot.Game.Frames;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
 using RaidMemberBot.Objects;
@@ -52,7 +53,7 @@ namespace RaidMemberBot.AI.SharedStates
             }
             if (state == State.Dialog && Wait.For("DialogFrameDelay", 500))
             {
-                GossipFrame.Instance.SelectFirstGossipOfType(Constants.Enums.GossipTypes.Vendor);
+                GossipFrame.Instance.SelectFirstGossipOfType(Enums.GossipTypes.Vendor);
                 state = State.PrepMerchantFrame;
             }
             if (state == State.CloseMerchantFrame && Wait.For("BuyItemsCloseMerchantFrameStateDelay", 2000))

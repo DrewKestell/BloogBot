@@ -40,7 +40,6 @@ namespace BeastMasterHunterBot
 
         public void Update()
         {
-
             if (ObjectManager.Instance.Aggressors.Count == 0)
             {
                 BotTasks.Pop();

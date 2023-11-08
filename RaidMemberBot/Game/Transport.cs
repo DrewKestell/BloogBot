@@ -1,7 +1,7 @@
-﻿using RaidMemberBot.ExtensionMethods;
+﻿using FluentBehaviourTree;
+using RaidMemberBot.ExtensionMethods;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Objects;
-using FluentBehaviourTree;
 using System.Collections.Generic;
 using System.Linq;
 
