@@ -34,7 +34,7 @@ namespace RaidMemberBot.Client
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e.Message);
+                        Console.WriteLine($"CONFIG CLIENT: {e.Message}");
                     }
                 }
                 if (_configSocket.Connected)
@@ -50,7 +50,7 @@ namespace RaidMemberBot.Client
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.StackTrace);
+                Console.WriteLine($"CONFIG CLIENT: {e.Message}");
                 try
                 {
                     _configSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);

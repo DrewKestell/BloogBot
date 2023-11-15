@@ -937,9 +937,9 @@ namespace RaidMemberBot.Constants
 
             internal static IntPtr QuestLog = (IntPtr)0x318;
 
-            internal static IntPtr CorpseLocationX = (IntPtr)0x00B4E284;
-            internal static IntPtr CorpseLocationY = (IntPtr)0x00B4E288;
-            internal static IntPtr CorpseLocationZ = (IntPtr)0x00B4E28C;
+            internal static IntPtr CorpsePositionX = (IntPtr)0x00B4E284;
+            internal static IntPtr CorpsePositionY = (IntPtr)0x00B4E288;
+            internal static IntPtr CorpsePositionZ = (IntPtr)0x00B4E28C;
 
             internal static IntPtr CtmX = (IntPtr)0xC4D890;
             internal static IntPtr CtmY = (IntPtr)0xC4D894;
@@ -959,7 +959,7 @@ namespace RaidMemberBot.Constants
         internal static class Warden
         {
             internal static IntPtr WardenPtr1 = (IntPtr)0x0CE8978;
-            internal static IntPtr WardenMemScanStart = (IntPtr)0x2a7f;
+            internal static IntPtr WardenMemScanStart = (IntPtr)0x2A7F;
             internal static IntPtr WardenPageScan = (IntPtr)0x2B21;
         }
 
@@ -1070,7 +1070,7 @@ namespace RaidMemberBot.Constants
 
             internal static IntPtr CastSpell = (IntPtr)0x6E5A90;
             internal static IntPtr AbandonQuest = (IntPtr)0x5EAF40;
-            internal static IntPtr GetGameObjectLocation = (IntPtr)0x005F9F50;
+            internal static IntPtr GetGameObjectPosition = (IntPtr)0x005F9F50;
         }
 
         internal enum Party : uint
@@ -1141,7 +1141,7 @@ namespace RaidMemberBot.Constants
             internal static int DynamicFlags = 0x23C;
             internal static int Flags = 0xB8;
 
-            internal static int IsChanneling = 0x240;
+            internal static int ChannelingId = 0x240;
             internal static int CreatedByGuid = 0x38;
             internal static int GameObjectCreatedByGuid = 0x18;
 

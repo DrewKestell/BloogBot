@@ -23,7 +23,7 @@ namespace RaidLeaderBot
         public RaidLeaderViewModel(RaidPreset raidPreset)
         {
             _preset = raidPreset;
-            _activityContainer = new ActivityManager(_preset.RaidLeaderPort);
+            _activityContainer = new ActivityManager(_preset.RaidLeaderPort, 389);
 
             _preset.RaidMemberPresets ??= new List<RaidMemberPreset>() { new RaidMemberPreset() };
 

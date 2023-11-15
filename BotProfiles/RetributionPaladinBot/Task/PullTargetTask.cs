@@ -13,23 +13,23 @@ namespace RetributionPaladinBot
 
         public void Update()
         {
-            if (Container.HostileTarget.TappedByOther || (ObjectManager.Instance.Aggressors.Count() > 0 && !ObjectManager.Instance.Aggressors.Any(a => a.Guid == Container.HostileTarget.Guid)))
+            if (Container.HostileTarget.TappedByOther || (ObjectManager.Aggressors.Count() > 0 && !ObjectManager.Aggressors.Any(a => a.Guid == Container.HostileTarget.Guid)))
             {
-                Container.Player.StopAllMovement();
+                ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
                 return;
             }
 
-            if (Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location) < 3 || Container.Player.IsInCombat)
+            if (ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) < 3 || ObjectManager.Player.IsInCombat)
             {
-                Container.Player.StopAllMovement();
+                ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
                 BotTasks.Push(new PvERotationTask(Container, BotTasks));
                 return;
             }
 
-            Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
-            Container.Player.MoveToward(nextWaypoint[0]);
+            Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+            ObjectManager.Player.MoveToward(nextWaypoint[0]);
         }
     }
 }

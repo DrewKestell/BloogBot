@@ -12,46 +12,46 @@ namespace ElementalShamanBot
         const string LightningBolt = "Lightning Bolt";
 
         int stuckCount;
-        Location currentWaypoint;
+        Position currentWaypoint;
         WoWUnit target;
 
         internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull) { }
 
         public void Update()
         {
-            if (ObjectManager.Instance.Aggressors.Count > 0)
+            if (ObjectManager.Aggressors.Count > 0)
             {
-                Container.Player.StopAllMovement();
+                ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
                 BotTasks.Push(Container.CreatePvERotationTask(Container, BotTasks));
                 return;
             }
 
-            if (ObjectManager.Instance.Hostiles.Count > 0)
+            if (ObjectManager.Hostiles.Count() > 0)
             {
-                WoWUnit potentialNewTarget = ObjectManager.Instance.Hostiles.First();
+                WoWUnit potentialNewTarget = ObjectManager.Hostiles.First();
 
                 if (potentialNewTarget != null && potentialNewTarget.Guid != Container.HostileTarget.Guid)
                 {
                     target = potentialNewTarget;
-                    Container.Player.SetTarget(potentialNewTarget);
+                    ObjectManager.Player.SetTarget(potentialNewTarget.Guid);
                 }
             }
 
-            if (Container.Player.Location.GetDistanceTo(target.Location) < 30 && !Container.Player.IsCasting && Spellbook.Instance.IsSpellReady(LightningBolt) && Container.Player.InLosWith(target.Location))
+            if (ObjectManager.Player.Position.DistanceTo(target.Position) < 30 && !ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady(LightningBolt) && ObjectManager.Player.InLosWith(target.Position))
             {
-                Container.Player.StopAllMovement();
+                ObjectManager.Player.StopAllMovement();
 
                 BotTasks.Pop();
                 BotTasks.Push(new PvERotationTask(Container, BotTasks));
                 return;
             }
 
-            Location[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, ObjectManager.Instance.Player.Location, Container.HostileTarget.Location, true);
+            Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
 
             if (locations.Length > 1)
             {
-                ObjectManager.Instance.Player.MoveToward(locations[1]);
+                ObjectManager.Player.MoveToward(locations[1]);
             }
         }
     }

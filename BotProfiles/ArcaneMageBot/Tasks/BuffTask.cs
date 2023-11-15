@@ -1,5 +1,6 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 
@@ -19,7 +20,7 @@ namespace ArcaneMageBot
         public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
         {
-            if ((!Spellbook.Instance.IsSpellReady(ArcaneIntellect) || Container.Player.HasBuff(ArcaneIntellect)) && (Container.Player.HasBuff(FrostArmor) || Container.Player.HasBuff(IceArmor)) && (!Spellbook.Instance.IsSpellReady(DampenMagic) || Container.Player.HasBuff(DampenMagic)))
+            if ((!ObjectManager.Player.IsSpellReady(ArcaneIntellect) || ObjectManager.Player.HasBuff(ArcaneIntellect)) && (ObjectManager.Player.HasBuff(FrostArmor) || ObjectManager.Player.HasBuff(IceArmor)) && (!ObjectManager.Player.IsSpellReady(DampenMagic) || ObjectManager.Player.HasBuff(DampenMagic)))
             {
                 BotTasks.Pop();
                 BotTasks.Push(new ConjureItemsTask(botTasks, container));
@@ -28,7 +29,7 @@ namespace ArcaneMageBot
             
             TryCastSpell(ArcaneIntellect, castOnSelf: true);
 
-            if (Spellbook.Instance.IsSpellReady(IceArmor))
+            if (ObjectManager.Player.IsSpellReady(IceArmor))
                 TryCastSpell(IceArmor);
             else
                 TryCastSpell(FrostArmor);
@@ -38,10 +39,10 @@ namespace ArcaneMageBot
 
         void TryCastSpell(string name, bool castOnSelf = false)
         {
-            if (!Container.Player.HasBuff(name) && Spellbook.Instance.IsSpellReady(name) && Spellbook.Instance.IsSpellReady(name))
+            if (!ObjectManager.Player.HasBuff(name) && ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.IsSpellReady(name))
             {
                 string castOnSelfString = castOnSelf ? ",1" : "";
-                Lua.Instance.Execute($"CastSpellByName('{name}'{castOnSelfString})");
+                Functions.LuaCall($"CastSpellByName('{name}'{castOnSelfString})");
             }
         }
     }

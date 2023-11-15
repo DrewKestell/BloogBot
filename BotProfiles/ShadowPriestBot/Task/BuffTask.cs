@@ -1,6 +1,7 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,39 +16,39 @@ namespace ShadowPriestBot
         public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
         {
-            if (ObjectManager.Instance.PartyMembers.Any(x => x.HealthPercent < 70) && Container.Player.Mana >= Container.Player.GetManaCost(LesserHeal))
+            if (ObjectManager.PartyMembers.Any(x => x.HealthPercent < 70) && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(LesserHeal))
             {
                 BotTasks.Push(new HealTask(Container, BotTasks));
                 return;
             }
 
-            if (!Spellbook.Instance.IsSpellReady(PowerWordFortitude) || ObjectManager.Instance.PartyMembers.All(x => x != null && x.GotAura(PowerWordFortitude)))
+            if (!ObjectManager.Player.IsSpellReady(PowerWordFortitude) || ObjectManager.PartyMembers.All(x => x != null && x.HasBuff(PowerWordFortitude)))
             {
                 BotTasks.Pop();
                 return;
             }
 
 
-            WoWUnit woWUnit = ObjectManager.Instance.PartyMembers.First(x => !x.GotAura(PowerWordFortitude));
+            WoWUnit woWUnit = ObjectManager.PartyMembers.First(x => !x.HasBuff(PowerWordFortitude));
 
-            if (woWUnit.DistanceToPlayer > 15 || !Container.Player.InLosWith(woWUnit))
+            if (woWUnit.Position.DistanceTo(ObjectManager.Player.Position) > 15 || !ObjectManager.Player.InLosWith(woWUnit.Position))
             {
-                Location[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, ObjectManager.Instance.Player.Location, woWUnit.Location, true);
+                Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, woWUnit.Position, true);
 
                 if (locations.Length > 1)
                 {
-                    ObjectManager.Instance.Player.MoveToward(locations[1]);
+                    ObjectManager.Player.MoveToward(locations[1]);
                 }
                 else
                 {
-                    Container.Player.StopAllMovement();
+                    ObjectManager.Player.StopAllMovement();
                     BotTasks.Pop();
                 }
             }
 
-            Container.Player.SetTarget(woWUnit);
-            if (!woWUnit.GotAura(PowerWordFortitude) && Spellbook.Instance.IsSpellReady(PowerWordFortitude))
-                Lua.Instance.Execute($"CastSpellByName('{PowerWordFortitude}')");
+            ObjectManager.Player.SetTarget(woWUnit.Guid);
+            if (!woWUnit.HasBuff(PowerWordFortitude) && ObjectManager.Player.IsSpellReady(PowerWordFortitude))
+                Functions.LuaCall($"CastSpellByName('{PowerWordFortitude}')");
         }
     }
 }

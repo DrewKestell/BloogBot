@@ -36,7 +36,7 @@ namespace RaidMemberBot
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine(ex.StackTrace);
             }
         }
         public bool DiscordBotEnabled { get; set; }

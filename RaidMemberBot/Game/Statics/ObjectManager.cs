@@ -1,490 +1,220 @@
-﻿using RaidMemberBot.Constants;
-using RaidMemberBot.ExtensionMethods;
-using RaidMemberBot.Helpers;
+﻿using Newtonsoft.Json;
+using RaidMemberBot.Constants;
 using RaidMemberBot.Mem;
 using RaidMemberBot.Models.Dto;
 using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using static RaidMemberBot.Constants.Enums;
 
 namespace RaidMemberBot.Game.Statics
 {
-    /// <summary>
-    ///     ObjectManager class
-    /// </summary>
-    public sealed class ObjectManager
+    public class ObjectManager
     {
-        private static readonly object Locker = new object();
+        const int OBJECT_TYPE_OFFSET = 0x14;
 
-        private static readonly Lazy<ObjectManager> _instance =
-            new Lazy<ObjectManager>(() => new ObjectManager());
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate int EnumerateVisibleObjectsCallbackVanilla(int filter, ulong guid);
 
-        private readonly EnumVisibleObjectsCallback _callback;
+        static ulong playerGuid;
+        static volatile bool _ingame1 = true;
+        static volatile bool _ingame2 = true;
+        static EnumerateVisibleObjectsCallbackVanilla CallbackDelegate;
+        static IntPtr callbackPtr;
+        static CharacterState _characterState;
 
-        /// <summary>
-        ///     Objectmanager internal dictionary
-        /// </summary>
-        private readonly Dictionary<ulong, WoWObject> _objects = new Dictionary<ulong, WoWObject>();
+        static internal IList<WoWObject> Objects = new List<WoWObject>();
+        static internal IList<WoWObject> ObjectsBuffer = new List<WoWObject>();
 
-        private readonly IntPtr _ourCallback;
-        private readonly ThreadSynchronizer.Updater _updater;
-
-        private volatile List<WoWObject> _finalObjects = new List<WoWObject>();
-        private volatile bool _ingame1 = true;
-        private volatile bool _ingame2 = true;
-        private volatile Dictionary<int, IntPtr> _itemCachePtrs = new Dictionary<int, IntPtr>();
-        private volatile Dictionary<int, IntPtr> _questCachePtrs = new Dictionary<int, IntPtr>();
-
-        private volatile CharacterState _characterState;
-
-        private Task _enumTask;
-
-        private ObjectManager()
+        static internal void Initialize(CharacterState parProbe)
         {
-            _callback = Callback;
-            _ourCallback = Marshal.GetFunctionPointerForDelegate(_callback);
-            _updater = new ThreadSynchronizer.Updater(_EnumObjects, 50);
-            _updater.Start();
+            _characterState = parProbe;
+
+            CallbackDelegate = CallbackVanilla;
+            callbackPtr = Marshal.GetFunctionPointerForDelegate(CallbackDelegate);
+
             WoWEventHandler.Instance.OnEvent += OnEvent;
+
+            StartEnumeration();
         }
 
-        public void StartEnumeration(CharacterState characterState)
+        static public LocalPlayer Player { get; private set; }
+
+        static public LocalPet Pet { get; private set; }
+
+        static public IEnumerable<WoWObject> AllObjects => Objects;
+
+        static public IEnumerable<WoWUnit> Units => Objects.OfType<WoWUnit>().Where(o => o.ObjectType == WoWObjectTypes.OT_UNIT).ToList();
+
+        static public IEnumerable<WoWPlayer> Players => Objects.OfType<WoWPlayer>();
+
+        static public IEnumerable<WoWItem> Items => Objects.OfType<WoWItem>();
+
+        static public IEnumerable<WoWContainer> Containers => Objects.OfType<WoWContainer>();
+
+        static public IEnumerable<WoWGameObject> GameObjects => Objects.OfType<WoWGameObject>();
+
+        static public WoWUnit CurrentTarget => Units.FirstOrDefault(u => Player.TargetGuid == u.Guid);
+
+        static public bool IsLoggedIn => _ingame1 && _ingame2 && MemoryManager.ReadByte((IntPtr)0xB4B424) == 1;
+
+        static public void AntiAfk() => MemoryManager.WriteInt((IntPtr)MemoryAddresses.LastHardwareAction, Environment.TickCount);
+
+        static public string ZoneText
         {
-            _characterState = characterState;
-        }
-
-        /// <summary>
-        ///     Tells if we are ingame
-        /// </summary>
-        public bool IsIngame => _ingame1 && _ingame2 && Offsets.Player.IsIngame.ReadAs<byte>() == 1;
-
-        /// <summary>
-        ///     Tells if we are ingame
-        /// </summary>
-        public bool IsInClient => _ingame1;
-
-        /// <summary>
-        ///     Access to the instance
-        /// </summary>
-        public static ObjectManager Instance => _instance.Value;
-
-
-        /// <summary>
-        ///     Sets the last hardware action to the current tickcount
-        /// </summary>
-        public void AntiAfk()
-        {
-            Memory.Reader.Write(Offsets.Functions.LastHardwareAction, Environment.TickCount);
-        }
-
-        /// <summary>
-        ///     Access to the local player
-        /// </summary>
-        public LocalPlayer Player { get; private set; }
-
-        /// <summary>
-        ///     Access to the local player's pet
-        /// </summary>
-        public LocalPet Pet { get; private set; }
-
-
-        /// <summary>
-        ///     Access to the players target
-        /// </summary>
-        public WoWUnit Target
-        {
+            // this is weird and throws an exception right after entering world,
+            // so we catch and ignore the exception to avoid console noise
             get
             {
-                if (!IsIngame) return null;
-                if (Player.TargetGuid == 0) return null;
-
-                lock (Locker)
+                try
                 {
-                    return (WoWUnit)_finalObjects.FirstOrDefault(i => i.Guid == Player.TargetGuid);
+                    var ptr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.ZoneTextPtr);
+                    return MemoryManager.ReadString(ptr);
+                }
+                catch (Exception)
+                {
+                    return "";
                 }
             }
         }
 
-        /// <summary>
-        ///     Returns a readonly list with all current objects
-        /// </summary>
-        public IReadOnlyList<WoWObject> Objects => _finalObjects;
-
-        /// <summary>
-        ///     Returns a copy of all units currently in the object list on each access
-        /// </summary>
-        public List<WoWUnit> Units
+        static public string MinimapZoneText
         {
+            // this is weird and throws an exception right after entering world,
+            // so we catch and ignore the exception to avoid console noise
             get
             {
-                lock (Locker)
+                try
                 {
-                    return _finalObjects.OfType<WoWUnit>().ToList();
+                    var ptr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.MinimapZoneTextPtr);
+                    return MemoryManager.ReadString(ptr);
+                }
+                catch (Exception)
+                {
+                    return "";
                 }
             }
         }
 
-        /// <summary>
-        ///     Returns a copy of all players currently in the object list on each access
-        /// </summary>
-        public List<WoWUnit> Players
+        static public uint MapId
         {
+            // this is weird and throws an exception right after entering world,
+            // so we catch and ignore the exception to avoid console noise
             get
             {
-                lock (Locker)
+                try
                 {
-                    return
-                        _finalObjects.OfType<WoWUnit>()
-                            .ToList()
-                            .Where(i => i.WoWType == WoWObjectTypes.OT_PLAYER)
-                            .ToList();
+                    var objectManagerPtr = MemoryManager.ReadIntPtr((IntPtr)0x00B41414);
+                    return MemoryManager.ReadUint(IntPtr.Add(objectManagerPtr, 0xCC));
+                }
+                catch (Exception)
+                {
+                    return 0;
                 }
             }
         }
 
-
-        /// <summary>
-        ///     Returns a copy of all Npcs currently in the object list on each access
-        /// </summary>
-        public List<WoWUnit> Npcs
+        static public string ServerName
         {
+            // this is weird and throws an exception right after entering world,
+            // so we catch and ignore the exception to avoid console noise
             get
             {
-                lock (Locker)
+                try
                 {
-                    return _finalObjects.OfType<WoWUnit>()
-                        .Where(i => i.WoWType == WoWObjectTypes.OT_UNIT).ToList();
+                    // not exactly sure how this works. seems to return a string like "Endless\WoW.exe" or "Karazhan\WoW.exe"
+                    var fullName = MemoryManager.ReadString((IntPtr)MemoryAddresses.ServerName);
+                    return fullName.Split('\\').First();
+                }
+                catch (Exception)
+                {
+                    return "";
                 }
             }
         }
 
-
-        /// <summary>
-        ///     Returns a copy of all gameobjects currently in the object list on each access
-        /// </summary>
-        public List<WoWGameObject> GameObjects
+        static public IEnumerable<WoWPlayer> PartyMembers
         {
             get
             {
-                lock (Locker)
+                var partyMembers = new List<WoWPlayer>();
+
+                for (var i = 1; i < 5; i++)
                 {
-                    return _finalObjects.OfType<WoWGameObject>()
-                        .ToList();
+                    var result = GetPartyMember(i);
+                    if (result != null)
+                        partyMembers.Add(result);
                 }
+                partyMembers.Add(Player);
+
+                return partyMembers;
             }
         }
 
-        /// <summary>
-        ///     Returns a copy of all items currently in the object list on each access
-        /// </summary>
-        public List<WoWItem> Items
+        // index should be 1-4
+        static WoWPlayer GetPartyMember(int index)
+        {
+            var result = Player?.LuaCallWithResults($"{{0}} = UnitName('party{index}')");
+
+            if (result.Length > 0)
+                return Players.FirstOrDefault(p => p.Name == result[0]);
+
+            return null;
+        }
+
+        static public WoWPlayer PartyLeader
         {
             get
             {
-                lock (Locker)
-                {
-                    return _finalObjects.OfType<WoWItem>()
-                        .ToList();
-                }
+                var result1 = Player?.LuaCallWithResults($"{{0}} = GetPartyLeaderIndex()");
+                var result2 = Player?.LuaCallWithResults($"{{0}} = UnitName('party{result1[0]}')");
+
+                if (result2.Length > 0 && !string.IsNullOrEmpty(result2[0]))
+                    return Players.FirstOrDefault(p => p.Name == result2[0]);
+
+                return null;
             }
         }
 
-        /// <summary>
-        ///     Access to the party leaders object
-        /// </summary>
-        public WoWUnit PartyLeader
-        {
-            get
-            {
-                ulong guid = ((int)Offsets.Party.leaderGuid).ReadAs<ulong>();
-                if (guid == 0) return null;
-                lock (Locker)
-                {
-                    return (WoWUnit)_finalObjects.FirstOrDefault(i => i.Guid == guid);
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Access to the object of party member 1
-        /// </summary>
-        public WoWUnit Party1
-        {
-            get
-            {
-                ulong guid = ((int)Offsets.Party.party1Guid).ReadAs<ulong>();
-                return GetPartyMember(guid);
-            }
-        }
-
-        /// <summary>
-        ///     Access to the object of party member 2
-        /// </summary>
-        public WoWUnit Party2
-        {
-            get
-            {
-                ulong guid = ((int)Offsets.Party.party2Guid).ReadAs<ulong>();
-                return GetPartyMember(guid);
-            }
-        }
-
-        /// <summary>
-        ///     Access to the object of party member 3
-        /// </summary>
-        public WoWUnit Party3
-        {
-            get
-            {
-                ulong guid = ((int)Offsets.Party.party3Guid).ReadAs<ulong>();
-                return GetPartyMember(guid);
-            }
-        }
-
-        /// <summary>
-        ///     Access to the object of party member 4
-        /// </summary>
-        public WoWUnit Party4
-        {
-            get
-            {
-                ulong guid = ((int)Offsets.Party.party4Guid).ReadAs<ulong>();
-                return GetPartyMember(guid);
-            }
-        }
-        public List<WoWUnit> PartyMembers => new List<WoWUnit>() { GetPartyMember(((int)Offsets.Party.leaderGuid).ReadAs<ulong>()),
-                                                                    GetPartyMember(((int)Offsets.Party.party1Guid).ReadAs<ulong>()),
-                                                                    GetPartyMember(((int)Offsets.Party.party2Guid).ReadAs<ulong>()),
-                                                                    GetPartyMember(((int)Offsets.Party.party3Guid).ReadAs<ulong>()),
-                                                                    GetPartyMember(((int)Offsets.Party.party4Guid).ReadAs<ulong>())
-                                                                    }.Where(x => x != null)
-                                                                .ToList();
-
-        private WoWUnit GetPartyMember(ulong guid)
-        {
-            if (guid == 0) return null;
-            lock (Locker)
-            {
-                return (WoWUnit)_finalObjects.FirstOrDefault(i => i.Guid == guid);
-            }
-        }
-        public List<WoWUnit> Aggressors =>
+        static public List<WoWUnit> Aggressors =>
             Hostiles
                 .Where(u => u.IsInCombat)
+                .Where(u =>
+                    u.TargetGuid == Player?.Guid ||
+                    u.TargetGuid == Pet?.Guid)
             .ToList();
 
-        public List<WoWUnit> Hostiles =>
+        static public IEnumerable<WoWUnit> Hostiles =>
             Units
                 .Where(u => u.Health > 0)
                 .Where(u =>
-                    u.Reaction == UnitReaction.Hostile ||
-                    u.Reaction == UnitReaction.Hostile2 ||
-                    u.Reaction == UnitReaction.Neutral)
-            .OrderBy(u => u.Location.DistanceToPlayer())
-            .ToList();
+                    u.UnitReaction == UnitReaction.Hated ||
+                    u.UnitReaction == UnitReaction.Hostile ||
+                    u.UnitReaction == UnitReaction.Unfriendly ||
+                    u.UnitReaction == UnitReaction.Neutral);
 
-        internal ItemCacheEntry? LookupItemCacheEntry(int parItemId, PrivateEnums.ItemCacheLookupType parLookupType)
+        // https://vanilla-wow.fandom.com/wiki/API_GetTalentInfo
+        // tab index is 1, 2 or 3
+        // talentIndex is counter left to right, top to bottom, starting at 1
+        static public sbyte GetTalentRank(int tabIndex, int talentIndex)
         {
-            if (_itemCachePtrs.ContainsKey(parItemId))
-                return Memory.Reader.Read<ItemCacheEntry>(_itemCachePtrs[parItemId]);
-            IntPtr res = Functions.ItemCacheGetRow(parItemId, parLookupType);
-            if (res == IntPtr.Zero) return null;
-            _itemCachePtrs.Add(parItemId, res);
-            return Memory.Reader.Read<ItemCacheEntry>(res);
+            var results = Player.LuaCallWithResults($"{{0}}, {{1}}, {{2}}, {{3}}, {{4}} = GetTalentInfo({tabIndex},{talentIndex})");
+
+            if (results.Length == 5)
+                return Convert.ToSByte(results[4]);
+
+            return -1;
         }
-
-        internal IntPtr LookupItemCachePtr(int parItemId, PrivateEnums.ItemCacheLookupType parLookupType)
-        {
-            if (_itemCachePtrs.ContainsKey(parItemId))
-                return _itemCachePtrs[parItemId];
-            IntPtr res = Functions.ItemCacheGetRow(parItemId, parLookupType);
-            if (res == IntPtr.Zero) return IntPtr.Zero;
-            _itemCachePtrs.Add(parItemId, res);
-            return _itemCachePtrs[parItemId];
-        }
-
-        internal IntPtr LookupQuestCachePtr(int parItemId)
-        {
-            if (_questCachePtrs.ContainsKey(parItemId))
-                return _questCachePtrs[parItemId];
-            IntPtr res = Functions.QuestCacheGetRow(parItemId);
-            if (res == IntPtr.Zero) return IntPtr.Zero;
-            _questCachePtrs.Add(parItemId, res);
-            return _questCachePtrs[parItemId];
-        }
-
-        /// <summary>
-        ///     Enumerate through the object manager
-        ///     true if ingame
-        ///     false if not ingame
-        /// </summary>
-        private void _EnumObjects()
-        {
-            if (!IsIngame)
-            {
-                if (_characterState != null)
-                {
-                    _characterState.Guid = 0;
-                    _characterState.MapId = 0;
-                    _characterState.Location = new System.Numerics.Vector3();
-                    _characterState.Waypoint = new System.Numerics.Vector3();
-                    _characterState.Level = 0;
-                    _characterState.Class = ClassId.Warrior;
-                    _characterState.Race = Race.Human;
-                    _characterState.CharacterName = string.Empty;
-                    _characterState.Zone = Login.Instance.LoginState == LoginStates.charselect ? "Character Select Screen" : "Login Screen";
-                    _characterState.HostileTargetGuid = 0;
-                    _characterState.FriendlyTargetGuid = 0;
-                    _characterState.CurrentHealth = 0;
-                    _characterState.CurrentMana = 0;
-                    _characterState.MaxHealth = 0;
-                    _characterState.MaxMana = 0;
-                    _characterState.Rage = 0;
-                    _characterState.ComboPoints = 0;
-                    _characterState.Energy = 0;
-                    _characterState.Casting = 0;
-                    _characterState.Channeling = 0;
-                    _characterState.InParty = false;
-                    _characterState.InCombat = false;
-                    _characterState.IsMoving = false;
-                    _characterState.IsOnMount = false;
-                    _characterState.IsFalling = false;
-                    _characterState.IsStunned = false;
-                    _characterState.IsConfused = false;
-                    _characterState.IsPoisoned = false;
-                    _characterState.IsDiseased = false;
-                    _characterState.WoWObjects = new Dictionary<ulong, string>();
-                    _characterState.WoWUnits = new Dictionary<ulong, string>();
-                }
-                return;
-            }
-            _ingame2 = ThreadSynchronizer.Instance.Invoke(() =>
-            {
-                // renew playerptr if invalid
-                // return if no pointer can be retrieved
-                ulong playerGuid = Functions.GetPlayerGuid();
-                if (playerGuid == 0)
-                {
-                    _characterState.Guid = 0;
-                    _characterState.MapId = 0;
-                    _characterState.Location = new System.Numerics.Vector3();
-                    _characterState.Waypoint = new System.Numerics.Vector3();
-                    _characterState.Level = 0;
-                    _characterState.Class = ClassId.Warrior;
-                    _characterState.Race = Race.Human;
-                    _characterState.CharacterName = string.Empty;
-                    _characterState.Zone = string.Empty;
-                    _characterState.HostileTargetGuid = 0;
-                    _characterState.FriendlyTargetGuid = 0;
-                    _characterState.CurrentHealth = 0;
-                    _characterState.CurrentMana = 0;
-                    _characterState.MaxHealth = 0;
-                    _characterState.MaxMana = 0;
-                    _characterState.Rage = 0;
-                    _characterState.ComboPoints = 0;
-                    _characterState.Energy = 0;
-                    _characterState.Casting = 0;
-                    _characterState.Channeling = 0;
-                    _characterState.InParty = false;
-                    _characterState.InCombat = false;
-                    _characterState.IsMoving = false;
-                    _characterState.IsOnMount = false;
-                    _characterState.IsFalling = false;
-                    _characterState.IsStunned = false;
-                    _characterState.IsConfused = false;
-                    _characterState.IsPoisoned = false;
-                    _characterState.IsDiseased = false;
-                    _characterState.WoWObjects = new Dictionary<ulong, string>();
-                    _characterState.WoWUnits = new Dictionary<ulong, string>();
-
-                    return false;
-                }
-                IntPtr playerObject = Functions.GetPtrForGuid(playerGuid);
-                if (playerObject == IntPtr.Zero) return false;
-                if (Player == null || playerObject != Player.Pointer)
-                {
-                    Player = new LocalPlayer(playerGuid, playerObject, WoWObjectTypes.OT_PLAYER);
-                    WoWEventHandler.Instance.FireOnPlayerInit();
-                }
-
-                if (Wait.For("QuestRefresh", 1000))
-                    QuestLog.Instance.UpdateQuestLog();
-                if (Wait.For("SpellRefreshObjManager", 5000))
-                    Player.RefreshSpells();
-
-                // set the pointer of all objects to 0
-                foreach (WoWObject obj in _objects.Values)
-                    obj.CanRemove = true;
-
-                Functions.EnumVisibleObjects(_ourCallback, -1);
-
-                // remove the pointer that are stil zero 
-                // (pointer not updated from 0 = object not in manager anymore)
-                foreach (KeyValuePair<ulong, WoWObject> pair in _objects.Where(p => p.Value.CanRemove).ToList())
-                    _objects.Remove(pair.Key);
-
-                // assign dictionary to list which is viewable from internal
-                lock (Locker)
-                {
-                    _finalObjects = _objects.Values.ToList();
-                }
-
-                _characterState.Guid = playerGuid;
-                _characterState.CharacterName = Player.Name;
-                _characterState.Casting = Player.Casting;
-                _characterState.Channeling = Player.Channeling;
-                _characterState.InCombat = Player.IsInCombat;
-                _characterState.IsMoving = Player.IsMoving;
-                _characterState.IsOnMount = Player.IsMounted;
-                _characterState.IsFalling = Player.IsFalling;
-                _characterState.IsStunned = Player.IsStunned;
-                _characterState.IsConfused = Player.IsConfused;
-                _characterState.IsPoisoned = Player.IsPoisoned;
-                _characterState.IsDiseased = Player.IsDiseased;
-                _characterState.Zone = Player.RealZoneText;
-                _characterState.InParty = ((int)Offsets.Party.leaderGuid).ReadAs<ulong>() > 0;
-                _characterState.InRaid = int.Parse(Lua.Instance.ExecuteWithResult("{0} = GetNumRaidMembers()")[0]) > 0;
-                _characterState.MapId = (int)Player.MapId;
-                _characterState.Class = Player.Class;
-                _characterState.Race = Enum.GetValues(typeof(Race)).Cast<Race>().Where(x => x.GetDescription() == Player.Race).First();
-                _characterState.Level = Player.Level;
-                _characterState.CurrentHealth = Player.Health;
-                _characterState.CurrentMana = Player.Mana;
-                _characterState.MaxHealth = Player.MaxHealth;
-                _characterState.MaxMana = Player.MaxMana;
-                _characterState.Rage = Player.Rage;
-                _characterState.Energy = Player.Energy;
-                _characterState.ComboPoints = Player.ComboPoints;
-                _characterState.Facing = Player.Facing;
-                _characterState.Location = new System.Numerics.Vector3(Player.Location.X, Player.Location.Y, Player.Location.Z);
-
-                List<WoWUnit> units = Npcs.OrderBy(x => x.DistanceToPlayer)
-                                        .ToList();
-                units.Insert(0, Player);
-
-                _characterState.WoWUnits = units.ToDictionary(x => x.Guid, x => x.Name);
-                _characterState.WoWObjects = GameObjects.OrderBy(x => x.Location.DistanceToPlayer())
-                                            .ToDictionary(x => x.Guid, x => x.Name);
-
-                return true;
-            });
-        }
-
-        internal void DcKillswitch()
-        {
-            _ingame1 = false;
-            Player = null;
-        }
-
-        private void OnEvent(object sender, WoWEventHandler.OnEventArgs args)
+        private static void OnEvent(object sender, WoWEventHandler.OnEventArgs args)
         {
             if (args.EventName == "CURSOR_UPDATE")
             {
-                bool online = Offsets.Player.IsIngame.ReadAs<byte>() == 1;
+                var online = MemoryManager.ReadByte(Offsets.Player.IsIngame) == 1;
                 if (!online) _ingame1 = false;
             }
             if (args.EventName != "UNIT_MODEL_CHANGED" &&
@@ -494,70 +224,199 @@ namespace RaidMemberBot.Game.Statics
             _ingame1 = true;
         }
 
-        /// <summary>
-        ///     The callback for EnumVisibleObjects
-        /// </summary>
-        private int Callback(int filter, ulong guid)
+        static internal async void StartEnumeration()
+        {
+            while (true)
+            {
+                try
+                {
+                    EnumerateVisibleObjects();
+                    await Task.Delay(50);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"[OBJECT MANAGER] {e.StackTrace}");
+                }
+            }
+        }
+
+        static void EnumerateVisibleObjects()
+        {
+            if (!IsLoggedIn) return;
+            ThreadSynchronizer.RunOnMainThread(() =>
+            {
+                playerGuid = Functions.GetPlayerGuid();
+                if (playerGuid == 0)
+                {
+                    Player = null;
+                    return;
+                }
+                var playerObject = Functions.GetObjectPtr(playerGuid);
+                if (playerObject == IntPtr.Zero)
+                {
+                    Player = null;
+                    return;
+                }
+
+                ObjectsBuffer.Clear();
+                Functions.EnumerateVisibleObjects(callbackPtr, 0);
+                Objects = new List<WoWObject>(ObjectsBuffer);
+
+                if (Player != null)
+                {
+                    var petFound = false;
+
+                    foreach (var unit in Units)
+                    {
+                        if (unit.SummonedByGuid == Player?.Guid)
+                        {
+                            Pet = new LocalPet(unit.Pointer, unit.Guid, unit.ObjectType);
+                            petFound = true;
+                        }
+
+                        if (!petFound)
+                            Pet = null;
+                    }
+
+                    Player.RefreshSpells();
+                }
+
+                UpdateProbe();
+            });
+        }
+
+        // EnumerateVisibleObjects callback has the parameter order swapped between Vanilla and other client versions.
+        static int CallbackVanilla(int filter, ulong guid)
+        {
+            return CallbackInternal(guid, filter);
+        }
+
+        static int CallbackInternal(ulong guid, int filter)
         {
             if (guid == 0) return 0;
-            IntPtr ptr = Functions.GetPtrForGuid(guid);
-            if (ptr == IntPtr.Zero) return 0;
-            if (_objects.ContainsKey(guid))
+            var pointer = Functions.GetObjectPtr(guid);
+            var objectType = (WoWObjectTypes)MemoryManager.ReadInt(IntPtr.Add(pointer, OBJECT_TYPE_OFFSET));
+
+            try
             {
-                _objects[guid].Pointer = ptr;
-                _objects[guid].CanRemove = false;
-            }
-            else
-            {
-                WoWObjectTypes objType =
-                    (WoWObjectTypes)
-                    Memory.Reader.Read<byte>(IntPtr.Add(ptr, (int)Offsets.ObjectManager.ObjType));
-                switch (objType)
+                switch (objectType)
                 {
                     case WoWObjectTypes.OT_CONTAINER:
-                    case WoWObjectTypes.OT_ITEM:
-                        WoWItem tmpItem = new WoWItem(guid, ptr, objType);
-
-                        _objects.Add(guid, tmpItem);
+                        ObjectsBuffer.Add(new WoWContainer(pointer, guid, objectType));
                         break;
-
-                    case WoWObjectTypes.OT_UNIT:
-
-                        ulong owner = ptr.Add(0x8)
-                            .PointsTo()
-                            .Add(Offsets.Descriptors.SummonedByGuid)
-                            .ReadAs<ulong>();
-
-                        if (Player != null && owner == Player.Guid)
+                    case WoWObjectTypes.OT_ITEM:
+                        ObjectsBuffer.Add(new WoWItem(pointer, guid, objectType));
+                        break;
+                    case WoWObjectTypes.OT_PLAYER:
+                        if (guid == playerGuid)
                         {
-                            if (Pet != null && Pet.Pointer == ptr) break;
-                            Pet = new LocalPet(guid, ptr, WoWObjectTypes.OT_UNIT);
+                            var player = new LocalPlayer(pointer, guid, objectType);
+                            Player = player;
+                            ObjectsBuffer.Add(player);
                         }
                         else
-                        {
-                            WoWUnit tmpUnit = new WoWUnit(guid, ptr, objType);
-                            _objects.Add(guid, tmpUnit);
-                        }
+                            ObjectsBuffer.Add(new WoWPlayer(pointer, guid, objectType));
                         break;
-
-                    case WoWObjectTypes.OT_PLAYER:
-                        WoWUnit tmpPlayer = new WoWUnit(guid, ptr, objType);
-                        _objects.Add(guid, tmpPlayer);
-                        break;
-
                     case WoWObjectTypes.OT_GAMEOBJ:
-                        WoWGameObject tmpGameObject = new WoWGameObject(guid, ptr, objType);
-                        _objects.Add(guid, tmpGameObject);
+                        ObjectsBuffer.Add(new WoWGameObject(pointer, guid, objectType));
+                        break;
+                    case WoWObjectTypes.OT_UNIT:
+                        ObjectsBuffer.Add(new WoWUnit(pointer, guid, objectType));
                         break;
                 }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine($"OBJECT MANAGER: CallbackInternal => {e.StackTrace}");
+            }
+
             return 1;
         }
 
-        /// <summary>
-        ///     Delegates for: Enum, Callback, GetPtrByGuid, GetActivePlayer
-        /// </summary>
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate int EnumVisibleObjectsCallback(int filter, ulong guid);
+        static void UpdateProbe()
+        {
+            try
+            {
+                if (Player != null)
+                {
+                    _characterState.Guid = playerGuid;
+                    _characterState.CharacterName = Player.Name;
+                    _characterState.Casting = Player.SpellcastId;
+                    _characterState.ChannelingId = Player.ChannelingId;
+                    _characterState.InCombat = Player.IsInCombat;
+                    _characterState.IsMoving = Player.IsMoving;
+                    _characterState.IsOnMount = Player.IsMounted;
+                    _characterState.IsFalling = Player.IsFalling;
+                    _characterState.IsStunned = Player.IsStunned;
+                    _characterState.IsConfused = Player.IsConfused;
+                    _characterState.IsPoisoned = Player.IsPoisoned;
+                    _characterState.IsDiseased = Player.IsDiseased;
+                    _characterState.Zone = MinimapZoneText;
+                    _characterState.InParty = !string.IsNullOrEmpty(Functions.LuaCallWithResult($"{{0}} = UnitName('party1')")[0]);
+                    _characterState.InRaid = int.Parse(Functions.LuaCallWithResult("{0} = GetNumRaidMembers()")[0]) > 0;
+                    _characterState.MapId = (int)MapId;
+                    _characterState.Class = Player.Class;
+                    _characterState.Race = Enum.GetValues(typeof(Race)).Cast<Race>().Where(x => x.GetDescription() == Player.Race).First();
+                    _characterState.Level = Player.Level;
+                    _characterState.CurrentHealth = Player.Health;
+                    _characterState.CurrentMana = Player.Mana;
+                    _characterState.MaxHealth = Player.MaxHealth;
+                    _characterState.MaxMana = Player.MaxMana;
+                    _characterState.Rage = Player.Rage;
+                    _characterState.Energy = Player.Energy;
+                    _characterState.ComboPoints = Player.ComboPoints;
+                    _characterState.Facing = Player.Facing;
+                    _characterState.Position = new System.Numerics.Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z);
+
+                    List<WoWUnit> units = Units.OrderBy(x => x.Position.DistanceTo(Player.Position))
+                                            .ToList();
+                    units.Insert(0, Player);
+
+                    _characterState.WoWUnits = units.Where(x => !string.IsNullOrEmpty(x.Name))
+                                                    .ToDictionary(x => x.Guid, x => x.Name);
+                    _characterState.WoWObjects = GameObjects.OrderBy(x => x.Position.DistanceTo(Player.Position))
+                                                            .Where(x => !string.IsNullOrEmpty(x.Name))
+                                                            .ToDictionary(x => x.Guid, x => x.Name);
+                }
+                else
+                {
+                    _characterState.Guid = 0;
+                    _characterState.MapId = 0;
+                    _characterState.Position = new System.Numerics.Vector3();
+                    _characterState.Waypoint = new System.Numerics.Vector3();
+                    _characterState.Level = 0;
+                    _characterState.Class = 0;
+                    _characterState.Race = 0;
+                    _characterState.CharacterName = string.Empty;
+                    _characterState.Zone = (LoginStates)Enum.Parse(typeof(LoginStates), MemoryManager.ReadString(Offsets.CharacterScreen.LoginState)) == LoginStates.charselect ? "Character Select Screen" : "Login Screen";
+                    _characterState.HostileTargetGuid = 0;
+                    _characterState.FriendlyTargetGuid = 0;
+                    _characterState.CurrentHealth = 0;
+                    _characterState.CurrentMana = 0;
+                    _characterState.MaxHealth = 0;
+                    _characterState.MaxMana = 0;
+                    _characterState.Rage = 0;
+                    _characterState.ComboPoints = 0;
+                    _characterState.Energy = 0;
+                    _characterState.Casting = 0;
+                    _characterState.ChannelingId = 0;
+                    _characterState.InParty = false;
+                    _characterState.InCombat = false;
+                    _characterState.IsMoving = false;
+                    _characterState.IsOnMount = false;
+                    _characterState.IsFalling = false;
+                    _characterState.IsStunned = false;
+                    _characterState.IsConfused = false;
+                    _characterState.IsPoisoned = false;
+                    _characterState.IsDiseased = false;
+                    _characterState.WoWObjects = new Dictionary<ulong, string>();
+                    _characterState.WoWUnits = new Dictionary<ulong, string>();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[OBJECT MANAGER]{ex.Message} {ex.StackTrace}");
+            }
+        }
     }
 }

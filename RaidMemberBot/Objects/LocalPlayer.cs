@@ -4,18 +4,24 @@ using ObjectManager = RaidMemberBot.Game.Statics.ObjectManager;
 using Functions = RaidMemberBot.Mem.Functions;
 using static RaidMemberBot.Constants.Enums;
 using RaidMemberBot.Mem;
+using System.Collections.Generic;
 using RaidMemberBot.Constants;
-using RaidMemberBot.Game.Statics;
-using RaidMemberBot.ExtensionMethods;
-using RaidMemberBot.Helpers;
+using Newtonsoft.Json;
 
 namespace RaidMemberBot.Objects
 {
-    /// <summary>
-    ///     Class for the local player
-    /// </summary>
-    public class LocalPlayer : WoWUnit
+    public class LocalPlayer : WoWPlayer
     {
+        internal LocalPlayer(
+            IntPtr pointer,
+            ulong guid,
+            WoWObjectTypes objectType)
+            : base(pointer, guid, objectType)
+        {
+            RefreshSpells();
+        }
+
+        readonly Random random = new Random();
 
         // WARRIOR
         const string BattleStance = "Battle Stance";
@@ -25,20 +31,228 @@ namespace RaidMemberBot.Objects
         // DRUID
         const string BearForm = "Bear Form";
         const string CatForm = "Cat Form";
+
+        // OPCODES
+        const int SET_FACING_OPCODE = 0xDA; // TBC
+
+        public readonly IDictionary<string, int[]> PlayerSpells = new Dictionary<string, int[]>();
+
+        public WoWUnit Target { get; set; }
+
+        bool turning;
+        int totalTurns;
+        int turnCount;
+        float amountPerTurn;
+        Position turningToward;
+
+        public Class Class => (Class)MemoryManager.ReadByte((IntPtr)MemoryAddresses.LocalPlayerClass);
+        public string Race => Functions.LuaCallWithResult("{0} = UnitRace('player')")[0];
+
+        public Position CorpsePosition => new Position(
+            MemoryManager.ReadFloat((IntPtr)MemoryAddresses.LocalPlayerCorpsePositionX),
+            MemoryManager.ReadFloat((IntPtr)MemoryAddresses.LocalPlayerCorpsePositionY),
+            MemoryManager.ReadFloat((IntPtr)MemoryAddresses.LocalPlayerCorpsePositionZ));
+
+        public void Face(Position pos)
+        {
+            // sometimes the client gets in a weird state and CurrentFacing is negative. correct that here.
+            if (Facing < 0)
+            {
+                SetFacing((float)(Math.PI * 2) + Facing);
+                return;
+            }
+
+            // if this is a new position, restart the turning flow
+            if (turning && pos != turningToward)
+            {
+                ResetFacingState();
+                return;
+            }
+
+            // return if we're already facing the position
+            if (!turning && IsFacing(pos))
+                return;
+
+            if (!turning)
+            {
+                var requiredFacing = GetFacingForPosition(pos);
+                float amountToTurn;
+                if (requiredFacing > Facing)
+                {
+                    if (requiredFacing - Facing > Math.PI)
+                    {
+                        amountToTurn = -((float)(Math.PI * 2) - requiredFacing + Facing);
+                    }
+                    else
+                    {
+                        amountToTurn = requiredFacing - Facing;
+                    }
+                }
+                else
+                {
+                    if (Facing - requiredFacing > Math.PI)
+                    {
+                        amountToTurn = (float)(Math.PI * 2) - Facing + requiredFacing;
+                    }
+                    else
+                    {
+                        amountToTurn = requiredFacing - Facing;
+                    }
+                }
+
+                // if the turn amount is relatively small, just face that direction immediately
+                if (Math.Abs(amountToTurn) < 0.05)
+                {
+                    SetFacing(requiredFacing);
+                    ResetFacingState();
+                    return;
+                }
+
+                turning = true;
+                turningToward = pos;
+                totalTurns = random.Next(2, 5);
+                amountPerTurn = amountToTurn / totalTurns;
+            }
+            if (turning)
+            {
+                if (turnCount < totalTurns - 1)
+                {
+                    var twoPi = (float)(Math.PI * 2);
+                    var newFacing = Facing + amountPerTurn;
+
+                    if (newFacing < 0)
+                        newFacing = twoPi + amountPerTurn + Facing;
+                    else if (newFacing > Math.PI * 2)
+                        newFacing = amountPerTurn - (twoPi - Facing);
+
+                    SetFacing(newFacing);
+                    turnCount++;
+                }
+                else
+                {
+                    SetFacing(GetFacingForPosition(pos));
+                    ResetFacingState();
+                }
+            }
+        }
+
+        // Nat added this to see if he could test out the cleave radius which is larger than that isFacing radius
+        public bool IsInCleave(Position position) => Math.Abs(GetFacingForPosition(position) - Facing) < 3f;
+
+        public void SetFacing(float facing)
+        {
+            Functions.SetFacing(IntPtr.Add(Pointer, MemoryAddresses.LocalPlayer_SetFacingOffset), facing);
+            Functions.SendMovementUpdate(Pointer, SET_FACING_OPCODE);
+        }
+
+        public void MoveToward(Position pos)
+        {
+            Face(pos);
+            StartMovement(ControlBits.Front);
+        }
+
+        void ResetFacingState()
+        {
+            turning = false;
+            totalTurns = 0;
+            turnCount = 0;
+            amountPerTurn = 0;
+            turningToward = null;
+            StopMovement(ControlBits.StrafeLeft);
+            StopMovement(ControlBits.StrafeRight);
+        }
+
+        public void Turn180()
+        {
+            var newFacing = Facing + Math.PI;
+            if (newFacing > (Math.PI * 2))
+                newFacing -= Math.PI * 2;
+            SetFacing((float)newFacing);
+        }
+
+        // the client will NOT send a packet to the server if a key is already pressed, so you're safe to spam this
+        public void StartMovement(ControlBits bits)
+        {
+            if (bits == ControlBits.Nothing)
+                return;
+
+            Functions.SetControlBit((int)bits, 1, Environment.TickCount);
+        }
+
+        public void StopAllMovement()
+        {
+            var bits = ControlBits.Front | ControlBits.Back | ControlBits.Left | ControlBits.Right | ControlBits.StrafeLeft | ControlBits.StrafeRight;
+
+            StopMovement(bits);
+        }
+
+        public void StopMovement(ControlBits bits)
+        {
+            if (bits == ControlBits.Nothing)
+                return;
+
+            Functions.SetControlBit((int)bits, 0, Environment.TickCount);
+        }
+
+        public void Jump()
+        {
+            StopMovement(ControlBits.Jump);
+            StartMovement(ControlBits.Jump);
+        }
+
+        // use this to determine whether you can use cannibalize
+        public bool TastyCorpsesNearby =>
+            ObjectManager.Units.Any(u =>
+                u.Position.DistanceTo(Position) < 5
+                && u.CreatureType.HasFlag(CreatureType.Humanoid | CreatureType.Undead)
+            );
+
+        public void Stand() => LuaCall("DoEmote(\"STAND\")");
+
         public string CurrentStance
         {
             get
             {
-                if (GotAura(BattleStance))
+                if (Buffs.Any(b => b.Name == BattleStance))
                     return BattleStance;
 
-                if (GotAura(DefensiveStance))
+                if (Buffs.Any(b => b.Name == DefensiveStance))
                     return DefensiveStance;
 
-                if (GotAura(BerserkerStance))
+                if (Buffs.Any(b => b.Name == BerserkerStance))
                     return BerserkerStance;
 
                 return "None";
+            }
+        }
+
+        public bool InGhostForm
+        {
+            get
+            {
+                var result = LuaCallWithResults($"{{0}} = UnitIsGhost('player')");
+
+                if (result.Length > 0)
+                    return result[0] == "1";
+                else
+                    return false;
+            }
+        }
+
+        public void SetTarget(ulong guid) => Functions.SetTarget(guid);
+
+        ulong ComboPointGuid { get; set; }
+
+        public byte ComboPoints
+        {
+            get
+            {
+                var result = ObjectManager.Player.LuaCallWithResults($"{{0}} = GetComboPoints('target')");
+
+                if (result.Length > 0)
+                    return Convert.ToByte(result[0]);
+                else
+                    return 0;
             }
         }
 
@@ -55,205 +269,111 @@ namespace RaidMemberBot.Objects
                 return "Human Form";
             }
         }
-        /// <summary>
-        ///     facing with coordinates instead of a passed unit
-        /// </summary>
-        private const float facingComparer = 0.2f;
 
-        /// <summary>
-        /// Let the toon jump
-        /// </summary>
-        public void Jump()
+        public bool IsDiseased => GetDebuffs(LuaTarget.Player).Any(t => t.Type == EffectType.Disease);
+
+        public bool IsCursed => GetDebuffs(LuaTarget.Player).Any(t => t.Type == EffectType.Curse);
+
+        public bool IsPoisoned => GetDebuffs(LuaTarget.Player).Any(t => t.Type == EffectType.Poison);
+
+        public bool HasMagicDebuff => GetDebuffs(LuaTarget.Player).Any(t => t.Type == EffectType.Magic);
+
+        public void ReleaseCorpse() => Functions.ReleaseCorpse(Pointer);
+
+        public void RetrieveCorpse() => Functions.RetrieveCorpse();
+
+        public void RefreshSpells()
         {
-            Lua.Instance.Execute("Jump()");
-        }
-
-        /// <summary>
-        ///     Constructor
-        /// </summary>
-        internal LocalPlayer(ulong parGuid, IntPtr parPointer, WoWObjectTypes parType)
-            : base(parGuid, parPointer, parType)
-        {
-        }
-
-        /// <summary>
-        ///     Location of the characters corpse
-        /// </summary>
-        public Location CorpseLocation => new Location(
-            Memory.Reader.Read<float>(Offsets.Player.CorpseLocationX),
-            Memory.Reader.Read<float>(Offsets.Player.CorpseLocationY),
-            Memory.Reader.Read<float>(Offsets.Player.CorpseLocationZ));
-
-        internal float CtmX => Memory.Reader.Read<float>(Offsets.Player.CtmX);
-
-        /// <summary>
-        ///     Always friendly for local player
-        /// </summary>
-        public override UnitReaction Reaction => UnitReaction.Friendly;
-
-        internal float CtmY => Memory.Reader.Read<float>(Offsets.Player.CtmY);
-
-        internal float CtmZ => Memory.Reader.Read<float>(Offsets.Player.CtmZ);
-
-        /// <summary>
-        ///     The current spell by ID we are casting (0 or spell ID)
-        /// </summary>
-        /// <value>
-        ///     The casting.
-        /// </value>
-        public override int Casting
-        {
-            get
+            PlayerSpells.Clear();
+            for (var i = 0; i < 1024; i++)
             {
-                int tmpId = base.Casting;
-                string tmpName = Spellbook.Instance.GetName(tmpId);
-                if (tmpName == "Heroic Strike" || tmpName == "Maul")
-                    return 0;
-                return tmpId;
+                var currentSpellId = MemoryManager.ReadInt((IntPtr)(MemoryAddresses.LocalPlayerSpellsBase + 4 * i));
+                if (currentSpellId == 0) break;
+
+                string name;
+                var spellsBasePtr = MemoryManager.ReadIntPtr((IntPtr)0x00C0D788);
+                var spellPtr = MemoryManager.ReadIntPtr(spellsBasePtr + currentSpellId * 4);
+
+                var spellNamePtr = MemoryManager.ReadIntPtr(spellPtr + 0x1E0);
+                name = MemoryManager.ReadString(spellNamePtr);
+
+                if (PlayerSpells.ContainsKey(name))
+                    PlayerSpells[name] = new List<int>(PlayerSpells[name])
+                    {
+                        currentSpellId
+                    }.ToArray();
+                else
+                    PlayerSpells.Add(name, new[] { currentSpellId });
+
+
+                if (PlayerSpells.ContainsKey(name))
+                    PlayerSpells[name] = new List<int>(PlayerSpells[name])
+                    {
+                        currentSpellId
+                    }.ToArray();
+                else
+                    PlayerSpells.Add(name, new[] { currentSpellId });
             }
         }
 
-        /// <summary>
-        ///     Current spell casted by name
-        /// </summary>
-        /// <value>
-        ///     The name of the casting as.
-        /// </value>
-        public string CastingAsName => Spellbook.Instance.GetName(Casting);
-
-
-        /// <summary>
-        ///     true if no click to move action is taking place
-        /// </summary>
-        /// <value>
-        /// </value>
-        public bool IsCtmIdle => CtmState == (int)PrivateEnums.CtmType.None ||
-                                 CtmState == 12;
-
-        /// <summary>
-        ///     Characters money in copper
-        /// </summary>
-        /// <value>
-        ///     The money.
-        /// </value>
-        public int Money => ReadRelative<int>(0x2FD0);
-
-        /// <summary>
-        ///     Get or set the current ctm state
-        /// </summary>
-        private int CtmState
+        public int GetSpellId(string spellName, int rank = -1)
         {
-            get
-            {
-                return
-                    Memory.Reader.Read<int>(Offsets.Player.CtmState);
-            }
+            int spellId;
 
-            set { Memory.Reader.Write(Offsets.Player.CtmState, value); }
+            var maxRank = PlayerSpells[spellName].Length;
+            if (rank < 1 || rank > maxRank)
+                spellId = PlayerSpells[spellName][maxRank - 1];
+            else
+                spellId = PlayerSpells[spellName][rank - 1];
+
+            return spellId;
         }
 
-        /// <summary>
-        ///     Characters movement state
-        /// </summary>
-        /// <value>
-        ///     The state of the movement.
-        /// </value>
-        public new MovementFlags MovementState => ReadRelative<MovementFlags>(Offsets.Descriptors.MovementFlags);
-
-        /// <summary>
-        ///     Determine if the character is inside a campfire
-        /// </summary>
-        /// <value>
-        ///     <c>true</c> if this instance is in campfire; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsInCampfire
+        public bool IsSpellReady(string spellName, int rank = -1)
         {
-            get
-            {
-                Location playerPos = ObjectManager.Instance.Player.Location;
-                WoWGameObject tmp = ObjectManager.Instance.GameObjects
-                    .FirstOrDefault(i => i.Name == "Campfire" && i.Location.GetDistanceTo(playerPos) <= 2.9f);
-                return tmp != null;
-            }
+            if (!PlayerSpells.ContainsKey(spellName))
+                return false;
+
+            var spellId = GetSpellId(spellName, rank);
+
+            return !Functions.IsSpellOnCooldown(spellId);
         }
 
-        /// <summary>
-        ///     the ID of the map we are on
-        /// </summary>
-        public uint MapId => Memory.Reader.Read<uint>(
-            IntPtr.Add(
-                Memory.Reader.Read<IntPtr>(Offsets.ObjectManager.ManagerBase), 0xCC));
-
-        ///// <summary>
-        ///// Are we in LoS with object?
-        ///// </summary>
-        //internal bool InLoSWith(WoWObject parObject)
-        //{
-        //    // return 1 if something is inbetween the two coordinates
-        //    return Functions.Intersect(Location, parObject.Location) == 0;
-        //}
-
-        /// <summary>
-        ///     Is our character in CC?
-        /// </summary>
-        /// <value>
-        /// </value>
-        public bool IsInCC => 0 == Memory.Reader.Read<int>(Offsets.Player.IsInCC);
-
-        private ulong ComboPointGuid { get; set; }
-
-        /// <summary>
-        ///     Get combopoints for current mob
-        /// </summary>
-        public byte ComboPoints
+        public int GetManaCost(string spellName, int rank = -1)
         {
-            get
-            {
-                IntPtr ptr1 = ReadRelative<IntPtr>(Offsets.Player.ComboPoints1);
-                IntPtr ptr2 = IntPtr.Add(ptr1, Offsets.Player.ComboPoints2);
-                if (ComboPointGuid == 0)
-                    Memory.Reader.Write(ptr2, 0);
-                byte points = Memory.Reader.Read<byte>(ptr2);
-                if (points == 0)
-                {
-                    ComboPointGuid = TargetGuid;
-                    return points;
-                }
-                if (ComboPointGuid != TargetGuid)
-                {
-                    Memory.Reader.Write<byte>(ptr2, 0);
-                    return 0;
-                }
-                return Memory.Reader.Read<byte>(ptr2);
-            }
+            var parId = GetSpellId(spellName, rank);
+
+            if (parId >= MemoryManager.ReadUint((IntPtr)(0x00C0D780 + 0xC)) || parId <= 0)
+                return 0;
+
+            var entryPtr = MemoryManager.ReadIntPtr((IntPtr)((uint)(MemoryManager.ReadUint((IntPtr)(0x00C0D780 + 8)) + parId * 4)));
+            return MemoryManager.ReadInt((entryPtr + 0x0080));
+
         }
 
-        /// <summary>
-        /// Will retrieve the corpse of the player when in range
-        /// </summary>
-        public void RetrieveCorpse()
-        {
-            Functions.RetrieveCorpse();
-        }
+        public bool KnowsSpell(string name) => PlayerSpells.ContainsKey(name);
 
-        /// <summary>
-        /// Will release the spirit if the player is dead
-        /// </summary>
-        public void RepopMe()
-        {
-            Functions.RepopMe();
-        }
+        public bool MainhandIsEnchanted => LuaCallWithResults("{0} = GetWeaponEnchantInfo()")[0] == "1";
 
-        /// <summary>
-        ///     Tells if our character can overpower
-        /// </summary>
-        public bool CanOverpower => ComboPoints > 0;
+        public ulong GetBackpackItemGuid(int slot) => MemoryManager.ReadUlong(GetDescriptorPtr() + (MemoryAddresses.LocalPlayer_BackpackFirstItemOffset + (slot * 8)));
+
+        public ulong GetEquippedItemGuid(EquipSlot slot) => MemoryManager.ReadUlong(IntPtr.Add(Pointer, MemoryAddresses.LocalPlayer_EquipmentFirstItemOffset + ((int)slot - 1) * 0x8));
+        
+        public WoWItem GetEquippedItem(EquipSlot slot) => ObjectManager.Items.FirstOrDefault(x => x.Guid == GetEquippedItemGuid(slot));
+
+        public bool InLosWith(Position position)
+        {
+
+            if (position.X == Position.X && position.Y == Position.Y && position.Z == Position.Z) return true;
+            var i = Functions.Intersect(Position, position);
+            return i.X == 0 && i.Y == 0 && i.Z == 0;
+        }
 
         public bool CanRiposte
         {
             get
             {
-                string[] results = Lua.Instance.ExecuteWithResult("{0} = IsUsableSpell(\"Riposte\")");
+                var results = LuaCallWithResults("{0} = IsUsableSpell(\"Riposte\")");
                 if (results.Length > 0)
                     return results[0] == "1";
                 else
@@ -261,585 +381,41 @@ namespace RaidMemberBot.Objects
             }
         }
 
-        /// <summary>
-        ///     Tells if the character got a pet
-        /// </summary>
-        public bool HasPet => ObjectManager.Instance.Pet != null;
-
-        /// <summary>
-        ///     Tells if the character is eating
-        /// </summary>
-        public bool IsEating => GotAura("Food");
-
-        /// <summary>
-        ///     Tells if the character is drinking
-        /// </summary>
-        public bool IsDrinking => GotAura("Drink");
-
-        /// <summary>
-        ///     The characters class
-        /// </summary>
-        public ClassId Class => (ClassId)Memory.Reader.Read<byte>(Offsets.Player.Class);
-
-        /// <summary>
-        ///     Tells if the character is stealthed
-        /// </summary>
-        public bool IsStealth
+        public void CastSpellAtPosition(string spellName, Position position)
         {
-            get
-            {
-                switch (Class)
-                {
-                    case ClassId.Rogue:
-                    case ClassId.Druid:
-                        return (PlayerBytes & 0x02000000) == 0x02000000;
-                }
-                return false;
-            }
+            return;
+            // Functions.CastAtPosition(spellName, position);
         }
 
-        /// <summary>
-        ///     The player bytes
-        /// </summary>
-        public uint PlayerBytes => GetDescriptor<uint>(0x228);
-
-        /// <summary>
-        ///     Characters race
-        /// </summary>
-        public string Race
+        public bool IsAutoRepeating(string name)
         {
-            get
-            {
-                const string getUnitRace = "{0} = UnitRace('player')";
-                string[] result = Lua.Instance.ExecuteWithResult(getUnitRace);
-                return result[0];
-            }
+            string luaString = $@"
+                local i = 1
+                while true do
+                    local spellName, spellRank = GetSpellName(i, BOOKTYPE_SPELL);
+                    if not spellName then
+                        break;
+                    end
+   
+                    -- use spellName and spellRank here
+                    if(spellName == ""{{{name}}}"") then
+                        PickupSpell(i, BOOKTYPE_SPELL);
+                        PlaceAction(1);
+                        ClearCursor();
+                        return IsAutoRepeatAction(1)
+                    end
+
+                    i = i + 1;
+                end
+                return false;";
+            var result = LuaCallWithResults(luaString);
+            Console.WriteLine(result);
+            return false;
         }
 
-        /// <summary>
-        ///     Are we in ghost form
-        /// </summary>
-        public bool InGhostForm => Memory.Reader.Read<byte>(Offsets.Player.IsGhost) == 1;
-
-        internal float ZAxis
+        private static string FormatLua(string str, params object[] names)
         {
-            set { Memory.Reader.Write(IntPtr.Add(Pointer, Offsets.Unit.PosZ), value); }
-            get { return ReadRelative<float>((int)IntPtr.Add(Pointer, Offsets.Unit.PosZ)); }
+            return string.Format(str, names.Select(s => s.ToString().Replace("'", "\\'").Replace("\"", "\\\"")).ToArray());
         }
-        public sbyte GetTalentRank(int tabIndex, int talentIndex)
-        {
-            string[] results = Lua.Instance.ExecuteWithResult($"{{0}}, {{1}}, {{2}}, {{3}}, {{4}} = GetTalentInfo({tabIndex},{talentIndex})");
-
-            if (results.Length == 5)
-                return Convert.ToSByte(results[4]);
-
-            return -1;
-        }
-        public int GetManaCost(string spellName, int rank = -1)
-        {
-            int parId = Spellbook.Instance.GetId(spellName, rank);
-
-            if (parId >= (0x00C0D780 + 0xC).ReadAs<uint>() || parId <= 0)
-                return 0;
-
-            uint entryPtr = ((IntPtr)((0x00C0D780 + 8).ReadAs<uint>() + parId * 4)).ReadAs<uint>();
-            return (entryPtr + 0x0080).ReadAs<int>();
-        }
-        /// <summary>
-        ///     Time until we can accept a resurrect
-        /// </summary>
-        public int TimeUntilResurrect
-        {
-            get
-            {
-                string[] result = Lua.Instance.ExecuteWithResult("{0} = GetCorpseRecoveryDelay()");
-                return Convert.ToInt32(result[0]);
-            }
-        }
-
-        /// <summary>
-        ///     XP gained into current level
-        /// </summary>
-        public int CurrentXp => GetDescriptor<int>(Offsets.Descriptors.CurrentXp);
-
-        /// <summary>
-        ///     XP needed for the whole level
-        /// </summary>
-        public int NextLevelXp => GetDescriptor<int>(Offsets.Descriptors.NextLevelXp);
-
-        /// <summary>
-        ///     Zone text
-        /// </summary>
-        public string RealZoneText => 0xB4B404.PointsTo().ReadString();
-
-        /// <summary>
-        ///     Continent text
-        /// </summary>
-        public string ContinentText => Offsets.Player.ContinentText.ReadString();
-
-        /// <summary>
-        ///     Minimap text
-        /// </summary>
-        public string MinimapZoneText
-            => Offsets.Player.MinimapZoneText.ReadString();
-
-        /// <summary>
-        ///     Guid of the unit the Merchant Frame belongs to (can be 0)
-        /// </summary>
-        public ulong VendorGuid => 0x00BDDFA0.ReadAs<ulong>();
-
-        /// <summary>
-        ///     Guid of the unit the Quest Frame belongs to (can be 0)
-        /// </summary>
-        public ulong QuestNpcGuid => 0x00BE0810.ReadAs<ulong>();
-
-        /// <summary>
-        ///     Guid of the unit the Gossip Frame belongs to (can be 0)
-        /// </summary>
-        public ulong GossipNpcGuid => 0x00BC3F58.ReadAs<ulong>();
-
-        /// <summary>
-        ///     Guid of the unit our character is looting right now
-        /// </summary>
-        public ulong CurrentLootGuid => (Pointer + 0x1D28).ReadAs<ulong>();
-
-        internal void TurnOnSelfCast()
-        {
-            const string turnOnSelfCast = "SetCVar('autoSelfCast',1)";
-            Lua.Instance.Execute(turnOnSelfCast);
-        }
-
-        public void Stand() => Lua.Instance.Execute("DoEmote(\"STAND\")");
-
-        public void MoveToward(Location loc)
-        {
-            Face(loc);
-            StartMovement(ControlBits.Front);
-        }
-
-        /// <summary>
-        ///     Starts a movement
-        /// </summary>
-        /// <param name="parBits">The movement bits</param>
-        public void StartMovement(ControlBits parBits)
-        {
-            ThreadSynchronizer.Instance.Invoke(() =>
-            {
-                if (parBits != ControlBits.Nothing)
-                {
-                    MovementFlags movementState = MovementState;
-                    if (parBits.HasFlag(ControlBits.Front) && movementState.HasFlag(MovementFlags.Back))
-                        StopMovement(ControlBits.Back);
-
-                    if (parBits.HasFlag(ControlBits.Back) && movementState.HasFlag(MovementFlags.Front))
-                        StopMovement(ControlBits.Front);
-
-                    if (parBits.HasFlag(ControlBits.Left) && movementState.HasFlag(MovementFlags.Right))
-                        StopMovement(ControlBits.Right);
-
-                    if (parBits.HasFlag(ControlBits.Right) && movementState.HasFlag(MovementFlags.Left))
-                        StopMovement(ControlBits.Left);
-
-                    if (parBits.HasFlag(ControlBits.StrafeLeft) && movementState.HasFlag(MovementFlags.StrafeRight))
-                        StopMovement(ControlBits.StrafeRight);
-
-                    if (parBits.HasFlag(ControlBits.StrafeRight) && movementState.HasFlag(MovementFlags.StrafeLeft))
-                        StopMovement(ControlBits.StrafeLeft);
-
-                }
-                Functions.SetControlBit((int)parBits, 1, Environment.TickCount);
-            });
-        }
-
-        /// <summary>
-        ///     Stops movement
-        /// </summary>
-        /// <param name="parBits">The movement bits</param>
-        public void StopMovement(ControlBits parBits)
-        {
-            Functions.SetControlBit((int)parBits, 0, Environment.TickCount);
-        }
-
-        /// <summary>
-        ///     Stops all movement
-        /// </summary>
-        /// <param name="parBits">The movement bits</param>
-        public void StopAllMovement()
-        {
-            Functions.SetControlBit((int)(ControlBits.CtmWalk | ControlBits.Front
-                                                            | ControlBits.Back
-                                                            | ControlBits.Left
-                                                            | ControlBits.Right
-                                                            | ControlBits.StrafeLeft
-                                                            | ControlBits.StrafeRight), 0, Environment.TickCount);
-        }
-
-        public void Turn180()
-        {
-            double newFacing = Facing + Math.PI;
-            if (newFacing > (Math.PI * 2))
-                newFacing -= Math.PI * 2;
-            Face((float)newFacing);
-        }
-
-        /// <summary>
-        ///     Start a ctm movement
-        /// </summary>
-        /// <param name="parLocation">The position.</param>
-        public void CtmTo(Location parLocation)
-        {
-            //float disX = Math.Abs(this.CtmX - parLocation.X);
-            //float disY = Math.Abs(this.CtmY - parLocation.Y);
-            //if (disX < 0.2f && disY < 0.2f) return;
-            Functions.Ctm(Pointer, PrivateEnums.CtmType.Move, parLocation, 0);
-            //SendMovementUpdate((int)Enums.MovementOpCodes.setFacing);
-            WoWEventHandler.Instance.TriggerCtmEvent(new WoWEventHandler.OnCtmArgs(parLocation,
-                (int)PrivateEnums.CtmType.Move));
-        }
-
-        /// <summary>
-        ///     Stop the current ctm movement
-        /// </summary>
-        public void CtmStopMovement()
-        {
-            if (CtmState != (int)PrivateEnums.CtmType.None &&
-                CtmState != 12) //&& CtmState != (int)Enums.CtmType.Face)
-            {
-                Location pos = ObjectManager.Instance.Player.Location;
-                Functions.Ctm(Pointer, PrivateEnums.CtmType.None, pos, 0);
-                WoWEventHandler.Instance.TriggerCtmEvent(new WoWEventHandler.OnCtmArgs(pos,
-                    (int)PrivateEnums.CtmType.None));
-            }
-            else if ((CtmState == 12 || CtmState == (int)PrivateEnums.CtmType.None) &&
-                     ObjectManager.Instance.Player.MovementState != 0)
-            {
-                ControlBits tmp =
-                    Enum.GetValues(typeof(ControlBits))
-                        .Cast<ControlBits>()
-                        .Aggregate(ControlBits.Nothing, (current, bits) => current | bits);
-                ObjectManager.Instance.Player.StopMovement(tmp);
-            }
-        }
-
-        /// <summary>
-        ///     Set CTM to idle (wont stop movement however)
-        /// </summary>
-        public void CtmSetToIdle()
-        {
-            if (CtmState != 12)
-                CtmState = 12;
-        }
-
-        /// <summary>
-        ///     Enables CTM.
-        /// </summary>
-        public void EnableCtm()
-        {
-            const string ctmOn = "ConsoleExec('Autointeract 1')";
-            Lua.Instance.Execute(ctmOn);
-        }
-
-        /// <summary>
-        ///     Disables CTM.
-        /// </summary>
-        public void DisableCtm()
-        {
-            const string ctmOff = "ConsoleExec('Autointeract 0')";
-            Lua.Instance.Execute(ctmOff);
-        }
-
-        /// <summary>
-        ///     Gets the latency.
-        /// </summary>
-        /// <returns></returns>
-        public int GetLatency()
-        {
-            const string getLatency = "_, _, {0} = GetNetStats()";
-            string[] result = Lua.Instance.ExecuteWithResult(getLatency);
-            return Convert.ToInt32(result[0]);
-        }
-
-        /// <summary>
-        ///     Simulate rightclick on a unit
-        /// </summary>
-        /// <param name="parUnit">The unit.</param>
-        public void RightClick(WoWUnit parUnit)
-        {
-            Functions.OnRightClickUnit(parUnit.Pointer, 1);
-        }
-
-        /// <summary>
-        ///     Simulate rightclick on a unit
-        /// </summary>
-        /// <param name="parUnit">The unit.</param>
-        /// <param name="parAuto">Send shift</param>
-        internal void RightClick(WoWUnit parUnit, bool parAuto)
-        {
-            int type = 0;
-            if (parAuto) type = 1;
-            Functions.OnRightClickUnit(parUnit.Pointer, type);
-        }
-
-
-        /// <summary>
-        ///     CTM face an WoWObject
-        /// </summary>
-        /// <param name="parObject">The Object.</param>
-        public void CtmFace(WoWObject parObject)
-        {
-            Location tmp = parObject.Location;
-            Functions.Ctm(Pointer, PrivateEnums.CtmType.FaceTarget,
-                tmp, parObject.Guid);
-        }
-
-        /// <summary>
-        ///     Check if we are in line of sight with an object
-        /// </summary>
-        /// <param name="parObject">The object.</param>
-        /// <returns></returns>
-        public bool InLosWith(WoWObject parObject)
-        {
-            return InLosWith(parObject.Location);
-        }
-
-        /// <summary>
-        ///     Check if we are in line of sight with an object
-        /// </summary>
-        /// <param name="parLocation">The position.</param>
-        /// <returns></returns>
-        public bool InLosWith(Location parLocation)
-        {
-            Intersection i = Functions.Intersect(Location, parLocation);
-            return i.R == 0 && i.X == 0 && i.Y == 0 && i.Z == 0;
-        }
-
-        /// <summary>
-        ///     Set Facing towards passed object
-        /// </summary>
-        /// <param name="parObject">The object.</param>
-        public void Face(WoWObject parObject)
-        {
-            //Location xyz = new Location(parObject.Location.X, parObject.Location.Y, parObject.Location.Z);
-            //Functions.Ctm(this.Pointer, Enums.CtmType.FaceTarget, xyz, parObject.Guid);
-            Face(parObject.Location);
-        }
-
-        /// <summary>
-        ///     Set facing towards a position
-        /// </summary>
-        /// <param name="parLocation">The position.</param>
-        public void Face(Location parLocation)
-        {
-            if (IsFacing(parLocation)) return;
-            Functions.SetFacing(IntPtr.Add(Pointer, Offsets.Player.MovementStruct), RequiredFacing(parLocation));
-            SendMovementUpdate((int)PrivateEnums.MovementOpCodes.setFacing);
-        }
-
-        /// <summary>
-        /// Set facing to value
-        /// </summary>
-        /// <param name="facing"></param>
-        public void Face(float facing)
-        {
-            Functions.SetFacing(IntPtr.Add(Pointer, Offsets.Player.MovementStruct), facing);
-            SendMovementUpdate((int)PrivateEnums.MovementOpCodes.setFacing);
-        }
-
-        /// <summary>
-        ///     Determines if we are facing a position
-        /// </summary>
-        /// <param name="parCoordinates">The coordinates.</param>
-        /// <returns></returns>
-        public bool IsFacing(Location parCoordinates)
-        {
-            return FacingRelativeTo(parCoordinates) < facingComparer;
-        }
-
-        internal void SendMovementUpdate(int parOpCode)
-        {
-            Functions.SendMovementUpdate(Pointer, Environment.TickCount, parOpCode);
-        }
-
-        /// <summary>
-        ///     Sets the target
-        /// </summary>
-        /// <param name="parObject">The object.</param>
-        public void SetTarget(WoWObject parObject)
-        {
-            if (parObject == null)
-            {
-                SetTarget(0);
-                return;
-            }
-            SetTarget(parObject.Guid);
-        }
-
-        /// <summary>
-        ///     Sets the Container.HostileTarget.
-        /// </summary>
-        /// <param name="parGuid">The targets guid</param>
-        public void SetTarget(ulong parGuid)
-        {
-            Functions.SetTarget(parGuid);
-            TargetGuid = parGuid;
-        }
-
-        internal void RefreshSpells()
-        {
-            Spellbook.UpdateSpellbook();
-        }
-
-        #region Added Custom Class Functions
-
-        /// <summary>
-        ///     Tells if we are to close to utilise ranged physical attacks (Auto Shot etc).
-        /// </summary>
-        /// <value>
-        ///     <c>true</c> if we are too close.
-        /// </value>
-        public bool TooCloseForRanged => ObjectManager.Instance.Target?.Location.DistanceToPlayer() < 5;
-
-        internal IntPtr SkillField => Pointer.Add(8).ReadAs<IntPtr>().Add(0xB38);
-
-        /// <summary>
-        ///     Determines whether the mainhand weapon is temp. chanted (poisons etc)
-        /// </summary>
-        /// <returns>
-        ///     Returns <c>true</c> if the mainhand is enchanted
-        /// </returns>
-        public bool IsMainhandEnchanted()
-        {
-            try
-            {
-                const string isMainhandEnchanted = "{0} = GetWeaponEnchantInfo()";
-                string[] result = Lua.Instance.ExecuteWithResult(isMainhandEnchanted);
-                return result[0] == "1";
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        ///     Determines whether the offhand weapon is temp. chanted (poisons etc)
-        /// </summary>
-        /// <returns>
-        ///     Returns <c>true</c> if the offhand is enchanted
-        /// </returns>
-        public bool IsOffhandEnchanted()
-        {
-            try
-            {
-                const string isOffhandEnchanted = "_, _, _, {0} = GetWeaponEnchantInfo()";
-                string[] result = Lua.Instance.ExecuteWithResult(isOffhandEnchanted);
-                return result[0] == "1";
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        ///     Enchants the mainhand
-        /// </summary>
-        /// <param name="parItemName">Name of the item to use on the mainhand weapon</param>
-        public void EnchantMainhandItem(string parItemName)
-        {
-            const string enchantMainhand = "PickupInventoryItem(16)";
-            Inventory.Instance.GetItem(parItemName).Use();
-            Lua.Instance.Execute(enchantMainhand);
-        }
-
-        /// <summary>
-        ///     Enchants the offhand
-        /// </summary>
-        /// <param name="parItemName">Name of the item to apply</param>
-        public void EnchantOffhandItem(string parItemName)
-        {
-            const string enchantOffhand = "PickupInventoryItem(17)";
-            Inventory.Instance.GetItem(parItemName).Use();
-            Lua.Instance.Execute(enchantOffhand);
-        }
-
-        /// <summary>
-        ///     Determines whether a wand is equipped
-        /// </summary>
-        /// <returns>
-        ///     Return <c>true</c> if a wand is equipped
-        /// </returns>
-        public bool IsWandEquipped()
-        {
-            const string checkWand = "{0} = HasWandEquipped()";
-            string[] result = Lua.Instance.ExecuteWithResult(checkWand);
-            return result[0].Contains("1");
-        }
-
-        /// <summary>
-        ///     Tells if using aoe will engage the character with other units that arent fighting right now
-        /// </summary>
-        /// <param name="parRange">The radius around the character</param>
-        /// <returns>
-        ///     Returns <c>true</c> if we can use AoE without engaging other unpulled units
-        /// </returns>
-        public bool IsAoeSafe(int parRange)
-        {
-            System.Collections.Generic.List<WoWUnit> mobs = ObjectManager.Instance.Npcs.
-                FindAll(i => (i.Reaction == UnitReaction.Hostile || i.Reaction == UnitReaction.Neutral) &&
-                             i.Location.DistanceToPlayer() < parRange).ToList();
-
-            foreach (WoWUnit mob in mobs)
-                if (mob.TargetGuid != Guid)
-                    return false;
-            return true;
-        }
-
-
-        /// <summary>
-        ///     Tells if a totem is spawned
-        /// </summary>
-        /// <param name="parName">Name of the totem</param>
-        /// <returns>
-        ///     Returns the distance from the player to the totem or -1 if the totem isnt summoned
-        /// </returns>
-        public float IsTotemSpawned(string parName)
-        {
-            WoWUnit totem = ObjectManager.Instance.Npcs.FirstOrDefault(i => i.IsTotem && i.Name.ToLower().Contains(parName.ToLower())
-                                                                            &&
-                                                                            i.SummonedBy ==
-                                                                            ObjectManager.Instance.Player.Guid);
-            if (totem != null)
-                return totem.Location.DistanceToPlayer();
-            return -1;
-        }
-
-
-        /// <summary>
-        ///     Eat food specified in settings if we arent already eating
-        ///     <param name="parFoodName">Name of the food</param>
-        /// </summary>
-        public void Eat(string parFoodName)
-        {
-            if (IsEating) return;
-            if (Inventory.Instance.GetItemCount(parFoodName) == 0) return;
-            if (Wait.For("EatTimeout", 100))
-                Inventory.Instance.GetItem(parFoodName);
-        }
-
-
-        /// <summary>
-        ///     Drinks drink specified in settings if we arent already drinking
-        ///     <param name="parDrinkName">Name of the food</param>
-        /// </summary>
-        public void Drink(string parDrinkName)
-        {
-            if (IsDrinking) return;
-            if (Inventory.Instance.GetItemCount(parDrinkName) == 0) return;
-            if (Wait.For("DrinkTimeout", 100))
-                Inventory.Instance.GetItem(parDrinkName);
-        }
-
-        #endregion
     }
 }

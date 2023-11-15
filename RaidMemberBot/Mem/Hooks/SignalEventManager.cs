@@ -1,22 +1,11 @@
-﻿using RaidMemberBot.Constants;
-using RaidMemberBot.ExtensionMethods;
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 
 namespace RaidMemberBot.Mem.Hooks
 {
     public class SignalEventManager
     {
-        /// <summary>
-        ///     Delegate for our c# function
-        /// </summary>
-        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         delegate void SignalEventDelegate(string eventName, string format, uint firstArgPtr);
-
-        /// <summary>
-        ///     Delegate for our c# function
-        /// </summary>
-        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         delegate void SignalEventNoArgsDelegate(string eventName);
 
         static SignalEventManager()
@@ -31,9 +20,9 @@ namespace RaidMemberBot.Mem.Hooks
         static void InitializeSignalEventHook()
         {
             signalEventDelegate = new SignalEventDelegate(SignalEventHook);
-            IntPtr addrToDetour = Marshal.GetFunctionPointerForDelegate(signalEventDelegate);
+            var addrToDetour = Marshal.GetFunctionPointerForDelegate(signalEventDelegate);
 
-            string[] instructions = new[]
+            var instructions = new[]
             {
                 "push ebx",
                 "push esi",
@@ -50,46 +39,43 @@ namespace RaidMemberBot.Mem.Hooks
                 $"call 0x{(uint) addrToDetour:X}",
                 "popad",
                 "popfd",
-                $"jmp 0x{(uint) (Offsets.Hooks.SignalEvent + 7):X}"
+                $"jmp 0x{(uint) (MemoryAddresses.SignalEventFunPtr + 7):X}"
             };
-            // Inject the asm code which calls our c# function
-            IntPtr codeCave = Memory.InjectAsm(instructions, "EventSignalDetour");
-            // set the jmp from WoWs code to my injected code
-            Memory.InjectAsm((uint)Offsets.Hooks.SignalEvent, "jmp " + codeCave, "EventSignalDetourJmp");
+            var signalEventDetour = MemoryManager.InjectAssembly("SignalEventDetour", instructions);
+            MemoryManager.InjectAssembly("SignalEventHook", (uint)MemoryAddresses.SignalEventFunPtr, "jmp " + signalEventDetour);
         }
 
         static void SignalEventHook(string eventName, string typesArg, uint firstArgPtr)
         {
-            string[] types = typesArg.TrimStart('%').Split('%');
-            object[] list = new object[types.Length];
-            for (int i = 0; i < types.Length; i++)
+            var types = typesArg.TrimStart('%').Split('%');
+            var list = new object[types.Length];
+            for (var i = 0; i < types.Length; i++)
             {
-                uint tmpPtr = firstArgPtr + (uint)i * 4;
+                var tmpPtr = firstArgPtr + (uint)i * 4;
                 if (types[i] == "s")
                 {
-                    int ptr = ((IntPtr)tmpPtr).ReadAs<int>();
-                    string str = ((IntPtr)ptr).ReadString();
-
+                    var ptr = MemoryManager.ReadInt((IntPtr)tmpPtr);
+                    var str = MemoryManager.ReadString((IntPtr)ptr);
                     list[i] = str;
                 }
                 else if (types[i] == "f")
                 {
-                    float val = ((IntPtr)tmpPtr).ReadAs<float>();
+                    var val = MemoryManager.ReadFloat((IntPtr)tmpPtr);
                     list[i] = val;
                 }
                 else if (types[i] == "u")
                 {
-                    uint val = ((IntPtr)tmpPtr).ReadAs<uint>();
+                    var val = MemoryManager.ReadUint((IntPtr)tmpPtr);
                     list[i] = val;
                 }
                 else if (types[i] == "d")
                 {
-                    int val = ((IntPtr)tmpPtr).ReadAs<int>();
+                    var val = MemoryManager.ReadInt((IntPtr)tmpPtr);
                     list[i] = val;
                 }
                 else if (types[i] == "b")
                 {
-                    int val = ((IntPtr)tmpPtr).ReadAs<int>();
+                    var val = MemoryManager.ReadInt((IntPtr)tmpPtr);
                     list[i] = Convert.ToBoolean(val);
                 }
             }
@@ -111,9 +97,9 @@ namespace RaidMemberBot.Mem.Hooks
         static void InitializeSignalEventHookNoArgs()
         {
             signalEventNoArgsDelegate = new SignalEventNoArgsDelegate(SignalEventNoArgsHook);
-            IntPtr addrToDetour = Marshal.GetFunctionPointerForDelegate(signalEventNoArgsDelegate);
+            var addrToDetour = Marshal.GetFunctionPointerForDelegate(signalEventNoArgsDelegate);
 
-            string[] instructions = new[]
+            var instructions = new[]
             {
                 "push esi",
                 "call 0x007040D0",
@@ -124,12 +110,10 @@ namespace RaidMemberBot.Mem.Hooks
                 $"call 0x{(uint) addrToDetour:X}",
                 "popad",
                 "popfd",
-                $"jmp 0x{(uint) (Offsets.Hooks.SignalEvent_0 + 6):X}"
+                $"jmp 0x{(uint) MemoryAddresses.SignalEventNoParamsFunPtr + 6:X}"
             };
-            // Inject the asm code which calls our c# function
-            IntPtr codeCave = Memory.InjectAsm(instructions, "EventSignal_0Detour");
-            // set the jmp from WoWs code to my injected code
-            Memory.InjectAsm((uint)Offsets.Hooks.SignalEvent_0, "jmp " + codeCave, "EventSignal_0DetourJmp");
+            var signalEventNoArgsDetour = MemoryManager.InjectAssembly("SignalEventNoArgsDetour", instructions);
+            MemoryManager.InjectAssembly("SignalEventNoArgsHook", (uint)MemoryAddresses.SignalEventNoParamsFunPtr, "jmp " + signalEventNoArgsDetour);
         }
 
         static void SignalEventNoArgsHook(string eventName)

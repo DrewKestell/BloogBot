@@ -1,7 +1,9 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Client;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,14 +21,14 @@ namespace BalanceDruidBot
 
         internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull)
         {
-            if (Container.Player.Level <= 19)
+            if (ObjectManager.Player.Level <= 19)
                 range = 28;
-            else if (Container.Player.Level == 20)
+            else if (ObjectManager.Player.Level == 20)
                 range = 31;
             else
                 range = 34;
 
-            if (Spellbook.Instance.IsSpellReady(Starfire))
+            if (ObjectManager.Player.IsSpellReady(Starfire))
                 pullingSpell = Starfire;
             else
                 pullingSpell = Wrath;
@@ -34,34 +36,34 @@ namespace BalanceDruidBot
 
         public void Update()
         {
-            if (Container.HostileTarget.TappedByOther || (ObjectManager.Instance.Aggressors.Count() > 0 && !ObjectManager.Instance.Aggressors.Any(a => a.Guid == Container.HostileTarget.Guid)))
+            if (Container.HostileTarget.TappedByOther || (ObjectManager.Aggressors.Count() > 0 && !ObjectManager.Aggressors.Any(a => a.Guid == Container.HostileTarget.Guid)))
             {
                 Wait.RemoveAll();
                 BotTasks.Pop();
                 return;
             }
 
-            if (Container.Player.IsCasting)
+            if (ObjectManager.Player.IsCasting)
                 return;
 
-            if (Spellbook.Instance.IsSpellReady(MoonkinForm) && !Container.Player.HasBuff(MoonkinForm))
+            if (ObjectManager.Player.IsSpellReady(MoonkinForm) && !ObjectManager.Player.HasBuff(MoonkinForm))
             {
-                Lua.Instance.Execute($"CastSpellByName('{MoonkinForm}')");
+                Functions.LuaCall($"CastSpellByName('{MoonkinForm}')");
             }
 
-            if (Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location) < range && Container.Player.IsCasting && Spellbook.Instance.IsSpellReady(pullingSpell) && Container.Player.InLosWith(Container.HostileTarget.Location))
+            if (ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) < range && ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady(pullingSpell) && ObjectManager.Player.InLosWith(Container.HostileTarget.Position))
             {
-                if (Container.Player.IsMoving)
-                    Container.Player.StopAllMovement();
+                if (ObjectManager.Player.IsMoving)
+                    ObjectManager.Player.StopAllMovement();
 
                 if (Wait.For("BalanceDruidPullDelay", 100))
                 {
-                    if (!Container.Player.IsInCombat)
-                        Lua.Instance.Execute($"CastSpellByName('{pullingSpell}')");
+                    if (!ObjectManager.Player.IsInCombat)
+                        Functions.LuaCall($"CastSpellByName('{pullingSpell}')");
 
-                    if (Container.Player.IsCasting || Container.Player.IsInCombat)
+                    if (ObjectManager.Player.IsCasting || ObjectManager.Player.IsInCombat)
                     {
-                        Container.Player.StopAllMovement();
+                        ObjectManager.Player.StopAllMovement();
                         Wait.RemoveAll();
                         BotTasks.Pop();
                         BotTasks.Push(new PvERotationTask(Container, BotTasks));
@@ -70,8 +72,8 @@ namespace BalanceDruidBot
                 return;
             }
 
-            Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
-            Container.Player.MoveToward(nextWaypoint[0]);
+            Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+            ObjectManager.Player.MoveToward(nextWaypoint[0]);
         }
     }
 }

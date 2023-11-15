@@ -23,6 +23,7 @@
         ConvertToRaid,
         ConvertToParty,
         GoTo,
+        TeleTo,
         SetFacing,
         MoveForward,
         InteractWith,

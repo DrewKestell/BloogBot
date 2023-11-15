@@ -1,6 +1,8 @@
 ﻿using RaidMemberBot.AI;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
+using RaidMemberBot.Mem;
 using System.Collections.Generic;
 
 namespace FeralDruidBot
@@ -16,33 +18,33 @@ namespace FeralDruidBot
 
         public void Update()
         {
-            if (Container.Player.IsCasting) return;
+            if (ObjectManager.Player.IsCasting) return;
 
-            if (Container.Player.CurrentShapeshiftForm == BearForm && Wait.For("BearFormDelay", 1000, true))
+            if (ObjectManager.Player.CurrentShapeshiftForm == BearForm && Wait.For("BearFormDelay", 1000, true))
                 CastSpell(BearForm);
 
-            if (Container.Player.CurrentShapeshiftForm == CatForm && Wait.For("CatFormDelay", 1000, true))
+            if (ObjectManager.Player.CurrentShapeshiftForm == CatForm && Wait.For("CatFormDelay", 1000, true))
                 CastSpell(CatForm);
 
-            if (Container.Player.HealthPercent > 70 || Container.Player.Mana < Container.Player.GetManaCost(HealingTouch))
+            if (ObjectManager.Player.HealthPercent > 70 || ObjectManager.Player.Mana < ObjectManager.Player.GetManaCost(HealingTouch))
             {
                 Wait.RemoveAll();
                 BotTasks.Pop();
                 return;
             }
 
-            if (Spellbook.Instance.IsSpellReady(WarStomp) && Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location) <= 8)
-                Lua.Instance.Execute($"CastSpellByName('{WarStomp}')");
+            if (ObjectManager.Player.IsSpellReady(WarStomp) && ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) <= 8)
+                Functions.LuaCall($"CastSpellByName('{WarStomp}')");
 
             CastSpell(HealingTouch, castOnSelf: true);
         }
 
         void CastSpell(string name, bool castOnSelf = false)
         {
-            if (Spellbook.Instance.IsSpellReady(name))
+            if (ObjectManager.Player.IsSpellReady(name))
             {
                 string castOnSelfString = castOnSelf ? ",1" : "";
-                Lua.Instance.Execute($"CastSpellByName('{name}'{castOnSelfString})");
+                Functions.LuaCall($"CastSpellByName('{name}'{castOnSelfString})");
             }
         }
     }

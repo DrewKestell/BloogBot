@@ -2,12 +2,10 @@
 using RaidMemberBot.Models.Dto;
 using RaidMemberBot.Objects;
 using System;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
-using System.Reflection;
 using System.Text;
 
 namespace RaidMemberBot.Client
@@ -25,30 +23,30 @@ namespace RaidMemberBot.Client
         {
         }
 
-        public Location[] CalculatePath(uint mapId, Location startLocation, Location endLocation, bool smoothPath)
+        public Position[] CalculatePath(uint mapId, Position startPosition, Position endPosition, bool smoothPath)
         {
             PathfindingRequest request = new PathfindingRequest()
             {
                 IsRaidLeader = isRaidLeader,
                 MapId = mapId,
-                StartLocation = new Vector3(startLocation.X, startLocation.Y, startLocation.Z),
-                EndLocation = new Vector3(endLocation.X, endLocation.Y, endLocation.Z),
+                StartPosition = new Vector3(startPosition.X, startPosition.Y, startPosition.Z),
+                EndPosition = new Vector3(endPosition.X, endPosition.Y, endPosition.Z),
                 SmoothPath = smoothPath
             };
 
             string json = SendRequest(request);
 
             Vector3[] path = JsonConvert.DeserializeObject<Vector3[]>(json);
-            return path.Select(x => new Location(x.X, x.Y, x.Z)).ToArray();
+            return path.Select(x => new Position(x.X, x.Y, x.Z)).ToArray();
         }
-        public float CalculatePathingDistance(uint mapId, Location startLocation, Location endLocation, bool smoothPath)
+        public float CalculatePathingDistance(uint mapId, Position startPosition, Position endPosition, bool smoothPath)
         {
-            Location[] locations = CalculatePath(mapId, startLocation, endLocation, smoothPath);
+            Position[] locations = CalculatePath(mapId, startPosition, endPosition, smoothPath);
 
             float distance = 0;
             for (int i = 0; i < locations.Length - 1; i++)
             {
-                distance += locations[i].GetDistanceTo(locations[i + 1]);
+                distance += locations[i].DistanceTo(locations[i + 1]);
             }
 
             return distance;
@@ -68,7 +66,7 @@ namespace RaidMemberBot.Client
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e.Message);
+                        Console.WriteLine($"NAVIGATION CLIENT: {e.StackTrace}");
                     }
                 }
                 if (_pathfindingSocket.Connected)
@@ -84,7 +82,7 @@ namespace RaidMemberBot.Client
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine($"NAVIGATION CLIENT: {e.StackTrace}");
                 try
                 {
                     _pathfindingSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);

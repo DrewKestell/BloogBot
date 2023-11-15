@@ -1,639 +1,330 @@
 ﻿
+using Newtonsoft.Json;
 using RaidMemberBot.Constants;
-using RaidMemberBot.ExtensionMethods;
-using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Mem.Hooks;
+using RaidMemberBot.Game;
 using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
-using funcs = RaidMemberBot.Constants.Offsets.Functions;
+using static RaidMemberBot.Constants.Enums;
 
 namespace RaidMemberBot.Mem
 {
-    internal static class Functions
+    static public class Functions
     {
-        private static RepopMeDelegate SelectCharacterFunction;
-        private static RepopMeDelegate RepopMeFunction;
-        private static UnmanagedNoParamsDelegate RetrieveCorpseFunction;
-        private static UnmanagedNoParamsDelegate GetLootSlotsFunction;
-        private static SetControlBitDelegate SetControlBitFunction;
-        private static SetFacingDelegate SetFacingFunction;
-        private static SendMovementUpdateDelegate SendMovementUpdateFunction;
-        private static OnRightClickUnitDelegate OnRightClickUnitFunction;
-        private static OnRightClickObjectDelegate OnRightClickObjectFunction;
-        private static LootAllDelegate LootAllFunction;
-        private static UnitReactionDelegate UnitReactionFunction;
-        private static SetTargetDelegate SetTargetFunction;
-        private static ItemCacheGetRowDelegate ItemCacheGetRowFunction;
-        private static QuestCacheGetRowDelegate QuestCacheGetRowFunction;
-        private static GetSpellCooldownDelegate GetSpellCooldownFunction;
-        private static UseItemDelegate UseItemFunction;
-        private static CtmDelegate CtmFunction;
-        private static AcceptQuestDelegate AcceptQuestFunction;
-        private static AcceptQuestDelegate CompleteQuestFunction;
-        private static NetClientSendDelegate NetClientSendFunction;
-        private static ClientConnectionDelegate ClientConnectionFunction;
-        private static GetCreatureRankDelegate GetCreatureRankFunction;
-        private static GetCreatureTypeDelegate GetCreatureTypeFunction;
-        private static LuaGetArgCountDelegate LuaGetArgCountFunction;
-        private static HandleSpellTerrainDelegate HandleSpellTerrainFunction;
-        private static GetPlayerGuidDelegate GetPlayerGuidFunction;
-        private static ClntObjMgrObjectPtr GetPtrForGuidFunction;
-        private static CanCompleteQuestDelegate CanCompleteQuestFunction;
-        private static CanUseItemDelegate CanUseItemFunction;
-        private static CastAtPosDelegate CastAtPosFunction;
-        private static LootSlotDelegate LootSlotFunction;
-        private static GameObjectGetLocationDelegate GameObjectGetLocationFunction;
-        private static AbandonQuestDelegate AbandonQuestFunction;
-        private static GetGameObjectLocationDelegate GetGameObjectLocationFunction;
+        static readonly Random random = new Random();
 
+        [DllImport("FastCall.dll", EntryPoint = "BuyVendorItem")]
+        static extern void BuyVendorItemFunction(int itemId, int quantity, ulong vendorGuid, IntPtr ptr);
 
-        [DllImport("FastCall.dll", EntryPoint = "_MultiplyTransformWithFacingMatrix", CallingConvention = CallingConvention.StdCall)]
-        internal static extern IntPtr _MultiplyTransformWithFacingMatrix(IntPtr returnMatrix, IntPtr facingMatrix, IntPtr posMatrix, IntPtr funcPtr);
-
-
-        [DllImport("FastCall.dll", EntryPoint = "_RegFunc", CallingConvention = CallingConvention.StdCall)]
-        private static extern void _CppRegFunc(string parFuncName, uint parFuncPtr, IntPtr ptr);
-
-        [DllImport("FastCall.dll", EntryPoint = "_LuaPushString", CallingConvention = CallingConvention.StdCall)]
-        private static extern void _CppLuaPushString(IntPtr parLuaState, string parString, IntPtr ptr);
-
-        [DllImport("FastCall.dll", EntryPoint = "_UnregFunc", CallingConvention = CallingConvention.StdCall)]
-        private static extern void _CppUnregFunc(string parFuncName, uint parFuncPtr, IntPtr ptr);
-
-        [DllImport("FastCall.dll", EntryPoint = "_LuaToString", CallingConvention = CallingConvention.StdCall)]
-        private static extern IntPtr _CppLuaToString(IntPtr parLuaState, int number, IntPtr ptr);
-
-        [DllImport("FastCall.dll", EntryPoint = "_GetText", CallingConvention = CallingConvention.StdCall)]
-        private static extern IntPtr _CppGetText(string varName, IntPtr ptr);
-
-        [DllImport("FastCall.dll", EntryPoint = "_DoString", CallingConvention = CallingConvention.StdCall)]
-        private static extern void _CppDoString(string parLuaCode, IntPtr ptr);
-
-        [DllImport("FastCall.dll", EntryPoint = "_SellItem", CallingConvention = CallingConvention.StdCall)]
-        private static extern void _CppSellItem(uint parLuaCode, ulong parVendorGuid, ulong parItemGuid, IntPtr ptr);
-
-        [DllImport("FastCall.dll", EntryPoint = "_Intersect", CallingConvention = CallingConvention.StdCall)]
-        private static extern byte _Intersect(ref _XYZXYZ points, ref float distance, ref Intersection intersection,
-            uint flags, IntPtr Ptr);
-
-        [DllImport("FastCall.dll", EntryPoint = "_LootSlot", CallingConvention = CallingConvention.StdCall)]
-        private static extern byte _LootSlot(int parSlot, IntPtr Ptr);
-
-        internal static void GetLocation(IntPtr ptr, IntPtr bytes)
+        static public void BuyVendorItem(ulong vendorGuid, int itemId, int quantity)
         {
-            GameObjectGetLocationFunction ??= Memory.Reader.RegisterDelegate<GameObjectGetLocationDelegate>((IntPtr)0x005F9F50);
-            ThreadSynchronizer.Instance.Invoke(() => GameObjectGetLocationFunction(ptr, bytes));
+            BuyVendorItemFunction(itemId, quantity, vendorGuid, (IntPtr)MemoryAddresses.BuyVendorItemFunPtr);
         }
 
-        internal static void AbandonQuest(int questRealQuestIndex)
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        private delegate int CastAtPositionDelegate(ref XYZ parPos);
+
+        static readonly CastAtPositionDelegate CastAtPositionFunction =
+            Marshal.GetDelegateForFunctionPointer<CastAtPositionDelegate>((IntPtr)MemoryAddresses.CastAtPositionFunPtr);
+
+        static public void CastAtPosition(string spellName, Position position)
         {
-            if (!ObjectManager.Instance.IsIngame) return;
-            AbandonQuestFunction ??= Memory.Reader.RegisterDelegate<AbandonQuestDelegate>(funcs.AbandonQuest);
-            ThreadSynchronizer.Instance.Invoke(() => AbandonQuestFunction(questRealQuestIndex));
+            MemoryManager.WriteByte((IntPtr)0xCECAC0, 0);
+            LuaCall($"CastSpellByName('{spellName}')");
+            var pos = position.ToXYZ();
+            CastAtPositionFunction(ref pos);
         }
 
-        internal static Intersection Intersect(Location parStart, Location parEnd)
+        [DllImport("FastCall.dll", EntryPoint = "EnumerateVisibleObjects")]
+        static extern void EnumerateVisibleObjectsFunction(IntPtr callback, int filter, IntPtr ptr);
+
+        // what does this do? [HandleProcessCorruptedStateExceptions]
+        static public void EnumerateVisibleObjects(IntPtr callback, int filter)
         {
-            //Console.WriteLine($"Intersect: {JsonConvert.SerializeObject(parStart)} => {JsonConvert.SerializeObject(parEnd)}");
-            if (!ObjectManager.Instance.IsIngame) new Intersection();
-            _XYZXYZ points = new _XYZXYZ(parStart.X, parStart.Y, parStart.Z,
-                parEnd.X, parEnd.Y, parEnd.Z);
-            points.Z1 += 2;
-            points.Z2 += 2;
-            Intersection intersection = new Intersection();
-            float distance = parStart.GetDistanceTo(parEnd);
-            return ThreadSynchronizer.Instance.Invoke(() =>
+            EnumerateVisibleObjectsFunction(callback, filter, (IntPtr)MemoryAddresses.EnumerateVisibleObjectsFunPtr);
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate int GetCreatureRankDelegate
+            (IntPtr unitPtr);
+
+        static readonly GetCreatureRankDelegate GetCreatureRankFunction =
+            Marshal.GetDelegateForFunctionPointer<GetCreatureRankDelegate>((IntPtr)MemoryAddresses.GetCreatureRankFunPtr);
+
+        static public int GetCreatureRank(IntPtr unitPtr)
+        {
+            return GetCreatureRankFunction(unitPtr);
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate int GetCreatureTypeDelegate(IntPtr unitPtr);
+
+        static readonly GetCreatureTypeDelegate GetCreatureTypeFunction =
+            Marshal.GetDelegateForFunctionPointer<GetCreatureTypeDelegate>((IntPtr)MemoryAddresses.GetCreatureTypeFunPtr);
+
+        static public CreatureType GetCreatureType(IntPtr unitPtr)
+        {
+            return (CreatureType)GetCreatureTypeFunction(unitPtr);
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate IntPtr ItemCacheGetRowDelegate(
+            IntPtr ptr,
+            int itemId,
+            IntPtr unknown,
+            int unused1,
+            int unused2,
+            char unused3);
+
+        static readonly ItemCacheGetRowDelegate GetItemCacheEntryFunction =
+            Marshal.GetDelegateForFunctionPointer<ItemCacheGetRowDelegate>((IntPtr)MemoryAddresses.GetItemCacheEntryFunPtr);
+
+        static public IntPtr GetItemCacheEntry(int itemId)
+        {
+            return GetItemCacheEntryFunction((IntPtr)MemoryAddresses.ItemCacheEntryBasePtr, itemId, IntPtr.Zero, 0, 0, (char)0);
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        delegate IntPtr GetObjectPtrDelegate(ulong guid);
+
+        static readonly GetObjectPtrDelegate GetObjectPtrFunction =
+            Marshal.GetDelegateForFunctionPointer<GetObjectPtrDelegate>((IntPtr)MemoryAddresses.GetObjectPtrFunPtr);
+
+        static public IntPtr GetObjectPtr(ulong guid)
+        {
+            return GetObjectPtrFunction(guid);
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        delegate ulong GetPlayerGuidDelegate();
+
+        static GetPlayerGuidDelegate GetPlayerGuidFunction =
+            Marshal.GetDelegateForFunctionPointer<GetPlayerGuidDelegate>((IntPtr)MemoryAddresses.GetPlayerGuidFunPtr);
+
+        static public ulong GetPlayerGuid()
+        {
+            return GetPlayerGuidFunction();
+        }
+
+        static public Spell GetSpellDBEntry(int index)
+        {
+            // we don't use this in Vanilla, because we can get the spell entry directly from a static memory address
+            throw new NotImplementedException();
+        }
+
+        [DllImport("FastCall.dll", EntryPoint = "GetText")]
+        static extern IntPtr GetTextFunction(string varName, IntPtr ptr);
+
+        static public IntPtr GetText(string varName)
+        {
+            return GetTextFunction(varName, (IntPtr)MemoryAddresses.GetTextFunPtr);
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate int GetUnitReactionDelegate(IntPtr unitPtr1, IntPtr unitPtr2);
+
+        static readonly GetUnitReactionDelegate GetUnitReactionFunction =
+            Marshal.GetDelegateForFunctionPointer<GetUnitReactionDelegate>((IntPtr)MemoryAddresses.GetUnitReactionFunPtr);
+
+        static public UnitReaction GetUnitReaction(IntPtr unitPtr1, IntPtr unitPtr2)
+        {
+            return (UnitReaction)GetUnitReactionFunction(unitPtr1, unitPtr2);
+        }
+
+        [DllImport("FastCall.dll", EntryPoint = "Intersect2")]
+        static extern bool IntersectFunction(ref XYZ p1, ref XYZ p2, ref XYZ intersection, ref float distance, uint flags, IntPtr Ptr);
+
+        /// <summary>
+        /// Returns { 1, 1, 1 } if there is a collission when casting a ray between start and end params.
+        /// A result of { 1, 1, 1 } would indicate you are not in line-of-sight with your target.
+        /// </summary>
+        /// <param name="start">The start of the raycast.</param>
+        /// <param name="end">The end of the raycast.</param>
+        /// <returns>The result of the collision check.</returns>
+        static public XYZ Intersect(Position start, Position end)
+        {
+            var intersection = new XYZ();
+            var distance = start.DistanceTo(end);
+            var p1 = new XYZ(start.X, start.Y, start.Z + 2);
+            var p2 = new XYZ(end.X, end.Y, end.Z + 2);
+
+            var result = IntersectFunction(ref p1, ref p2, ref intersection, ref distance, 0x00100111, (IntPtr)MemoryAddresses.IntersectFunPtr);
+
+            var collisionDetected = distance < 1;
+
+            return collisionDetected ? new XYZ(1, 1, 1) : new XYZ(0, 0, 0);
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate void IsSpellOnCooldownDelegate(
+            IntPtr spellCooldownPtr,
+            int spellId,
+            int unused1,
+            ref int cooldownDuration,
+            int unused2,
+            bool unused3);
+
+        static readonly IsSpellOnCooldownDelegate IsSpellOnCooldownFunction =
+            Marshal.GetDelegateForFunctionPointer<IsSpellOnCooldownDelegate>((IntPtr)MemoryAddresses.IsSpellOnCooldownFunPtr);
+
+        static public bool IsSpellOnCooldown(int spellId)
+        {
+            var cooldownDuration = 0;
+            IsSpellOnCooldownFunction(
+                (IntPtr)0x00CECAEC,
+                spellId,
+                0,
+                ref cooldownDuration,
+                0,
+                false);
+
+            return cooldownDuration != 0;
+        }
+
+        [DllImport("FastCall.dll", EntryPoint = "LootSlot")]
+        static extern byte LootSlotFunction(int slot, IntPtr ptr);
+
+        static public void LootSlot(int slot)
+        {
+            LootSlotFunction(slot, (IntPtr)MemoryAddresses.LootSlotFunPtr);
+        }
+
+        [DllImport("FastCall.dll", EntryPoint = "LuaCall")]
+        static extern void LuaCallFunction(string code, int ptr);
+
+        static public void LuaCall(string code)
+        {
+            LuaCallFunction(code, MemoryAddresses.LuaCallFunPtr);
+        }
+        static public string[] LuaCallWithResult(string code)
+        {
+            var luaVarNames = new List<string>();
+            for (var i = 0; i < 11; i++)
             {
-                _Intersect(ref points, ref distance, ref intersection, 0x100111, funcs.Intersect);
-                return intersection;
-            });
-        }
+                var currentPlaceHolder = "{" + i + "}";
+                if (!code.Contains(currentPlaceHolder)) break;
+                var randomName = GetRandomLuaVarName();
+                code = code.Replace(currentPlaceHolder, randomName);
+                luaVarNames.Add(randomName);
+            }
 
-        internal static unsafe Location GetGameObjectLocation(WoWGameObject obj)
-        {
-            if (!ObjectManager.Instance.IsIngame) return new Location(0, 0, 0);
-            GetGameObjectLocationFunction ??= Memory.Reader.RegisterDelegate<GetGameObjectLocationDelegate>(funcs.GetGameObjectLocation);
-            _XYZ xyzStruct = new _XYZ();
-            GetGameObjectLocationFunction(obj.Pointer, &xyzStruct);
-            return new Location(ref xyzStruct);
-        }
+            LuaCall(code);
 
-        internal static void LootSlot(int parSlot)
-        {
-            if (!ObjectManager.Instance.IsIngame) return;
-            //if (LootSlotFunction == null)
-            //    LootSlotFunction = Mem.Memory.Reader.RegisterDelegate<LootSlotDelegate>(Offsets.Functions.LootSlotAt);
-            //ThreadSynchronizer.Instance.Invoke(() => LootSlotFunction(parSlot));
-            ThreadSynchronizer.Instance.Invoke(
-                () => _LootSlot(parSlot, funcs.LootSlotAt)
-            );
-        }
-
-        internal static void CastAtPos(string parSpell, Location parPos, int parRank = -1)
-        {
-            CastAtPosFunction ??= Memory.Reader.RegisterDelegate<CastAtPosDelegate>(funcs.CastAtPos);
-            if (!ObjectManager.Instance.IsIngame) return;
-            ThreadSynchronizer.Instance.Invoke(() =>
+            var results = new List<string>();
+            foreach (var varName in luaVarNames)
             {
-                Memory.Reader.Write((IntPtr)0xCECAC0, 0);
-                Spellbook.Instance.Cast(parSpell, parRank);
-                _XYZ pos = parPos.ToStruct;
-                CastAtPosFunction(ref pos);
-            });
+                var address = GetText(varName);
+                results.Add(MemoryManager.ReadString(address));
+            }
+
+            return results.ToArray();
         }
 
-        //internal static void RegisterFunction(string parFuncName, uint parFuncPtr)
-        //{
-        //    ThreadSynchronizer.Instance.Invoke(() => _CppRegFunc(parFuncName, parFuncPtr, funcs.LuaRegisterFunc));
-        //}
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate int ReleaseCorpseDelegate(IntPtr ptr);
 
-        //internal static void UnregisterFunction(string parFuncName, uint parFuncPtr)
-        //{
-        //    ThreadSynchronizer.Instance.Invoke(() => _CppUnregFunc(parFuncName, parFuncPtr, funcs.LuaUnregFunc));
-        //}
+        static readonly ReleaseCorpseDelegate ReleaseCorpseFunction =
+            Marshal.GetDelegateForFunctionPointer<ReleaseCorpseDelegate>((IntPtr)MemoryAddresses.ReleaseCorpseFunPtr);
 
-        internal static string GetText(string parVarName)
+        [HandleProcessCorruptedStateExceptions]
+        static public void ReleaseCorpse(IntPtr ptr)
         {
-            return ThreadSynchronizer.Instance.Invoke(delegate
+            try
             {
-                IntPtr addr = _CppGetText(parVarName, funcs.GetText);
-                return addr.ReadString();
-            });
-        }
-
-        internal static bool CanCompleteQuest(int parQuestEntry)
-        {
-            if (!ObjectManager.Instance.IsIngame) return false;
-            CanCompleteQuestFunction ??=
-                    Memory.Reader.RegisterDelegate<CanCompleteQuestDelegate>(funcs.CanCompleteQuest);
-            int ret = ThreadSynchronizer.Instance.Invoke(() =>
+                ReleaseCorpseFunction(ptr);
+            }
+            catch (AccessViolationException)
             {
-                int result = CanCompleteQuestFunction(parQuestEntry);
-                return result;
-            });
-            return ret == 1;
-        }
-
-        internal static bool CanUseItem(int parItemId, PrivateEnums.ItemCacheLookupType parType)
-        {
-            if (!ObjectManager.Instance.IsIngame) return false;
-            CanUseItemFunction ??= Memory.Reader.RegisterDelegate<CanUseItemDelegate>(funcs.CanUseItem);
-            int ret = ThreadSynchronizer.Instance.Invoke(() =>
-            {
-                IntPtr ptr1 = ObjectManager.Instance.Player.Pointer;
-                if (ptr1 == IntPtr.Zero) return 0;
-                IntPtr ptr2 = ObjectManager.Instance.LookupItemCachePtr(parItemId, parType);
-                if (ptr2 == IntPtr.Zero) return 0;
-                int randomInt = 1;
-                int result = CanUseItemFunction(ptr1, ptr2, ref randomInt);
-                return result;
-            });
-            return ret == 1;
-        }
-
-        internal static string[] GetText(string[] parVarName)
-        {
-            return ThreadSynchronizer.Instance.Invoke(delegate
-            {
-                List<string> ret = new List<string>();
-                // ReSharper disable once LoopCanBeConvertedToQuery
-                foreach (string x in parVarName)
-                {
-                    IntPtr addr = _CppGetText(x, funcs.GetText);
-                    ret.Add(addr.ReadString());
-                }
-                return ret.ToArray();
-            });
-        }
-
-        internal static int GetLootSlots()
-        {
-            if (!ObjectManager.Instance.IsIngame) return 0;
-            GetLootSlotsFunction ??= Memory.Reader.RegisterDelegate<UnmanagedNoParamsDelegate>(funcs.GetLootSlots);
-            return ThreadSynchronizer.Instance.Invoke(() => GetLootSlotsFunction());
-        }
-
-        internal static void RetrieveCorpse()
-        {
-            if (!ObjectManager.Instance.IsIngame) return;
-            RetrieveCorpseFunction ??= Memory.Reader.RegisterDelegate<UnmanagedNoParamsDelegate>(funcs.RetrieveCorpse);
-            ThreadSynchronizer.Instance.Invoke(() => RetrieveCorpseFunction());
-        }
-
-        internal static void RepopMe()
-        {
-            if (!ObjectManager.Instance.IsIngame) return;
-            RepopMeFunction ??= Memory.Reader.RegisterDelegate<RepopMeDelegate>(funcs.RepopMe);
-            LocalPlayer player = ObjectManager.Instance.Player;
-            if (player == null) return;
-            ThreadSynchronizer.Instance.Invoke(() => RepopMeFunction(player.Pointer));
-        }
-
-        internal static void DoString(string parLuaCode)
-        {
-            ThreadSynchronizer.Instance.Invoke(() => _CppDoString(parLuaCode, funcs.DoString));
-        }
-
-        internal static void SellItem(uint parItemCount, ulong parItemGuid)
-        {
-            if (!ObjectManager.Instance.IsIngame) return;
-            ThreadSynchronizer.Instance.Invoke(
-                () => _CppSellItem(parItemCount, ObjectManager.Instance.Player.VendorGuid, parItemGuid, funcs.SellItem));
-        }
-
-        internal static ulong GetPlayerGuid()
-        {
-            if (!ObjectManager.Instance.IsIngame) return 0;
-            GetPlayerGuidFunction ??=
-                    Memory.Reader.RegisterDelegate<GetPlayerGuidDelegate>(funcs.ClntObjMgrGetActivePlayer);
-            return ThreadSynchronizer.Instance.Invoke(() => GetPlayerGuidFunction());
-        }
-
-        internal static IntPtr GetPtrForGuid(ulong parGuid)
-        {
-            if (!ObjectManager.Instance.IsIngame) return IntPtr.Zero;
-            GetPtrForGuidFunction ??= Memory.Reader.RegisterDelegate<ClntObjMgrObjectPtr>(funcs.GetPtrForGuid);
-
-            return ThreadSynchronizer.Instance.Invoke(() => GetPtrForGuidFunction(parGuid));
-        }
-
-        internal static void EnumVisibleObjects(IntPtr callback, int filter)
-        {
-            if (!ObjectManager.Instance.IsIngame) return;
-            ThreadSynchronizer.Instance.Invoke(() => _CppEnumVisibleObjects(callback, filter, funcs.EnumVisibleObjects));
-        }
-
-        internal static void BuyVendorItem(int parItemIndex, int parQuantity)
-        {
-            if (!ObjectManager.Instance.IsIngame) return;
-            if (parItemIndex < 1) return;
-
-            int ptr1 = 0xBDD118 + 0x1C * (parItemIndex - 1);
-            if (ptr1.ReadAs<int>() == 0) return;
-
-            int itemId = (ptr1 + 4).ReadAs<int>();
-
-            ThreadSynchronizer.Instance.Invoke(
-                () =>
-                    _CppBuyVendorItem(itemId, parQuantity, ObjectManager.Instance.Player.VendorGuid, funcs.BuyVendorItem));
-        }
-
-        internal static void SelectCharacterAtIndex(int index)
-        {
-            if (ObjectManager.Instance.IsIngame) return;
-            SelectCharacterFunction ??=
-                    Memory.Reader.RegisterDelegate<RepopMeDelegate>(funcs.SelectCharacter);
-            ThreadSynchronizer.Instance.Invoke(() => SelectCharacterFunction((IntPtr)index));
-        }
-
-        internal static void EnterWorld()
-        {
-            if (ObjectManager.Instance.IsIngame) return;
-            const string str = "if CharSelectEnterWorldButton ~= nil then CharSelectEnterWorldButton:Click()  end";
-            DoString(str);
-        }
-
-        internal static void SetControlBit(int parBit, int parState, int parTickCount)
-        {
-            if (!ObjectManager.Instance.IsIngame) return;
-            SetControlBitFunction ??=
-                    Memory.Reader.RegisterDelegate<SetControlBitDelegate>(funcs.CGInputControl__SetControlBit);
-            IntPtr ptr = Memory.Reader.Read<IntPtr>(Offsets.Misc.CGInputControlActive);
-
-            ThreadSynchronizer.Instance.Invoke(() => SetControlBitFunction(ptr, parBit, parState, parTickCount));
-        }
-
-        internal static void SetFacing(IntPtr parPlayerPtr, float parFacing)
-        {
-            if (!ObjectManager.Instance.IsIngame) return;
-            SetFacingFunction ??= Memory.Reader.RegisterDelegate<SetFacingDelegate>(funcs.SetFacing);
-            ThreadSynchronizer.Instance.Invoke(() => SetFacingFunction(parPlayerPtr, parFacing));
-        }
-
-        internal static void SendMovementUpdate(IntPtr parPlayerPtr, int parTimeStamp, int parOpcode)
-        {
-            if (!ObjectManager.Instance.IsIngame) return;
-            SendMovementUpdateFunction ??=
-                    Memory.Reader.RegisterDelegate<SendMovementUpdateDelegate>(funcs.SendMovementPacket);
-
-            ThreadSynchronizer.Instance.Invoke(() => SendMovementUpdateFunction(parPlayerPtr, parTimeStamp, parOpcode, 0, 0));
-        }
-
-        internal static void OnRightClickUnit(IntPtr parPlayerPtr, int parAutoLoot)
-        {
-            if (!ObjectManager.Instance.IsIngame) return;
-            OnRightClickUnitFunction ??=
-                    Memory.Reader.RegisterDelegate<OnRightClickUnitDelegate>(funcs.OnRightClickUnit);
-
-            ThreadSynchronizer.Instance.Invoke(() => OnRightClickUnitFunction(parPlayerPtr, parAutoLoot));
-        }
-
-        internal static void OnRightClickObject(IntPtr parPlayerPtr, int parAutoLoot)
-        {
-            if (!ObjectManager.Instance.IsIngame) return;
-            OnRightClickObjectFunction ??=
-                    Memory.Reader.RegisterDelegate<OnRightClickObjectDelegate>(funcs.OnRightClickObject);
-
-            ThreadSynchronizer.Instance.Invoke(() => OnRightClickObjectFunction(parPlayerPtr, parAutoLoot));
-        }
-
-        internal static void LootAll()
-        {
-            if (!ObjectManager.Instance.IsIngame) return;
-            LootAllFunction ??= Memory.Reader.RegisterDelegate<LootAllDelegate>(funcs.AutoLoot);
-            ThreadSynchronizer.Instance.Invoke(() => LootAllFunction());
-        }
-
-        internal static Enums.UnitReaction UnitReaction(IntPtr unitPtr1, IntPtr unitPtr2)
-        {
-            if (!ObjectManager.Instance.IsIngame) return Enums.UnitReaction.Neutral;
-            UnitReactionFunction ??= Memory.Reader.RegisterDelegate<UnitReactionDelegate>(funcs.UnitReaction);
-
-            int ret = UnitReactionFunction(unitPtr1, unitPtr2);
-            if (Enum.IsDefined(typeof(Enums.UnitReaction), ret))
-                return (Enums.UnitReaction)ret;
-            return Enums.UnitReaction.Neutral;
-        }
-
-        internal static void SetTarget(ulong parGuid)
-        {
-            if (!ObjectManager.Instance.IsIngame) return;
-            SetTargetFunction ??= Memory.Reader.RegisterDelegate<SetTargetDelegate>(funcs.SetTarget);
-            ThreadSynchronizer.Instance.Invoke(() => SetTargetFunction(parGuid));
-        }
-
-        internal static IntPtr QuestCacheGetRow(int parQuestId)
-        {
-            if (!ObjectManager.Instance.IsIngame) return IntPtr.Zero;
-            QuestCacheGetRowFunction ??=
-                    Memory.Reader.RegisterDelegate<QuestCacheGetRowDelegate>(funcs.QuestCacheGetRow);
-
-            ulong guid = 0;
-            return
-                ThreadSynchronizer.Instance.Invoke(
-                    () =>
-                        QuestCacheGetRowFunction(funcs.QuestCacheBasePtr, parQuestId, ref guid,
-                            CacheCallbacks.Instance.QuestCallbackPtr, 0,
-                            0));
-        }
-
-        internal static IntPtr ItemCacheGetRow(int parItemId, PrivateEnums.ItemCacheLookupType parLookupType)
-        {
-            if (!ObjectManager.Instance.IsIngame) return IntPtr.Zero;
-            ItemCacheGetRowFunction ??= Memory.Reader.RegisterDelegate<ItemCacheGetRowDelegate>(funcs.ItemCacheGetRow);
-
-            ulong val = 0;
-            switch (parLookupType)
-            {
-                case PrivateEnums.ItemCacheLookupType.None:
-                    return
-                        ThreadSynchronizer.Instance.Invoke(
-                            () =>
-                                ItemCacheGetRowFunction(funcs.ItemCacheBasePtr, parItemId, ref val,
-                                    CacheCallbacks.Instance.ItemCallbackPtr,
-                                    0, 0x0));
-
-                case PrivateEnums.ItemCacheLookupType.Vendor:
-                    val = ObjectManager.Instance.Player.VendorGuid;
-                    return
-                        ThreadSynchronizer.Instance.Invoke(
-                            () => ItemCacheGetRowFunction(funcs.ItemCacheBasePtr, parItemId, ref val,
-                                CacheCallbacks.Instance.ItemCallbackPtr,
-                                0, 0x0));
-
-                case PrivateEnums.ItemCacheLookupType.Quest:
-                    val = ObjectManager.Instance.Player.QuestNpcGuid;
-                    return
-                        ThreadSynchronizer.Instance.Invoke(
-                            () => ItemCacheGetRowFunction(funcs.ItemCacheBasePtr, parItemId, ref val,
-                                CacheCallbacks.Instance.ItemCallbackPtr,
-                                0, 0x0));
-                default:
-                    return IntPtr.Zero;
+                Console.WriteLine("AccessViolationException occurred while trying to release corpse. Most likely, this is due to a transient error that caused the player pointer to temporarily equal IntPtr.Zero. The bot should keep trying to release and recover from this error.");
             }
         }
 
-        internal static bool IsSpellReady(int spellId)
+        delegate int RetrieveCorpseDelegate();
+
+        static readonly RetrieveCorpseDelegate RetrieveCorpseFunction =
+            Marshal.GetDelegateForFunctionPointer<RetrieveCorpseDelegate>((IntPtr)MemoryAddresses.RetrieveCorpseFunPtr);
+
+        static public void RetrieveCorpse()
         {
-            if (!ObjectManager.Instance.IsIngame) return false;
-            GetSpellCooldownFunction ??=
-                    Memory.Reader.RegisterDelegate<GetSpellCooldownDelegate>(funcs.GetSpellCooldown);
-
-            int CdDuration = 0;
-            int CdStartedAt = 0;
-            bool third = false;
-            ThreadSynchronizer.Instance.Invoke(
-                () =>
-                    GetSpellCooldownFunction(funcs.GetSpellCooldownPtr1, spellId, 0, ref CdDuration, ref CdStartedAt,
-                        ref third));
-            return CdDuration == 0 || CdStartedAt == 0;
+            RetrieveCorpseFunction();
         }
-
-        internal static void UseItem(IntPtr ptr, ulong guidOfOtherItem = 0)
-        {
-            if (!ObjectManager.Instance.IsIngame) return;
-            UseItemFunction ??= Memory.Reader.RegisterDelegate<UseItemDelegate>(funcs.UseItem);
-            ulong ptrToGuid = guidOfOtherItem;
-
-            ThreadSynchronizer.Instance.Invoke(() => UseItemFunction(ptr, ref ptrToGuid, 0));
-        }
-
-        internal static void UseItemAtPos(IntPtr ptr, Location parPos)
-        {
-            CastAtPosFunction ??= Memory.Reader.RegisterDelegate<CastAtPosDelegate>(funcs.CastAtPos);
-            if (!ObjectManager.Instance.IsIngame) return;
-            ThreadSynchronizer.Instance.Invoke(() =>
-            {
-                Memory.Reader.Write((IntPtr)0xCECAC0, 64);
-                UseItem(ptr);
-                _XYZ pos = parPos.ToStruct;
-                CastAtPosFunction(ref pos);
-            });
-        }
-
-        internal static void Ctm(IntPtr parPlayerPtr, PrivateEnums.CtmType parType, Location parLocation, ulong parGuid)
-        {
-            if (!ObjectManager.Instance.IsIngame) return;
-            CtmFunction ??= Memory.Reader.RegisterDelegate<CtmDelegate>(funcs.ClickToMove);
-            ulong guid = parGuid;
-            _XYZ xyz = parLocation.ToStruct;
-            ThreadSynchronizer.Instance.Invoke(() =>
-            {
-                CtmFunction(parPlayerPtr, (uint)parType, ref guid,
-                    ref xyz, 2);
-            });
-        }
-
-        internal static void AcceptQuest(ulong parNpcGuid, int parQuestId)
-        {
-            if (!ObjectManager.Instance.IsIngame) return;
-            AcceptQuestFunction ??= Memory.Reader.RegisterDelegate<AcceptQuestDelegate>(funcs.AcceptQuest);
-
-            ThreadSynchronizer.Instance.Invoke(() => AcceptQuestFunction(ref parNpcGuid, parQuestId));
-        }
-
-        internal static void CompleteQuest(ulong parNpcGuid, int parQuestId)
-        {
-            if (!ObjectManager.Instance.IsIngame) return;
-            CompleteQuestFunction ??= Memory.Reader.RegisterDelegate<AcceptQuestDelegate>(funcs.CompleteQuest);
-            ThreadSynchronizer.Instance.Invoke(() => CompleteQuestFunction(ref parNpcGuid, parQuestId));
-        }
-
-        internal static void NetClientSend(IntPtr pDataStore)
-        {
-            if (!ObjectManager.Instance.IsIngame) return;
-            NetClientSendFunction ??= Memory.Reader.RegisterDelegate<NetClientSendDelegate>(funcs.NetClientSend);
-            ThreadSynchronizer.Instance.Invoke(() => NetClientSendFunction(ClientConnection(), pDataStore.ToInt32()));
-        }
-
-        internal static IntPtr ClientConnection()
-        {
-            if (!ObjectManager.Instance.IsIngame) return IntPtr.Zero;
-            ClientConnectionFunction ??=
-                    Memory.Reader.RegisterDelegate<ClientConnectionDelegate>(funcs.ClientConnection);
-            return ThreadSynchronizer.Instance.Invoke(() => ClientConnectionFunction());
-        }
-
-        internal static int GetCreatureRank(IntPtr parUnitPtr)
-        {
-            if (!ObjectManager.Instance.IsIngame) return 0;
-            GetCreatureRankFunction ??= Memory.Reader.RegisterDelegate<GetCreatureRankDelegate>(funcs.GetCreatureRank);
-            return ThreadSynchronizer.Instance.Invoke(() => GetCreatureRankFunction(parUnitPtr));
-        }
-
-        internal static Enums.CreatureType GetCreatureType(IntPtr parUnitPtr)
-        {
-            if (!ObjectManager.Instance.IsIngame) return 0;
-            GetCreatureTypeFunction ??= Memory.Reader.RegisterDelegate<GetCreatureTypeDelegate>(funcs.GetCreatureType);
-            return (Enums.CreatureType)GetCreatureTypeFunction(parUnitPtr);
-        }
-
-        internal static int LuaGetArgCount(IntPtr parLuaState)
-        {
-            LuaGetArgCountFunction ??= Memory.Reader.RegisterDelegate<LuaGetArgCountDelegate>(funcs.LuaGetArgCount);
-            return ThreadSynchronizer.Instance.Invoke(() => LuaGetArgCountFunction(parLuaState));
-        }
-
-        internal static string LuaToString(IntPtr parLuaState, int number)
-        {
-            IntPtr ptr = ThreadSynchronizer.Instance.Invoke(() => _CppLuaToString(parLuaState, number, funcs.LuaToString));
-            return ptr.ReadString();
-        }
-
-        [DllImport("FastCall.dll", EntryPoint = "_EnumVisibleObjects")]
-        private static extern void _CppEnumVisibleObjects(IntPtr callback, int filter, IntPtr ptr);
-
-        [DllImport("FastCall.dll", EntryPoint = "_BuyVendorItem", CallingConvention = CallingConvention.StdCall)]
-        private static extern void _CppBuyVendorItem(int parItemIndex, int parQuantity, ulong parVendorGuid, IntPtr ptr);
-
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate int RepopMeDelegate(IntPtr ptr);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate int UnmanagedNoParamsDelegate();
+        delegate void SetTargetDelegate(ulong guid);
+
+        static readonly SetTargetDelegate SetTargetFunction =
+            Marshal.GetDelegateForFunctionPointer<SetTargetDelegate>((IntPtr)MemoryAddresses.SetTargetFunPtr);
+
+        static public void SetTarget(ulong guid)
+        {
+            SetTargetFunction(guid);
+        }
+
+        [DllImport("FastCall.dll", EntryPoint = "SellItemByGuid")]
+        static extern void SellItemByGuidFunction(uint itemCount, ulong npcGuid, ulong itemGuid, IntPtr sellItemFunPtr);
+
+        static public void SellItemByGuid(uint itemCount, ulong vendorGuid, ulong itemGuid)
+        {
+            SellItemByGuidFunction(itemCount, vendorGuid, itemGuid, (IntPtr)MemoryAddresses.SellItemByGuidFunPtr);
+        }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate void SetControlBitDelegate(IntPtr device, int bit, int state, int tickCount);
+        delegate void SendMovementUpdateDelegate(
+            IntPtr playerPtr,
+            IntPtr unknown,
+            int OpCode,
+            int unknown2,
+            int unknown3);
+
+        static readonly SendMovementUpdateDelegate SendMovementUpdateFunction =
+            Marshal.GetDelegateForFunctionPointer<SendMovementUpdateDelegate>((IntPtr)MemoryAddresses.SendMovementUpdateFunPtr);
+
+        static public void SendMovementUpdate(IntPtr playerPtr, int opcode)
+        {
+            SendMovementUpdateFunction(playerPtr, (IntPtr)0x00BE1E2C, opcode, 0, 0);
+        }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate void SetFacingDelegate(IntPtr playerPtr, float facing);
+        delegate void SetControlBitDelegate(IntPtr device, int bit, int state, int tickCount);
+
+        static readonly SetControlBitDelegate SetControlBitFunction =
+            Marshal.GetDelegateForFunctionPointer<SetControlBitDelegate>((IntPtr)MemoryAddresses.SetControlBitFunPtr);
+
+        static public void SetControlBit(int bit, int state, int tickCount)
+        {
+            var ptr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.SetControlBitDevicePtr);
+            SetControlBitFunction(ptr, bit, state, tickCount);
+        }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate void SendMovementUpdateDelegate(
-            IntPtr playerPtr, int timestamp, int opcode, float zero, int zero2);
+        delegate void SetFacingDelegate(IntPtr playerSetFacingPtr, float facing);
+
+        static readonly SetFacingDelegate SetFacingFunction =
+            Marshal.GetDelegateForFunctionPointer<SetFacingDelegate>((IntPtr)MemoryAddresses.SetFacingFunPtr);
+
+        static public void SetFacing(IntPtr playerSetFacingPtr, float facing)
+        {
+            SetFacingFunction(playerSetFacingPtr, facing);
+        }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate void OnRightClickUnitDelegate(IntPtr unitPtr, int autoLoot);
+        delegate void UseItemDelegate(IntPtr itemPtr, ref ulong unused1, int unused2);
 
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate void OnRightClickObjectDelegate(IntPtr unitPtr, int autoLoot);
+        static readonly UseItemDelegate UseItemFunction =
+            Marshal.GetDelegateForFunctionPointer<UseItemDelegate>((IntPtr)MemoryAddresses.UseItemFunPtr);
 
-        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate void LootAllDelegate();
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate int UnitReactionDelegate(IntPtr unitPtr1, IntPtr unitPtr2);
-
-        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate void SetTargetDelegate(ulong guid);
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private unsafe delegate void GetGameObjectLocationDelegate(IntPtr pointer, _XYZ* pos);
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate IntPtr ItemCacheGetRowDelegate(
-            IntPtr fixedPtr, int itemId, ref ulong guid, IntPtr callbackPtr, int _zero, int __zero);
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate IntPtr QuestCacheGetRowDelegate(
-            IntPtr fixedPtr, int itemId, ref ulong guid, IntPtr callbackPtr, int __zero, int ___zero);
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate void GetSpellCooldownDelegate(
-            IntPtr spellCooldownPtr, int spellId, int zero, ref int first, ref int second, ref bool third);
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate void UseItemDelegate(IntPtr ptr, ref ulong guidOfOtherItem, int zero);
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate void CtmDelegate
-            (IntPtr playerPtr, uint clickType, ref ulong interactGuidPtr, ref _XYZ posPtr, float precision);
-
-        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate void AcceptQuestDelegate
-            (ref ulong parPtrToNpcGuid, int parQuestId);
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate void NetClientSendDelegate
-            (IntPtr clientConn, int pDataStore);
-
-        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate IntPtr ClientConnectionDelegate
-            ();
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate int GetCreatureRankDelegate
-            (IntPtr parUnitPtr);
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate int GetCreatureTypeDelegate
-            (IntPtr parUnitPtr);
-
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate int LuaGetArgCountDelegate
-            (IntPtr parLuaState);
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate int HandleSpellTerrainDelegate
-            (ref _XYZ parPos);
-
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate ulong GetPlayerGuidDelegate();
-
-        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate IntPtr ClntObjMgrObjectPtr(ulong guid);
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate int CanCompleteQuestDelegate(int parQuestEntry);
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate int CanUseItemDelegate(IntPtr parPlayerPtr, IntPtr parItemCacheEntryPtr, ref int parPtr);
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate int CastAtPosDelegate(ref _XYZ parPos);
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate int LootSlotDelegate(int slotNumber);
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate void GameObjectGetLocationDelegate(IntPtr objPtr, IntPtr xyzStruct);
-
-        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate void AbandonQuestDelegate
-            (int realQuestId);
+        static public void UseItem(IntPtr itemPtr)
+        {
+            ulong unused1 = 0;
+            UseItemFunction(itemPtr, ref unused1, 0);
+        }
+        static string GetRandomLuaVarName()
+        {
+            const string chars = "abcdefghijklmnopqrstuvwxyz";
+            return new string(chars.Select(c => chars[random.Next(chars.Length)]).Take(8).ToArray());
+        }
     }
 }

@@ -1,5 +1,5 @@
-﻿using RaidLeaderBot.Constants;
-using RaidLeaderBot.Objects;
+﻿using RaidMemberBot.Constants;
+using RaidMemberBot.Objects;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -11,19 +11,20 @@ namespace RaidLeaderBot.Pathfinding
     /// </summary>
     public unsafe class Navigation
     {
+        private object _lock = new object();
         /// <summary>
         /// Access to the pathfinder
         /// </summary>
         public static Navigation Instance = new Navigation();
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate _XYZ* CalculatePathDelegate(
-            uint mapId, _XYZ start, _XYZ end, bool parSmooth,
+        private delegate XYZ* CalculatePathDelegate(
+            uint mapId, XYZ start, XYZ end, bool parSmooth,
             out int length);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void FreePathArr(
-            _XYZ* pathArr);
+            XYZ* pathArr);
 
         private static CalculatePathDelegate _calculatePath;
         private static FreePathArr _freePathArr;
@@ -36,18 +37,21 @@ namespace RaidLeaderBot.Pathfinding
         /// <param name="end">End</param>
         /// <param name="parSmooth">Smooth path</param>
         /// <returns>An array of points</returns>
-        public Location[] CalculatePath(
-            uint mapId, Location start, Location end, bool parSmooth)
+        public Position[] CalculatePath(
+            uint mapId, Position start, Position end, bool parSmooth)
         {
-            int length;
-            _XYZ* ret = _calculatePath(mapId, start.ToStruct, end.ToStruct, parSmooth, out length);
-            Location[] list = new Location[length];
-            for (int i = 0; i < length; i++)
+            lock (_lock)
             {
-                list[i] = new Location(ret[i]);
+                int length;
+                XYZ* ret = _calculatePath(mapId, start.ToXYZ(), end.ToXYZ(), parSmooth, out length);
+                Position[] list = new Position[length];
+                for (int i = 0; i < length; i++)
+                {
+                    list[i] = new Position(ret[i]);
+                }
+                _freePathArr(ret);
+                return list;
             }
-            _freePathArr(ret);
-            return list;
         }
 
         private Navigation()

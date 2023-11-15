@@ -1,7 +1,9 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,7 +19,7 @@ namespace ShadowPriestBot
 
         public HealTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Heal)
         {
-            if (Spellbook.Instance.IsSpellReady(Heal))
+            if (ObjectManager.Player.IsSpellReady(Heal))
                 healingSpell = Heal;
             else
                 healingSpell = LesserHeal;
@@ -25,52 +27,60 @@ namespace ShadowPriestBot
 
         public void Update()
         {
-            if (Container.Player.IsCasting) return;
-
-            List<WoWUnit> unhealthyMembers = ObjectManager.Instance.PartyMembers.Where(x => x.HealthPercent < 60).OrderBy(x => x.Health).ToList();
-
-            if (unhealthyMembers.Count > 0)
+            try
             {
-                Container.FriendlyTarget = unhealthyMembers[0];
-                Container.Player.SetTarget(Container.FriendlyTarget);
-            }
-            else
-            {
-                Container.Player.StopAllMovement();
-                BotTasks.Pop();
-                return;
-            }
+                if (ObjectManager.Player.IsCasting) return;
 
-            if (Container.FriendlyTarget.HealthPercent > 70 || Container.Player.Mana < Container.Player.GetManaCost(healingSpell))
-            {
-                if (Spellbook.Instance.IsSpellReady(Renew) && Container.Player.Mana > Container.Player.GetManaCost(Renew) && !Container.FriendlyTarget.HasBuff("Renew"))
-                    Lua.Instance.Execute($"CastSpellByName('{Renew}')");
+                List<WoWPlayer> unhealthyMembers = ObjectManager.PartyMembers.Where(x => x.HealthPercent < 60).OrderBy(x => x.Health).ToList();
 
-                BotTasks.Pop();
-                return;
-            }
-
-            if (!Container.Player.InLosWith(Container.FriendlyTarget))
-            {
-                Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
-
-                if (nextWaypoint.Length > 1)
+                if (unhealthyMembers.Count > 0)
                 {
-                    Container.CurrentWaypoint = nextWaypoint[1];
+                    Container.FriendlyTarget = unhealthyMembers[0];
+                    ObjectManager.Player.SetTarget(Container.FriendlyTarget.Guid);
                 }
                 else
                 {
-                    Container.Player.StopAllMovement();
+                    ObjectManager.Player.StopAllMovement();
                     BotTasks.Pop();
                     return;
                 }
 
-                Container.Player.MoveToward(Container.CurrentWaypoint);
+                if (Container.FriendlyTarget.HealthPercent > 70 || ObjectManager.Player.Mana < ObjectManager.Player.GetManaCost(healingSpell))
+                {
+                    if (ObjectManager.Player.IsSpellReady(Renew) && ObjectManager.Player.Mana > ObjectManager.Player.GetManaCost(Renew) && !Container.FriendlyTarget.HasBuff("Renew"))
+                        Functions.LuaCall($"CastSpellByName('{Renew}')");
+
+                    BotTasks.Pop();
+                    return;
+                }
+
+                if (!ObjectManager.Player.InLosWith(Container.FriendlyTarget.Position))
+                {
+                    Console.WriteLine($"Not in LOS with {Container.FriendlyTarget.Name}");
+                    Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.FriendlyTarget.Position, true);
+
+                    if (nextWaypoint.Length > 1)
+                    {
+                        Container.CurrentWaypoint = nextWaypoint[1];
+                    }
+                    else
+                    {
+                        ObjectManager.Player.StopAllMovement();
+                        BotTasks.Pop();
+                        return;
+                    }
+
+                    ObjectManager.Player.MoveToward(Container.CurrentWaypoint);
+                }
+                else
+                {
+                    ObjectManager.Player.StopAllMovement();
+                    Functions.LuaCall($"CastSpellByName('{healingSpell}')");
+                }
             }
-            else
+            catch (Exception e)
             {
-                Container.Player.StopAllMovement();
-                Lua.Instance.Execute($"CastSpellByName('{healingSpell}')");
+                Console.WriteLine($"[HEAL TASK]{e.Message} {e.StackTrace}");
             }
         }
     }

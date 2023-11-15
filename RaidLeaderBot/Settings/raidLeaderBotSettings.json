@@ -1,5 +1,5 @@
 {
-  "PathToWoW": "E:\\repos\\Elysium Project Game Client\\WoW.exe",
+  "PathToWoW": "C:\\WoW\\WoW.exe",
   "ConfigServerPort": 8087,
   "DatabasePort": 8088,
   "NavigationPort": 8089,
@@ -7,9 +7,9 @@
   "ActivityPresets": [
     [
       {
-        "Activity": 1,
-        "IsAlliance": false,
         "RaidLeaderPort": 8090,
+        "IsAlliance": false,
+        "Activity": 13,
         "RaidMemberPresets": [
           {
             "Level": 14,
@@ -27,14 +27,14 @@
             "IsRole4": false,
             "IsRole5": false,
             "IsRole6": false,
-            "TalentsAndSpells": [],
+            "Talents": [],
             "EquipmentItems": {},
             "EquipmentEnchants": {}
           },
           {
             "Level": 14,
-            "Race": 4,
-            "Class": 1,
+            "Race": 7,
+            "Class": 5,
             "IsMainTank": false,
             "IsOffTank": false,
             "IsMainHealer": true,
@@ -47,67 +47,20 @@
             "IsRole4": false,
             "IsRole5": false,
             "IsRole6": false,
-            "TalentsAndSpells": [],
-            "EquipmentItems": {},
-            "EquipmentEnchants": {}
-          },
-          {
-            "Level": 14,
-            "Race": 4,
-            "Class": 1,
-            "IsMainTank": false,
-            "IsOffTank": false,
-            "IsMainHealer": false,
-            "IsOffHealer": false,
-            "ShouldCleanse": false,
-            "ShouldRebuff": false,
-            "IsRole1": false,
-            "IsRole2": false,
-            "IsRole3": false,
-            "IsRole4": false,
-            "IsRole5": false,
-            "IsRole6": false,
-            "TalentsAndSpells": [],
+            "Talents": [],
             "EquipmentItems": {},
             "EquipmentEnchants": {}
           }
         ]
       },
       {
-        "Activity": 1,
-        "IsAlliance": true,
         "RaidLeaderPort": 8091,
-        "RaidMemberPresets": [
-          {
-            "Level": 14,
-            "Race": 0,
-            "Class": 1,
-            "IsMainTank": true,
-            "IsOffTank": false,
-            "IsMainHealer": false,
-            "IsOffHealer": false,
-            "ShouldCleanse": false,
-            "ShouldRebuff": false,
-            "IsRole1": false,
-            "IsRole2": false,
-            "IsRole3": false,
-            "IsRole4": false,
-            "IsRole5": false,
-            "IsRole6": false,
-            "TalentsAndSpells": [],
-            "EquipmentItems": {},
-            "EquipmentEnchants": {}
-          }
-        ]
-      },
-      {
-        "Activity": 1,
         "IsAlliance": false,
-        "RaidLeaderPort": 8092,
+        "Activity": 13,
         "RaidMemberPresets": [
           {
             "Level": 14,
-            "Race": 4,
+            "Race": 5,
             "Class": 1,
             "IsMainTank": true,
             "IsOffTank": false,
@@ -121,7 +74,7 @@
             "IsRole4": false,
             "IsRole5": false,
             "IsRole6": false,
-            "TalentsAndSpells": [],
+            "Talents": [],
             "EquipmentItems": {},
             "EquipmentEnchants": {}
           }

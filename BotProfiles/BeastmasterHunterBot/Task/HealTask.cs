@@ -18,16 +18,16 @@ namespace BeastMasterHunterBot
 
         public void Update()
         {
-            //if (Container.Player.IsCasting) return;
+            //if (ObjectManager.Player.IsCasting) return;
 
-            //if (Container.Player.HealthPercent > 70 || Container.Player.Mana < Container.Player.GetManaCost(LesserHeal))
+            //if (ObjectManager.Player.HealthPercent > 70 || ObjectManager.Player.Mana < ObjectManager.Player.GetManaCost(LesserHeal))
             //{
-            //    Container.Player.SetTarget(targetGuid);
+            //    ObjectManager.Player.SetTarget(targetGuid);
             //    BotTasks.Pop();
             //    return;
             //}
 
-            //Lua.Instance.Execute($"CastSpellByName('{LesserHeal}')");
+            //Functions.LuaCall($"CastSpellByName('{LesserHeal}')");
         }
     }
 }

@@ -3,7 +3,9 @@
 using RaidMemberBot;
 using RaidMemberBot.AI;
 using RaidMemberBot.AI.SharedStates;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
@@ -47,7 +49,7 @@ namespace BackstabRogueBot
         {
             this.botTasks = botTasks;
             this.container = container;
-            player = ObjectManager.Instance.Player;
+            player = ObjectManager.Player;
 
             WoWEventHandler.Instance.OnParry += OnParryCallback;
         }
@@ -63,7 +65,7 @@ namespace BackstabRogueBot
                 readyToRiposte = false;
 
             
-            if (ObjectManager.Instance.Aggressors.Count == 0)
+            if (ObjectManager.Aggressors.Count == 0)
             {
                 BotTasks.Pop();
                 return;
@@ -71,7 +73,7 @@ namespace BackstabRogueBot
 
             if (target == null || Container.HostileTarget.HealthPercent <= 0)
             {
-                target = ObjectManager.Instance.Aggressors.First();
+                target = ObjectManager.Aggressors.First();
             }
 
             if (Update(target, 3))
@@ -79,12 +81,12 @@ namespace BackstabRogueBot
 
             // Ensure Sword/Mace/1H is equipped (not dagger)
             
-            ThreadSynchronizer.Instance.Invoke(() =>
+            ThreadSynchronizer.RunOnMainThread(() =>
             {
 
-                WoWItem MainHand = Inventory.Instance.GetEquippedItem(EquipSlot.MainHand);
-                WoWItem OffHand = Inventory.Instance.GetEquippedItem(EquipSlot.OffHand);
-                WoWItem SwapSlotWeap = Inventory.Instance.GetItem(4, 1);
+                WoWItem MainHand = Inventory.GetEquippedItem(EquipSlot.MainHand);
+                WoWItem OffHand = Inventory.GetEquippedItem(EquipSlot.OffHand);
+                WoWItem SwapSlotWeap = Inventory.GetItem(4, 1);
 
                 //Console.WriteLineVerbose("Mainhand Item Type:  " + MainHand.Info.ItemSubclass);
                 //Console.WriteLineVerbose("Offhand Item Type:  " + OffHand.Info.ItemSubclass);
@@ -130,44 +132,44 @@ namespace BackstabRogueBot
 
                 if (SwapMaceOrSwordReady == true)
                 {
-                    Lua.Instance.Execute($"UseContainerItem({4}, {2})");
+                    Functions.LuaCall($"UseContainerItem({4}, {2})");
                     Console.WriteLine(MainHand.Info.Name + "Swapped Into Mainhand!");
                 }
             });
 
             // set secondaryTarget
-            // if (ObjectManager.Instance.Aggressors.Count() == 2 && secondaryTarget == null)
-            //    secondaryTarget = ObjectManager.Instance.Aggressors.Single(u => u.Guid != Container.HostileTarget.Guid);
+            // if (ObjectManager.Aggressors.Count() == 2 && secondaryTarget == null)
+            //    secondaryTarget = ObjectManager.Aggressors.Single(u => u.Guid != Container.HostileTarget.Guid);
 
             //if (secondaryTarget != null && !secondaryTarget.HasDebuff(Blind))
             // {
-            //    Container.Player.SetTarget(secondaryTarget.Guid);
-            //     TryUseAbility(Blind, 30, Spellbook.Instance.IsSpellReady(Blind) && !secondaryTarget.HasDebuff(Blind));
+            //    ObjectManager.Player.SetTarget(secondaryTarget.Guid);
+            //     TryUseAbility(Blind, 30, ObjectManager.Player.IsSpellReady(Blind) && !secondaryTarget.HasDebuff(Blind));
             // }
 
             // ----- COMBAT ROTATION -----
 
             bool readyToEviscerate =
-                Container.HostileTarget.HealthPercent <= 20 && Container.Player.ComboPoints >= 2
-                || Container.HostileTarget.HealthPercent <= 30 && Container.Player.ComboPoints >= 3
-                || Container.HostileTarget.HealthPercent <= 40 && Container.Player.ComboPoints >= 4
-                || Container.Player.ComboPoints == 5;
+                Container.HostileTarget.HealthPercent <= 20 && ObjectManager.Player.ComboPoints >= 2
+                || Container.HostileTarget.HealthPercent <= 30 && ObjectManager.Player.ComboPoints >= 3
+                || Container.HostileTarget.HealthPercent <= 40 && ObjectManager.Player.ComboPoints >= 4
+                || ObjectManager.Player.ComboPoints == 5;
             
             TryUseAbility(Eviscerate, 35, readyToEviscerate);
 
-            TryUseAbility(SliceAndDice, 25, !Container.Player.HasBuff(SliceAndDice) && Container.HostileTarget.HealthPercent > 40 && Container.Player.ComboPoints <= 3 && Container.Player.ComboPoints >= 2);
+            TryUseAbility(SliceAndDice, 25, !ObjectManager.Player.HasBuff(SliceAndDice) && Container.HostileTarget.HealthPercent > 40 && ObjectManager.Player.ComboPoints <= 3 && ObjectManager.Player.ComboPoints >= 2);
 
-            // TryUseAbility(ExposeArmor, 25, Container.Player.HasBuff(SliceAndDice) && Container.HostileTarget.HealthPercent > 50 && Container.Player.ComboPoints <= 2 && Container.Player.ComboPoints >= 1);
+            // TryUseAbility(ExposeArmor, 25, ObjectManager.Player.HasBuff(SliceAndDice) && Container.HostileTarget.HealthPercent > 50 && ObjectManager.Player.ComboPoints <= 2 && ObjectManager.Player.ComboPoints >= 1);
 
-            TryUseAbility(SinisterStrike, 45, !Spellbook.Instance.IsSpellReady(GhostlyStrike) && !ReadyToInterrupt(target) && Container.Player.ComboPoints < 5 && !readyToEviscerate);
+            TryUseAbility(SinisterStrike, 45, !ObjectManager.Player.IsSpellReady(GhostlyStrike) && !ReadyToInterrupt(target) && ObjectManager.Player.ComboPoints < 5 && !readyToEviscerate);
         
-            TryUseAbility(GhostlyStrike, 40, Spellbook.Instance.IsSpellReady(GhostlyStrike) && Spellbook.Instance.IsSpellReady(GhostlyStrike) && !ReadyToInterrupt(target) && Container.Player.ComboPoints < 5 && !readyToEviscerate);
+            TryUseAbility(GhostlyStrike, 40, ObjectManager.Player.IsSpellReady(GhostlyStrike) && ObjectManager.Player.IsSpellReady(GhostlyStrike) && !ReadyToInterrupt(target) && ObjectManager.Player.ComboPoints < 5 && !readyToEviscerate);
 
-            TryUseAbilityById(BloodFury, 3, 0, Spellbook.Instance.IsSpellReady(BloodFury) && Container.HostileTarget.HealthPercent > 80);
+            TryUseAbilityById(BloodFury, 3, 0, ObjectManager.Player.IsSpellReady(BloodFury) && Container.HostileTarget.HealthPercent > 80);
 
-            TryUseAbility(Evasion, 0, ObjectManager.Instance.Aggressors.Count() > 1);
+            TryUseAbility(Evasion, 0, ObjectManager.Aggressors.Count() > 1);
 
-            TryUseAbility(BladeFlurry, 25, ObjectManager.Instance.Aggressors.Count() > 1);
+            TryUseAbility(BladeFlurry, 25, ObjectManager.Aggressors.Count() > 1);
 
             TryUseAbility(Riposte, 10, readyToRiposte, RiposteCallback);
 
@@ -177,9 +179,9 @@ namespace BackstabRogueBot
 
             // we use Kidneyshot (with 1 or 2 combo points only) before Gouge as Gouge has a longer cooldown and requires more energy, so sometimes gouge doesn't fire before casting is done.
             
-            TryUseAbility(KidneyShot, 25, ReadyToInterrupt(target) && !Spellbook.Instance.IsSpellReady(Kick) && Container.Player.ComboPoints >= 1 && Container.Player.ComboPoints <=2);
+            TryUseAbility(KidneyShot, 25, ReadyToInterrupt(target) && !ObjectManager.Player.IsSpellReady(Kick) && ObjectManager.Player.ComboPoints >= 1 && ObjectManager.Player.ComboPoints <=2);
                         
-            TryUseAbility(Gouge, 45, ReadyToInterrupt(target) && !Spellbook.Instance.IsSpellReady(Kick));
+            TryUseAbility(Gouge, 45, ReadyToInterrupt(target) && !ObjectManager.Player.IsSpellReady(Kick));
         }
 
         void OnParryCallback(object sender, EventArgs e)

@@ -1,4 +1,5 @@
-﻿using RaidMemberBot.AI;
+﻿using Discord;
+using RaidMemberBot.AI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -31,6 +32,7 @@ namespace RaidMemberBot
             container?.Dispose();
 
             string currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
             string[] botPaths = new[] { "AfflictionWarlockBot.dll", "ArcaneMageBot.dll", "ArmsWarriorBot.dll", "BackstabRogueBot.dll", "BalanceDruidBot.dll", "BeastMasterHunterBot.dll", "CombatRogueBot.dll", "ElementalShamanBot.dll", "EnhancementShamanBot.dll", "FeralDruidBot.dll", "FrostMageBot.dll", "FuryWarriorBot.dll", "ProtectionPaladinBot.dll", "ProtectionWarriorBot.dll", "RetributionPaladinBot.dll", "ShadowPriestBot.dll" };
 
             foreach (string botPath in botPaths)
@@ -58,10 +60,11 @@ namespace RaidMemberBot
                 }
                 catch (ReflectionTypeLoadException ex)
                 {
+                    Console.WriteLine($"BOT LOADER: {ex.StackTrace}");
                     // now look at ex.LoaderExceptions - this is an Exception[], so:
                     foreach (Exception inner in ex.LoaderExceptions)
                     {
-                        Console.WriteLine(inner.StackTrace);
+                        Console.WriteLine($"BOT LOADER: {inner.Message}");
                     }
                 }
             }

@@ -1,4 +1,5 @@
 ﻿using RaidMemberBot.Client;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
 using RaidMemberBot.Objects;
@@ -20,12 +21,12 @@ namespace RaidMemberBot.AI.SharedStates
 
         public void Update()
         {
-            if (Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location) < 3)
+            if (ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) < 3)
             {
                 if (!itemUsed)
                 {
-                    Container.Player.SetTarget(Container.HostileTarget.Guid);
-                    Container.Player.StopMovement(Constants.Enums.ControlBits.Nothing);
+                    ObjectManager.Player.SetTarget(Container.HostileTarget.Guid);
+                    ObjectManager.Player.StopMovement(Constants.Enums.ControlBits.Nothing);
                     usableItem.Use();
 
                     itemUsed = true;
@@ -38,8 +39,8 @@ namespace RaidMemberBot.AI.SharedStates
             }
             else
             {
-                Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
-                Container.Player.MoveToward(nextWaypoint[0]);
+                Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+                ObjectManager.Player.MoveToward(nextWaypoint[0]);
             }
 
         }

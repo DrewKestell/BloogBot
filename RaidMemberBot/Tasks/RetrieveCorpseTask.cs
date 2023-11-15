@@ -1,4 +1,5 @@
 ﻿using RaidMemberBot.Client;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
 using RaidMemberBot.Objects;
@@ -16,7 +17,7 @@ namespace RaidMemberBot.AI.SharedStates
         // res distance is around 36 units, so we build up a grid of 38 units 
         // in every direction, adding 1 to account for the center.
         static readonly int length = Convert.ToInt32(Math.Pow((resDistance * 2) + 1, 2.0));
-        readonly Location[] resLocs = new Location[length];
+        readonly Position[] resLocs = new Position[length];
         readonly LocalPlayer player;
 
         bool initialized;
@@ -25,7 +26,7 @@ namespace RaidMemberBot.AI.SharedStates
 
         public void Update()
         {
-            if (ObjectManager.Instance.Player.Health > 0)
+            if (ObjectManager.Player.Health > 0)
             {
                 BotTasks.Pop();
             }
@@ -35,61 +36,60 @@ namespace RaidMemberBot.AI.SharedStates
                 // corpse position is wrong immediately after releasing, so we wait for 5s.
                 //Thread.Sleep(5000);
 
-                Location resLocation = Container.Player.CorpseLocation;
+                Position resPosition = ObjectManager.Player.CorpsePosition;
 
                 IEnumerable<WoWUnit> threats = ObjectManager
-                    .Instance
                     .Units
                     .Where(u => u.Health > 0)
                     .Where(u => !u.TappedByOther)
                     .Where(u => !u.IsPet)
-                    .Where(u => u.Reaction == UnitReaction.Hostile2 || u.Reaction == UnitReaction.Hostile)
-                    .Where(u => u.Level > Container.Player.Level - 10);
+                    .Where(u => u.UnitReaction == UnitReaction.Unfriendly || u.UnitReaction == UnitReaction.Hostile)
+                    .Where(u => u.Level > ObjectManager.Player.Level - 10);
 
                 if (threats.FirstOrDefault() != null)
                 {
                     int index = 0;
-                    float currentFloatX = Container.Player.CorpseLocation.X;
-                    float currentFloatY = Container.Player.CorpseLocation.Y;
-                    float currentFloatZ = Container.Player.CorpseLocation.Z;
+                    float currentFloatX = ObjectManager.Player.CorpsePosition.X;
+                    float currentFloatY = ObjectManager.Player.CorpsePosition.Y;
+                    float currentFloatZ = ObjectManager.Player.CorpsePosition.Z;
 
                     for (int i = -resDistance; i <= resDistance; i++)
                     {
                         for (int j = -resDistance; j <= resDistance; j++)
                         {
-                            resLocs[index] = new Location(currentFloatX + i, currentFloatY + j, currentFloatZ);
+                            resLocs[index] = new Position(currentFloatX + i, currentFloatY + j, currentFloatZ);
                             index++;
                         }
                     }
 
                     float maxDistance = 0f;
 
-                    foreach (Location resLoc in resLocs)
+                    foreach (Position resLoc in resLocs)
                     {
-                        Location[] path = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.CorpseLocation, resLoc, false);
+                        Position[] path = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.CorpsePosition, resLoc, false);
                         if (path.Length == 0) continue;
-                        Location endPoint = path[path.Length - 1];
-                        float distanceToClosestThreat = endPoint.GetDistanceTo(threats.OrderBy(u => u.Location.GetDistanceTo(resLoc)).First().Location);
+                        Position endPoint = path[path.Length - 1];
+                        float distanceToClosestThreat = endPoint.DistanceTo(threats.OrderBy(u => u.Position.DistanceTo(resLoc)).First().Position);
 
-                        if (endPoint.GetDistanceTo(Container.Player.Location) < resDistance && distanceToClosestThreat > maxDistance)
+                        if (endPoint.DistanceTo(ObjectManager.Player.Position) < resDistance && distanceToClosestThreat > maxDistance)
                         {
                             maxDistance = distanceToClosestThreat;
-                            resLocation = resLoc;
+                            resPosition = resLoc;
                         }
                     }
                 }
 
                 initialized = true;
 
-                Container.CurrentWaypoint = resLocation;
+                Container.CurrentWaypoint = resPosition;
                 BotTasks.Push(new MoveToWaypointTask(Container, BotTasks));
                 return;
             }
 
             if (Wait.For("StartRetrieveCorpseStateDelay", 1000))
             {
-                if (ObjectManager.Instance.Player.InGhostForm)
-                    ObjectManager.Instance.Player.RetrieveCorpse();
+                if (ObjectManager.Player.InGhostForm)
+                    ObjectManager.Player.RetrieveCorpse();
                 else
                 {
                     if (Wait.For("LeaveRetrieveCorpseStateDelay", 2000))

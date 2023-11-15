@@ -14,22 +14,22 @@ namespace RaidMemberBot.AI.SharedStates
     {
         readonly bool isPartyLeader;
 
-        List<Location> dungeonWaypoints;
-        List<Location> majorWaypoints;
-        Dictionary<Location, List<Location>> minorWaypoints;
+        List<Position> dungeonWaypoints;
+        List<Position> majorWaypoints;
+        Dictionary<Position, List<Position>> minorWaypoints;
 
-        Location currentMajorWaypoint;
-        Location currentMinorWaypoint;
-        Location destination;
+        Position currentMajorWaypoint;
+        Position currentMinorWaypoint;
+        Position destination;
 
-        Location lastLocation;
+        Position lastPosition;
         int lastTickTime;
         int stuckDuration;
-        private bool CanProceed => ObjectManager.Instance.PartyMembers.All(x => (x.ManaPercent < 0 || x.ManaPercent > 80) && x.HealthPercent > 85);
-        private bool NeedsGuidance => Container.CurrentWaypoint.DistanceToPlayer() < 3 || !Container.Player.IsFacing(Container.CurrentWaypoint) || !Container.Player.IsMoving;
+        private bool CanProceed => ObjectManager.PartyMembers.All(x => (x.ManaPercent < 0 || x.ManaPercent > 80) && x.HealthPercent > 85);
+        private bool NeedsGuidance => Container.CurrentWaypoint.DistanceTo(ObjectManager.Player.Position) < 3 || !ObjectManager.Player.IsFacing(Container.CurrentWaypoint) || !ObjectManager.Player.IsMoving;
         public DungeoneeringTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Ordinary)
         {
-            isPartyLeader = ObjectManager.Instance.PartyLeader?.Guid == Container.Player.Guid;
+            isPartyLeader = container.State.RaidLeader == container.State.CharacterName;
 
             NavigationClient.Instance.isRaidLeader = isPartyLeader;
 
@@ -38,90 +38,84 @@ namespace RaidMemberBot.AI.SharedStates
                 CreateWaypointMap();
             }
 
-            Container.CurrentWaypoint = Container.Player.Location;
+            Container.CurrentWaypoint = ObjectManager.Player.Position;
 
             WoWEventHandler.Instance.OnUnitKilled += Instance_OnUnitKilled;
         }
 
         private void Instance_OnUnitKilled(object sender, EventArgs e)
         {
-            Console.WriteLine($"Unit Killed");
+            //Console.WriteLine($"Unit Killed");
         }
 
         public void Update()
         {
+            if (ObjectManager.Aggressors.Count > 0)
+            {
+                ObjectManager.Player.StopAllMovement();
+                BotTasks.Push(Container.CreatePvERotationTask(Container, BotTasks));
+                return;
+            }
+
             if (isPartyLeader)
             {
                 CleanupWaypoints();
-
                 // if there are hostile enemies to clear
-                if (ObjectManager.Instance.Hostiles.Count(x => Container.Player.InLosWith(x) && x.Location.DistanceToPlayer() < 25) > 0)
+                if (CanProceed)
                 {
-                    //Console.WriteLine($"DUNGEON: if there are hostile enemies to clear");
                     // if the party is ready to pull
-                    if (CanProceed)
+                    if (ObjectManager.Hostiles.Count(x => ObjectManager.Player.InLosWith(x.Position) && x.Position.DistanceTo(ObjectManager.Player.Position) < 25) > 0)
                     {
+                        ObjectManager.Player.StopAllMovement();
                         //Console.WriteLine($"DUNGEON: if the party is ready to pull");
-                        Container.HostileTarget = ObjectManager.Instance.Hostiles.Where(x => Container.Player.InLosWith(x)).OrderBy(x => x.Location.DistanceToPlayer()).First();
-                        Container.Player.SetTarget(Container.HostileTarget);
+                        Container.HostileTarget = ObjectManager.Hostiles.Where(x => ObjectManager.Player.InLosWith(x.Position)).OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x.Position, true)).First();
+                        ObjectManager.Player.SetTarget(Container.HostileTarget.Guid);
 
                         BotTasks.Push(Container.CreatePullTargetTask(Container, BotTasks));
                         return;
                     }
                     else
                     {
-                        //Console.WriteLine($"DUNGEON: hodl up");
-                        // hodl up
-                        Container.Player.StopAllMovement();
-                    }
-                }
-                else
-                {
-                    if (NeedsGuidance)
-                    {
-                        //Console.WriteLine($"DUNGEON: NeedsGuidance");
-                        // if we are near our destination?
-                        if (destination.DistanceToPlayer() < 3)
+                        if (NeedsGuidance)
                         {
-                            //Console.WriteLine($"DUNGEON: if we are near our destination?");
-                            SetNextWaypoint();
+                            //Console.WriteLine($"DUNGEON: NeedsGuidance");
+                            // if we are near our destination?
+                            if (destination.DistanceTo(ObjectManager.Player.Position) < 3)
+                            {
+                                //Console.WriteLine($"DUNGEON: if we are near our destination?");
+                                SetNextWaypoint();
+                            }
                         }
-                    }
 
-                    ApproachDestination();
+                        ApproachDestination();
+                    }
                 }
             }
             else
             {
-                if (ObjectManager.Instance.PartyLeader == null && Container.Player.MapId != 1 && Container.Player.MapId != 0)
+                if (ObjectManager.PartyLeader == null && ObjectManager.MapId != 1 && ObjectManager.MapId != 0)
                 {
-                    Location[] locations = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, new Location(), true);
+                    Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, new Position(0, 0, 0), true);
                     destination = locations[locations.Length - 1];
 
                     ApproachDestination();
                 }
-                else if (ObjectManager.Instance.PartyLeader?.Location.DistanceToPlayer() > 15)
+                else if (ObjectManager.PartyLeader?.Position.DistanceTo(ObjectManager.Player.Position) > 15)
                 {
-                    Location[] locations = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, ObjectManager.Instance.PartyLeader.Location, true);
+                    Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.PartyLeader.Position, true);
                     destination = locations[locations.Length - 1];
 
                     ApproachDestination();
                 }
                 else
                 {
-                    if (ObjectManager.Instance.Aggressors.Count > 0)
-                    {
-                        Container.Player.StopAllMovement();
-                        BotTasks.Push(Container.CreatePvERotationTask(Container, BotTasks));
-                        return;
-                    }
-                    Container.Player.StopAllMovement();
+                    ObjectManager.Player.StopAllMovement();
                 }
             }
 
             if (!CanProceed)
             {
-                Container.Player.StopAllMovement();
+                ObjectManager.Player.StopAllMovement();
                 BotTasks.Push(Container.CreateRestTask(Container, BotTasks));
             }
             BotTasks.Push(Container.CreateBuffTask(Container, BotTasks));
@@ -129,16 +123,17 @@ namespace RaidMemberBot.AI.SharedStates
 
         private void SetNextWaypoint()
         {
-            if (minorWaypoints.TryGetValue(currentMajorWaypoint, out List<Location> minorWaypointsListFinal))
+            if (minorWaypoints.TryGetValue(currentMajorWaypoint, out List<Position> minorWaypointsListFinal))
             {
                 if (minorWaypointsListFinal.Count > 0)
                 {
-                    currentMinorWaypoint = minorWaypointsListFinal.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, x, currentMajorWaypoint, true)).Reverse().First();
+                    currentMinorWaypoint = minorWaypointsListFinal.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, x, currentMajorWaypoint, true)).Reverse().First();
                     destination = currentMinorWaypoint;
                 }
                 else
                 {
-                    destination = currentMajorWaypoint;
+                    minorWaypoints.Remove(currentMajorWaypoint);
+                    SetNextWaypoint();
                 }
             }
             else
@@ -150,8 +145,8 @@ namespace RaidMemberBot.AI.SharedStates
                 }
                 else
                 {
-                    Console.WriteLine($"Job's Finished!");
-                    Container.Player.StopAllMovement();
+                    Console.WriteLine($"DUNGEONEERING TASK: Job's Finished!");
+                    ObjectManager.Player.StopAllMovement();
                     BotTasks.Pop();
                 }
             }
@@ -160,21 +155,15 @@ namespace RaidMemberBot.AI.SharedStates
         private void CleanupWaypoints()
         {
             //Console.WriteLine($"DUNGEON: CleanupWaypoints");
-            dungeonWaypoints.RemoveAll(x => Container.Player.InLosWith(x) && NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, Container.Player.Location, x, true) < 20);
+            dungeonWaypoints.RemoveAll(x => ObjectManager.Player.InLosWith(x) && NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true) < 20);
 
-            Location[] minorWaypointKeys = minorWaypoints.Keys.ToArray();
+            Position[] minorWaypointKeys = minorWaypoints.Keys.ToArray();
 
-            foreach (Location location in minorWaypointKeys)
+            foreach (Position location in minorWaypointKeys)
             {
-                if (minorWaypoints.TryGetValue(location, out List<Location> minorWaypointsList))
+                if (minorWaypoints.TryGetValue(location, out List<Position> minorWaypointsList))
                 {
-                    minorWaypointsList.RemoveAll(x => Container.Player.InLosWith(x) && NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, Container.Player.Location, x, true) < 20);
-
-                    if (Container.Player.InLosWith(location) && minorWaypointsList.Count == 0 && NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, Container.Player.Location, location, true) < 20)
-                    {
-                        majorWaypoints.Remove(location);
-                        minorWaypoints.Remove(location);
-                    }
+                    minorWaypointsList.RemoveAll(x => !dungeonWaypoints.Contains(x));
                 }
             }
         }
@@ -182,13 +171,13 @@ namespace RaidMemberBot.AI.SharedStates
         private void ApproachDestination()
         {
             //Console.WriteLine($"DUNGEON: ApproachDestination");
-            Location[] locations = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, destination, true);
+            Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, destination, true);
 
             if (locations.Length > 1)
             {
                 Container.CurrentWaypoint = locations[1];
 
-                if (lastLocation != null && Container.Player.Location.GetDistanceTo(lastLocation) <= 0.05)
+                if (lastPosition != null && ObjectManager.Player.Position.DistanceTo(lastPosition) <= 0.05)
                     stuckDuration += Environment.TickCount - lastTickTime;
 
                 if (stuckDuration >= 1000)
@@ -196,33 +185,33 @@ namespace RaidMemberBot.AI.SharedStates
                     stuckDuration = 0;
                 }
 
-                lastLocation = Container.Player.Location;
+                lastPosition = ObjectManager.Player.Position;
                 lastTickTime = Environment.TickCount;
 
-                Container.Player.MoveToward(Container.CurrentWaypoint);
+                ObjectManager.Player.MoveToward(Container.CurrentWaypoint);
             }
         }
 
         private void CreateWaypointMap()
         {
-            Console.WriteLine($"DUNGEONEERING TASK: Sorting encounter data");
-            List<Creature> encounters = DatabaseClient.Instance.GetCreaturesByMapId((int)ObjectManager.Instance.Player.MapId);
-            majorWaypoints = new List<Location>();
-            minorWaypoints = new Dictionary<Location, List<Location>>();
+            Console.WriteLine($"[DUNGEONEERING TASK] Sorting encounter data");
+            List<Creature> encounters = DatabaseClient.Instance.GetCreaturesByMapId((int)ObjectManager.MapId);
+            majorWaypoints = new List<Position>();
+            minorWaypoints = new Dictionary<Position, List<Position>>();
 
             dungeonWaypoints = GetWaypointsListFromEncounters(encounters);
 
-            destination = dungeonWaypoints.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, Container.Player.Location, x, true)).First();
+            destination = dungeonWaypoints.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true)).First();
 
             for (int i = 0; i < encounters.Count; i++)
             {
                 if (encounters.Count(x => x.Id == encounters[i].Id) == 1)
                 {
-                    majorWaypoints.Add(new Location(encounters[i].LocationX, encounters[i].LocationY, encounters[i].LocationZ));
+                    majorWaypoints.Add(new Position(encounters[i].PositionX, encounters[i].PositionY, encounters[i].PositionZ));
                 }
             }
 
-            majorWaypoints = majorWaypoints.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, destination, x, true)).ToList();
+            majorWaypoints = majorWaypoints.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, destination, x, true)).ToList();
 
             float[,] weightedMatrix = new float[majorWaypoints.Count, majorWaypoints.Count];
 
@@ -236,7 +225,7 @@ namespace RaidMemberBot.AI.SharedStates
                     }
                     else
                     {
-                        weightedMatrix[i, j] = NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, majorWaypoints[i], majorWaypoints[j], true);
+                        weightedMatrix[i, j] = NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, majorWaypoints[i], majorWaypoints[j], true);
                     }
                 }
             }
@@ -246,7 +235,7 @@ namespace RaidMemberBot.AI.SharedStates
 
             for (int i = 0; i < majorWaypoints.Count; i++)
             {
-                minorWaypoints.Add(majorWaypoints[i], new List<Location>());
+                minorWaypoints.Add(majorWaypoints[i], new List<Position>());
 
                 if (i < majorWaypoints.Count - 1)
                 {
@@ -259,16 +248,16 @@ namespace RaidMemberBot.AI.SharedStates
             {
                 if (!majorWaypoints.Contains(dungeonWaypoints[i]))
                 {
-                    if (minorWaypoints.TryGetValue(majorWaypoints.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, dungeonWaypoints[i], x, true)).First(), out List<Location> minorWaypointsList))
+                    if (minorWaypoints.TryGetValue(majorWaypoints.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, dungeonWaypoints[i], x, true)).First(), out List<Position> minorWaypointsList))
                     {
                         minorWaypointsList.Add(dungeonWaypoints[i]);
                     }
                 }
             }
 
-            foreach (KeyValuePair<Location, List<Location>> minorWaypoint in minorWaypoints)
+            foreach (KeyValuePair<Position, List<Position>> minorWaypoint in minorWaypoints)
             {
-                if (minorWaypoints.TryGetValue(minorWaypoint.Key, out List<Location> minorWaypointsList))
+                if (minorWaypoints.TryGetValue(minorWaypoint.Key, out List<Position> minorWaypointsList))
                 {
                     if (minorWaypointsList.Count < 10)
                     {
@@ -281,15 +270,15 @@ namespace RaidMemberBot.AI.SharedStates
 
             currentMajorWaypoint = majorWaypoints.First();
 
-            if (minorWaypoints.TryGetValue(currentMajorWaypoint, out List<Location> minorWaypointsListFinal))
+            if (minorWaypoints.TryGetValue(currentMajorWaypoint, out List<Position> minorWaypointsListFinal))
             {
-                currentMinorWaypoint = minorWaypointsListFinal.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, Container.Player.Location, x, true)).First();
+                currentMinorWaypoint = minorWaypointsListFinal.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true)).First();
                 destination = currentMinorWaypoint;
             }
         }
 
         // implementation of Traveling Salesman Problem
-        private List<Location> TravelingDungeonCrawler(List<Location> locations, int s)
+        private List<Position> TravelingDungeonCrawler(List<Position> locations, int s)
         {
             float[,] graph = new float[locations.Count, locations.Count];
 
@@ -303,7 +292,7 @@ namespace RaidMemberBot.AI.SharedStates
                     }
                     else
                     {
-                        graph[i, j] = NavigationClient.Instance.CalculatePathingDistance(Container.Player.MapId, locations[i], locations[j], true);
+                        graph[i, j] = NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, locations[i], locations[j], true);
                     }
                 }
             }
@@ -342,7 +331,7 @@ namespace RaidMemberBot.AI.SharedStates
 
             } while (FindNextPermutation(vertex));
 
-            List<Location> proposedPath = new List<Location>() { destination };
+            List<Position> proposedPath = new List<Position>() { destination };
             for (int i = 0; i < pathSequence.Count; i++)
             {
                 proposedPath.Add(locations[pathSequence[i]]);
@@ -430,9 +419,9 @@ namespace RaidMemberBot.AI.SharedStates
             return true;
         }
 
-        private List<Location> GetWaypointsListFromEncounters(List<Creature> encounters)
+        private List<Position> GetWaypointsListFromEncounters(List<Creature> encounters)
         {
-            List<Location> waypoints = new List<Location>();
+            List<Position> waypoints = new List<Position>();
 
             for (int i = 0; i < encounters.Count; i++)
             {
@@ -470,26 +459,26 @@ namespace RaidMemberBot.AI.SharedStates
                         {
                             Creature creature = encounters.First(x => x.Guid == packMember);
 
-                            centerX += creature.LocationX;
-                            centerY += creature.LocationY;
-                            centerZ += creature.LocationZ;
+                            centerX += creature.PositionX;
+                            centerY += creature.PositionY;
+                            centerZ += creature.PositionZ;
                         }
-                        Location centerPoint = new Location(centerX / creatureLinkMappingValues.Value.Count,
+                        Position centerPoint = new Position(centerX / creatureLinkMappingValues.Value.Count,
                                                             centerY / creatureLinkMappingValues.Value.Count,
                                                             centerZ / creatureLinkMappingValues.Value.Count);
-                        Location centerSpawnLocation = creatureLinkMappingValues.Value
+                        Position centerSpawnPosition = creatureLinkMappingValues.Value
                             .Select(x => encounters.First(u => u.Guid == x))
-                            .Select(x => new Location(x.LocationX, x.LocationY, x.LocationZ))
-                            .OrderBy(x => x.GetDistanceTo(centerPoint))
+                            .Select(x => new Position(x.PositionX, x.PositionY, x.PositionZ))
+                            .OrderBy(x => x.DistanceTo(centerPoint))
                             .First();
 
-                        waypoints.Add(centerSpawnLocation);
+                        waypoints.Add(centerSpawnPosition);
                     }
                 }
 
                 if (!isLinked)
                 {
-                    waypoints.Add(new Location(encounters[i].LocationX, encounters[i].LocationY, encounters[i].LocationZ));
+                    waypoints.Add(new Position(encounters[i].PositionX, encounters[i].PositionY, encounters[i].PositionZ));
                 }
             }
 

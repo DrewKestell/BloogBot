@@ -1,4 +1,5 @@
 ﻿using RaidMemberBot.Client;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Frames;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
@@ -22,19 +23,19 @@ namespace RaidMemberBot.AI.SharedStates
 
         public void Update()
         {
-            if (Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location) >= 5)
+            if (ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) >= 5)
             {
-                Objects.Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
-                Container.Player.MoveToward(nextWaypoint[0]);
+                Objects.Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+                ObjectManager.Player.MoveToward(nextWaypoint[0]);
             }
 
-            if (Container.HostileTarget.CanBeLooted && currentState == LootStates.Initial && Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location) < 5)
+            if (Container.HostileTarget.CanBeLooted && currentState == LootStates.Initial && ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) < 5)
             {
-                Container.Player.StopAllMovement();
+                ObjectManager.Player.StopAllMovement();
                 
                 if (Wait.For("StartLootDelay", 200))
                 {
-                    Container.HostileTarget.Interact(true);
+                    Container.HostileTarget.Interact();
                     currentState = LootStates.RightClicked;
                     return;
                 }
@@ -45,12 +46,12 @@ namespace RaidMemberBot.AI.SharedStates
             //  - loot frame is open, but we've already looted everything we want
             //  - stuck count is greater than 5 (perhaps the corpse is in an awkward position the character can't reach)
             //  - we've been in the loot state for over 10 seconds (again, perhaps the corpse is unreachable. most common example of this is when a mob dies on a cliff that we can't climb)
-            if ((currentState == LootStates.Initial && !Container.HostileTarget.CanBeLooted) || (lootFrame != null && lootIndex == lootFrame.LootCount) || stuckCount > 5 || Environment.TickCount - startTime > 10000)
+            if ((currentState == LootStates.Initial && !Container.HostileTarget.CanBeLooted) || (lootFrame != null && lootIndex == lootFrame.LootItems.Count) || stuckCount > 5 || Environment.TickCount - startTime > 10000)
             {
-                Container.Player.StopAllMovement();
+                ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
                 BotTasks.Push(new EquipBagsTask(Container, BotTasks));
-                if (Container.Player.IsSwimming)
+                if (ObjectManager.Player.IsSwimming)
                 {
 
                 }
@@ -65,18 +66,18 @@ namespace RaidMemberBot.AI.SharedStates
 
             if (currentState == LootStates.LootFrameReady && Wait.For("LootDelay", 150))
             {
-                Game.Frames.FrameObjects.LootItem itemToLoot = lootFrame.Items.ElementAt(lootIndex);
+                LootItem itemToLoot = lootFrame.LootItems.ElementAt(lootIndex);
                 ItemQuality itemQuality = (ItemQuality) itemToLoot.Info.Quality;
 
-                bool poorQualityCondition = itemToLoot.IsCoin || itemQuality == ItemQuality.Poor;
-                bool commonQualityCondition = itemToLoot.IsCoin || itemQuality == ItemQuality.Common;
-                bool uncommonQualityCondition = itemToLoot.IsCoin || itemQuality == ItemQuality.Uncommon;
+                bool poorQualityCondition = itemToLoot.IsCoins || itemQuality == ItemQuality.Poor;
+                bool commonQualityCondition = itemToLoot.IsCoins || itemQuality == ItemQuality.Common;
+                bool uncommonQualityCondition = itemToLoot.IsCoins || itemQuality == ItemQuality.Uncommon;
                 bool other = itemQuality != ItemQuality.Poor && itemQuality != ItemQuality.Common && itemQuality != ItemQuality.Uncommon;
 
                 //if (itemQuality == ItemQuality.Rare || itemQuality == ItemQuality.Epic)
-                //    DiscordClientWrapper.SendItemNotification(Container.Player.Name, itemQuality, itemToLoot.ItemId);
+                //    DiscordClientWrapper.SendItemNotification(ObjectManager.Player.Name, itemQuality, itemToLoot.ItemId);
 
-                if (itemToLoot.IsCoin || (poorQualityCondition || commonQualityCondition || uncommonQualityCondition || other))
+                if (itemToLoot.IsCoins || (poorQualityCondition || commonQualityCondition || uncommonQualityCondition || other))
                 {
                     itemToLoot.Loot();
                 }

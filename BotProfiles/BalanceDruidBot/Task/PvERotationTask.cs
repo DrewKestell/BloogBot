@@ -1,5 +1,6 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.AI.SharedStates;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
 using RaidMemberBot.Objects;
@@ -44,7 +45,7 @@ namespace BalanceDruidBot
         {
             this.container = container;
             this.botTasks = botTasks;
-            player = ObjectManager.Instance.Player;
+            player = ObjectManager.Player;
         }
 
         public void Update()
@@ -55,31 +56,31 @@ namespace BalanceDruidBot
                 {
                     backpedaling = true;
                     backpedalStartTime = Environment.TickCount;
-                    Container.Player.StartMovement(ControlBits.Back);
+                    ObjectManager.Player.StartMovement(ControlBits.Back);
                 }
 
-                Container.Player.SetTarget(target.Guid);
+                ObjectManager.Player.SetTarget(target.Guid);
                 castingEntanglingRoots = false;
             }
 
             // handle backpedaling during entangling roots
             if (Environment.TickCount - backpedalStartTime > 1500)
             {
-                Container.Player.StopMovement(ControlBits.Back);
+                ObjectManager.Player.StopMovement(ControlBits.Back);
                 backpedaling = false;
             }
             if (backpedaling)
                 return;
 
             // heal self if we're injured
-            if (Container.Player.HealthPercent < 30 && (Container.Player.Mana >= Container.Player.GetManaCost(HealingTouch) || Container.Player.Mana >= Container.Player.GetManaCost(Rejuvenation)))
+            if (ObjectManager.Player.HealthPercent < 30 && (ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(HealingTouch) || ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(Rejuvenation)))
             {
                 Wait.RemoveAll();
                 BotTasks.Push(new HealTask(Container, BotTasks));
                 return;
             }
 
-            if (ObjectManager.Instance.Aggressors.Count == 0)
+            if (ObjectManager.Aggressors.Count == 0)
             {
                 BotTasks.Pop();
                 return;
@@ -87,29 +88,29 @@ namespace BalanceDruidBot
 
             if (target == null || Container.HostileTarget.HealthPercent <= 0)
             {
-                target = ObjectManager.Instance.Aggressors[0];
+                target = ObjectManager.Aggressors[0];
             }
 
             if (Update(target, 30))
                 return;
 
             // if we get an add, root it with Entangling Roots
-            if (ObjectManager.Instance.Aggressors.Count() == 2 && secondaryTarget == null)
-                secondaryTarget = ObjectManager.Instance.Aggressors.Single(u => u.Guid != Container.HostileTarget.Guid);
+            if (ObjectManager.Aggressors.Count() == 2 && secondaryTarget == null)
+                secondaryTarget = ObjectManager.Aggressors.Single(u => u.Guid != Container.HostileTarget.Guid);
 
             if (secondaryTarget != null && !secondaryTarget.HasDebuff(EntanglingRoots))
             {
-                Container.Player.SetTarget(secondaryTarget.Guid);
+                ObjectManager.Player.SetTarget(secondaryTarget.Guid);
                 TryCastSpell(EntanglingRoots, 0, 30, !secondaryTarget.HasDebuff(EntanglingRoots), EntanglingRootsCallback);
             }
 
-            TryCastSpell(MoonkinForm, !Container.Player.HasBuff(MoonkinForm));
+            TryCastSpell(MoonkinForm, !ObjectManager.Player.HasBuff(MoonkinForm));
 
-            TryCastSpell(Innervate, Container.Player.ManaPercent < 10, castOnSelf: true);
+            TryCastSpell(Innervate, ObjectManager.Player.ManaPercent < 10, castOnSelf: true);
 
-            TryCastSpell(RemoveCurse, 0, int.MaxValue, Container.Player.IsCursed && !Container.Player.HasBuff(MoonkinForm), castOnSelf: true);
+            TryCastSpell(RemoveCurse, 0, int.MaxValue, ObjectManager.Player.IsCursed && !ObjectManager.Player.HasBuff(MoonkinForm), castOnSelf: true);
 
-            TryCastSpell(AbolishPoison, 0, int.MaxValue, Container.Player.IsPoisoned && !Container.Player.HasBuff(MoonkinForm), castOnSelf: true);
+            TryCastSpell(AbolishPoison, 0, int.MaxValue, ObjectManager.Player.IsPoisoned && !ObjectManager.Player.HasBuff(MoonkinForm), castOnSelf: true);
 
             TryCastSpell(InsectSwarm, 0, 30, !target.HasDebuff(InsectSwarm) && Container.HostileTarget.HealthPercent > 20 && !ImmuneToNatureDamage.Any(s => Container.HostileTarget.Name.Contains(s)));
 

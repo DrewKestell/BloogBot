@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using RaidMemberBot.Game.Frames;
 using RaidMemberBot.Mem.Hooks;
 using RaidMemberBot.Objects;
 using System;
@@ -236,7 +235,7 @@ namespace RaidMemberBot.Game.Statics
         internal void TriggerCtmEvent(OnCtmArgs args)
         {
 #if DEBUG
-            Console.WriteLine(args.Location);
+            Console.WriteLine(args.Position);
 #endif
             Task.Run(() => OnCtm?.Invoke(this, args));
         }
@@ -260,77 +259,45 @@ namespace RaidMemberBot.Game.Statics
         ///     Occurs when all objectives of a quest are done
         ///     Sender of type QuestLogEntry
         /// </summary>
-        public event EventHandler OnQuestComplete
-        {
-            add { QuestLog.Instance.OnQuestComplete += value; }
-            remove { QuestLog.Instance.OnQuestComplete -= value; }
-        }
+        public event EventHandler OnQuestComplete;
 
         /// <summary>
         ///     Occurs when all objectives of a quest are done
         ///     Sender of type QuestLogEntry
         /// </summary>
-        public event EventHandler OnQuestObjectiveComplete
-        {
-            add { QuestLog.Instance.OnQuestObjectiveComplete += value; }
-            remove { QuestLog.Instance.OnQuestObjectiveComplete -= value; }
-        }
+        public event EventHandler OnQuestObjectiveComplete;
 
         /// <summary>
         ///     Occurs when the QuestFrame is opened
         /// </summary>
-        public event EventHandler OnQuestFrameOpen
-        {
-            add { QuestFrame.OnQuestFrameOpen += value; }
-            remove { QuestFrame.OnQuestFrameOpen -= value; }
-        }
+        public event EventHandler OnQuestFrameOpen;
 
         /// <summary>
         ///     Occurs when the QuestFrame is closed
         /// </summary>
-        public event EventHandler OnQuestFrameClosed
-        {
-            add { QuestFrame.OnQuestFrameClosed += value; }
-            remove { QuestFrame.OnQuestFrameClosed -= value; }
-        }
+        public event EventHandler OnQuestFrameClosed;
 
         /// <summary>
         ///     Occurs when the QuestGreetingFrame is opened
         /// </summary>
-        public event EventHandler OnQuestGreetingFrameOpen
-        {
-            add { QuestGreetingFrame.OnQuestGreetingFrameOpen += value; }
-            remove { QuestGreetingFrame.OnQuestGreetingFrameOpen -= value; }
-        }
+        public event EventHandler OnQuestGreetingFrameOpen;
 
         /// <summary>
         ///     Occurs when the QUestGreetingFrame is closed
         /// </summary>
-        public event EventHandler OnQuestGreetingFrameClosed
-        {
-            add { QuestGreetingFrame.OnQuestGreetingFrameClosed += value; }
-            remove { QuestGreetingFrame.OnQuestGreetingFrameClosed -= value; }
-        }
+        public event EventHandler OnQuestGreetingFrameClosed;
 
         /// <summary>
         ///     Occurs when a quest failed
         ///     Sender of type QuestLogEntry
         /// </summary>
-        public event EventHandler OnQuestFailed
-        {
-            add { QuestLog.Instance.OnQuestFailed += value; }
-            remove { QuestLog.Instance.OnQuestFailed -= value; }
-        }
+        public event EventHandler OnQuestFailed;
 
         /// <summary>
         ///     Occurs on quest progress (required unit killed, item collected, event completed etc.)
         ///     Sender of type QuestLogEntry
         /// </summary>
-        public event EventHandler OnQuestProgress
-        {
-            add { QuestLog.Instance.OnQuestProgress += value; }
-            remove { QuestLog.Instance.OnQuestProgress -= value; }
-        }
+        public event EventHandler OnQuestProgress;
 
         /// <summary>
         ///     Occurs on opening of the mailbox
@@ -383,21 +350,17 @@ namespace RaidMemberBot.Game.Statics
             }
             else if (parEvent == "QUEST_FINISHED")
             {
-                if (QuestFrame.IsOpen)
-                    QuestFrame.Destroy();
 
-                if (QuestGreetingFrame.IsOpen)
-                    QuestGreetingFrame.Destroy();
             }
             else if (parEvent == "QUEST_PROGRESS" ||
                      parEvent == "QUEST_COMPLETE" ||
                      parEvent == "QUEST_DETAIL")
             {
-                DirectX.Instance.Execute(QuestFrame.Create, 100);
+                
             }
             else if (parEvent == "QUEST_GREETING")
             {
-                DirectX.Instance.Execute(QuestGreetingFrame.Create, 100);
+
             }
             else if (parEvent == "UNIT_LEVEL")
             {
@@ -446,7 +409,7 @@ namespace RaidMemberBot.Game.Statics
             {
                 if (InServerQueue == null) return;
                 if (parArgs.Length != 2) return;
-                if (!((string)parArgs[0]).Contains("Location in queue:")) return;
+                if (!((string)parArgs[0]).Contains("Position in queue:")) return;
                 if ((string)parArgs[1] != "Change Realm") return;
                 InServerQueue.Invoke(this, new EventArgs());
             }
@@ -668,7 +631,6 @@ namespace RaidMemberBot.Game.Statics
             }
             else if (parEvent == "MERCHANT_SHOW")
             {
-                Console.WriteLine("MERCHANT_SHOW occured");
                 MERCHANT_HANDLE(MerchantState.SHOW);
             }
             else if (parEvent == "MERCHANT_CLOSED")
@@ -711,133 +673,42 @@ namespace RaidMemberBot.Game.Statics
 
         private void TRAINER_CLOSED()
         {
-            TrainerFrame.Destroy();
             OnTrainerClosed?.Invoke(this, new EventArgs());
         }
 
         private void TAXIMAP_CLOSED()
         {
-            TaxiFrame.Destroy();
             OnTaxiClosed?.Invoke(this, new EventArgs());
         }
 
         private void GOSSIP_CLOSED()
         {
-            GossipFrame.Destroy();
             OnGossipClosed?.Invoke(this, new EventArgs());
         }
 
         private void TRAINER_SHOW()
         {
-            if (TrainerFrame.IsOpen)
-                TrainerFrame.Destroy();
-            TrainerFrame.Create();
-
             OnTrainerShow?.Invoke(this, new EventArgs());
         }
 
         private void LOOT_HANDLE(LootState parState)
         {
-            switch (parState)
-            {
-                case LootState.SHOW:
-                    Action tmpAction = () =>
-                    {
-                        thrLootUpdate = new Task(() =>
-                        {
-                            if (ObjectManager.Instance.Player.CurrentLootGuid == 0) return;
-                            if (LootFrame.IsOpen)
-                                LootFrame.Destroy();
-                            LootFrame.Create();
-                        });
-                        thrLootUpdate.ContinueWith(task =>
-                        {
-                            if (!LootFrame.IsOpen) return;
 
-                            OnLootOpened?.Invoke(this, new EventArgs());
-                        });
-                        thrLootUpdate.Start();
-                    };
-                    if (thrLootUpdate != null && thrLootUpdate.Status == TaskStatus.Running) return;
-                    ThreadSynchronizer.Instance.Invoke(tmpAction);
-                    break;
-
-                case LootState.CLOSE:
-                    LootFrame.Destroy();
-                    thrLootUpdate = null;
-                    OnLootClosed?.Invoke(this, new EventArgs());
-                    break;
-            }
         }
 
         private void TAXIMAP_OPENED()
         {
-            if (TaxiFrame.IsOpen)
-                TaxiFrame.Destroy();
-            TaxiFrame.Create();
 
-            OnTaxiShow?.Invoke(this, new EventArgs());
         }
 
         private void GOSSIP_SHOW()
         {
-            if (GossipFrame.IsOpen)
-                GossipFrame.Destroy();
-            GossipFrame.Create();
 
-            OnGossipShow?.Invoke(this, new EventArgs());
         }
 
         private void MERCHANT_HANDLE(MerchantState parState)
         {
-            Console.WriteLine("Handling merchant");
-            switch (parState)
-            {
-                case MerchantState.SHOW:
-                    if (thrMerchUpdate != null && thrMerchUpdate.Status == TaskStatus.Running)
-                    {
-                        Console.WriteLine("Task is stil running. Returning here");
-                        return;
-                    }
-                    Console.WriteLine("Creating the action");
-                    Action tmpAction = () =>
-                    {
-                        thrMerchUpdate = new Task(() =>
-                        {
-                            Console.WriteLine("Checking Vendor Guid");
-                            if (ObjectManager.Instance.Player.VendorGuid == 0)
-                            {
-                                Console.WriteLine("Vendor Guid is 0 ... returning");
-                                return;
-                            }
-                            if (MerchantFrame.IsOpen)
-                            {
-                                Console.WriteLine("Merchant frame marked as open. Destroying the old object and recreating");
-                                MerchantFrame.Destroy();
-                            }
-                            Console.WriteLine("Creating the new frame");
-                            MerchantFrame.Create();
-                        });
-                        thrMerchUpdate.ContinueWith(task =>
-                        {
-                            Console.WriteLine("Finalising merchant event");
-                            if (!MerchantFrame.IsOpen) return;
 
-                            Console.WriteLine("Invoking OnMerchantShow");
-                            OnMerchantShow?.Invoke(this, new EventArgs());
-                        });
-                        thrMerchUpdate.Start();
-                    };
-                    Console.WriteLine("Running the action from EndScene");
-                    DirectX.Instance.Execute(tmpAction, 200);
-                    break;
-
-                case MerchantState.CLOSE:
-                    MerchantFrame.Destroy();
-                    thrMerchUpdate = null;
-                    OnMerchantClosed?.Invoke(this, new EventArgs());
-                    break;
-            }
         }
 
         /// <summary>
@@ -976,13 +847,13 @@ namespace RaidMemberBot.Game.Statics
             public readonly int CtmType;
 
             /// <summary>
-            ///     The Location of the Ctm as Location
+            ///     The Position of the Ctm as Position
             /// </summary>
-            public readonly Location Location;
+            public readonly Position Position;
 
-            internal OnCtmArgs(Location position, int ctmType)
+            internal OnCtmArgs(Position position, int ctmType)
             {
-                Location = position;
+                Position = position;
                 CtmType = ctmType;
             }
         }

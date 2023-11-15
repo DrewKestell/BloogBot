@@ -3,6 +3,7 @@
 using RaidMemberBot.AI;
 using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,28 +21,28 @@ namespace BeastMasterHunterBot
 
         public void Update()
         {
-            if (ObjectManager.Instance.Hostiles.Count > 0)
+            if (ObjectManager.Hostiles.Count() > 0)
             {
-                WoWUnit potentialNewTarget = ObjectManager.Instance.Hostiles.First();
+                WoWUnit potentialNewTarget = ObjectManager.Hostiles.First();
 
                 if (potentialNewTarget != null && potentialNewTarget.Guid != Container.HostileTarget.Guid)
                 {
                     Container.HostileTarget = potentialNewTarget;
-                    Container.Player.SetTarget(potentialNewTarget);
+                    ObjectManager.Player.SetTarget(potentialNewTarget.TargetGuid);
                 }
             }
 
-            if (Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location) < 28)
+            if (ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) < 28)
             {
-                Container.Player.StopAllMovement();
-                Lua.Instance.Execute(GunLuaScript);
+                ObjectManager.Player.StopAllMovement();
+                Functions.LuaCall(GunLuaScript);
                 BotTasks.Pop();
                 BotTasks.Push(new PvERotationTask(Container, BotTasks));
                 return;
             } else
             {
-                Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
-                Container.Player.MoveToward(nextWaypoint[1]);
+                Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+                ObjectManager.Player.MoveToward(nextWaypoint[1]);
             }
         }
     }

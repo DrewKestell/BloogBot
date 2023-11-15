@@ -1,5 +1,7 @@
 ﻿using RaidMemberBot.AI;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +16,7 @@ namespace AfflictionWarlockBot
         public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
         {
-            if ((!Spellbook.Instance.IsSpellReady(DemonSkin) || Container.Player.HasBuff(DemonSkin)) && (!Spellbook.Instance.IsSpellReady(DemonArmor) || Container.Player.HasBuff(DemonArmor)))
+            if ((!ObjectManager.Player.IsSpellReady(DemonSkin) || ObjectManager.Player.HasBuff(DemonSkin)) && (!ObjectManager.Player.IsSpellReady(DemonArmor) || ObjectManager.Player.HasBuff(DemonArmor)))
             {
                 if (HasEnoughSoulShards)
                 {
@@ -25,7 +27,7 @@ namespace AfflictionWarlockBot
                     DeleteSoulShard();
             }
 
-            if (Spellbook.Instance.IsSpellReady(DemonArmor))
+            if (ObjectManager.Player.IsSpellReady(DemonArmor))
                 TryCastSpell(DemonArmor);
             else
                 TryCastSpell(DemonSkin);
@@ -33,19 +35,19 @@ namespace AfflictionWarlockBot
 
         void TryCastSpell(string name, int requiredLevel = 1)
         {
-            if (!Container.Player.GotAura(name) && Container.Player.Level >= requiredLevel && Spellbook.Instance.IsSpellReady(name))
-                Lua.Instance.Execute($"CastSpellByName('{name}')");
+            if (!ObjectManager.Player.HasBuff(name) && ObjectManager.Player.Level >= requiredLevel && ObjectManager.Player.IsSpellReady(name))
+                Functions.LuaCall($"CastSpellByName('{name}')");
         }
 
         void DeleteSoulShard()
         {
-            WoWItem ss = GetSoulShards.Last();
-            Lua.Instance.Execute($"PickupContainerItem({Inventory.Instance.GetBagId(ss.Guid)},{Inventory.Instance.GetSlotId(ss.Guid)})");
-            Lua.Instance.Execute("DeleteCursorItem()");
+            var ss = GetSoulShards.Last();
+            ObjectManager.Player.LuaCall($"PickupContainerItem({Inventory.GetBagId(ss.Guid)},{Inventory.GetSlotId(ss.Guid)})");
+            ObjectManager.Player.LuaCall("DeleteCursorItem()");
         }
 
         bool HasEnoughSoulShards => GetSoulShards.Count() <= 1;
 
-        IEnumerable<WoWItem> GetSoulShards => Inventory.Instance.GetAllItems().Where(i => i.Info.Name == "Soul Shard");
+        IEnumerable<WoWItem> GetSoulShards => Inventory.GetAllItems().Where(i => i.Info.Name == "Soul Shard");
     }
 }

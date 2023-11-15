@@ -12,14 +12,14 @@ namespace RaidMemberBot.AI.SharedStates
         readonly IDictionary<string, int> itemsToBuy;
 
         WoWUnit npc;
-        GossipFrame dialogFrame;
+        DialogFrame dialogFrame;
         MerchantFrame merchantFrame;
         
         public BuyItemsTask(IClassContainer container, Stack<IBotTask> botTasks, string npcName, IDictionary<string, int> itemsToBuy) : base(container, botTasks, TaskType.Ordinary)
         {
             this.npcName = npcName;
             this.itemsToBuy = itemsToBuy;
-            player = ObjectManager.Instance.Player;
+            player = ObjectManager.Player;
         }
 
         public void Update()

@@ -1,6 +1,7 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using static RaidMemberBot.Constants.Enums;
@@ -20,51 +21,51 @@ namespace CombatRogueBot
         {
             if (Container.HostileTarget.TappedByOther)
             {
-                Container.Player.StopAllMovement();
+                ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
                 return;
             }
 
-            float distanceToTarget = Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location);
-            if (distanceToTarget < 25 && !Container.Player.HasBuff(Stealth) && Spellbook.Instance.IsSpellReady(Garrote) && !Container.Player.IsInCombat)
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position);
+            if (distanceToTarget < 25 && !ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(Garrote) && !ObjectManager.Player.IsInCombat)
             {
-                Lua.Instance.Execute($"CastSpellByName('{Stealth}')");
+                Functions.LuaCall($"CastSpellByName('{Stealth}')");
             }
 
-            if (distanceToTarget < 15 && Spellbook.Instance.IsSpellReady(Distract) && Spellbook.Instance.IsSpellReady(Distract) && Container.HostileTarget.CreatureType != CreatureType.Totem)
+            if (distanceToTarget < 15 && ObjectManager.Player.IsSpellReady(Distract) && ObjectManager.Player.IsSpellReady(Distract) && Container.HostileTarget.CreatureType != CreatureType.Totem)
             {
-                //var delta = Container.HostileTarget.Location - Container.Player.Location;
+                //var delta = Container.HostileTarget.Position - ObjectManager.Player.Position;
                 //var normalizedVector = delta.GetNormalizedVector();
                 //var scaledVector = normalizedVector * 5;
-                //var targetLocation = Container.HostileTarget.Location + scaledVector;
+                //var targetPosition = Container.HostileTarget.Position + scaledVector;
 
-                //Container.Player.CastSpellAtPosition(Distract, targetPosition);
+                //ObjectManager.Player.CastSpellAtPosition(Distract, targetPosition);
             }
 
-            if (distanceToTarget < 3.5 && Container.Player.HasBuff(Stealth) && !Container.Player.IsInCombat && Container.HostileTarget.CreatureType != CreatureType.Totem)
+            if (distanceToTarget < 3.5 && ObjectManager.Player.HasBuff(Stealth) && !ObjectManager.Player.IsInCombat && Container.HostileTarget.CreatureType != CreatureType.Totem)
             {
-                if (Spellbook.Instance.IsSpellReady(Garrote) && Container.HostileTarget.CreatureType != CreatureType.Elemental && Container.Player.IsBehind(Container.HostileTarget))
+                if (ObjectManager.Player.IsSpellReady(Garrote) && Container.HostileTarget.CreatureType != CreatureType.Elemental && ObjectManager.Player.IsBehind(Container.HostileTarget))
                 {
-                    Lua.Instance.Execute($"CastSpellByName('{Garrote}')");
+                    Functions.LuaCall($"CastSpellByName('{Garrote}')");
                     return;
                 }
-                else if (Spellbook.Instance.IsSpellReady(CheapShot) && Container.Player.IsBehind(Container.HostileTarget))
+                else if (ObjectManager.Player.IsSpellReady(CheapShot) && ObjectManager.Player.IsBehind(Container.HostileTarget))
                 {
-                    Lua.Instance.Execute($"CastSpellByName('{CheapShot}')");
+                    Functions.LuaCall($"CastSpellByName('{CheapShot}')");
                     return;
                 }
             } 
 
             if (distanceToTarget < 3)
             {
-                Container.Player.StopAllMovement();
+                ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
                 BotTasks.Push(new PvERotationTask(Container, BotTasks));
                 return;
             }
 
-            Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
-            Container.Player.MoveToward(nextWaypoint[0]);
+            Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+            ObjectManager.Player.MoveToward(nextWaypoint[0]);
         }
     }
 }

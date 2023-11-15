@@ -1,4 +1,5 @@
 ﻿using RaidMemberBot.Constants;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Frames;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
@@ -16,10 +17,12 @@ namespace RaidMemberBot.AI.SharedStates
         State state = State.Uninitialized;
         WoWUnit npc;
 
+        DialogFrame dialogFrame;
+        MerchantFrame merchantFrame;
         public RepairEquipmentTask(IClassContainer container, Stack<IBotTask> botTasks, string npcName) : base(container, botTasks, TaskType.Ordinary)
         {
             this.npcName = npcName;
-            player = ObjectManager.Instance.Player;
+            player = ObjectManager.Player;
         }
 
         public void Update()
@@ -27,19 +30,18 @@ namespace RaidMemberBot.AI.SharedStates
             if (state == State.Uninitialized)
             {
                 npc = ObjectManager
-                    .Instance
                     .Units
                     .Single(u => u.Name == npcName);
                 state = State.Interacting;
             }
             if (state == State.Interacting)
             {
-                npc.Interact(false);
+                npc.Interact();
                 state = State.PrepMerchantFrame;
             }
             if (state == State.PrepMerchantFrame && Wait.For("PrepMerchantFrameDelay", 500))
             {
-                if (MerchantFrame.IsOpen)
+                if (merchantFrame.Ready)
                     state = State.Initialized;
                 else
                 {
@@ -48,12 +50,12 @@ namespace RaidMemberBot.AI.SharedStates
             }
             if (state == State.Initialized && Wait.For("InitializeDelay", 500))
             {
-                MerchantFrame.Instance.RepairAll();
+                merchantFrame.RepairAll();
                 state = State.CloseMerchantFrame;
             }
             if (state == State.Dialog && Wait.For("DialogFrameDelay", 500))
             {
-                GossipFrame.Instance.SelectFirstGossipOfType(Enums.GossipTypes.Vendor);
+                dialogFrame.SelectFirstGossipOfType(ObjectManager.Player, Enums.DialogType.vendor);
                 state = State.PrepMerchantFrame;
             }
             if (state == State.CloseMerchantFrame && Wait.For("BuyItemsCloseMerchantFrameStateDelay", 2000))

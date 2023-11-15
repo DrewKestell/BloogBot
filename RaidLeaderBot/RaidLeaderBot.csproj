@@ -106,9 +106,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccountUsageRegistry.cs" />
-    <Compile Include="Constants\Structs.cs" />
     <Compile Include="ActivityManager.cs" />
-    <Compile Include="Objects\Location.cs" />
     <Compile Include="Pathfinding\Navigation.cs" />
     <Compile Include="RaidActivityViewModel.cs" />
     <Compile Include="RaidMemberLauncher.cs" />

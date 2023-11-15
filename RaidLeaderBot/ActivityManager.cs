@@ -7,11 +7,13 @@ using RaidMemberBot.Models.Dto;
 using RaidMemberBot.Models;
 using System.Net;
 using System.Windows;
+using Newtonsoft.Json;
 
 namespace RaidLeaderBot
 {
     public class ActivityManager
     {
+        public object _lock = new object();
         public ActivityType Activity { get; }
         public CharacterState RaidLeader { set; get; }
         public int RaidSize { get; }
@@ -22,12 +24,14 @@ namespace RaidLeaderBot
         public readonly Dictionary<RaidMemberViewModel, CharacterState> PartyMembersToStates = new Dictionary<RaidMemberViewModel, CharacterState>();
         private readonly Dictionary<int, InstanceCommand> NextCommand = new Dictionary<int, InstanceCommand>();
 
-        public ActivityManager(int portNumber)
+        public ActivityManager(int portNumber, int mapId)
         {
             _commandSocketServer = new CommandSocketServer(portNumber, IPAddress.Parse(RaidLeaderBotSettings.Instance.ListenAddress));
             _commandSocketServer.Start();
 
             _commandSocketServer.InstanceUpdateObservable.Subscribe(OnInstanceUpdate);
+
+            MapId = mapId;
         }
         ~ActivityManager()
         {
@@ -108,62 +112,69 @@ namespace RaidLeaderBot
 
                         NextCommand[newCharacterState.ProcessId] = setActivityCommand;
                     }
-                    else if (RaidLeader == null || RaidLeader.ProcessId == 0)
+                    else if (RaidLeader == null)
                     {
-                        RaidLeader = newCharacterState;
-
-                        InstanceCommand setLeaderCommand = new InstanceCommand()
+                        if (raidMemberViewModel.RaidMemberPreset.IsMainTank && !string.IsNullOrEmpty(newCharacterState.CharacterName))
                         {
-                            CommandAction = CommandAction.SetRaidLeader,
-                            CommandParam1 = RaidLeader.CharacterName,
-                        };
+                            RaidLeader = newCharacterState;
 
-                        NextCommand[newCharacterState.ProcessId] = setLeaderCommand;
-                    }
-                    else if (RaidLeader.CharacterName != newCharacterState.RaidLeader)
-                    {
-                        InstanceCommand setLeaderCommand = new InstanceCommand()
-                        {
-                            CommandAction = CommandAction.SetRaidLeader,
-                            CommandParam1 = RaidLeader.CharacterName,
-                        };
-
-                        NextCommand[newCharacterState.ProcessId] = setLeaderCommand;
-                    }
-                    else if (RaidLeader.CharacterName != newCharacterState.CharacterName && !newCharacterState.InParty)
-                    {
-                        InstanceCommand addPartyMember = new InstanceCommand()
-                        {
-                            CommandAction = CommandAction.AddPartyMember,
-                            CommandParam1 = newCharacterState.CharacterName,
-                        };
-
-                        NextCommand[RaidLeader.ProcessId] = addPartyMember;
-                    }
-                    else if (PartyMembersToStates.All(x => x.Value.InParty))
-                    {
-                        if (PartyMembersToStates.All(x => x.Value.MapId == 0))
-                        {
-                            InstanceCommand beginDungeon = new InstanceCommand()
+                            InstanceCommand setLeaderCommand = new InstanceCommand()
                             {
-                                CommandAction = CommandAction.BeginDungeon,
+                                CommandAction = CommandAction.SetRaidLeader,
+                                CommandParam1 = RaidLeader.CharacterName,
                             };
 
-                            NextCommand[newCharacterState.ProcessId] = beginDungeon;
+                            NextCommand[newCharacterState.ProcessId] = setLeaderCommand;
                         }
-                        else
+                    }
+                    else
+                    {
+                        if (RaidLeader.CharacterName != newCharacterState.RaidLeader)
                         {
-                            if (newCharacterState.MapId != 0)
+                            InstanceCommand setLeaderCommand = new InstanceCommand()
                             {
-                                AreaTriggerTeleport areaTriggerTeleport = SqliteRepository.GetAreaTriggerTeleportById(0);
-                                InstanceCommand goToCommand = new InstanceCommand()
+                                CommandAction = CommandAction.SetRaidLeader,
+                                CommandParam1 = RaidLeader.CharacterName,
+                            };
+
+                            NextCommand[newCharacterState.ProcessId] = setLeaderCommand;
+                        }
+                        else if (RaidLeader.CharacterName != newCharacterState.CharacterName && !newCharacterState.InParty)
+                        {
+                            InstanceCommand addPartyMember = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.AddPartyMember,
+                                CommandParam1 = newCharacterState.CharacterName,
+                            };
+
+                            NextCommand[RaidLeader.ProcessId] = addPartyMember;
+                        }
+                        else if (PartyMembersToStates.All(x => x.Value.InParty))
+                        {
+                            if (PartyMembersToStates.All(x => x.Value.MapId == MapId))
+                            {
+                                InstanceCommand beginDungeon = new InstanceCommand()
                                 {
-                                    CommandAction = CommandAction.GoTo,
-                                    CommandParam1 = areaTriggerTeleport.TargetPositionX.ToString(),
-                                    CommandParam2 = areaTriggerTeleport.TargetPositionY.ToString(),
-                                    CommandParam3 = areaTriggerTeleport.TargetPositionZ.ToString(),
+                                    CommandAction = CommandAction.BeginDungeon,
                                 };
-                                NextCommand[newCharacterState.ProcessId] = goToCommand;
+
+                                NextCommand[newCharacterState.ProcessId] = beginDungeon;
+                            }
+                            else
+                            {
+                                if (newCharacterState.MapId != MapId)
+                                {
+                                    AreaTriggerTeleport areaTriggerTeleport = SqliteRepository.GetAreaTriggerTeleportByTargetMap(MapId);
+                                    InstanceCommand goToCommand = new InstanceCommand()
+                                    {
+                                        CommandAction = CommandAction.TeleTo,
+                                        CommandParam1 = areaTriggerTeleport.TargetPositionX.ToString(),
+                                        CommandParam2 = areaTriggerTeleport.TargetPositionY.ToString(),
+                                        CommandParam3 = areaTriggerTeleport.TargetPositionZ.ToString(),
+                                        CommandParam4 = MapId.ToString(),
+                                    };
+                                    NextCommand[newCharacterState.ProcessId] = goToCommand;
+                                }
                             }
                         }
                     }

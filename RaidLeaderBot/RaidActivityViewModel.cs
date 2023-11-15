@@ -20,9 +20,9 @@ namespace RaidLeaderBot
         public ObservableCollection<RaidLeaderViewModel> RaidPresetViewModels { get; set; } = new ObservableCollection<RaidLeaderViewModel>();
         public ObservableCollection<RaidMemberViewModel> RaidMemberViewModels { get; set; } = new ObservableCollection<RaidMemberViewModel>();
         public CharacterState CharacterState => RaidPresetViewModels.Count > 0 ? SelectedRaid.GetCharacterStateByRaidMemberViewModel(SelectedRaidMember) : new CharacterState();
-        public float LocationX => CharacterState.Location.X;
-        public float LocationY => CharacterState.Location.Y;
-        public float LocationZ => CharacterState.Location.Z;
+        public float PositionX => CharacterState.Position.X;
+        public float PositionY => CharacterState.Position.Y;
+        public float PositionZ => CharacterState.Position.Z;
         public float WaypointX => CharacterState.Waypoint.X;
         public float WaypointY => CharacterState.Waypoint.Y;
         public float WaypointZ => CharacterState.Waypoint.Z;
@@ -30,6 +30,7 @@ namespace RaidLeaderBot
         public List<RaidPreset> SelectedPresetRaidList => RaidLeaderBotSettings.Instance.ActivityPresets[_activityPresetIndex];
         public RaidLeaderViewModel SelectedRaid => RaidPresetViewModels[SelectedRaidIndex];
         public RaidMemberViewModel SelectedRaidMember => SelectedRaid.RaidMemberViewModels[SelectedRaidMemberIndex];
+
         Task _asyncCharacterStateRefresherTask;
         public void Initialize()
         {
@@ -59,9 +60,9 @@ namespace RaidLeaderBot
             while (true)
             {
                 OnPropertyChanged(nameof(CharacterState));
-                OnPropertyChanged(nameof(LocationX));
-                OnPropertyChanged(nameof(LocationY));
-                OnPropertyChanged(nameof(LocationZ));
+                OnPropertyChanged(nameof(PositionX));
+                OnPropertyChanged(nameof(PositionY));
+                OnPropertyChanged(nameof(PositionZ));
                 OnPropertyChanged(nameof(CanSendCommand));
 
                 await Task.Delay(100);
@@ -229,12 +230,12 @@ namespace RaidLeaderBot
 
             SelectedRaid.QueueCommandToProcess(CharacterState.ProcessId, command);
         }
-        public void CurrentLocationToDestination()
+        public void CurrentPositionToDestination()
         {
             DestinationMapId = CharacterState.MapId;
-            DestinationX = LocationX; 
-            DestinationY = LocationY; 
-            DestinationZ = LocationZ;
+            DestinationX = CharacterState.Position.X;
+            DestinationY = CharacterState.Position.Y;
+            DestinationZ = CharacterState.Position.Z;
 
             OnPropertyChanged(nameof(DestinationMapId));
             OnPropertyChanged(nameof(DestinationX));
@@ -416,7 +417,7 @@ namespace RaidLeaderBot
         public ICommand CastSpellCommand => _castSpellCommand ??= new CommandHandler(CastSpell, true);
         public ICommand UseItemCommand => _useItemCommand ??= new CommandHandler(UseItem, true);
         public ICommand ExecuteChatCommandCommand => _executeChatCommandCommand ??= new CommandHandler(ExecuteChatCommand, true);
-        public ICommand CurrentLocationToDestinationCommand => _currentLocationToDestinationCommand ??= new CommandHandler(CurrentLocationToDestination, true);
+        public ICommand CurrentPositionToDestinationCommand => _currentPositionToDestinationCommand ??= new CommandHandler(CurrentPositionToDestination, true);
 
         private ICommand _saveConfigCommand;
         private ICommand _addPresetCommand;
@@ -434,7 +435,7 @@ namespace RaidLeaderBot
         private ICommand _castSpellCommand;
         private ICommand _useItemCommand;
         private ICommand _executeChatCommandCommand;
-        private ICommand _currentLocationToDestinationCommand;
+        private ICommand _currentPositionToDestinationCommand;
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)

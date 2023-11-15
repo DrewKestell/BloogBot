@@ -1,5 +1,6 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Mem;
 using System.Collections.Generic;
 
 namespace BalanceDruidBot
@@ -14,19 +15,19 @@ namespace BalanceDruidBot
         public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
         {
-            if ((Container.Player.HasBuff(MarkOfTheWild) || !Spellbook.Instance.IsSpellReady(MarkOfTheWild)) &&
-                (Container.Player.HasBuff(Thorns) || !Spellbook.Instance.IsSpellReady(Thorns)) &&
-                (Container.Player.HasBuff(OmenOfClarity) || !Spellbook.Instance.IsSpellReady(OmenOfClarity)))
+            if ((ObjectManager.Player.HasBuff(MarkOfTheWild) || !ObjectManager.Player.IsSpellReady(MarkOfTheWild)) &&
+                (ObjectManager.Player.HasBuff(Thorns) || !ObjectManager.Player.IsSpellReady(Thorns)) &&
+                (ObjectManager.Player.HasBuff(OmenOfClarity) || !ObjectManager.Player.IsSpellReady(OmenOfClarity)))
             {
                 BotTasks.Pop();
                 return;
             }
 
-            if (!Container.Player.HasBuff(MarkOfTheWild))
+            if (!ObjectManager.Player.HasBuff(MarkOfTheWild))
             {
-                if (Container.Player.HasBuff(MoonkinForm))
+                if (ObjectManager.Player.HasBuff(MoonkinForm))
                 {
-                    Lua.Instance.Execute($"CastSpellByName('{MoonkinForm}')");
+                    Functions.LuaCall($"CastSpellByName('{MoonkinForm}')");
                 }
 
                 TryCastSpell(MarkOfTheWild);
@@ -38,8 +39,8 @@ namespace BalanceDruidBot
 
         void TryCastSpell(string name)
         {
-            if (!Container.Player.HasBuff(name) && Spellbook.Instance.IsSpellReady(name))
-                Lua.Instance.Execute($"CastSpellByName('{name}',1)");
+            if (!ObjectManager.Player.HasBuff(name) && ObjectManager.Player.IsSpellReady(name))
+                Functions.LuaCall($"CastSpellByName('{name}',1)");
         }
     }
 }

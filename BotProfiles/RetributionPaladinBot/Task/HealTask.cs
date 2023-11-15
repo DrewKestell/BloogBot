@@ -1,5 +1,6 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Mem;
 using System.Collections.Generic;
 
 namespace RetributionPaladinBot
@@ -12,19 +13,19 @@ namespace RetributionPaladinBot
 
         public void Update()
         {
-            if (Container.Player.IsCasting) return;
+            if (ObjectManager.Player.IsCasting) return;
 
-            if (Container.Player.HealthPercent > 70 || Container.Player.Mana < Container.Player.GetManaCost(HolyLight))
+            if (ObjectManager.Player.HealthPercent > 70 || ObjectManager.Player.Mana < ObjectManager.Player.GetManaCost(HolyLight))
             {
                 BotTasks.Pop();
                 return;
             }
 
-            if (Container.Player.Mana > Container.Player.GetManaCost(DivineProtection) && Spellbook.Instance.IsSpellReady(DivineProtection))
-                Lua.Instance.Execute($"CastSpellByName('{DivineProtection}')");
+            if (ObjectManager.Player.Mana > ObjectManager.Player.GetManaCost(DivineProtection) && ObjectManager.Player.IsSpellReady(DivineProtection))
+                Functions.LuaCall($"CastSpellByName('{DivineProtection}')");
 
-            if (Container.Player.Mana > Container.Player.GetManaCost(HolyLight) && Spellbook.Instance.IsSpellReady(HolyLight))
-                Lua.Instance.Execute($"CastSpellByName('{HolyLight}',1)");
+            if (ObjectManager.Player.Mana > ObjectManager.Player.GetManaCost(HolyLight) && ObjectManager.Player.IsSpellReady(HolyLight))
+                Functions.LuaCall($"CastSpellByName('{HolyLight}',1)");
         }
     }
 }

@@ -1,8 +1,10 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.AI.SharedStates;
 using RaidMemberBot.Client;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
@@ -40,18 +42,18 @@ namespace FeralDruidBot
         readonly LocalPlayer player;
         WoWUnit target;
         
-        Location targetLastLocation;
+        Position targetLastPosition;
 
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
         {
             this.botTasks = botTasks;
             this.container = container;
-            player = ObjectManager.Instance.Player;
+            player = ObjectManager.Player;
         }
 
         public void Update()
         {
-            if (ObjectManager.Instance.Aggressors.Count == 0)
+            if (ObjectManager.Aggressors.Count == 0)
             {
                 BotTasks.Pop();
                 return;
@@ -59,18 +61,18 @@ namespace FeralDruidBot
 
             if (target == null || Container.HostileTarget.HealthPercent <= 0)
             {
-                target = ObjectManager.Instance.Aggressors.First();
+                target = ObjectManager.Aggressors.First();
             }
 
             if (Update(target, 3))
                 return;
 
-            if (Container.Player.HealthPercent < 30 && Container.Player.Mana >= Container.Player.GetManaCost(HealingTouch))
+            if (ObjectManager.Player.HealthPercent < 30 && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(HealingTouch))
             {
-                if (Container.Player.CurrentShapeshiftForm == BearForm && Wait.For("BearFormDelay", 1000, true))
+                if (ObjectManager.Player.CurrentShapeshiftForm == BearForm && Wait.For("BearFormDelay", 1000, true))
                     CastSpell(BearForm);
 
-                if (Container.Player.CurrentShapeshiftForm == CatForm && Wait.For("CatFormDelay", 1000, true))
+                if (ObjectManager.Player.CurrentShapeshiftForm == CatForm && Wait.For("CatFormDelay", 1000, true))
                     CastSpell(CatForm);
 
                 Wait.RemoveAll();
@@ -80,7 +82,7 @@ namespace FeralDruidBot
 
             if (target.TappedByOther)
             {
-                Container.Player.StopAllMovement();
+                ObjectManager.Player.StopAllMovement();
                 Wait.RemoveAll();
                 BotTasks.Pop();
                 return;
@@ -92,7 +94,7 @@ namespace FeralDruidBot
 
                 if (Wait.For(waitKey, 1500))
                 {
-                    Container.Player.StopAllMovement();
+                    ObjectManager.Player.StopAllMovement();
                     BotTasks.Pop();
                     BotTasks.Push(new LootTask(Container, BotTasks));
                     Wait.Remove(waitKey);
@@ -101,68 +103,68 @@ namespace FeralDruidBot
                 return;
             }
 
-            if (Container.Player.TargetGuid == Container.Player.Guid)
-                Container.Player.SetTarget(target.Guid);
+            if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
+                ObjectManager.Player.SetTarget(target.Guid);
 
             // ensure we're facing the target
-            if (!Container.Player.IsFacing(target.Location)) Container.Player.Face(target.Location);
+            if (!ObjectManager.Player.IsFacing(target.Position)) ObjectManager.Player.Face(target.Position);
 
             // ensure auto-attack is turned on
-            Lua.Instance.Execute(AutoAttackLuaScript);
+            Functions.LuaCall(AutoAttackLuaScript);
 
             // if less than level 13, use spellcasting
-            if (Container.Player.Level <= 12)
+            if (ObjectManager.Player.Level <= 12)
             {
                 // if low on mana, move into melee range
-                if (Container.Player.ManaPercent < 20 && Container.Player.Location.GetDistanceTo(target.Location) > 5)
+                if (ObjectManager.Player.ManaPercent < 20 && ObjectManager.Player.Position.DistanceTo(target.Position) > 5)
                 {
-                    Container.Player.MoveToward(target.Location);
+                    ObjectManager.Player.MoveToward(target.Position);
                     return;
                 }
-                else Container.Player.StopAllMovement();
+                else ObjectManager.Player.StopAllMovement();
 
                 TryCastSpell(Moonfire, 0, 10, !target.HasDebuff(Moonfire));
 
                 TryCastSpell(Wrath, 10, 30);
             }
             // bear form
-            else if (Container.Player.Level > 12 && Container.Player.Level < 20)
+            else if (ObjectManager.Player.Level > 12 && ObjectManager.Player.Level < 20)
             {
                 // ensure we're in melee range
-                if ((Container.Player.Location.GetDistanceTo(target.Location) > 3 && Container.Player.CurrentShapeshiftForm == BearForm && Container.HostileTarget.IsInCombat && !TargetMovingTowardPlayer) || (!target.IsInCombat && Container.Player.IsCasting))
+                if ((ObjectManager.Player.Position.DistanceTo(target.Position) > 3 && ObjectManager.Player.CurrentShapeshiftForm == BearForm && Container.HostileTarget.IsInCombat && !TargetMovingTowardPlayer) || (!target.IsInCombat && ObjectManager.Player.IsCasting))
                 {
-                    Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
-                    Container.Player.MoveToward(nextWaypoint[0]);
+                    Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+                    ObjectManager.Player.MoveToward(nextWaypoint[0]);
                 }
                 else
-                    Container.Player.StopAllMovement();
+                    ObjectManager.Player.StopAllMovement();
 
-                TryCastSpell(BearForm, 0, 50, Container.Player.CurrentShapeshiftForm != BearForm && Wait.For("BearFormDelay", 1000, true));
+                TryCastSpell(BearForm, 0, 50, ObjectManager.Player.CurrentShapeshiftForm != BearForm && Wait.For("BearFormDelay", 1000, true));
 
-                if (ObjectManager.Instance.Aggressors.Count() > 1)
+                if (ObjectManager.Aggressors.Count() > 1)
                 {
-                    TryUseBearAbility(DemoralizingRoar, 10, !target.HasDebuff(DemoralizingRoar) && Container.Player.CurrentShapeshiftForm == BearForm);
+                    TryUseBearAbility(DemoralizingRoar, 10, !target.HasDebuff(DemoralizingRoar) && ObjectManager.Player.CurrentShapeshiftForm == BearForm);
                 }
 
-                TryUseBearAbility(Enrage, condition: Container.Player.CurrentShapeshiftForm == BearForm);
+                TryUseBearAbility(Enrage, condition: ObjectManager.Player.CurrentShapeshiftForm == BearForm);
 
-                TryUseBearAbility(Maul, Math.Max(15 - (Container.Player.Level - 9), 10), Container.Player.CurrentShapeshiftForm == BearForm);
+                TryUseBearAbility(Maul, Math.Max(15 - (ObjectManager.Player.Level - 9), 10), ObjectManager.Player.CurrentShapeshiftForm == BearForm);
             }
             // cat form
-            else if (Container.Player.Level >= 20)
+            else if (ObjectManager.Player.Level >= 20)
             {
                 // ensure we're in melee range
-                if ((Container.Player.Location.GetDistanceTo(target.Location) > 3 && Container.Player.CurrentShapeshiftForm == CatForm && Container.HostileTarget.IsInCombat && !TargetMovingTowardPlayer) || (!target.IsInCombat && Container.Player.IsCasting))
+                if ((ObjectManager.Player.Position.DistanceTo(target.Position) > 3 && ObjectManager.Player.CurrentShapeshiftForm == CatForm && Container.HostileTarget.IsInCombat && !TargetMovingTowardPlayer) || (!target.IsInCombat && ObjectManager.Player.IsCasting))
                 {
-                    Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
-                    Container.Player.MoveToward(nextWaypoint[0]);
+                    Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+                    ObjectManager.Player.MoveToward(nextWaypoint[0]);
                 }
                 else
-                    Container.Player.StopAllMovement();
+                    ObjectManager.Player.StopAllMovement();
 
-                TryCastSpell(CatForm, 0, 50, Container.Player.CurrentShapeshiftForm != CatForm);
+                TryCastSpell(CatForm, 0, 50, ObjectManager.Player.CurrentShapeshiftForm != CatForm);
 
-                TryUseCatAbility(TigersFury, 30, condition: Container.HostileTarget.HealthPercent > 30 && !Container.Player.HasBuff(TigersFury));
+                TryUseCatAbility(TigersFury, 30, condition: Container.HostileTarget.HealthPercent > 30 && !ObjectManager.Player.HasBuff(TigersFury));
 
                 TryUseCatAbility(Rake, 35, condition: Container.HostileTarget.HealthPercent > 50 && !target.HasDebuff(Rake));
 
@@ -171,40 +173,40 @@ namespace FeralDruidBot
                 //TryUseCatAbility(Rip, 30, true, (target.HealthPercent < 70 && !target.HasDebuff(Rip)));
             }
 
-            targetLastLocation = Container.HostileTarget.Location;
+            targetLastPosition = Container.HostileTarget.Position;
         }
 
         void TryUseBearAbility(string name, int requiredRage = 0, bool condition = true, Action callback = null)
         {
-            if (Spellbook.Instance.IsSpellReady(name) && Container.Player.Rage >= requiredRage && !Container.Player.IsStunned && Container.Player.CurrentShapeshiftForm == BearForm && condition)
+            if (ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.Rage >= requiredRage && !ObjectManager.Player.IsStunned && ObjectManager.Player.CurrentShapeshiftForm == BearForm && condition)
             {
-                Lua.Instance.Execute($"CastSpellByName(\"{name}\")");
+                Functions.LuaCall($"CastSpellByName(\"{name}\")");
                 callback?.Invoke();
             }
         }
 
         void TryUseCatAbility(string name, int requiredEnergy = 0, bool requiresComboPoints = false, bool condition = true, Action callback = null)
         {
-            if (Spellbook.Instance.IsSpellReady(name) && Container.Player.Energy >= requiredEnergy && (!requiresComboPoints || Container.Player.ComboPoints > 0) && !Container.Player.IsStunned && Container.Player.CurrentShapeshiftForm == CatForm && condition)
+            if (ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.Energy >= requiredEnergy && (!requiresComboPoints || ObjectManager.Player.ComboPoints > 0) && !ObjectManager.Player.IsStunned && ObjectManager.Player.CurrentShapeshiftForm == CatForm && condition)
             {
-                Lua.Instance.Execute($"CastSpellByName(\"{name}\")");
+                Functions.LuaCall($"CastSpellByName(\"{name}\")");
                 callback?.Invoke();
             }
         }
 
         void CastSpell(string name)
         {
-            if (Spellbook.Instance.IsSpellReady(name) && !Container.Player.IsCasting)
-                Lua.Instance.Execute($"CastSpellByName(\"{name}\")");
+            if (ObjectManager.Player.IsSpellReady(name) && !ObjectManager.Player.IsCasting)
+                Functions.LuaCall($"CastSpellByName(\"{name}\")");
         }
 
         void TryCastSpell(string name, int minRange, int maxRange, bool condition = true, Action callback = null)
         {
-            float distanceToTarget = Container.Player.Location.GetDistanceTo(target.Location);
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(target.Position);
 
-            if (Spellbook.Instance.IsSpellReady(name) && Container.Player.Mana >= Container.Player.GetManaCost(name) && distanceToTarget >= minRange && distanceToTarget <= maxRange && condition && !Container.Player.IsStunned && Container.Player.IsCasting && Container.Player.Channeling == 0)
+            if (ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(name) && distanceToTarget >= minRange && distanceToTarget <= maxRange && condition && !ObjectManager.Player.IsStunned && ObjectManager.Player.IsCasting && ObjectManager.Player.ChannelingId == 0)
             {
-                Lua.Instance.Execute($"CastSpellByName(\"{name}\")");
+                Functions.LuaCall($"CastSpellByName(\"{name}\")");
                 callback?.Invoke();
             }
         }

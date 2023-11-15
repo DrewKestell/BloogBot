@@ -1,4 +1,5 @@
-﻿using RaidMemberBot.Game.Frames;
+﻿using RaidMemberBot.Game;
+using RaidMemberBot.Game.Frames;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
 using RaidMemberBot.Models;
@@ -15,20 +16,18 @@ namespace RaidMemberBot.AI.SharedStates
         readonly IEnumerable<WoWItem> itemsToSell;
 
         State state = State.Uninitialized;
-        Location npcLocation;
+        Position npcPosition;
         WoWUnit npc;
-        GossipFrame dialogFrame;
+        DialogFrame dialogFrame;
         MerchantFrame merchantFrame;
         int itemIndex;
 
         public SellItemsTask(IClassContainer container, Stack<IBotTask> botTasks, Creature vendorNpc) : base(container, botTasks, TaskType.Ordinary)
         {
-            npcLocation = new Location(vendorNpc.LocationX, vendorNpc.LocationY, vendorNpc.LocationZ);
-            player = ObjectManager.Instance.Player;
+            npcPosition = new Position(vendorNpc.PositionX, vendorNpc.PositionY, vendorNpc.PositionZ);
+            player = ObjectManager.Player;
 
-            itemsToSell = Inventory
-                .Instance
-                .GetAllItems()
+            ObjectManager.Items
                 .Where(i =>
                     (i.Info.Name != "Hearthstone") 
                     //&&
@@ -39,28 +38,27 @@ namespace RaidMemberBot.AI.SharedStates
 
         public void Update()
         {
-            if (npcLocation.GetDistanceTo(Container.Player.Location) > 5)
+            if (npcPosition.DistanceTo(ObjectManager.Player.Position) > 5)
             {
-                Container.CurrentWaypoint = npcLocation;
+                Container.CurrentWaypoint = npcPosition;
                 BotTasks.Push(new MoveToWaypointTask(Container, BotTasks));
                 return;
             }
             if (state == State.Uninitialized)
             {
                 npc = ObjectManager
-                    .Instance
                     .Units
                     .Single(u => u.Name == npcName);
                 state = State.Interacting;
             }
             if (state == State.Interacting)
             {
-                npc.Interact(false);
+                npc.Interact();
                 state = State.PrepMerchantFrame;
             }
             if (state == State.PrepMerchantFrame && Wait.For("PrepMerchantFrameDelay", 500))
             {
-                if (MerchantFrame.IsOpen)
+                if (merchantFrame.Ready)
                     state = State.Initialized;
                 else
                 {
@@ -76,7 +74,7 @@ namespace RaidMemberBot.AI.SharedStates
                 if (Wait.For("SellItemDelay", 200))
                 {
                     WoWItem itemToSell = itemsToSell.ElementAt(itemIndex);
-                    MerchantFrame.Instance.VendorByGuid(itemToSell.Guid);
+                    merchantFrame.SellItemByGuid(1, npc.Guid,  itemToSell.Guid);
 
                     itemIndex++;
 
@@ -88,7 +86,7 @@ namespace RaidMemberBot.AI.SharedStates
             }
             if (state == State.Dialog && Wait.For("DialogFrameDelay", 500))
             {
-                GossipFrame.Instance.SelectFirstGossipOfType(Constants.Enums.GossipTypes.Vendor);
+                dialogFrame.SelectFirstGossipOfType(ObjectManager.Player, Constants.Enums.DialogType.vendor);
                 state = State.PrepMerchantFrame;
             }
             if (state == State.CloseMerchantFrame && Wait.For("BuyItemsCloseMerchantFrameStateDelay", 2000))

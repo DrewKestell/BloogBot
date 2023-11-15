@@ -1,5 +1,6 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Mem;
 using System.Collections.Generic;
 
 namespace AfflictionWarlockBot
@@ -13,20 +14,20 @@ namespace AfflictionWarlockBot
 
         public void Update()
         {
-            if (Container.Player.IsCasting)
+            if (ObjectManager.Player.IsCasting)
                 return;
             
-            if ((!Spellbook.Instance.IsSpellReady(SummonImp) && !Spellbook.Instance.IsSpellReady(SummonVoidwalker)) || ObjectManager.Instance.Pet != null)
+            if ((!ObjectManager.Player.IsSpellReady(SummonImp) && !ObjectManager.Player.IsSpellReady(SummonVoidwalker)) || ObjectManager.Pet != null)
             {
                 BotTasks.Pop();
                 BotTasks.Push(new BuffTask(Container, BotTasks));
                 return;
             }
 
-            if (Spellbook.Instance.IsSpellReady(SummonImp))
-                Lua.Instance.Execute($"CastSpellByName('{SummonImp}')");
+            if (ObjectManager.Player.IsSpellReady(SummonImp))
+                Functions.LuaCall($"CastSpellByName('{SummonImp}')");
             else
-                Lua.Instance.Execute($"CastSpellByName('{SummonVoidwalker}')");
+                Functions.LuaCall($"CastSpellByName('{SummonVoidwalker}')");
         }
     }
 }

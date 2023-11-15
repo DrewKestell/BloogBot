@@ -1,0 +1,48 @@
+﻿using RaidMemberBot.Mem;
+using RaidMemberBot.Objects;
+using System;
+using System.Collections.Generic;
+using static RaidMemberBot.Constants.Enums;
+
+namespace RaidMemberBot.Game.Frames
+{
+    public class DialogFrame
+    {
+        public DialogFrame()
+        {
+            var currentItem = (IntPtr)0xBBBE90;
+            while ((int)currentItem < 0xBC3F50)
+            {
+                if (MemoryManager.ReadInt((currentItem + 0x800)) == -1) break;
+                var optionType = MemoryManager.ReadInt((currentItem + 0x808));
+
+                DialogOptions.Add(new DialogOption((DialogType)optionType));
+                currentItem = IntPtr.Add(currentItem, 0x80C);
+            }
+        }
+
+        public IList<DialogOption> DialogOptions { get; } = new List<DialogOption>();
+
+        public void CloseDialogFrame(WoWPlayer player) => player.LuaCall("CloseGossip()");
+
+        public void SelectFirstGossipOfType(WoWPlayer player, DialogType type)
+        {
+            for (var i = 0; i < DialogOptions.Count; i++)
+            {
+                if (DialogOptions[i].Type != type) continue;
+                player.LuaCall("SelectGossipOption(" + (i + 1) + ")");
+                return;
+            }
+        }
+    }
+
+    public class DialogOption
+    {
+        internal DialogOption(DialogType type)
+        {
+            Type = type;
+        }
+
+        public DialogType Type { get; }
+    }
+}

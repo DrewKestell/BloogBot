@@ -1,5 +1,6 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.AI.SharedStates;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
@@ -45,12 +46,12 @@ namespace ArmsWarriorBot
         {
             this.botTasks = botTasks;
             this.container = container;
-            player = ObjectManager.Instance.Player;
+            player = ObjectManager.Player;
         }
 
         public void Update()
         {
-            if (ObjectManager.Instance.Aggressors.Count == 0)
+            if (ObjectManager.Aggressors.Count == 0)
             {
                 BotTasks.Pop();
                 return;
@@ -58,7 +59,7 @@ namespace ArmsWarriorBot
 
             if (target == null || Container.HostileTarget.HealthPercent <= 0)
             {
-                target = ObjectManager.Instance.Aggressors.First();
+                target = ObjectManager.Aggressors.First();
             }
 
             if (Update(target, 3))
@@ -69,50 +70,50 @@ namespace ArmsWarriorBot
 
             TryUseAbilityById(BloodFury, 4, condition: Container.HostileTarget.HealthPercent > 80);
 
-            TryUseAbility(Overpower, 5, Container.Player.CanOverpower);
+            //TryUseAbility(Overpower, 5, ObjectManager.Player.Ca);
 
             TryUseAbility(Execute, 15, Container.HostileTarget.HealthPercent < 20);
 
             // Use these abilities if you are fighting exactly one mob.
-            if (ObjectManager.Instance.Aggressors.Count() == 1)
+            if (ObjectManager.Aggressors.Count() == 1)
             {
                 TryUseAbility(Hamstring, 10, (target.Name.Contains("Plainstrider") || Container.HostileTarget.CreatureType == CreatureType.Humanoid) && Container.HostileTarget.HealthPercent < 30 && !target.HasDebuff(Hamstring));
 
-                TryUseAbility(BattleShout, 10, !Container.Player.HasBuff(BattleShout));
+                TryUseAbility(BattleShout, 10, !ObjectManager.Player.HasBuff(BattleShout));
 
                 TryUseAbility(Rend, 10, Container.HostileTarget.HealthPercent > 50 && !target.HasDebuff(Rend) && Container.HostileTarget.CreatureType != CreatureType.Elemental && Container.HostileTarget.CreatureType != CreatureType.Undead);
 
-                SpellEffect sunderDebuff = Container.HostileTarget.GetDebuffs().FirstOrDefault(f => f.Icon == SunderArmorIcon);
-                TryUseAbility(SunderArmor, 15, (sunderDebuff == null || sunderDebuff.StackCount < 5) && Container.HostileTarget.Level >= Container.Player.Level - 2 && Container.HostileTarget.Health > 40 && SunderTargets.Any(s => Container.HostileTarget.Name.Contains(s)));
+                SpellEffect sunderDebuff = Container.HostileTarget.GetDebuffs(LuaTarget.Target).FirstOrDefault(f => f.Icon == SunderArmorIcon);
+                TryUseAbility(SunderArmor, 15, (sunderDebuff == null || sunderDebuff.StackCount < 5) && Container.HostileTarget.Level >= ObjectManager.Player.Level - 2 && Container.HostileTarget.Health > 40 && SunderTargets.Any(s => Container.HostileTarget.Name.Contains(s)));
 
                 TryUseAbility(MortalStrike, 30);
 
-                TryUseAbility(HeroicStrike, Container.Player.Level < 30 ? 15 : 45, Container.HostileTarget.HealthPercent > 30);
+                TryUseAbility(HeroicStrike, ObjectManager.Player.Level < 30 ? 15 : 45, Container.HostileTarget.HealthPercent > 30);
             }
 
             // Use these abilities if you are fighting TWO OR MORE mobs at once.
-            if (ObjectManager.Instance.Aggressors.Count() >= 2)
+            if (ObjectManager.Aggressors.Count() >= 2)
             {
-                TryUseAbility(IntimidatingShout, 25, !(target.HasDebuff(IntimidatingShout) || Container.Player.HasBuff(Retaliation)) && ObjectManager.Instance.Aggressors.All(a => a.Location.GetDistanceTo(Container.Player.Location) < 10) && !ObjectManager.Instance.Units.Any(u => u.Guid != Container.HostileTarget.Guid && u.Location.GetDistanceTo(Container.Player.Location) < 10 && u.Reaction == UnitReaction.Neutral));
+                TryUseAbility(IntimidatingShout, 25, !(target.HasDebuff(IntimidatingShout) || ObjectManager.Player.HasBuff(Retaliation)) && ObjectManager.Aggressors.All(a => a.Position.DistanceTo(ObjectManager.Player.Position) < 10) && !ObjectManager.Units.Any(u => u.Guid != Container.HostileTarget.Guid && u.Position.DistanceTo(ObjectManager.Player.Position) < 10 && u.UnitReaction == UnitReaction.Neutral));
 
-                TryUseAbility(Retaliation, 0, Spellbook.Instance.IsSpellReady(Retaliation) && ObjectManager.Instance.Aggressors.All(a => a.Location.GetDistanceTo(Container.Player.Location) < 10) && !ObjectManager.Instance.Aggressors.Any(a => a.HasDebuff(IntimidatingShout)));
+                TryUseAbility(Retaliation, 0, ObjectManager.Player.IsSpellReady(Retaliation) && ObjectManager.Aggressors.All(a => a.Position.DistanceTo(ObjectManager.Player.Position) < 10) && !ObjectManager.Aggressors.Any(a => a.HasDebuff(IntimidatingShout)));
 
-                TryUseAbility(DemoralizingShout, 10, ObjectManager.Instance.Aggressors.Any(a => !a.HasDebuff(DemoralizingShout) && a.HealthPercent > 50) && ObjectManager.Instance.Aggressors.All(a => a.Location.GetDistanceTo(Container.Player.Location) < 10) && (!Spellbook.Instance.IsSpellReady(IntimidatingShout) || Container.Player.HasBuff(Retaliation)) && !ObjectManager.Instance.Units.Any(u => (u.Guid != Container.HostileTarget.Guid && u.Location.GetDistanceTo(Container.Player.Location) < 10 && u.Reaction == UnitReaction.Neutral) || u.HasDebuff(IntimidatingShout)));
+                TryUseAbility(DemoralizingShout, 10, ObjectManager.Aggressors.Any(a => !a.HasDebuff(DemoralizingShout) && a.HealthPercent > 50) && ObjectManager.Aggressors.All(a => a.Position.DistanceTo(ObjectManager.Player.Position) < 10) && (!ObjectManager.Player.IsSpellReady(IntimidatingShout) || ObjectManager.Player.HasBuff(Retaliation)) && !ObjectManager.Units.Any(u => (u.Guid != Container.HostileTarget.Guid && u.Position.DistanceTo(ObjectManager.Player.Position) < 10 && u.UnitReaction == UnitReaction.Neutral) || u.HasDebuff(IntimidatingShout)));
 
-                TryUseAbility(ThunderClap, 20, ObjectManager.Instance.Aggressors.Any(a => !a.HasDebuff(ThunderClap) && a.HealthPercent > 50) && ObjectManager.Instance.Aggressors.All(a => a.Location.GetDistanceTo(Container.Player.Location) < 8) && (!Spellbook.Instance.IsSpellReady(IntimidatingShout) || Container.Player.HasBuff(Retaliation)) && !ObjectManager.Instance.Units.Any(u => (u.Guid != Container.HostileTarget.Guid && u.Location.GetDistanceTo(Container.Player.Location) < 8 && u.Reaction == UnitReaction.Neutral) || u.HasDebuff(IntimidatingShout)));
+                TryUseAbility(ThunderClap, 20, ObjectManager.Aggressors.Any(a => !a.HasDebuff(ThunderClap) && a.HealthPercent > 50) && ObjectManager.Aggressors.All(a => a.Position.DistanceTo(ObjectManager.Player.Position) < 8) && (!ObjectManager.Player.IsSpellReady(IntimidatingShout) || ObjectManager.Player.HasBuff(Retaliation)) && !ObjectManager.Units.Any(u => (u.Guid != Container.HostileTarget.Guid && u.Position.DistanceTo(ObjectManager.Player.Position) < 8 && u.UnitReaction == UnitReaction.Neutral) || u.HasDebuff(IntimidatingShout)));
 
-                TryUseAbility(SweepingStrikes, 30, !Container.Player.HasBuff(SweepingStrikes) && Container.HostileTarget.HealthPercent > 30);
+                TryUseAbility(SweepingStrikes, 30, !ObjectManager.Player.HasBuff(SweepingStrikes) && Container.HostileTarget.HealthPercent > 30);
 
-                bool thunderClapCondition = Container.HostileTarget.HasDebuff(ThunderClap) || !Spellbook.Instance.IsSpellReady(ThunderClap) || Container.HostileTarget.HealthPercent < 50;
-                bool demoShoutCondition = Container.HostileTarget.HasDebuff(DemoralizingShout) || !Spellbook.Instance.IsSpellReady(DemoralizingShout) || Container.HostileTarget.HealthPercent < 50;
-                bool sweepingStrikesCondition = Container.Player.HasBuff(SweepingStrikes) || !Spellbook.Instance.IsSpellReady(SweepingStrikes);
+                bool thunderClapCondition = Container.HostileTarget.HasDebuff(ThunderClap) || !ObjectManager.Player.IsSpellReady(ThunderClap) || Container.HostileTarget.HealthPercent < 50;
+                bool demoShoutCondition = Container.HostileTarget.HasDebuff(DemoralizingShout) || !ObjectManager.Player.IsSpellReady(DemoralizingShout) || Container.HostileTarget.HealthPercent < 50;
+                bool sweepingStrikesCondition = ObjectManager.Player.HasBuff(SweepingStrikes) || !ObjectManager.Player.IsSpellReady(SweepingStrikes);
                 if (thunderClapCondition && demoShoutCondition && sweepingStrikesCondition)
                 {
                     TryUseAbility(Rend, 10, Container.HostileTarget.HealthPercent > 50 && !target.HasDebuff(Rend) && Container.HostileTarget.CreatureType != CreatureType.Elemental && Container.HostileTarget.CreatureType != CreatureType.Undead);
 
                     TryUseAbility(MortalStrike, 30);
 
-                    TryUseAbility(HeroicStrike, Container.Player.Level < 30 ? 15 : 45, Container.HostileTarget.HealthPercent > 30);
+                    TryUseAbility(HeroicStrike, ObjectManager.Player.Level < 30 ? 15 : 45, Container.HostileTarget.HealthPercent > 30);
                 }
             }
         }

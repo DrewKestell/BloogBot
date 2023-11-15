@@ -12,7 +12,7 @@ namespace RaidMemberBot.AI.SharedStates
 
         public void Update()
         {
-            if (ObjectManager.Instance.Player.IsInCombat)
+            if (ObjectManager.Player.IsInCombat)
             {
                 BotTasks.Pop();
                 return;
@@ -24,7 +24,7 @@ namespace RaidMemberBot.AI.SharedStates
             //        .GetAllItems()
             //        .FirstOrDefault(i => i.Info.ItemClass == ItemClass.Bag);
 
-            //if (newBag == null || Inventory.Instance.EmptyBagSlots == 0)
+            //if (newBag == null || Inventory.EmptyBagSlots == 0)
             //{
             //    BotTasks.Pop();
             //    BotTasks.Push(new EquipArmorTask(Container, BotTasks));
@@ -40,7 +40,7 @@ namespace RaidMemberBot.AI.SharedStates
             //    return;
             //}
 
-            //Lua.Instance.Execute($"UseContainerItem({bagId}, {slotId})");
+            //Functions.LuaCall($"UseContainerItem({bagId}, {slotId})");
             newBag = null;
         }
     }

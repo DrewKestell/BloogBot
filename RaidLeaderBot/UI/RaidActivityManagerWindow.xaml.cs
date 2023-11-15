@@ -1,4 +1,5 @@
 using RaidLeaderBot.Pathfinding;
+using RaidMemberBot.Objects;
 using System;
 using System.ComponentModel;
 using System.Windows;
@@ -20,7 +21,7 @@ namespace RaidLeaderBot
             _raidActivityPresetViewModel.Initialize();
 
             Console.Write($"RAIDLEADER: Loading navigation tiles...");
-            Navigation.Instance.CalculatePath(1, new Objects.Location(), new Objects.Location(), true);
+            Navigation.Instance.CalculatePath(1, new Position(0,0,0), new Position(0, 0, 0), true);
             Console.WriteLine($" Loaded.");
         }        
 

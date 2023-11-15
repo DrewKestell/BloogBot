@@ -9,8 +9,7 @@ namespace RaidMemberBot.AI
     {
         public string Name { get; }
         public CharacterState State { get; }
-        public LocalPlayer Player { get; }
-        public Location CurrentWaypoint { get; set; }
+        public Position CurrentWaypoint { get; set; }
         public WoWUnit HostileTarget { get; set; }
         public WoWUnit FriendlyTarget { get; set; }
         Func<IClassContainer, Stack<IBotTask>, IBotTask> CreateRestTask { get; }

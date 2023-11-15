@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
-using RaidLeaderBot.Objects;
 using RaidLeaderBot.Pathfinding;
 using RaidMemberBot.Models.Dto;
+using RaidMemberBot.Objects;
 using System;
 using System.Linq;
 using System.Net;
@@ -13,26 +13,26 @@ namespace RaidLeaderBot
 {
     public class NavigationSocketServer : BaseSocketServer
     {
-        private Location _lastKnownPlayerLoc = new Location();
+        private Position _lastKnownPlayerLoc = new Position(0, 0, 0);
 
         public NavigationSocketServer(int port, IPAddress ipAddress) : base(port, ipAddress)
         {
-            Console.WriteLine($"NAVIGATION SERVER:Port {port}");
+            Console.WriteLine($"[NAVIGATION SERVER]Port {port}");
         }
 
         public override int HandleRequest(string payload, Socket clientSocket)
         {
             PathfindingRequest request = JsonConvert.DeserializeObject<PathfindingRequest>(payload);
 
-            Location startLocation = new Location(request.StartLocation.X, request.StartLocation.Y, request.StartLocation.Z);
-            Location endLocation = new Location(request.EndLocation.X, request.EndLocation.Y, request.EndLocation.Z);
+            Position startPosition = new Position(request.StartPosition.X, request.StartPosition.Y, request.StartPosition.Z);
+            Position endPosition = new Position(request.EndPosition.X, request.EndPosition.Y, request.EndPosition.Z);
 
-            if (endLocation.X == 0 && endLocation.Y == 0 && endLocation.Z == 0)
+            if (endPosition.X == 0 && endPosition.Y == 0 && endPosition.Z == 0)
             {
-                endLocation = _lastKnownPlayerLoc;
+                endPosition = _lastKnownPlayerLoc;
             }
 
-            Location[] path = Navigation.Instance.CalculatePath(request.MapId, startLocation, endLocation, request.SmoothPath);
+            Position[] path = Navigation.Instance.CalculatePath(request.MapId, startPosition, endPosition, request.SmoothPath);
 
             string response = JsonConvert.SerializeObject(path.Select(x => new Vector3(x.X, x.Y, x.Z)));
 
@@ -57,7 +57,7 @@ namespace RaidLeaderBot
 
             if (request.IsRaidLeader)
             {
-                _lastKnownPlayerLoc = startLocation;
+                _lastKnownPlayerLoc = startPosition;
             }
             return 0;
         }

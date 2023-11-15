@@ -1,73 +1,169 @@
 ﻿using RaidMemberBot.Constants;
 using RaidMemberBot.Mem;
 using System;
+using System.Runtime.ExceptionServices;
+using System.Runtime.InteropServices;
+using static RaidMemberBot.Constants.Enums;
 
 namespace RaidMemberBot.Objects
 {
-    /// <summary>
-    ///     Represents a basic WoW object
-    /// </summary>
-    public class WoWObject
+    public unsafe abstract class WoWObject
     {
-        /// <summary>
-        ///     Constructor taking guid aswell Ptr to object
-        /// </summary>
-        internal WoWObject(ulong parGuid, IntPtr parPointer, Enums.WoWObjectTypes parType)
+        public virtual IntPtr Pointer { get; set; }
+        public virtual ulong Guid { get; set; }
+        public virtual WoWObjectTypes ObjectType { get; set; }
+
+        // used for interacting in vanilla
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+        delegate void RightClickObjectDelegate(IntPtr unitPtr, int autoLoot);
+
+        readonly RightClickObjectDelegate rightClickObjectFunction;
+
+        public WoWObject() { }
+
+        public WoWObject(IntPtr pointer, ulong guid, WoWObjectTypes objectType)
         {
-            Guid = parGuid;
-            Pointer = parPointer;
-            WoWType = parType;
+            Pointer = pointer;
+            Guid = guid;
+            ObjectType = objectType;
+
+            rightClickObjectFunction = Marshal.GetDelegateForFunctionPointer<RightClickObjectDelegate>((IntPtr)0x60BEA0);
         }
 
-        internal IntPtr Pointer { get; set; }
-        internal bool CanRemove { get; set; }
+        public virtual Position Position => GetPosition();
 
-        /// <summary>
-        ///     GUID of the object
-        /// </summary>
-        public ulong Guid { get; private set; }
-
-        /// <summary>
-        ///     The type of the object
-        /// </summary>
-        public Enums.WoWObjectTypes WoWType { get; private set; }
-
-        /// <summary>
-        /// Facing of the object
-        /// </summary>
-        public virtual float Facing { get; set; }
-
-        /// <summary>
-        ///     Location
-        /// </summary>
-        public virtual Location Location { get; internal set; }
-
-        /// <summary>
-        ///     Name of object
-        /// </summary>
-        public virtual string Name { get; internal set; }
-
-        /// <summary>
-        ///     Get descriptor function to avoid some code
-        /// </summary>
-        internal T GetDescriptor<T>(int descriptor) where T : struct
+        [HandleProcessCorruptedStateExceptions]
+        Position GetPosition()
         {
-            uint ptr = Memory.Reader.Read<uint>(IntPtr.Add(Pointer, Offsets.ObjectManager.DescriptorOffset));
-            return Memory.Reader.Read<T>(new IntPtr(ptr + descriptor));
+            try
+            {
+                if (ObjectType == WoWObjectTypes.OT_UNIT || ObjectType == WoWObjectTypes.OT_PLAYER)
+                {
+                    var x = MemoryManager.ReadFloat(IntPtr.Add(Pointer, 0x9B8));
+                    var y = MemoryManager.ReadFloat(IntPtr.Add(Pointer, 0x9BC));
+                    var z = MemoryManager.ReadFloat(IntPtr.Add(Pointer, 0x9C0));
+
+                    return new Position(x, y, z);
+                }
+                else
+                {
+                    float x;
+                    float y;
+                    float z;
+                    if (MemoryManager.ReadInt(GetDescriptorPtr() + 0x54) == 3)
+                    {
+                        x = MemoryManager.ReadFloat(GetDescriptorPtr() + 0x3C);
+                        y = MemoryManager.ReadFloat(GetDescriptorPtr() + (0x3C + 4));
+                        z = MemoryManager.ReadFloat(GetDescriptorPtr() + (0x3C + 8));
+                        return new Position(x, y, z);
+                    }
+                    var v2 = MemoryManager.ReadInt(IntPtr.Add(Pointer, 0x210));
+                    IntPtr xyzStruct;
+                    if (v2 != 0)
+                    {
+                        var underlyingFuncPtr = MemoryManager.ReadInt(IntPtr.Add(MemoryManager.ReadIntPtr((IntPtr)v2), 0x44));
+                        switch (underlyingFuncPtr)
+                        {
+                            case 0x005F5C10:
+                                x = MemoryManager.ReadFloat((IntPtr)(v2 + 0x2c));
+                                y = MemoryManager.ReadFloat((IntPtr)(v2 + 0x2c + 0x4));
+                                z = MemoryManager.ReadFloat((IntPtr)(v2 + 0x2c + 0x8));
+                                return new Position(x, y, z);
+                            case 0x005F3690:
+                                v2 = (int)IntPtr.Add(MemoryManager.ReadIntPtr(IntPtr.Add(MemoryManager.ReadIntPtr((IntPtr)(v2 + 0x4)), 0x110)), 0x24);
+                                x = MemoryManager.ReadFloat((IntPtr)v2);
+                                y = MemoryManager.ReadFloat((IntPtr)(v2 + 0x4));
+                                z = MemoryManager.ReadFloat((IntPtr)(v2 + 0x8));
+                                return new Position(x, y, z);
+                        }
+                        xyzStruct = (IntPtr)(v2 + 0x44);
+                    }
+                    else
+                    {
+                        xyzStruct = IntPtr.Add(MemoryManager.ReadIntPtr(IntPtr.Add(Pointer, 0x110)), 0x24);
+                    }
+                    x = MemoryManager.ReadFloat(xyzStruct);
+                    y = MemoryManager.ReadFloat(IntPtr.Add(xyzStruct, 0x4));
+                    z = MemoryManager.ReadFloat(IntPtr.Add(xyzStruct, 0x8));
+                    return new Position(x, y, z);
+                }
+            }
+            catch (AccessViolationException)
+            {
+                Console.WriteLine("Access violation on WoWObject.Position. Swallowing.");
+                return new Position(0, 0, 0);
+            }
         }
 
-        internal void SetDescriptor<T>(int descriptor, T parValue) where T : struct
+        public float Facing => GetFacing();
+
+        [HandleProcessCorruptedStateExceptions]
+        float GetFacing()
         {
-            uint ptr = Memory.Reader.Read<uint>(IntPtr.Add(Pointer, Offsets.ObjectManager.DescriptorOffset));
-            Memory.Reader.Write(new IntPtr(ptr + descriptor), parValue);
+            try
+            {
+                if (ObjectType == WoWObjectTypes.OT_PLAYER || ObjectType == WoWObjectTypes.OT_UNIT)
+                {
+                    return MemoryManager.ReadFloat(Pointer + 0x9C4);
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            catch (AccessViolationException)
+            {
+                Console.WriteLine("Access violation on WoWObject.Facing. Swallowing.");
+                return 0;
+            }
         }
 
-        /// <summary>
-        ///     Read relative to base pointer
-        /// </summary>
-        internal T ReadRelative<T>(int offset) where T : struct
+        public string Name => GetName();
+
+        [HandleProcessCorruptedStateExceptions]
+        string GetName()
         {
-            return Memory.Reader.Read<T>(IntPtr.Add(Pointer, offset));
+            try
+            {
+                if (ObjectType == WoWObjectTypes.OT_PLAYER)
+                {
+                    var namePtr = MemoryManager.ReadIntPtr((IntPtr)0xC0E230);
+                    while (true)
+                    {
+                        var nextGuid = MemoryManager.ReadUlong(IntPtr.Add(namePtr, 0xC));
+
+                        if (nextGuid != Guid)
+                            namePtr = MemoryManager.ReadIntPtr(namePtr);
+                        else
+                            break;
+                    }
+                    return MemoryManager.ReadString(IntPtr.Add(namePtr, 0x14));
+                }
+                else if (ObjectType == WoWObjectTypes.OT_UNIT)
+                {
+                    var ptr1 = MemoryManager.ReadInt(IntPtr.Add(Pointer, 0xB30));
+                    var ptr2 = MemoryManager.ReadInt((IntPtr)ptr1);
+                    return MemoryManager.ReadString((IntPtr)ptr2);
+                }
+                else
+                {
+                    var ptr1 = MemoryManager.ReadIntPtr(IntPtr.Add(Pointer, 0x214));
+                    var ptr2 = MemoryManager.ReadIntPtr(IntPtr.Add(ptr1, 0x8));
+                    return MemoryManager.ReadString(ptr2);
+                }
+            }
+            catch (AccessViolationException)
+            {
+                Console.WriteLine("Access violation on WoWObject.Name. Swallowing.");
+                return "";
+            }
         }
+
+        public void Interact()
+        {
+            rightClickObjectFunction(Pointer, 0);
+        }
+
+        protected IntPtr GetDescriptorPtr() => MemoryManager.ReadIntPtr(IntPtr.Add(Pointer, MemoryAddresses.WoWObject_DescriptorOffset));
     }
 }

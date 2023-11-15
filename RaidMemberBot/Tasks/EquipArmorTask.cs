@@ -1,4 +1,5 @@
-﻿using RaidMemberBot.Game.Statics;
+﻿using RaidMemberBot.Game;
+using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
@@ -9,17 +10,17 @@ namespace RaidMemberBot.AI.SharedStates
 {
     public class EquipArmorTask : BotTask, IBotTask
     {
-        static readonly IDictionary<ClassId, ItemClass> desiredArmorTypes = new Dictionary<ClassId, ItemClass>
+        static readonly IDictionary<Class, ItemClass> desiredArmorTypes = new Dictionary<Class, ItemClass>
         {
-            { ClassId.Druid, ItemClass.Leather },
-            { ClassId.Hunter, ItemClass.Mail },
-            { ClassId.Mage, ItemClass.Cloth },
-            { ClassId.Paladin, ItemClass.Mail },
-            { ClassId.Priest, ItemClass.Cloth },
-            { ClassId.Rogue, ItemClass.Leather },
-            { ClassId.Shaman, ItemClass.Leather },
-            { ClassId.Warlock, ItemClass.Cloth },
-            { ClassId.Warrior, ItemClass.Mail }
+            { Class.Druid, ItemClass.Leather },
+            { Class.Hunter, ItemClass.Mail },
+            { Class.Mage, ItemClass.Cloth },
+            { Class.Paladin, ItemClass.Mail },
+            { Class.Priest, ItemClass.Cloth },
+            { Class.Rogue, ItemClass.Leather },
+            { Class.Shaman, ItemClass.Leather },
+            { Class.Warlock, ItemClass.Cloth },
+            { Class.Warrior, ItemClass.Mail }
         };
 
         readonly IList<EquipSlot> slotsToCheck = new List<EquipSlot>
@@ -44,7 +45,7 @@ namespace RaidMemberBot.AI.SharedStates
 
         public void Update()
         {
-            if (Container.Player.IsInCombat)
+            if (ObjectManager.Player.IsInCombat)
             {
                 BotTasks.Pop();
                 return;
@@ -54,7 +55,7 @@ namespace RaidMemberBot.AI.SharedStates
             {
                 foreach (EquipSlot slot in slotsToCheck)
                 {
-                    WoWItem equippedItem = Inventory.Instance.GetEquippedItem(slot);
+                    WoWItem equippedItem = ObjectManager.Items.First(x => x.Guid == ObjectManager.Player.GetEquippedItemGuid(slot));
                     if (equippedItem == null)
                     {
                         emptySlot = slot;
@@ -66,11 +67,11 @@ namespace RaidMemberBot.AI.SharedStates
                 {
                     slotsToCheck.Remove(emptySlot.Value);
 
-                    itemToEquip = Inventory.Instance.GetAllItems()
+                    itemToEquip = ObjectManager.Items
                         .FirstOrDefault(i =>
-                            //(i.Info.ItemSubclass == desiredArmorTypes[Container.Player.Class] || i.Info.ItemClass == ItemClass.Cloth && i.Info.EquipSlot == EquipSlot.Back) &&
+                            //(i.Info.ItemSubclass == desiredArmorTypes[ObjectManager.Player.Class] || i.Info.ItemClass == ItemClass.Cloth && i.Info.EquipSlot == EquipSlot.Back) &&
                             //i.Info.EquipSlot.ToString() == emptySlot.ToString() &&
-                            i.Info.RequiredLevel <= Container.Player.Level
+                            i.Info.RequiredLevel <= ObjectManager.Player.Level
                         );
 
                     if (itemToEquip == null)
@@ -88,12 +89,12 @@ namespace RaidMemberBot.AI.SharedStates
 
             if (itemToEquip != null && Wait.For("EquipItemDelay", 500))
             {
-                //var bagId = Inventory.Instance.GetBagId(itemToEquip.Guid);
+                //var bagId = Inventory.GetBagId(itemToEquip.Guid);
                 //var slotId = Inventory.GetSlotId(itemToEquip.Guid);
 
-                //Lua.Instance.Execute($"UseContainerItem({bagId}, {slotId})");
+                //Functions.LuaCall($"UseContainerItem({bagId}, {slotId})");
                 //if ((int)itemToEquip.Quality > 1)
-                //    Lua.Instance.Execute("EquipPendingItem(0)");
+                //    Functions.LuaCall("EquipPendingItem(0)");
                 //emptySlot = null;
                 //itemToEquip = null;
             }

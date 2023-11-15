@@ -42,7 +42,7 @@ ICLRRuntimeHost* g_clrHost = NULL;
 // Lets make it useful shall we?
 HANDLE g_hThread = NULL;
 
-// Location of the DLL
+// Position of the DLL
 wchar_t* dllLocation = NULL;
 
 #define MB(s) MessageBoxW(NULL, s, NULL, MB_OK);

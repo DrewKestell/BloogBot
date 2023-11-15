@@ -1,4 +1,5 @@
 ﻿using RaidMemberBot.AI;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
@@ -11,19 +12,21 @@ namespace ProtectionWarriorBot
         const int stackCount = 5;
 
         readonly WoWItem foodItem;
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) { }
+        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) {
+            foodItem = ObjectManager.Items.First(x => x.ItemId == 5479);
+        }
 
         public void Update()
         {
-            if (Container.Player.HealthPercent >= 95 ||
-                Container.Player.HealthPercent >= 80 && !Container.Player.IsEating ||                                                                
-                ObjectManager.Instance.Player.IsInCombat ||
-                ObjectManager.Instance.Units.Any(u => u.TargetGuid == ObjectManager.Instance.Player.Guid))
+            if (ObjectManager.Player.HealthPercent >= 95 ||
+                ObjectManager.Player.HealthPercent >= 80 && !ObjectManager.Player.IsEating ||                                                                
+                ObjectManager.Player.IsInCombat ||
+                ObjectManager.Units.Any(u => u.TargetGuid == ObjectManager.Player.Guid))
             {
-                Container.Player.Stand();
+                ObjectManager.Player.Stand();
                 BotTasks.Pop();
 
-                int foodCount = foodItem == null ? 0 : Inventory.Instance.GetItemCount(foodItem.Id);
+                int foodCount = foodItem == null ? 0 : Inventory.GetItemCount(foodItem.ItemId);
                 if (!InCombat && foodCount == 0)
                 {
                     int foodToBuy = 28 - (foodCount / stackCount);
@@ -41,17 +44,17 @@ namespace ProtectionWarriorBot
 
                     //BotTasks.Push(new BuyItemsState(botTasks, currentHotspot.Innkeeper.Name, itemsToBuy));
                     //BotTasks.Push(new SellItemsState(botTasks, container, currentHotspot.Innkeeper.Name));
-                    //BotTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.Innkeeper.Location));
+                    //BotTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.Innkeeper.Position));
                     //container.CheckForTravelPath(botTasks, true, false);
                 }
 
                 return;
             }
 
-            if (foodItem != null && !ObjectManager.Instance.Player.IsEating)
+            if (foodItem != null && !ObjectManager.Player.IsEating)
                 foodItem.Use();
         }
 
-        bool InCombat => ObjectManager.Instance.Player.IsInCombat || ObjectManager.Instance.Units.Any(u => u.TargetGuid == ObjectManager.Instance.Player.Guid);
+        bool InCombat => ObjectManager.Player.IsInCombat || ObjectManager.Units.Any(u => u.TargetGuid == ObjectManager.Player.Guid);
     }
 }

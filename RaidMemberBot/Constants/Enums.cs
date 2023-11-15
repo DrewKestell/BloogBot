@@ -9,6 +9,20 @@ namespace RaidMemberBot.Constants
     /// </summary>
     public static class Enums
     {
+        public enum DialogType
+        {
+            gossip = 0,
+            vendor = 1,
+            taxi = 2,
+            trainer = 3,
+            healer = 4,
+            binder = 5,
+            banker = 6,
+            petition = 7,
+            tabard = 8,
+            battlemaster = 9,
+            auctioneer = 10
+        }
         /// <summary>
         ///     Type of units that can send chat messages
         /// </summary>
@@ -18,10 +32,16 @@ namespace RaidMemberBot.Constants
             Npc = 2
         }
 
+        public enum LuaTarget : byte
+        {
+            Player,
+            Target
+        }
+
         /// <summary>
-        /// CombatLocation used in CustomClasses
+        /// CombatPosition used in CustomClasses
         /// </summary>
-        public enum CombatLocation
+        public enum CombatPosition
         {
             Before = 1,
             Behind = 2,
@@ -237,6 +257,16 @@ namespace RaidMemberBot.Constants
             Legendary = 5,
         }
 
+        [Flags]
+        public enum DynamicFlags
+        {
+            None = 0x0,
+            CanBeLooted = 0x1,
+            IsMarked = 0x2,
+            Tapped = 0x4, // Makes creature name tag appear grey
+            TappedByMe = 0x8
+        }
+
         /// <summary>
         /// UnitFlags
         /// </summary>
@@ -277,30 +307,40 @@ namespace RaidMemberBot.Constants
             UNIT_FLAG_IMMUNE = 0x80000000
         }
 
-        /// <summary>
-        /// MovementFlags enum
-        /// </summary>
         [Flags]
         public enum MovementFlags
         {
-            None = 0x0,
-            Front = 0x00000001,
-            Back = 0x00000002,
-            Left = 0x00000010,
-            Right = 0x00000020,
-            StrafeLeft = 0x00000004,
-            StrafeRight = 0x00000008,
-
-            Swimming = 0x00200000,
-            jumping = 0x00002000,
-            Falling = 0x0000A000,
-            Levitate = 0x70000000
-        }
+            MOVEFLAG_NONE = 0x00000000,
+            MOVEFLAG_FORWARD = 0x00000001,
+            MOVEFLAG_BACKWARD = 0x00000002,
+            MOVEFLAG_STRAFE_LEFT = 0x00000004,
+            MOVEFLAG_STRAFE_RIGHT = 0x00000008,
+            MOVEFLAG_TURN_LEFT = 0x00000010,
+            MOVEFLAG_TURN_RIGHT = 0x00000020,
+            MOVEFLAG_PITCH_UP = 0x00000040, // ??
+            MOVEFLAG_PITCH_DOWN = 0x00000080, // ??
+            MOVEFLAG_WALK_MODE = 0x00000100, // Walking
+            MOVEFLAG_ONTRANSPORT = 0x00000200, // Used for flying on some creatures
+            MOVEFLAG_LEVITATING = 0x00000400,
+            MOVEFLAG_ROOT = 0x00000800,
+            MOVEFLAG_FALLING = 0x00001000,
+            MOVEFLAG_FALLINGFAR = 0x00004000, // ??
+            MOVEFLAG_SWIMMING = 0x00200000, // appears with fly flag also
+            MOVEFLAG_ASCENDING = 0x00400000, // swim up also
+            MOVEFLAG_CAN_FLY = 0x00800000, // ??
+            MOVEFLAG_FLYING = 0x01000000, // ??
+            MOVEFLAG_FLYING2 = 0x02000000, // Actual flying mode
+            MOVEFLAG_SPLINE_ELEVATION = 0x04000000, // used for flight paths
+            MOVEFLAG_SPLINE_ENABLED = 0x08000000, // used for flight paths
+            MOVEFLAG_WATERWALKING = 0x10000000, // prevent unit from falling through water
+            MOVEFLAG_SAFE_FALL = 0x20000000, // active rogue safe fall spell (passive)
+            MOVEFLAG_HOVER = 0x40000000
+        };
 
         /// <summary>
         ///     Classes of WoW
         /// </summary>
-        public enum ClassId : byte
+        public enum Class : byte
         {
             Warrior = 1,
             Paladin = 2,
@@ -523,10 +563,14 @@ namespace RaidMemberBot.Constants
             CtmWalk = 0x00001000,
             Front = 0x00000010,
             Back = 0x00000020,
+            Jump = 0x00002000,
             Left = 0x00000100,
             Right = 0x00000200,
+            MovingFrontOrBack = 0x00010000,
             StrafeLeft = 0x00000040,
-            StrafeRight = 0x00000080
+            StrafeRight = 0x00000080,
+            Strafing = 0x00020000,
+            Turning = 0x00040000
         }
 
         /// <summary>
@@ -557,7 +601,7 @@ namespace RaidMemberBot.Constants
         /// <summary>
         ///     The different ranks of creatures
         /// </summary>
-        public enum CreatureRankTypes
+        public enum CreatureRank
         {
             Normal = 0,
             Elite = 1,
@@ -683,13 +727,14 @@ namespace RaidMemberBot.Constants
         /// </summary>
         public enum UnitReaction
         {
-            Neutral = 3,
-            Friendly = 4,
-
-            // Guards of the other faction are for example hostile 2.
-            // All other hostile mobs I met are just hostile.
-            Hostile = 1,
-            Hostile2 = 0
+            Hated,
+            Hostile,
+            Unfriendly,
+            Neutral,
+            Friendly,
+            Honored,
+            Revered,
+            Exalted
         }
 
         /// <summary>
@@ -705,6 +750,117 @@ namespace RaidMemberBot.Constants
             OT_GAMEOBJ = 5,
             OT_DYNOBJ = 6,
             OT_CORPSE = 7
+        }
+        public enum ItemSubclass
+        {
+            Consumable,
+            Potion,
+            Elixir,
+            Flask,
+            Scroll,
+            FoodAndDrink,
+            ItemEnhancement,
+            Bandage,
+            Other,
+            Container,
+            SoulBag,
+            HerbBag,
+            EnchantingBag,
+            EngineeringBag,
+            GemBag,
+            MiningBag,
+            LeatherworkingBag,
+            InscriptionBag,
+            OneHandedAxe,
+            TwoHandedAxe,
+            Bow,
+            Gun,
+            OneHandedMace,
+            TwoHandedMace,
+            Polearm,
+            OneHandedSword,
+            TwoHandedSword,
+            Obsolete,
+            Staff,
+            OneHandedExotic,
+            TwoHandedExotic,
+            FistWeapon,
+            MiscellaneousWeapon,
+            Dagger,
+            Thrown,
+            Spear,
+            Crossbow,
+            Wand,
+            FishingPole,
+            RedJewel,
+            BlueJewel,
+            YellowJewel,
+            PurpleJewel,
+            GreenJewel,
+            OrangeJewel,
+            MetaJewel,
+            SimpleJewel,
+            PrismaticJewel,
+            MiscellaneousArmor,
+            Cloth,
+            Leather,
+            Mail,
+            Plate,
+            BucklerOBSOLETE,
+            Shield,
+            Libram,
+            Idol,
+            Totem,
+            Sigil,
+            Reagent,
+            WandOBSOLETE,
+            BoltOBSOLETE,
+            Arrow,
+            Bullet,
+            ThrownOBSOLETE,
+            TradeGood,
+            Parts,
+            Explosives,
+            Devices,
+            CraftingJewelcrafting,
+            CraftingCloth,
+            CraftingLeather,
+            CraftingMetalAndStone,
+            CraftingMeat,
+            CraftingHerb,
+            CraftingElemental,
+            CraftingOther,
+            CraftingEnchanting,
+            CraftingMaterials,
+            CraftingArmorEnchantment,
+            CraftingWeaponEnchantment,
+            GenericOBSOLETE,
+            RecipeBook,
+            RecipeLeatherworking,
+            RecipeTailoring,
+            RecipeEngineering,
+            RecipeBlacksmithing,
+            RecipeCooking,
+            RecipeAlchemy,
+            RecipeFirstAid,
+            RecipeEnchanting,
+            RecipeFishing,
+            RecipeJewelcrafting,
+            MoneyOBSOLETE,
+            Quiver1OBSOLETE,
+            Quiver2OBSOLETE,
+            Quiver,
+            AmmoPouch,
+            Quest,
+            Key,
+            Lockpick,
+            Permanent,
+            MiscJunk,
+            MiscReagent,
+            MiscPet,
+            MiscHoliday,
+            MiscOther,
+            MiscMount
         }
     }
 

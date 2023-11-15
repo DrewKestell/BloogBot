@@ -1,6 +1,8 @@
 ﻿using RaidMemberBot.AI;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,23 +21,23 @@ namespace BalanceDruidBot
 
         public void Update()
         {
-            if (Container.Player.IsCasting)
+            if (ObjectManager.Player.IsCasting)
                 return;
             
             if (InCombat)
             {
                 Wait.RemoveAll();
-                Container.Player.Stand();
+                ObjectManager.Player.Stand();
                 BotTasks.Pop();
                 return;
             }
             if (HealthOk && ManaOk)
             {
                 Wait.RemoveAll();
-                Container.Player.Stand();
+                ObjectManager.Player.Stand();
                 BotTasks.Pop();
 
-                int drinkCount = drinkItem == null ? 0 : Inventory.Instance.GetItemCount(drinkItem.Id);
+                int drinkCount = drinkItem == null ? 0 : Inventory.GetItemCount(drinkItem.ItemId);
 
                 if (!InCombat && drinkCount == 0)
                 {
@@ -55,41 +57,41 @@ namespace BalanceDruidBot
 
                     //BotTasks.Push(new BuyItemsState(botTasks, currentHotspot.Innkeeper.Name, itemsToBuy));
                     //BotTasks.Push(new SellItemsState(botTasks, container, currentHotspot.Innkeeper.Name));
-                    //BotTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.Innkeeper.Location));
+                    //BotTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.Innkeeper.Position));
                     //container.CheckForTravelPath(botTasks, true, false);
                 }
                 else
                     BotTasks.Push(new BuffTask(Container, BotTasks));
             }
 
-            if (Container.Player.HealthPercent < 60 && !Container.Player.HasBuff(Regrowth) && Wait.For("SelfHealDelay", 5000, true))
+            if (ObjectManager.Player.HealthPercent < 60 && !ObjectManager.Player.HasBuff(Regrowth) && Wait.For("SelfHealDelay", 5000, true))
             {
-                TryCastSpell(MoonkinForm, Container.Player.HasBuff(MoonkinForm));
+                TryCastSpell(MoonkinForm, ObjectManager.Player.HasBuff(MoonkinForm));
                 TryCastSpell(Regrowth);
             }
                 
-            if (Container.Player.HealthPercent < 80 && !Container.Player.HasBuff(Rejuvenation) && !Container.Player.HasBuff(Regrowth) && Wait.For("SelfHealDelay", 5000, true))
+            if (ObjectManager.Player.HealthPercent < 80 && !ObjectManager.Player.HasBuff(Rejuvenation) && !ObjectManager.Player.HasBuff(Regrowth) && Wait.For("SelfHealDelay", 5000, true))
             {
-                TryCastSpell(MoonkinForm, Container.Player.HasBuff(MoonkinForm));
+                TryCastSpell(MoonkinForm, ObjectManager.Player.HasBuff(MoonkinForm));
                 TryCastSpell(Rejuvenation);
             }
 
-            if (Container.Player.Level >= 6 && drinkItem != null && !Container.Player.IsDrinking && Container.Player.ManaPercent < 60)
+            if (ObjectManager.Player.Level >= 6 && drinkItem != null && !ObjectManager.Player.IsDrinking && ObjectManager.Player.ManaPercent < 60)
                 drinkItem.Use();
         }
 
-        bool HealthOk => Container.Player.HealthPercent >= 81;
+        bool HealthOk => ObjectManager.Player.HealthPercent >= 81;
 
-        bool ManaOk => (Container.Player.Level < 6 && Container.Player.ManaPercent > 50) || Container.Player.ManaPercent >= 90 || (Container.Player.ManaPercent >= 65 && !Container.Player.IsDrinking);
+        bool ManaOk => (ObjectManager.Player.Level < 6 && ObjectManager.Player.ManaPercent > 50) || ObjectManager.Player.ManaPercent >= 90 || (ObjectManager.Player.ManaPercent >= 65 && !ObjectManager.Player.IsDrinking);
 
-        bool InCombat => ObjectManager.Instance.Aggressors.Count() > 0;
+        bool InCombat => ObjectManager.Aggressors.Count() > 0;
 
         void TryCastSpell(string name, bool condition = true)
         {
-            if (Spellbook.Instance.IsSpellReady(name) && Container.Player.IsCasting && Container.Player.Mana > Container.Player.GetManaCost(name) && !Container.Player.IsDrinking && condition)
+            if (ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.IsCasting && ObjectManager.Player.Mana > ObjectManager.Player.GetManaCost(name) && !ObjectManager.Player.IsDrinking && condition)
             {
-                Container.Player.Stand();
-                Lua.Instance.Execute($"CastSpellByName('{name}',1)");
+                ObjectManager.Player.Stand();
+                Functions.LuaCall($"CastSpellByName('{name}',1)");
             }
         }
     }

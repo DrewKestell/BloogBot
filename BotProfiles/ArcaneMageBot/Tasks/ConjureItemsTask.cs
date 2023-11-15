@@ -1,6 +1,8 @@
 ﻿using RaidMemberBot.AI;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 
@@ -24,39 +26,39 @@ namespace ArcaneMageBot
             //drinkItem = Inventory.GetAllItems()
             //    .FirstOrDefault(i => i.Info.Name == container.BotSettings.Drink);
 
-            if (Container.Player.IsCasting)
+            if (ObjectManager.Player.IsCasting)
                 return;
 
-            if (Container.Player.ManaPercent < 20)
+            if (ObjectManager.Player.ManaPercent < 20)
             {
                 BotTasks.Pop();
                 BotTasks.Push(new RestTask(Container, BotTasks));
                 return;
             }
 
-            if ((foodItem != null || !Spellbook.Instance.IsSpellReady(ConjureFood)) && (drinkItem != null || !Spellbook.Instance.IsSpellReady(ConjureWater)))
+            if ((foodItem != null || !ObjectManager.Player.IsSpellReady(ConjureFood)) && (drinkItem != null || !ObjectManager.Player.IsSpellReady(ConjureWater)))
             {
                 BotTasks.Pop();
 
-                if (Container.Player.ManaPercent <= 80)
+                if (ObjectManager.Player.ManaPercent <= 80)
                     BotTasks.Push(new RestTask(Container, BotTasks));
 
                 return;
             }
 
-            int foodCount = foodItem == null ? 0 : Inventory.Instance.GetItemCount(foodItem.Id);
+            int foodCount = foodItem == null ? 0 : Inventory.GetItemCount(foodItem.ItemId);
             if ((foodItem == null || foodCount <= 2) && Wait.For("ArcaneMageConjureFood", 3000))
                 TryCastSpell(ConjureFood);
 
-            int drinkCount = drinkItem == null ? 0 : Inventory.Instance.GetItemCount(drinkItem.Id);
+            int drinkCount = drinkItem == null ? 0 : Inventory.GetItemCount(drinkItem.ItemId);
             if ((drinkItem == null || drinkCount <= 2) && Wait.For("ArcaneMageConjureDrink", 3000))
                 TryCastSpell(ConjureWater);
         }
 
         void TryCastSpell(string name)
         {
-            if (Spellbook.Instance.IsSpellReady(name) && Container.Player.IsCasting)
-                Lua.Instance.Execute($"CastSpellByName('{name}')");
+            if (ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.IsCasting)
+                Functions.LuaCall($"CastSpellByName('{name}')");
         }
     }
 }

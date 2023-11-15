@@ -1,8 +1,8 @@
-#pragma once
+// stdafx.cpp : source file that includes just the standard includes
+// FastCall.pch will be the pre-compiled header
+// stdafx.obj will contain the pre-compiled type information
 
-// Including SDKDDKVer.h defines the highest available Windows platform.
+#include "stdafx.h"
 
-// If you wish to build your application for a previous Windows platform, include WinSDKVer.h and
-// set the _WIN32_WINNT macro to the platform you wish to support before including SDKDDKVer.h.
-
-#include <SDKDDKVer.h>
+// TODO: reference any additional headers you need in STDAFX.H
+// and not in this file

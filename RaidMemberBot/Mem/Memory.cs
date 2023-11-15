@@ -1,187 +1,320 @@
 ﻿using Binarysharp.Assemblers.Fasm;
-using RaidMemberBot.Constants;
-using RaidMemberBot.ExtensionMethods;
-using RaidMemberBot.Helpers.GreyMagic;
+using Newtonsoft.Json;
+using RaidMemberBot.Game;
 using System;
 using System.Diagnostics;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
-using System.Windows;
+using System.Text;
 
 namespace RaidMemberBot.Mem
 {
-    internal static class Memory
+    public static unsafe class MemoryManager
     {
-        private static InProcessMemoryReader _Reader;
-        private static FasmNet Asm;
-        private static bool Applied;
-
-        /// <summary>
-        ///     Memory Reader Instance
-        /// </summary>
-        internal static InProcessMemoryReader Reader
-            => _Reader ??= new InProcessMemoryReader(Process.GetCurrentProcess());
-
-        internal static void ErasePeHeader(string name)
+        [Flags]
+        enum ProcessAccessFlags
         {
-            IntPtr handle = WinImports.GetModuleHandle(name);
-            ErasePeHeader(handle);
+            DELETE = 0x00010000,
+            READ_CONTROL = 0x00020000,
+            SYNCHRONIZE = 0x00100000,
+            WRITE_DAC = 0x00040000,
+            WRITE_OWNER = 0x00080000,
+            PROCESS_ALL_ACCESS = 0x001F0FFF,
+            PROCESS_CREATE_PROCESS = 0x0080,
+            PROCESS_CREATE_THREAD = 0x0002,
+            PROCESS_DUP_HANDLE = 0x0040,
+            PROCESS_QUERY_INFORMATION = 0x0400,
+            PROCESS_QUERY_LIMITED_INFORMATION = 0x1000,
+            PROCESS_SET_INFORMATION = 0x0200,
+            PROCESS_SET_QUOTA = 0x0100,
+            PROCESS_SUSPEND_RESUME = 0x0800,
+            PROCESS_TERMINATE = 0x0001,
+            PROCESS_VM_OPERATION = 0x0008,
+            PROCESS_VM_READ = 0x0010,
+            PROCESS_VM_WRITE = 0x0020
         }
 
-        internal static void ErasePeHeader(IntPtr modulePtr)
+        [DllImport("kernel32.dll")]
+        static extern bool VirtualProtect(IntPtr address, int size, uint newProtect, out uint oldProtect);
+
+        [DllImport("kernel32.dll")]
+        static extern IntPtr OpenProcess(ProcessAccessFlags desiredAccess, bool inheritHandle, int processId);
+
+        [DllImport("kernel32.dll")]
+        static extern bool WriteProcessMemory(
+            IntPtr hProcess,
+            IntPtr lpBaseAddress,
+            byte[] lpBuffer,
+            int dwSize,
+            ref int lpNumberOfBytesWritten);
+
+        [Flags]
+        public enum Protection
         {
-            if (modulePtr == IntPtr.Zero) return;
-            WinImports.Protection prot;
-
-            WinImports.IMAGE_DOS_HEADER dosHeader = modulePtr.ReadAs<WinImports.IMAGE_DOS_HEADER>();
-            int sizeDosHeader = Marshal.SizeOf(typeof(WinImports.IMAGE_DOS_HEADER));
-            int sizePeHeader = Marshal.SizeOf(typeof(WinImports.IMAGE_FILE_HEADER));
-
-            IntPtr peHeaderPtr = modulePtr.Add(dosHeader.e_lfanew);
-            WinImports.IMAGE_FILE_HEADER fileHeader = peHeaderPtr.ReadAs<WinImports.IMAGE_FILE_HEADER>();
-
-            ushort optionalHeaderSize = fileHeader.mSizeOfOptionalHeader;
-            if (optionalHeaderSize != 0)
-            {
-                IntPtr optionalHeaderPtr = modulePtr.Add(dosHeader.e_lfanew).Add(sizePeHeader);
-                WinImports.IMAGE_OPTIONAL_HEADER32 optionalHeader = optionalHeaderPtr.ReadAs<WinImports.IMAGE_OPTIONAL_HEADER32>();
-
-                WinImports.VirtualProtect(optionalHeaderPtr, (uint)optionalHeaderSize, WinImports.Protection.PAGE_EXECUTE_READWRITE, out prot);
-                for (int i = 0; i < optionalHeaderSize; i++)
-                {
-                    optionalHeaderPtr.Add(i).WriteTo<byte>(0);
-                }
-                WinImports.VirtualProtect(optionalHeaderPtr, (uint)optionalHeaderSize, prot, out prot);
-            }
-
-            WinImports.VirtualProtect(modulePtr, (uint)sizeDosHeader, WinImports.Protection.PAGE_EXECUTE_READWRITE, out prot);
-            for (int i = 0; i < sizeDosHeader; i++)
-            {
-                modulePtr.Add(i).WriteTo<byte>(0);
-            }
-            WinImports.VirtualProtect(modulePtr, (uint)sizeDosHeader, prot, out prot);
-
-            WinImports.VirtualProtect(peHeaderPtr, (uint)sizePeHeader, WinImports.Protection.PAGE_EXECUTE_READWRITE, out prot);
-            for (int i = 0; i < sizePeHeader; i++)
-            {
-                peHeaderPtr.Add(i).WriteTo<byte>(0);
-            }
-            WinImports.VirtualProtect(modulePtr, (uint)sizeDosHeader, prot, out prot);
+            PAGE_NOACCESS = 0x01,
+            PAGE_READONLY = 0x02,
+            PAGE_READWRITE = 0x04,
+            PAGE_WRITECOPY = 0x08,
+            PAGE_EXECUTE = 0x10,
+            PAGE_EXECUTE_READ = 0x20,
+            PAGE_EXECUTE_READWRITE = 0x40,
+            PAGE_EXECUTE_WRITECOPY = 0x80,
+            PAGE_GUARD = 0x100,
+            PAGE_NOCACHE = 0x200,
+            PAGE_WRITECOMBINE = 0x400
         }
 
-        internal static void UnlinkFromPeb(string moduleName)
+        [DllImport("kernel32.dll")]
+        static extern bool VirtualProtect(IntPtr lpAddress, UIntPtr dwSize, uint flNewProtect, out uint lpflOldProtect);
+
+        static readonly IntPtr wowProcessHandle = Process.GetCurrentProcess().Handle;
+        static readonly FasmNet fasm = new FasmNet();
+
+        [HandleProcessCorruptedStateExceptions]
+        static internal byte ReadByte(IntPtr address)
         {
-            IntPtr store = Reader.Alloc(4);
-            IntPtr addrToAsm = InjectAsm(new[]
-            {
-                "push ebp",
-                "mov ebp, esp",
-                "pushad",
-                "mov eax, [fs:48]",
-                "mov [0x" + store.ToString("X") + "], eax",
-                "popad",
-                "mov esp, ebp",
-                "pop ebp",
-                "retn"
-            }, "GetPeb");
-            NoParamFunc callAsm = Reader.RegisterDelegate<NoParamFunc>(addrToAsm);
-            callAsm();
-            IntPtr pebPtr = store.ReadAs<IntPtr>();
-            Reader.Dealloc(store);
-            Reader.Dealloc(addrToAsm);
-            WinImports.PEB_LDR_DATA ldrData = pebPtr.Add(12).ReadAs<IntPtr>().ReadAs<WinImports.PEB_LDR_DATA>();
+            if (address == IntPtr.Zero)
+                return 0;
 
-            IntPtr startModulePtr = ldrData.InInitOrderModuleListPtr;
-            WinImports.ListEntryWrapper curEntry = ldrData.InInitOrderModuleList;
-            while (true)
-            {
-                IntPtr curEntryPtr = curEntry.Header.Flink;
-                curEntry = curEntry.Header.Fwd;
-                if (curEntryPtr == startModulePtr) break;
-                IntPtr nextModule = curEntry.Header.Flink;
-                IntPtr prevModule = curEntry.Header.Blink;
-                if (curEntry.Body.BaseDllName != moduleName) continue;
-                prevModule.WriteTo(nextModule);
-                nextModule.Add(4).WriteTo(prevModule);
-                break;
-            }
-        }
-
-        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate void NoParamFunc();
-
-
-        internal static IntPtr InjectAsm(string[] parInstructions, string parPatchName)
-        {
-            Asm ??= new FasmNet();
-            Asm.Clear();
-            Asm.AddLine("use32");
-            foreach (string x in parInstructions)
-                Asm.AddLine(x);
-
-            byte[] byteCode = new byte[0];
             try
             {
-                byteCode = Asm.Assemble();
+                return *(byte*)address;
+            }
+            catch (AccessViolationException)
+            {
+                Console.WriteLine("Access Violation on " + address.ToString("X") + " with type Byte");
+                return default;
+            }
+        }
+
+        [HandleProcessCorruptedStateExceptions]
+        static public int ReadInt(IntPtr address)
+        {
+            if (address == IntPtr.Zero)
+                return 0;
+
+            try
+            {
+                return *(int*)address;
+            }
+            catch (AccessViolationException)
+            {
+                Console.WriteLine("Access Violation on " + address.ToString("X") + " with type Int");
+                return default;
+            }
+        }
+
+        [HandleProcessCorruptedStateExceptions]
+        static public uint ReadUint(IntPtr address)
+        {
+            if (address == IntPtr.Zero)
+                return 0;
+
+            try
+            {
+                return *(uint*)address;
+            }
+            catch (AccessViolationException)
+            {
+                Console.WriteLine("Access Violation on " + address.ToString("X") + " with type Uint");
+                return default;
+            }
+        }
+
+        [HandleProcessCorruptedStateExceptions]
+        static public ulong ReadUlong(IntPtr address)
+        {
+            if (address == IntPtr.Zero)
+                return 0;
+
+            try
+            {
+                return *(ulong*)address;
+            }
+            catch (AccessViolationException)
+            {
+                Console.WriteLine("Access Violation on " + address.ToString("X") + " with type Ulong");
+                return default;
+            }
+        }
+
+        [HandleProcessCorruptedStateExceptions]
+        static public IntPtr ReadIntPtr(IntPtr address)
+        {
+            if (address == IntPtr.Zero)
+                return IntPtr.Zero;
+
+            try
+            {
+                return *(IntPtr*)address;
+            }
+            catch (AccessViolationException)
+            {
+                Console.WriteLine("Access Violation on " + address.ToString("X") + " with type IntPtr");
+                return default;
+            }
+        }
+
+        [HandleProcessCorruptedStateExceptions]
+        static public float ReadFloat(IntPtr address)
+        {
+            if (address == IntPtr.Zero)
+                return 0;
+
+            try
+            {
+                return *(float*)address;
+            }
+            catch (AccessViolationException)
+            {
+                Console.WriteLine("Access Violation on " + address.ToString("X") + " with type Float");
+                return default;
+            }
+        }
+
+        [HandleProcessCorruptedStateExceptions]
+        static public string ReadString(IntPtr address, int size = 512)
+        {
+            if (address == IntPtr.Zero)
+                return null;
+
+            try
+            {
+                var buffer = ReadBytes(address, size);
+                if (buffer.Length == 0)
+                    return default;
+
+                var ret = Encoding.ASCII.GetString(buffer);
+
+                if (ret.IndexOf('\0') != -1)
+                    ret = ret.Remove(ret.IndexOf('\0'));
+
+                return ret;
+            }
+            catch (AccessViolationException)
+            {
+                Console.WriteLine("Access Violation on " + address.ToString("X") + " with type string");
+                return default;
+            }
+        }
+
+        [HandleProcessCorruptedStateExceptions]
+        static public byte[] ReadBytes(IntPtr address, int count)
+        {
+            if (address == IntPtr.Zero)
+                return null;
+
+            try
+            {
+                var ret = new byte[count];
+                var ptr = (byte*)address;
+
+                for (var i = 0; i < count; i++)
+                    ret[i] = ptr[i];
+
+                return ret;
+            }
+            catch (NullReferenceException)
+            {
+                return default;
+            }
+            catch (AccessViolationException)
+            {
+                return default;
+            }
+        }
+
+        [HandleProcessCorruptedStateExceptions]
+        static public ItemCacheEntry ReadItemCacheEntry(IntPtr address)
+        {
+            if (address == IntPtr.Zero)
+                return null;
+
+            try
+            {
+                return new ItemCacheEntry(address);
+            }
+            catch (AccessViolationException)
+            {
+                Console.WriteLine("Access Violation on " + address.ToString("X") + " with type ItemCacheEntry");
+                return default;
+            }
+        }
+
+        static internal void WriteByte(IntPtr address, byte value) => Marshal.StructureToPtr(value, address, false);
+
+        static internal void WriteInt(IntPtr address, int value) => Marshal.StructureToPtr(value, address, false);
+
+        // certain memory locations (Warden for example) are protected from modification.
+        // we use OpenAccess with ProcessAccessFlags to remove the protection.
+        // you can check whether memory is successfully being modified by setting a breakpoint
+        // here and checking Debug -> Windows -> Disassembly.
+        // if you have further issues, you may need to use VirtualProtect from the Win32 API.
+        static internal void WriteBytes(IntPtr address, byte[] bytes)
+        {
+            if (address == IntPtr.Zero)
+                return;
+
+            var access = ProcessAccessFlags.PROCESS_CREATE_THREAD |
+                         ProcessAccessFlags.PROCESS_QUERY_INFORMATION |
+                         ProcessAccessFlags.PROCESS_SET_INFORMATION |
+                         ProcessAccessFlags.PROCESS_TERMINATE |
+                         ProcessAccessFlags.PROCESS_VM_OPERATION |
+                         ProcessAccessFlags.PROCESS_VM_READ |
+                         ProcessAccessFlags.PROCESS_VM_WRITE |
+                         ProcessAccessFlags.SYNCHRONIZE;
+
+            var process = OpenProcess(access, false, Process.GetCurrentProcess().Id);
+
+            int ret = 0;
+            WriteProcessMemory(process, address, bytes, bytes.Length, ref ret);
+
+            var protection = Protection.PAGE_EXECUTE_READWRITE;
+            // now set the memory to be executable
+            VirtualProtect(address, bytes.Length, (uint)protection, out uint _);
+        }
+
+        static internal IntPtr InjectAssembly(string hackName, string[] instructions)
+        {
+            // first get the assembly as bytes for the allocated area before overwriting the memory
+            fasm.Clear();
+            fasm.AddLine("use32");
+            foreach (var x in instructions)
+                fasm.AddLine(x);
+
+            var byteCode = new byte[0];
+            try
+            {
+                byteCode = fasm.Assemble();
             }
             catch (FasmAssemblerException ex)
             {
-                MessageBox.Show(
-                    $"Error definition: {ex.ErrorCode}; Error code: {(int)ex.ErrorCode}; Error line: {ex.ErrorLine}; Error offset: {ex.ErrorOffset}; Mnemonics: {ex.Mnemonics}");
+                Console.WriteLine(ex.StackTrace);
             }
 
-            IntPtr start = Reader.Alloc(byteCode.Length);
-            Asm.Clear();
-            Asm.AddLine("use32");
-            foreach (string x in parInstructions)
-                Asm.AddLine(x);
-            byteCode = Asm.Assemble(start);
+            var start = Marshal.AllocHGlobal(byteCode.Length);
+            fasm.Clear();
+            fasm.AddLine("use32");
+            foreach (var x in instructions)
+                fasm.AddLine(x);
+            byteCode = fasm.Assemble(start);
 
-            byte[] originalBytes = Reader.ReadBytes(start, byteCode.Length);
-            if (parPatchName != "")
-            {
-                Hack parHack = new Hack(start,
-                    byteCode,
-                    originalBytes, parPatchName);
+            var hack = new Hack(hackName, start, byteCode);
+            HackManager.AddHack(hack);
 
-                parHack.Apply();
-            }
-            else
-            {
-                Reader.WriteBytes(start, byteCode);
-            }
             return start;
         }
-        internal static void InjectAsm(uint parPtr, string parInstructions, string parPatchName)
+
+        static internal void InjectAssembly(string hackName, uint ptr, string instructions)
         {
-            Asm.Clear();
-            Asm.AddLine("use32");
-            Asm.AddLine(parInstructions);
-            IntPtr start = new IntPtr(parPtr);
+            fasm.Clear();
+            fasm.AddLine("use32");
+            fasm.AddLine(instructions);
+            var start = new IntPtr(ptr);
+            var byteCode = fasm.Assemble(start);
 
-            byte[] byteCode;
-            try
-            {
-                byteCode = Asm.Assemble(start);
-            }
-            catch (FasmAssemblerException ex)
-            {
-                MessageBox.Show(
-                    $"Error definition: {ex.ErrorCode}; Error code: {(int)ex.ErrorCode}; Error line: {ex.ErrorLine}; Error offset: {ex.ErrorOffset}; Mnemonics: {ex.Mnemonics}");
-                return;
-            }
-
-            byte[] originalBytes = Reader.ReadBytes(start, byteCode.Length);
-            if (parPatchName != "")
-            {
-                Hack parHack = new Hack(start,
-                    byteCode,
-                    originalBytes, parPatchName);
-                parHack.Apply();
-            }
-            else
-            {
-                Reader.WriteBytes(start, byteCode);
-            }
+            var hack = new Hack(hackName, start, byteCode);
+            HackManager.AddHack(hack);
         }
     }
 }

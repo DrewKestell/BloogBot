@@ -1,6 +1,8 @@
 ﻿using RaidMemberBot.AI;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
@@ -24,23 +26,23 @@ namespace AfflictionWarlockBot
 
         public void Update()
         {
-            pet = ObjectManager.Instance.Pet;
+            pet = ObjectManager.Pet;
 
-            if (pet != null && pet.HealthPercent < 60 && pet.CanUse(ConsumeShadows) && pet.IsCasting && pet.Channeling == 0)
+            if (pet != null && pet.HealthPercent < 60 && pet.CanUse(ConsumeShadows) && pet.IsCasting && pet.ChannelingId == 0)
                 pet.Cast(ConsumeShadows);
 
             if (InCombat || (HealthOk && ManaOk))
             {
-                if (Container.Player.IsCasting && Container.Player.Channeling == 0)
-                    Container.Player.Stand();
+                if (ObjectManager.Player.IsCasting && ObjectManager.Player.ChannelingId == 0)
+                    ObjectManager.Player.Stand();
 
                 if (InCombat || PetHealthOk)
                 {
                     pet?.FollowPlayer();
                     BotTasks.Pop();
 
-                    int foodCount = foodItem == null ? 0 : Inventory.Instance.GetItemCount(foodItem.Id);
-                    int drinkCount = drinkItem == null ? 0 : Inventory.Instance.GetItemCount(drinkItem.Id);
+                    int foodCount = foodItem == null ? 0 : ObjectManager.Items.Count(x => x.ItemId == foodItem.ItemId);
+                    int drinkCount = drinkItem == null ? 0 : ObjectManager.Items.Count(x => x.ItemId == drinkItem.ItemId);
 
                     if (!InCombat && (foodCount == 0 || drinkCount == 0))
                     {
@@ -62,7 +64,7 @@ namespace AfflictionWarlockBot
 
                         //BotTasks.Push(new BuyItemsState(botTasks, currentHotspot.Innkeeper.Name, itemsToBuy));
                         //BotTasks.Push(new SellItemsState(botTasks, container, currentHotspot.Innkeeper.Name));
-                        //BotTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.Innkeeper.Location));
+                        //BotTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.Innkeeper.Position));
                         //container.CheckForTravelPath(botTasks, true, false);
                     }
                     else
@@ -70,29 +72,29 @@ namespace AfflictionWarlockBot
                 }
                 else
                 {
-                    if (Container.Player.Channeling == 0 && Container.Player.IsCasting && Spellbook.Instance.IsSpellReady(HealthFunnel) && Container.Player.HealthPercent > 30)
-                        Lua.Instance.Execute($"CastSpellByName('{HealthFunnel}')");
+                    if (ObjectManager.Player.ChannelingId == 0 && ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady(HealthFunnel) && ObjectManager.Player.HealthPercent > 30)
+                        Functions.LuaCall($"CastSpellByName('{HealthFunnel}')");
                 }
 
                 return;
             }
 
-            if (foodItem != null && !Container.Player.IsEating && Container.Player.HealthPercent < 80 && Wait.For("EatDelay", 500, true))
+            if (foodItem != null && !ObjectManager.Player.IsEating && ObjectManager.Player.HealthPercent < 80 && Wait.For("EatDelay", 500, true))
                 foodItem.Use();
 
-            if (drinkItem != null && !Container.Player.IsDrinking && Container.Player.ManaPercent < 60 && Wait.For("DrinkDelay", 500, true))
+            if (drinkItem != null && !ObjectManager.Player.IsDrinking && ObjectManager.Player.ManaPercent < 60 && Wait.For("DrinkDelay", 500, true))
                 drinkItem.Use();
 
-            TryCastSpell(LifeTap, 0, int.MaxValue, ObjectManager.Instance.Player.HealthPercent > 85 && ObjectManager.Instance.Player.ManaPercent < 80);
+            TryCastSpell(LifeTap, 0, int.MaxValue, ObjectManager.Player.HealthPercent > 85 && ObjectManager.Player.ManaPercent < 80);
         }
 
-        bool HealthOk => foodItem == null || Container.Player.HealthPercent >= 90 || (Container.Player.HealthPercent >= 70 && !Container.Player.IsEating);
+        bool HealthOk => foodItem == null || ObjectManager.Player.HealthPercent >= 90 || (ObjectManager.Player.HealthPercent >= 70 && !ObjectManager.Player.IsEating);
 
-        bool PetHealthOk => ObjectManager.Instance.Pet == null || ObjectManager.Instance.Pet.HealthPercent >= 80;
+        bool PetHealthOk => ObjectManager.Pet == null || ObjectManager.Pet.HealthPercent >= 80;
 
-        bool ManaOk => (Container.Player.Level < 6 && Container.Player.ManaPercent > 50) || Container.Player.ManaPercent >= 90 || (Container.Player.ManaPercent >= 55 && !Container.Player.IsDrinking);
+        bool ManaOk => (ObjectManager.Player.Level < 6 && ObjectManager.Player.ManaPercent > 50) || ObjectManager.Player.ManaPercent >= 90 || (ObjectManager.Player.ManaPercent >= 55 && !ObjectManager.Player.IsDrinking);
 
-        bool InCombat => Container.Player.IsInCombat || ObjectManager.Instance.Units.Any(u => u.TargetGuid == Container.Player.Guid || u.TargetGuid == ObjectManager.Instance.Pet?.Guid);
+        bool InCombat => ObjectManager.Player.IsInCombat || ObjectManager.Units.Any(u => u.TargetGuid == ObjectManager.Player.Guid || u.TargetGuid == ObjectManager.Pet?.Guid);
         
         public void TryCastSpell(string name, int minRange, int maxRange, bool condition = true, Action callback = null, bool castOnSelf = false) =>
             TryCastSpellInternal(name, minRange, maxRange, condition, callback, castOnSelf);
@@ -102,9 +104,9 @@ namespace AfflictionWarlockBot
 
         void TryCastSpellInternal(string name, int minRange, int maxRange, bool condition = true, Action callback = null, bool castOnSelf = false)
         {
-            if (Spellbook.Instance.IsSpellReady(name) && condition && !Container.Player.IsStunned && ((!Container.Player.IsCasting && !Container.Player.IsChanneling) || Container.Player.Class == ClassId.Warrior))
+            if (ObjectManager.Player.IsSpellReady(name) && condition && !ObjectManager.Player.IsStunned && ((!ObjectManager.Player.IsCasting && ObjectManager.Player.ChannelingId == 0) || ObjectManager.Player.Class == Class.Warrior))
             {
-                Spellbook.Instance.Cast(name);
+                Functions.LuaCall($"CastSpellByName('{name}')");
                 callback?.Invoke();
             }
         }

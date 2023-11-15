@@ -74,7 +74,7 @@ namespace RaidLeaderBot
             IntPtr loaderDllPointer = GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryW");
 
             // this seems to help prevent timing issues
-            Thread.Sleep(1000);
+            Thread.Sleep(1500);
 
             error = Marshal.GetLastWin32Error();
             if (error > 0)

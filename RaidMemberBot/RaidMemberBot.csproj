@@ -17,6 +17,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -31,7 +32,6 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -294,10 +294,24 @@
     <Compile Include="Client\ConfigClient.cs" />
     <Compile Include="Client\DatabaseClient.cs" />
     <Compile Include="Client\NavigationClient.cs" />
+    <Compile Include="Constants\Structs.cs" />
+    <Compile Include="Game\Frames\DialogFrame.cs" />
+    <Compile Include="Game\Frames\LootFrame.cs" />
+    <Compile Include="Game\Frames\MerchantFrame.cs" />
+    <Compile Include="Game\Hack.cs" />
+    <Compile Include="Game\Inventory.cs" />
+    <Compile Include="Game\ItemCacheInfo.cs" />
+    <Compile Include="Game\Wait.cs" />
     <Compile Include="IBot.cs" />
     <Compile Include="IBotTask.cs" />
     <Compile Include="IClassContainer.cs" />
+    <Compile Include="Mem\AntiWarden\WardenDisabler.cs" />
+    <Compile Include="Mem\HackManager.cs" />
+    <Compile Include="Mem\Memory.cs" />
+    <Compile Include="Mem\MemoryAddresses.cs" />
+    <Compile Include="Mem\ThreadSynchronizer.cs" />
     <Compile Include="Models\CreatureEquipTemplate.cs" />
+    <Compile Include="Models\CreatureGrouping.cs" />
     <Compile Include="Models\CreatureLinking.cs" />
     <Compile Include="Models\CreatureLinkingTemplate.cs" />
     <Compile Include="Models\CreatureMovement.cs" />
@@ -306,6 +320,9 @@
     <Compile Include="Models\Dto\ConfigurationResponse.cs" />
     <Compile Include="Models\Dto\DatabaseRequest.cs" />
     <Compile Include="Models\Dto\PathfindingRequest.cs" />
+    <Compile Include="Objects\Position.cs" />
+    <Compile Include="Objects\WoWContainer.cs" />
+    <Compile Include="Objects\WoWPlayer.cs" />
     <Compile Include="Tasks\BuyItemsTask.cs" />
     <Compile Include="Tasks\DungeoneeringTask.cs" />
     <Compile Include="Tasks\QuestingTask.cs" />
@@ -327,74 +344,18 @@
     <Compile Include="Tasks\SellItemsTask.cs" />
     <Compile Include="BotLoader.cs" />
     <Compile Include="Client\CommandClient.cs" />
-    <Compile Include="Game\Spell.cs" />
+    <Compile Include="Game\Statics\Spell.cs" />
     <Compile Include="Mem\Hooks\SignalEventManager.cs" />
     <Compile Include="Models\AreaTriggerTeleport.cs" />
     <Compile Include="Settings\RaidMemberSettings.cs" />
     <Compile Include="Constants\Enums.cs" />
     <Compile Include="Constants\GameConstants.cs" />
     <Compile Include="Constants\Offsets.cs" />
-    <Compile Include="Constants\PrivateEnums.cs" />
-    <Compile Include="Constants\Structs.cs" />
-    <Compile Include="Constants\WinImports.cs" />
     <Compile Include="Discord\DiscordClientWrapper.cs" />
-    <Compile Include="ExtensionMethods\AssemblyExtensions.cs" />
-    <Compile Include="ExtensionMethods\EnumExtensions.cs" />
-    <Compile Include="ExtensionMethods\LocationExtensions.cs" />
-    <Compile Include="ExtensionMethods\MemExtensions.cs" />
-    <Compile Include="ExtensionMethods\SecureStringExtensions.cs" />
-    <Compile Include="Game\Frames\FrameObjects\GossipOption.cs" />
-    <Compile Include="Game\Frames\FrameObjects\LootItem.cs" />
-    <Compile Include="Game\Frames\FrameObjects\MerchantItem.cs" />
-    <Compile Include="Game\Frames\FrameObjects\QuestChoiceAward.cs" />
-    <Compile Include="Game\Frames\FrameObjects\QuestLogEntry.cs" />
-    <Compile Include="Game\Frames\FrameObjects\QuestObjective.cs" />
-    <Compile Include="Game\Frames\FrameObjects\QuestOption.cs" />
-    <Compile Include="Game\Frames\FrameObjects\TaxiNode.cs" />
-    <Compile Include="Game\Frames\FrameObjects\TrainerSpellItem.cs" />
-    <Compile Include="Game\Frames\GossipFrame.cs" />
-    <Compile Include="Game\Frames\MerchantFrame.cs" />
-    <Compile Include="Game\Frames\QuestFrame.cs" />
-    <Compile Include="Game\Frames\QuestGreetingFrame.cs" />
-    <Compile Include="Game\Frames\TaxiFrame.cs" />
-    <Compile Include="Game\Frames\TrainerFrame.cs" />
-    <Compile Include="Game\Frames\LootFrame.cs" />
-    <Compile Include="Game\Statics\DirectX.cs" />
-    <Compile Include="Game\Statics\Hacks.cs" />
-    <Compile Include="Game\Statics\Inventory.cs" />
-    <Compile Include="Game\Statics\Login.cs" />
-    <Compile Include="Game\Statics\Lua.cs" />
-    <Compile Include="Game\Statics\Navigation.cs" />
     <Compile Include="Game\Statics\ObjectManager.cs" />
-    <Compile Include="Game\Statics\QuestLog.cs" />
-    <Compile Include="Game\Statics\Skills.cs" />
-    <Compile Include="Game\Statics\Spellbook.cs" />
-    <Compile Include="Game\Statics\UnitInfo.cs" />
     <Compile Include="Game\Statics\WoWEventHandler.cs" />
-    <Compile Include="Game\Transport.cs" />
-    <Compile Include="Helpers\DebugAssist.cs" />
-    <Compile Include="Helpers\GreyMagic\AllocatedMemory.cs" />
-    <Compile Include="Helpers\GreyMagic\ExternalProcessReader.cs" />
-    <Compile Include="Helpers\GreyMagic\InProcessMemoryReader.cs" />
-    <Compile Include="Helpers\GreyMagic\Internals\DetourManager.cs" />
-    <Compile Include="Helpers\GreyMagic\Internals\Manager.cs" />
-    <Compile Include="Helpers\GreyMagic\Internals\PatchManager.cs" />
-    <Compile Include="Helpers\GreyMagic\MarshalCache.cs" />
-    <Compile Include="Helpers\GreyMagic\MemoryBase.cs" />
-    <Compile Include="Helpers\GreyMagic\MemoryProtectionOperation.cs" />
-    <Compile Include="Helpers\GreyMagic\MissingAttributeException.cs" />
-    <Compile Include="Helpers\GreyMagic\Native\Imports.cs" />
-    <Compile Include="Helpers\GreyMagic\Native\PetHeaderParser.cs" />
-    <Compile Include="Helpers\GreyMagic\SafeMemoryHandle.cs" />
-    <Compile Include="Helpers\GreyMagic\Utilities.cs" />
-    <Compile Include="Helpers\Wait.cs" />
+    <Compile Include="Mem\Detour.cs" />
     <Compile Include="Mem\Functions.cs" />
-    <Compile Include="Mem\GetEndScene.cs" />
-    <Compile Include="Mem\Hacks.cs" />
-    <Compile Include="Mem\Hooks\CacheCallback.cs" />
-    <Compile Include="Mem\Hooks\UnloadWorldHook.cs" />
-    <Compile Include="Mem\LoginBlock.cs" />
-    <Compile Include="Mem\Memory.cs" />
     <Compile Include="Models\CharacterEquip.cs" />
     <Compile Include="Models\Creature.cs" />
     <Compile Include="Models\CreatureTemplate.cs" />
@@ -402,19 +363,14 @@
     <Compile Include="Models\Dto\CharacterState.cs" />
     <Compile Include="Models\GameObject.cs" />
     <Compile Include="Models\Item.cs" />
-    <Compile Include="Models\Npc.cs" />
     <Compile Include="Models\NpcVendorEntry.cs" />
     <Compile Include="Models\QuestTemplate.cs" />
     <Compile Include="Objects\LocalPet.cs" />
     <Compile Include="Objects\LocalPlayer.cs" />
-    <Compile Include="Objects\Location.cs" />
-    <Compile Include="Objects\Rectangle.cs" />
     <Compile Include="Objects\WoWGameObject.cs" />
     <Compile Include="Objects\WoWItem.cs" />
     <Compile Include="Objects\WoWObject.cs" />
     <Compile Include="Objects\WoWUnit.cs" />
-    <Compile Include="Properties\Annotations.cs" />
-    <Compile Include="Mem\ThreadSynchronizer.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>

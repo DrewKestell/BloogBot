@@ -2,7 +2,10 @@
 
 using RaidMemberBot.AI;
 using RaidMemberBot.AI.SharedStates;
+using RaidMemberBot.Constants;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using static RaidMemberBot.Constants.Enums;
@@ -40,7 +43,7 @@ namespace BeastMasterHunterBot
 
         public void Update()
         {
-            if (ObjectManager.Instance.Aggressors.Count == 0)
+            if (ObjectManager.Aggressors.Count == 0)
             {
                 BotTasks.Pop();
                 return;
@@ -48,23 +51,23 @@ namespace BeastMasterHunterBot
 
             if (Container.HostileTarget == null || Container.HostileTarget.HealthPercent <= 0)
             {
-                Container.HostileTarget = ObjectManager.Instance.Aggressors[0];
+                Container.HostileTarget = ObjectManager.Aggressors[0];
             }
 
             if (Update(target, 28))
                 return;
 
-            Container.Player.StopAllMovement();
+            ObjectManager.Player.StopAllMovement();
 
-            WoWItem gun = Inventory.Instance.GetEquippedItem(EquipSlot.Ranged);
-            bool canUseRanged = gun != null && Container.Player.Location.GetDistanceTo(target.Location) > 5 && Container.Player.Location.GetDistanceTo(target.Location) < 34;
+            WoWItem gun = Inventory.GetEquippedItem(EquipSlot.Ranged);
+            bool canUseRanged = gun != null && ObjectManager.Player.Position.DistanceTo(target.Position) > 5 && ObjectManager.Player.Position.DistanceTo(target.Position) < 34;
             if (gun == null)
             {
-                Lua.Instance.Execute(AutoAttackLuaScript);
+                Functions.LuaCall(AutoAttackLuaScript);
             }
-            else if (canUseRanged && Container.Player.ManaPercent < 60)
+            else if (canUseRanged && ObjectManager.Player.ManaPercent < 60)
             {
-                Lua.Instance.Execute(GunLuaScript);
+                Functions.LuaCall(GunLuaScript);
             } 
             else if (gun != null && canUseRanged)
             {
@@ -77,7 +80,7 @@ namespace BeastMasterHunterBot
                 { 
                     TryCastSpell(SerpentSting, 0, 34);
                 }
-                else if (Container.Player.ManaPercent > 60)
+                else if (ObjectManager.Player.ManaPercent > 60)
                 {
                     TryCastSpell(ArcaneShot, 0, 34);
                 }

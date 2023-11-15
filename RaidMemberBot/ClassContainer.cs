@@ -10,8 +10,8 @@ namespace RaidMemberBot.AI
     {
         public string Name { get; }
         public CharacterState State { get; }
-        public LocalPlayer Player { get => ObjectManager.Instance.Player; }
-        public Location CurrentWaypoint { get; set; }
+        public LocalPlayer Player { get => ObjectManager.Player; }
+        public Position CurrentWaypoint { get; set; }
         public WoWUnit HostileTarget { get; set; }
         public WoWUnit FriendlyTarget { get; set; }
         public Func<IClassContainer, Stack<IBotTask>, IBotTask> CreateRestTask { get; }
@@ -36,7 +36,7 @@ namespace RaidMemberBot.AI
             CreatePvERotationTask = createPvERotationTask;
             CreatePvPRotationTask = createPvPRotationTask;
 
-            Console.WriteLine($"CLASS CONTAINER: {Name}");
+            Console.WriteLine($"[CLASS CONTAINER] {Name}");
         }
     }
 }

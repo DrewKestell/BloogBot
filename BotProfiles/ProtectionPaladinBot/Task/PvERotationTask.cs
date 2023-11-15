@@ -29,13 +29,13 @@ namespace ProtectionPaladinBot
 
         public void Update()
         {
-            if (Container.Player.HealthPercent < 30 && Container.HostileTarget.HealthPercent > 50 && Container.Player.Mana >= Container.Player.GetManaCost(HolyLight))
+            if (ObjectManager.Player.HealthPercent < 30 && Container.HostileTarget.HealthPercent > 50 && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(HolyLight))
             {
                 BotTasks.Push(new HealTask(Container, BotTasks));
                 return;
             }
 
-            if (ObjectManager.Instance.Aggressors.Count == 0)
+            if (ObjectManager.Aggressors.Count == 0)
             {
                 BotTasks.Pop();
                 return;
@@ -43,37 +43,37 @@ namespace ProtectionPaladinBot
 
             if (Container.HostileTarget == null || Container.HostileTarget.HealthPercent <= 0)
             {
-                Container.HostileTarget = ObjectManager.Instance.Aggressors.First();
+                Container.HostileTarget = ObjectManager.Aggressors.First();
             }
 
             if (Update(Container.HostileTarget, 4))
                 return;
 
-            TryCastSpell(LayOnHands, Container.Player.Mana < Container.Player.GetManaCost(HolyLight) && Container.Player.HealthPercent < 10, castOnSelf: true);
+            TryCastSpell(LayOnHands, ObjectManager.Player.Mana < ObjectManager.Player.GetManaCost(HolyLight) && ObjectManager.Player.HealthPercent < 10, castOnSelf: true);
 
-            TryCastSpell(Purify, Container.Player.IsPoisoned || Container.Player.IsDiseased, castOnSelf: true);
+            TryCastSpell(Purify, ObjectManager.Player.IsPoisoned || ObjectManager.Player.IsDiseased, castOnSelf: true);
 
-            TryCastSpell(RighteousFury, !Container.Player.HasBuff(RighteousFury));
+            TryCastSpell(RighteousFury, !ObjectManager.Player.HasBuff(RighteousFury));
 
-            TryCastSpell(DevotionAura, !Container.Player.HasBuff(DevotionAura) && !Spellbook.Instance.IsSpellReady(RetributionAura));
+            TryCastSpell(DevotionAura, !ObjectManager.Player.HasBuff(DevotionAura) && !ObjectManager.Player.IsSpellReady(RetributionAura));
 
-            TryCastSpell(RetributionAura, !Container.Player.HasBuff(RetributionAura) && Spellbook.Instance.IsSpellReady(RetributionAura));
+            TryCastSpell(RetributionAura, !ObjectManager.Player.HasBuff(RetributionAura) && ObjectManager.Player.IsSpellReady(RetributionAura));
 
             TryCastSpell(Exorcism, 0, 30, Container.HostileTarget.CreatureType == CreatureType.Undead || Container.HostileTarget.CreatureType == CreatureType.Demon);
 
             TryCastSpell(HammerOfJustice, 0, 10, Container.HostileTarget.CreatureType != CreatureType.Humanoid || (Container.HostileTarget.CreatureType == CreatureType.Humanoid && Container.HostileTarget.HealthPercent < 20));
 
-            TryCastSpell(Consecration, ObjectManager.Instance.Aggressors.Count() > 1);
+            TryCastSpell(Consecration, ObjectManager.Aggressors.Count() > 1);
 
             // do we need to use JudgementOfWisdom? prot pally seems to always be at full mana.
 
-            TryCastSpell(JudgementOfLight, 0, 10, !Container.HostileTarget.HasDebuff(JudgementOfLight) && Container.Player.Buffs.Any(b => b.Name.StartsWith("Seal of")));
+            TryCastSpell(JudgementOfLight, 0, 10, !Container.HostileTarget.HasDebuff(JudgementOfLight) && ObjectManager.Player.Buffs.Any(b => b.Name.StartsWith("Seal of")));
 
-            TryCastSpell(SealOfTheCrusader, !Container.Player.HasBuff(SealOfTheCrusader) && !Container.HostileTarget.HasDebuff(JudgementOfTheCrusader));
+            TryCastSpell(SealOfTheCrusader, !ObjectManager.Player.HasBuff(SealOfTheCrusader) && !Container.HostileTarget.HasDebuff(JudgementOfTheCrusader));
 
-            TryCastSpell(SealOfRighteousness, !Container.Player.HasBuff(SealOfRighteousness) && (Container.HostileTarget.HasDebuff(JudgementOfTheCrusader) || !Spellbook.Instance.IsSpellReady(JudgementOfTheCrusader)));
+            TryCastSpell(SealOfRighteousness, !ObjectManager.Player.HasBuff(SealOfRighteousness) && (Container.HostileTarget.HasDebuff(JudgementOfTheCrusader) || !ObjectManager.Player.IsSpellReady(JudgementOfTheCrusader)));
 
-            TryCastSpell(HolyShield, !Container.Player.HasBuff(HolyShield) && Container.HostileTarget.HealthPercent > 50);
+            TryCastSpell(HolyShield, !ObjectManager.Player.HasBuff(HolyShield) && Container.HostileTarget.HealthPercent > 50);
         }
     }
 }

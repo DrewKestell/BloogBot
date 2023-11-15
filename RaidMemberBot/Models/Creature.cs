@@ -11,10 +11,10 @@ namespace RaidMemberBot.Models
         public byte SpawnMask { get; set; }
         public int ModelId { get; set; }
         public int EquipmentId { get; set; }
-        public float LocationX { get; set; }
-        public float LocationY { get; set; }
-        public float LocationZ { get; set; }
-        public Vector3 SpawnLocation { get; set; }
+        public float PositionX { get; set; }
+        public float PositionY { get; set; }
+        public float PositionZ { get; set; }
+        public Vector3 SpawnPosition { get; set; }
         public float Orientation { get; set; }
         public int SpawnTimeSecsMin { get; set; }
         public int SpawnTimeSecsMax { get; set; }

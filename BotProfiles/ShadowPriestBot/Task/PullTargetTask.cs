@@ -1,7 +1,9 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Client;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,9 +23,9 @@ namespace ShadowPriestBot
 
         internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull)
         {
-            if (Container.Player.HasBuff(ShadowForm))
+            if (ObjectManager.Player.HasBuff(ShadowForm))
                 pullingSpell = MindBlast;
-            else if (Spellbook.Instance.IsSpellReady(HolyFire))
+            else if (ObjectManager.Player.IsSpellReady(HolyFire))
                 pullingSpell = HolyFire;
             else
                 pullingSpell = Smite;
@@ -31,62 +33,62 @@ namespace ShadowPriestBot
 
         public void Update()
         {
-            if (ObjectManager.Instance.Hostiles.Count > 0)
+            if (ObjectManager.Hostiles.Count() > 0)
             {
-                WoWUnit potentialNewTarget = ObjectManager.Instance.Hostiles.First();
+                WoWUnit potentialNewTarget = ObjectManager.Hostiles.First();
 
                 if (potentialNewTarget != null && potentialNewTarget.Guid != Container.HostileTarget.Guid)
                 {
                     Container.HostileTarget = potentialNewTarget;
-                    Container.Player.SetTarget(potentialNewTarget);
+                    ObjectManager.Player.SetTarget(potentialNewTarget.Guid);
                 }
             }
 
-            float distanceToTarget = Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location);
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position);
             if (distanceToTarget < 27)
             {
-                if (Container.Player.IsMoving)
-                    Container.Player.StopAllMovement();
+                if (ObjectManager.Player.IsMoving)
+                    ObjectManager.Player.StopAllMovement();
 
-                if (Container.Player.IsCasting && Spellbook.Instance.IsSpellReady(pullingSpell))
+                if (ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady(pullingSpell))
                 {
-                    if (!Spellbook.Instance.IsSpellReady(PowerWordShield) || Container.Player.HasBuff(PowerWordShield) || Container.Player.IsInCombat)
+                    if (!ObjectManager.Player.IsSpellReady(PowerWordShield) || ObjectManager.Player.HasBuff(PowerWordShield) || ObjectManager.Player.IsInCombat)
                     {
                         if (Wait.For("ShadowPriestPullDelay", 250))
                         {
-                            Container.Player.SetTarget(Container.HostileTarget.Guid);
+                            ObjectManager.Player.SetTarget(Container.HostileTarget.Guid);
                             Wait.Remove("ShadowPriestPullDelay");
 
-                            if (!Container.Player.IsInCombat)
-                                Lua.Instance.Execute($"CastSpellByName('{pullingSpell}')");
+                            if (!ObjectManager.Player.IsInCombat)
+                                Functions.LuaCall($"CastSpellByName('{pullingSpell}')");
 
-                            Container.Player.StopAllMovement();
+                            ObjectManager.Player.StopAllMovement();
                             BotTasks.Pop();
                             BotTasks.Push(new PvERotationTask(Container, BotTasks));
                         }
                     }
 
-                    if (Spellbook.Instance.IsSpellReady(PowerWordShield) && !Container.Player.HasDebuff(WeakenedSoul) && !Container.Player.HasBuff(PowerWordShield))
-                        Lua.Instance.Execute($"CastSpellByName('{PowerWordShield}',1)");
+                    if (ObjectManager.Player.IsSpellReady(PowerWordShield) && !ObjectManager.Player.HasDebuff(WeakenedSoul) && !ObjectManager.Player.HasBuff(PowerWordShield))
+                        Functions.LuaCall($"CastSpellByName('{PowerWordShield}',1)");
 
                     return;
                 }
             }
             else
             {
-                Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
+                Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
                 if (nextWaypoint.Length > 1)
                 {
                     Container.CurrentWaypoint = nextWaypoint[1];
                 }
                 else
                 {
-                    Container.Player.StopAllMovement();
+                    ObjectManager.Player.StopAllMovement();
                     BotTasks.Pop();
                     return;
                 }
 
-                Container.Player.MoveToward(Container.CurrentWaypoint);
+                ObjectManager.Player.MoveToward(Container.CurrentWaypoint);
             }
         }
     }

@@ -1,7 +1,9 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Client;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 
@@ -19,39 +21,39 @@ namespace FrostMageBot
 
         internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull)
         {
-            if (Spellbook.Instance.IsSpellReady(Frostbolt))
+            if (ObjectManager.Player.IsSpellReady(Frostbolt))
                 pullingSpell = Frostbolt;
             else
                 pullingSpell = Fireball;
 
-            range = 28 + (Container.Player.GetTalentRank(3, 11) * 3);
+            range = 28 + (ObjectManager.GetTalentRank(3, 11) * 3);
         }
 
         public void Update()
         {
-            if (Container.Player.IsCasting)
+            if (ObjectManager.Player.IsCasting)
                 return;
 
             if (Container.HostileTarget.TappedByOther)
             {
-                Container.Player.StopAllMovement();
+                ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
                 return;
             }
 
-            float distanceToTarget = Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location);
-            if (distanceToTarget <= range && Container.Player.InLosWith(Container.HostileTarget.Location))
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position);
+            if (distanceToTarget <= range && ObjectManager.Player.InLosWith(Container.HostileTarget.Position))
             {
-                if (Container.Player.IsMoving)
-                    Container.Player.StopAllMovement();
+                if (ObjectManager.Player.IsMoving)
+                    ObjectManager.Player.StopAllMovement();
 
                 if (Wait.For(waitKey, 250))
                 {
-                    Container.Player.StopAllMovement();
+                    ObjectManager.Player.StopAllMovement();
                     Wait.Remove(waitKey);
                     
-                    if (!Container.Player.IsInCombat)
-                        Lua.Instance.Execute($"CastSpellByName('{pullingSpell}')");
+                    if (!ObjectManager.Player.IsInCombat)
+                        Functions.LuaCall($"CastSpellByName('{pullingSpell}')");
 
                     BotTasks.Pop();
                     BotTasks.Push(new PvERotationTask(Container, BotTasks));
@@ -60,8 +62,8 @@ namespace FrostMageBot
             }
             else
             {
-                Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
-                Container.Player.MoveToward(nextWaypoint[0]);
+                Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+                ObjectManager.Player.MoveToward(nextWaypoint[0]);
             }
         }
     }

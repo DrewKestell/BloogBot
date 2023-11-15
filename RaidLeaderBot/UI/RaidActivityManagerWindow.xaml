@@ -896,9 +896,9 @@
                 <Label Grid.Row="2" Grid.Column="4" HorizontalContentAlignment="Left" Content="{Binding WaypointZ}"/>
 
                 <Label Grid.Row="3" Grid.Column="1" HorizontalContentAlignment="Left" Content="{Binding CharacterState.MapId}"/>
-                <Label Grid.Row="3" Grid.Column="2" HorizontalContentAlignment="Left" Content="{Binding LocationX}"/>
-                <Label Grid.Row="3" Grid.Column="3" HorizontalContentAlignment="Left" Content="{Binding LocationY}"/>
-                <Label Grid.Row="3" Grid.Column="4" HorizontalContentAlignment="Left" Content="{Binding LocationZ}"/>
+                <Label Grid.Row="3" Grid.Column="2" HorizontalContentAlignment="Left" Content="{Binding DestinationX}"/>
+                <Label Grid.Row="3" Grid.Column="3" HorizontalContentAlignment="Left" Content="{Binding DestinationY}"/>
+                <Label Grid.Row="3" Grid.Column="4" HorizontalContentAlignment="Left" Content="{Binding DestinationZ}"/>
 
                 <Label Grid.Row="0" Grid.Column="6" Content="GUID:" HorizontalContentAlignment="Right"/>
                 <Label Grid.Row="0" Grid.Column="7" Content="{Binding CharacterState.Guid}" Grid.ColumnSpan="3" HorizontalContentAlignment="Left"/>
@@ -945,7 +945,7 @@
                 <Label Grid.Row="16" Grid.Column="8" Content="On Taxi:" HorizontalContentAlignment="Right"/>
 
                 <Label Grid.Row="6" Grid.Column="7" Grid.ColumnSpan="3" Content="{Binding CharacterState.Casting}" HorizontalContentAlignment="Left"/>
-                <Label Grid.Row="7" Grid.Column="7" Grid.ColumnSpan="3" Content="{Binding CharacterState.Channeling}" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="7" Grid.Column="7" Grid.ColumnSpan="3" Content="{Binding CharacterState.ChannelingId}" HorizontalContentAlignment="Left"/>
                 <Label Grid.Row="8" Grid.Column="7" Grid.ColumnSpan="3" Content="{Binding CharacterState.HostileTargetGuid}" HorizontalContentAlignment="Left"/>
                 <Label Grid.Row="9" Grid.Column="7" Grid.ColumnSpan="3" Content="{Binding CharacterState.FriendlyTargetGuid}" HorizontalContentAlignment="Left"/>
                 <Label Grid.Row="10" Grid.Column="7" Content="{Binding CharacterState.IsDiseased}" HorizontalContentAlignment="Left"/>
@@ -967,14 +967,14 @@
                 <Label Grid.Row="6" Grid.Column="1" Content="{Binding CharacterState.Facing}"  HorizontalContentAlignment="Right" VerticalContentAlignment="Bottom" />
 
                 <Label Grid.Row="2" Grid.Column="0" Content="Waypoint:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="3" Grid.Column="0" Content="Location:" HorizontalContentAlignment="Right"/>
+                <Label Grid.Row="3" Grid.Column="0" Content="Position:" HorizontalContentAlignment="Right"/>
                 <Label Grid.Row="4" Grid.Column="0" Content="Destination:" HorizontalContentAlignment="Right"/>
                 <Label Grid.Row="6" Grid.Column="0" Content="Facing:" HorizontalContentAlignment="Right"/>
                 <Label Grid.Row="6" Grid.Column="3" Content="Distance:" HorizontalContentAlignment="Right"/>
                 <Label Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Content="WoW Units:" HorizontalContentAlignment="Left"/>
                 <Label Grid.Row="8" Grid.Column="3" Grid.ColumnSpan="2" Content="WoW Objects:" HorizontalContentAlignment="Left"/>
 
-                <Button IsEnabled="{Binding CanSendCommand}" Grid.Row="4" Grid.Column="5" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding CurrentLocationToDestinationCommand}" Width="64">Current</Button>
+                <Button IsEnabled="{Binding CanSendCommand}" Grid.Row="4" Grid.Column="5" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding CurrentPositionToDestinationCommand}" Width="64">Current</Button>
                 <Button IsEnabled="{Binding CanSendCommand}" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding MoveToCommand}">Move To</Button>
                 <Button IsEnabled="{Binding CanSendCommand}" Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="2" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding TeleportToCommand}">Teleport To</Button>
                 <Button IsEnabled="{Binding CanSendCommand}" Grid.Row="5" Grid.Column="4" Grid.ColumnSpan="2" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding JumpAtCommand}">Jump At</Button>

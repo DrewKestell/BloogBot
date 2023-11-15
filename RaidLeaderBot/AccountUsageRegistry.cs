@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static RaidMemberBot.Constants.Enums;
 
 namespace RaidLeaderBot
@@ -13,7 +10,7 @@ namespace RaidLeaderBot
             new Lazy<AccountUsageRegistry>(() => new AccountUsageRegistry());
         public static AccountUsageRegistry Instance => _instance.Value;
         private AccountUsageRegistry() { }
-        public string CheckoutNextAvaiableAccountName(Race race, ClassId classId)
+        public string CheckoutNextAvaiableAccountName(Race race, Class classId)
         {
             foreach (var keyValuePair in _accountUsageDictionary)
             {
@@ -32,7 +29,7 @@ namespace RaidLeaderBot
             }
             return "OrWr1";
         }
-        public void CheckoutNextAvaiableAccountName(Race race, ClassId classId, string accountName)
+        public void CheckoutNextAvaiableAccountName(Race race, Class classId, string accountName)
         {
             foreach (var keyValuePair in _accountUsageDictionary)
             {
@@ -43,9 +40,9 @@ namespace RaidLeaderBot
                 }
             }
         }
-        private Dictionary<Tuple<Race, ClassId>, Dictionary<string, bool>> _accountUsageDictionary = new Dictionary<Tuple<Race, ClassId>, Dictionary<string, bool>>() {
+        private Dictionary<Tuple<Race, Class>, Dictionary<string, bool>> _accountUsageDictionary = new Dictionary<Tuple<Race, Class>, Dictionary<string, bool>>() {
             {
-                Tuple.Create(Race.Human, ClassId.Warrior), new Dictionary<string, bool>()
+                Tuple.Create(Race.Human, Class.Warrior), new Dictionary<string, bool>()
                 {
                     {"HuWr1", false},
                     {"HuWr2", false},
@@ -59,7 +56,7 @@ namespace RaidLeaderBot
                     {"HuWr10", false}
                 }
             },
-            { Tuple.Create(Race.Human, ClassId.Paladin), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Human, Class.Paladin), new Dictionary<string, bool>()
                 {
                     {"HuPa1", false},
                     {"HuPa2", false},
@@ -73,7 +70,7 @@ namespace RaidLeaderBot
                     {"HuPa10", false}
                 }
             },
-            { Tuple.Create(Race.Human, ClassId.Rogue), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Human, Class.Rogue), new Dictionary<string, bool>()
                 {
                     {"HuRo1", false},
                     {"HuRo2", false},
@@ -87,7 +84,7 @@ namespace RaidLeaderBot
                     {"HuRo10", false}
                 }
             },
-            { Tuple.Create(Race.Human, ClassId.Priest), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Human, Class.Priest), new Dictionary<string, bool>()
                 {
                     {"HuPr1", false},
                     {"HuPr2", false},
@@ -101,7 +98,7 @@ namespace RaidLeaderBot
                     {"HuPr10", false}
                 }
             },
-            { Tuple.Create(Race.Human, ClassId.Mage), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Human, Class.Mage), new Dictionary<string, bool>()
                 {
                     {"HuMa1", false},
                     {"HuMa2", false},
@@ -115,7 +112,7 @@ namespace RaidLeaderBot
                     {"HuMa10", false}
                 }
             },
-            { Tuple.Create(Race.Human, ClassId.Warlock), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Human, Class.Warlock), new Dictionary<string, bool>()
                 {
                     {"HuWl1", false},
                     {"HuWl2", false},
@@ -130,7 +127,7 @@ namespace RaidLeaderBot
                 }
             },
 
-            { Tuple.Create(Race.Dwarf, ClassId.Warrior), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Dwarf, Class.Warrior), new Dictionary<string, bool>()
                 {
                     {"DwWr1", false},
                     {"DwWr2", false},
@@ -144,7 +141,7 @@ namespace RaidLeaderBot
                     {"DwWr10", false}
                 }
             },
-            { Tuple.Create(Race.Dwarf, ClassId.Paladin), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Dwarf, Class.Paladin), new Dictionary<string, bool>()
                 {
                     {"DwPa1", false},
                     {"DwPa2", false},
@@ -158,7 +155,7 @@ namespace RaidLeaderBot
                     {"DwPa10", false}
                 }
             },
-            { Tuple.Create(Race.Dwarf, ClassId.Hunter), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Dwarf, Class.Hunter), new Dictionary<string, bool>()
                 {
                     {"DwHu1", false},
                     {"DwHu2", false},
@@ -172,7 +169,7 @@ namespace RaidLeaderBot
                     {"DwHu10", false}
                 }
             },
-            { Tuple.Create(Race.Dwarf, ClassId.Rogue), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Dwarf, Class.Rogue), new Dictionary<string, bool>()
                 {
                     {"DwRo1", false},
                     {"DwRo2", false},
@@ -186,7 +183,7 @@ namespace RaidLeaderBot
                     {"DwRo10", false}
                 }
             },
-            { Tuple.Create(Race.Dwarf, ClassId.Priest), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Dwarf, Class.Priest), new Dictionary<string, bool>()
                 {
                     {"DwPr1", false},
                     {"DwPr2", false},
@@ -201,7 +198,7 @@ namespace RaidLeaderBot
                 }
             },
 
-            { Tuple.Create(Race.NightElf, ClassId.Warrior), new Dictionary<string, bool>()
+            { Tuple.Create(Race.NightElf, Class.Warrior), new Dictionary<string, bool>()
                 {
                     {"NiWr1", false},
                     {"NiWr2", false},
@@ -215,7 +212,7 @@ namespace RaidLeaderBot
                     {"NiWr10", false}
                 }
             },
-            { Tuple.Create(Race.NightElf, ClassId.Hunter), new Dictionary<string, bool>()
+            { Tuple.Create(Race.NightElf, Class.Hunter), new Dictionary<string, bool>()
                 {
                     {"NiHu1", false},
                     {"NiHu2", false},
@@ -229,7 +226,7 @@ namespace RaidLeaderBot
                     {"NiHu10", false}
                 }
             },
-            { Tuple.Create(Race.NightElf, ClassId.Rogue), new Dictionary<string, bool>()
+            { Tuple.Create(Race.NightElf, Class.Rogue), new Dictionary<string, bool>()
                 {
                     {"NiRo1", false},
                     {"NiRo2", false},
@@ -243,7 +240,7 @@ namespace RaidLeaderBot
                     {"NiRo10", false}
                 }
             },
-            { Tuple.Create(Race.NightElf, ClassId.Priest), new Dictionary<string, bool>()
+            { Tuple.Create(Race.NightElf, Class.Priest), new Dictionary<string, bool>()
                 {
                     {"NiPr1", false},
                     {"NiPr2", false},
@@ -257,7 +254,7 @@ namespace RaidLeaderBot
                     {"NiPr10", false}
                 }
             },
-            { Tuple.Create(Race.NightElf, ClassId.Druid), new Dictionary<string, bool>()
+            { Tuple.Create(Race.NightElf, Class.Druid), new Dictionary<string, bool>()
                 {
                     {"NiDr1", false},
                     {"NiDr2", false},
@@ -272,7 +269,7 @@ namespace RaidLeaderBot
                 }
             },
 
-            { Tuple.Create(Race.Gnome, ClassId.Warrior), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Gnome, Class.Warrior), new Dictionary<string, bool>()
                 {
                     {"GnWr1", false},
                     {"GnWr2", false},
@@ -286,7 +283,7 @@ namespace RaidLeaderBot
                     {"GnWr10", false}
                 }
             },
-            { Tuple.Create(Race.Gnome, ClassId.Mage), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Gnome, Class.Mage), new Dictionary<string, bool>()
                 {
                     {"GnMa1", false},
                     {"GnMa2", false},
@@ -300,7 +297,7 @@ namespace RaidLeaderBot
                     {"GnMa10", false}
                 }
             },
-            { Tuple.Create(Race.Gnome, ClassId.Rogue), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Gnome, Class.Rogue), new Dictionary<string, bool>()
                 {
                     {"GnRo1", false},
                     {"GnRo2", false},
@@ -314,7 +311,7 @@ namespace RaidLeaderBot
                     {"GnRo10", false}
                 }
             },
-            { Tuple.Create(Race.Gnome, ClassId.Warlock), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Gnome, Class.Warlock), new Dictionary<string, bool>()
                 {
                     {"GnWl1", false},
                     {"GnWl2", false},
@@ -329,7 +326,7 @@ namespace RaidLeaderBot
                 }
             },
 
-            { Tuple.Create(Race.Orc, ClassId.Warrior), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Orc, Class.Warrior), new Dictionary<string, bool>()
                 {
                     {"OrWr1", false},
                     {"OrWr2", false},
@@ -343,7 +340,7 @@ namespace RaidLeaderBot
                     {"OrWr10", false}
                 }
             },
-            { Tuple.Create(Race.Orc, ClassId.Hunter), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Orc, Class.Hunter), new Dictionary<string, bool>()
                 {
                     {"OrHu1", false},
                     {"OrHu2", false},
@@ -357,7 +354,7 @@ namespace RaidLeaderBot
                     {"OrHu10", false}
                 }
             },
-            { Tuple.Create(Race.Orc, ClassId.Rogue), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Orc, Class.Rogue), new Dictionary<string, bool>()
                 {
                     {"OrRo1", false},
                     {"OrRo2", false},
@@ -371,7 +368,7 @@ namespace RaidLeaderBot
                     {"OrRo10", false}
                 }
             },
-            { Tuple.Create(Race.Orc, ClassId.Shaman), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Orc, Class.Shaman), new Dictionary<string, bool>()
                 {
                     {"OrSh1", false},
                     {"OrSh2", false},
@@ -385,7 +382,7 @@ namespace RaidLeaderBot
                     {"OrSh10", false}
                 }
             },
-            { Tuple.Create(Race.Orc, ClassId.Warlock), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Orc, Class.Warlock), new Dictionary<string, bool>()
                 {
                     {"OrWl1", false},
                     {"OrWl2", false},
@@ -400,7 +397,7 @@ namespace RaidLeaderBot
                 }
             },
 
-            { Tuple.Create(Race.Undead, ClassId.Warrior), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Undead, Class.Warrior), new Dictionary<string, bool>()
                 {
                     {"UnWr1", false},
                     {"UnWr2", false},
@@ -414,7 +411,7 @@ namespace RaidLeaderBot
                     {"UnWr10", false}
                 }
             },
-            { Tuple.Create(Race.Undead, ClassId.Rogue), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Undead, Class.Rogue), new Dictionary<string, bool>()
                 {
                     {"UnRo1", false},
                     {"UnRo2", false},
@@ -428,7 +425,7 @@ namespace RaidLeaderBot
                     {"UnRo10", false}
                 }
             },
-            { Tuple.Create(Race.Undead, ClassId.Priest), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Undead, Class.Priest), new Dictionary<string, bool>()
                 {
                     {"UnPr1", false},
                     {"UnPr2", false},
@@ -442,7 +439,7 @@ namespace RaidLeaderBot
                     {"UnPr10", false}
                 }
             },
-            { Tuple.Create(Race.Undead, ClassId.Mage), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Undead, Class.Mage), new Dictionary<string, bool>()
                 {
                     {"UnMa1", false},
                     {"UnMa2", false},
@@ -456,7 +453,7 @@ namespace RaidLeaderBot
                     {"UnMa10", false}
                 }
             },
-            { Tuple.Create(Race.Undead, ClassId.Warlock), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Undead, Class.Warlock), new Dictionary<string, bool>()
                 {
                     {"UnWl1", false},
                     {"UnWl2", false},
@@ -471,7 +468,7 @@ namespace RaidLeaderBot
                 }
             },
 
-            { Tuple.Create(Race.Tauren, ClassId.Warrior), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Tauren, Class.Warrior), new Dictionary<string, bool>()
                 {
                     {"TaWr1", false},
                     {"TaWr2", false},
@@ -485,7 +482,7 @@ namespace RaidLeaderBot
                     {"TaWr10", false}
                 }
             },
-            { Tuple.Create(Race.Tauren, ClassId.Hunter), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Tauren, Class.Hunter), new Dictionary<string, bool>()
                 {
                     {"TaHu1", false},
                     {"TaHu2", false},
@@ -499,7 +496,7 @@ namespace RaidLeaderBot
                     {"TaHu10", false}
                 }
             },
-            { Tuple.Create(Race.Tauren, ClassId.Shaman), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Tauren, Class.Shaman), new Dictionary<string, bool>()
                 {
                     {"TaSh1", false},
                     {"TaSh2", false},
@@ -513,7 +510,7 @@ namespace RaidLeaderBot
                     {"TaSh10", false}
                 }
             },
-            { Tuple.Create(Race.Tauren, ClassId.Druid), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Tauren, Class.Druid), new Dictionary<string, bool>()
                 {
                     {"TaDr1", false},
                     {"TaDr2", false},
@@ -527,7 +524,7 @@ namespace RaidLeaderBot
                     {"TaDr10", false}
                 }
             },
-            { Tuple.Create(Race.Troll, ClassId.Warrior), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Troll, Class.Warrior), new Dictionary<string, bool>()
                 {
                     {"TrWr1", false},
                     {"TrWr2", false},
@@ -541,7 +538,7 @@ namespace RaidLeaderBot
                     {"TrWr10", false}
                 }
             },
-            { Tuple.Create(Race.Troll, ClassId.Hunter), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Troll, Class.Hunter), new Dictionary<string, bool>()
                 {
                     {"TrHu1", false},
                     {"TrHu2", false},
@@ -555,7 +552,7 @@ namespace RaidLeaderBot
                     {"TrHu10", false}
                 }
             },
-            { Tuple.Create(Race.Troll, ClassId.Rogue), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Troll, Class.Rogue), new Dictionary<string, bool>()
                 {
                     {"TrRo1", false},
                     {"TrRo2", false},
@@ -569,7 +566,7 @@ namespace RaidLeaderBot
                     {"TrRo10", false}
                 }
             },
-            { Tuple.Create(Race.Troll, ClassId.Priest), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Troll, Class.Priest), new Dictionary<string, bool>()
                 {
                     {"TrPr1", false},
                     {"TrPr2", false},
@@ -583,7 +580,7 @@ namespace RaidLeaderBot
                     {"TrPr10", false}
                 }
             },
-            { Tuple.Create(Race.Troll, ClassId.Shaman), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Troll, Class.Shaman), new Dictionary<string, bool>()
                 {
                     {"TrSh1", false},
                     {"TrSh2", false},
@@ -597,7 +594,7 @@ namespace RaidLeaderBot
                     {"TrSh10", false}
                 }
             },
-            { Tuple.Create(Race.Troll, ClassId.Mage), new Dictionary<string, bool>()
+            { Tuple.Create(Race.Troll, Class.Mage), new Dictionary<string, bool>()
                 {
                     {"TrMa1", false},
                     {"TrMa2", false},

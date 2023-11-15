@@ -1,5 +1,6 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Mem;
 using System.Collections.Generic;
 
 namespace EnhancementShamanBot
@@ -12,18 +13,18 @@ namespace EnhancementShamanBot
 
         public void Update()
         {
-            if (Container.Player.IsCasting) return;
+            if (ObjectManager.Player.IsCasting) return;
 
-            if (Container.Player.HealthPercent > 70 || Container.Player.Mana < Container.Player.GetManaCost(HealingWave))
+            if (ObjectManager.Player.HealthPercent > 70 || ObjectManager.Player.Mana < ObjectManager.Player.GetManaCost(HealingWave))
             {
                 BotTasks.Pop();
                 return;
             }
 
-            if (Spellbook.Instance.IsSpellReady(WarStomp))
-                Lua.Instance.Execute($"CastSpellByName('{WarStomp}')");
+            if (ObjectManager.Player.IsSpellReady(WarStomp))
+                Functions.LuaCall($"CastSpellByName('{WarStomp}')");
 
-            Lua.Instance.Execute($"CastSpellByName('{HealingWave}',1)");
+            Functions.LuaCall($"CastSpellByName('{HealingWave}',1)");
         }
     }
 }

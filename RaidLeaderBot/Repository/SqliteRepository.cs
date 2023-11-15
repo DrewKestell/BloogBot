@@ -11,53 +11,7 @@ namespace RaidLeaderBot
         private static readonly string ConnectionString = "Data Source=data.sqlite";
         private static readonly string PreparedSql = @"Repository\SqliteSchema.SQL";
 
-        public static AreaTriggerTeleport GetAreaTriggerTeleportById(int id)
-        {
-            AreaTriggerTeleport teleport = null;
-
-            using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))
-            {
-                try
-                {
-                    connection.Open();
-
-                    SQLiteCommand command = connection.CreateCommand();
-                    command.CommandText = @"
-                                            SELECT *
-                                            FROM areatrigger_teleport
-                                            WHERE id = $id
-                                        ";
-                    command.Parameters.AddWithValue("$id", id.ToString());
-                    using (SQLiteDataReader reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            teleport = new AreaTriggerTeleport
-                            {
-                                Id = Convert.ToInt32(reader["id"]),
-                                Name = Convert.ToString(reader["name"]),
-                                RequiredLevel = Convert.ToByte(reader["required_level"]),
-                                RequiredItem = Convert.ToInt32(reader["required_item"]),
-                                RequiredItem2 = Convert.ToInt32(reader["required_item2"]),
-                                RequiredQuestDone = Convert.ToInt32(reader["required_quest_done"]),
-                                TargetMap = Convert.ToUInt16(reader["target_map"]),
-                                TargetPositionX = Convert.ToSingle(reader["target_position_x"]),
-                                TargetPositionY = Convert.ToSingle(reader["target_position_y"]),
-                                TargetPositionZ = Convert.ToSingle(reader["target_position_z"]),
-                                TargetOrientation = Convert.ToSingle(reader["target_orientation"]),
-                                StatusFailedText = Convert.ToString(reader["status_failed_text"]),
-                                ConditionId = Convert.ToInt32(reader["condition_id"])
-                            };
-                        }
-                    }
-                }
-                catch (Exception ex) { Console.WriteLine($"{ex.StackTrace}"); }
-            }
-
-            return teleport;
-        }
-
-        public static AreaTriggerTeleport GetAreaTriggerTeleportByMapId(int id)
+        public static AreaTriggerTeleport GetAreaTriggerTeleportByTargetMap(int targetMapId)
         {
             AreaTriggerTeleport teleport = null;
 
@@ -73,7 +27,7 @@ namespace RaidLeaderBot
                                             FROM areatrigger_teleport
                                             WHERE target_map = $id
                                         ";
-                    command.Parameters.AddWithValue("$id", id.ToString());
+                    command.Parameters.AddWithValue("$id", targetMapId.ToString());
                     using (SQLiteDataReader reader = command.ExecuteReader())
                     {
                         while (reader.Read())
@@ -443,10 +397,10 @@ namespace RaidLeaderBot
                             SpawnMask = Convert.ToByte(reader["spawnMask"]),
                             ModelId = Convert.ToInt32(reader["modelid"]),
                             EquipmentId = Convert.ToInt32(reader["equipment_id"]),
-                            LocationX = Convert.ToSingle(reader["position_x"]),
-                            LocationY = Convert.ToSingle(reader["position_y"]),
-                            LocationZ = Convert.ToSingle(reader["position_z"]),
-                            SpawnLocation = new Vector3(Convert.ToSingle(reader["position_x"]), Convert.ToSingle(reader["position_y"]), Convert.ToSingle(reader["position_z"])),
+                            PositionX = Convert.ToSingle(reader["position_x"]),
+                            PositionY = Convert.ToSingle(reader["position_y"]),
+                            PositionZ = Convert.ToSingle(reader["position_z"]),
+                            SpawnPosition = new Vector3(Convert.ToSingle(reader["position_x"]), Convert.ToSingle(reader["position_y"]), Convert.ToSingle(reader["position_z"])),
                             Orientation = Convert.ToSingle(reader["orientation"]),
                             SpawnTimeSecsMin = Convert.ToInt32(reader["spawntimesecsmin"]),
                             SpawnTimeSecsMax = Convert.ToInt32(reader["spawntimesecsmax"]),
@@ -602,10 +556,10 @@ namespace RaidLeaderBot
                             SpawnMask = Convert.ToByte(reader["spawnMask"]),
                             ModelId = Convert.ToInt32(reader["modelid"]),
                             EquipmentId = Convert.ToInt32(reader["equipment_id"]),
-                            LocationX = Convert.ToSingle(reader["position_x"]),
-                            LocationY = Convert.ToSingle(reader["position_y"]),
-                            LocationZ = Convert.ToSingle(reader["position_z"]),
-                            SpawnLocation = new Vector3(Convert.ToSingle(reader["position_x"]), Convert.ToSingle(reader["position_y"]), Convert.ToSingle(reader["position_z"])),
+                            PositionX = Convert.ToSingle(reader["position_x"]),
+                            PositionY = Convert.ToSingle(reader["position_y"]),
+                            PositionZ = Convert.ToSingle(reader["position_z"]),
+                            SpawnPosition = new Vector3(Convert.ToSingle(reader["position_x"]), Convert.ToSingle(reader["position_y"]), Convert.ToSingle(reader["position_z"])),
                             Orientation = Convert.ToSingle(reader["orientation"]),
                             SpawnTimeSecsMin = Convert.ToInt32(reader["spawntimesecsmin"]),
                             SpawnTimeSecsMax = Convert.ToInt32(reader["spawntimesecsmax"]),
@@ -651,10 +605,10 @@ namespace RaidLeaderBot
                             SpawnMask = Convert.ToByte(reader["spawnMask"]),
                             ModelId = Convert.ToInt32(reader["modelid"]),
                             EquipmentId = Convert.ToInt32(reader["equipment_id"]),
-                            LocationX = Convert.ToSingle(reader["position_x"]),
-                            LocationY = Convert.ToSingle(reader["position_y"]),
-                            LocationZ = Convert.ToSingle(reader["position_z"]),
-                            SpawnLocation = new Vector3(Convert.ToSingle(reader["position_x"]), Convert.ToSingle(reader["position_y"]), Convert.ToSingle(reader["position_z"])),
+                            PositionX = Convert.ToSingle(reader["position_x"]),
+                            PositionY = Convert.ToSingle(reader["position_y"]),
+                            PositionZ = Convert.ToSingle(reader["position_z"]),
+                            SpawnPosition = new Vector3(Convert.ToSingle(reader["position_x"]), Convert.ToSingle(reader["position_y"]), Convert.ToSingle(reader["position_z"])),
                             Orientation = Convert.ToSingle(reader["orientation"]),
                             SpawnTimeSecsMin = Convert.ToInt32(reader["spawntimesecsmin"]),
                             SpawnTimeSecsMax = Convert.ToInt32(reader["spawntimesecsmax"]),
@@ -701,10 +655,10 @@ namespace RaidLeaderBot
                             SpawnMask = Convert.ToByte(reader["spawnMask"]),
                             ModelId = Convert.ToInt32(reader["modelid"]),
                             EquipmentId = Convert.ToInt32(reader["equipment_id"]),
-                            LocationX = Convert.ToSingle(reader["position_x"]),
-                            LocationY = Convert.ToSingle(reader["position_y"]),
-                            LocationZ = Convert.ToSingle(reader["position_z"]),
-                            SpawnLocation = new Vector3(Convert.ToSingle(reader["position_x"]), Convert.ToSingle(reader["position_y"]), Convert.ToSingle(reader["position_z"])),
+                            PositionX = Convert.ToSingle(reader["position_x"]),
+                            PositionY = Convert.ToSingle(reader["position_y"]),
+                            PositionZ = Convert.ToSingle(reader["position_z"]),
+                            SpawnPosition = new Vector3(Convert.ToSingle(reader["position_x"]), Convert.ToSingle(reader["position_y"]), Convert.ToSingle(reader["position_z"])),
                             Orientation = Convert.ToSingle(reader["orientation"]),
                             SpawnTimeSecsMin = Convert.ToInt32(reader["spawntimesecsmin"]),
                             SpawnTimeSecsMax = Convert.ToInt32(reader["spawntimesecsmax"]),
@@ -1095,9 +1049,9 @@ namespace RaidLeaderBot
                             Id = Convert.ToInt32(reader["id"]),
                             Map = Convert.ToInt16(reader["map"]),
                             SpawnMask = Convert.ToByte(reader["spawnMask"]),
-                            LocationX = Convert.ToSingle(reader["position_x"]),
-                            LocationY = Convert.ToSingle(reader["position_y"]),
-                            LocationZ = Convert.ToSingle(reader["position_z"]),
+                            PositionX = Convert.ToSingle(reader["position_x"]),
+                            PositionY = Convert.ToSingle(reader["position_y"]),
+                            PositionZ = Convert.ToSingle(reader["position_z"]),
                             Orientation = Convert.ToSingle(reader["orientation"]),
                             Rotation0 = Convert.ToSingle(reader["rotation0"]),
                             Rotation1 = Convert.ToSingle(reader["rotation1"]),
@@ -1142,9 +1096,9 @@ namespace RaidLeaderBot
                             Id = Convert.ToInt32(reader["id"]),
                             Map = Convert.ToInt16(reader["map"]),
                             SpawnMask = Convert.ToByte(reader["spawnMask"]),
-                            LocationX = Convert.ToSingle(reader["position_x"]),
-                            LocationY = Convert.ToSingle(reader["position_y"]),
-                            LocationZ = Convert.ToSingle(reader["position_z"]),
+                            PositionX = Convert.ToSingle(reader["position_x"]),
+                            PositionY = Convert.ToSingle(reader["position_y"]),
+                            PositionZ = Convert.ToSingle(reader["position_z"]),
                             Orientation = Convert.ToSingle(reader["orientation"]),
                             Rotation0 = Convert.ToSingle(reader["rotation0"]),
                             Rotation1 = Convert.ToSingle(reader["rotation1"]),

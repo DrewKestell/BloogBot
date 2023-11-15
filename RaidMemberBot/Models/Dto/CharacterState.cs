@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
-using System.Windows.Documents;
 using static RaidMemberBot.Constants.Enums;
 
 namespace RaidMemberBot.Models.Dto
@@ -11,7 +10,7 @@ namespace RaidMemberBot.Models.Dto
         public string CurrentActivity { get; set; }
         public string RaidLeader { get; set; }
         public string Task { get; set; }
-        public ClassId Class { get; set; } = ClassId.Warrior;
+        public Class Class { get; set; } = Class.Warrior;
         public Race Race { get; set; } = Race.Human;
         public string AccountName { get; set; }
         public string BotProfileName { get; set; }
@@ -19,7 +18,7 @@ namespace RaidMemberBot.Models.Dto
         public int MapId { get; set; }
         public int WaypointMapId { get; set; }
         public string Zone { get; set; }
-        public Vector3 Location { get; set; } = new Vector3();
+        public Vector3 Position { get; set; } = new Vector3();
         public Vector3 Waypoint { get; set; } = new Vector3();
         public ulong Guid { get; set; }
         public float Facing { get; set; }
@@ -35,7 +34,7 @@ namespace RaidMemberBot.Models.Dto
         public int Energy { get; set; }
         public int ComboPoints { get; set; }
         public int Casting { get; set; }
-        public int Channeling { get; set; }
+        public int ChannelingId { get; set; }
         public bool IsConnected { get; set; }
         public bool InParty { get; set; }
         public bool InRaid { get; set; }

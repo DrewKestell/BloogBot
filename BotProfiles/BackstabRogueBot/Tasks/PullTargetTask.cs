@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System;
 using RaidMemberBot.AI;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot;
 using RaidMemberBot.Objects;
 using static RaidMemberBot.Constants.Enums;
 using RaidMemberBot.Client;
+using RaidMemberBot.Mem;
+using RaidMemberBot.Game;
 
 namespace BackstabRogueBot
 {
@@ -30,120 +31,116 @@ namespace BackstabRogueBot
         {
             if (Container.HostileTarget.TappedByOther)
             {
-                Container.Player.StopAllMovement();
+                ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
                 return;
             }
 
-            float distanceToTarget = Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location);
-            if (distanceToTarget < 30 && !Container.Player.HasBuff(Stealth) && Spellbook.Instance.IsSpellReady(Garrote) && !Container.Player.IsInCombat)
-                Lua.Instance.Execute($"CastSpellByName('{Stealth}')");
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position);
+            if (distanceToTarget < 30 && !ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(Garrote) && !ObjectManager.Player.IsInCombat)
+                Functions.LuaCall($"CastSpellByName('{Stealth}')");
 
-            // Weapon Swap Logic
-            ThreadSynchronizer.Instance.Invoke(() =>
-            {                                             
+            // Weapon Swap Logic                                       
 
-                WoWItem MainHand = Inventory.Instance.GetEquippedItem(EquipSlot.MainHand);
-                WoWItem OffHand = Inventory.Instance.GetEquippedItem(EquipSlot.OffHand);
-                WoWItem SwapSlotWeap = Inventory.Instance.GetItem(4, 1);
+            WoWItem MainHand = Inventory.GetEquippedItem(EquipSlot.MainHand);
+            WoWItem OffHand = Inventory.GetEquippedItem(EquipSlot.OffHand);
+            WoWItem SwapSlotWeap = Inventory.GetItem(4, 1);
 
-                //Console.WriteLineVerbose("Mainhand Item Type:  " + MainHand.Info.ItemSubclass);
-                //Console.WriteLineVerbose("Offhand Item Type:  " + OffHand.Info.ItemSubclass);
-                //Console.WriteLineVerbose("Swap Weapon Item Type:  " + SwapSlotWeap.Info.ItemSubclass);
-                //Console.WriteLineVerbose("Swap Weapon Item Type:  " + SwapSlotWeap.Info.Name);
+            //Console.WriteLineVerbose("Mainhand Item Type:  " + MainHand.Info.ItemSubclass);
+            //Console.WriteLineVerbose("Offhand Item Type:  " + OffHand.Info.ItemSubclass);
+            //Console.WriteLineVerbose("Swap Weapon Item Type:  " + SwapSlotWeap.Info.ItemSubclass);
+            //Console.WriteLineVerbose("Swap Weapon Item Type:  " + SwapSlotWeap.Info.Name);
 
-                // Check to see if a Dagger is Equipped in the mainhand
+            // Check to see if a Dagger is Equipped in the mainhand
 
-                if (MainHand.Info.ItemClass == ItemClass.Dagger)
+            if (MainHand.Info.ItemClass == ItemClass.Dagger)
 
-                    DaggerEquipped = true;
+                DaggerEquipped = true;
 
-                else DaggerEquipped = false;
+            else DaggerEquipped = false;
 
-                // Check to see if a 1H Sword or Mace is Equipped in the mainhand
+            // Check to see if a 1H Sword or Mace is Equipped in the mainhand
 
-                // if (MainHand.Info.ItemSubclass == ItemSubclass.OneHandedMace || ItemSubclass.OneHandedSword || ItemSubclass.OneHandedExotic)
-                if (MainHand.Info.ItemClass == ItemClass.SwordOneHand)
+            // if (MainHand.Info.ItemSubclass == ItemSubclass.OneHandedMace || ItemSubclass.OneHandedSword || ItemSubclass.OneHandedExotic)
+            if (MainHand.Info.ItemClass == ItemClass.SwordOneHand)
 
-                    MaceOrSwordEquipped = true;
+                MaceOrSwordEquipped = true;
 
-                else MaceOrSwordEquipped = false;
+            else MaceOrSwordEquipped = false;
 
-                // Check to see if a Dagger is ready in the swap slot
+            // Check to see if a Dagger is ready in the swap slot
 
-                if (SwapSlotWeap.Info.ItemClass == ItemClass.Dagger)
+            if (SwapSlotWeap.Info.ItemClass == ItemClass.Dagger)
 
-                    SwapDaggerReady = true;
+                SwapDaggerReady = true;
 
-                else SwapDaggerReady = false;
+            else SwapDaggerReady = false;
 
 
-                // Check to see if a Sword, 1H Mace, or fist weapon is ready in the swap slot
+            // Check to see if a Sword, 1H Mace, or fist weapon is ready in the swap slot
 
-                // if (SwapSlotWeap.Info.ItemSubclass == ItemSubclass.OneHandedMace || ItemSubclass.OneHandedSword || ItemSubclass.OneHandedExotic)
-                if (SwapSlotWeap.Info.ItemClass == ItemClass.SwordOneHand)
+            // if (SwapSlotWeap.Info.ItemSubclass == ItemSubclass.OneHandedMace || ItemSubclass.OneHandedSword || ItemSubclass.OneHandedExotic)
+            if (SwapSlotWeap.Info.ItemClass == ItemClass.SwordOneHand)
 
-                    SwapMaceOrSwordReady = true;
+                SwapMaceOrSwordReady = true;
 
-                else SwapMaceOrSwordReady = false;
+            else SwapMaceOrSwordReady = false;
 
-                // If there is a mace or swap in the swap slot, the player swap back to the 1H sword or mace.
+            // If there is a mace or swap in the swap slot, the player swap back to the 1H sword or mace.
 
-                // if (SwapMaceOrSwordReady == true)
-                // {
-                //    Lua.Instance.Execute($"UseContainerItem({4}, {2})");
-                //    Console.WriteLineVerbose(MainHand.Info.Name + "Swapped Into Mainhand!");
-                //}
+            // if (SwapMaceOrSwordReady == true)
+            // {
+            //    Functions.LuaCall($"UseContainerItem({4}, {2})");
+            //    Console.WriteLineVerbose(MainHand.Info.Name + "Swapped Into Mainhand!");
+            //}
 
-                // If Swap dagger is ready and the playe is not in combat, swap to a mainhand dagger.
+            // If Swap dagger is ready and the playe is not in combat, swap to a mainhand dagger.
 
-                if (SwapDaggerReady == true && !Container.Player.IsInCombat && !Container.Player.HasBuff(Stealth))
-                {
-                    Lua.Instance.Execute($"UseContainerItem({4}, {2})");
-                    Console.WriteLine(MainHand.Info.Name + " swapped Into Mainhand!");
-                }
-
-            });
-
-
-            if (distanceToTarget < 25 && Spellbook.Instance.IsSpellReady(Distract) && Spellbook.Instance.IsSpellReady(Distract) && Container.Player.HasBuff(Stealth))
+            if (SwapDaggerReady == true && !ObjectManager.Player.IsInCombat && !ObjectManager.Player.HasBuff(Stealth))
             {
-                //var delta = Container.HostileTarget.Location - Container.Player.Location;
+                Functions.LuaCall($"UseContainerItem({4}, {2})");
+                Console.WriteLine(MainHand.Info.Name + " swapped Into Mainhand!");
+            }
+
+
+            if (distanceToTarget < 25 && ObjectManager.Player.IsSpellReady(Distract) && ObjectManager.Player.IsSpellReady(Distract) && ObjectManager.Player.HasBuff(Stealth))
+            {
+                //var delta = Container.HostileTarget.Position - ObjectManager.Player.Position;
                 //var normalizedVector = delta.GetNormalizedVector();
                 //var scaledVector = normalizedVector * 5;
-                //var targetLocation = Container.HostileTarget.Location + scaledVector;
+                //var targetPosition = Container.HostileTarget.Position + scaledVector;
 
-                //Functions.CastSpellAtPosition(Distract, targetLocation);
+                //Functions.CastSpellAtPosition(Distract, targe.Position);
             }
 
-            if (distanceToTarget < 5 && Container.Player.HasBuff(Stealth) && Spellbook.Instance.IsSpellReady(Ambush) && DaggerEquipped && !Container.Player.IsInCombat && Container.Player.IsBehind(Container.HostileTarget))
+            if (distanceToTarget < 5 && ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(Ambush) && DaggerEquipped && !ObjectManager.Player.IsInCombat && ObjectManager.Player.IsBehind(Container.HostileTarget))
             {
-                Lua.Instance.Execute($"CastSpellByName('{Ambush}')");
+                Functions.LuaCall($"CastSpellByName('{Ambush}')");
                 return;
             }
 
-            if (distanceToTarget < 5 && Container.Player.HasBuff(Stealth) && Spellbook.Instance.IsSpellReady(Garrote) && !DaggerEquipped && !Container.Player.IsInCombat && Container.Player.IsBehind(Container.HostileTarget))
+            if (distanceToTarget < 5 && ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(Garrote) && !DaggerEquipped && !ObjectManager.Player.IsInCombat && ObjectManager.Player.IsBehind(Container.HostileTarget))
             {
-                Lua.Instance.Execute($"CastSpellByName('{Garrote}')");
+                Functions.LuaCall($"CastSpellByName('{Garrote}')");
                 return;
             }
 
-            if (distanceToTarget < 5 && Container.Player.HasBuff(Stealth) && Spellbook.Instance.IsSpellReady(CheapShot) && !Container.Player.IsInCombat && !Container.Player.IsBehind(Container.HostileTarget))
+            if (distanceToTarget < 5 && ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(CheapShot) && !ObjectManager.Player.IsInCombat && !ObjectManager.Player.IsBehind(Container.HostileTarget))
             {
-                Lua.Instance.Execute($"CastSpellByName('{CheapShot}')");
+                Functions.LuaCall($"CastSpellByName('{CheapShot}')");
                 return;
             }
 
             if (distanceToTarget < 2.5)
             {
-                Container.Player.StopAllMovement();
+                ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
                 BotTasks.Push(new PvERotationTask(Container, BotTasks));
                 return;
             }
 
-            Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
-            Container.Player.MoveToward(nextWaypoint[0]);
+            Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+            ObjectManager.Player.MoveToward(nextWaypoint[0]);
         }
     }
 }

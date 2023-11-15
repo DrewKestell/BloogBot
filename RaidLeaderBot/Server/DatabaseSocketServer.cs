@@ -39,9 +39,6 @@ namespace RaidLeaderBot
                 case QueryType.GetItemById:
                     response = JsonConvert.SerializeObject(SqliteRepository.GetItemById(ulong.Parse(request.QueryParam1)));
                     break;
-                case QueryType.GetDungeonStartingPoint:
-                    response = JsonConvert.SerializeObject(SqliteRepository.GetAreaTriggerTeleportByMapId(int.Parse(request.QueryParam1)));
-                    break;
                 case QueryType.GetCreatureEquipTemplateById:
                     response = JsonConvert.SerializeObject(SqliteRepository.GetCreatureEquipTemplateById(int.Parse(request.QueryParam1)));
                     break;

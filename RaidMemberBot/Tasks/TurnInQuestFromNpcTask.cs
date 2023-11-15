@@ -17,9 +17,9 @@ namespace RaidMemberBot.AI.SharedStates
 
         public TurnInQuestFromNpcTask(IClassContainer container, Stack<IBotTask> botTasks, string npcName, string questName) : base(container, botTasks, TaskType.Ordinary)
         {
-            player = ObjectManager.Instance.Player;
+            player = ObjectManager.Player;
 
-            npc = ObjectManager.Instance
+            npc = ObjectManager
                 .Units
 .First(x => x.Name == npcName);
 
@@ -28,7 +28,7 @@ namespace RaidMemberBot.AI.SharedStates
 
         public void Update()
         {
-            if (Container.Player.IsInCombat || (Environment.TickCount - startTime > 5000))
+            if (ObjectManager.Player.IsInCombat || (Environment.TickCount - startTime > 5000))
             {
                 BotTasks.Pop();
                 return;

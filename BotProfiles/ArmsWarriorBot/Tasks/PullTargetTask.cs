@@ -1,6 +1,7 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 
@@ -14,38 +15,38 @@ namespace ArmsWarriorBot
         {
             if (Container.HostileTarget.TappedByOther)
             {
-                Container.Player.StopAllMovement();
+                ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
                 return;
             }
 
-            if (Container.Player.IsInCombat)
+            if (ObjectManager.Player.IsInCombat)
             {
-                Container.Player.StopAllMovement();
+                ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
                 BotTasks.Push(new PvERotationTask(Container, BotTasks));
                 return;
             }
 
-            float distanceToTarget = Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location);
-            if (distanceToTarget < 25 && distanceToTarget > 8 && Container.Player.IsCasting && Spellbook.Instance.IsSpellReady("Charge") && Container.Player.InLosWith(Container.HostileTarget.Location))
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position);
+            if (distanceToTarget < 25 && distanceToTarget > 8 && ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady("Charge") && ObjectManager.Player.InLosWith(Container.HostileTarget.Position))
             {
-                if (Container.Player.IsCasting)
+                if (ObjectManager.Player.IsCasting)
                 {
-                        Lua.Instance.Execute($"CastSpellByName('Charge')");
+                    Functions.LuaCall($"CastSpellByName('Charge')");
                 }
             }
 
             if (distanceToTarget < 3)
             {
-                Container.Player.StopAllMovement();
+                ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
                 BotTasks.Push(new PvERotationTask(Container, BotTasks));
                 return;
             }
 
-            Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
-            Container.Player.MoveToward(nextWaypoint[0]);
+            Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+            ObjectManager.Player.MoveToward(nextWaypoint[0]);
         }
     }
 }

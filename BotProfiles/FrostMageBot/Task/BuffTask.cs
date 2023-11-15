@@ -1,5 +1,6 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Mem;
 using System.Collections.Generic;
 
 namespace FrostMageBot
@@ -15,7 +16,7 @@ namespace FrostMageBot
         public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
         {
-            if ((!Spellbook.Instance.IsSpellReady(ArcaneIntellect) || Container.Player.HasBuff(ArcaneIntellect)) && (Container.Player.HasBuff(FrostArmor) || Container.Player.HasBuff(IceArmor) || Container.Player.HasBuff(MageArmor)) && (!Spellbook.Instance.IsSpellReady(DampenMagic) || Container.Player.HasBuff(DampenMagic)))
+            if ((!ObjectManager.Player.IsSpellReady(ArcaneIntellect) || ObjectManager.Player.HasBuff(ArcaneIntellect)) && (ObjectManager.Player.HasBuff(FrostArmor) || ObjectManager.Player.HasBuff(IceArmor) || ObjectManager.Player.HasBuff(MageArmor)) && (!ObjectManager.Player.IsSpellReady(DampenMagic) || ObjectManager.Player.HasBuff(DampenMagic)))
             {
                 BotTasks.Pop();
                 BotTasks.Push(new ConjureItemsTask(BotTasks, Container));
@@ -24,9 +25,9 @@ namespace FrostMageBot
 
             TryCastSpell(ArcaneIntellect, castOnSelf: true);
 
-            if (Spellbook.Instance.IsSpellReady(MageArmor))
+            if (ObjectManager.Player.IsSpellReady(MageArmor))
                 TryCastSpell(MageArmor);
-            else if (Spellbook.Instance.IsSpellReady(IceArmor))
+            else if (ObjectManager.Player.IsSpellReady(IceArmor))
                 TryCastSpell(IceArmor);
             else
                 TryCastSpell(FrostArmor);
@@ -36,14 +37,14 @@ namespace FrostMageBot
 
         void TryCastSpell(string name, bool castOnSelf = false)
         {
-            if (!Container.Player.HasBuff(name) && Spellbook.Instance.IsSpellReady(name) && Spellbook.Instance.IsSpellReady(name))
+            if (!ObjectManager.Player.HasBuff(name) && ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.IsSpellReady(name))
             {
                 if (castOnSelf)
                 {
-                    Lua.Instance.Execute($"CastSpellByName(\"{name}\",1)");
+                    Functions.LuaCall($"CastSpellByName(\"{name}\",1)");
                 }
                 else
-                    Lua.Instance.Execute($"CastSpellByName('{name}')");
+                    Functions.LuaCall($"CastSpellByName('{name}')");
             }
         }
     }

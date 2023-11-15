@@ -6,8 +6,8 @@ namespace RaidMemberBot.Models.Dto
     {
         public bool IsRaidLeader { get; set; }
         public uint MapId { get; set; }
-        public Vector3 StartLocation { get; set; }
-        public Vector3 EndLocation { get; set; }
+        public Vector3 StartPosition { get; set; }
+        public Vector3 EndPosition { get; set; }
         public bool SmoothPath { get; set; }
     }
 }

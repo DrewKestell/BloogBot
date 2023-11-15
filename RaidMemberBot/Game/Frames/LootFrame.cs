@@ -1,238 +1,52 @@
-﻿using RaidMemberBot.Constants;
-using RaidMemberBot.ExtensionMethods;
-using RaidMemberBot.Game.Frames.FrameObjects;
-using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Mem;
-using RaidMemberBot.Mem.Hooks;
+﻿using RaidMemberBot.Mem;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace RaidMemberBot.Game.Frames
 {
-    /// <summary>
-    ///     Represents a Loot-Frame
-    /// </summary>
-    public sealed class LootFrame
+    public class LootFrame
     {
-        private static volatile LootFrame _instance;
-        private static readonly object lockObject = new object();
-        private static volatile bool _isOpen;
-        private static volatile bool _abort;
-        private static volatile bool _gotCoins;
-        private readonly List<LootItem> _Items = new List<LootItem>();
+        readonly public IList<LootItem> LootItems = new List<LootItem>();
 
-        /// <summary>
-        ///     Number of lootable items avaible
-        /// </summary>
-        public readonly int LootCount;
-
-        private readonly ConcurrentDictionary<int, int> MissingIds = new ConcurrentDictionary<int, int>();
-
-        private LootFrame()
+        public LootFrame()
         {
-            lock (lockObject)
+            var hasCoins = MemoryManager.ReadInt((IntPtr)MemoryAddresses.CoinCountPtr) > 0;
+            if (hasCoins)
+                LootItems.Add(new LootItem(null, 0, 0, true));
+            for (var i = 0; i <= 15; i++)
             {
-                try
-                {
-                    ulong tmpGuid = ObjectManager.Instance.Player.CurrentLootGuid;
-                    if (tmpGuid == 0)
-                    {
-                        Destroy();
-                        return;
-                    }
-                    MissingIds.Clear();
-                    _Items.Clear();
-                    CacheCallbacks.Instance.OnNewItemCacheCallback += ItemCallback;
-                    bool _gotCoins = Coins != 0;
-                    List<LootItem> list = ThreadSynchronizer.Instance.Invoke(() =>
-                    {
-                        List<LootItem> tmpItems = new List<LootItem>();
-                        if (_gotCoins)
-                            tmpItems.Add(new LootItemInterface());
-                        for (int i = 0; i <= 15; i++)
-                        {
-                            int lootSlot = _gotCoins ? i + 1 : i;
-
-                            int itemId = (0x00B7196C + i * 0x1c).ReadAs<int>();
-                            if (itemId == 0) break;
-                            ItemCacheEntry? entry = ObjectManager.Instance.LookupItemCacheEntry(itemId,
-                                PrivateEnums.ItemCacheLookupType.None);
-                            if (!entry.HasValue)
-                            {
-                                MissingIds.TryAdd(itemId, lootSlot);
-                            }
-                            else
-                            {
-                                LootItemInterface item = new LootItemInterface(lootSlot, i, itemId, ref entry);
-                                tmpItems.Add(item);
-                            }
-                        }
-                        return tmpItems;
-                    });
-                    LootCount = list.Count;
-                    if (MissingIds.Count == 0)
-                    {
-                        _Items = list;
-                        MissingIds.Clear();
-                        CacheCallbacks.Instance.OnNewItemCacheCallback -= ItemCallback;
-                        return;
-                    }
-                    while (MissingIds.Count != 0)
-                    {
-                        ulong guidNow = ObjectManager.Instance.Player.CurrentLootGuid;
-                        if (guidNow != tmpGuid || guidNow == 0)
-                        {
-                            Destroy();
-                            return;
-                        }
-                        Task.Delay(1).Wait();
-                    }
-                    _Items.AddRange(list);
-                    _Items = _Items.OrderBy(i => i.LootSlot).ToList();
-
-                    CacheCallbacks.Instance.OnNewItemCacheCallback -= ItemCallback;
-                    list.Clear();
-                    ulong guidNow2 = ObjectManager.Instance.Player.CurrentLootGuid;
-                    if (guidNow2 != 0) return;
-                    Destroy();
-                }
-                catch (Exception)
-                {
-                    Destroy();
-                }
+                var itemId = MemoryManager.ReadInt((IntPtr)(MemoryAddresses.LootFrameItemsBasePtr + i * MemoryAddresses.LootFrameItemOffset));
+                if (itemId == 0) break;
+                var itemCacheEntry = MemoryManager.ReadItemCacheEntry(Functions.GetItemCacheEntry(itemId));
+                var itemCacheInfo = new ItemCacheInfo(itemCacheEntry);
+                var lootSlot = hasCoins ? i + 1 : i;
+                LootItems.Add(new LootItem(itemCacheInfo, itemId, lootSlot, false));
             }
         }
+    }
 
-        /// <summary>
-        ///     List with all items we can loot
-        /// </summary>
-        public IReadOnlyList<LootItem> Items => _Items;
-
-
-        /// <summary>
-        ///     Access to the currently open frame
-        /// </summary>
-        /// <value>
-        ///     The frame.
-        /// </value>
-        public static LootFrame Instance => _instance;
-
-        /// <summary>
-        ///     Tells whether a Loot-Frame is open or not
-        /// </summary>
-        /// <value>
-        ///     <c>true</c> if this instance is open; otherwise, <c>false</c>.
-        /// </value>
-        public static bool IsOpen
+    public class LootItem
+    {
+        internal LootItem(
+            ItemCacheInfo info,
+            int itemId,
+            int lootSlot,
+            bool isCoins)
         {
-            get
-            {
-                try
-                {
-                    if (ObjectManager.Instance.Player.CurrentLootGuid != 0) return _isOpen;
-                }
-                catch
-                {
-                    // ignored
-                }
-                return false;
-            }
+            Info = info;
+            ItemId = itemId;
+            LootSlot = lootSlot;
+            IsCoins = isCoins;
         }
 
-        /// <summary>
-        ///     Guid of the unit we are looting right now
-        /// </summary>
-        public ulong LootGuid => ObjectManager.Instance.Player.CurrentLootGuid;
+        internal int LootSlot { get; set; }
 
-        /// <summary>
-        ///     Number of coins to loot from the unit
-        /// </summary>
-        public int Coins
-        {
-            get
-            {
-                int val = 0xB71BA0.ReadAs<int>();
-                return val == -1 ? 0 : val;
-            }
-        }
+        public int ItemId { get; set; }
 
-        private void ItemCallback(int parItemId)
-        {
-            if (!MissingIds.ContainsKey(parItemId)) return;
-            ItemCacheEntry? entry = ObjectManager.Instance.LookupItemCacheEntry(parItemId, PrivateEnums.ItemCacheLookupType.None);
-            int lootSlot = MissingIds[parItemId];
-            _Items.Add(new LootItemInterface(lootSlot, _gotCoins ? lootSlot - 1 : lootSlot, parItemId, ref entry));
-            int val;
-            MissingIds.TryRemove(parItemId, out val);
-        }
+        public ItemCacheInfo Info { get; }
 
-        /// <summary>
-        ///     Loots the item at slot
-        /// </summary>
-        /// <param name="parSlotIndex">the slot</param>
-        public void LootSlot(int parSlotIndex)
-        {
-            if (parSlotIndex < 0) return;
-            if (parSlotIndex > 15) return;
-            Functions.LootSlot(parSlotIndex);
-        }
+        public bool IsCoins { get; }
 
-        /// <summary>
-        ///     Loots all items
-        /// </summary>
-        public void LootAll()
-        {
-            Functions.LootAll();
-        }
-
-        /// <summary>
-        ///     Closes the loot window
-        /// </summary>
-        public void Close()
-        {
-            Lua.Instance.Execute("CloseLoot()");
-        }
-
-        internal static void Create()
-        {
-            try
-            {
-                _abort = false;
-                _isOpen = false;
-                LootFrame tmp = new LootFrame();
-                _instance = tmp;
-                _isOpen = true;
-                if (!_abort && ObjectManager.Instance.Player.CurrentLootGuid != 0) return;
-                _isOpen = false;
-                _instance = null;
-            }
-            catch
-            {
-                _isOpen = false;
-                _instance = null;
-            }
-        }
-
-        internal static void Destroy()
-        {
-            _abort = true;
-            _isOpen = false;
-            _instance = null;
-        }
-
-        private class LootItemInterface : LootItem
-        {
-            internal LootItemInterface(int lootSlotNumber, int memLootSlotNumber, int parItemId,
-                ref ItemCacheEntry? tmpInfo) : base(lootSlotNumber, memLootSlotNumber, parItemId, ref tmpInfo)
-            {
-            }
-
-            internal LootItemInterface()
-            {
-            }
-        }
+        public void Loot() => Functions.LootSlot(LootSlot);
     }
 }

@@ -15,21 +15,21 @@ namespace RaidMemberBot.AI.SharedStates
         readonly int currentQuestLogSize;
 
         WoWUnit npc;
-        GossipFrame dialogFrame;
+        DialogFrame dialogFrame;
 
         public PickUpQuestFromNpcTask(IClassContainer container, Stack<IBotTask> botTasks, string npcName) : base(container, botTasks, TaskType.Ordinary)
         {
             this.npcName = npcName;
-            player = ObjectManager.Instance.Player;
+            player = ObjectManager.Player;
 
-            npc = ObjectManager.Instance
+            npc = ObjectManager
                 .Units
                 .First(x => x.Name == npcName);
         }
 
         public void Update()
         {
-            if (Container.Player.IsInCombat || (Environment.TickCount - startTime > 5000))
+            if (ObjectManager.Player.IsInCombat || (Environment.TickCount - startTime > 5000))
             {
                 BotTasks.Pop();
                 return;

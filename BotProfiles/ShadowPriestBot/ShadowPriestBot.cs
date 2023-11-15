@@ -8,7 +8,7 @@ namespace ShadowPriestBot
     [Export(typeof(IBot))]
     class ShadowPriestBot : IBot
     {
-        public string Name => "Shadow Priest";
+        public string Name => "Holy Priest";
 
         public string FileName => "ShadowPriestBot.dll";
 

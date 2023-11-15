@@ -1,6 +1,8 @@
-﻿using RaidMemberBot.AI.SharedStates;
+﻿using Newtonsoft.Json;
+using RaidMemberBot.AI.SharedStates;
 using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Models.Dto;
 using RaidMemberBot.Objects;
 using System;
@@ -19,7 +21,7 @@ namespace RaidMemberBot.AI
         readonly BotLoader botLoader = new BotLoader();
         readonly CharacterState characterState;
 
-        IClassContainer container;
+        IClassContainer classContainer;
         ObservableCollection<IBot> Bots = new ObservableCollection<IBot>();
 
         int _activityMapId;
@@ -39,11 +41,11 @@ namespace RaidMemberBot.AI
                 ProcessId = Process.GetCurrentProcess().Id
             };
 
-            ObjectManager.Instance.StartEnumeration(characterState);
+            ObjectManager.Initialize(characterState);
 
             WoWEventHandler.Instance.OnPartyInvite += (sender, args) =>
             {
-                Lua.Instance.Execute($"AcceptGroup()");
+                Functions.LuaCall($"AcceptGroup()");
             };
 
             _lastCommand = new InstanceCommand();
@@ -53,7 +55,7 @@ namespace RaidMemberBot.AI
         }
         private async void StartServerFeedbackAsync()
         {
-            Console.WriteLine($"BOTRUNNER: Start server feedback task started.");
+            Console.WriteLine($"[BOT RUNNER] Start server feedback task started.");
             while (true)
             {
                 InstanceCommand instanceCommand = CommandClient.Instance.GetCommandBasedOnState(characterState);
@@ -68,60 +70,58 @@ namespace RaidMemberBot.AI
                     {
                         if (instanceCommand.CommandParam1 != characterState.AccountName)
                         {
+                            characterState.AccountName = instanceCommand.CommandParam1;
+                            characterState.BotProfileName = instanceCommand.CommandParam2;
+
                             while (botTasks.Count > 0)
                                 botTasks.Pop();
 
-                            botTasks.Push(new LoginTask(container, botTasks, instanceCommand.CommandParam1));
-                            botTasks.Push(new LogoutTask(container, botTasks));
+                            botTasks.Push(new LoginTask(classContainer, botTasks, characterState.AccountName));
+                            botTasks.Push(new LogoutTask(classContainer, botTasks));
                         }
+                        Console.WriteLine($"[BOT RUNNER] SetAccountInfo [{instanceCommand.CommandParam1}] [{instanceCommand.CommandParam2}]");
 
                         ReloadBots();
-
-                        Console.WriteLine($"BOT RUNNER: SetAccountInfo [{instanceCommand.CommandParam1}] [{instanceCommand.CommandParam2}]");
                     }
                     else if (instanceCommand.CommandAction == CommandAction.SetActivity)
                     {
                         characterState.CurrentActivity = instanceCommand.CommandParam1;
-                        _activityMapId = int.Parse(instanceCommand.CommandParam2);
+                        _activityMapId = 389;//int.Parse(instanceCommand.CommandParam2);
 
-                        Console.WriteLine($"BOT RUNNER: SetActivity {characterState.CurrentActivity}");
+                        Console.WriteLine($"[BOT RUNNER] SetActivity {characterState.CurrentActivity}");
                     }
                     else if (instanceCommand.CommandAction == CommandAction.SetRaidLeader)
                     {
                         characterState.RaidLeader = instanceCommand.CommandParam1;
 
-                        Console.WriteLine($"BOT RUNNER: SetRaidLeader {characterState.RaidLeader}");
+                        Console.WriteLine($"[BOT RUNNER] SetRaidLeader {characterState.RaidLeader}");
                     }
                     else if (instanceCommand.CommandAction == CommandAction.AddPartyMember)
                     {
-                        Lua.Instance.Execute($"InviteByName(\"{instanceCommand.CommandParam1}\")");
+                        Functions.LuaCall($"InviteByName(\"{instanceCommand.CommandParam1}\")");
 
-                        Console.WriteLine($"BOT RUNNER: AddPartyMember {instanceCommand.CommandParam1}");
+                        Console.WriteLine($"[BOT RUNNER] AddPartyMember {instanceCommand.CommandParam1}");
                     }
-                    else if (instanceCommand.CommandAction == CommandAction.GoTo)
+                    else if (instanceCommand.CommandAction == CommandAction.TeleTo)
                     {
-                        Location destinaton = new Location(float.Parse(instanceCommand.CommandParam1),
-                                                            float.Parse(instanceCommand.CommandParam2),
-                                                            float.Parse(instanceCommand.CommandParam3));
-                        container.CurrentWaypoint = destinaton;
-                        botTasks.Push(new MoveToWaypointTask(container, botTasks));
+                        Functions.LuaCall($"SendChatMessage('.go xyz {instanceCommand.CommandParam1} {instanceCommand.CommandParam2} {instanceCommand.CommandParam3} {instanceCommand.CommandParam4}')");
 
-                        Console.WriteLine($"BOT RUNNER: GoTo {destinaton}");
+                        Console.WriteLine($"[BOT RUNNER] TeleTo Map: {instanceCommand.CommandParam4} XYZ: {instanceCommand.CommandParam1} {instanceCommand.CommandParam2} {instanceCommand.CommandParam3}");
                     }
                     else if (instanceCommand.CommandAction == CommandAction.BeginDungeon)
                     {
-                        botTasks.Push(new DungeoneeringTask(container, botTasks));
+                        botTasks.Push(new DungeoneeringTask(classContainer, botTasks));
 
-                        Console.WriteLine($"BOT RUNNER: Begin dungeon");
+                        Console.WriteLine($"[BOT RUNNER] Begin dungeon");
                     }
                     else if (instanceCommand.CommandAction == CommandAction.SetFacing)
                     {
-                        ObjectManager.Instance.Player.Face(float.Parse(instanceCommand.CommandParam1));
+                        ObjectManager.Player.SetFacing(float.Parse(instanceCommand.CommandParam1));
                     }
                     else if (instanceCommand.CommandAction == CommandAction.ExecuteLuaCommand)
                     {
-                        Console.WriteLine($"BOT RUNNER: ExecuteChatCommand - {instanceCommand.CommandParam1}");
-                        Lua.Instance.Execute(instanceCommand.CommandParam1);
+                        Console.WriteLine($"[BOT RUNNER] ExecuteChatCommand - {instanceCommand.CommandParam1}");
+                        Functions.LuaCall(instanceCommand.CommandParam1);
                     }
 
                     _lastCommand = instanceCommand;
@@ -133,45 +133,41 @@ namespace RaidMemberBot.AI
 
         private async void StartBotTaskRunnerAsync()
         {
-            Console.WriteLine($"BOTRUNNER: Bot Task Runner started.");
+            Console.WriteLine($"[BOT RUNNER] Bot Task Runner started.");
             while (true)
             {
-                if (ThreadSynchronizer.Instance.QueueCount == 0)
+                ThreadSynchronizer.RunOnMainThread(() =>
                 {
-                    ThreadSynchronizer.Instance.Invoke(() =>
+                    try
                     {
-                        try
+                        if (ObjectManager.Player != null)
                         {
-                            if (ObjectManager.Instance.IsInClient)
-                            {
-                                ObjectManager.Instance.AntiAfk();
-                            }
+                            ObjectManager.AntiAfk();
+                        }
 
-                            if (botTasks.Count > 0)
-                            {
-                                characterState.Task = botTasks.Peek()?.GetType()?.Name;
+                        if (botTasks.Count > 0)
+                        {
+                            characterState.Task = botTasks.Peek()?.GetType()?.Name;
 
-                                botTasks.Peek()?.Update();
-                            }
-                            else
+                            botTasks.Peek()?.Update();
+                        }
+                        else
+                        {
+                            characterState.Task = "Idle";
+
+                            if (ObjectManager.Player != null && classContainer != null)
                             {
-                                characterState.Task = "Idle"; 
-                                
-                                if (ObjectManager.Instance.IsIngame && container != null)
-                                {
-                                    container.Player.StopAllMovement();
-                                }
+                                ObjectManager.Player.StopAllMovement();
                             }
                         }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex);
-                            Console.WriteLine(ex.StackTrace);
-                        }
-                    });
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[BOT RUNNER]BotTaskRunner {ex.Message} {ex.StackTrace}");
+                    }
+                });
 
-                    await Task.Delay(50);
-                }
+                await Task.Delay(50);
             }
         }
 
@@ -180,29 +176,14 @@ namespace RaidMemberBot.AI
             try
             {
                 Bots = new ObservableCollection<IBot>(botLoader.ReloadBots());
-
                 currentBot = Bots.First(b => b.Name == characterState.BotProfileName);
 
-                container = currentBot.GetClassContainer(characterState);
+                classContainer = currentBot.GetClassContainer(characterState);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"RELOAD BOTS: {ex.Message}");
+                Console.WriteLine($"[BOT RUNNER]ReloadBots {ex.Message} {ex.StackTrace}");
             }
-        }
-
-        void ShapeshiftToHumanForm()
-        {
-            if (ObjectManager.Instance.Player.Class == ClassId.Druid && ObjectManager.Instance.Player.CurrentShapeshiftForm == "Bear Form")
-                Lua.Instance.Execute("CastSpellByName('Bear Form')");
-            if (ObjectManager.Instance.Player.Class == ClassId.Druid && ObjectManager.Instance.Player.CurrentShapeshiftForm == "Cat Form")
-                Lua.Instance.Execute("CastSpellByName('Cat Form')");
-        }
-
-        void PopStackToBaseState()
-        {
-            while (botTasks.Count > 1)
-                botTasks.Pop();
         }
     }
 }

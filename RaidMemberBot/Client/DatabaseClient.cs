@@ -93,17 +93,6 @@ namespace RaidMemberBot.Client
             string json = SendRequest(databaseRequest);
             return JsonConvert.DeserializeObject<CreatureEquipTemplate>(json);
         }
-        internal AreaTriggerTeleport GetAreaTriggerTeleportByMapId(int mapId)
-        {
-            DatabaseRequest databaseRequest = new DatabaseRequest()
-            {
-                QueryType = QueryType.GetDungeonStartingPoint,
-                QueryParam1 = mapId.ToString()
-            };
-
-            string json = SendRequest(databaseRequest);
-            return JsonConvert.DeserializeObject<AreaTriggerTeleport>(json);
-        }
 
         private string SendRequest(DatabaseRequest databaseRequest)
         {
@@ -119,7 +108,7 @@ namespace RaidMemberBot.Client
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e.Message);
+                        Console.WriteLine($"DATABASE CLIENT: {e.Message}");
                     }
                 }
                 if (_databaseSocket.Connected)
@@ -135,7 +124,7 @@ namespace RaidMemberBot.Client
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.StackTrace);
+                Console.WriteLine($"DATABASE CLIENT: {e.Message}");
                 try
                 {
                     _databaseSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);

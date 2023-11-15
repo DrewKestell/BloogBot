@@ -1,6 +1,8 @@
 ﻿using RaidMemberBot.AI;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
+using RaidMemberBot.Mem;
 using System.Collections.Generic;
 
 namespace BalanceDruidBot
@@ -17,31 +19,31 @@ namespace BalanceDruidBot
 
         public void Update()
         {
-            if (Container.Player.IsCasting) return;
+            if (ObjectManager.Player.IsCasting) return;
 
-            if (Container.Player.HealthPercent > 70 || (Container.Player.Mana < Container.Player.GetManaCost(HealingTouch) && Container.Player.Mana < Container.Player.GetManaCost(Rejuvenation)))
+            if (ObjectManager.Player.HealthPercent > 70 || (ObjectManager.Player.Mana < ObjectManager.Player.GetManaCost(HealingTouch) && ObjectManager.Player.Mana < ObjectManager.Player.GetManaCost(Rejuvenation)))
             {
                 Wait.RemoveAll();
                 BotTasks.Pop();
                 return;
             }
 
-            if (Spellbook.Instance.IsSpellReady(WarStomp) && Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location) <= 8)
-                Lua.Instance.Execute($"CastSpellByName('{WarStomp}')");
+            if (ObjectManager.Player.IsSpellReady(WarStomp) && ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) <= 8)
+                Functions.LuaCall($"CastSpellByName('{WarStomp}')");
 
-            TryCastSpell(MoonkinForm, Container.Player.HasBuff(MoonkinForm));
+            TryCastSpell(MoonkinForm, ObjectManager.Player.HasBuff(MoonkinForm));
 
             TryCastSpell(Barkskin);
 
-            TryCastSpell(Rejuvenation, !Container.Player.HasBuff(Rejuvenation));
+            TryCastSpell(Rejuvenation, !ObjectManager.Player.HasBuff(Rejuvenation));
 
             TryCastSpell(HealingTouch);
         }
 
         void TryCastSpell(string name, bool condition = true)
         {
-            if (Spellbook.Instance.IsSpellReady(name) && condition)
-                Lua.Instance.Execute($"CastSpellByName('{name}',1)");
+            if (ObjectManager.Player.IsSpellReady(name) && condition)
+                Functions.LuaCall($"CastSpellByName('{name}',1)");
         }
     }
 }

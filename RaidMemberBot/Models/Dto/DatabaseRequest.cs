@@ -17,7 +17,6 @@
         GetCreatureTemplateById,
         GetCreaturesById,
         GetCreaturesByMapId, 
-        GetCreatureEquipTemplateById,
-        GetDungeonStartingPoint
+        GetCreatureEquipTemplateById
     }
 }

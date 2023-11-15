@@ -23,7 +23,7 @@ namespace RaidMemberBot.AI.SharedStates
 
             if (stuckCount == 10)
             {
-                DiscordClientWrapper.SendMessage($"{Container.Player.Name} is stuck in the MoveToCorpseState. Stopping.");
+                DiscordClientWrapper.SendMessage($"{ObjectManager.Player.Name} is stuck in the MoveToCorpseState. Stopping.");
 
                 while (BotTasks.Count > 0)
                     BotTasks.Pop();
@@ -31,32 +31,32 @@ namespace RaidMemberBot.AI.SharedStates
                 return;
             }
 
-            if (Container.Player.Location.GetDistanceTo2D(Container.Player.CorpseLocation) < 3)
+            if (ObjectManager.Player.Position.DistanceTo2D(ObjectManager.Player.CorpsePosition) < 3)
             {
-                Container.Player.StopAllMovement();
+                ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
                 return;
             }
 
-            Objects.Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.Player.CorpseLocation, true);
+            Objects.Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.CorpsePosition, true);
 
-            if (Container.Player.Location.Z - nextWaypoint[0].Z > 5)
+            if (ObjectManager.Player.Position.Z - nextWaypoint[0].Z > 5)
                 walkingOnWater = true;
 
             if (walkingOnWater)
             {
-                if (Container.Player.MovementState != MovementFlags.None)
-                    Container.Player.StartMovement(ControlBits.Front);
+                if (ObjectManager.Player.MovementFlags != MovementFlags.MOVEFLAG_NONE)
+                    ObjectManager.Player.StartMovement(ControlBits.Front);
 
-                if (Container.Player.Location.Z - nextWaypoint[0].Z < .05)
+                if (ObjectManager.Player.Position.Z - nextWaypoint[0].Z < .05)
                 {
                     walkingOnWater = false;
-                    Container.Player.StopMovement(ControlBits.Front);
+                    ObjectManager.Player.StopMovement(ControlBits.Front);
                 }
             }
 
             else
-                Container.Player.MoveToward(nextWaypoint[0]);
+                ObjectManager.Player.MoveToward(nextWaypoint[0]);
         }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Client;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using static RaidMemberBot.Constants.Enums;
@@ -16,11 +18,11 @@ namespace AfflictionWarlockBot
         const string ShadowBolt = "Shadow Bolt";
 
         readonly string pullingSpell;
-        Location currentWaypoint;
+        Position currentWaypoint;
 
         internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull)
         {
-            if (Spellbook.Instance.IsSpellReady(CurseOfAgony))
+            if (ObjectManager.Player.IsSpellReady(CurseOfAgony))
                 pullingSpell = CurseOfAgony;
             else
                 pullingSpell = ShadowBolt;
@@ -29,23 +31,23 @@ namespace AfflictionWarlockBot
         public void Update()
         {
 
-            if (ObjectManager.Instance.Pet == null && (Spellbook.Instance.IsSpellReady(SummonImp) || Spellbook.Instance.IsSpellReady(SummonVoidwalker)))
+            if (ObjectManager.Pet == null && (ObjectManager.Player.IsSpellReady(SummonImp) || ObjectManager.Player.IsSpellReady(SummonVoidwalker)))
             {
-                Container.Player.StopAllMovement();
+                ObjectManager.Player.StopAllMovement();
                 BotTasks.Push(new SummonVoidwalkerTask(Container, BotTasks));
                 return;
             }
 
-            float distanceToTarget = Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location);
-            if (distanceToTarget < 27 && Container.Player.IsCasting && Spellbook.Instance.IsSpellReady(pullingSpell))
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position);
+            if (distanceToTarget < 27 && ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady(pullingSpell))
             {
-                if (Container.Player.MovementState != MovementFlags.None)
-                    Container.Player.StopAllMovement();
+                if (ObjectManager.Player.MovementFlags != MovementFlags.MOVEFLAG_NONE)
+                    ObjectManager.Player.StopAllMovement();
 
                 if (Wait.For("AfflictionWarlockPullDelay", 250))
                 {
-                    Container.Player.StopAllMovement();
-                    Lua.Instance.Execute($"CastSpellByName('{pullingSpell}')");
+                    ObjectManager.Player.StopAllMovement();
+                    Functions.LuaCall($"CastSpellByName('{pullingSpell}')");
                     BotTasks.Pop();
                     BotTasks.Push(new PvERotationTask(Container, BotTasks));
                 }
@@ -53,7 +55,7 @@ namespace AfflictionWarlockBot
                 return;
             }
 
-            Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
+            Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
             if (nextWaypoint.Length > 1)
             {
                 currentWaypoint = nextWaypoint[1];
@@ -64,7 +66,7 @@ namespace AfflictionWarlockBot
                 return;
             }
 
-            Container.Player.MoveToward(currentWaypoint);
+            ObjectManager.Player.MoveToward(currentWaypoint);
         }
     }
 }

@@ -19,21 +19,21 @@ namespace RaidLeaderBot
                 return Enum.GetValues(typeof(TargetMarkers)).Cast<TargetMarkers>();
             }
         }
-        public IEnumerable<ClassId> ClassIds
+        public IEnumerable<Class> ClassIds
         {
             get
             {
                 return Race switch
                 {
-                    Race.Human => new List<ClassId>() { ClassId.Warrior, ClassId.Paladin, ClassId.Rogue, ClassId.Priest, ClassId.Mage, ClassId.Warlock },
-                    Race.Dwarf => new List<ClassId>() { ClassId.Warrior, ClassId.Paladin, ClassId.Hunter, ClassId.Rogue, ClassId.Priest },
-                    Race.NightElf => new List<ClassId>() { ClassId.Warrior, ClassId.Hunter, ClassId.Rogue, ClassId.Priest, ClassId.Druid },
-                    Race.Gnome => new List<ClassId>() { ClassId.Warrior, ClassId.Rogue, ClassId.Mage, ClassId.Warlock },
-                    Race.Orc => new List<ClassId>() { ClassId.Warrior, ClassId.Hunter, ClassId.Rogue, ClassId.Shaman, ClassId.Warlock },
-                    Race.Undead => new List<ClassId>() { ClassId.Warrior, ClassId.Rogue, ClassId.Priest, ClassId.Mage, ClassId.Warlock },
-                    Race.Tauren => new List<ClassId>() { ClassId.Warrior, ClassId.Hunter, ClassId.Shaman, ClassId.Druid },
-                    Race.Troll => new List<ClassId>() { ClassId.Warrior, ClassId.Hunter, ClassId.Rogue, ClassId.Priest, ClassId.Shaman, ClassId.Mage },
-                    _ => Enum.GetValues(typeof(ClassId)).Cast<ClassId>(),
+                    Race.Human => new List<Class>() { Class.Warrior, Class.Paladin, Class.Rogue, Class.Priest, Class.Mage, Class.Warlock },
+                    Race.Dwarf => new List<Class>() { Class.Warrior, Class.Paladin, Class.Hunter, Class.Rogue, Class.Priest },
+                    Race.NightElf => new List<Class>() { Class.Warrior, Class.Hunter, Class.Rogue, Class.Priest, Class.Druid },
+                    Race.Gnome => new List<Class>() { Class.Warrior, Class.Rogue, Class.Mage, Class.Warlock },
+                    Race.Orc => new List<Class>() { Class.Warrior, Class.Hunter, Class.Rogue, Class.Shaman, Class.Warlock },
+                    Race.Undead => new List<Class>() { Class.Warrior, Class.Rogue, Class.Priest, Class.Mage, Class.Warlock },
+                    Race.Tauren => new List<Class>() { Class.Warrior, Class.Hunter, Class.Shaman, Class.Druid },
+                    Race.Troll => new List<Class>() { Class.Warrior, Class.Hunter, Class.Rogue, Class.Priest, Class.Shaman, Class.Mage },
+                    _ => Enum.GetValues(typeof(Class)).Cast<Class>(),
                 };
             }
         }
@@ -81,13 +81,13 @@ namespace RaidLeaderBot
 
                 if (!ClassIds.Contains(Class))
                 {
-                    Class = ClassId.Warrior;
+                    Class = Class.Warrior;
                 }
                 OnPropertyChanged(nameof(Race));
                 OnPropertyChanged(nameof(ClassIds));
             }
         }
-        public ClassId Class
+        public Class Class
         {
             get => _raidMemberPreset.Class;
             set
@@ -115,14 +115,14 @@ namespace RaidLeaderBot
 
             if (wasAlliance)
             {
-                if (Class == ClassId.Paladin)
+                if (Class == Class.Paladin)
                 {
-                    _raidMemberPreset.Class = ClassId.Shaman;
+                    _raidMemberPreset.Class = Class.Shaman;
                 }
 
                 switch (Class)
                 {
-                    case ClassId.Warrior:
+                    case Class.Warrior:
                         switch (Race)
                         {
                             case Race.Human:
@@ -139,7 +139,7 @@ namespace RaidLeaderBot
                                 break;
                         }
                         break;
-                    case ClassId.Hunter:
+                    case Class.Hunter:
                         if (Race == Race.Dwarf)
                         {
                             _raidMemberPreset.Race = Race.Orc;
@@ -149,7 +149,7 @@ namespace RaidLeaderBot
                             _raidMemberPreset.Race = Race.Tauren;
                         }
                         break;
-                    case ClassId.Rogue:
+                    case Class.Rogue:
                         if (Race == Race.Human)
                         {
                             _raidMemberPreset.Race = Race.Undead;
@@ -163,7 +163,7 @@ namespace RaidLeaderBot
                             _raidMemberPreset.Race = Race.Troll;
                         }
                         break;
-                    case ClassId.Priest:
+                    case Class.Priest:
                         if (Race == Race.Human)
                         {
                             _raidMemberPreset.Race = Race.Undead;
@@ -173,7 +173,7 @@ namespace RaidLeaderBot
                             _raidMemberPreset.Race = Race.Troll;
                         }
                         break;
-                    case ClassId.Shaman:
+                    case Class.Shaman:
                         if (Race == Race.Dwarf)
                         {
                             _raidMemberPreset.Race = Race.Orc;
@@ -183,7 +183,7 @@ namespace RaidLeaderBot
                             _raidMemberPreset.Race = Race.Troll;
                         }
                         break;
-                    case ClassId.Mage:
+                    case Class.Mage:
                         if (Race == Race.Human)
                         {
                             _raidMemberPreset.Race = Race.Undead;
@@ -193,7 +193,7 @@ namespace RaidLeaderBot
                             _raidMemberPreset.Race = Race.Troll;
                         }
                         break;
-                    case ClassId.Warlock:
+                    case Class.Warlock:
                         if (Race == Race.Human)
                         {
                             _raidMemberPreset.Race = Race.Undead;
@@ -203,20 +203,20 @@ namespace RaidLeaderBot
                             _raidMemberPreset.Race = Race.Orc;
                         }
                         break;
-                    case ClassId.Druid:
+                    case Class.Druid:
                         _raidMemberPreset.Race = Race.Tauren;
                         break;
                 }
             }
             else
             {
-                if (Class == ClassId.Shaman)
+                if (Class == Class.Shaman)
                 {
-                    _raidMemberPreset.Class = ClassId.Paladin;
+                    _raidMemberPreset.Class = Class.Paladin;
                 }
                 switch (Class)
                 {
-                    case ClassId.Warrior:
+                    case Class.Warrior:
                         switch (Race)
                         {
                             case Race.Undead:
@@ -233,7 +233,7 @@ namespace RaidLeaderBot
                                 break;
                         }
                         break;
-                    case ClassId.Hunter:
+                    case Class.Hunter:
                         if (Race == Race.Orc)
                         {
                             _raidMemberPreset.Race = Race.Dwarf;
@@ -243,7 +243,7 @@ namespace RaidLeaderBot
                             _raidMemberPreset.Race = Race.NightElf;
                         }
                         break;
-                    case ClassId.Rogue:
+                    case Class.Rogue:
                         if (Race == Race.Undead)
                         {
                             _raidMemberPreset.Race = Race.Human;
@@ -257,7 +257,7 @@ namespace RaidLeaderBot
                             _raidMemberPreset.Race = Race.NightElf;
                         }
                         break;
-                    case ClassId.Priest:
+                    case Class.Priest:
                         if (Race == Race.Undead)
                         {
                             _raidMemberPreset.Race = Race.Human;
@@ -267,7 +267,7 @@ namespace RaidLeaderBot
                             _raidMemberPreset.Race = Race.NightElf;
                         }
                         break;
-                    case ClassId.Paladin:
+                    case Class.Paladin:
                         if (Race == Race.Orc)
                         {
                             _raidMemberPreset.Race = Race.Dwarf;
@@ -277,7 +277,7 @@ namespace RaidLeaderBot
                             _raidMemberPreset.Race = Race.Human;
                         }
                         break;
-                    case ClassId.Mage:
+                    case Class.Mage:
                         if (Race == Race.Undead)
                         {
                             _raidMemberPreset.Race = Race.Human;
@@ -287,7 +287,7 @@ namespace RaidLeaderBot
                             _raidMemberPreset.Race = Race.Gnome;
                         }
                         break;
-                    case ClassId.Warlock:
+                    case Class.Warlock:
                         if (Race == Race.Undead)
                         {
                             _raidMemberPreset.Race = Race.Human;
@@ -297,7 +297,7 @@ namespace RaidLeaderBot
                             _raidMemberPreset.Race = Race.Gnome;
                         }
                         break;
-                    case ClassId.Druid:
+                    case Class.Druid:
                         _raidMemberPreset.Race = Race.NightElf;
                         break;
                 }
@@ -341,7 +341,7 @@ namespace RaidLeaderBot
             {
                 switch (Class)
                 {
-                    case ClassId.Warrior:
+                    case Class.Warrior:
                         if (_raidMemberPreset.IsMainTank)
                         {
                             return "Protection Warrior";
@@ -351,7 +351,7 @@ namespace RaidLeaderBot
                             return "Arms Warrior";
                         }
                         return "Fury Warrior";
-                    case ClassId.Paladin:
+                    case Class.Paladin:
                         if (_raidMemberPreset.IsMainTank)
                         {
                             return "Protection Paladin";
@@ -361,7 +361,7 @@ namespace RaidLeaderBot
                             return "Holy Paladin";
                         }
                         return "Retribution Paladin";
-                    case ClassId.Hunter:
+                    case Class.Hunter:
                         if (_raidMemberPreset.IsRole1)
                         {
                             return "Beast Master Hunter";
@@ -371,7 +371,7 @@ namespace RaidLeaderBot
                             return "Survival Hunter";
                         }
                         return "Marksmanship Hunter";
-                    case ClassId.Rogue:
+                    case Class.Rogue:
                         if (_raidMemberPreset.IsRole1)
                         {
                             return "Assassination Rogue";
@@ -381,7 +381,7 @@ namespace RaidLeaderBot
                             return "Subtlety Rogue";
                         }
                         return "Combat Rogue";
-                    case ClassId.Priest:
+                    case Class.Priest:
                         if (_raidMemberPreset.IsMainHealer)
                         {
                             return "Holy Priest";
@@ -391,7 +391,7 @@ namespace RaidLeaderBot
                             return "Discipline Priest";
                         }
                         return "Shadow Priest";
-                    case ClassId.Shaman:
+                    case Class.Shaman:
                         if (_raidMemberPreset.IsMainHealer)
                         {
                             return "Restoration Shaman";
@@ -401,7 +401,7 @@ namespace RaidLeaderBot
                             return "Elemental Shaman";
                         }
                         return "Enhancement Shaman";
-                    case ClassId.Mage:
+                    case Class.Mage:
                         if (_raidMemberPreset.IsRole1)
                         {
                             return "Fire Mage";
@@ -411,7 +411,7 @@ namespace RaidLeaderBot
                             return "Frost Mage";
                         }
                         return "Frost Mage";
-                    case ClassId.Warlock:
+                    case Class.Warlock:
                         if (_raidMemberPreset.IsRole1)
                         {
                             return "Destruction Warlock";
@@ -454,7 +454,7 @@ namespace RaidLeaderBot
         {
             switch (Class)
             {
-                case ClassId.Warrior:
+                case Class.Warrior:
                     TalentTree1Header = "Arms";
                     TalentTree2Header = "Fury";
                     TalentTree3Header = "Protection";
@@ -652,42 +652,42 @@ namespace RaidLeaderBot
                     // 
                     Talent3Index18Visibility = Visibility.Hidden;
                     break;
-                case ClassId.Hunter:
+                case Class.Hunter:
                     TalentTree1Header = "Beast Mastery";
                     TalentTree2Header = "Marksmanship";
                     TalentTree3Header = "Survival";
                     break;
-                case ClassId.Rogue:
+                case Class.Rogue:
                     TalentTree1Header = "Assassination";
                     TalentTree2Header = "Combat";
                     TalentTree3Header = "Subtlety";
                     break;
-                case ClassId.Priest:
+                case Class.Priest:
                     TalentTree1Header = "Discipline";
                     TalentTree2Header = "Holy";
                     TalentTree3Header = "Shadow";
                     break;
-                case ClassId.Paladin:
+                case Class.Paladin:
                     TalentTree1Header = "Holy";
                     TalentTree2Header = "Protection";
                     TalentTree3Header = "Retribution";
                     break;
-                case ClassId.Shaman:
+                case Class.Shaman:
                     TalentTree1Header = "Elemental";
                     TalentTree2Header = "Enhancement";
                     TalentTree3Header = "Restoration";
                     break;
-                case ClassId.Mage:
+                case Class.Mage:
                     TalentTree1Header = "Arcane";
                     TalentTree2Header = "Fire";
                     TalentTree3Header = "Frost";
                     break;
-                case ClassId.Warlock:
+                case Class.Warlock:
                     TalentTree1Header = "Affliction";
                     TalentTree2Header = "Demonology";
                     TalentTree3Header = "Destruction";
                     break;
-                case ClassId.Druid:
+                case Class.Druid:
                     TalentTree1Header = "Balance";
                     TalentTree2Header = "Feral Combat";
                     TalentTree3Header = "Restoration";

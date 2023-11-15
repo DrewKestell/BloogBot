@@ -16,42 +16,42 @@ namespace RaidMemberBot.AI.SharedStates
         public MoveToWaypointTask(IClassContainer container, Stack<IBotTask> botTasks, bool use2DPop = false) : base(container, botTasks, TaskType.Ordinary)
         {
             this.use2DPop = use2DPop;
-            startingMapId = (int)ObjectManager.Instance.Player.MapId;
+            startingMapId = (int)ObjectManager.MapId;
         }
 
         public void Update()
         {
             if (use2DPop)
             {
-                if (Container.Player.Location.GetDistanceTo2D(Container.CurrentWaypoint) < 3 || stuckCount > 20)
+                if (ObjectManager.Player.Position.DistanceTo2D(Container.CurrentWaypoint) < 3 || stuckCount > 20)
                 {
-                    Container.Player.StopAllMovement();
+                    ObjectManager.Player.StopAllMovement();
                     BotTasks.Pop();
                     return;
                 }
             }
             else
             {
-                if (Container.Player.Location.GetDistanceTo(Container.CurrentWaypoint) < 1 || stuckCount > 20 || startingMapId != ObjectManager.Instance.Player.MapId)
+                if (ObjectManager.Player.Position.DistanceTo(Container.CurrentWaypoint) < 1 || stuckCount > 20 || startingMapId != ObjectManager.MapId)
                 {
-                    Container.Player.StopAllMovement();
+                    ObjectManager.Player.StopAllMovement();
                     BotTasks.Pop();
                     return;
                 }
             }
 
-            if (Container.CurrentWaypoint.GetDistanceTo(Container.Player.Location) < 1 || !Container.Player.IsMoving)
+            if (Container.CurrentWaypoint.DistanceTo(ObjectManager.Player.Position) < 1 || !ObjectManager.Player.IsMoving)
             {
-                Location[] locations = NavigationClient.Instance.CalculatePath(Container.Player.MapId, Container.Player.Location, Container.CurrentWaypoint, true);
+                Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.CurrentWaypoint, true);
 
-                if (locations.Count(loc => Container.Player.InLosWith(loc)) > 1)
+                if (locations.Count(loc => ObjectManager.Player.InLosWith(loc)) > 1)
                 {
-                    Container.CurrentWaypoint = locations.Where(loc => Container.Player.InLosWith(loc)).ToArray()[1];
-                    Container.Player.MoveToward(Container.CurrentWaypoint);
+                    Container.CurrentWaypoint = locations.Where(loc => ObjectManager.Player.InLosWith(loc)).ToArray()[1];
+                    ObjectManager.Player.MoveToward(Container.CurrentWaypoint);
                 }
                 else
                 {
-                    Container.Player.StopAllMovement();
+                    ObjectManager.Player.StopAllMovement();
                     BotTasks.Pop();
                     return;
                 }

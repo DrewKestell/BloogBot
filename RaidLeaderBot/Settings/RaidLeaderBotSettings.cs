@@ -60,7 +60,7 @@ namespace RaidLeaderBot
     {
         public int Level { get; set; } = 1;
         public Race Race { get; set; }
-        public ClassId Class { get; set; } = ClassId.Warrior;
+        public Class Class { get; set; } = Class.Warrior;
         public bool IsMainTank { get; set; }
         public bool IsOffTank { get; set; }
         public bool IsMainHealer { get; set; }

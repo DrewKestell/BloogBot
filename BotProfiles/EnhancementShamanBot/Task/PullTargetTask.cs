@@ -1,7 +1,9 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Client;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,26 +17,26 @@ namespace EnhancementShamanBot
 
         public void Update()
         {
-            if (Container.HostileTarget.TappedByOther || (ObjectManager.Instance.Aggressors.Count() > 0 && !ObjectManager.Instance.Aggressors.Any(a => a.Guid == Container.HostileTarget.Guid)))
+            if (Container.HostileTarget.TappedByOther || (ObjectManager.Aggressors.Count() > 0 && !ObjectManager.Aggressors.Any(a => a.Guid == Container.HostileTarget.Guid)))
             {
                 Wait.RemoveAll();
                 BotTasks.Pop();
                 return;
             }
 
-            if (Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location) < 27 && Container.Player.IsCasting && Spellbook.Instance.IsSpellReady(LightningBolt) && Container.Player.InLosWith(Container.HostileTarget.Location))
+            if (ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) < 27 && ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady(LightningBolt) && ObjectManager.Player.InLosWith(Container.HostileTarget.Position))
             {
-                if (Container.Player.IsMoving)
-                    Container.Player.StopAllMovement();
+                if (ObjectManager.Player.IsMoving)
+                    ObjectManager.Player.StopAllMovement();
 
                 if (Wait.For("PullWithLightningBoltDelay", 100))
                 {
-                    if (!Container.Player.IsInCombat)
-                        Lua.Instance.Execute($"CastSpellByName('{LightningBolt}')");
+                    if (!ObjectManager.Player.IsInCombat)
+                        Functions.LuaCall($"CastSpellByName('{LightningBolt}')");
 
-                    if (Container.Player.IsCasting || Container.Player.IsInCombat)
+                    if (ObjectManager.Player.IsCasting || ObjectManager.Player.IsInCombat)
                     {
-                        Container.Player.StopAllMovement();
+                        ObjectManager.Player.StopAllMovement();
                         Wait.RemoveAll();
                         BotTasks.Pop();
                         BotTasks.Push(new PvERotationTask(Container, BotTasks));
@@ -43,8 +45,8 @@ namespace EnhancementShamanBot
                 return;
             }
 
-            Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
-            Container.Player.MoveToward(nextWaypoint[0]);
+            Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+            ObjectManager.Player.MoveToward(nextWaypoint[0]);
         }
     }
 }

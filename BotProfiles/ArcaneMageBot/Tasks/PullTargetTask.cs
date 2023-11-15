@@ -1,7 +1,9 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Client;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 
@@ -16,7 +18,7 @@ namespace ArcaneMageBot
 
         internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull)
         {
-            if (Spellbook.Instance.IsSpellReady(Frostbolt))
+            if (ObjectManager.Player.IsSpellReady(Frostbolt))
                 pullingSpell = Frostbolt;
             else
                 pullingSpell = Fireball;
@@ -26,22 +28,22 @@ namespace ArcaneMageBot
         {
             if (Container.HostileTarget.TappedByOther)
             {
-                Container.Player.StopAllMovement();
+                ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
                 return;
             }
 
-            float distanceToTarget = Container.Player.Location.GetDistanceTo(Container.HostileTarget.Location);
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position);
             if (distanceToTarget < 27)
             {
-                if (Container.Player.IsMoving)
-                    Container.Player.StopAllMovement();
+                if (ObjectManager.Player.IsMoving)
+                    ObjectManager.Player.StopAllMovement();
 
-                if (Container.Player.IsCasting && Spellbook.Instance.IsSpellReady(pullingSpell) && Wait.For("ArcaneMagePull", 500))
+                if (ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady(pullingSpell) && Wait.For("ArcaneMagePull", 500))
                 {
-                    Container.Player.StopAllMovement();
+                    ObjectManager.Player.StopAllMovement();
                     Wait.RemoveAll();
-                    Lua.Instance.Execute($"CastSpellByName('{pullingSpell}')");
+                    Functions.LuaCall($"CastSpellByName('{pullingSpell}')");
                     BotTasks.Pop();
                     BotTasks.Push(new PvERotationTask(Container, BotTasks));
                     return;
@@ -49,8 +51,8 @@ namespace ArcaneMageBot
             }
             else
             {
-                Location[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.Instance.Player.MapId, Container.Player.Location, Container.HostileTarget.Location, true);
-                Container.Player.MoveToward(nextWaypoint[0]);
+                Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+                ObjectManager.Player.MoveToward(nextWaypoint[0]);
             }
         }
     }

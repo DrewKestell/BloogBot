@@ -2,6 +2,7 @@
 
 using RaidMemberBot.AI;
 using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Mem;
 using System.Collections.Generic;
 
 namespace BeastMasterHunterBot
@@ -15,7 +16,7 @@ namespace BeastMasterHunterBot
         public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
         {
-            if (!Spellbook.Instance.IsSpellReady(AspectOfTheHawk) || Container.Player.HasBuff(AspectOfTheHawk))
+            if (!ObjectManager.Player.IsSpellReady(AspectOfTheHawk) || ObjectManager.Player.HasBuff(AspectOfTheHawk))
             {
                 BotTasks.Pop();
                 return;
@@ -26,8 +27,8 @@ namespace BeastMasterHunterBot
 
         void TryCastSpell(string name, int requiredLevel = 1)
         {
-            if (!Container.Player.HasBuff(name) && Container.Player.Level >= requiredLevel && Spellbook.Instance.IsSpellReady(name))
-                Lua.Instance.Execute($"CastSpellByName('{name}')");
+            if (!ObjectManager.Player.HasBuff(name) && ObjectManager.Player.Level >= requiredLevel && ObjectManager.Player.IsSpellReady(name))
+                Functions.LuaCall($"CastSpellByName('{name}')");
         }
     }
 }
