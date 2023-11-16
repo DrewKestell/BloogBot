@@ -32,6 +32,12 @@ namespace RaidMemberBot.Objects
         const string BearForm = "Bear Form";
         const string CatForm = "Cat Form";
 
+        const string WandLuaScript = "if IsAutoRepeatAction(72) == nil then CastSpellByName('Shoot') end";
+        const string TurnOffWandLuaScript = "if IsAutoRepeatAction(72) ~= nil then CastSpellByName('Shoot') end";
+
+        const string AutoAttackLuaScript = "if IsAutoRepeatAction(72) == nil then CastSpellByName('Attack') end";
+        const string TurnOffAutoAttackLuaScript = "if IsAutoRepeatAction(72) ~= nil then CastSpellByName('Attack') end";
+
         // OPCODES
         const int SET_FACING_OPCODE = 0xDA; // TBC
 
@@ -358,7 +364,7 @@ namespace RaidMemberBot.Objects
         public ulong GetBackpackItemGuid(int slot) => MemoryManager.ReadUlong(GetDescriptorPtr() + (MemoryAddresses.LocalPlayer_BackpackFirstItemOffset + (slot * 8)));
 
         public ulong GetEquippedItemGuid(EquipSlot slot) => MemoryManager.ReadUlong(IntPtr.Add(Pointer, MemoryAddresses.LocalPlayer_EquipmentFirstItemOffset + ((int)slot - 1) * 0x8));
-        
+
         public WoWItem GetEquippedItem(EquipSlot slot) => ObjectManager.Items.FirstOrDefault(x => x.Guid == GetEquippedItemGuid(slot));
 
         public bool InLosWith(Position position)
@@ -381,41 +387,16 @@ namespace RaidMemberBot.Objects
             }
         }
 
-        public void CastSpellAtPosition(string spellName, Position position)
+        public void StartAttack()
         {
-            return;
-            // Functions.CastAtPosition(spellName, position);
-        }
-
-        public bool IsAutoRepeating(string name)
-        {
-            string luaString = $@"
-                local i = 1
-                while true do
-                    local spellName, spellRank = GetSpellName(i, BOOKTYPE_SPELL);
-                    if not spellName then
-                        break;
-                    end
-   
-                    -- use spellName and spellRank here
-                    if(spellName == ""{{{name}}}"") then
-                        PickupSpell(i, BOOKTYPE_SPELL);
-                        PlaceAction(1);
-                        ClearCursor();
-                        return IsAutoRepeatAction(1)
-                    end
-
-                    i = i + 1;
-                end
-                return false;";
-            var result = LuaCallWithResults(luaString);
-            Console.WriteLine(result);
-            return false;
-        }
-
-        private static string FormatLua(string str, params object[] names)
-        {
-            return string.Format(str, names.Select(s => s.ToString().Replace("'", "\\'").Replace("\"", "\\\"")).ToArray());
+            if (Class == Class.Warlock || Class == Class.Mage || Class == Class.Priest)
+            {
+                Functions.LuaCall(WandLuaScript);
+            }
+            else if (Class != Class.Hunter)
+            {
+                Functions.LuaCall(AutoAttackLuaScript);
+            }
         }
     }
 }

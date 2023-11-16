@@ -186,7 +186,8 @@ namespace RaidMemberBot.Game.Statics
                 .Where(u => u.IsInCombat)
                 .Where(u =>
                     u.TargetGuid == Player?.Guid ||
-                    u.TargetGuid == Pet?.Guid)
+                    u.TargetGuid == Pet?.Guid ||
+                    PartyMembers.Any(x => x.Guid == u.TargetGuid))
             .ToList();
 
         static public IEnumerable<WoWUnit> Hostiles =>
@@ -216,6 +217,7 @@ namespace RaidMemberBot.Game.Statics
             {
                 var online = MemoryManager.ReadByte(Offsets.Player.IsIngame) == 1;
                 if (!online) _ingame1 = false;
+                return;
             }
             if (args.EventName != "UNIT_MODEL_CHANGED" &&
                 args.EventName != "UPDATE_SELECTED_CHARACTER" &&
@@ -337,7 +339,7 @@ namespace RaidMemberBot.Game.Statics
         {
             try
             {
-                if (Player != null)
+                if (IsLoggedIn)
                 {
                     _characterState.Guid = playerGuid;
                     _characterState.CharacterName = Player.Name;

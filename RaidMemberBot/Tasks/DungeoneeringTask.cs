@@ -6,6 +6,7 @@ using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using ObjectManager = RaidMemberBot.Game.Statics.ObjectManager;
 
 namespace RaidMemberBot.AI.SharedStates
@@ -25,6 +26,7 @@ namespace RaidMemberBot.AI.SharedStates
         Position lastPosition;
         int lastTickTime;
         int stuckDuration;
+        int remainingWaypoints;
         private bool CanProceed => ObjectManager.PartyMembers.All(x => (x.ManaPercent < 0 || x.ManaPercent > 80) && x.HealthPercent > 85);
         private bool NeedsGuidance => Container.CurrentWaypoint.DistanceTo(ObjectManager.Player.Position) < 3 || !ObjectManager.Player.IsFacing(Container.CurrentWaypoint) || !ObjectManager.Player.IsMoving;
         public DungeoneeringTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Ordinary)
@@ -93,19 +95,27 @@ namespace RaidMemberBot.AI.SharedStates
             }
             else
             {
-                if (ObjectManager.PartyLeader == null && ObjectManager.MapId != 1 && ObjectManager.MapId != 0)
+                if (ObjectManager.PartyLeader == null)
                 {
                     Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, new Position(0, 0, 0), true);
-                    destination = locations[locations.Length - 1];
 
-                    ApproachDestination();
+                    if (locations.Length > 1)
+                    {
+                        destination = locations[1];
+
+                        ApproachDestination();
+                    }
                 }
                 else if (ObjectManager.PartyLeader?.Position.DistanceTo(ObjectManager.Player.Position) > 15)
                 {
                     Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.PartyLeader.Position, true);
-                    destination = locations[locations.Length - 1];
 
-                    ApproachDestination();
+                    if (locations.Length > 1)
+                    {
+                        destination = locations[1];
+
+                        ApproachDestination();
+                    }
                 }
                 else
                 {
@@ -123,32 +133,12 @@ namespace RaidMemberBot.AI.SharedStates
 
         private void SetNextWaypoint()
         {
-            if (minorWaypoints.TryGetValue(currentMajorWaypoint, out List<Position> minorWaypointsListFinal))
+            if (dungeonWaypoints.Count > 0)
             {
-                if (minorWaypointsListFinal.Count > 0)
-                {
-                    currentMinorWaypoint = minorWaypointsListFinal.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, x, currentMajorWaypoint, true)).Reverse().First();
-                    destination = currentMinorWaypoint;
-                }
-                else
-                {
-                    minorWaypoints.Remove(currentMajorWaypoint);
-                    SetNextWaypoint();
-                }
-            }
-            else
+                destination = dungeonWaypoints.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true)).First();
+            } else
             {
-                if (majorWaypoints.Count > 0)
-                {
-                    currentMajorWaypoint = majorWaypoints[0];
-                    destination = currentMajorWaypoint;
-                }
-                else
-                {
-                    Console.WriteLine($"DUNGEONEERING TASK: Job's Finished!");
-                    ObjectManager.Player.StopAllMovement();
-                    BotTasks.Pop();
-                }
+                Console.WriteLine($"Job's finished!");
             }
         }
 
@@ -275,6 +265,8 @@ namespace RaidMemberBot.AI.SharedStates
                 currentMinorWaypoint = minorWaypointsListFinal.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true)).First();
                 destination = currentMinorWaypoint;
             }
+
+            remainingWaypoints = dungeonWaypoints.Count();
         }
 
         // implementation of Traveling Salesman Problem
@@ -484,6 +476,5 @@ namespace RaidMemberBot.AI.SharedStates
 
             return waypoints;
         }
-
     }
 }

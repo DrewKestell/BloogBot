@@ -1,9 +1,11 @@
-﻿using RaidMemberBot.AI;
+﻿using Newtonsoft.Json;
+using RaidMemberBot.AI;
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
 using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,7 +17,17 @@ namespace EnhancementShamanBot
 
         const string HealingWave = "Healing Wave";
         readonly WoWItem drinkItem;
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) { }
+        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) {
+            List<WoWItem> drinkItems = ObjectManager.Items.Where(x => x.ItemId == 1179).ToList();
+            int drinkItemsCount = drinkItems.Sum(x => x.StackCount);
+
+            if (drinkItemsCount < 20)
+            {
+                Functions.LuaCall($"SendChatMessage('.additem 1179 {20 - drinkItemsCount}')");
+            }
+
+            drinkItem = ObjectManager.Items.First(x => x.ItemId == 1179);
+        }
 
         public void Update()
         {
@@ -26,29 +38,6 @@ namespace EnhancementShamanBot
                 Wait.RemoveAll();
                 ObjectManager.Player.Stand();
                 BotTasks.Pop();
-
-                int drinkCount = drinkItem == null ? 0 : Inventory.GetItemCount(drinkItem.ItemId);
-                if (!InCombat && drinkCount == 0)
-                {
-                    int drinkToBuy = 28 - (drinkCount / stackCount);
-                    //var itemsToBuy = new Dictionary<string, int>
-                    //{
-                    //    { container.BotSettings.Drink, drinkToBuy }
-                    //};
-
-                    //var currentHotspot = container.GetCurrentHotspot();
-                    //if (currentHotspot.TravelPath != null)
-                    //{
-                    //    BotTasks.Push(new TravelState(botTasks, container, currentHotspot.TravelPath.Waypoints, 0));
-                    //    BotTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.TravelPath.Waypoints[0]));
-                    //}
-
-                    //BotTasks.Push(new BuyItemsState(botTasks, currentHotspot.Innkeeper.Name, itemsToBuy));
-                    //BotTasks.Push(new SellItemsState(botTasks, container, currentHotspot.Innkeeper.Name));
-                    //BotTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.Innkeeper.Position));
-                    //container.CheckForTravelPath(botTasks, true, false);
-                }
-
                 return;
             }
 

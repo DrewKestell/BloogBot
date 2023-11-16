@@ -12,8 +12,8 @@ namespace ShadowPriestBot
 {
     class PvERotationTask : CombatRotationTask, IBotTask
     {
-        const string WandLuaScript = "if IsAutoRepeatAction(12) == nil then CastSpellByName('Shoot') end";
-        const string TurnOffWandLuaScript = "if IsAutoRepeatAction(12) ~= nil then CastSpellByName('Shoot') end";
+        const string WandLuaScript = "if IsAutoRepeatAction(72) == nil then CastSpellByName('Shoot') end";
+        const string TurnOffWandLuaScript = "if IsAutoRepeatAction(72) ~= nil then CastSpellByName('Shoot') end";
 
         const string AbolishDisease = "Abolish Disease";
         const string CureDisease = "Cure Disease";
@@ -64,7 +64,7 @@ namespace ShadowPriestBot
                 return;
 
             bool hasWand = Inventory.GetEquippedItem(EquipSlot.Ranged) != null;
-            bool useWand = hasWand && !ObjectManager.Player.IsCasting && !ObjectManager.Player.IsChanneling && (ObjectManager.Player.ManaPercent <= 10 || Container.HostileTarget.CreatureType == CreatureType.Totem || Container.HostileTarget.HealthPercent <= 10);
+            bool useWand = hasWand && !ObjectManager.Player.IsCasting;
             if (useWand)
                 Functions.LuaCall(WandLuaScript);
             else
@@ -75,8 +75,8 @@ namespace ShadowPriestBot
 
                 //TryCastSpell(VampiricEmbrace, 0, 29, ObjectManager.Player.HealthPercent < 100 && !target.HasDebuff(VampiricEmbrace) && Container.HostileTarget.HealthPercent > 50);
 
-                bool noNeutralsNearby = !ObjectManager.Units.Any(u => u.Guid != Container.HostileTarget.Guid && u.UnitReaction == UnitReaction.Neutral && u.Position.DistanceTo(ObjectManager.Player.Position) <= 10);
-                TryCastSpell(PsychicScream, 0, 7, (target.Position.DistanceTo(ObjectManager.Player.Position) < 8 && !ObjectManager.Player.HasBuff(PowerWordShield)) || ObjectManager.Aggressors.Count() > 1 && Container.HostileTarget.CreatureType != CreatureType.Elemental);
+                //bool noNeutralsNearby = !ObjectManager.Units.Any(u => u.Guid != Container.HostileTarget.Guid && u.UnitReaction == UnitReaction.Neutral && u.Position.DistanceTo(ObjectManager.Player.Position) <= 10);
+                //TryCastSpell(PsychicScream, 0, 7, (target.Position.DistanceTo(ObjectManager.Player.Position) < 8 && !ObjectManager.Player.HasBuff(PowerWordShield)) || ObjectManager.Aggressors.Count() > 1 && Container.HostileTarget.CreatureType != CreatureType.Elemental);
 
                 TryCastSpell(ShadowWordPain, 0, 29, Container.HostileTarget.HealthPercent > 70 && !target.HasDebuff(ShadowWordPain));
 

@@ -36,6 +36,8 @@ namespace RaidMemberBot.AI
 
         public BotRunner()
         {
+            Bots = new ObservableCollection<IBot>(botLoader.ReloadBots());
+
             characterState = new CharacterState()
             {
                 ProcessId = Process.GetCurrentProcess().Id
@@ -175,7 +177,6 @@ namespace RaidMemberBot.AI
         {
             try
             {
-                Bots = new ObservableCollection<IBot>(botLoader.ReloadBots());
                 currentBot = Bots.First(b => b.Name == characterState.BotProfileName);
 
                 classContainer = currentBot.GetClassContainer(characterState);

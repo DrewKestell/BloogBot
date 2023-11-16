@@ -12,14 +12,15 @@ namespace ProtectionWarriorBot
         const int stackCount = 5;
 
         readonly WoWItem foodItem;
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) {
+        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
+        {
             foodItem = ObjectManager.Items.First(x => x.ItemId == 5479);
         }
 
         public void Update()
         {
             if (ObjectManager.Player.HealthPercent >= 95 ||
-                ObjectManager.Player.HealthPercent >= 80 && !ObjectManager.Player.IsEating ||                                                                
+                ObjectManager.Player.HealthPercent >= 80 && !ObjectManager.Player.IsEating ||
                 ObjectManager.Player.IsInCombat ||
                 ObjectManager.Units.Any(u => u.TargetGuid == ObjectManager.Player.Guid))
             {

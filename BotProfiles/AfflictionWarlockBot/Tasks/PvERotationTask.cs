@@ -44,6 +44,7 @@ namespace AfflictionWarlockBot
             if (Update(Container.HostileTarget, 30))
                 return;
 
+            ObjectManager.Player.StartAttack();
             ObjectManager.Pet?.Attack();
 
             // if target is low on health, turn off wand and cast drain soul

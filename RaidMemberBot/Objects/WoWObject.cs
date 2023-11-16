@@ -145,11 +145,14 @@ namespace RaidMemberBot.Objects
                     var ptr2 = MemoryManager.ReadInt((IntPtr)ptr1);
                     return MemoryManager.ReadString((IntPtr)ptr2);
                 }
-                else
+                else if (ObjectType == WoWObjectTypes.OT_GAMEOBJ)
                 {
                     var ptr1 = MemoryManager.ReadIntPtr(IntPtr.Add(Pointer, 0x214));
                     var ptr2 = MemoryManager.ReadIntPtr(IntPtr.Add(ptr1, 0x8));
                     return MemoryManager.ReadString(ptr2);
+                } else
+                {
+                    return null;
                 }
             }
             catch (AccessViolationException)

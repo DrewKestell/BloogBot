@@ -1,6 +1,7 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.AI.SharedStates;
 using RaidMemberBot.Client;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Objects;
 using System;
@@ -107,6 +108,8 @@ namespace ProtectionWarriorBot
                 {
                     Update(target, 3);
                 }
+
+                ObjectManager.Player.StartAttack();
 
                 TryUseAbility(Bloodrage, condition: Container.HostileTarget.HealthPercent > 50);
 

@@ -34,7 +34,7 @@ namespace RaidLeaderBot
             ConfigSockerServer.Instance.AddProcessToCommandPortMapping((int)processInfo.dwProcessId, raidLeaderPortNumber);
 
             // this seems to help prevent timing issues
-            Thread.Sleep(1000);
+            Thread.Sleep(1500);
 
             // get a handle to the BloogBot process
             IntPtr processHandle = Process.GetProcessById((int)processInfo.dwProcessId).Handle;
@@ -51,7 +51,7 @@ namespace RaidLeaderBot
                 MemoryProtectionType.PAGE_EXECUTE_READWRITE);
 
             // this seems to help prevent timing issues
-            Thread.Sleep(1000);
+            Thread.Sleep(1500);
 
             int error = Marshal.GetLastWin32Error();
             if (error > 0)
@@ -63,7 +63,7 @@ namespace RaidLeaderBot
             WriteProcessMemory(processHandle, loaderPathPtr, bytes, bytes.Length, ref bytesWritten);
 
             // this seems to help prevent timing issues
-            Thread.Sleep(1000);
+            Thread.Sleep(1500);
 
             error = Marshal.GetLastWin32Error();
             if (error > 0 || bytesWritten == 0)
@@ -86,7 +86,7 @@ namespace RaidLeaderBot
             CreateRemoteThread(processHandle, (IntPtr)null, (IntPtr)0, loaderDllPointer, loaderPathPtr, 0, (IntPtr)null);
 
             // this seems to help prevent timing issues
-            Thread.Sleep(1000);
+            Thread.Sleep(1500);
 
             error = Marshal.GetLastWin32Error();
             if (error > 0)
