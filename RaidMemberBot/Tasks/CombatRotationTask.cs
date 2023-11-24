@@ -12,8 +12,6 @@ namespace RaidMemberBot.AI.SharedStates
 {
     public abstract class CombatRotationTask : BotTask
     {
-        const string FacingErrorMessage = "You are facing the wrong way!";
-        const string LosErrorMessage = "Target not in line of sight";
         const string BattleStance = "Battle Stance";
 
         Position currentWaypoint;
@@ -24,15 +22,7 @@ namespace RaidMemberBot.AI.SharedStates
         bool noLos;
         int noLosStartTime;
 
-        public CombatRotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Combat)
-        {
-            Instance.OnErrorMessage += OnErrorMessageCallback;
-        }
-
-        ~CombatRotationTask()
-        {
-            Instance.OnErrorMessage -= OnErrorMessageCallback;
-        }
+        public CombatRotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Combat) { }
 
         public bool Update(WoWUnit target, int desiredRange)
         {
@@ -71,10 +61,6 @@ namespace RaidMemberBot.AI.SharedStates
             else
             {
                 ObjectManager.Player.StopAllMovement();
-             
-                // ensure the correct target is set
-                if (ObjectManager.Player.TargetGuid != Container.HostileTarget.Guid)
-                    ObjectManager.Player.SetTarget(target.Guid);
 
                 // ensure we're facing the target
                 if (!ObjectManager.Player.IsFacing(target.Position))
@@ -83,32 +69,7 @@ namespace RaidMemberBot.AI.SharedStates
                 // make sure casters don't move or anything while they're casting by returning here
                 if ((ObjectManager.Player.IsCasting || ObjectManager.Player.IsChanneling) && ObjectManager.Player.Class != Class.Warrior)
                     return true;
-            }
-
-            // see if somebody else stole the mob we were targeting
-            if (target.TappedByOther)
-            {
-                CleanUp();
-                return true;
-            }
-
-            // when killing certain summoned units (like totems), our local reference to target will still have 100% health even after the totem is destroyed
-            // so we need to lookup the target again in the object manager, and if it's null, we can assume it's dead and leave combat.
-            //var checkTarget = ObjectManager.Units.FirstOrDefault(u => u.Guid == Container.HostileTarget.Guid);
-            //if (target.Health == 0 || Container.HostileTarget.TappedByOther || checkTarget == null)
-            //{
-            //    ObjectManager.Player.StopAllMovement();
-
-            //    if (Wait.For("PopCombatState", 1500))
-            //    {
-            //        CleanUp();
-            //        BotTasks.Push(new LootTask(Container, BotTasks));
-            //    }
-
-            //    return true;
-            //}
-
-            // ensure auto-attack is turned on ONLY if player does not have a wand           
+            }       
 
             return false;
         }
@@ -171,22 +132,6 @@ namespace RaidMemberBot.AI.SharedStates
         {
             ObjectManager.Player.StopAllMovement();
             BotTasks.Pop();
-            Instance.OnErrorMessage -= OnErrorMessageCallback;
-        }
-
-        void OnErrorMessageCallback(object sender, OnUiMessageArgs e)
-        {
-            if (e.Message == FacingErrorMessage && !backpedaling)
-            {
-                backpedaling = true;
-                backpedalStartTime = Environment.TickCount;
-                ObjectManager.Player.StartMovement(ControlBits.Back);
-            }
-            else if (e.Message == LosErrorMessage)
-            {
-                noLos = true;
-                noLosStartTime = Environment.TickCount;
-            }
         }
     }
 }

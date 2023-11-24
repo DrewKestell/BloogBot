@@ -32,11 +32,11 @@ namespace RaidMemberBot.Objects
         const string BearForm = "Bear Form";
         const string CatForm = "Cat Form";
 
-        const string WandLuaScript = "if IsAutoRepeatAction(72) == nil then CastSpellByName('Shoot') end";
-        const string TurnOffWandLuaScript = "if IsAutoRepeatAction(72) ~= nil then CastSpellByName('Shoot') end";
+        const string WandLuaScript = "if IsCurrentAction(72) == nil then CastSpellByName('Shoot') end";
+        const string TurnOffWandLuaScript = "if IsCurrentAction(72) ~= nil then CastSpellByName('Shoot') end";
 
-        const string AutoAttackLuaScript = "if IsAutoRepeatAction(72) == nil then CastSpellByName('Attack') end";
-        const string TurnOffAutoAttackLuaScript = "if IsAutoRepeatAction(72) ~= nil then CastSpellByName('Attack') end";
+        const string AutoAttackLuaScript = "if IsCurrentAction(72) == nil then CastSpellByName('Attack') end";
+        const string TurnOffAutoAttackLuaScript = "if IsCurrentAction(72) ~= nil then CastSpellByName('Attack') end";
 
         // OPCODES
         const int SET_FACING_OPCODE = 0xDA; // TBC

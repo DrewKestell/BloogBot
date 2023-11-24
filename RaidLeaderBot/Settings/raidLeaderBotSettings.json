@@ -52,7 +52,7 @@
             "EquipmentEnchants": {}
           },
           {
-            "Level": 1,
+            "Level": 14,
             "Race": 4,
             "Class": 7,
             "IsMainTank": false,
@@ -72,7 +72,7 @@
             "EquipmentEnchants": {}
           },
           {
-            "Level": 1,
+            "Level": 14,
             "Race": 4,
             "Class": 9,
             "IsMainTank": false,
@@ -92,7 +92,7 @@
             "EquipmentEnchants": {}
           },
           {
-            "Level": 1,
+            "Level": 14,
             "Race": 4,
             "Class": 3,
             "IsMainTank": false,

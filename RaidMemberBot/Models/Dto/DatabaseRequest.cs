@@ -13,7 +13,7 @@
     {
         GetItemById,
         GetCreatureMovementByGuid,
-        GetCreatureLinkedByGuid,
+        GetCreatureGroupingByMemberGuid,
         GetCreatureTemplateById,
         GetCreaturesById,
         GetCreaturesByMapId, 

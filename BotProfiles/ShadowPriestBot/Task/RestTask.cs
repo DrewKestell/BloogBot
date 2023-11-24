@@ -1,5 +1,6 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Game;
+using RaidMemberBot.Game.Frames;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
 using RaidMemberBot.Mem;
@@ -22,6 +23,14 @@ namespace ShadowPriestBot
 
         public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
         {
+            List<WoWItem> drinkItems = ObjectManager.Items.Where(x => x.ItemId == 1179).ToList();
+            int drinkItemsCount = drinkItems.Sum(x => x.StackCount);
+
+            if (drinkItemsCount < 20)
+            {
+                Functions.LuaCall($"SendChatMessage('.additem 1179 {20 - drinkItemsCount}')");
+            }
+
             drinkItem = ObjectManager.Items.First(x => x.ItemId == 1179);
         }
 

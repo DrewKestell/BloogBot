@@ -162,9 +162,18 @@ namespace RaidLeaderBot
                             }
                             else
                             {
-                                if (newCharacterState.MapId != MapId)
+                                if (newCharacterState.Level != raidMemberViewModel.RaidMemberPreset.Level)
                                 {
-                                    AreaTriggerTeleport areaTriggerTeleport = SqliteRepository.GetAreaTriggerTeleportByTargetMap(MapId);
+                                    InstanceCommand setLevelCommand = new InstanceCommand()
+                                    {
+                                        CommandAction = CommandAction.SetLevel,
+                                        CommandParam1 = raidMemberViewModel.RaidMemberPreset.Level.ToString()
+                                    };
+                                    NextCommand[newCharacterState.ProcessId] = setLevelCommand;
+                                }
+                                else if (newCharacterState.MapId != MapId)
+                                {
+                                    AreaTriggerTeleport areaTriggerTeleport = MangosRepository.GetAreaTriggerTeleportByMapId(MapId);
                                     InstanceCommand goToCommand = new InstanceCommand()
                                     {
                                         CommandAction = CommandAction.TeleTo,

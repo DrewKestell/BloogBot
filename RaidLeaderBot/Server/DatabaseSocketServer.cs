@@ -11,7 +11,7 @@ namespace RaidLeaderBot
     {
         public DatabaseSocketServer(int port, IPAddress ipAddress) : base(port, ipAddress)
         {
-            Console.WriteLine($"DATABASE SERVER:Port {port}");
+            Console.WriteLine($"[DATABASE SERVER]Port {port}");
         }
 
         public override int HandleRequest(string payload, Socket clientSocket)
@@ -22,25 +22,25 @@ namespace RaidLeaderBot
             switch (request.QueryType)
             {
                 case QueryType.GetCreatureMovementByGuid:
-                    response = JsonConvert.SerializeObject(SqliteRepository.GetCreatureMovementById(int.Parse(request.QueryParam1)));
+                    response = JsonConvert.SerializeObject(MangosRepository.GetCreatureMovementById(int.Parse(request.QueryParam1)));
                     break;
-                case QueryType.GetCreatureLinkedByGuid:
-                    response = JsonConvert.SerializeObject(SqliteRepository.GetCreatureLinkedByGuid(int.Parse(request.QueryParam1)));
+                case QueryType.GetCreatureGroupingByMemberGuid:
+                    response = JsonConvert.SerializeObject(MangosRepository.GetCreatureGroupingByMemberGuid(int.Parse(request.QueryParam1)));
                     break;
                 case QueryType.GetCreatureTemplateById:
-                    response = JsonConvert.SerializeObject(SqliteRepository.GetCreatureTemplateById(ulong.Parse(request.QueryParam1)));
+                    response = JsonConvert.SerializeObject(MangosRepository.GetCreatureTemplateById(ulong.Parse(request.QueryParam1)));
                     break;
                 case QueryType.GetCreaturesById:
-                    response = JsonConvert.SerializeObject(SqliteRepository.GetCreaturesById(int.Parse(request.QueryParam1)));
+                    response = JsonConvert.SerializeObject(MangosRepository.GetCreaturesById(int.Parse(request.QueryParam1)));
                     break;
                 case QueryType.GetCreaturesByMapId:
-                    response = JsonConvert.SerializeObject(SqliteRepository.GetCreaturesByMapId(int.Parse(request.QueryParam1)));
+                    response = JsonConvert.SerializeObject(MangosRepository.GetCreaturesByMapId(int.Parse(request.QueryParam1)));
                     break;
                 case QueryType.GetItemById:
-                    response = JsonConvert.SerializeObject(SqliteRepository.GetItemById(ulong.Parse(request.QueryParam1)));
+                    response = JsonConvert.SerializeObject(MangosRepository.GetItemById(ulong.Parse(request.QueryParam1)));
                     break;
                 case QueryType.GetCreatureEquipTemplateById:
-                    response = JsonConvert.SerializeObject(SqliteRepository.GetCreatureEquipTemplateById(int.Parse(request.QueryParam1)));
+                    response = JsonConvert.SerializeObject(MangosRepository.GetCreatureEquipTemplateById(int.Parse(request.QueryParam1)));
                     break;
             }
             byte[] bytes = Encoding.ASCII.GetBytes(response);

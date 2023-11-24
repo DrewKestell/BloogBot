@@ -72,7 +72,7 @@ namespace RaidLeaderBot
                                             FROM areatrigger_teleport
                                             WHERE target_map = @id
                                         ";
-                    command.Parameters.AddWithValue("@id", id.ToString());
+                    command.Parameters.AddWithValue("@id", id);
                     using MySqlDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {
@@ -88,13 +88,11 @@ namespace RaidLeaderBot
                             TargetPositionX = Convert.ToSingle(reader["target_position_x"]),
                             TargetPositionY = Convert.ToSingle(reader["target_position_y"]),
                             TargetPositionZ = Convert.ToSingle(reader["target_position_z"]),
-                            TargetOrientation = Convert.ToSingle(reader["target_orientation"]),
-                            StatusFailedText = Convert.ToString(reader["status_failed_text"]),
-                            ConditionId = Convert.ToInt32(reader["condition_id"])
+                            TargetOrientation = Convert.ToSingle(reader["target_orientation"])
                         };
                     }
                 }
-                catch (Exception ex) { Console.WriteLine($"{ex.StackTrace}"); }
+                catch (Exception ex) { Console.WriteLine($"[MANGOS REPO]{ex.Message} {ex.StackTrace}"); }
             }
 
             return teleport;
@@ -114,7 +112,7 @@ namespace RaidLeaderBot
                                             WHERE itemId = @itemId
                                         ";
 
-                command.Parameters.AddWithValue("@itemId", id.ToString());
+                command.Parameters.AddWithValue("@itemId", id);
                 using MySqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -422,7 +420,7 @@ namespace RaidLeaderBot
                                             FROM creature
                                             WHERE id = @id
                                         ";
-                command.Parameters.AddWithValue("@id", id.ToString());
+                command.Parameters.AddWithValue("@id", id);
 
                 using MySqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
@@ -435,10 +433,10 @@ namespace RaidLeaderBot
                         SpawnMask = Convert.ToByte(reader["spawnMask"]),
                         ModelId = Convert.ToInt32(reader["modelid"]),
                         EquipmentId = Convert.ToInt32(reader["equipment_id"]),
-                        LocationX = Convert.ToSingle(reader["position_x"]),
-                        LocationY = Convert.ToSingle(reader["position_y"]),
-                        LocationZ = Convert.ToSingle(reader["position_z"]),
-                        SpawnLocation = new Vector3(Convert.ToSingle(reader["position_x"]), Convert.ToSingle(reader["position_y"]), Convert.ToSingle(reader["position_z"])),
+                        PositionX = Convert.ToSingle(reader["position_x"]),
+                        PositionY = Convert.ToSingle(reader["position_y"]),
+                        PositionZ = Convert.ToSingle(reader["position_z"]),
+                        SpawnPosition = new Vector3(Convert.ToSingle(reader["position_x"]), Convert.ToSingle(reader["position_y"]), Convert.ToSingle(reader["position_z"])),
                         Orientation = Convert.ToSingle(reader["orientation"]),
                         SpawnTimeSecsMin = Convert.ToInt32(reader["spawntimesecsmin"]),
                         SpawnTimeSecsMax = Convert.ToInt32(reader["spawntimesecsmax"]),
@@ -572,7 +570,7 @@ namespace RaidLeaderBot
                                             WHERE map = @map
                                         ";
 
-                command.Parameters.AddWithValue("@map", mapId.ToString());
+                command.Parameters.AddWithValue("@map", mapId);
                 using MySqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -582,10 +580,10 @@ namespace RaidLeaderBot
                         Id = Convert.ToInt32(reader["id"]),
                         Map = Convert.ToInt16(reader["map"]),
                         ModelId = Convert.ToInt32(reader["modelid"]),
-                        LocationX = Convert.ToSingle(reader["position_x"]),
-                        LocationY = Convert.ToSingle(reader["position_y"]),
-                        LocationZ = Convert.ToSingle(reader["position_z"]),
-                        SpawnLocation = new Vector3(Convert.ToSingle(reader["position_x"]), Convert.ToSingle(reader["position_y"]), Convert.ToSingle(reader["position_z"])),
+                        PositionX = Convert.ToSingle(reader["position_x"]),
+                        PositionY = Convert.ToSingle(reader["position_y"]),
+                        PositionZ = Convert.ToSingle(reader["position_z"]),
+                        SpawnPosition = new Vector3(Convert.ToSingle(reader["position_x"]), Convert.ToSingle(reader["position_y"]), Convert.ToSingle(reader["position_z"])),
                     };
                     creatures.Add(creature);
                 }
@@ -607,7 +605,7 @@ namespace RaidLeaderBot
                                             LEFT JOIN   creature_loot_template  clt ON  ct.entry    = clt.entry
                                             WHERE                                       clt.item    = @itemId
                                         ";
-                command.Parameters.AddWithValue("@itemId", itemId.ToString());
+                command.Parameters.AddWithValue("@itemId", itemId);
 
                 using MySqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
@@ -620,10 +618,10 @@ namespace RaidLeaderBot
                         SpawnMask = Convert.ToByte(reader["spawnMask"]),
                         ModelId = Convert.ToInt32(reader["modelid"]),
                         EquipmentId = Convert.ToInt32(reader["equipment_id"]),
-                        LocationX = Convert.ToSingle(reader["position_x"]),
-                        LocationY = Convert.ToSingle(reader["position_y"]),
-                        LocationZ = Convert.ToSingle(reader["position_z"]),
-                        SpawnLocation = new Vector3(Convert.ToSingle(reader["position_x"]), Convert.ToSingle(reader["position_y"]), Convert.ToSingle(reader["position_z"])),
+                        PositionX = Convert.ToSingle(reader["position_x"]),
+                        PositionY = Convert.ToSingle(reader["position_y"]),
+                        PositionZ = Convert.ToSingle(reader["position_z"]),
+                        SpawnPosition = new Vector3(Convert.ToSingle(reader["position_x"]), Convert.ToSingle(reader["position_y"]), Convert.ToSingle(reader["position_z"])),
                         Orientation = Convert.ToSingle(reader["orientation"]),
                         SpawnTimeSecsMin = Convert.ToInt32(reader["spawntimesecsmin"]),
                         SpawnTimeSecsMax = Convert.ToInt32(reader["spawntimesecsmax"]),
@@ -668,10 +666,10 @@ namespace RaidLeaderBot
                         SpawnMask = Convert.ToByte(reader["spawnMask"]),
                         ModelId = Convert.ToInt32(reader["modelid"]),
                         EquipmentId = Convert.ToInt32(reader["equipment_id"]),
-                        LocationX = Convert.ToSingle(reader["position_x"]),
-                        LocationY = Convert.ToSingle(reader["position_y"]),
-                        LocationZ = Convert.ToSingle(reader["position_z"]),
-                        SpawnLocation = new Vector3(Convert.ToSingle(reader["position_x"]), Convert.ToSingle(reader["position_y"]), Convert.ToSingle(reader["position_z"])),
+                        PositionX = Convert.ToSingle(reader["position_x"]),
+                        PositionY = Convert.ToSingle(reader["position_y"]),
+                        PositionZ = Convert.ToSingle(reader["position_z"]),
+                        SpawnPosition = new Vector3(Convert.ToSingle(reader["position_x"]), Convert.ToSingle(reader["position_y"]), Convert.ToSingle(reader["position_z"])),
                         Orientation = Convert.ToSingle(reader["orientation"]),
                         SpawnTimeSecsMin = Convert.ToInt32(reader["spawntimesecsmin"]),
                         SpawnTimeSecsMax = Convert.ToInt32(reader["spawntimesecsmax"]),
@@ -688,9 +686,9 @@ namespace RaidLeaderBot
             }
             return creatures;
         }
-        public static CreatureGrouping GetCreatureGroupingByMemberGuid(int guid)
+        public static List<CreatureGrouping> GetCreatureGroupingByMemberGuid(int guid)
         {
-            CreatureGrouping grouping = new CreatureGrouping();
+            List<CreatureGrouping> groupings = new List<CreatureGrouping>();
             using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 connection.Open();
@@ -702,18 +700,19 @@ namespace RaidLeaderBot
                                             WHERE memberGUID = @guid
                                         ";
 
-                command.Parameters.AddWithValue("@guid", guid.ToString());
+                command.Parameters.AddWithValue("@guid", guid);
                 using MySqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    grouping = new CreatureGrouping
+                    CreatureGrouping creatureGrouping = new CreatureGrouping
                     {
                         LeaderGuid = Convert.ToInt32(reader["leaderGUID"]),
                         MemberGuid = Convert.ToInt32(reader["memberGUID"]),
                     };
+                    groupings.Add(creatureGrouping);
                 }
             }
-            return grouping;
+            return groupings;
         }
         public static CreatureEquipTemplate GetCreatureEquipTemplateById(int id)
         {
@@ -729,7 +728,7 @@ namespace RaidLeaderBot
                                             WHERE entry = @entry
                                         ";
 
-                command.Parameters.AddWithValue("@entry", id.ToString());
+                command.Parameters.AddWithValue("@entry", id);
                 using MySqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -758,7 +757,7 @@ namespace RaidLeaderBot
                                             WHERE Id = @id
                                         ";
 
-                command.Parameters.AddWithValue("id", id.ToString());
+                command.Parameters.AddWithValue("id", id);
                 using MySqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -793,7 +792,7 @@ namespace RaidLeaderBot
                                             FROM creature_template
                                             WHERE entry = @entry
                                         ";
-                command.Parameters.AddWithValue("@entry", id.ToString());
+                command.Parameters.AddWithValue("@entry", id);
                 using MySqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -1009,7 +1008,7 @@ namespace RaidLeaderBot
                                             WHERE A.quest = @id
                                             ORDER BY rn
                                         ";
-                command.Parameters.AddWithValue("@id", id.ToString());
+                command.Parameters.AddWithValue("@id", id);
 
                 using MySqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
@@ -1032,7 +1031,7 @@ namespace RaidLeaderBot
                                             FROM gameobject
                                             WHERE id = @id
                                         ";
-                command.Parameters.AddWithValue("@id", id.ToString());
+                command.Parameters.AddWithValue("@id", id);
 
                 using MySqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
@@ -1043,9 +1042,9 @@ namespace RaidLeaderBot
                         Id = Convert.ToInt32(reader["id"]),
                         Map = Convert.ToInt16(reader["map"]),
                         SpawnMask = Convert.ToByte(reader["spawnMask"]),
-                        LocationX = Convert.ToSingle(reader["position_x"]),
-                        LocationY = Convert.ToSingle(reader["position_y"]),
-                        LocationZ = Convert.ToSingle(reader["position_z"]),
+                        PositionX = Convert.ToSingle(reader["position_x"]),
+                        PositionY = Convert.ToSingle(reader["position_y"]),
+                        PositionZ = Convert.ToSingle(reader["position_z"]),
                         Orientation = Convert.ToSingle(reader["orientation"]),
                         Rotation0 = Convert.ToSingle(reader["rotation0"]),
                         Rotation1 = Convert.ToSingle(reader["rotation1"]),
@@ -1077,7 +1076,7 @@ namespace RaidLeaderBot
                                             LEFT JOIN   gameobject_loot_template    golt    ON  golt.entry  = got.data1
                                             WHERE                                               golt.item   = @itemId
                                         ";
-                command.Parameters.AddWithValue("@itemId", itemId.ToString());
+                command.Parameters.AddWithValue("@itemId", itemId);
 
                 using MySqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
@@ -1088,9 +1087,9 @@ namespace RaidLeaderBot
                         Id = Convert.ToInt32(reader["id"]),
                         Map = Convert.ToInt16(reader["map"]),
                         SpawnMask = Convert.ToByte(reader["spawnMask"]),
-                        LocationX = Convert.ToSingle(reader["position_x"]),
-                        LocationY = Convert.ToSingle(reader["position_y"]),
-                        LocationZ = Convert.ToSingle(reader["position_z"]),
+                        PositionX = Convert.ToSingle(reader["position_x"]),
+                        PositionY = Convert.ToSingle(reader["position_y"]),
+                        PositionZ = Convert.ToSingle(reader["position_z"]),
                         Orientation = Convert.ToSingle(reader["orientation"]),
                         Rotation0 = Convert.ToSingle(reader["rotation0"]),
                         Rotation1 = Convert.ToSingle(reader["rotation1"]),
@@ -1121,7 +1120,7 @@ namespace RaidLeaderBot
                                             WHERE       npcv.Entry = @entry
                                         ";
 
-                command.Parameters.AddWithValue("@entry", entry.ToString());
+                command.Parameters.AddWithValue("@entry", entry);
                 using MySqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {

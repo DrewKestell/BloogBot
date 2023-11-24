@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Models;
 using RaidMemberBot.Objects;
 using System;
@@ -80,11 +81,8 @@ namespace RaidMemberBot.AI.SharedStates
                     {
                         if (NeedsGuidance)
                         {
-                            //Console.WriteLine($"DUNGEON: NeedsGuidance");
-                            // if we are near our destination?
                             if (destination.DistanceTo(ObjectManager.Player.Position) < 3)
                             {
-                                //Console.WriteLine($"DUNGEON: if we are near our destination?");
                                 SetNextWaypoint();
                             }
                         }
@@ -138,13 +136,14 @@ namespace RaidMemberBot.AI.SharedStates
                 destination = dungeonWaypoints.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true)).First();
             } else
             {
-                Console.WriteLine($"Job's finished!");
+                Functions.LuaCall("DoEmote(\"CHEER\")");
+                BotTasks.Pop();
+                return;
             }
         }
 
         private void CleanupWaypoints()
         {
-            //Console.WriteLine($"DUNGEON: CleanupWaypoints");
             dungeonWaypoints.RemoveAll(x => ObjectManager.Player.InLosWith(x) && NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true) < 20);
 
             Position[] minorWaypointKeys = minorWaypoints.Keys.ToArray();
@@ -420,16 +419,16 @@ namespace RaidMemberBot.AI.SharedStates
                 Dictionary<int, HashSet<int>> creatureLinkedMapping = new Dictionary<int, HashSet<int>>();
 
                 CreatureTemplate creatureTemplate = DatabaseClient.Instance.GetCreatureTemplateById(encounters[i].Id);
-                List<CreatureLinking> creatureLinkings = DatabaseClient.Instance.GetCreatureLinkedByGuid(encounters[i].Guid);
+                List<CreatureGrouping> creatureLinkings = DatabaseClient.Instance.GetCreatureMappingByMemberGuid(encounters[i].Guid);
 
-                foreach (CreatureLinking creatureLinking in creatureLinkings)
+                foreach (CreatureGrouping creatureLinking in creatureLinkings)
                 {
-                    if (!creatureLinkedMapping.ContainsKey(creatureLinking.MasterGuid))
+                    if (!creatureLinkedMapping.ContainsKey(creatureLinking.LeaderGuid))
                     {
-                        creatureLinkedMapping.Add(creatureLinking.MasterGuid, new HashSet<int>());
+                        creatureLinkedMapping.Add(creatureLinking.LeaderGuid, new HashSet<int>());
                     }
 
-                    if (creatureLinkedMapping.TryGetValue(creatureLinking.MasterGuid, out HashSet<int> creatures))
+                    if (creatureLinkedMapping.TryGetValue(creatureLinking.LeaderGuid, out HashSet<int> creatures))
                     {
                         creatures.Add(encounters[i].Guid);
                     }

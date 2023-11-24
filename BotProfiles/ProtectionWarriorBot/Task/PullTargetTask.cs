@@ -14,7 +14,40 @@ namespace ProtectionWarriorBot
 {
     class PullTargetTask : BotTask, IBotTask
     {
-        internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull) { }
+        internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull)
+        {
+            WoWItem rangedWeapon = Inventory.GetEquippedItem(EquipSlot.Ranged);
+            if (rangedWeapon == null)
+            {
+                List<WoWItem> knives = ObjectManager.Items.Where(x => x.ItemId == 2947).ToList();
+                int knivesCount = knives.Sum(x => x.StackCount);
+
+                if (knivesCount < 200)
+                {
+                    Functions.LuaCall($"SendChatMessage('.additem 2947 {200 - knivesCount}')");
+                }
+            }
+            else if (rangedWeapon.Info.ItemSubclass == ItemSubclass.Bow)
+            {
+                List<WoWItem> arrows = ObjectManager.Items.Where(x => x.ItemId == 2512).ToList();
+                int arrowsCount = arrows.Sum(x => x.StackCount);
+
+                if (arrowsCount < 200)
+                {
+                    Functions.LuaCall($"SendChatMessage('.additem 2512 {200 - arrowsCount}')");
+                }
+            }
+            else if (rangedWeapon.Info.ItemSubclass == ItemSubclass.Gun)
+            {
+                List<WoWItem> shots = ObjectManager.Items.Where(x => x.ItemId == 2516).ToList();
+                int shotsCount = shots.Sum(x => x.StackCount);
+
+                if (shotsCount < 200)
+                {
+                    Functions.LuaCall($"SendChatMessage('.additem 2516 {200 - shotsCount}')");
+                }
+            }
+        }
 
         public void Update()
         {

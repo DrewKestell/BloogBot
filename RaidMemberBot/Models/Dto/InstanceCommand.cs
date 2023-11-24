@@ -13,6 +13,7 @@
     {
         None,
         SetAccountInfo,
+        SetLevel,
         SetGearParams,
         SetTalentParams,
         SetSkillsParams,

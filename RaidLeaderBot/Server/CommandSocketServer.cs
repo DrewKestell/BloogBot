@@ -28,7 +28,7 @@ namespace RaidLeaderBot
             {
                 if (!_processIds.ContainsKey(processId))
                 {
-                    Console.WriteLine($"SOCKET SERVER:Process connected {processId}");
+                    Console.WriteLine($"[COMMAND SERVER]Process connected {processId}");
                     _processIds.Add(processId, clientSocket);
                 }
 

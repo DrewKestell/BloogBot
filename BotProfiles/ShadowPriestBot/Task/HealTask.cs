@@ -56,7 +56,6 @@ namespace ShadowPriestBot
 
                 if (!ObjectManager.Player.InLosWith(Container.FriendlyTarget.Position))
                 {
-                    Console.WriteLine($"Not in LOS with {Container.FriendlyTarget.Name}");
                     Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.FriendlyTarget.Position, true);
 
                     if (nextWaypoint.Length > 1)

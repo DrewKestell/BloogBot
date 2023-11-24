@@ -16,7 +16,7 @@ namespace RaidLeaderBot.Server
 
         private ConfigSockerServer(int port, IPAddress ipAddress) : base(port, ipAddress)
         {
-            Console.WriteLine($"CONFIG SERVER:Port {port}");
+            Console.WriteLine($"[CONFIG SERVER]Port {port}");
         }
         public void AddProcessToCommandPortMapping(int processId, int commandPortNumber)
         {

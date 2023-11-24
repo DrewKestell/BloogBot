@@ -37,14 +37,20 @@ namespace AfflictionWarlockBot
 
             if (Container.HostileTarget == null || Container.HostileTarget.HealthPercent <= 0 || (Container.HostileTarget.HasDebuff(CurseOfAgony) && Container.HostileTarget.HasDebuff(Immolate) && Container.HostileTarget.HasDebuff(Corruption)))
             {
-                Container.HostileTarget = ObjectManager.Aggressors.First(u => !u.HasDebuff(CurseOfAgony) || !u.HasDebuff(Immolate) || !u.HasDebuff(Corruption));
-                ObjectManager.Player.SetTarget(Container.HostileTarget.Guid);
+                if (ObjectManager.Aggressors.Any(u => !u.HasDebuff(CurseOfAgony) || !u.HasDebuff(Immolate) || !u.HasDebuff(Corruption)))
+                {
+                    Container.HostileTarget = ObjectManager.Aggressors.First(u => !u.HasDebuff(CurseOfAgony) || !u.HasDebuff(Immolate) || !u.HasDebuff(Corruption));
+                    ObjectManager.Player.SetTarget(Container.HostileTarget.Guid);
+                }
+                else if (!ObjectManager.Player.IsCasting)
+                {
+                    ObjectManager.Player.StartAttack();
+                }
             }
 
             if (Update(Container.HostileTarget, 30))
                 return;
 
-            ObjectManager.Player.StartAttack();
             ObjectManager.Pet?.Attack();
 
             // if target is low on health, turn off wand and cast drain soul
@@ -53,10 +59,6 @@ namespace AfflictionWarlockBot
                 Functions.LuaCall(TurnOffWandLuaScript);
                 TryCastSpell(DrainSoul, 0, 29);
             }
-
-            WoWItem wand = Inventory.GetEquippedItem(EquipSlot.Ranged);
-            if (wand != null && (ObjectManager.Player.ManaPercent <= 10 || Container.HostileTarget.HealthPercent <= 60 && Container.HostileTarget.HealthPercent > 20 && ObjectManager.Player.ChannelingId == 0 && ObjectManager.Player.IsCasting))
-                Functions.LuaCall(WandLuaScript);
             else
             {
                 //TryCastSpell(DeathCoil, 0, 30, (target.IsCasting || Container.HostileTarget.IsChanneling) && Container.HostileTarget.HealthPercent > 20);
@@ -71,7 +73,7 @@ namespace AfflictionWarlockBot
 
                 TryCastSpell(SiphonLife, 0, 30, !Container.HostileTarget.HasDebuff(SiphonLife) && Container.HostileTarget.HealthPercent > 50);
 
-                TryCastSpell(ShadowBolt, 0, 30, Container.HostileTarget.HealthPercent > 40 || wand == null);
+                TryCastSpell(ShadowBolt, 0, 30, Container.HostileTarget.HealthPercent > 40);
             }
         }
     }

@@ -18,11 +18,32 @@ namespace AfflictionWarlockBot
         const string ConsumeShadows = "Consume Shadows";
         const string HealthFunnel = "Health Funnel";
         const string LifeTap = "Life Tap";
-        
+
         readonly WoWItem foodItem;
         readonly WoWItem drinkItem;
         LocalPet pet;
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) { }
+        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
+        {
+            List<WoWItem> foodItems = ObjectManager.Items.Where(x => x.ItemId == 5479).ToList();
+            int foodItemsCount = foodItems.Sum(x => x.StackCount);
+
+            if (foodItemsCount < 20)
+            {
+                Functions.LuaCall($"SendChatMessage('.additem 5479 {20 - foodItemsCount}')");
+            }
+
+            foodItem = ObjectManager.Items.First(x => x.ItemId == 5479);
+
+            List<WoWItem> drinkItems = ObjectManager.Items.Where(x => x.ItemId == 1179).ToList();
+            int drinkItemsCount = drinkItems.Sum(x => x.StackCount);
+
+            if (drinkItemsCount < 20)
+            {
+                Functions.LuaCall($"SendChatMessage('.additem 1179 {20 - drinkItemsCount}')");
+            }
+
+            drinkItem = ObjectManager.Items.First(x => x.ItemId == 1179);
+        }
 
         public void Update()
         {
@@ -41,34 +62,7 @@ namespace AfflictionWarlockBot
                     pet?.FollowPlayer();
                     BotTasks.Pop();
 
-                    int foodCount = foodItem == null ? 0 : ObjectManager.Items.Count(x => x.ItemId == foodItem.ItemId);
-                    int drinkCount = drinkItem == null ? 0 : ObjectManager.Items.Count(x => x.ItemId == drinkItem.ItemId);
-
-                    if (!InCombat && (foodCount == 0 || drinkCount == 0))
-                    {
-                        int foodToBuy = 12 - (foodCount / stackCount);
-                        int drinkToBuy = 28 - (drinkCount / stackCount);
-
-                        Dictionary<string, int> itemsToBuy = new Dictionary<string, int>();
-                        //if (foodToBuy > 0)
-                        //    itemsToBuy.Add(container.BotSettings.Food, foodToBuy);
-                        //if (drinkToBuy > 0)
-                        //    itemsToBuy.Add(container.BotSettings.Drink, drinkToBuy);
-
-                        //var currentHotspot = container.GetCurrentHotspot();
-                        //if (currentHotspot.TravelPath != null)
-                        //{
-                        //    BotTasks.Push(new TravelState(botTasks, container, currentHotspot.TravelPath.Waypoints, 0));
-                        //    BotTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.TravelPath.Waypoints[0]));
-                        //}
-
-                        //BotTasks.Push(new BuyItemsState(botTasks, currentHotspot.Innkeeper.Name, itemsToBuy));
-                        //BotTasks.Push(new SellItemsState(botTasks, container, currentHotspot.Innkeeper.Name));
-                        //BotTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.Innkeeper.Position));
-                        //container.CheckForTravelPath(botTasks, true, false);
-                    }
-                    else
-                        BotTasks.Push(new SummonVoidwalkerTask(Container, BotTasks));
+                    BotTasks.Push(new SummonVoidwalkerTask(Container, BotTasks));
                 }
                 else
                 {
@@ -95,7 +89,7 @@ namespace AfflictionWarlockBot
         bool ManaOk => (ObjectManager.Player.Level < 6 && ObjectManager.Player.ManaPercent > 50) || ObjectManager.Player.ManaPercent >= 90 || (ObjectManager.Player.ManaPercent >= 55 && !ObjectManager.Player.IsDrinking);
 
         bool InCombat => ObjectManager.Player.IsInCombat || ObjectManager.Units.Any(u => u.TargetGuid == ObjectManager.Player.Guid || u.TargetGuid == ObjectManager.Pet?.Guid);
-        
+
         public void TryCastSpell(string name, int minRange, int maxRange, bool condition = true, Action callback = null, bool castOnSelf = false) =>
             TryCastSpellInternal(name, minRange, maxRange, condition, callback, castOnSelf);
 

@@ -35,16 +35,16 @@ namespace RaidMemberBot.Client
             return JsonConvert.DeserializeObject<List<CreatureMovement>>(json);
         }
 
-        public List<CreatureLinking> GetCreatureLinkedByGuid(int id)
+        public List<CreatureGrouping> GetCreatureMappingByMemberGuid(int id)
         {
             DatabaseRequest databaseRequest = new DatabaseRequest()
             {
-                QueryType = QueryType.GetCreatureLinkedByGuid,
+                QueryType = QueryType.GetCreatureGroupingByMemberGuid,
                 QueryParam1 = id.ToString()
             };
 
             string json = SendRequest(databaseRequest);
-            return JsonConvert.DeserializeObject<List<CreatureLinking>>(json);
+            return JsonConvert.DeserializeObject<List<CreatureGrouping>>(json);
         }
 
         public CreatureTemplate GetCreatureTemplateById(int guid)
