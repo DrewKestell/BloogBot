@@ -73,7 +73,9 @@ namespace RaidLeaderBot
         public bool IsRole4 { get; set; }
         public bool IsRole5 { get; set; }
         public bool IsRole6 { get; set; }
-        public List<int> Talents { get; set; } = new List<int>();
+        public List<int> Talent1Spells { get; set; } = new List<int>();
+        public List<int> Talent2Spells { get; set; } = new List<int>();
+        public List<int> Talent3Spells { get; set; } = new List<int>();
         public Dictionary<InventoryType, int> EquipmentItems { get; set; } = new Dictionary<InventoryType, int>();
         public Dictionary<InventoryType, int> EquipmentEnchants { get; set; } = new Dictionary<InventoryType, int>();
     }

@@ -150,8 +150,9 @@
     <Compile Include="AccountUsageRegistry.cs" />
     <Compile Include="ActivityManager.cs" />
     <Compile Include="Pathfinding\Navigation.cs" />
-    <Compile Include="RaidActivityViewModel.cs" />
+    <Compile Include="UI\Views\RaidActivityViewModel.cs" />
     <Compile Include="RaidMemberLauncher.cs" />
+    <Compile Include="UI\Views\RaidMemberTalentsViewModel.cs" />
     <Compile Include="Repository\MangosRepository.cs" />
     <Compile Include="Server\ConfigSocketServer.cs" />
     <Compile Include="Server\DatabaseSocketServer.cs" />
@@ -160,7 +161,7 @@
     <Compile Include="Settings\RaidLeaderBotSettings.cs" />
     <Compile Include="UI\Handlers\CommandHandler.cs" />
     <Compile Include="UI\Converters\InverseBooleanConverter.cs" />
-    <Compile Include="RaidMemberViewModel.cs" />
+    <Compile Include="UI\Views\RaidMemberViewModel.cs" />
     <Compile Include="UI\RaidActivityManagerWindow.xaml.cs">
       <DependentUpon>RaidActivityManagerWindow.xaml</DependentUpon>
     </Compile>
@@ -173,7 +174,16 @@
     </Compile>
     <Compile Include="Server\CommandSocketServer.cs" />
     <Compile Include="Constants\WinImports.cs" />
-    <Compile Include="RaidLeaderViewModel.cs" />
+    <Compile Include="UI\Views\RaidLeaderViewModel.cs" />
+    <Compile Include="UI\Views\Talents\DruidTalentsViewModel.cs" />
+    <Compile Include="UI\Views\Talents\HunterTalentsViewModel.cs" />
+    <Compile Include="UI\Views\Talents\MageTalentsViewModel.cs" />
+    <Compile Include="UI\Views\Talents\PaladinTalentsViewModel.cs" />
+    <Compile Include="UI\Views\Talents\PriestTalentsViewModel.cs" />
+    <Compile Include="UI\Views\Talents\RogueTalentsViewModel.cs" />
+    <Compile Include="UI\Views\Talents\ShamanTalentsViewModel.cs" />
+    <Compile Include="UI\Views\Talents\WarlockTalentsViewModel.cs" />
+    <Compile Include="UI\Views\Talents\WarriorTalentsViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

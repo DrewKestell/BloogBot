@@ -20,7 +20,7 @@ namespace RaidLeaderBot
 
             _raidActivityPresetViewModel.Initialize();
 
-            Console.Write($"RAIDLEADER: Loading navigation tiles...");
+            Console.Write($"[RAIDLEADER]Loading navigation tiles...");
             Navigation.Instance.CalculatePath(1, new Position(0,0,0), new Position(0, 0, 0), true);
             Console.WriteLine($" Loaded.");
         }        

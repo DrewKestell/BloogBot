@@ -586,7 +586,7 @@
                                         <CheckBox IsChecked="{Binding RaidMemberPreset.IsRole1}"       x:Name="RolesRole1CheckBox"     Grid.Column="3" Grid.Row="0">Role 1</CheckBox>
                                         <CheckBox IsChecked="{Binding RaidMemberPreset.IsRole3}"       x:Name="RolesRole3CheckBox"     Grid.Column="4" Grid.Row="0">Role 3</CheckBox>
                                         <CheckBox IsChecked="{Binding RaidMemberPreset.IsRole5}"       x:Name="RolesRole5CheckBox"     Grid.Column="5" Grid.Row="0">Role 5</CheckBox>
-                                        
+
                                         <Label Grid.Column="6" Grid.Row="0" VerticalAlignment="Top" Padding="0">CC Marker</Label>
 
                                         <CheckBox IsChecked="{Binding RaidMemberPreset.IsOffTank}"     x:Name="RolesOffTankCheckBox"   Grid.Column="0" Grid.Row="1" VerticalAlignment="Bottom">Off Tank</CheckBox>
@@ -696,7 +696,7 @@
                                     </Grid>
                                 </GroupBox>
                                 <GroupBox IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" 
-                                          Header="{Binding TalentTree1Header}" Grid.Column="1" Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                                          Header="{Binding RaidMemberTalentsViewModel.Talent1Header}" Grid.Column="1" Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="36"/>
@@ -722,31 +722,103 @@
                                             <RowDefinition Height="24"/>
                                             <RowDefinition Height="24"/>
                                         </Grid.RowDefinitions>
-                                        <Label  Name="Talent1TooltipHeader"     Grid.Column="0" Grid.Row="12" Grid.ColumnSpan="4" HorizontalContentAlignment="Center" Content="{Binding TalentTree1TooltipHeader}"  Style="{StaticResource TalentLabelStyle}"/>
-                                        <Label  Name="Talent1TooltipSubtext"    Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="4" HorizontalContentAlignment="Center" Content="{Binding TalentTree1TooltipSubtext}" Style="{StaticResource TalentLabelStyle}"/>
+                                        <Label  Name="Talent1TooltipHeader"     Grid.Column="0" Grid.Row="12" Grid.ColumnSpan="4" HorizontalContentAlignment="Center" Content="{Binding RaidMemberTalentsViewModel.TalentTree1TooltipHeader}"  Style="{StaticResource TalentLabelStyle}"/>
+                                        <Label  Name="Talent1TooltipSubtext"    Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="4" HorizontalContentAlignment="Center" Content="{Binding RaidMemberTalentsViewModel.TalentTree1TooltipSubtext}" Style="{StaticResource TalentLabelStyle}"/>
 
-                                        <Button Name="Talent1Index1Button" IsEnabled="{Binding Talent1Index1Enabled}"  Grid.Column="{Binding Talent1Index1Column}"     Grid.Row="{Binding Talent1Index1Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index2Button" IsEnabled="{Binding Talent1Index2Enabled}"  Grid.Column="{Binding Talent1Index2Column}"     Grid.Row="{Binding Talent1Index2Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index3Button" IsEnabled="{Binding Talent1Index3Enabled}"  Grid.Column="{Binding Talent1Index3Column}"     Grid.Row="{Binding Talent1Index3Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index4Button" IsEnabled="{Binding Talent1Index4Enabled}"  Grid.Column="{Binding Talent1Index4Column}"     Grid.Row="{Binding Talent1Index4Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index5Button" IsEnabled="{Binding Talent1Index5Enabled}"  Grid.Column="{Binding Talent1Index5Column}"     Grid.Row="{Binding Talent1Index5Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index6Button" IsEnabled="{Binding Talent1Index6Enabled}"  Grid.Column="{Binding Talent1Index6Column}"     Grid.Row="{Binding Talent1Index6Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index7Button" IsEnabled="{Binding Talent1Index7Enabled}"  Grid.Column="{Binding Talent1Index7Column}"     Grid.Row="{Binding Talent1Index7Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index8Button" IsEnabled="{Binding Talent1Index8Enabled}"  Grid.Column="{Binding Talent1Index8Column}"     Grid.Row="{Binding Talent1Index8Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index9Button" IsEnabled="{Binding Talent1Index9Enabled}"  Grid.Column="{Binding Talent1Index9Column}"     Grid.Row="{Binding Talent1Index9Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index10Button" IsEnabled="{Binding Talent1Index10Enabled}" Grid.Column="{Binding Talent1Index10Column}"    Grid.Row="{Binding Talent1Index10Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index11Button" IsEnabled="{Binding Talent1Index11Enabled}" Grid.Column="{Binding Talent1Index11Column}"    Grid.Row="{Binding Talent1Index11Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index12Button" IsEnabled="{Binding Talent1Index12Enabled}" Grid.Column="{Binding Talent1Index12Column}"    Grid.Row="{Binding Talent1Index12Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index13Button" IsEnabled="{Binding Talent1Index13Enabled}" Grid.Column="{Binding Talent1Index13Column}"    Grid.Row="{Binding Talent1Index13Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index14Button" IsEnabled="{Binding Talent1Index14Enabled}" Grid.Column="{Binding Talent1Index14Column}"    Grid.Row="{Binding Talent1Index14Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index15Button" IsEnabled="{Binding Talent1Index15Enabled}" Grid.Column="{Binding Talent1Index15Column}"    Grid.Row="{Binding Talent1Index15Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index16Button" Visibility="{Binding Talent1Index16Visibility}" IsEnabled="{Binding Talent1Index16Enabled}" Grid.Column="{Binding Talent1Index16Column}"  Grid.Row="{Binding Talent1Index16Row}"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index17Button" Visibility="{Binding Talent1Index17Visibility}" IsEnabled="{Binding Talent1Index17Enabled}" Grid.Column="{Binding Talent1Index17Column}"  Grid.Row="{Binding Talent1Index17Row}"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent1Index18Button" Visibility="{Binding Talent1Index18Visibility}" IsEnabled="{Binding Talent1Index18Enabled}" Grid.Column="{Binding Talent1Index18Column}"  Grid.Row="{Binding Talent1Index18Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent1Index1Button"  IsEnabled="{Binding RaidMemberTalentsViewModel.Talent1Index1Enabled}"   Grid.Column="{Binding RaidMemberTalentsViewModel.Talent1Index1Column}"  Grid.Row="{Binding RaidMemberTalentsViewModel.Talent1Index1Row}"    Content="{Binding RaidMemberTalentsViewModel.Talent1Index1Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent1Index1AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent1Index1RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent1Index2Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent1Index2Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent1Index2Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent1Index2Row}"   Content="{Binding RaidMemberTalentsViewModel.Talent1Index2Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent1Index2AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent1Index2RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent1Index3Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent1Index3Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent1Index3Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent1Index3Row}"   Content="{Binding RaidMemberTalentsViewModel.Talent1Index3Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent1Index3AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent1Index3RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent1Index4Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent1Index4Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent1Index4Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent1Index4Row}"   Content="{Binding RaidMemberTalentsViewModel.Talent1Index4Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent1Index4AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent1Index4RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent1Index5Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent1Index5Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent1Index5Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent1Index5Row}"   Content="{Binding RaidMemberTalentsViewModel.Talent1Index5Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent1Index5AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent1Index5RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent1Index6Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent1Index6Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent1Index6Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent1Index6Row}"   Content="{Binding RaidMemberTalentsViewModel.Talent1Index6Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent1Index6AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent1Index6RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent1Index7Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent1Index7Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent1Index7Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent1Index7Row}"   Content="{Binding RaidMemberTalentsViewModel.Talent1Index7Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent1Index7AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent1Index7RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent1Index8Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent1Index8Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent1Index8Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent1Index8Row}"   Content="{Binding RaidMemberTalentsViewModel.Talent1Index8Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent1Index8AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent1Index8RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent1Index9Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent1Index9Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent1Index9Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent1Index9Row}"   Content="{Binding RaidMemberTalentsViewModel.Talent1Index9Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent1Index9AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent1Index9RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent1Index10Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent1Index10Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent1Index10Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent1Index10Row}"  Content="{Binding RaidMemberTalentsViewModel.Talent1Index10Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent1Index10AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent1Index10RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent1Index11Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent1Index11Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent1Index11Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent1Index11Row}"  Content="{Binding RaidMemberTalentsViewModel.Talent1Index11Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent1Index11AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent1Index11RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent1Index12Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent1Index12Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent1Index12Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent1Index12Row}"  Content="{Binding RaidMemberTalentsViewModel.Talent1Index12Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent1Index12AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent1Index12RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent1Index13Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent1Index13Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent1Index13Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent1Index13Row}"  Content="{Binding RaidMemberTalentsViewModel.Talent1Index13Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent1Index13AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent1Index13RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent1Index14Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent1Index14Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent1Index14Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent1Index14Row}"  Content="{Binding RaidMemberTalentsViewModel.Talent1Index14Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent1Index14AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent1Index14RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent1Index15Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent1Index15Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent1Index15Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent1Index15Row}"  Content="{Binding RaidMemberTalentsViewModel.Talent1Index15Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent1Index15AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent1Index15RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent1Index16Button" Visibility="{Binding RaidMemberTalentsViewModel.Talent1Index16Visibility}" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent1Index16Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent1Index16Column}"  Grid.Row="{Binding RaidMemberTalentsViewModel.Talent1Index16Row}"    Content="{Binding RaidMemberTalentsViewModel.Talent1Index16Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent1Index16AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent1Index16RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent1Index17Button" Visibility="{Binding RaidMemberTalentsViewModel.Talent1Index17Visibility}" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent1Index17Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent1Index17Column}"  Grid.Row="{Binding RaidMemberTalentsViewModel.Talent1Index17Row}"    Content="{Binding RaidMemberTalentsViewModel.Talent1Index17Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent1Index17AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent1Index17RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent1Index18Button" Visibility="{Binding RaidMemberTalentsViewModel.Talent1Index18Visibility}" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent1Index18Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent1Index18Column}"  Grid.Row="{Binding RaidMemberTalentsViewModel.Talent1Index18Row}"   Content="{Binding RaidMemberTalentsViewModel.Talent1Index18Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent1Index18AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent1Index18RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
                                     </Grid>
                                 </GroupBox>
                                 <GroupBox IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" 
-                                          Header="{Binding TalentTree2Header}" Grid.Column="2" Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                                          Header="{Binding RaidMemberTalentsViewModel.Talent2Header}" Grid.Column="2" Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="36"/>
@@ -775,29 +847,105 @@
                                         <Label  Name="Talent2TooltipHeader"     Grid.Column="0" Grid.Row="12" Grid.ColumnSpan="4" HorizontalContentAlignment="Center" Content="{Binding TalentTree2TooltipHeader}"  Style="{StaticResource TalentLabelStyle}"/>
                                         <Label  Name="Talent2TooltipSubtext"    Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="4" HorizontalContentAlignment="Center" Content="{Binding TalentTree2TooltipSubtext}" Style="{StaticResource TalentLabelStyle}"/>
 
-                                        <Button Name="Talent2Index1Button" IsEnabled="{Binding Talent2Index1Enabled}"  Grid.Column="{Binding Talent2Index1Column}"     Grid.Row="{Binding Talent2Index1Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index2Button" IsEnabled="{Binding Talent2Index2Enabled}"  Grid.Column="{Binding Talent2Index2Column}"     Grid.Row="{Binding Talent2Index2Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index3Button" IsEnabled="{Binding Talent2Index3Enabled}"  Grid.Column="{Binding Talent2Index3Column}"     Grid.Row="{Binding Talent2Index3Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index4Button" IsEnabled="{Binding Talent2Index4Enabled}"  Grid.Column="{Binding Talent2Index4Column}"     Grid.Row="{Binding Talent2Index4Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index5Button" IsEnabled="{Binding Talent2Index5Enabled}"  Grid.Column="{Binding Talent2Index5Column}"     Grid.Row="{Binding Talent2Index5Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index6Button" IsEnabled="{Binding Talent2Index6Enabled}"  Grid.Column="{Binding Talent2Index6Column}"     Grid.Row="{Binding Talent2Index6Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index7Button" IsEnabled="{Binding Talent2Index7Enabled}"  Grid.Column="{Binding Talent2Index7Column}"     Grid.Row="{Binding Talent2Index7Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index8Button" IsEnabled="{Binding Talent2Index8Enabled}"  Grid.Column="{Binding Talent2Index8Column}"     Grid.Row="{Binding Talent2Index8Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index9Button" IsEnabled="{Binding Talent2Index9Enabled}"  Grid.Column="{Binding Talent2Index9Column}"     Grid.Row="{Binding Talent2Index9Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index10Button" IsEnabled="{Binding Talent2Index10Enabled}" Grid.Column="{Binding Talent2Index10Column}"    Grid.Row="{Binding Talent2Index10Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index11Button" IsEnabled="{Binding Talent2Index11Enabled}" Grid.Column="{Binding Talent2Index11Column}"    Grid.Row="{Binding Talent2Index11Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index12Button" IsEnabled="{Binding Talent2Index12Enabled}" Grid.Column="{Binding Talent2Index12Column}"    Grid.Row="{Binding Talent2Index12Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index13Button" IsEnabled="{Binding Talent2Index13Enabled}" Grid.Column="{Binding Talent2Index13Column}"    Grid.Row="{Binding Talent2Index13Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index14Button" IsEnabled="{Binding Talent2Index14Enabled}" Grid.Column="{Binding Talent2Index14Column}"    Grid.Row="{Binding Talent2Index14Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index15Button" IsEnabled="{Binding Talent2Index15Enabled}" Grid.Column="{Binding Talent2Index15Column}"    Grid.Row="{Binding Talent2Index15Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index16Button" Visibility="{Binding Talent2Index16Visibility}" IsEnabled="{Binding Talent2Index16Enabled}" Grid.Column="{Binding Talent2Index16Column}"    Grid.Row="{Binding Talent2Index16Row}"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index17Button" Visibility="{Binding Talent2Index17Visibility}" IsEnabled="{Binding Talent2Index17Enabled}" Grid.Column="{Binding Talent2Index17Column}"    Grid.Row="{Binding Talent2Index17Row}"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index18Button" Visibility="{Binding Talent2Index18Visibility}" IsEnabled="{Binding Talent2Index18Enabled}" Grid.Column="{Binding Talent2Index18Column}"    Grid.Row="{Binding Talent2Index18Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent2Index19Button" Visibility="{Binding Talent2Index19Visibility}" IsEnabled="{Binding Talent2Index19Enabled}" Grid.Column="{Binding Talent2Index19Column}"    Grid.Row="{Binding Talent2Index19Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent2Index1Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent2Index1Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent2Index1Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent2Index1Row}"   Content="{Binding RaidMemberTalentsViewModel.Talent2Index1Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent2Index1AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent2Index1RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent2Index2Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent2Index2Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent2Index2Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent2Index2Row}"   Content="{Binding RaidMemberTalentsViewModel.Talent2Index2Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent2Index2AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent2Index2RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent2Index3Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent2Index3Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent2Index3Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent2Index3Row}"   Content="{Binding RaidMemberTalentsViewModel.Talent2Index3Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent2Index3AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent2Index3RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent2Index4Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent2Index4Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent2Index4Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent2Index4Row}"   Content="{Binding RaidMemberTalentsViewModel.Talent2Index4Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent2Index4AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent2Index4RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent2Index5Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent2Index5Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent2Index5Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent2Index5Row}"   Content="{Binding RaidMemberTalentsViewModel.Talent2Index5Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent2Index5AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent2Index5RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent2Index6Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent2Index6Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent2Index6Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent2Index6Row}"   Content="{Binding RaidMemberTalentsViewModel.Talent2Index6Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent2Index6AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent2Index6RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent2Index7Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent2Index7Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent2Index7Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent2Index7Row}"   Content="{Binding RaidMemberTalentsViewModel.Talent2Index7Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent2Index7AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent2Index7RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent2Index8Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent2Index8Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent2Index8Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent2Index8Row}"   Content="{Binding RaidMemberTalentsViewModel.Talent2Index8Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent2Index8AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent2Index8RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent2Index9Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent2Index9Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent2Index9Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent2Index9Row}"   Content="{Binding RaidMemberTalentsViewModel.Talent2Index9Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent2Index9AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent2Index9RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent2Index10Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent2Index10Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent2Index10Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent2Index10Row}"  Content="{Binding RaidMemberTalentsViewModel.Talent2Index10Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent2Index10AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent2Index10RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent2Index11Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent2Index11Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent2Index11Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent2Index11Row}"  Content="{Binding RaidMemberTalentsViewModel.Talent2Index11Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent2Index11AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent2Index11RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent2Index12Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent2Index12Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent2Index12Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent2Index12Row}"  Content="{Binding RaidMemberTalentsViewModel.Talent2Index12Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent2Index12AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent2Index12RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent2Index13Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent2Index13Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent2Index13Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent2Index13Row}"  Content="{Binding RaidMemberTalentsViewModel.Talent2Index13Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent2Index13AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent2Index13RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent2Index14Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent2Index14Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent2Index14Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent2Index14Row}"  Content="{Binding RaidMemberTalentsViewModel.Talent2Index14Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent2Index14AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent2Index14RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent2Index15Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent2Index15Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent2Index15Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent2Index15Row}"  Content="{Binding RaidMemberTalentsViewModel.Talent2Index15Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent2Index15AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent2Index15RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent2Index16Button" Visibility="{Binding RaidMemberTalentsViewModel.Talent2Index16Visibility}" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent2Index16Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent2Index16Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent2Index16Row}"    Content="{Binding RaidMemberTalentsViewModel.Talent2Index16Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent2Index16AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent2Index16RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent2Index17Button" Visibility="{Binding RaidMemberTalentsViewModel.Talent2Index17Visibility}" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent2Index17Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent2Index17Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent2Index17Row}"    Content="{Binding RaidMemberTalentsViewModel.Talent2Index17Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent2Index17AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent2Index17RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent2Index18Button" Visibility="{Binding RaidMemberTalentsViewModel.Talent2Index18Visibility}" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent2Index18Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent2Index18Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent2Index18Row}"   Content="{Binding RaidMemberTalentsViewModel.Talent2Index18Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent2Index18AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent2Index18RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
+                                        <Button Name="Talent2Index19Button" Visibility="{Binding RaidMemberTalentsViewModel.Talent2Index19Visibility}" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent2Index19Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent2Index19Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent2Index19Row}"   Content="{Binding RaidMemberTalentsViewModel.Talent2Index19Content}" Style="{StaticResource TalentButtonStyle}" Command="{Binding RaidMemberTalentsViewModel.Talent2Index19AddCommand}">
+                                            <Button.InputBindings>
+                                                <MouseBinding Gesture="RightClick" Command="{Binding RaidMemberTalentsViewModel.Talent2Index19RemoveCommand}" />
+                                            </Button.InputBindings>
+                                        </Button>
                                     </Grid>
                                 </GroupBox>
                                 <GroupBox IsEnabled="{Binding ShouldRun, Converter={StaticResource InverseBooleanConverter}}" 
-                                          Header="{Binding TalentTree3Header}" Grid.Column="3" Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                                          Header="{Binding RaidMemberTalentsViewModel.Talent3Header}" Grid.Column="3" Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="36"/>
@@ -824,24 +972,24 @@
                                         <Label  Name="Talent3TooltipHeader"     Grid.Column="0" Grid.Row="12" Grid.ColumnSpan="4" HorizontalContentAlignment="Center" Content="{Binding TalentTree1TooltipHeader}"  Style="{StaticResource TalentLabelStyle}"/>
                                         <Label  Name="Talent3TooltipSubtext"    Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="4" HorizontalContentAlignment="Center" Content="{Binding TalentTree1TooltipSubtext}" Style="{StaticResource TalentLabelStyle}"/>
 
-                                        <Button Name="Talent3Index1Button" IsEnabled="{Binding Talent3Index1Enabled}"  Grid.Column="{Binding Talent3Index1Column}"     Grid.Row="{Binding Talent3Index1Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index2Button" IsEnabled="{Binding Talent3Index2Enabled}"  Grid.Column="{Binding Talent3Index2Column}"     Grid.Row="{Binding Talent3Index2Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index3Button" IsEnabled="{Binding Talent3Index3Enabled}"  Grid.Column="{Binding Talent3Index3Column}"     Grid.Row="{Binding Talent3Index3Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index4Button" IsEnabled="{Binding Talent3Index4Enabled}"  Grid.Column="{Binding Talent3Index4Column}"     Grid.Row="{Binding Talent3Index4Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index5Button" IsEnabled="{Binding Talent3Index5Enabled}"  Grid.Column="{Binding Talent3Index5Column}"     Grid.Row="{Binding Talent3Index5Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index6Button"  IsEnabled="{Binding Talent3Index6Enabled}" Grid.Column="{Binding Talent3Index6Column}"     Grid.Row="{Binding Talent3Index6Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index7Button" IsEnabled="{Binding Talent3Index7Enabled}"  Grid.Column="{Binding Talent3Index7Column}"     Grid.Row="{Binding Talent3Index7Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index8Button" IsEnabled="{Binding Talent3Index8Enabled}"  Grid.Column="{Binding Talent3Index8Column}"     Grid.Row="{Binding Talent3Index8Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index9Button" IsEnabled="{Binding Talent3Index9Enabled}"  Grid.Column="{Binding Talent3Index9Column}"     Grid.Row="{Binding Talent3Index9Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index10Button" IsEnabled="{Binding Talent3Index10Enabled}" Grid.Column="{Binding Talent3Index10Column}"    Grid.Row="{Binding Talent3Index10Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index11Button" IsEnabled="{Binding Talent3Index11Enabled}" Grid.Column="{Binding Talent3Index11Column}"    Grid.Row="{Binding Talent3Index11Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index12Button" IsEnabled="{Binding Talent3Index12Enabled}" Grid.Column="{Binding Talent3Index12Column}"    Grid.Row="{Binding Talent3Index12Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index13Button" IsEnabled="{Binding Talent3Index13Enabled}" Grid.Column="{Binding Talent3Index13Column}"    Grid.Row="{Binding Talent3Index13Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index14Button" IsEnabled="{Binding Talent3Index14Enabled}" Grid.Column="{Binding Talent3Index14Column}"    Grid.Row="{Binding Talent3Index14Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index15Button" IsEnabled="{Binding Talent3Index15Enabled}" Grid.Column="{Binding Talent3Index15Column}"    Grid.Row="{Binding Talent3Index15Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index16Button" Visibility="{Binding Talent3Index16Visibility}" IsEnabled="{Binding Talent3Index16Enabled}" Grid.Column="{Binding Talent3Index16Column}"    Grid.Row="{Binding Talent3Index16Row}"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index17Button" Visibility="{Binding Talent3Index17Visibility}" IsEnabled="{Binding Talent3Index17Enabled}" Grid.Column="{Binding Talent3Index17Column}"    Grid.Row="{Binding Talent3Index17Row}"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
-                                        <Button Name="Talent3Index18Button" Visibility="{Binding Talent3Index18Visibility}" IsEnabled="{Binding Talent3Index18Enabled}" Grid.Column="{Binding Talent3Index18Column}"    Grid.Row="{Binding Talent3Index18Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index1Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent3Index1Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent3Index1Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent3Index1Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index2Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent3Index2Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent3Index2Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent3Index2Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index3Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent3Index3Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent3Index3Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent3Index3Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index4Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent3Index4Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent3Index4Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent3Index4Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index5Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent3Index5Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent3Index5Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent3Index5Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index6Button"  IsEnabled="{Binding RaidMemberTalentsViewModel.Talent3Index6Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent3Index6Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent3Index6Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index7Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent3Index7Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent3Index7Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent3Index7Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index8Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent3Index8Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent3Index8Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent3Index8Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index9Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent3Index9Enabled}"  Grid.Column="{Binding RaidMemberTalentsViewModel.Talent3Index9Column}"     Grid.Row="{Binding RaidMemberTalentsViewModel.Talent3Index9Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index10Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent3Index10Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent3Index10Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent3Index10Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index11Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent3Index11Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent3Index11Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent3Index11Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index12Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent3Index12Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent3Index12Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent3Index12Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index13Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent3Index13Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent3Index13Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent3Index13Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index14Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent3Index14Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent3Index14Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent3Index14Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index15Button" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent3Index15Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent3Index15Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent3Index15Row}"  Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index16Button" Visibility="{Binding RaidMemberTalentsViewModel.Talent3Index16Visibility}" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent3Index16Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent3Index16Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent3Index16Row}"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index17Button" Visibility="{Binding RaidMemberTalentsViewModel.Talent3Index17Visibility}" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent3Index17Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent3Index17Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent3Index17Row}"    Content="+" Style="{StaticResource TalentButtonStyle}"/>
+                                        <Button Name="Talent3Index18Button" Visibility="{Binding RaidMemberTalentsViewModel.Talent3Index18Visibility}" IsEnabled="{Binding RaidMemberTalentsViewModel.Talent3Index18Enabled}" Grid.Column="{Binding RaidMemberTalentsViewModel.Talent3Index18Column}"    Grid.Row="{Binding RaidMemberTalentsViewModel.Talent3Index18Row}"   Content="+" Style="{StaticResource TalentButtonStyle}"/>
                                     </Grid>
                                 </GroupBox>
                             </Grid>
