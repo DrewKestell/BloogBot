@@ -9,8 +9,10 @@ namespace RaidLeaderBot.UI.Views.Talents
 {
     public class PriestTalentsViewModel : RaidMemberTalentsViewModel
     {
-        public PriestTalentsViewModel()
+        public PriestTalentsViewModel(RaidMemberPreset raidMemberPreset)
         {
+            RaidMemberPreset = raidMemberPreset;
+
             Talent1Header = "Discipline";
             Talent2Header = "Holy";
             Talent3Header = "Shadow";

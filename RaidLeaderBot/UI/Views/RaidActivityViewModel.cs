@@ -155,11 +155,7 @@ namespace RaidLeaderBot
             InstanceCommand command = new InstanceCommand()
             {
                 CommandAction = CommandAction.ExecuteLuaCommand,
-                CommandParam1 = $"SendChatMessage(\".go xyz " +
-                                $"{DestinationX} " +
-                                $"{DestinationY} " +
-                                $"{DestinationZ} " +
-                                $"{DestinationMapId}\")",
+                CommandParam1 = $"SendChatMessage('.go xyz {DestinationX} {DestinationY} {DestinationZ} {DestinationMapId}')",
             };
 
             SelectedRaid.QueueCommandToProcess(CharacterState.ProcessId, command);

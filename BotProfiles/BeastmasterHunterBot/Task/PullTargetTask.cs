@@ -37,7 +37,7 @@ namespace BeastMasterHunterBot
                 ObjectManager.Player.StopAllMovement();
                 Functions.LuaCall(GunLuaScript);
                 BotTasks.Pop();
-                BotTasks.Push(new PvERotationTask(Container, BotTasks));
+                BotTasks.Push(Container.CreatePvERotationTask(Container, BotTasks));
                 return;
             } else
             {

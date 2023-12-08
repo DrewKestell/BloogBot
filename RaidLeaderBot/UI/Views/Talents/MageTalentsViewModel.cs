@@ -9,8 +9,10 @@ namespace RaidLeaderBot.UI.Views.Talents
 {
     public class MageTalentsViewModel : RaidMemberTalentsViewModel
     {
-        public MageTalentsViewModel()
+        public MageTalentsViewModel(RaidMemberPreset raidMemberPreset)
         {
+            RaidMemberPreset = raidMemberPreset;
+
             Talent1Header = "Arcane";
             Talent2Header = "Fire";
             Talent3Header = "Frost";

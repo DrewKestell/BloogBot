@@ -11,8 +11,10 @@ namespace RaidLeaderBot.UI.Views.Talents
 {
     public class WarriorTalentsViewModel : RaidMemberTalentsViewModel
     {
-        public WarriorTalentsViewModel()
+        public WarriorTalentsViewModel(RaidMemberPreset raidMemberPreset)
         {
+            RaidMemberPreset = raidMemberPreset;
+
             Talent1Header = "Arms";
             Talent2Header = "Fury";
             Talent3Header = "Protection";
@@ -268,62 +270,120 @@ namespace RaidLeaderBot.UI.Views.Talents
             // Shield Specialization
             Talent3Index1Row = 0;
             Talent3Index1Column = 1;
+            Talent3Index1Spells = new List<int>() { 12298, 12724, 12725, 12726, 12727 };
+            Talent3Index1Content = $"0 / 5";
             // Anticipation
             Talent3Index2Row = 0;
             Talent3Index2Column = 2;
+            Talent3Index2Spells = new List<int>() { 12297, 12750, 12751, 12752, 12753 };
+            Talent3Index2Content = $"0 / 5";
+
+            Talent3Row1Spells.AddRange(Talent3Index1Spells);
+            Talent3Row1Spells.AddRange(Talent3Index2Spells);
 
             // Improved Bloodrage
             Talent3Index3Row = 2;
             Talent3Index3Column = 0;
+            Talent3Index3Spells = new List<int>() { 12301, 12818 };
+            Talent3Index3Content = $"0 / 2";
             // Toughness
             Talent3Index4Row = 2;
             Talent3Index4Column = 2;
+            Talent3Index4Spells = new List<int>() { 12299, 12761, 12762, 12763, 12764 };
+            Talent3Index4Content = $"0 / 5";
             // Iron Will
             Talent3Index5Row = 2;
             Talent3Index5Column = 3;
+            Talent3Index5Spells = new List<int>() { 12300, 12959, 12960, 12961, 12962 };
+            Talent3Index5Content = $"0 / 5";
+
+            Talent3Row2Spells.AddRange(Talent3Index3Spells);
+            Talent3Row2Spells.AddRange(Talent3Index4Spells);
+            Talent3Row2Spells.AddRange(Talent3Index5Spells);
 
             // Last Stand
             Talent3Index6Row = 4;
             Talent3Index6Column = 0;
+            Talent3Index6Spells = new List<int>() { 12975 };
+            Talent3Index6Content = $"0 / 1";
             // Improved Shield Block
             Talent3Index7Row = 4;
             Talent3Index7Column = 1;
+            Talent3Index7Spells = new List<int>() { 12945, 12307, 12944 };
+            Talent3Index7Content = $"0 / 3";
             // Improved Revenge
             Talent3Index8Row = 4;
             Talent3Index8Column = 2;
+            Talent3Index8Spells = new List<int>() { 12797, 12799, 12800 };
+            Talent3Index8Content = $"0 / 3";
             // Defiance
             Talent3Index9Row = 4;
             Talent3Index9Column = 3;
+            Talent3Index9Spells = new List<int>() { 12303, 12788, 12789, 12791, 12792 };
+            Talent3Index9Content = $"0 / 5";
+
+            Talent3Row3Spells.AddRange(Talent3Index6Spells);
+            Talent3Row3Spells.AddRange(Talent3Index7Spells);
+            Talent3Row3Spells.AddRange(Talent3Index8Spells);
+            Talent3Row3Spells.AddRange(Talent3Index9Spells);
 
             // Improved Sunder Armor
             Talent3Index10Row = 6;
             Talent3Index10Column = 0;
+            Talent3Index10Spells = new List<int>() { 12308, 12810, 12811 };
+            Talent3Index10Content = $"0 / 3";
             // Improved Disarm
             Talent3Index11Row = 6;
             Talent3Index11Column = 1;
+            Talent3Index11Spells = new List<int>() { 12313, 12804, 12807 };
+            Talent3Index11Content = $"0 / 3";
             // Improved Taunt
             Talent3Index12Row = 6;
             Talent3Index12Column = 2;
+            Talent3Index12Spells = new List<int>() { 12302, 12765 };
+            Talent3Index12Content = $"0 / 2";
+
+            Talent3Row4Spells.AddRange(Talent3Index10Spells);
+            Talent3Row4Spells.AddRange(Talent3Index11Spells);
+            Talent3Row4Spells.AddRange(Talent3Index12Spells);
 
             // Improved Shield Wall
             Talent3Index13Row = 8;
             Talent3Index13Column = 0;
+            Talent3Index13Spells = new List<int>() { 12312, 12803 };
+            Talent3Index13Content = $"0 / 2";
             // Concussion Blow
             Talent3Index14Row = 8;
             Talent3Index14Column = 1;
+            Talent3Index14Spells = new List<int>() { 12809 };
+            Talent3Index14Content = $"0 / 1";
             // Improved Shield Bash
             Talent3Index15Row = 8;
             Talent3Index15Column = 2;
+            Talent3Index15Spells = new List<int>() { 12311, 12958 };
+            Talent3Index15Content = $"0 / 2";
+
+            Talent3Row5Spells.AddRange(Talent3Index13Spells);
+            Talent3Row5Spells.AddRange(Talent3Index14Spells);
+            Talent3Row5Spells.AddRange(Talent3Index15Spells);
 
             // One-Handed Specialization
             Talent3Index16Visibility = Visibility.Visible;
             Talent3Index16Row = 10;
             Talent3Index16Column = 2;
+            Talent3Index16Spells = new List<int>() { 16538, 16539, 16540, 16541, 16542 };
+            Talent3Index16Content = $"0 / 5";
+
+            Talent3Row6Spells.AddRange(Talent3Index16Spells);
 
             // Shield Slam
             Talent3Index17Visibility = Visibility.Visible;
             Talent3Index17Row = 12;
             Talent3Index17Column = 1;
+            Talent3Index17Spells = new List<int>() { 23922 };
+            Talent3Index17Content = $"0 / 1";
+
+            Talent3Row7Spells.AddRange(Talent3Index17Spells);
 
 
             Talent3Index18Visibility = Visibility.Hidden;
@@ -381,8 +441,7 @@ namespace RaidLeaderBot.UI.Views.Talents
         public override bool Talent2Index14CanRemove => !Talent2Row6Spells.Any(x => Talent2Spells.Contains(x));
         public override bool Talent2Index15CanRemove => !Talent2Row7Spells.Any(x => Talent2Spells.Contains(x));
         public override bool Talent2Index16CanRemove => !Talent2Row7Spells.Any(x => Talent2Spells.Contains(x));
-        public override bool Talent2Index17CanRemove => !Talent2Row7Spells.Any(x => Talent2Spells.Contains(x));
-        public override bool Talent2Index18CanRemove => Talent2Row7Spells.Any(x => Talent2Spells.Contains(x));
+        public override bool Talent2Index17CanRemove => Talent2Row7Spells.Any(x => Talent2Spells.Contains(x));
         public override bool Talent2Index3Enabled => Talent2Spells.Count > 4;
         public override bool Talent2Index4Enabled => Talent2Spells.Count > 4;
         public override bool Talent2Index5Enabled => Talent2Spells.Count > 9;
@@ -398,6 +457,41 @@ namespace RaidLeaderBot.UI.Views.Talents
         public override bool Talent2Index15Enabled => Talent2Spells.Count > 24;
         public override bool Talent2Index16Enabled => Talent2Spells.Count > 24 && Talent2Index11Spells.All(x => Talent2Spells.Contains(x));
         public override bool Talent2Index17Enabled => Talent2Spells.Count > 29 && Talent2Index13Spells.All(x => Talent2Spells.Contains(x));
+        #endregion
+
+        #region Talent Tree 3
+        public override bool Talent3Index1CanRemove => !Talent3Row2Spells.Any(x => Talent3Spells.Contains(x));
+        public override bool Talent3Index2CanRemove => !Talent3Row2Spells.Any(x => Talent3Spells.Contains(x));
+        public override bool Talent3Index3CanRemove => !Talent3Row3Spells.Any(x => Talent3Spells.Contains(x));
+        public override bool Talent3Index4CanRemove => !Talent3Row3Spells.Any(x => Talent3Spells.Contains(x));
+        public override bool Talent3Index5CanRemove => !Talent3Row3Spells.Any(x => Talent3Spells.Contains(x));
+        public override bool Talent3Index6CanRemove => !Talent3Row4Spells.Any(x => Talent3Spells.Contains(x));
+        public override bool Talent3Index7CanRemove => !Talent3Row4Spells.Any(x => Talent3Spells.Contains(x));
+        public override bool Talent3Index8CanRemove => !Talent3Row4Spells.Any(x => Talent3Spells.Contains(x));
+        public override bool Talent3Index9CanRemove => !Talent3Row4Spells.Any(x => Talent3Spells.Contains(x));
+        public override bool Talent3Index10CanRemove => !Talent3Row5Spells.Any(x => Talent3Spells.Contains(x));
+        public override bool Talent3Index11CanRemove => !Talent3Row5Spells.Any(x => Talent3Spells.Contains(x));
+        public override bool Talent3Index12CanRemove => !Talent3Row5Spells.Any(x => Talent3Spells.Contains(x));
+        public override bool Talent3Index13CanRemove => !Talent3Row6Spells.Any(x => Talent3Spells.Contains(x));
+        public override bool Talent3Index14CanRemove => !Talent3Row6Spells.Any(x => Talent3Spells.Contains(x));
+        public override bool Talent3Index15CanRemove => !Talent3Row6Spells.Any(x => Talent3Spells.Contains(x));
+        public override bool Talent3Index16CanRemove => !Talent3Row7Spells.Any(x => Talent3Spells.Contains(x));
+        public override bool Talent3Index17CanRemove => Talent3Row7Spells.Any(x => Talent3Spells.Contains(x));
+        public override bool Talent3Index3Enabled => Talent3Spells.Count > 4;
+        public override bool Talent3Index4Enabled => Talent3Spells.Count > 4;
+        public override bool Talent3Index5Enabled => Talent3Spells.Count > 4;
+        public override bool Talent3Index6Enabled => Talent3Spells.Count > 9 && Talent3Index3Spells.All(x => Talent3Spells.Contains(x));
+        public override bool Talent3Index7Enabled => Talent3Spells.Count > 9 && Talent3Index1Spells.All(x => Talent3Spells.Contains(x));
+        public override bool Talent3Index8Enabled => Talent3Spells.Count > 9;
+        public override bool Talent3Index9Enabled => Talent3Spells.Count > 9;
+        public override bool Talent3Index10Enabled => Talent3Spells.Count > 14;
+        public override bool Talent3Index11Enabled => Talent3Spells.Count > 14;
+        public override bool Talent3Index12Enabled => Talent3Spells.Count > 14;
+        public override bool Talent3Index13Enabled => Talent3Spells.Count > 19;
+        public override bool Talent3Index14Enabled => Talent3Spells.Count > 19;
+        public override bool Talent3Index15Enabled => Talent3Spells.Count > 19;
+        public override bool Talent3Index16Enabled => Talent3Spells.Count > 24;
+        public override bool Talent3Index17Enabled => Talent3Spells.Count > 29 && Talent3Index14Spells.All(x => Talent3Spells.Contains(x));
         #endregion
     }
 }

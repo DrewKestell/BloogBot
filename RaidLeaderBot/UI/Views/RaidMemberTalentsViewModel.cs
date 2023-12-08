@@ -114,13 +114,14 @@ namespace RaidLeaderBot
             OnPropertyChanged(nameof(Talent3Index17Enabled));
             OnPropertyChanged(nameof(Talent3Index18Enabled));
 
-            Console.WriteLine(JsonConvert.SerializeObject(Talent1Spells));
-            Console.WriteLine(JsonConvert.SerializeObject(Talent2Spells));
-            Console.WriteLine(JsonConvert.SerializeObject(Talent3Spells));
+            Console.WriteLine(JsonConvert.SerializeObject(Talents));
         }
-        public List<int> Talent1Spells { get => _raidMemberPreset.Talent1Spells; }
-        public List<int> Talent2Spells { get => _raidMemberPreset.Talent2Spells; }
-        public List<int> Talent3Spells { get => _raidMemberPreset.Talent3Spells; }
+        public List<int> Talents => _raidMemberPreset.Talents;
+        public List<int> Spells => _raidMemberPreset.Spells;
+
+        public List<int> Talent1Spells = new List<int>();
+        public List<int> Talent2Spells = new List<int>();
+        public List<int> Talent3Spells = new List<int>();
 
         private string _talentTree1TooltipHeader;
         private string _talentTree2TooltipHeader;
@@ -176,15 +177,17 @@ namespace RaidLeaderBot
         public List<int> Talent1Index18Spells = new List<int>();
         public void AddTalent1Index1()
         {
-            for (int i = 0; i < Talent1Index1Spells.Count; i++)
-            {
-                if (!Talent1Spells.Contains(Talent1Index1Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent1Index1Spells.Count; i++)
                 {
-                    Talent1Spells.Add(Talent1Index1Spells[i]);
-                    Talent1Index1Content = $"{i + 1} / {Talent1Index1Spells.Count}";
-                    break;
+                    if (!Talent1Spells.Contains(Talent1Index1Spells[i]))
+                    {
+                        Talent1Spells.Add(Talent1Index1Spells[i]);
+                        Talents.Add(Talent1Index1Spells[i]);
+                        Talent1Index1Content = $"{i + 1} / {Talent1Index1Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
 
@@ -197,6 +200,7 @@ namespace RaidLeaderBot
                     if (Talent1Spells.Contains(Talent1Index1Spells[i]))
                     {
                         Talent1Spells.Remove(Talent1Index1Spells[i]);
+                        Talents.Remove(Talent1Index1Spells[i]);
                         Talent1Index1Content = $"{i} / {Talent1Index1Spells.Count}";
                         break;
                     }
@@ -206,15 +210,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent1Index2()
         {
-            for (int i = 0; i < Talent1Index2Spells.Count; i++)
-            {
-                if (!Talent1Spells.Contains(Talent1Index2Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent1Index2Spells.Count; i++)
                 {
-                    Talent1Spells.Add(Talent1Index2Spells[i]);
-                    Talent1Index2Content = $"{i + 1} / {Talent1Index2Spells.Count}";
-                    break;
+                    if (!Talent1Spells.Contains(Talent1Index2Spells[i]))
+                    {
+                        Talent1Spells.Add(Talent1Index2Spells[i]);
+                        Talents.Add(Talent1Index2Spells[i]);
+                        Talent1Index2Content = $"{i + 1} / {Talent1Index2Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent1Index2()
@@ -226,6 +232,7 @@ namespace RaidLeaderBot
                     if (Talent1Spells.Contains(Talent1Index2Spells[i]))
                     {
                         Talent1Spells.Remove(Talent1Index2Spells[i]);
+                        Talents.Remove(Talent1Index2Spells[i]);
                         Talent1Index2Content = $"{i} / {Talent1Index2Spells.Count}";
                         break;
                     }
@@ -236,15 +243,17 @@ namespace RaidLeaderBot
 
         public void AddTalent1Index3()
         {
-            for (int i = 0; i < Talent1Index3Spells.Count; i++)
-            {
-                if (!Talent1Spells.Contains(Talent1Index3Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent1Index3Spells.Count; i++)
                 {
-                    Talent1Spells.Add(Talent1Index3Spells[i]);
-                    Talent1Index3Content = $"{i + 1} / {Talent1Index3Spells.Count}";
-                    break;
+                    if (!Talent1Spells.Contains(Talent1Index3Spells[i]))
+                    {
+                        Talent1Spells.Add(Talent1Index3Spells[i]);
+                        Talents.Add(Talent1Index3Spells[i]);
+                        Talent1Index3Content = $"{i + 1} / {Talent1Index3Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent1Index3()
@@ -256,6 +265,7 @@ namespace RaidLeaderBot
                     if (Talent1Spells.Contains(Talent1Index3Spells[i]))
                     {
                         Talent1Spells.Remove(Talent1Index3Spells[i]);
+                        Talents.Remove(Talent1Index3Spells[i]);
                         Talent1Index3Content = $"{i} / {Talent1Index3Spells.Count}";
                         break;
                     }
@@ -265,15 +275,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent1Index4()
         {
-            for (int i = 0; i < Talent1Index4Spells.Count; i++)
-            {
-                if (!Talent1Spells.Contains(Talent1Index4Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent1Index4Spells.Count; i++)
                 {
-                    Talent1Spells.Add(Talent1Index4Spells[i]);
-                    Talent1Index4Content = $"{i + 1} / {Talent1Index4Spells.Count}";
-                    break;
+                    if (!Talent1Spells.Contains(Talent1Index4Spells[i]))
+                    {
+                        Talent1Spells.Add(Talent1Index4Spells[i]);
+                        Talents.Add(Talent1Index4Spells[i]);
+                        Talent1Index4Content = $"{i + 1} / {Talent1Index4Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent1Index4()
@@ -285,6 +297,7 @@ namespace RaidLeaderBot
                     if (Talent1Spells.Contains(Talent1Index4Spells[i]))
                     {
                         Talent1Spells.Remove(Talent1Index4Spells[i]);
+                        Talents.Remove(Talent1Index4Spells[i]);
                         Talent1Index4Content = $"{i} / {Talent1Index4Spells.Count}";
                         break;
                     }
@@ -294,15 +307,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent1Index5()
         {
-            for (int i = 0; i < Talent1Index5Spells.Count; i++)
-            {
-                if (!Talent1Spells.Contains(Talent1Index5Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent1Index5Spells.Count; i++)
                 {
-                    Talent1Spells.Add(Talent1Index5Spells[i]);
-                    Talent1Index5Content = $"{i + 1} / {Talent1Index5Spells.Count}";
-                    break;
+                    if (!Talent1Spells.Contains(Talent1Index5Spells[i]))
+                    {
+                        Talent1Spells.Add(Talent1Index5Spells[i]);
+                        Talents.Add(Talent1Index5Spells[i]);
+                        Talent1Index5Content = $"{i + 1} / {Talent1Index5Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent1Index5()
@@ -314,6 +329,7 @@ namespace RaidLeaderBot
                     if (Talent1Spells.Contains(Talent1Index5Spells[i]))
                     {
                         Talent1Spells.Remove(Talent1Index5Spells[i]);
+                        Talents.Remove(Talent1Index5Spells[i]);
                         Talent1Index5Content = $"{i} / {Talent1Index6Spells.Count}";
                         break;
                     }
@@ -323,15 +339,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent1Index6()
         {
-            for (int i = 0; i < Talent1Index6Spells.Count; i++)
-            {
-                if (!Talent1Spells.Contains(Talent1Index6Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent1Index6Spells.Count; i++)
                 {
-                    Talent1Spells.Add(Talent1Index6Spells[i]);
-                    Talent1Index6Content = $"{i + 1} / {Talent1Index6Spells.Count}";
-                    break;
+                    if (!Talent1Spells.Contains(Talent1Index6Spells[i]))
+                    {
+                        Talent1Spells.Add(Talent1Index6Spells[i]);
+                        Talents.Add(Talent1Index6Spells[i]);
+                        Talent1Index6Content = $"{i + 1} / {Talent1Index6Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent1Index6()
@@ -343,6 +361,7 @@ namespace RaidLeaderBot
                     if (Talent1Spells.Contains(Talent1Index6Spells[i]))
                     {
                         Talent1Spells.Remove(Talent1Index6Spells[i]);
+                        Talents.Remove(Talent1Index6Spells[i]);
                         Talent1Index7Content = $"{i} / {Talent1Index7Spells.Count}";
                         break;
                     }
@@ -352,15 +371,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent1Index7()
         {
-            for (int i = 0; i < Talent1Index7Spells.Count; i++)
-            {
-                if (!Talent1Spells.Contains(Talent1Index7Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent1Index7Spells.Count; i++)
                 {
-                    Talent1Spells.Add(Talent1Index7Spells[i]);
-                    Talent1Index7Content = $"{i + 1} / {Talent1Index7Spells.Count}";
-                    break;
+                    if (!Talent1Spells.Contains(Talent1Index7Spells[i]))
+                    {
+                        Talent1Spells.Add(Talent1Index7Spells[i]);
+                        Talents.Add(Talent1Index7Spells[i]);
+                        Talent1Index7Content = $"{i + 1} / {Talent1Index7Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent1Index7()
@@ -372,6 +393,7 @@ namespace RaidLeaderBot
                     if (Talent1Spells.Contains(Talent1Index7Spells[i]))
                     {
                         Talent1Spells.Remove(Talent1Index7Spells[i]);
+                        Talents.Remove(Talent1Index7Spells[i]);
                         Talent1Index7Content = $"{i} / {Talent1Index7Spells.Count}";
                         break;
                     }
@@ -381,15 +403,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent1Index8()
         {
-            for (int i = 0; i < Talent1Index8Spells.Count; i++)
-            {
-                if (!Talent1Spells.Contains(Talent1Index8Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent1Index8Spells.Count; i++)
                 {
-                    Talent1Spells.Add(Talent1Index8Spells[i]);
-                    Talent1Index8Content = $"{i + 1} / {Talent1Index8Spells.Count}";
-                    break;
+                    if (!Talent1Spells.Contains(Talent1Index8Spells[i]))
+                    {
+                        Talent1Spells.Add(Talent1Index8Spells[i]);
+                        Talents.Add(Talent1Index8Spells[i]);
+                        Talent1Index8Content = $"{i + 1} / {Talent1Index8Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent1Index8()
@@ -401,6 +425,7 @@ namespace RaidLeaderBot
                     if (Talent1Spells.Contains(Talent1Index8Spells[i]))
                     {
                         Talent1Spells.Remove(Talent1Index8Spells[i]);
+                        Talents.Remove(Talent1Index8Spells[i]);
                         Talent1Index8Content = $"{i} / {Talent1Index8Spells.Count}";
                         break;
                     }
@@ -410,15 +435,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent1Index9()
         {
-            for (int i = 0; i < Talent1Index9Spells.Count; i++)
-            {
-                if (!Talent1Spells.Contains(Talent1Index9Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent1Index9Spells.Count; i++)
                 {
-                    Talent1Spells.Add(Talent1Index9Spells[i]);
-                    Talent1Index9Content = $"{i + 1} / {Talent1Index9Spells.Count}";
-                    break;
+                    if (!Talent1Spells.Contains(Talent1Index9Spells[i]))
+                    {
+                        Talent1Spells.Add(Talent1Index9Spells[i]);
+                        Talents.Add(Talent1Index9Spells[i]);
+                        Talent1Index9Content = $"{i + 1} / {Talent1Index9Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent1Index9()
@@ -430,6 +457,7 @@ namespace RaidLeaderBot
                     if (Talent1Spells.Contains(Talent1Index9Spells[i]))
                     {
                         Talent1Spells.Remove(Talent1Index9Spells[i]);
+                        Talents.Remove(Talent1Index9Spells[i]);
                         Talent1Index9Content = $"{i} / {Talent1Index9Spells.Count}";
                         break;
                     }
@@ -439,15 +467,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent1Index10()
         {
-            for (int i = 0; i < Talent1Index10Spells.Count; i++)
-            {
-                if (!Talent1Spells.Contains(Talent1Index10Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent1Index10Spells.Count; i++)
                 {
-                    Talent1Spells.Add(Talent1Index10Spells[i]);
-                    Talent1Index10Content = $"{i + 1} / {Talent1Index10Spells.Count}";
-                    break;
+                    if (!Talent1Spells.Contains(Talent1Index10Spells[i]))
+                    {
+                        Talent1Spells.Add(Talent1Index10Spells[i]);
+                        Talents.Add(Talent1Index10Spells[i]);
+                        Talent1Index10Content = $"{i + 1} / {Talent1Index10Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent1Index10()
@@ -459,6 +489,7 @@ namespace RaidLeaderBot
                     if (Talent1Spells.Contains(Talent1Index10Spells[i]))
                     {
                         Talent1Spells.Remove(Talent1Index10Spells[i]);
+                        Talents.Remove(Talent1Index10Spells[i]);
                         Talent1Index10Content = $"{i} / {Talent1Index10Spells.Count}";
                         break;
                     }
@@ -468,15 +499,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent1Index11()
         {
-            for (int i = 0; i < Talent1Index11Spells.Count; i++)
-            {
-                if (!Talent1Spells.Contains(Talent1Index11Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent1Index11Spells.Count; i++)
                 {
-                    Talent1Spells.Add(Talent1Index11Spells[i]);
-                    Talent1Index11Content = $"{i + 1} / {Talent1Index11Spells.Count}";
-                    break;
+                    if (!Talent1Spells.Contains(Talent1Index11Spells[i]))
+                    {
+                        Talent1Spells.Add(Talent1Index11Spells[i]);
+                        Talents.Add(Talent1Index11Spells[i]);
+                        Talent1Index11Content = $"{i + 1} / {Talent1Index11Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent1Index11()
@@ -488,6 +521,7 @@ namespace RaidLeaderBot
                     if (Talent1Spells.Contains(Talent1Index11Spells[i]))
                     {
                         Talent1Spells.Remove(Talent1Index11Spells[i]);
+                        Talents.Remove(Talent1Index11Spells[i]);
                         Talent1Index11Content = $"{i} / {Talent1Index11Spells.Count}";
                         break;
                     }
@@ -497,15 +531,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent1Index12()
         {
-            for (int i = 0; i < Talent1Index12Spells.Count; i++)
-            {
-                if (!Talent1Spells.Contains(Talent1Index12Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent1Index12Spells.Count; i++)
                 {
-                    Talent1Spells.Add(Talent1Index12Spells[i]);
-                    Talent1Index12Content = $"{i + 1} / {Talent1Index12Spells.Count}";
-                    break;
+                    if (!Talent1Spells.Contains(Talent1Index12Spells[i]))
+                    {
+                        Talent1Spells.Add(Talent1Index12Spells[i]);
+                        Talents.Add(Talent1Index12Spells[i]);
+                        Talent1Index12Content = $"{i + 1} / {Talent1Index12Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent1Index12()
@@ -517,6 +553,7 @@ namespace RaidLeaderBot
                     if (Talent1Spells.Contains(Talent1Index12Spells[i]))
                     {
                         Talent1Spells.Remove(Talent1Index12Spells[i]);
+                        Talents.Remove(Talent1Index12Spells[i]);
                         Talent1Index12Content = $"{i} / {Talent1Index12Spells.Count}";
                         break;
                     }
@@ -526,15 +563,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent1Index13()
         {
-            for (int i = 0; i < Talent1Index13Spells.Count; i++)
-            {
-                if (!Talent1Spells.Contains(Talent1Index13Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent1Index13Spells.Count; i++)
                 {
-                    Talent1Spells.Add(Talent1Index13Spells[i]);
-                    Talent1Index13Content = $"{i + 1} / {Talent1Index13Spells.Count}";
-                    break;
+                    if (!Talent1Spells.Contains(Talent1Index13Spells[i]))
+                    {
+                        Talent1Spells.Add(Talent1Index13Spells[i]);
+                        Talents.Add(Talent1Index13Spells[i]);
+                        Talent1Index13Content = $"{i + 1} / {Talent1Index13Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent1Index13()
@@ -546,6 +585,7 @@ namespace RaidLeaderBot
                     if (Talent1Spells.Contains(Talent1Index13Spells[i]))
                     {
                         Talent1Spells.Remove(Talent1Index13Spells[i]);
+                        Talents.Remove(Talent1Index13Spells[i]);
                         Talent1Index13Content = $"{i} / {Talent1Index13Spells.Count}";
                         break;
                     }
@@ -555,15 +595,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent1Index14()
         {
-            for (int i = 0; i < Talent1Index14Spells.Count; i++)
-            {
-                if (!Talent1Spells.Contains(Talent1Index14Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent1Index14Spells.Count; i++)
                 {
-                    Talent1Spells.Add(Talent1Index14Spells[i]);
-                    Talent1Index14Content = $"{i + 1} / {Talent1Index14Spells.Count}";
-                    break;
+                    if (!Talent1Spells.Contains(Talent1Index14Spells[i]))
+                    {
+                        Talent1Spells.Add(Talent1Index14Spells[i]);
+                        Talents.Add(Talent1Index14Spells[i]);
+                        Talent1Index14Content = $"{i + 1} / {Talent1Index14Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent1Index14()
@@ -575,6 +617,7 @@ namespace RaidLeaderBot
                     if (Talent1Spells.Contains(Talent1Index14Spells[i]))
                     {
                         Talent1Spells.Remove(Talent1Index14Spells[i]);
+                        Talents.Remove(Talent1Index14Spells[i]);
                         Talent1Index14Content = $"{i} / {Talent1Index14Spells.Count}";
                         break;
                     }
@@ -584,15 +627,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent1Index15()
         {
-            for (int i = 0; i < Talent1Index15Spells.Count; i++)
-            {
-                if (!Talent1Spells.Contains(Talent1Index15Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent1Index15Spells.Count; i++)
                 {
-                    Talent1Spells.Add(Talent1Index15Spells[i]);
-                    Talent1Index15Content = $"{i + 1} / {Talent1Index15Spells.Count}";
-                    break;
+                    if (!Talent1Spells.Contains(Talent1Index15Spells[i]))
+                    {
+                        Talent1Spells.Add(Talent1Index15Spells[i]);
+                        Talents.Add(Talent1Index15Spells[i]);
+                        Talent1Index15Content = $"{i + 1} / {Talent1Index15Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent1Index15()
@@ -604,6 +649,7 @@ namespace RaidLeaderBot
                     if (Talent1Spells.Contains(Talent1Index15Spells[i]))
                     {
                         Talent1Spells.Remove(Talent1Index15Spells[i]);
+                        Talents.Remove(Talent1Index15Spells[i]);
                         Talent1Index15Content = $"{i} / {Talent1Index15Spells.Count}";
                         break;
                     }
@@ -613,15 +659,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent1Index16()
         {
-            for (int i = 0; i < Talent1Index16Spells.Count; i++)
-            {
-                if (!Talent1Spells.Contains(Talent1Index16Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent1Index16Spells.Count; i++)
                 {
-                    Talent1Spells.Add(Talent1Index16Spells[i]);
-                    Talent1Index16Content = $"{i + 1} / {Talent1Index16Spells.Count}";
-                    break;
+                    if (!Talent1Spells.Contains(Talent1Index16Spells[i]))
+                    {
+                        Talent1Spells.Add(Talent1Index16Spells[i]);
+                        Talents.Add(Talent1Index16Spells[i]);
+                        Talent1Index16Content = $"{i + 1} / {Talent1Index16Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent1Index16()
@@ -633,6 +681,7 @@ namespace RaidLeaderBot
                     if (Talent1Spells.Contains(Talent1Index16Spells[i]))
                     {
                         Talent1Spells.Remove(Talent1Index16Spells[i]);
+                        Talents.Remove(Talent1Index16Spells[i]);
                         Talent1Index16Content = $"{i} / {Talent1Index16Spells.Count}";
                         break;
                     }
@@ -642,15 +691,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent1Index17()
         {
-            for (int i = 0; i < Talent1Index17Spells.Count; i++)
-            {
-                if (!Talent1Spells.Contains(Talent1Index17Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent1Index17Spells.Count; i++)
                 {
-                    Talent1Spells.Add(Talent1Index17Spells[i]);
-                    Talent1Index17Content = $"{i + 1} / {Talent1Index17Spells.Count}";
-                    break;
+                    if (!Talent1Spells.Contains(Talent1Index17Spells[i]))
+                    {
+                        Talent1Spells.Add(Talent1Index17Spells[i]);
+                        Talents.Add(Talent1Index17Spells[i]);
+                        Talent1Index17Content = $"{i + 1} / {Talent1Index17Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent1Index17()
@@ -662,6 +713,7 @@ namespace RaidLeaderBot
                     if (Talent1Spells.Contains(Talent1Index17Spells[i]))
                     {
                         Talent1Spells.Remove(Talent1Index17Spells[i]);
+                        Talents.Remove(Talent1Index17Spells[i]);
                         Talent1Index17Content = $"{i} / {Talent1Index17Spells.Count}";
                         break;
                     }
@@ -671,15 +723,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent1Index18()
         {
-            for (int i = 0; i < Talent1Index18Spells.Count; i++)
-            {
-                if (!Talent1Spells.Contains(Talent1Index18Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent1Index18Spells.Count; i++)
                 {
-                    Talent1Spells.Add(Talent1Index18Spells[i]);
-                    Talent1Index18Content = $"{i + 1} / {Talent1Index18Spells.Count}";
-                    break;
+                    if (!Talent1Spells.Contains(Talent1Index18Spells[i]))
+                    {
+                        Talent1Spells.Add(Talent1Index18Spells[i]);
+                        Talents.Add(Talent1Index18Spells[i]);
+                        Talent1Index18Content = $"{i + 1} / {Talent1Index18Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent1Index18()
@@ -691,6 +745,7 @@ namespace RaidLeaderBot
                     if (Talent1Spells.Contains(Talent1Index18Spells[i]))
                     {
                         Talent1Spells.Remove(Talent1Index18Spells[i]);
+                        Talents.Remove(Talent1Index18Spells[i]);
                         Talent1Index18Content = $"{i} / {Talent1Index18Spells.Count}";
                         break;
                     }
@@ -765,15 +820,17 @@ namespace RaidLeaderBot
         public List<int> Talent2Index19Spells = new List<int>();
         public void AddTalent2Index1()
         {
-            for (int i = 0; i < Talent2Index1Spells.Count; i++)
-            {
-                if (!Talent2Spells.Contains(Talent2Index1Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent2Index1Spells.Count; i++)
                 {
-                    Talent2Spells.Add(Talent2Index1Spells[i]);
-                    Talent2Index1Content = $"{i + 1} / {Talent2Index1Spells.Count}";
-                    break;
+                    if (!Talent2Spells.Contains(Talent2Index1Spells[i]))
+                    {
+                        Talent2Spells.Add(Talent2Index1Spells[i]);
+                        Talents.Add(Talent2Index1Spells[i]);
+                        Talent2Index1Content = $"{i + 1} / {Talent2Index1Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
 
@@ -786,6 +843,7 @@ namespace RaidLeaderBot
                     if (Talent2Spells.Contains(Talent2Index1Spells[i]))
                     {
                         Talent2Spells.Remove(Talent2Index1Spells[i]);
+                        Talents.Remove(Talent2Index1Spells[i]);
                         Talent2Index1Content = $"{i} / {Talent2Index1Spells.Count}";
                         break;
                     }
@@ -795,15 +853,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent2Index2()
         {
-            for (int i = 0; i < Talent2Index2Spells.Count; i++)
-            {
-                if (!Talent2Spells.Contains(Talent2Index2Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent2Index2Spells.Count; i++)
                 {
-                    Talent2Spells.Add(Talent2Index2Spells[i]);
-                    Talent2Index2Content = $"{i + 1} / {Talent2Index2Spells.Count}";
-                    break;
+                    if (!Talent2Spells.Contains(Talent2Index2Spells[i]))
+                    {
+                        Talent2Spells.Add(Talent2Index2Spells[i]);
+                        Talents.Add(Talent2Index2Spells[i]);
+                        Talent2Index2Content = $"{i + 1} / {Talent2Index2Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent2Index2()
@@ -815,6 +875,7 @@ namespace RaidLeaderBot
                     if (Talent2Spells.Contains(Talent2Index2Spells[i]))
                     {
                         Talent2Spells.Remove(Talent2Index2Spells[i]);
+                        Talents.Remove(Talent2Index2Spells[i]);
                         Talent2Index2Content = $"{i} / {Talent2Index2Spells.Count}";
                         break;
                     }
@@ -825,15 +886,17 @@ namespace RaidLeaderBot
 
         public void AddTalent2Index3()
         {
-            for (int i = 0; i < Talent2Index3Spells.Count; i++)
-            {
-                if (!Talent2Spells.Contains(Talent2Index3Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent2Index3Spells.Count; i++)
                 {
-                    Talent2Spells.Add(Talent2Index3Spells[i]);
-                    Talent2Index3Content = $"{i + 1} / {Talent2Index3Spells.Count}";
-                    break;
+                    if (!Talent2Spells.Contains(Talent2Index3Spells[i]))
+                    {
+                        Talent2Spells.Add(Talent2Index3Spells[i]);
+                        Talents.Add(Talent2Index3Spells[i]);
+                        Talent2Index3Content = $"{i + 1} / {Talent2Index3Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent2Index3()
@@ -845,6 +908,7 @@ namespace RaidLeaderBot
                     if (Talent2Spells.Contains(Talent2Index3Spells[i]))
                     {
                         Talent2Spells.Remove(Talent2Index3Spells[i]);
+                        Talents.Remove(Talent2Index3Spells[i]);
                         Talent2Index3Content = $"{i} / {Talent2Index3Spells.Count}";
                         break;
                     }
@@ -854,15 +918,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent2Index4()
         {
-            for (int i = 0; i < Talent2Index4Spells.Count; i++)
-            {
-                if (!Talent2Spells.Contains(Talent2Index4Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent2Index4Spells.Count; i++)
                 {
-                    Talent2Spells.Add(Talent2Index4Spells[i]);
-                    Talent2Index4Content = $"{i + 1} / {Talent2Index4Spells.Count}";
-                    break;
+                    if (!Talent2Spells.Contains(Talent2Index4Spells[i]))
+                    {
+                        Talent2Spells.Add(Talent2Index4Spells[i]);
+                        Talents.Add(Talent2Index4Spells[i]);
+                        Talent2Index4Content = $"{i + 1} / {Talent2Index4Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent2Index4()
@@ -874,6 +940,7 @@ namespace RaidLeaderBot
                     if (Talent2Spells.Contains(Talent2Index4Spells[i]))
                     {
                         Talent2Spells.Remove(Talent2Index4Spells[i]);
+                        Talents.Remove(Talent2Index4Spells[i]);
                         Talent2Index4Content = $"{i} / {Talent2Index4Spells.Count}";
                         break;
                     }
@@ -883,15 +950,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent2Index5()
         {
-            for (int i = 0; i < Talent2Index5Spells.Count; i++)
-            {
-                if (!Talent2Spells.Contains(Talent2Index5Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent2Index5Spells.Count; i++)
                 {
-                    Talent2Spells.Add(Talent2Index5Spells[i]);
-                    Talent2Index5Content = $"{i + 1} / {Talent2Index5Spells.Count}";
-                    break;
+                    if (!Talent2Spells.Contains(Talent2Index5Spells[i]))
+                    {
+                        Talent2Spells.Add(Talent2Index5Spells[i]);
+                        Talents.Add(Talent2Index5Spells[i]);
+                        Talent2Index5Content = $"{i + 1} / {Talent2Index5Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent2Index5()
@@ -903,6 +972,7 @@ namespace RaidLeaderBot
                     if (Talent2Spells.Contains(Talent2Index5Spells[i]))
                     {
                         Talent2Spells.Remove(Talent2Index5Spells[i]);
+                        Talents.Remove(Talent2Index5Spells[i]);
                         Talent2Index5Content = $"{i} / {Talent2Index6Spells.Count}";
                         break;
                     }
@@ -912,15 +982,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent2Index6()
         {
-            for (int i = 0; i < Talent2Index6Spells.Count; i++)
-            {
-                if (!Talent2Spells.Contains(Talent2Index6Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent2Index6Spells.Count; i++)
                 {
-                    Talent2Spells.Add(Talent2Index6Spells[i]);
-                    Talent2Index6Content = $"{i + 1} / {Talent2Index6Spells.Count}";
-                    break;
+                    if (!Talent2Spells.Contains(Talent2Index6Spells[i]))
+                    {
+                        Talent2Spells.Add(Talent2Index6Spells[i]);
+                        Talents.Add(Talent2Index6Spells[i]);
+                        Talent2Index6Content = $"{i + 1} / {Talent2Index6Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent2Index6()
@@ -932,6 +1004,7 @@ namespace RaidLeaderBot
                     if (Talent2Spells.Contains(Talent2Index6Spells[i]))
                     {
                         Talent2Spells.Remove(Talent2Index6Spells[i]);
+                        Talents.Remove(Talent2Index6Spells[i]);
                         Talent2Index7Content = $"{i} / {Talent2Index7Spells.Count}";
                         break;
                     }
@@ -941,15 +1014,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent2Index7()
         {
-            for (int i = 0; i < Talent2Index7Spells.Count; i++)
-            {
-                if (!Talent2Spells.Contains(Talent2Index7Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent2Index7Spells.Count; i++)
                 {
-                    Talent2Spells.Add(Talent2Index7Spells[i]);
-                    Talent2Index7Content = $"{i + 1} / {Talent2Index7Spells.Count}";
-                    break;
+                    if (!Talent2Spells.Contains(Talent2Index7Spells[i]))
+                    {
+                        Talent2Spells.Add(Talent2Index7Spells[i]);
+                        Talents.Add(Talent2Index7Spells[i]);
+                        Talent2Index7Content = $"{i + 1} / {Talent2Index7Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent2Index7()
@@ -961,6 +1036,7 @@ namespace RaidLeaderBot
                     if (Talent2Spells.Contains(Talent2Index7Spells[i]))
                     {
                         Talent2Spells.Remove(Talent2Index7Spells[i]);
+                        Talents.Remove(Talent2Index7Spells[i]);
                         Talent2Index7Content = $"{i} / {Talent2Index7Spells.Count}";
                         break;
                     }
@@ -970,15 +1046,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent2Index8()
         {
-            for (int i = 0; i < Talent2Index8Spells.Count; i++)
-            {
-                if (!Talent2Spells.Contains(Talent2Index8Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent2Index8Spells.Count; i++)
                 {
-                    Talent2Spells.Add(Talent2Index8Spells[i]);
-                    Talent2Index8Content = $"{i + 1} / {Talent2Index8Spells.Count}";
-                    break;
+                    if (!Talent2Spells.Contains(Talent2Index8Spells[i]))
+                    {
+                        Talent2Spells.Add(Talent2Index8Spells[i]);
+                        Talents.Add(Talent2Index8Spells[i]);
+                        Talent2Index8Content = $"{i + 1} / {Talent2Index8Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent2Index8()
@@ -990,6 +1068,7 @@ namespace RaidLeaderBot
                     if (Talent2Spells.Contains(Talent2Index8Spells[i]))
                     {
                         Talent2Spells.Remove(Talent2Index8Spells[i]);
+                        Talents.Remove(Talent2Index8Spells[i]);
                         Talent2Index8Content = $"{i} / {Talent2Index8Spells.Count}";
                         break;
                     }
@@ -999,15 +1078,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent2Index9()
         {
-            for (int i = 0; i < Talent2Index9Spells.Count; i++)
-            {
-                if (!Talent2Spells.Contains(Talent2Index9Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent2Index9Spells.Count; i++)
                 {
-                    Talent2Spells.Add(Talent2Index9Spells[i]);
-                    Talent2Index9Content = $"{i + 1} / {Talent2Index9Spells.Count}";
-                    break;
+                    if (!Talent2Spells.Contains(Talent2Index9Spells[i]))
+                    {
+                        Talent2Spells.Add(Talent2Index9Spells[i]);
+                        Talents.Add(Talent2Index9Spells[i]);
+                        Talent2Index9Content = $"{i + 1} / {Talent2Index9Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent2Index9()
@@ -1019,6 +1100,7 @@ namespace RaidLeaderBot
                     if (Talent2Spells.Contains(Talent2Index9Spells[i]))
                     {
                         Talent2Spells.Remove(Talent2Index9Spells[i]);
+                        Talents.Remove(Talent2Index9Spells[i]);
                         Talent2Index9Content = $"{i} / {Talent2Index9Spells.Count}";
                         break;
                     }
@@ -1028,15 +1110,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent2Index10()
         {
-            for (int i = 0; i < Talent2Index10Spells.Count; i++)
-            {
-                if (!Talent2Spells.Contains(Talent2Index10Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent2Index10Spells.Count; i++)
                 {
-                    Talent2Spells.Add(Talent2Index10Spells[i]);
-                    Talent2Index10Content = $"{i + 1} / {Talent2Index10Spells.Count}";
-                    break;
+                    if (!Talent2Spells.Contains(Talent2Index10Spells[i]))
+                    {
+                        Talent2Spells.Add(Talent2Index10Spells[i]);
+                        Talents.Add(Talent2Index10Spells[i]);
+                        Talent2Index10Content = $"{i + 1} / {Talent2Index10Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent2Index10()
@@ -1048,6 +1132,7 @@ namespace RaidLeaderBot
                     if (Talent2Spells.Contains(Talent2Index10Spells[i]))
                     {
                         Talent2Spells.Remove(Talent2Index10Spells[i]);
+                        Talents.Remove(Talent2Index10Spells[i]);
                         Talent2Index10Content = $"{i} / {Talent2Index10Spells.Count}";
                         break;
                     }
@@ -1057,15 +1142,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent2Index11()
         {
-            for (int i = 0; i < Talent2Index11Spells.Count; i++)
-            {
-                if (!Talent2Spells.Contains(Talent2Index11Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent2Index11Spells.Count; i++)
                 {
-                    Talent2Spells.Add(Talent2Index11Spells[i]);
-                    Talent2Index11Content = $"{i + 1} / {Talent2Index11Spells.Count}";
-                    break;
+                    if (!Talent2Spells.Contains(Talent2Index11Spells[i]))
+                    {
+                        Talent2Spells.Add(Talent2Index11Spells[i]);
+                        Talents.Add(Talent2Index11Spells[i]);
+                        Talent2Index11Content = $"{i + 1} / {Talent2Index11Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent2Index11()
@@ -1077,6 +1164,7 @@ namespace RaidLeaderBot
                     if (Talent2Spells.Contains(Talent2Index11Spells[i]))
                     {
                         Talent2Spells.Remove(Talent2Index11Spells[i]);
+                        Talents.Remove(Talent2Index11Spells[i]);
                         Talent2Index11Content = $"{i} / {Talent2Index11Spells.Count}";
                         break;
                     }
@@ -1086,15 +1174,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent2Index12()
         {
-            for (int i = 0; i < Talent2Index12Spells.Count; i++)
-            {
-                if (!Talent2Spells.Contains(Talent2Index12Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent2Index12Spells.Count; i++)
                 {
-                    Talent2Spells.Add(Talent2Index12Spells[i]);
-                    Talent2Index12Content = $"{i + 1} / {Talent2Index12Spells.Count}";
-                    break;
+                    if (!Talent2Spells.Contains(Talent2Index12Spells[i]))
+                    {
+                        Talent2Spells.Add(Talent2Index12Spells[i]);
+                        Talents.Add(Talent2Index12Spells[i]);
+                        Talent2Index12Content = $"{i + 1} / {Talent2Index12Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent2Index12()
@@ -1106,6 +1196,7 @@ namespace RaidLeaderBot
                     if (Talent2Spells.Contains(Talent2Index12Spells[i]))
                     {
                         Talent2Spells.Remove(Talent2Index12Spells[i]);
+                        Talents.Remove(Talent2Index12Spells[i]);
                         Talent2Index12Content = $"{i} / {Talent2Index12Spells.Count}";
                         break;
                     }
@@ -1115,15 +1206,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent2Index13()
         {
-            for (int i = 0; i < Talent2Index13Spells.Count; i++)
-            {
-                if (!Talent2Spells.Contains(Talent2Index13Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent2Index13Spells.Count; i++)
                 {
-                    Talent2Spells.Add(Talent2Index13Spells[i]);
-                    Talent2Index13Content = $"{i + 1} / {Talent2Index13Spells.Count}";
-                    break;
+                    if (!Talent2Spells.Contains(Talent2Index13Spells[i]))
+                    {
+                        Talent2Spells.Add(Talent2Index13Spells[i]);
+                        Talents.Add(Talent2Index13Spells[i]);
+                        Talent2Index13Content = $"{i + 1} / {Talent2Index13Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent2Index13()
@@ -1135,6 +1228,7 @@ namespace RaidLeaderBot
                     if (Talent2Spells.Contains(Talent2Index13Spells[i]))
                     {
                         Talent2Spells.Remove(Talent2Index13Spells[i]);
+                        Talents.Remove(Talent2Index13Spells[i]);
                         Talent2Index13Content = $"{i} / {Talent2Index13Spells.Count}";
                         break;
                     }
@@ -1144,15 +1238,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent2Index14()
         {
-            for (int i = 0; i < Talent2Index14Spells.Count; i++)
-            {
-                if (!Talent2Spells.Contains(Talent2Index14Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent2Index14Spells.Count; i++)
                 {
-                    Talent2Spells.Add(Talent2Index14Spells[i]);
-                    Talent2Index14Content = $"{i + 1} / {Talent2Index14Spells.Count}";
-                    break;
+                    if (!Talent2Spells.Contains(Talent2Index14Spells[i]))
+                    {
+                        Talent2Spells.Add(Talent2Index14Spells[i]);
+                        Talents.Add(Talent2Index14Spells[i]);
+                        Talent2Index14Content = $"{i + 1} / {Talent2Index14Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent2Index14()
@@ -1164,6 +1260,7 @@ namespace RaidLeaderBot
                     if (Talent2Spells.Contains(Talent2Index14Spells[i]))
                     {
                         Talent2Spells.Remove(Talent2Index14Spells[i]);
+                        Talents.Remove(Talent2Index14Spells[i]);
                         Talent2Index14Content = $"{i} / {Talent2Index14Spells.Count}";
                         break;
                     }
@@ -1173,15 +1270,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent2Index15()
         {
-            for (int i = 0; i < Talent2Index15Spells.Count; i++)
-            {
-                if (!Talent2Spells.Contains(Talent2Index15Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent2Index15Spells.Count; i++)
                 {
-                    Talent2Spells.Add(Talent2Index15Spells[i]);
-                    Talent2Index15Content = $"{i + 1} / {Talent2Index15Spells.Count}";
-                    break;
+                    if (!Talent2Spells.Contains(Talent2Index15Spells[i]))
+                    {
+                        Talent2Spells.Add(Talent2Index15Spells[i]);
+                        Talents.Add(Talent2Index15Spells[i]);
+                        Talent2Index15Content = $"{i + 1} / {Talent2Index15Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent2Index15()
@@ -1193,6 +1292,7 @@ namespace RaidLeaderBot
                     if (Talent2Spells.Contains(Talent2Index15Spells[i]))
                     {
                         Talent2Spells.Remove(Talent2Index15Spells[i]);
+                        Talents.Remove(Talent2Index15Spells[i]);
                         Talent2Index15Content = $"{i} / {Talent2Index15Spells.Count}";
                         break;
                     }
@@ -1202,15 +1302,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent2Index16()
         {
-            for (int i = 0; i < Talent2Index16Spells.Count; i++)
-            {
-                if (!Talent2Spells.Contains(Talent2Index16Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent2Index16Spells.Count; i++)
                 {
-                    Talent2Spells.Add(Talent2Index16Spells[i]);
-                    Talent2Index16Content = $"{i + 1} / {Talent2Index16Spells.Count}";
-                    break;
+                    if (!Talent2Spells.Contains(Talent2Index16Spells[i]))
+                    {
+                        Talent2Spells.Add(Talent2Index16Spells[i]);
+                        Talents.Add(Talent2Index16Spells[i]);
+                        Talent2Index16Content = $"{i + 1} / {Talent2Index16Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent2Index16()
@@ -1222,6 +1324,7 @@ namespace RaidLeaderBot
                     if (Talent2Spells.Contains(Talent2Index16Spells[i]))
                     {
                         Talent2Spells.Remove(Talent2Index16Spells[i]);
+                        Talents.Remove(Talent2Index16Spells[i]);
                         Talent2Index16Content = $"{i} / {Talent2Index16Spells.Count}";
                         break;
                     }
@@ -1231,15 +1334,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent2Index17()
         {
-            for (int i = 0; i < Talent2Index17Spells.Count; i++)
-            {
-                if (!Talent2Spells.Contains(Talent2Index17Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent2Index17Spells.Count; i++)
                 {
-                    Talent2Spells.Add(Talent2Index17Spells[i]);
-                    Talent2Index17Content = $"{i + 1} / {Talent2Index17Spells.Count}";
-                    break;
+                    if (!Talent2Spells.Contains(Talent2Index17Spells[i]))
+                    {
+                        Talent2Spells.Add(Talent2Index17Spells[i]);
+                        Talents.Add(Talent2Index17Spells[i]);
+                        Talent2Index17Content = $"{i + 1} / {Talent2Index17Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent2Index17()
@@ -1251,6 +1356,7 @@ namespace RaidLeaderBot
                     if (Talent2Spells.Contains(Talent2Index17Spells[i]))
                     {
                         Talent2Spells.Remove(Talent2Index17Spells[i]);
+                        Talents.Remove(Talent2Index17Spells[i]);
                         Talent2Index17Content = $"{i} / {Talent2Index17Spells.Count}";
                         break;
                     }
@@ -1260,15 +1366,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent2Index18()
         {
-            for (int i = 0; i < Talent2Index18Spells.Count; i++)
-            {
-                if (!Talent2Spells.Contains(Talent2Index18Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent2Index18Spells.Count; i++)
                 {
-                    Talent2Spells.Add(Talent2Index18Spells[i]);
-                    Talent2Index18Content = $"{i + 1} / {Talent2Index18Spells.Count}";
-                    break;
+                    if (!Talent2Spells.Contains(Talent2Index18Spells[i]))
+                    {
+                        Talent2Spells.Add(Talent2Index18Spells[i]);
+                        Talents.Add(Talent2Index18Spells[i]);
+                        Talent2Index18Content = $"{i + 1} / {Talent2Index18Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent2Index18()
@@ -1280,6 +1388,7 @@ namespace RaidLeaderBot
                     if (Talent2Spells.Contains(Talent2Index18Spells[i]))
                     {
                         Talent2Spells.Remove(Talent2Index18Spells[i]);
+                        Talents.Remove(Talent2Index18Spells[i]);
                         Talent2Index18Content = $"{i} / {Talent2Index18Spells.Count}";
                         break;
                     }
@@ -1289,15 +1398,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent2Index19()
         {
-            for (int i = 0; i < Talent2Index19Spells.Count; i++)
-            {
-                if (!Talent2Spells.Contains(Talent2Index19Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent2Index19Spells.Count; i++)
                 {
-                    Talent2Spells.Add(Talent2Index19Spells[i]);
-                    Talent2Index19Content = $"{i + 1} / {Talent2Index19Spells.Count}";
-                    break;
+                    if (!Talent2Spells.Contains(Talent2Index19Spells[i]))
+                    {
+                        Talent2Spells.Add(Talent2Index19Spells[i]);
+                        Talents.Add(Talent2Index19Spells[i]);
+                        Talent2Index19Content = $"{i + 1} / {Talent2Index19Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent2Index19()
@@ -1309,6 +1420,7 @@ namespace RaidLeaderBot
                     if (Talent2Spells.Contains(Talent2Index19Spells[i]))
                     {
                         Talent2Spells.Remove(Talent2Index19Spells[i]);
+                        Talents.Remove(Talent2Index19Spells[i]);
                         Talent2Index19Content = $"{i} / {Talent2Index19Spells.Count}";
                         break;
                     }
@@ -1385,15 +1497,17 @@ namespace RaidLeaderBot
         public List<int> Talent3Index19Spells = new List<int>();
         public void AddTalent3Index1()
         {
-            for (int i = 0; i < Talent3Index1Spells.Count; i++)
-            {
-                if (!Talent3Spells.Contains(Talent3Index1Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent3Index1Spells.Count; i++)
                 {
-                    Talent3Spells.Add(Talent3Index1Spells[i]);
-                    Talent3Index1Content = $"{i + 1} / {Talent3Index1Spells.Count}";
-                    break;
+                    if (!Talent3Spells.Contains(Talent3Index1Spells[i]))
+                    {
+                        Talent3Spells.Add(Talent3Index1Spells[i]);
+                        Talents.Add(Talent3Index1Spells[i]);
+                        Talent3Index1Content = $"{i + 1} / {Talent3Index1Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
 
@@ -1406,6 +1520,7 @@ namespace RaidLeaderBot
                     if (Talent3Spells.Contains(Talent3Index1Spells[i]))
                     {
                         Talent3Spells.Remove(Talent3Index1Spells[i]);
+                        Talents.Remove(Talent3Index1Spells[i]);
                         Talent3Index1Content = $"{i} / {Talent3Index1Spells.Count}";
                         break;
                     }
@@ -1415,15 +1530,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent3Index2()
         {
-            for (int i = 0; i < Talent3Index2Spells.Count; i++)
-            {
-                if (!Talent3Spells.Contains(Talent3Index2Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent3Index2Spells.Count; i++)
                 {
-                    Talent3Spells.Add(Talent3Index2Spells[i]);
-                    Talent3Index2Content = $"{i + 1} / {Talent3Index2Spells.Count}";
-                    break;
+                    if (!Talent3Spells.Contains(Talent3Index2Spells[i]))
+                    {
+                        Talent3Spells.Add(Talent3Index2Spells[i]);
+                        Talents.Add(Talent3Index2Spells[i]);
+                        Talent3Index2Content = $"{i + 1} / {Talent3Index2Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent3Index2()
@@ -1435,6 +1552,7 @@ namespace RaidLeaderBot
                     if (Talent3Spells.Contains(Talent3Index2Spells[i]))
                     {
                         Talent3Spells.Remove(Talent3Index2Spells[i]);
+                        Talents.Remove(Talent3Index2Spells[i]);
                         Talent3Index2Content = $"{i} / {Talent3Index2Spells.Count}";
                         break;
                     }
@@ -1445,15 +1563,17 @@ namespace RaidLeaderBot
 
         public void AddTalent3Index3()
         {
-            for (int i = 0; i < Talent3Index3Spells.Count; i++)
-            {
-                if (!Talent3Spells.Contains(Talent3Index3Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent3Index3Spells.Count; i++)
                 {
-                    Talent3Spells.Add(Talent3Index3Spells[i]);
-                    Talent3Index3Content = $"{i + 1} / {Talent3Index3Spells.Count}";
-                    break;
+                    if (!Talent3Spells.Contains(Talent3Index3Spells[i]))
+                    {
+                        Talent3Spells.Add(Talent3Index3Spells[i]);
+                        Talents.Add(Talent3Index3Spells[i]);
+                        Talent3Index3Content = $"{i + 1} / {Talent3Index3Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent3Index3()
@@ -1465,6 +1585,7 @@ namespace RaidLeaderBot
                     if (Talent3Spells.Contains(Talent3Index3Spells[i]))
                     {
                         Talent3Spells.Remove(Talent3Index3Spells[i]);
+                        Talents.Remove(Talent3Index3Spells[i]);
                         Talent3Index3Content = $"{i} / {Talent3Index3Spells.Count}";
                         break;
                     }
@@ -1474,15 +1595,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent3Index4()
         {
-            for (int i = 0; i < Talent3Index4Spells.Count; i++)
-            {
-                if (!Talent3Spells.Contains(Talent3Index4Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent3Index4Spells.Count; i++)
                 {
-                    Talent3Spells.Add(Talent3Index4Spells[i]);
-                    Talent3Index4Content = $"{i + 1} / {Talent3Index4Spells.Count}";
-                    break;
+                    if (!Talent3Spells.Contains(Talent3Index4Spells[i]))
+                    {
+                        Talent3Spells.Add(Talent3Index4Spells[i]);
+                        Talents.Add(Talent3Index4Spells[i]);
+                        Talent3Index4Content = $"{i + 1} / {Talent3Index4Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent3Index4()
@@ -1494,6 +1617,7 @@ namespace RaidLeaderBot
                     if (Talent3Spells.Contains(Talent3Index4Spells[i]))
                     {
                         Talent3Spells.Remove(Talent3Index4Spells[i]);
+                        Talents.Remove(Talent3Index4Spells[i]);
                         Talent3Index4Content = $"{i} / {Talent3Index4Spells.Count}";
                         break;
                     }
@@ -1503,15 +1627,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent3Index5()
         {
-            for (int i = 0; i < Talent3Index5Spells.Count; i++)
-            {
-                if (!Talent3Spells.Contains(Talent3Index5Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent3Index5Spells.Count; i++)
                 {
-                    Talent3Spells.Add(Talent3Index5Spells[i]);
-                    Talent3Index5Content = $"{i + 1} / {Talent3Index5Spells.Count}";
-                    break;
+                    if (!Talent3Spells.Contains(Talent3Index5Spells[i]))
+                    {
+                        Talent3Spells.Add(Talent3Index5Spells[i]);
+                        Talents.Add(Talent3Index5Spells[i]);
+                        Talent3Index5Content = $"{i + 1} / {Talent3Index5Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent3Index5()
@@ -1523,6 +1649,7 @@ namespace RaidLeaderBot
                     if (Talent3Spells.Contains(Talent3Index5Spells[i]))
                     {
                         Talent3Spells.Remove(Talent3Index5Spells[i]);
+                        Talents.Remove(Talent3Index5Spells[i]);
                         Talent3Index5Content = $"{i} / {Talent3Index6Spells.Count}";
                         break;
                     }
@@ -1532,15 +1659,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent3Index6()
         {
-            for (int i = 0; i < Talent3Index6Spells.Count; i++)
-            {
-                if (!Talent3Spells.Contains(Talent3Index6Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent3Index6Spells.Count; i++)
                 {
-                    Talent3Spells.Add(Talent3Index6Spells[i]);
-                    Talent3Index6Content = $"{i + 1} / {Talent3Index6Spells.Count}";
-                    break;
+                    if (!Talent3Spells.Contains(Talent3Index6Spells[i]))
+                    {
+                        Talent3Spells.Add(Talent3Index6Spells[i]);
+                        Talents.Add(Talent3Index6Spells[i]);
+                        Talent3Index6Content = $"{i + 1} / {Talent3Index6Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent3Index6()
@@ -1552,6 +1681,7 @@ namespace RaidLeaderBot
                     if (Talent3Spells.Contains(Talent3Index6Spells[i]))
                     {
                         Talent3Spells.Remove(Talent3Index6Spells[i]);
+                        Talents.Remove(Talent3Index6Spells[i]);
                         Talent3Index7Content = $"{i} / {Talent3Index7Spells.Count}";
                         break;
                     }
@@ -1561,15 +1691,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent3Index7()
         {
-            for (int i = 0; i < Talent3Index7Spells.Count; i++)
-            {
-                if (!Talent3Spells.Contains(Talent3Index7Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent3Index7Spells.Count; i++)
                 {
-                    Talent3Spells.Add(Talent3Index7Spells[i]);
-                    Talent3Index7Content = $"{i + 1} / {Talent3Index7Spells.Count}";
-                    break;
+                    if (!Talent3Spells.Contains(Talent3Index7Spells[i]))
+                    {
+                        Talent3Spells.Add(Talent3Index7Spells[i]);
+                        Talents.Add(Talent3Index7Spells[i]);
+                        Talent3Index7Content = $"{i + 1} / {Talent3Index7Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent3Index7()
@@ -1581,6 +1713,7 @@ namespace RaidLeaderBot
                     if (Talent3Spells.Contains(Talent3Index7Spells[i]))
                     {
                         Talent3Spells.Remove(Talent3Index7Spells[i]);
+                        Talents.Remove(Talent3Index7Spells[i]);
                         Talent3Index7Content = $"{i} / {Talent3Index7Spells.Count}";
                         break;
                     }
@@ -1590,15 +1723,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent3Index8()
         {
-            for (int i = 0; i < Talent3Index8Spells.Count; i++)
-            {
-                if (!Talent3Spells.Contains(Talent3Index8Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent3Index8Spells.Count; i++)
                 {
-                    Talent3Spells.Add(Talent3Index8Spells[i]);
-                    Talent3Index8Content = $"{i + 1} / {Talent3Index8Spells.Count}";
-                    break;
+                    if (!Talent3Spells.Contains(Talent3Index8Spells[i]))
+                    {
+                        Talent3Spells.Add(Talent3Index8Spells[i]);
+                        Talents.Add(Talent3Index8Spells[i]);
+                        Talent3Index8Content = $"{i + 1} / {Talent3Index8Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent3Index8()
@@ -1610,6 +1745,7 @@ namespace RaidLeaderBot
                     if (Talent3Spells.Contains(Talent3Index8Spells[i]))
                     {
                         Talent3Spells.Remove(Talent3Index8Spells[i]);
+                        Talents.Remove(Talent3Index8Spells[i]);
                         Talent3Index8Content = $"{i} / {Talent3Index8Spells.Count}";
                         break;
                     }
@@ -1619,15 +1755,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent3Index9()
         {
-            for (int i = 0; i < Talent3Index9Spells.Count; i++)
-            {
-                if (!Talent3Spells.Contains(Talent3Index9Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent3Index9Spells.Count; i++)
                 {
-                    Talent3Spells.Add(Talent3Index9Spells[i]);
-                    Talent3Index9Content = $"{i + 1} / {Talent3Index9Spells.Count}";
-                    break;
+                    if (!Talent3Spells.Contains(Talent3Index9Spells[i]))
+                    {
+                        Talent3Spells.Add(Talent3Index9Spells[i]);
+                        Talents.Add(Talent3Index9Spells[i]);
+                        Talent3Index9Content = $"{i + 1} / {Talent3Index9Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent3Index9()
@@ -1639,6 +1777,7 @@ namespace RaidLeaderBot
                     if (Talent3Spells.Contains(Talent3Index9Spells[i]))
                     {
                         Talent3Spells.Remove(Talent3Index9Spells[i]);
+                        Talents.Remove(Talent3Index9Spells[i]);
                         Talent3Index9Content = $"{i} / {Talent3Index9Spells.Count}";
                         break;
                     }
@@ -1648,15 +1787,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent3Index10()
         {
-            for (int i = 0; i < Talent3Index10Spells.Count; i++)
-            {
-                if (!Talent3Spells.Contains(Talent3Index10Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent3Index10Spells.Count; i++)
                 {
-                    Talent3Spells.Add(Talent3Index10Spells[i]);
-                    Talent3Index10Content = $"{i + 1} / {Talent3Index10Spells.Count}";
-                    break;
+                    if (!Talent3Spells.Contains(Talent3Index10Spells[i]))
+                    {
+                        Talent3Spells.Add(Talent3Index10Spells[i]);
+                        Talents.Add(Talent3Index10Spells[i]);
+                        Talent3Index10Content = $"{i + 1} / {Talent3Index10Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent3Index10()
@@ -1668,6 +1809,7 @@ namespace RaidLeaderBot
                     if (Talent3Spells.Contains(Talent3Index10Spells[i]))
                     {
                         Talent3Spells.Remove(Talent3Index10Spells[i]);
+                        Talents.Remove(Talent3Index10Spells[i]);
                         Talent3Index10Content = $"{i} / {Talent3Index10Spells.Count}";
                         break;
                     }
@@ -1677,15 +1819,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent3Index11()
         {
-            for (int i = 0; i < Talent3Index11Spells.Count; i++)
-            {
-                if (!Talent3Spells.Contains(Talent3Index11Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent3Index11Spells.Count; i++)
                 {
-                    Talent3Spells.Add(Talent3Index11Spells[i]);
-                    Talent3Index11Content = $"{i + 1} / {Talent3Index11Spells.Count}";
-                    break;
+                    if (!Talent3Spells.Contains(Talent3Index11Spells[i]))
+                    {
+                        Talent3Spells.Add(Talent3Index11Spells[i]);
+                        Talents.Add(Talent3Index11Spells[i]);
+                        Talent3Index11Content = $"{i + 1} / {Talent3Index11Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent3Index11()
@@ -1697,6 +1841,7 @@ namespace RaidLeaderBot
                     if (Talent3Spells.Contains(Talent3Index11Spells[i]))
                     {
                         Talent3Spells.Remove(Talent3Index11Spells[i]);
+                        Talents.Remove(Talent3Index11Spells[i]);
                         Talent3Index11Content = $"{i} / {Talent3Index11Spells.Count}";
                         break;
                     }
@@ -1706,15 +1851,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent3Index12()
         {
-            for (int i = 0; i < Talent3Index12Spells.Count; i++)
-            {
-                if (!Talent3Spells.Contains(Talent3Index12Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent3Index12Spells.Count; i++)
                 {
-                    Talent3Spells.Add(Talent3Index12Spells[i]);
-                    Talent3Index12Content = $"{i + 1} / {Talent3Index12Spells.Count}";
-                    break;
+                    if (!Talent3Spells.Contains(Talent3Index12Spells[i]))
+                    {
+                        Talent3Spells.Add(Talent3Index12Spells[i]);
+                        Talents.Add(Talent3Index12Spells[i]);
+                        Talent3Index12Content = $"{i + 1} / {Talent3Index12Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent3Index12()
@@ -1726,6 +1873,7 @@ namespace RaidLeaderBot
                     if (Talent3Spells.Contains(Talent3Index12Spells[i]))
                     {
                         Talent3Spells.Remove(Talent3Index12Spells[i]);
+                        Talents.Remove(Talent3Index12Spells[i]);
                         Talent3Index12Content = $"{i} / {Talent3Index12Spells.Count}";
                         break;
                     }
@@ -1735,15 +1883,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent3Index13()
         {
-            for (int i = 0; i < Talent3Index13Spells.Count; i++)
-            {
-                if (!Talent3Spells.Contains(Talent3Index13Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent3Index13Spells.Count; i++)
                 {
-                    Talent3Spells.Add(Talent3Index13Spells[i]);
-                    Talent3Index13Content = $"{i + 1} / {Talent3Index13Spells.Count}";
-                    break;
+                    if (!Talent3Spells.Contains(Talent3Index13Spells[i]))
+                    {
+                        Talent3Spells.Add(Talent3Index13Spells[i]);
+                        Talents.Add(Talent3Index13Spells[i]);
+                        Talent3Index13Content = $"{i + 1} / {Talent3Index13Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent3Index13()
@@ -1755,6 +1905,7 @@ namespace RaidLeaderBot
                     if (Talent3Spells.Contains(Talent3Index13Spells[i]))
                     {
                         Talent3Spells.Remove(Talent3Index13Spells[i]);
+                        Talents.Remove(Talent3Index13Spells[i]);
                         Talent3Index13Content = $"{i} / {Talent3Index13Spells.Count}";
                         break;
                     }
@@ -1764,15 +1915,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent3Index14()
         {
-            for (int i = 0; i < Talent3Index14Spells.Count; i++)
-            {
-                if (!Talent3Spells.Contains(Talent3Index14Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent3Index14Spells.Count; i++)
                 {
-                    Talent3Spells.Add(Talent3Index14Spells[i]);
-                    Talent3Index14Content = $"{i + 1} / {Talent3Index14Spells.Count}";
-                    break;
+                    if (!Talent3Spells.Contains(Talent3Index14Spells[i]))
+                    {
+                        Talent3Spells.Add(Talent3Index14Spells[i]);
+                        Talents.Add(Talent3Index14Spells[i]);
+                        Talent3Index14Content = $"{i + 1} / {Talent3Index14Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent3Index14()
@@ -1784,6 +1937,7 @@ namespace RaidLeaderBot
                     if (Talent3Spells.Contains(Talent3Index14Spells[i]))
                     {
                         Talent3Spells.Remove(Talent3Index14Spells[i]);
+                        Talents.Remove(Talent3Index14Spells[i]);
                         Talent3Index14Content = $"{i} / {Talent3Index14Spells.Count}";
                         break;
                     }
@@ -1793,15 +1947,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent3Index15()
         {
-            for (int i = 0; i < Talent3Index15Spells.Count; i++)
-            {
-                if (!Talent3Spells.Contains(Talent3Index15Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent3Index15Spells.Count; i++)
                 {
-                    Talent3Spells.Add(Talent3Index15Spells[i]);
-                    Talent3Index15Content = $"{i + 1} / {Talent3Index15Spells.Count}";
-                    break;
+                    if (!Talent3Spells.Contains(Talent3Index15Spells[i]))
+                    {
+                        Talent3Spells.Add(Talent3Index15Spells[i]);
+                        Talents.Add(Talent3Index15Spells[i]);
+                        Talent3Index15Content = $"{i + 1} / {Talent3Index15Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent3Index15()
@@ -1813,6 +1969,7 @@ namespace RaidLeaderBot
                     if (Talent3Spells.Contains(Talent3Index15Spells[i]))
                     {
                         Talent3Spells.Remove(Talent3Index15Spells[i]);
+                        Talents.Remove(Talent3Index15Spells[i]);
                         Talent3Index15Content = $"{i} / {Talent3Index15Spells.Count}";
                         break;
                     }
@@ -1822,15 +1979,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent3Index16()
         {
-            for (int i = 0; i < Talent3Index16Spells.Count; i++)
-            {
-                if (!Talent3Spells.Contains(Talent3Index16Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent3Index16Spells.Count; i++)
                 {
-                    Talent3Spells.Add(Talent3Index16Spells[i]);
-                    Talent3Index16Content = $"{i + 1} / {Talent3Index16Spells.Count}";
-                    break;
+                    if (!Talent3Spells.Contains(Talent3Index16Spells[i]))
+                    {
+                        Talent3Spells.Add(Talent3Index16Spells[i]);
+                        Talents.Add(Talent3Index16Spells[i]);
+                        Talent3Index16Content = $"{i + 1} / {Talent3Index16Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent3Index16()
@@ -1842,6 +2001,7 @@ namespace RaidLeaderBot
                     if (Talent3Spells.Contains(Talent3Index16Spells[i]))
                     {
                         Talent3Spells.Remove(Talent3Index16Spells[i]);
+                        Talents.Remove(Talent3Index16Spells[i]);
                         Talent3Index16Content = $"{i} / {Talent3Index16Spells.Count}";
                         break;
                     }
@@ -1851,15 +2011,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent3Index17()
         {
-            for (int i = 0; i < Talent3Index17Spells.Count; i++)
-            {
-                if (!Talent3Spells.Contains(Talent3Index17Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent3Index17Spells.Count; i++)
                 {
-                    Talent3Spells.Add(Talent3Index17Spells[i]);
-                    Talent3Index17Content = $"{i + 1} / {Talent3Index17Spells.Count}";
-                    break;
+                    if (!Talent3Spells.Contains(Talent3Index17Spells[i]))
+                    {
+                        Talent3Spells.Add(Talent3Index17Spells[i]);
+                        Talents.Add(Talent3Index17Spells[i]);
+                        Talent3Index17Content = $"{i + 1} / {Talent3Index17Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent3Index17()
@@ -1871,6 +2033,7 @@ namespace RaidLeaderBot
                     if (Talent3Spells.Contains(Talent3Index17Spells[i]))
                     {
                         Talent3Spells.Remove(Talent3Index17Spells[i]);
+                        Talents.Remove(Talent3Index17Spells[i]);
                         Talent3Index17Content = $"{i} / {Talent3Index17Spells.Count}";
                         break;
                     }
@@ -1880,15 +2043,17 @@ namespace RaidLeaderBot
         }
         public void AddTalent3Index18()
         {
-            for (int i = 0; i < Talent3Index18Spells.Count; i++)
-            {
-                if (!Talent3Spells.Contains(Talent3Index18Spells[i]))
+            if (Talents.Count < 51)
+                for (int i = 0; i < Talent3Index18Spells.Count; i++)
                 {
-                    Talent3Spells.Add(Talent3Index18Spells[i]);
-                    Talent3Index18Content = $"{i + 1} / {Talent3Index18Spells.Count}";
-                    break;
+                    if (!Talent3Spells.Contains(Talent3Index18Spells[i]))
+                    {
+                        Talent3Spells.Add(Talent3Index18Spells[i]);
+                        Talents.Add(Talent3Index18Spells[i]);
+                        Talent3Index18Content = $"{i + 1} / {Talent3Index18Spells.Count}";
+                        break;
+                    }
                 }
-            }
             RefreshButtonEnables();
         }
         public void RemoveTalent3Index18()
@@ -1900,6 +2065,7 @@ namespace RaidLeaderBot
                     if (Talent3Spells.Contains(Talent3Index18Spells[i]))
                     {
                         Talent3Spells.Remove(Talent3Index18Spells[i]);
+                        Talents.Remove(Talent3Index18Spells[i]);
                         Talent3Index18Content = $"{i} / {Talent3Index18Spells.Count}";
                         break;
                     }
@@ -1907,44 +2073,44 @@ namespace RaidLeaderBot
             }
             RefreshButtonEnables();
         }
-        public ICommand Talent3Index1AddCommand => _talent2Index1AddCommand ??= new CommandHandler(AddTalent3Index1, true);
-        public ICommand Talent3Index2AddCommand => _talent2Index2AddCommand ??= new CommandHandler(AddTalent3Index2, true);
-        public ICommand Talent3Index3AddCommand => _talent2Index3AddCommand ??= new CommandHandler(AddTalent3Index3, true);
-        public ICommand Talent3Index4AddCommand => _talent2Index4AddCommand ??= new CommandHandler(AddTalent3Index4, true);
-        public ICommand Talent3Index5AddCommand => _talent2Index5AddCommand ??= new CommandHandler(AddTalent3Index5, true);
-        public ICommand Talent3Index6AddCommand => _talent2Index6AddCommand ??= new CommandHandler(AddTalent3Index6, true);
-        public ICommand Talent3Index7AddCommand => _talent2Index7AddCommand ??= new CommandHandler(AddTalent3Index7, true);
-        public ICommand Talent3Index8AddCommand => _talent2Index8AddCommand ??= new CommandHandler(AddTalent3Index8, true);
-        public ICommand Talent3Index9AddCommand => _talent2Index9AddCommand ??= new CommandHandler(AddTalent3Index9, true);
-        public ICommand Talent3Index10AddCommand => _talent2Index10AddCommand ??= new CommandHandler(AddTalent3Index10, true);
-        public ICommand Talent3Index11AddCommand => _talent2Index11AddCommand ??= new CommandHandler(AddTalent3Index11, true);
-        public ICommand Talent3Index12AddCommand => _talent2Index12AddCommand ??= new CommandHandler(AddTalent3Index12, true);
-        public ICommand Talent3Index13AddCommand => _talent2Index13AddCommand ??= new CommandHandler(AddTalent3Index13, true);
-        public ICommand Talent3Index14AddCommand => _talent2Index14AddCommand ??= new CommandHandler(AddTalent3Index14, true);
-        public ICommand Talent3Index15AddCommand => _talent2Index15AddCommand ??= new CommandHandler(AddTalent3Index15, true);
-        public ICommand Talent3Index16AddCommand => _talent2Index16AddCommand ??= new CommandHandler(AddTalent3Index16, true);
-        public ICommand Talent3Index17AddCommand => _talent2Index17AddCommand ??= new CommandHandler(AddTalent3Index17, true);
-        public ICommand Talent3Index18AddCommand => _talent2Index18AddCommand ??= new CommandHandler(AddTalent3Index18, true);
+        public ICommand Talent3Index1AddCommand => _talent3Index1AddCommand ??= new CommandHandler(AddTalent3Index1, true);
+        public ICommand Talent3Index2AddCommand => _talent3Index2AddCommand ??= new CommandHandler(AddTalent3Index2, true);
+        public ICommand Talent3Index3AddCommand => _talent3Index3AddCommand ??= new CommandHandler(AddTalent3Index3, true);
+        public ICommand Talent3Index4AddCommand => _talent3Index4AddCommand ??= new CommandHandler(AddTalent3Index4, true);
+        public ICommand Talent3Index5AddCommand => _talent3Index5AddCommand ??= new CommandHandler(AddTalent3Index5, true);
+        public ICommand Talent3Index6AddCommand => _talent3Index6AddCommand ??= new CommandHandler(AddTalent3Index6, true);
+        public ICommand Talent3Index7AddCommand => _talent3Index7AddCommand ??= new CommandHandler(AddTalent3Index7, true);
+        public ICommand Talent3Index8AddCommand => _talent3Index8AddCommand ??= new CommandHandler(AddTalent3Index8, true);
+        public ICommand Talent3Index9AddCommand => _talent3Index9AddCommand ??= new CommandHandler(AddTalent3Index9, true);
+        public ICommand Talent3Index10AddCommand => _talent3Index10AddCommand ??= new CommandHandler(AddTalent3Index10, true);
+        public ICommand Talent3Index11AddCommand => _talent3Index11AddCommand ??= new CommandHandler(AddTalent3Index11, true);
+        public ICommand Talent3Index12AddCommand => _talent3Index12AddCommand ??= new CommandHandler(AddTalent3Index12, true);
+        public ICommand Talent3Index13AddCommand => _talent3Index13AddCommand ??= new CommandHandler(AddTalent3Index13, true);
+        public ICommand Talent3Index14AddCommand => _talent3Index14AddCommand ??= new CommandHandler(AddTalent3Index14, true);
+        public ICommand Talent3Index15AddCommand => _talent3Index15AddCommand ??= new CommandHandler(AddTalent3Index15, true);
+        public ICommand Talent3Index16AddCommand => _talent3Index16AddCommand ??= new CommandHandler(AddTalent3Index16, true);
+        public ICommand Talent3Index17AddCommand => _talent3Index17AddCommand ??= new CommandHandler(AddTalent3Index17, true);
+        public ICommand Talent3Index18AddCommand => _talent3Index18AddCommand ??= new CommandHandler(AddTalent3Index18, true);
 
-        public ICommand Talent3Index1RemoveCommand => _talent2Index1RemoveCommand ??= new CommandHandler(RemoveTalent3Index1, true);
-        public ICommand Talent3Index2RemoveCommand => _talent2Index2RemoveCommand ??= new CommandHandler(RemoveTalent3Index2, true);
-        public ICommand Talent3Index3RemoveCommand => _talent2Index3RemoveCommand ??= new CommandHandler(RemoveTalent3Index3, true);
-        public ICommand Talent3Index4RemoveCommand => _talent2Index4RemoveCommand ??= new CommandHandler(RemoveTalent3Index4, true);
-        public ICommand Talent3Index5RemoveCommand => _talent2Index5RemoveCommand ??= new CommandHandler(RemoveTalent3Index5, true);
-        public ICommand Talent3Index6RemoveCommand => _talent2Index6RemoveCommand ??= new CommandHandler(RemoveTalent3Index6, true);
-        public ICommand Talent3Index7RemoveCommand => _talent2Index7RemoveCommand ??= new CommandHandler(RemoveTalent3Index7, true);
-        public ICommand Talent3Index8RemoveCommand => _talent2Index8RemoveCommand ??= new CommandHandler(RemoveTalent3Index8, true);
-        public ICommand Talent3Index9RemoveCommand => _talent2Index9RemoveCommand ??= new CommandHandler(RemoveTalent3Index9, true);
-        public ICommand Talent3Index10RemoveCommand => _talent2Index10RemoveCommand ??= new CommandHandler(RemoveTalent3Index10, true);
-        public ICommand Talent3Index11RemoveCommand => _talent2Index11RemoveCommand ??= new CommandHandler(RemoveTalent3Index11, true);
-        public ICommand Talent3Index12RemoveCommand => _talent2Index12RemoveCommand ??= new CommandHandler(RemoveTalent3Index12, true);
-        public ICommand Talent3Index13RemoveCommand => _talent2Index13RemoveCommand ??= new CommandHandler(RemoveTalent3Index13, true);
-        public ICommand Talent3Index14RemoveCommand => _talent2Index14RemoveCommand ??= new CommandHandler(RemoveTalent3Index14, true);
-        public ICommand Talent3Index15RemoveCommand => _talent2Index15RemoveCommand ??= new CommandHandler(RemoveTalent3Index15, true);
-        public ICommand Talent3Index16RemoveCommand => _talent2Index16RemoveCommand ??= new CommandHandler(RemoveTalent3Index16, true);
-        public ICommand Talent3Index17RemoveCommand => _talent2Index17RemoveCommand ??= new CommandHandler(RemoveTalent3Index17, true);
-        public ICommand Talent3Index18RemoveCommand => _talent2Index18RemoveCommand ??= new CommandHandler(RemoveTalent3Index18, true);
-       
+        public ICommand Talent3Index1RemoveCommand => _talent3Index1RemoveCommand ??= new CommandHandler(RemoveTalent3Index1, true);
+        public ICommand Talent3Index2RemoveCommand => _talent3Index2RemoveCommand ??= new CommandHandler(RemoveTalent3Index2, true);
+        public ICommand Talent3Index3RemoveCommand => _talent3Index3RemoveCommand ??= new CommandHandler(RemoveTalent3Index3, true);
+        public ICommand Talent3Index4RemoveCommand => _talent3Index4RemoveCommand ??= new CommandHandler(RemoveTalent3Index4, true);
+        public ICommand Talent3Index5RemoveCommand => _talent3Index5RemoveCommand ??= new CommandHandler(RemoveTalent3Index5, true);
+        public ICommand Talent3Index6RemoveCommand => _talent3Index6RemoveCommand ??= new CommandHandler(RemoveTalent3Index6, true);
+        public ICommand Talent3Index7RemoveCommand => _talent3Index7RemoveCommand ??= new CommandHandler(RemoveTalent3Index7, true);
+        public ICommand Talent3Index8RemoveCommand => _talent3Index8RemoveCommand ??= new CommandHandler(RemoveTalent3Index8, true);
+        public ICommand Talent3Index9RemoveCommand => _talent3Index9RemoveCommand ??= new CommandHandler(RemoveTalent3Index9, true);
+        public ICommand Talent3Index10RemoveCommand => _talent3Index10RemoveCommand ??= new CommandHandler(RemoveTalent3Index10, true);
+        public ICommand Talent3Index11RemoveCommand => _talent3Index11RemoveCommand ??= new CommandHandler(RemoveTalent3Index11, true);
+        public ICommand Talent3Index12RemoveCommand => _talent3Index12RemoveCommand ??= new CommandHandler(RemoveTalent3Index12, true);
+        public ICommand Talent3Index13RemoveCommand => _talent3Index13RemoveCommand ??= new CommandHandler(RemoveTalent3Index13, true);
+        public ICommand Talent3Index14RemoveCommand => _talent3Index14RemoveCommand ??= new CommandHandler(RemoveTalent3Index14, true);
+        public ICommand Talent3Index15RemoveCommand => _talent3Index15RemoveCommand ??= new CommandHandler(RemoveTalent3Index15, true);
+        public ICommand Talent3Index16RemoveCommand => _talent3Index16RemoveCommand ??= new CommandHandler(RemoveTalent3Index16, true);
+        public ICommand Talent3Index17RemoveCommand => _talent3Index17RemoveCommand ??= new CommandHandler(RemoveTalent3Index17, true);
+        public ICommand Talent3Index18RemoveCommand => _talent3Index18RemoveCommand ??= new CommandHandler(RemoveTalent3Index18, true);
+
         private string _talent1Index1Content;
         private string _talent1Index2Content;
         private string _talent1Index3Content;
@@ -1964,23 +2130,23 @@ namespace RaidLeaderBot
         private string _talent1Index17Content;
         private string _talent1Index18Content;
         public string Talent1Index1Content { get => _talent1Index1Content; set { _talent1Index1Content = value; OnPropertyChanged(nameof(Talent1Index1Content)); } }
-        public string Talent1Index2Content{ get => _talent1Index2Content; set { _talent1Index2Content = value; OnPropertyChanged(nameof(Talent1Index2Content)); } }
-        public string Talent1Index3Content{ get => _talent1Index3Content; set { _talent1Index3Content = value; OnPropertyChanged(nameof(Talent1Index3Content)); } }
-        public string Talent1Index4Content{ get => _talent1Index4Content; set { _talent1Index4Content = value; OnPropertyChanged(nameof(Talent1Index4Content)); } }
-        public string Talent1Index5Content{ get => _talent1Index5Content; set { _talent1Index5Content = value; OnPropertyChanged(nameof(Talent1Index5Content)); } }
-        public string Talent1Index6Content{ get => _talent1Index6Content; set { _talent1Index6Content = value; OnPropertyChanged(nameof(Talent1Index6Content)); } }
-        public string Talent1Index7Content{ get => _talent1Index7Content; set { _talent1Index7Content = value; OnPropertyChanged(nameof(Talent1Index7Content)); } }
-        public string Talent1Index8Content{ get => _talent1Index8Content; set { _talent1Index8Content = value; OnPropertyChanged(nameof(Talent1Index8Content)); } }
-        public string Talent1Index9Content{ get => _talent1Index9Content; set { _talent1Index9Content = value; OnPropertyChanged(nameof(Talent1Index9Content)); } }
-        public string Talent1Index10Content{ get => _talent1Index10Content; set { _talent1Index10Content = value; OnPropertyChanged(nameof(Talent1Index10Content)); } }
-        public string Talent1Index11Content{ get => _talent1Index11Content; set { _talent1Index11Content = value; OnPropertyChanged(nameof(Talent1Index11Content)); } }
-        public string Talent1Index12Content{ get => _talent1Index12Content; set { _talent1Index12Content = value; OnPropertyChanged(nameof(Talent1Index12Content)); } }
-        public string Talent1Index13Content{ get => _talent1Index13Content; set { _talent1Index13Content = value; OnPropertyChanged(nameof(Talent1Index13Content)); } }
-        public string Talent1Index14Content{ get => _talent1Index14Content; set { _talent1Index14Content = value; OnPropertyChanged(nameof(Talent1Index14Content)); } }
-        public string Talent1Index15Content{ get => _talent1Index15Content; set { _talent1Index15Content = value; OnPropertyChanged(nameof(Talent1Index15Content)); } }
-        public string Talent1Index16Content{ get => _talent1Index16Content; set { _talent1Index16Content = value; OnPropertyChanged(nameof(Talent1Index16Content)); } }
-        public string Talent1Index17Content{ get => _talent1Index17Content; set { _talent1Index17Content = value; OnPropertyChanged(nameof(Talent1Index17Content)); } }
-        public string Talent1Index18Content{ get => _talent1Index18Content; set { _talent1Index18Content = value; OnPropertyChanged(nameof(Talent1Index18Content)); } }
+        public string Talent1Index2Content { get => _talent1Index2Content; set { _talent1Index2Content = value; OnPropertyChanged(nameof(Talent1Index2Content)); } }
+        public string Talent1Index3Content { get => _talent1Index3Content; set { _talent1Index3Content = value; OnPropertyChanged(nameof(Talent1Index3Content)); } }
+        public string Talent1Index4Content { get => _talent1Index4Content; set { _talent1Index4Content = value; OnPropertyChanged(nameof(Talent1Index4Content)); } }
+        public string Talent1Index5Content { get => _talent1Index5Content; set { _talent1Index5Content = value; OnPropertyChanged(nameof(Talent1Index5Content)); } }
+        public string Talent1Index6Content { get => _talent1Index6Content; set { _talent1Index6Content = value; OnPropertyChanged(nameof(Talent1Index6Content)); } }
+        public string Talent1Index7Content { get => _talent1Index7Content; set { _talent1Index7Content = value; OnPropertyChanged(nameof(Talent1Index7Content)); } }
+        public string Talent1Index8Content { get => _talent1Index8Content; set { _talent1Index8Content = value; OnPropertyChanged(nameof(Talent1Index8Content)); } }
+        public string Talent1Index9Content { get => _talent1Index9Content; set { _talent1Index9Content = value; OnPropertyChanged(nameof(Talent1Index9Content)); } }
+        public string Talent1Index10Content { get => _talent1Index10Content; set { _talent1Index10Content = value; OnPropertyChanged(nameof(Talent1Index10Content)); } }
+        public string Talent1Index11Content { get => _talent1Index11Content; set { _talent1Index11Content = value; OnPropertyChanged(nameof(Talent1Index11Content)); } }
+        public string Talent1Index12Content { get => _talent1Index12Content; set { _talent1Index12Content = value; OnPropertyChanged(nameof(Talent1Index12Content)); } }
+        public string Talent1Index13Content { get => _talent1Index13Content; set { _talent1Index13Content = value; OnPropertyChanged(nameof(Talent1Index13Content)); } }
+        public string Talent1Index14Content { get => _talent1Index14Content; set { _talent1Index14Content = value; OnPropertyChanged(nameof(Talent1Index14Content)); } }
+        public string Talent1Index15Content { get => _talent1Index15Content; set { _talent1Index15Content = value; OnPropertyChanged(nameof(Talent1Index15Content)); } }
+        public string Talent1Index16Content { get => _talent1Index16Content; set { _talent1Index16Content = value; OnPropertyChanged(nameof(Talent1Index16Content)); } }
+        public string Talent1Index17Content { get => _talent1Index17Content; set { _talent1Index17Content = value; OnPropertyChanged(nameof(Talent1Index17Content)); } }
+        public string Talent1Index18Content { get => _talent1Index18Content; set { _talent1Index18Content = value; OnPropertyChanged(nameof(Talent1Index18Content)); } }
         public virtual bool Talent1Index1Enabled => true;
         public virtual bool Talent1Index2Enabled => true;
         public virtual bool Talent1Index3Enabled => true;
@@ -2090,7 +2256,7 @@ namespace RaidLeaderBot
         public virtual bool Talent3Index15CanRemove => true;
         public virtual bool Talent3Index16CanRemove => true;
         public virtual bool Talent3Index17CanRemove => true;
-        public virtual bool Talent3Index18CanRemove => true; 
+        public virtual bool Talent3Index18CanRemove => true;
         public int Talent1Index1Column { get => _talent1Index1Column; set { _talent1Index1Column = value; OnPropertyChanged(nameof(Talent1Index1Column)); } }
         public int Talent1Index2Column { get => _talent1Index2Column; set { _talent1Index2Column = value; OnPropertyChanged(nameof(Talent1Index2Column)); } }
         public int Talent1Index3Column { get => _talent1Index3Column; set { _talent1Index3Column = value; OnPropertyChanged(nameof(Talent1Index3Column)); } }
@@ -2204,7 +2370,7 @@ namespace RaidLeaderBot
         public int Talent2Index17Row { get => _talent2Index17Row; set { _talent2Index17Row = value; OnPropertyChanged(nameof(Talent2Index17Row)); } }
         public int Talent2Index18Row { get => _talent2Index18Row; set { _talent2Index18Row = value; OnPropertyChanged(nameof(Talent2Index18Row)); } }
         public int Talent2Index19Row { get => _talent2Index19Row; set { _talent2Index19Row = value; OnPropertyChanged(nameof(Talent2Index19Row)); } }
-       
+
         private string _talent3Index1Content;
         private string _talent3Index2Content;
         private string _talent3Index3Content;

@@ -9,8 +9,10 @@ namespace RaidLeaderBot.UI.Views.Talents
 {
     public class RogueTalentsViewModel : RaidMemberTalentsViewModel
     {
-        public RogueTalentsViewModel()
+        public RogueTalentsViewModel(RaidMemberPreset raidMemberPreset)
         {
+            RaidMemberPreset = raidMemberPreset;
+
             Talent1Header = "Assassination";
             Talent2Header = "Combat";
             Talent3Header = "Subtlety";

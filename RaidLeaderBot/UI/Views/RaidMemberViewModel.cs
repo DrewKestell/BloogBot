@@ -107,31 +107,31 @@ namespace RaidLeaderBot
             switch (_raidMemberPreset.Class)
             {
                 case Class.Druid:
-                    RaidMemberTalentsViewModel = new DruidTalentsViewModel();
+                    RaidMemberTalentsViewModel = new DruidTalentsViewModel(_raidMemberPreset);
                     break;
                 case Class.Hunter:
-                    RaidMemberTalentsViewModel = new HunterTalentsViewModel();
+                    RaidMemberTalentsViewModel = new HunterTalentsViewModel(_raidMemberPreset);
                     break;
                 case Class.Mage:
-                    RaidMemberTalentsViewModel = new MageTalentsViewModel();
+                    RaidMemberTalentsViewModel = new MageTalentsViewModel(_raidMemberPreset);
                     break;
                 case Class.Paladin:
-                    RaidMemberTalentsViewModel = new PaladinTalentsViewModel();
+                    RaidMemberTalentsViewModel = new PaladinTalentsViewModel(_raidMemberPreset);
                     break;
                 case Class.Priest:
-                    RaidMemberTalentsViewModel = new PriestTalentsViewModel();
+                    RaidMemberTalentsViewModel = new PriestTalentsViewModel(_raidMemberPreset);
                     break;
                 case Class.Rogue:
-                    RaidMemberTalentsViewModel = new RogueTalentsViewModel();
+                    RaidMemberTalentsViewModel = new RogueTalentsViewModel(_raidMemberPreset);
                     break;
                 case Class.Shaman:
-                    RaidMemberTalentsViewModel = new ShamanTalentsViewModel();
+                    RaidMemberTalentsViewModel = new ShamanTalentsViewModel(_raidMemberPreset);
                     break;
                 case Class.Warlock:
-                    RaidMemberTalentsViewModel = new WarlockTalentsViewModel();
+                    RaidMemberTalentsViewModel = new WarlockTalentsViewModel(_raidMemberPreset);
                     break;
                 case Class.Warrior:
-                    RaidMemberTalentsViewModel = new WarriorTalentsViewModel();
+                    RaidMemberTalentsViewModel = new WarriorTalentsViewModel(_raidMemberPreset);
                     break;
             }
 
@@ -473,6 +473,8 @@ namespace RaidLeaderBot
                 }
             }
         }
+        public List<int> Spells => _raidMemberPreset.Spells;
+        public List<int> Talents => _raidMemberPreset.Talents;
         private string _header;
         public string Header
         {

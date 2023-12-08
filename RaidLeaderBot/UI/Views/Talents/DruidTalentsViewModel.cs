@@ -9,8 +9,10 @@ namespace RaidLeaderBot.UI.Views.Talents
 {
     public class DruidTalentsViewModel : RaidMemberTalentsViewModel
     {
-        public DruidTalentsViewModel()
+        public DruidTalentsViewModel(RaidMemberPreset raidMemberPreset)
         {
+            RaidMemberPreset = raidMemberPreset;
+
             Talent1Header = "Balance";
             Talent2Header = "Feral Combat";
             Talent3Header = "Restoration";

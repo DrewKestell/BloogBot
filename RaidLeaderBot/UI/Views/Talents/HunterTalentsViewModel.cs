@@ -9,8 +9,10 @@ namespace RaidLeaderBot.UI.Views.Talents
 {
     public class HunterTalentsViewModel : RaidMemberTalentsViewModel
     {
-        public HunterTalentsViewModel()
+        public HunterTalentsViewModel(RaidMemberPreset raidMemberPreset)
         {
+            RaidMemberPreset = raidMemberPreset;
+
             Talent1Header = "Beast Mastery";
             Talent2Header = "Marksmanship";
             Talent3Header = "Survival";

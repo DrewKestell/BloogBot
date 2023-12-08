@@ -369,6 +369,7 @@ namespace RaidMemberBot.Game.Statics
                     _characterState.ComboPoints = Player.ComboPoints;
                     _characterState.Facing = Player.Facing;
                     _characterState.Position = new System.Numerics.Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z);
+                    _characterState.SpellList = Player.PlayerSpells.Values.SelectMany(x => x).ToList();
 
                     List<WoWUnit> units = Units.OrderBy(x => x.Position.DistanceTo(Player.Position))
                                             .ToList();
@@ -411,6 +412,7 @@ namespace RaidMemberBot.Game.Statics
                     _characterState.IsConfused = false;
                     _characterState.IsPoisoned = false;
                     _characterState.IsDiseased = false;
+                    _characterState.SpellList = new List<int>();
                     _characterState.WoWObjects = new Dictionary<ulong, string>();
                     _characterState.WoWUnits = new Dictionary<ulong, string>();
                 }

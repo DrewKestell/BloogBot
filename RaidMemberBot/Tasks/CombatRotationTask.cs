@@ -12,8 +12,6 @@ namespace RaidMemberBot.AI.SharedStates
 {
     public abstract class CombatRotationTask : BotTask
     {
-        const string BattleStance = "Battle Stance";
-
         Position currentWaypoint;
         Position hostileTargetLastPosition;
 

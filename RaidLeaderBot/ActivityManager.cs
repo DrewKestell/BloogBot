@@ -129,7 +129,27 @@ namespace RaidLeaderBot
                     }
                     else
                     {
-                        if (RaidLeader.CharacterName != newCharacterState.RaidLeader)
+                        if (FindMissingSpells(raidMemberViewModel.Spells, newCharacterState, out int spellId))
+                        {
+                            InstanceCommand addSpell = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.AddSpell,
+                                CommandParam1 = spellId.ToString()
+                            };
+
+                            NextCommand[newCharacterState.ProcessId] = addSpell;
+                        }
+                        else if (FindMissingSpells(raidMemberViewModel.Talents, newCharacterState, out int talentId))
+                        {
+                            InstanceCommand addSpell = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.AddSpell,
+                                CommandParam1 = talentId.ToString()
+                            };
+
+                            NextCommand[newCharacterState.ProcessId] = addSpell;
+                        }
+                        else if (RaidLeader.CharacterName != newCharacterState.RaidLeader)
                         {
                             InstanceCommand setLeaderCommand = new InstanceCommand()
                             {
@@ -191,6 +211,22 @@ namespace RaidLeaderBot
             }
             SendCommandToProcess(newCharacterState.ProcessId, NextCommand[newCharacterState.ProcessId]);
         }
+
+        private bool FindMissingSpells(List<int> spellList, CharacterState newCharacterState, out int spellId)
+        {
+            spellId = 0;
+
+            for (int i = 0; i < spellList.Count; i++)
+            {
+                if (!newCharacterState.SpellList.Contains(spellList[i]))
+                {
+                    spellId = spellList[i];
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public void QueueCommandToProcess(int processId, InstanceCommand command)
         {
             NextCommand[processId] = command;

@@ -54,6 +54,7 @@ namespace RaidMemberBot.Models.Dto
         public bool IsOnMount { get; set; }
         public bool IsOnTaxi { get; set; }
         public bool IsFlying { get; set; }
+        public List<int> SpellList { get; set; } = new List<int>();
         public Dictionary<ulong, string> WoWUnits { get; set; } = new Dictionary<ulong, string>();
         public Dictionary<ulong, string> WoWObjects { get; set; } = new Dictionary<ulong, string>();
     }

@@ -92,6 +92,9 @@ namespace RaidMemberBot.AI
 
                             Console.WriteLine($"[BOT RUNNER] SetActivity {characterState.CurrentActivity}");
                             break;
+                        case CommandAction.AddSpell:
+                            Functions.LuaCall($"SendChatMessage('.learn {instanceCommand.CommandParam1}')");
+                            break;
                         case CommandAction.SetRaidLeader:
                             characterState.RaidLeader = instanceCommand.CommandParam1;
 
