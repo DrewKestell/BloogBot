@@ -17,15 +17,12 @@ namespace RaidMemberBot.AI.SharedStates
 
         bool backpedaling;
         int backpedalStartTime;
-        bool noLos;
-        int noLosStartTime;
 
         public CombatRotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Combat) { }
 
-        public bool Update(WoWUnit target, int desiredRange)
+        public bool Update(int desiredRange)
         {
-            Container.HostileTarget = target;
-            ObjectManager.Player.SetTarget(target.Guid);
+            ObjectManager.Player.SetTarget(Container.HostileTarget.Guid);
 
             hostileTargetLastPosition = Container.HostileTarget.Position;
 
@@ -41,7 +38,7 @@ namespace RaidMemberBot.AI.SharedStates
 
             // the server-side los check is broken on Kronos, so we have to rely on an error message on the client.
             // when we see it, move toward the unit a bit to correct the position.
-            if (!ObjectManager.Player.InLosWith(target.Position) || ObjectManager.Player.Position.DistanceTo(target.Position) > desiredRange)
+            if (!ObjectManager.Player.InLosWith(Container.HostileTarget.Position) || ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) > desiredRange)
             {
                 Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
 
@@ -61,8 +58,8 @@ namespace RaidMemberBot.AI.SharedStates
                 ObjectManager.Player.StopAllMovement();
 
                 // ensure we're facing the target
-                if (!ObjectManager.Player.IsFacing(target.Position))
-                    ObjectManager.Player.Face(target.Position);
+                if (!ObjectManager.Player.IsFacing(Container.HostileTarget.Position))
+                    ObjectManager.Player.Face(Container.HostileTarget.Position);
 
                 // make sure casters don't move or anything while they're casting by returning here
                 if ((ObjectManager.Player.IsCasting || ObjectManager.Player.IsChanneling) && ObjectManager.Player.Class != Class.Warrior)

@@ -26,10 +26,6 @@ namespace BalanceDruidBot
         const string Innervate = "Innervate";
         const string MoonkinForm = "Moonkin Form";
 
-        readonly IClassContainer container;
-        readonly Stack<IBotTask> botTasks;
-        readonly LocalPlayer player;
-        WoWUnit target;
         WoWUnit secondaryTarget;
 
         bool castingEntanglingRoots;
@@ -41,12 +37,7 @@ namespace BalanceDruidBot
             castingEntanglingRoots = true;
         };
 
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
-        {
-            this.container = container;
-            this.botTasks = botTasks;
-            player = ObjectManager.Player;
-        }
+        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 
         public void Update()
         {
@@ -59,7 +50,7 @@ namespace BalanceDruidBot
                     ObjectManager.Player.StartMovement(ControlBits.Back);
                 }
 
-                ObjectManager.Player.SetTarget(target.Guid);
+                ObjectManager.Player.SetTarget(Container.HostileTarget.Guid);
                 castingEntanglingRoots = false;
             }
 
@@ -86,12 +77,12 @@ namespace BalanceDruidBot
                 return;
             }
 
-            if (target == null || Container.HostileTarget.HealthPercent <= 0)
+            if (Container.HostileTarget == null || Container.HostileTarget.HealthPercent <= 0)
             {
-                target = ObjectManager.Aggressors[0];
+                Container.HostileTarget = ObjectManager.Aggressors[0];
             }
 
-            if (Update(target, 30))
+            if (Update(30))
                 return;
 
             // if we get an add, root it with Entangling Roots
@@ -112,9 +103,9 @@ namespace BalanceDruidBot
 
             TryCastSpell(AbolishPoison, 0, int.MaxValue, ObjectManager.Player.IsPoisoned && !ObjectManager.Player.HasBuff(MoonkinForm), castOnSelf: true);
 
-            TryCastSpell(InsectSwarm, 0, 30, !target.HasDebuff(InsectSwarm) && Container.HostileTarget.HealthPercent > 20 && !ImmuneToNatureDamage.Any(s => Container.HostileTarget.Name.Contains(s)));
+            TryCastSpell(InsectSwarm, 0, 30, !Container.HostileTarget.HasDebuff(InsectSwarm) && Container.HostileTarget.HealthPercent > 20 && !ImmuneToNatureDamage.Any(s => Container.HostileTarget.Name.Contains(s)));
 
-            TryCastSpell(Moonfire, 0, 30, !target.HasDebuff(Moonfire));
+            TryCastSpell(Moonfire, 0, 30, !Container.HostileTarget.HasDebuff(Moonfire));
 
             TryCastSpell(Wrath, 0, 30, !ImmuneToNatureDamage.Any(s => Container.HostileTarget.Name.Contains(s)));
         }

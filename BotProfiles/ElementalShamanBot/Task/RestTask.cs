@@ -16,7 +16,12 @@ namespace ElementalShamanBot
         const string HealingWave = "Healing Wave";
 
         readonly WoWItem drinkItem;
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) { }
+        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
+        {
+            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
+
+            Functions.LuaCall($"SendChatMessage('.repairitems')");
+        }
 
         public void Update()
         {

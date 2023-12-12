@@ -36,18 +36,7 @@ namespace ArmsWarriorBot
         const string ThunderClap = "Thunder Clap";
         const string IntimidatingShout = "Intimidating Shout";
 
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
-        readonly LocalPlayer player;
-
-        WoWUnit target;
-
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
-        {
-            this.botTasks = botTasks;
-            this.container = container;
-            player = ObjectManager.Player;
-        }
+        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 
         public void Update()
         {
@@ -57,12 +46,12 @@ namespace ArmsWarriorBot
                 return;
             }
 
-            if (target == null || Container.HostileTarget.HealthPercent <= 0)
+            if (Container.HostileTarget == null || Container.HostileTarget.HealthPercent <= 0)
             {
-                target = ObjectManager.Aggressors.First();
+                Container.HostileTarget = ObjectManager.Aggressors.First();
             }
 
-            if (Update(target, 3))
+            if (Update(3))
                 return;
 
             // Use these abilities when fighting any number of mobs.   
@@ -77,11 +66,11 @@ namespace ArmsWarriorBot
             // Use these abilities if you are fighting exactly one mob.
             if (ObjectManager.Aggressors.Count() == 1)
             {
-                TryUseAbility(Hamstring, 10, (target.Name.Contains("Plainstrider") || Container.HostileTarget.CreatureType == CreatureType.Humanoid) && Container.HostileTarget.HealthPercent < 30 && !target.HasDebuff(Hamstring));
+                TryUseAbility(Hamstring, 10, (Container.HostileTarget.Name.Contains("Plainstrider") || Container.HostileTarget.CreatureType == CreatureType.Humanoid) && Container.HostileTarget.HealthPercent < 30 && !Container.HostileTarget.HasDebuff(Hamstring));
 
                 TryUseAbility(BattleShout, 10, !ObjectManager.Player.HasBuff(BattleShout));
 
-                TryUseAbility(Rend, 10, Container.HostileTarget.HealthPercent > 50 && !target.HasDebuff(Rend) && Container.HostileTarget.CreatureType != CreatureType.Elemental && Container.HostileTarget.CreatureType != CreatureType.Undead);
+                TryUseAbility(Rend, 10, Container.HostileTarget.HealthPercent > 50 && !Container.HostileTarget.HasDebuff(Rend) && Container.HostileTarget.CreatureType != CreatureType.Elemental && Container.HostileTarget.CreatureType != CreatureType.Undead);
 
                 SpellEffect sunderDebuff = Container.HostileTarget.GetDebuffs(LuaTarget.Target).FirstOrDefault(f => f.Icon == SunderArmorIcon);
                 TryUseAbility(SunderArmor, 15, (sunderDebuff == null || sunderDebuff.StackCount < 5) && Container.HostileTarget.Level >= ObjectManager.Player.Level - 2 && Container.HostileTarget.Health > 40 && SunderTargets.Any(s => Container.HostileTarget.Name.Contains(s)));
@@ -94,7 +83,7 @@ namespace ArmsWarriorBot
             // Use these abilities if you are fighting TWO OR MORE mobs at once.
             if (ObjectManager.Aggressors.Count() >= 2)
             {
-                TryUseAbility(IntimidatingShout, 25, !(target.HasDebuff(IntimidatingShout) || ObjectManager.Player.HasBuff(Retaliation)) && ObjectManager.Aggressors.All(a => a.Position.DistanceTo(ObjectManager.Player.Position) < 10) && !ObjectManager.Units.Any(u => u.Guid != Container.HostileTarget.Guid && u.Position.DistanceTo(ObjectManager.Player.Position) < 10 && u.UnitReaction == UnitReaction.Neutral));
+                TryUseAbility(IntimidatingShout, 25, !(Container.HostileTarget.HasDebuff(IntimidatingShout) || ObjectManager.Player.HasBuff(Retaliation)) && ObjectManager.Aggressors.All(a => a.Position.DistanceTo(ObjectManager.Player.Position) < 10) && !ObjectManager.Units.Any(u => u.Guid != Container.HostileTarget.Guid && u.Position.DistanceTo(ObjectManager.Player.Position) < 10 && u.UnitReaction == UnitReaction.Neutral));
 
                 TryUseAbility(Retaliation, 0, ObjectManager.Player.IsSpellReady(Retaliation) && ObjectManager.Aggressors.All(a => a.Position.DistanceTo(ObjectManager.Player.Position) < 10) && !ObjectManager.Aggressors.Any(a => a.HasDebuff(IntimidatingShout)));
 
@@ -109,7 +98,7 @@ namespace ArmsWarriorBot
                 bool sweepingStrikesCondition = ObjectManager.Player.HasBuff(SweepingStrikes) || !ObjectManager.Player.IsSpellReady(SweepingStrikes);
                 if (thunderClapCondition && demoShoutCondition && sweepingStrikesCondition)
                 {
-                    TryUseAbility(Rend, 10, Container.HostileTarget.HealthPercent > 50 && !target.HasDebuff(Rend) && Container.HostileTarget.CreatureType != CreatureType.Elemental && Container.HostileTarget.CreatureType != CreatureType.Undead);
+                    TryUseAbility(Rend, 10, Container.HostileTarget.HealthPercent > 50 && !Container.HostileTarget.HasDebuff(Rend) && Container.HostileTarget.CreatureType != CreatureType.Elemental && Container.HostileTarget.CreatureType != CreatureType.Undead);
 
                     TryUseAbility(MortalStrike, 30);
 

@@ -7,6 +7,8 @@ using RaidMemberBot.Mem;
 using System.Collections.Generic;
 using RaidMemberBot.Constants;
 using Newtonsoft.Json;
+using RaidMemberBot.Game;
+using System.Windows.Documents;
 
 namespace RaidMemberBot.Objects
 {
@@ -42,6 +44,7 @@ namespace RaidMemberBot.Objects
         const int SET_FACING_OPCODE = 0xDA; // TBC
 
         public readonly IDictionary<string, int[]> PlayerSpells = new Dictionary<string, int[]>();
+        public readonly List<int> PlayerSkills = new List<int>();
 
         public WoWUnit Target { get; set; }
 
@@ -310,15 +313,27 @@ namespace RaidMemberBot.Objects
                     }.ToArray();
                 else
                     PlayerSpells.Add(name, new[] { currentSpellId });
+            }
+        }
 
+        public void RefreshSkills()
+        {
+            PlayerSkills.Clear();
+            var skillPtr1 = MemoryManager.ReadIntPtr(IntPtr.Add(Pointer, 8));
+            var skillPtr2 = IntPtr.Add(skillPtr1, 0xB38);
 
-                if (PlayerSpells.ContainsKey(name))
-                    PlayerSpells[name] = new List<int>(PlayerSpells[name])
-                    {
-                        currentSpellId
-                    }.ToArray();
-                else
-                    PlayerSpells.Add(name, new[] { currentSpellId });
+            var maxSkills = MemoryManager.ReadInt((IntPtr) 0x00B700B4);
+            for (var i = 0; i < maxSkills + 12; i++)
+            {
+                var curPointer = IntPtr.Add(skillPtr2, i * 12);
+
+                var id = (Skills)MemoryManager.ReadShort(curPointer);
+                if (!Enum.IsDefined(typeof(Skills), id))
+                {
+                    continue;
+                }
+
+                PlayerSkills.Add((short)id);
             }
         }
 
@@ -379,17 +394,21 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var results = LuaCallWithResults("{0} = IsUsableSpell(\"Riposte\")");
-                if (results.Length > 0)
-                    return results[0] == "1";
-                else
-                    return false;
+                if (PlayerSpells.ContainsKey("Riposte"))
+                {
+                    var results = LuaCallWithResults("{0}, {1} = IsUsableSpell('Riposte')");
+                    if (results.Length > 0)
+                        return results[0] == "1";
+                    else
+                        return false;
+                }
+                return false;
             }
         }
 
         public void StartAttack()
         {
-            if (Class == Class.Warlock || Class == Class.Mage || Class == Class.Priest)
+            if (!IsCasting && (Class == Class.Warlock || Class == Class.Mage || Class == Class.Priest))
             {
                 Functions.LuaCall(WandLuaScript);
             }

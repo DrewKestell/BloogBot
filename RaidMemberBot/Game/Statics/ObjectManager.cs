@@ -144,42 +144,37 @@ namespace RaidMemberBot.Game.Statics
             {
                 var partyMembers = new List<WoWPlayer>();
 
-                for (var i = 1; i < 5; i++)
-                {
-                    var result = GetPartyMember(i);
-                    if (result != null)
-                        partyMembers.Add(result);
-                }
-                partyMembers.Add(Player);
+                var leader = Players.FirstOrDefault(p => p.Guid == PartyLeaderGuid);
+                if (leader != null)
+                    partyMembers.Add(leader);
+
+                var partyMember1 = Players.FirstOrDefault(p => p.Guid == Party1Guid);
+                if (partyMember1 != null)
+                    partyMembers.Add(partyMember1);
+
+                var partyMember2 = Players.FirstOrDefault(p => p.Guid == Party2Guid);
+                if (partyMember2 != null)
+                    partyMembers.Add(partyMember2);
+
+                var partyMember3 = Players.FirstOrDefault(p => p.Guid == Party3Guid);
+                if (partyMember3 != null)
+                    partyMembers.Add(partyMember3);
+
+                var partyMember4 = Players.FirstOrDefault(p => p.Guid == Party4Guid);
+                if (partyMember4 != null)
+                    partyMembers.Add(partyMember4);
 
                 return partyMembers;
             }
         }
 
-        // index should be 1-4
-        static WoWPlayer GetPartyMember(int index)
-        {
-            var result = Player?.LuaCallWithResults($"{{0}} = UnitName('party{index}')");
+        static public WoWPlayer PartyLeader => Players.FirstOrDefault(p => p.Guid == PartyLeaderGuid);
 
-            if (result.Length > 0)
-                return Players.FirstOrDefault(p => p.Name == result[0]);
-
-            return null;
-        }
-
-        static public WoWPlayer PartyLeader
-        {
-            get
-            {
-                var result1 = Player?.LuaCallWithResults($"{{0}} = GetPartyLeaderIndex()");
-                var result2 = Player?.LuaCallWithResults($"{{0}} = UnitName('party{result1[0]}')");
-
-                if (result2.Length > 0 && !string.IsNullOrEmpty(result2[0]))
-                    return Players.FirstOrDefault(p => p.Name == result2[0]);
-
-                return null;
-            }
-        }
+        static public ulong PartyLeaderGuid => MemoryManager.ReadUlong((IntPtr)MemoryAddresses.PartyLeaderGuid);
+        static public ulong Party1Guid => MemoryManager.ReadUlong((IntPtr)MemoryAddresses.Party1Guid);
+        static public ulong Party2Guid => MemoryManager.ReadUlong((IntPtr)MemoryAddresses.Party2Guid);
+        static public ulong Party3Guid => MemoryManager.ReadUlong((IntPtr)MemoryAddresses.Party3Guid);
+        static public ulong Party4Guid => MemoryManager.ReadUlong((IntPtr)MemoryAddresses.Party4Guid);
 
         static public List<WoWUnit> Aggressors =>
             Hostiles
@@ -281,6 +276,7 @@ namespace RaidMemberBot.Game.Statics
                     }
 
                     Player.RefreshSpells();
+                    Player.RefreshSkills();
                 }
 
                 UpdateProbe();
@@ -356,6 +352,7 @@ namespace RaidMemberBot.Game.Statics
                     _characterState.Zone = MinimapZoneText;
                     _characterState.InParty = !string.IsNullOrEmpty(Functions.LuaCallWithResult($"{{0}} = UnitName('party1')")[0]);
                     _characterState.InRaid = int.Parse(Functions.LuaCallWithResult("{0} = GetNumRaidMembers()")[0]) > 0;
+                    _characterState.RaidLeaderGuid = PartyLeaderGuid;
                     _characterState.MapId = (int)MapId;
                     _characterState.Class = Player.Class;
                     _characterState.Race = Enum.GetValues(typeof(Race)).Cast<Race>().Where(x => x.GetDescription() == Player.Race).First();
@@ -369,7 +366,8 @@ namespace RaidMemberBot.Game.Statics
                     _characterState.ComboPoints = Player.ComboPoints;
                     _characterState.Facing = Player.Facing;
                     _characterState.Position = new System.Numerics.Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z);
-                    _characterState.SpellList = Player.PlayerSpells.Values.SelectMany(x => x).ToList();
+                    _characterState.SpellList = Player.PlayerSpells.Values.SelectMany(x => x).OrderBy(x => x).ToList();
+                    _characterState.SkillList = Player.PlayerSkills.OrderBy(x => x).ToList();
 
                     List<WoWUnit> units = Units.OrderBy(x => x.Position.DistanceTo(Player.Position))
                                             .ToList();
@@ -413,6 +411,7 @@ namespace RaidMemberBot.Game.Statics
                     _characterState.IsPoisoned = false;
                     _characterState.IsDiseased = false;
                     _characterState.SpellList = new List<int>();
+                    _characterState.SkillList = new List<int>();
                     _characterState.WoWObjects = new Dictionary<ulong, string>();
                     _characterState.WoWUnits = new Dictionary<ulong, string>();
                 }

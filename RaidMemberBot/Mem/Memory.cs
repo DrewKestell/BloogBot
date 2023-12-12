@@ -88,6 +88,23 @@ namespace RaidMemberBot.Mem
         }
 
         [HandleProcessCorruptedStateExceptions]
+        static public short ReadShort(IntPtr address)
+        {
+            if (address == IntPtr.Zero)
+                return 0;
+
+            try
+            {
+                return *(short*)address;
+            }
+            catch (AccessViolationException)
+            {
+                Console.WriteLine("Access Violation on " + address.ToString("X") + " with type Short");
+                return default;
+            }
+        }
+
+        [HandleProcessCorruptedStateExceptions]
         static public int ReadInt(IntPtr address)
         {
             if (address == IntPtr.Zero)

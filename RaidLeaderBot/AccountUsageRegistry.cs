@@ -399,72 +399,72 @@ namespace RaidLeaderBot
 
             { Tuple.Create(Race.Undead, Class.Warrior), new Dictionary<string, bool>()
                 {
-                    {"UnWr1", false},
-                    {"UnWr2", false},
-                    {"UnWr3", false},
-                    {"UnWr4", false},
-                    {"UnWr5", false},
-                    {"UnWr6", false},
-                    {"UnWr7", false},
-                    {"UnWr8", false},
-                    {"UnWr9", false},
-                    {"UnWr10", false}
+                    {"UdWr1", false},
+                    {"UdWr2", false},
+                    {"UdWr3", false},
+                    {"UdWr4", false},
+                    {"UdWr5", false},
+                    {"UdWr6", false},
+                    {"UdWr7", false},
+                    {"UdWr8", false},
+                    {"UdWr9", false},
+                    {"UdWr10", false}
                 }
             },
             { Tuple.Create(Race.Undead, Class.Rogue), new Dictionary<string, bool>()
                 {
-                    {"UnRo1", false},
-                    {"UnRo2", false},
-                    {"UnRo3", false},
-                    {"UnRo4", false},
-                    {"UnRo5", false},
-                    {"UnRo6", false},
-                    {"UnRo7", false},
-                    {"UnRo8", false},
-                    {"UnRo9", false},
-                    {"UnRo10", false}
+                    {"UdRo1", false},
+                    {"UdRo2", false},
+                    {"UdRo3", false},
+                    {"UdRo4", false},
+                    {"UdRo5", false},
+                    {"UdRo6", false},
+                    {"UdRo7", false},
+                    {"UdRo8", false},
+                    {"UdRo9", false},
+                    {"UdRo10", false}
                 }
             },
             { Tuple.Create(Race.Undead, Class.Priest), new Dictionary<string, bool>()
                 {
-                    {"UnPr1", false},
-                    {"UnPr2", false},
-                    {"UnPr3", false},
-                    {"UnPr4", false},
-                    {"UnPr5", false},
-                    {"UnPr6", false},
-                    {"UnPr7", false},
-                    {"UnPr8", false},
-                    {"UnPr9", false},
-                    {"UnPr10", false}
+                    {"UdPr1", false},
+                    {"UdPr2", false},
+                    {"UdPr3", false},
+                    {"UdPr4", false},
+                    {"UdPr5", false},
+                    {"UdPr6", false},
+                    {"UdPr7", false},
+                    {"UdPr8", false},
+                    {"UdPr9", false},
+                    {"UdPr10", false}
                 }
             },
             { Tuple.Create(Race.Undead, Class.Mage), new Dictionary<string, bool>()
                 {
-                    {"UnMa1", false},
-                    {"UnMa2", false},
-                    {"UnMa3", false},
-                    {"UnMa4", false},
-                    {"UnMa5", false},
-                    {"UnMa6", false},
-                    {"UnMa7", false},
-                    {"UnMa8", false},
-                    {"UnMa9", false},
-                    {"UnMa10", false}
+                    {"UdMa1", false},
+                    {"UdMa2", false},
+                    {"UdMa3", false},
+                    {"UdMa4", false},
+                    {"UdMa5", false},
+                    {"UdMa6", false},
+                    {"UdMa7", false},
+                    {"UdMa8", false},
+                    {"UdMa9", false},
+                    {"UdMa10", false}
                 }
             },
             { Tuple.Create(Race.Undead, Class.Warlock), new Dictionary<string, bool>()
                 {
-                    {"UnWl1", false},
-                    {"UnWl2", false},
-                    {"UnWl3", false},
-                    {"UnWl4", false},
-                    {"UnWl5", false},
-                    {"UnWl6", false},
-                    {"UnWl7", false},
-                    {"UnWl8", false},
-                    {"UnWl9", false},
-                    {"UnWl10", false}
+                    {"UdWl1", false},
+                    {"UdWl2", false},
+                    {"UdWl3", false},
+                    {"UdWl4", false},
+                    {"UdWl5", false},
+                    {"UdWl6", false},
+                    {"UdWl7", false},
+                    {"UdWl8", false},
+                    {"UdWl9", false},
+                    {"UdWl10", false}
                 }
             },
 

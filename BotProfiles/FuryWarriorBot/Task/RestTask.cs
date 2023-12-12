@@ -2,6 +2,7 @@
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,12 @@ namespace FuryWarriorBot
         const int stackCount = 5;
 
         readonly WoWItem foodItem;
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) { }
+        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
+        {
+            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
+
+            Functions.LuaCall($"SendChatMessage('.repairitems')");
+        }
 
         public void Update()
         {

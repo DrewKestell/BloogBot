@@ -1,60 +1,18 @@
 ﻿using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
+using RaidMemberBot.Constants;
 using RaidMemberBot.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
+using static RaidMemberBot.Constants.Enums;
 
 namespace RaidLeaderBot
 {
     internal class MangosRepository
     {
         private static string ConnectionString = "server=localhost;user=app;database=mangos;port=3306;password=app";
-
-        public static AreaTriggerTeleport GetAreaTriggerTeleportById(int id)
-        {
-            AreaTriggerTeleport teleport = null;
-
-            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
-            {
-                try
-                {
-                    connection.Open();
-
-                    MySqlCommand command = connection.CreateCommand();
-                    command.CommandText = @"
-                                            SELECT *
-                                            FROM areatrigger_teleport
-                                            WHERE id = @id
-                                        ";
-                    command.Parameters.AddWithValue("@id", id);
-
-                    using MySqlDataReader reader = command.ExecuteReader();
-
-                    while (reader.Read())
-                    {
-                        Console.WriteLine($"{JsonConvert.SerializeObject(reader)}");
-                        teleport = new AreaTriggerTeleport
-                        {
-                            Id = Convert.ToInt32(reader["id"]),
-                            Name = Convert.ToString(reader["name"]),
-                            RequiredLevel = Convert.ToByte(reader["required_level"]),
-                            RequiredItem = Convert.ToInt32(reader["required_item"]),
-                            RequiredItem2 = Convert.ToInt32(reader["required_item2"]),
-                            RequiredQuestDone = Convert.ToInt32(reader["required_quest_done"]),
-                            TargetMap = Convert.ToUInt16(reader["target_map"]),
-                            TargetPositionX = Convert.ToSingle(reader["target_position_x"]),
-                            TargetPositionY = Convert.ToSingle(reader["target_position_y"]),
-                            TargetPositionZ = Convert.ToSingle(reader["target_position_z"]),
-                            TargetOrientation = Convert.ToSingle(reader["target_orientation"]),
-                        };
-                    }
-                }
-                catch (Exception ex) { Console.WriteLine($"{ex.Message} {ex.StackTrace}"); }
-            }
-
-            return teleport;
-        }
 
         public static AreaTriggerTeleport GetAreaTriggerTeleportByMapId(int id)
         {
@@ -97,9 +55,9 @@ namespace RaidLeaderBot
 
             return teleport;
         }
-        public static Item GetItemById(ulong id)
+        public static ItemTemplate GetItemById(int id)
         {
-            Item item = null;
+            ItemTemplate itemTemplate = null;
 
             using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
@@ -108,149 +66,314 @@ namespace RaidLeaderBot
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = @"
                                             SELECT *
-                                            FROM items
-                                            WHERE itemId = @itemId
+                                            FROM item_template
+                                            WHERE entry = @entry
                                         ";
 
-                command.Parameters.AddWithValue("@itemId", id);
+                command.Parameters.AddWithValue("@entry", id);
                 using MySqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    item = new Item()
+                    itemTemplate = new ItemTemplate
                     {
-                        ItemId = Convert.ToInt32(reader["ItemId"]),
-                        Name = reader.GetString(reader.GetOrdinal("Name")),
-                        Quality = Convert.ToInt32(reader["Quality"]),
-                        Patch = Convert.ToInt32(reader["Patch"]),
-                        Class = Convert.ToInt32(reader["Class"]),
-                        Subclass = Convert.ToInt32(reader["Subclass"]),
-                        Description = reader.GetString(reader.GetOrdinal("Description")),
-                        DisplayId = Convert.ToInt32(reader["DisplayId"]),
+                        Entry = Convert.ToInt32(reader["entry"]),
+                        Patch = Convert.ToInt16(reader["patch"]),
+                        Class = Convert.ToInt16(reader["class"]),
+                        Subclass = Convert.ToInt16(reader["subclass"]),
+                        Name = Convert.ToString(reader["name"]),
+                        DisplayId = Convert.ToInt32(reader["displayid"]),
+                        Quality = Convert.ToInt16(reader["Quality"]),
                         Flags = Convert.ToInt32(reader["Flags"]),
-                        BuyCount = Convert.ToInt32(reader["BuyCount"]),
+                        BuyCount = Convert.ToInt16(reader["BuyCount"]),
                         BuyPrice = Convert.ToInt32(reader["BuyPrice"]),
                         SellPrice = Convert.ToInt32(reader["SellPrice"]),
-                        InventoryType = Convert.ToInt32(reader["InventoryType"]),
+                        InventoryType = Convert.ToInt16(reader["InventoryType"]),
                         AllowableClass = Convert.ToInt32(reader["AllowableClass"]),
                         AllowableRace = Convert.ToInt32(reader["AllowableRace"]),
-                        ItemLevel = Convert.ToInt32(reader["ItemLevel"]),
-                        RequiredLevel = Convert.ToInt32(reader["RequiredLevel"]),
-                        RequiredSkill = (short)Convert.ToInt32(reader["RequiredSkill"]),
-                        RequiredSkillRank = (short)Convert.ToInt32(reader["RequiredSkillRank"]),
-                        RequiredSpell = Convert.ToInt32(reader["RequiredSpell"]),
-                        RequiredHonorRank = Convert.ToInt32(reader["RequiredHonorRank"]),
+                        ItemLevel = Convert.ToInt16(reader["ItemLevel"]),
+                        RequiredLevel = Convert.ToInt16(reader["RequiredLevel"]),
+                        RequiredSkill = Convert.ToInt16(reader["RequiredSkill"]),
+                        RequiredSkillRank = Convert.ToInt16(reader["RequiredSkillRank"]),
+                        RequiredSpell = Convert.ToInt32(reader["requiredspell"]),
+                        RequiredHonorRank = Convert.ToInt32(reader["requiredhonorrank"]),
                         RequiredCityRank = Convert.ToInt32(reader["RequiredCityRank"]),
-                        RequiredReputationFaction = Convert.ToInt32(reader["RequiredReputationFaction"]),
-                        RequiredReputationRank = Convert.ToInt32(reader["RequiredReputationRank"]),
-                        MaxCount = Convert.ToInt32(reader["MaxCount"]),
-                        Stackable = Convert.ToInt32(reader["Stackable"]),
-                        ContainerSlots = Convert.ToInt32(reader["ContainerSlots"]),
-                        StatType1 = Convert.ToInt32(reader["StatType1"]),
-                        StatValue1 = Convert.ToInt32(reader["StatValue1"]),
-                        StatType2 = Convert.ToInt32(reader["StatType2"]),
-                        StatValue2 = Convert.ToInt32(reader["StatValue2"]),
-                        StatType3 = Convert.ToInt32(reader["StatType3"]),
-                        StatValue3 = Convert.ToInt32(reader["StatValue3"]),
-                        StatType4 = Convert.ToInt32(reader["StatType4"]),
-                        StatValue4 = Convert.ToInt32(reader["StatValue4"]),
-                        StatType5 = Convert.ToInt32(reader["StatType5"]),
-                        StatValue5 = Convert.ToInt32(reader["StatValue5"]),
-                        StatType6 = Convert.ToInt32(reader["StatType6"]),
-                        StatValue6 = Convert.ToInt32(reader["StatValue6"]),
-                        StatType7 = Convert.ToInt32(reader["StatType7"]),
-                        StatValue7 = Convert.ToInt32(reader["StatValue7"]),
-                        StatType8 = Convert.ToInt32(reader["StatType8"]),
-                        StatValue8 = Convert.ToInt32(reader["StatValue8"]),
-                        StatType9 = Convert.ToInt32(reader["StatType9"]),
-                        StatValue9 = Convert.ToInt32(reader["StatValue9"]),
-                        StatType10 = Convert.ToInt32(reader["StatType10"]),
-                        StatValue10 = Convert.ToInt32(reader["StatValue10"]),
-                        Delay = Convert.ToInt32(reader["Delay"]),
-                        RangeMod = Convert.ToSingle(reader["RangeMod"]),
-                        AmmoType = Convert.ToInt32(reader["AmmoType"]),
-                        DmgMin1 = Convert.ToSingle(reader["DmgMin1"]),
-                        DmgMax1 = Convert.ToSingle(reader["DmgMax1"]),
-                        DmgType1 = Convert.ToInt32(reader["DmgType1"]),
-                        DmgMin2 = Convert.ToSingle(reader["DmgMin2"]),
-                        DmgMax2 = Convert.ToSingle(reader["DmgMax2"]),
-                        DmgType2 = Convert.ToInt32(reader["DmgType2"]),
-                        DmgMin3 = Convert.ToSingle(reader["DmgMin3"]),
-                        DmgMax3 = Convert.ToSingle(reader["DmgMax3"]),
-                        DmgType3 = Convert.ToInt32(reader["DmgType3"]),
-                        DmgMin4 = Convert.ToSingle(reader["DmgMin4"]),
-                        DmgMax4 = Convert.ToSingle(reader["DmgMax4"]),
-                        DmgType4 = Convert.ToInt32(reader["DmgType4"]),
-                        DmgMin5 = Convert.ToSingle(reader["DmgMin5"]),
-                        DmgMax5 = Convert.ToSingle(reader["DmgMax5"]),
-                        DmgType5 = Convert.ToInt32(reader["DmgType5"]),
-                        Block = Convert.ToInt32(reader["Block"]),
-                        Armor = Convert.ToInt32(reader["Armor"]),
-                        HolyRes = Convert.ToInt32(reader["HolyRes"]),
-                        FireRes = Convert.ToInt32(reader["FireRes"]),
-                        NatureRes = Convert.ToInt32(reader["NatureRes"]),
-                        FrostRes = Convert.ToInt32(reader["FrostRes"]),
-                        ShadowRes = Convert.ToInt32(reader["ShadowRes"]),
-                        ArcaneRes = Convert.ToInt32(reader["ArcaneRes"]),
-                        SpellId1 = Convert.ToInt32(reader["SpellId1"]),
-                        SpellTrigger1 = Convert.ToInt32(reader["SpellTrigger1"]),
-                        SpellCharges1 = Convert.ToInt32(reader["SpellCharges1"]),
-                        SpellPpmRate1 = Convert.ToSingle(reader["SpellPpmRate1"]),
-                        SpellCooldown1 = Convert.ToInt32(reader["SpellCooldown1"]),
-                        SpellCategory1 = Convert.ToInt32(reader["SpellCategory1"]),
-                        SpellCategoryCooldown1 = Convert.ToInt32(reader["SpellCategoryCooldown1"]),
-                        SpellId2 = Convert.ToInt32(reader["SpellId2"]),
-                        SpellTrigger2 = Convert.ToInt32(reader["SpellTrigger2"]),
-                        SpellCharges2 = Convert.ToInt32(reader["SpellCharges2"]),
-                        SpellPpmRate2 = Convert.ToSingle(reader["SpellPpmRate2"]),
-                        SpellCooldown2 = Convert.ToInt32(reader["SpellCooldown2"]),
-                        SpellCategory2 = Convert.ToInt32(reader["SpellCategory2"]),
-                        SpellCategoryCooldown2 = Convert.ToInt32(reader["SpellCategoryCooldown2"]),
-                        SpellId3 = Convert.ToInt32(reader["SpellId3"]),
-                        SpellTrigger3 = Convert.ToInt32(reader["SpellTrigger3"]),
-                        SpellCharges3 = Convert.ToInt32(reader["SpellCharges3"]),
-                        SpellPpmRate3 = Convert.ToSingle(reader["SpellPpmRate3"]),
-                        SpellCooldown3 = Convert.ToInt32(reader["SpellCooldown3"]),
-                        SpellCategory3 = Convert.ToInt32(reader["SpellCategory3"]),
-                        SpellCategoryCooldown3 = Convert.ToInt32(reader["SpellCategoryCooldown3"]),
-                        SpellId4 = Convert.ToInt32(reader["SpellId4"]),
-                        SpellTrigger4 = Convert.ToInt32(reader["SpellTrigger4"]),
-                        SpellCharges4 = Convert.ToInt32(reader["SpellCharges4"]),
-                        SpellPpmRate4 = Convert.ToSingle(reader["SpellPpmRate4"]),
-                        SpellCooldown4 = Convert.ToInt32(reader["SpellCooldown4"]),
-                        SpellCategory4 = Convert.ToInt32(reader["SpellCategory4"]),
-                        SpellCategoryCooldown4 = Convert.ToInt32(reader["SpellCategoryCooldown4"]),
-                        SpellId5 = Convert.ToInt32(reader["SpellId5"]),
-                        SpellTrigger5 = Convert.ToInt32(reader["SpellTrigger5"]),
-                        SpellCharges5 = Convert.ToInt32(reader["SpellCharges5"]),
-                        SpellPpmRate5 = Convert.ToSingle(reader["SpellPpmRate5"]),
-                        SpellCooldown5 = Convert.ToInt32(reader["SpellCooldown5"]),
-                        SpellCategory5 = Convert.ToInt32(reader["SpellCategory5"]),
-                        SpellCategoryCooldown5 = Convert.ToInt32(reader["SpellCategoryCooldown5"]),
-                        Bonding = Convert.ToInt32(reader["Bonding"]),
+                        RequiredReputationFaction = Convert.ToInt16(reader["RequiredReputationFaction"]),
+                        RequiredReputationRank = Convert.ToInt16(reader["RequiredReputationRank"]),
+                        MaxCount = Convert.ToInt16(reader["maxcount"]),
+                        Stackable = Convert.ToInt16(reader["stackable"]),
+                        ContainerSlots = Convert.ToInt16(reader["ContainerSlots"]),
+                        StatType1 = Convert.ToInt16(reader["stat_type1"]),
+                        StatValue1 = Convert.ToInt16(reader["stat_value1"]),
+                        StatType2 = Convert.ToInt16(reader["stat_type2"]),
+                        StatValue2 = Convert.ToInt16(reader["stat_value2"]),
+                        StatType3 = Convert.ToInt16(reader["stat_type3"]),
+                        StatValue3 = Convert.ToInt16(reader["stat_value3"]),
+                        StatType4 = Convert.ToInt16(reader["stat_type4"]),
+                        StatValue4 = Convert.ToInt16(reader["stat_value4"]),
+                        StatType5 = Convert.ToInt16(reader["stat_type5"]),
+                        StatValue5 = Convert.ToInt16(reader["stat_value5"]),
+                        StatType6 = Convert.ToInt16(reader["stat_type6"]),
+                        StatValue6 = Convert.ToInt16(reader["stat_value6"]),
+                        StatType7 = Convert.ToInt16(reader["stat_type7"]),
+                        StatValue7 = Convert.ToInt16(reader["stat_value7"]),
+                        StatType8 = Convert.ToInt16(reader["stat_type8"]),
+                        StatValue8 = Convert.ToInt16(reader["stat_value8"]),
+                        StatType9 = Convert.ToInt16(reader["stat_type9"]),
+                        StatValue9 = Convert.ToInt16(reader["stat_value9"]),
+                        StatType10 = Convert.ToInt16(reader["stat_type10"]),
+                        StatValue10 = Convert.ToInt16(reader["stat_value10"]),
+                        DmgMin1 = Convert.ToSingle(reader["dmg_min1"]),
+                        DmgMax1 = Convert.ToSingle(reader["dmg_max1"]),
+                        DmgType1 = Convert.ToInt16(reader["dmg_type1"]),
+                        DmgMin2 = Convert.ToSingle(reader["dmg_min2"]),
+                        DmgMax2 = Convert.ToSingle(reader["dmg_max2"]),
+                        DmgType2 = Convert.ToInt16(reader["dmg_type2"]),
+                        DmgMin3 = Convert.ToSingle(reader["dmg_min3"]),
+                        DmgMax3 = Convert.ToSingle(reader["dmg_max3"]),
+                        DmgType3 = Convert.ToInt16(reader["dmg_type3"]),
+                        DmgMin4 = Convert.ToSingle(reader["dmg_min4"]),
+                        DmgMax4 = Convert.ToSingle(reader["dmg_max4"]),
+                        DmgType4 = Convert.ToInt16(reader["dmg_type4"]),
+                        DmgMin5 = Convert.ToSingle(reader["dmg_min5"]),
+                        DmgMax5 = Convert.ToSingle(reader["dmg_max5"]),
+                        DmgType5 = Convert.ToInt16(reader["dmg_type5"]),
+                        Armor = Convert.ToInt16(reader["armor"]),
+                        HolyResistance = Convert.ToInt16(reader["holy_res"]),
+                        FireResistance = Convert.ToInt16(reader["fire_res"]),
+                        NatureResistance = Convert.ToInt16(reader["nature_res"]),
+                        FrostResistance = Convert.ToInt16(reader["frost_res"]),
+                        ShadowResistance = Convert.ToInt16(reader["shadow_res"]),
+                        ArcaneResistance = Convert.ToInt16(reader["arcane_res"]),
+                        Delay = Convert.ToInt16(reader["delay"]),
+                        AmmoType = Convert.ToInt16(reader["ammo_type"]),
+                        RangedModRange = Convert.ToSingle(reader["RangedModRange"]),
+                        SpellId1 = Convert.ToInt32(reader["spellid_1"]),
+                        SpellTrigger1 = Convert.ToInt16(reader["spelltrigger_1"]),
+                        SpellCharges1 = Convert.ToInt16(reader["spellcharges_1"]),
+                        SpellPpmRate1 = Convert.ToSingle(reader["spellppmRate_1"]),
+                        SpellCooldown1 = Convert.ToInt32(reader["spellcooldown_1"]),
+                        SpellCategory1 = Convert.ToInt16(reader["spellcategory_1"]),
+                        SpellCategoryCooldown1 = Convert.ToInt32(reader["spellcategorycooldown_1"]),
+                        SpellId2 = Convert.ToInt32(reader["spellid_2"]),
+                        SpellTrigger2 = Convert.ToInt16(reader["spelltrigger_2"]),
+                        SpellCharges2 = Convert.ToInt16(reader["spellcharges_2"]),
+                        SpellPpmRate2 = Convert.ToSingle(reader["spellppmRate_2"]),
+                        SpellCooldown2 = Convert.ToInt32(reader["spellcooldown_2"]),
+                        SpellCategory2 = Convert.ToInt16(reader["spellcategory_2"]),
+                        SpellCategoryCooldown2 = Convert.ToInt32(reader["spellcategorycooldown_2"]),
+                        SpellId3 = Convert.ToInt32(reader["spellid_3"]),
+                        SpellTrigger3 = Convert.ToInt16(reader["spelltrigger_3"]),
+                        SpellCharges3 = Convert.ToInt16(reader["spellcharges_3"]),
+                        SpellPpmRate3 = Convert.ToSingle(reader["spellppmRate_3"]),
+                        SpellCooldown3 = Convert.ToInt32(reader["spellcooldown_3"]),
+                        SpellCategory3 = Convert.ToInt16(reader["spellcategory_3"]),
+                        SpellCategoryCooldown3 = Convert.ToInt32(reader["spellcategorycooldown_3"]),
+                        SpellId4 = Convert.ToInt32(reader["spellid_4"]),
+                        SpellTrigger4 = Convert.ToInt16(reader["spelltrigger_4"]),
+                        SpellCharges4 = Convert.ToInt16(reader["spellcharges_4"]),
+                        SpellPpmRate4 = Convert.ToSingle(reader["spellppmRate_4"]),
+                        SpellCooldown4 = Convert.ToInt32(reader["spellcooldown_4"]),
+                        SpellCategory4 = Convert.ToInt16(reader["spellcategory_4"]),
+                        SpellCategoryCooldown4 = Convert.ToInt32(reader["spellcategorycooldown_4"]),
+                        SpellId5 = Convert.ToInt32(reader["spellid_5"]),
+                        SpellTrigger5 = Convert.ToInt16(reader["spelltrigger_5"]),
+                        SpellCharges5 = Convert.ToInt16(reader["spellcharges_5"]),
+                        SpellPpmRate5 = Convert.ToSingle(reader["spellppmRate_5"]),
+                        SpellCooldown5 = Convert.ToInt32(reader["spellcooldown_5"]),
+                        SpellCategory5 = Convert.ToInt16(reader["spellcategory_5"]),
+                        SpellCategoryCooldown5 = Convert.ToInt32(reader["spellcategorycooldown_5"]),
+                        Bonding = Convert.ToInt16(reader["bonding"]),
+                        Description = Convert.ToString(reader["description"]),
                         PageText = Convert.ToInt32(reader["PageText"]),
-                        PageLanguage = Convert.ToInt32(reader["PageLanguage"]),
-                        PageMaterial = Convert.ToInt32(reader["PageMaterial"]),
-                        StartQuest = Convert.ToInt32(reader["StartQuest"]),
-                        LockId = Convert.ToInt32(reader["LockId"]),
-                        Material = Convert.ToInt32(reader["Material"]),
-                        Sheath = Convert.ToInt32(reader["Sheath"]),
+                        LanguageID = Convert.ToInt16(reader["LanguageID"]),
+                        PageMaterial = Convert.ToInt16(reader["PageMaterial"]),
+                        StartQuest = Convert.ToInt32(reader["startquest"]),
+                        LockId = Convert.ToInt32(reader["lockid"]),
+                        Material = Convert.ToInt16(reader["Material"]),
+                        Sheath = Convert.ToInt16(reader["sheath"]),
                         RandomProperty = Convert.ToInt32(reader["RandomProperty"]),
-                        SetId = Convert.ToInt32(reader["SetId"]),
-                        MaxDurability = Convert.ToInt32(reader["MaxDurability"]),
-                        AreaBound = Convert.ToInt32(reader["AreaBound"]),
-                        MapBound = Convert.ToInt32(reader["MapBound"]),
-                        Duration = Convert.ToInt32(reader["Duration"]),
+                        Block = Convert.ToInt32(reader["block"]),
+                        ItemSet = Convert.ToInt32(reader["itemset"]),
+                        MaxDurability = Convert.ToInt16(reader["MaxDurability"]),
+                        Area = Convert.ToInt32(reader["area"]),
+                        Map = Convert.ToInt16(reader["Map"]),
                         BagFamily = Convert.ToInt32(reader["BagFamily"]),
-                        DisenchantId = Convert.ToInt32(reader["DisenchantId"]),
-                        FoodType = Convert.ToInt32(reader["FoodType"]),
-                        MinMoneyLoot = Convert.ToInt32(reader["MinMoneyLoot"]),
-                        MaxMoneyLoot = Convert.ToInt32(reader["MaxMoneyLoot"]),
-                        ExtraFlags = Convert.ToInt32(reader["ExtraFlags"]),
+                        ScriptName = Convert.ToString(reader["ScriptName"]),
+                        DisenchantID = Convert.ToInt32(reader["DisenchantID"]),
+                        FoodType = Convert.ToInt16(reader["FoodType"]),
+                        MinMoneyLoot = Convert.ToInt32(reader["minMoneyLoot"]),
+                        MaxMoneyLoot = Convert.ToInt32(reader["maxMoneyLoot"]),
+                        Duration = Convert.ToInt32(reader["Duration"]),
+                        ExtraFlags = Convert.ToInt16(reader["ExtraFlags"]),
                         OtherTeamEntry = Convert.ToInt32(reader["OtherTeamEntry"])
                     };
                 }
             }
-            return item;
+            return itemTemplate;
+        }
+        public static List<ItemTemplate> GetEquipmentByRequirements(int level, short clazz, short subClass, InventoryType inventoryType)
+        {
+            List<ItemTemplate> itemTemplates = new List<ItemTemplate>();
+
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+                connection.Open();
+
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = @"
+                                            SELECT *
+                                            FROM item_template
+                                            WHERE RequiredLevel <= @level
+                                            AND class = @class
+                                            AND subclass = @subclass
+                                            AND InventoryType = @inventoryType
+                                            AND name NOT LIKE '%Monster -%'
+                                        ";
+
+                command.Parameters.AddWithValue("@level", level);
+                command.Parameters.AddWithValue("@class", clazz);
+                command.Parameters.AddWithValue("@subclass", subClass);
+                command.Parameters.AddWithValue("@inventoryType", inventoryType);
+                using MySqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    ItemTemplate itemTemplate = new ItemTemplate
+                    {
+                        Entry = Convert.ToInt32(reader["entry"]),
+                        Patch = Convert.ToInt16(reader["patch"]),
+                        Class = Convert.ToInt16(reader["class"]),
+                        Subclass = Convert.ToInt16(reader["subclass"]),
+                        Name = Convert.ToString(reader["name"]),
+                        DisplayId = Convert.ToInt32(reader["displayid"]),
+                        Quality = Convert.ToInt16(reader["Quality"]),
+                        Flags = Convert.ToInt32(reader["Flags"]),
+                        BuyCount = Convert.ToInt16(reader["BuyCount"]),
+                        BuyPrice = Convert.ToInt32(reader["BuyPrice"]),
+                        SellPrice = Convert.ToInt32(reader["SellPrice"]),
+                        InventoryType = Convert.ToInt16(reader["InventoryType"]),
+                        AllowableClass = Convert.ToInt32(reader["AllowableClass"]),
+                        AllowableRace = Convert.ToInt32(reader["AllowableRace"]),
+                        ItemLevel = Convert.ToInt16(reader["ItemLevel"]),
+                        RequiredLevel = Convert.ToInt16(reader["RequiredLevel"]),
+                        RequiredSkill = Convert.ToInt16(reader["RequiredSkill"]),
+                        RequiredSkillRank = Convert.ToInt16(reader["RequiredSkillRank"]),
+                        RequiredSpell = Convert.ToInt32(reader["requiredspell"]),
+                        RequiredHonorRank = Convert.ToInt32(reader["requiredhonorrank"]),
+                        RequiredCityRank = Convert.ToInt32(reader["RequiredCityRank"]),
+                        RequiredReputationFaction = Convert.ToInt16(reader["RequiredReputationFaction"]),
+                        RequiredReputationRank = Convert.ToInt16(reader["RequiredReputationRank"]),
+                        MaxCount = Convert.ToInt16(reader["maxcount"]),
+                        Stackable = Convert.ToInt16(reader["stackable"]),
+                        ContainerSlots = Convert.ToInt16(reader["ContainerSlots"]),
+                        StatType1 = Convert.ToInt16(reader["stat_type1"]),
+                        StatValue1 = Convert.ToInt16(reader["stat_value1"]),
+                        StatType2 = Convert.ToInt16(reader["stat_type2"]),
+                        StatValue2 = Convert.ToInt16(reader["stat_value2"]),
+                        StatType3 = Convert.ToInt16(reader["stat_type3"]),
+                        StatValue3 = Convert.ToInt16(reader["stat_value3"]),
+                        StatType4 = Convert.ToInt16(reader["stat_type4"]),
+                        StatValue4 = Convert.ToInt16(reader["stat_value4"]),
+                        StatType5 = Convert.ToInt16(reader["stat_type5"]),
+                        StatValue5 = Convert.ToInt16(reader["stat_value5"]),
+                        StatType6 = Convert.ToInt16(reader["stat_type6"]),
+                        StatValue6 = Convert.ToInt16(reader["stat_value6"]),
+                        StatType7 = Convert.ToInt16(reader["stat_type7"]),
+                        StatValue7 = Convert.ToInt16(reader["stat_value7"]),
+                        StatType8 = Convert.ToInt16(reader["stat_type8"]),
+                        StatValue8 = Convert.ToInt16(reader["stat_value8"]),
+                        StatType9 = Convert.ToInt16(reader["stat_type9"]),
+                        StatValue9 = Convert.ToInt16(reader["stat_value9"]),
+                        StatType10 = Convert.ToInt16(reader["stat_type10"]),
+                        StatValue10 = Convert.ToInt16(reader["stat_value10"]),
+                        DmgMin1 = Convert.ToSingle(reader["dmg_min1"]),
+                        DmgMax1 = Convert.ToSingle(reader["dmg_max1"]),
+                        DmgType1 = Convert.ToInt16(reader["dmg_type1"]),
+                        DmgMin2 = Convert.ToSingle(reader["dmg_min2"]),
+                        DmgMax2 = Convert.ToSingle(reader["dmg_max2"]),
+                        DmgType2 = Convert.ToInt16(reader["dmg_type2"]),
+                        DmgMin3 = Convert.ToSingle(reader["dmg_min3"]),
+                        DmgMax3 = Convert.ToSingle(reader["dmg_max3"]),
+                        DmgType3 = Convert.ToInt16(reader["dmg_type3"]),
+                        DmgMin4 = Convert.ToSingle(reader["dmg_min4"]),
+                        DmgMax4 = Convert.ToSingle(reader["dmg_max4"]),
+                        DmgType4 = Convert.ToInt16(reader["dmg_type4"]),
+                        DmgMin5 = Convert.ToSingle(reader["dmg_min5"]),
+                        DmgMax5 = Convert.ToSingle(reader["dmg_max5"]),
+                        DmgType5 = Convert.ToInt16(reader["dmg_type5"]),
+                        Armor = Convert.ToInt16(reader["armor"]),
+                        HolyResistance = Convert.ToInt16(reader["holy_res"]),
+                        FireResistance = Convert.ToInt16(reader["fire_res"]),
+                        NatureResistance = Convert.ToInt16(reader["nature_res"]),
+                        FrostResistance = Convert.ToInt16(reader["frost_res"]),
+                        ShadowResistance = Convert.ToInt16(reader["shadow_res"]),
+                        ArcaneResistance = Convert.ToInt16(reader["arcane_res"]),
+                        Delay = Convert.ToInt16(reader["delay"]),
+                        AmmoType = Convert.ToInt16(reader["ammo_type"]),
+                        RangedModRange = Convert.ToSingle(reader["RangedModRange"]),
+                        SpellId1 = Convert.ToInt32(reader["spellid_1"]),
+                        SpellTrigger1 = Convert.ToInt16(reader["spelltrigger_1"]),
+                        SpellCharges1 = Convert.ToInt16(reader["spellcharges_1"]),
+                        SpellPpmRate1 = Convert.ToSingle(reader["spellppmRate_1"]),
+                        SpellCooldown1 = Convert.ToInt32(reader["spellcooldown_1"]),
+                        SpellCategory1 = Convert.ToInt16(reader["spellcategory_1"]),
+                        SpellCategoryCooldown1 = Convert.ToInt32(reader["spellcategorycooldown_1"]),
+                        SpellId2 = Convert.ToInt32(reader["spellid_2"]),
+                        SpellTrigger2 = Convert.ToInt16(reader["spelltrigger_2"]),
+                        SpellCharges2 = Convert.ToInt16(reader["spellcharges_2"]),
+                        SpellPpmRate2 = Convert.ToSingle(reader["spellppmRate_2"]),
+                        SpellCooldown2 = Convert.ToInt32(reader["spellcooldown_2"]),
+                        SpellCategory2 = Convert.ToInt16(reader["spellcategory_2"]),
+                        SpellCategoryCooldown2 = Convert.ToInt32(reader["spellcategorycooldown_2"]),
+                        SpellId3 = Convert.ToInt32(reader["spellid_3"]),
+                        SpellTrigger3 = Convert.ToInt16(reader["spelltrigger_3"]),
+                        SpellCharges3 = Convert.ToInt16(reader["spellcharges_3"]),
+                        SpellPpmRate3 = Convert.ToSingle(reader["spellppmRate_3"]),
+                        SpellCooldown3 = Convert.ToInt32(reader["spellcooldown_3"]),
+                        SpellCategory3 = Convert.ToInt16(reader["spellcategory_3"]),
+                        SpellCategoryCooldown3 = Convert.ToInt32(reader["spellcategorycooldown_3"]),
+                        SpellId4 = Convert.ToInt32(reader["spellid_4"]),
+                        SpellTrigger4 = Convert.ToInt16(reader["spelltrigger_4"]),
+                        SpellCharges4 = Convert.ToInt16(reader["spellcharges_4"]),
+                        SpellPpmRate4 = Convert.ToSingle(reader["spellppmRate_4"]),
+                        SpellCooldown4 = Convert.ToInt32(reader["spellcooldown_4"]),
+                        SpellCategory4 = Convert.ToInt16(reader["spellcategory_4"]),
+                        SpellCategoryCooldown4 = Convert.ToInt32(reader["spellcategorycooldown_4"]),
+                        SpellId5 = Convert.ToInt32(reader["spellid_5"]),
+                        SpellTrigger5 = Convert.ToInt16(reader["spelltrigger_5"]),
+                        SpellCharges5 = Convert.ToInt16(reader["spellcharges_5"]),
+                        SpellPpmRate5 = Convert.ToSingle(reader["spellppmRate_5"]),
+                        SpellCooldown5 = Convert.ToInt32(reader["spellcooldown_5"]),
+                        SpellCategory5 = Convert.ToInt16(reader["spellcategory_5"]),
+                        SpellCategoryCooldown5 = Convert.ToInt32(reader["spellcategorycooldown_5"]),
+                        Bonding = Convert.ToInt16(reader["bonding"]),
+                        Description = Convert.ToString(reader["description"]),
+                        PageText = Convert.ToInt32(reader["PageText"]),
+                        LanguageID = Convert.ToInt16(reader["LanguageID"]),
+                        PageMaterial = Convert.ToInt16(reader["PageMaterial"]),
+                        StartQuest = Convert.ToInt32(reader["startquest"]),
+                        LockId = Convert.ToInt32(reader["lockid"]),
+                        Material = Convert.ToInt16(reader["Material"]),
+                        Sheath = Convert.ToInt16(reader["sheath"]),
+                        RandomProperty = Convert.ToInt32(reader["RandomProperty"]),
+                        Block = Convert.ToInt32(reader["block"]),
+                        ItemSet = Convert.ToInt32(reader["itemset"]),
+                        MaxDurability = Convert.ToInt16(reader["MaxDurability"]),
+                        Area = Convert.ToInt32(reader["area"]),
+                        Map = Convert.ToInt16(reader["Map"]),
+                        BagFamily = Convert.ToInt32(reader["BagFamily"]),
+                        ScriptName = Convert.ToString(reader["ScriptName"]),
+                        DisenchantID = Convert.ToInt32(reader["DisenchantID"]),
+                        FoodType = Convert.ToInt16(reader["FoodType"]),
+                        MinMoneyLoot = Convert.ToInt32(reader["minMoneyLoot"]),
+                        MaxMoneyLoot = Convert.ToInt32(reader["maxMoneyLoot"]),
+                        Duration = Convert.ToInt32(reader["Duration"]),
+                        ExtraFlags = Convert.ToInt16(reader["ExtraFlags"]),
+                        OtherTeamEntry = Convert.ToInt32(reader["OtherTeamEntry"])
+                    };
+                    itemTemplates.Add(itemTemplate);
+                }
+            }
+            return itemTemplates.OrderBy(x => x.Name).ToList();
         }
         public static QuestTemplate GetQuestTemplateByID(int id)
         {

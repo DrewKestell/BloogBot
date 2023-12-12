@@ -31,10 +31,6 @@ namespace BackstabRogueBot
         const string KidneyShot = "Kidney Shot";
         const string ExposeArmor = "Expose Armor";
 
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
-        readonly LocalPlayer player;
-        WoWUnit target;
         WoWUnit secondaryTarget;
         
         bool SwapDaggerReady;
@@ -47,10 +43,6 @@ namespace BackstabRogueBot
 
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
         {
-            this.botTasks = botTasks;
-            this.container = container;
-            player = ObjectManager.Player;
-
             WoWEventHandler.Instance.OnParry += OnParryCallback;
         }
 
@@ -71,12 +63,12 @@ namespace BackstabRogueBot
                 return;
             }
 
-            if (target == null || Container.HostileTarget.HealthPercent <= 0)
+            if (Container.HostileTarget == null || Container.HostileTarget.HealthPercent <= 0)
             {
-                target = ObjectManager.Aggressors.First();
+                Container.HostileTarget = ObjectManager.Aggressors.First();
             }
 
-            if (Update(target, 3))
+            if (Update(3))
                 return;
 
             // Ensure Sword/Mace/1H is equipped (not dagger)
@@ -161,9 +153,9 @@ namespace BackstabRogueBot
 
             // TryUseAbility(ExposeArmor, 25, ObjectManager.Player.HasBuff(SliceAndDice) && Container.HostileTarget.HealthPercent > 50 && ObjectManager.Player.ComboPoints <= 2 && ObjectManager.Player.ComboPoints >= 1);
 
-            TryUseAbility(SinisterStrike, 45, !ObjectManager.Player.IsSpellReady(GhostlyStrike) && !ReadyToInterrupt(target) && ObjectManager.Player.ComboPoints < 5 && !readyToEviscerate);
+            TryUseAbility(SinisterStrike, 45, !ObjectManager.Player.IsSpellReady(GhostlyStrike) && !ReadyToInterrupt() && ObjectManager.Player.ComboPoints < 5 && !readyToEviscerate);
         
-            TryUseAbility(GhostlyStrike, 40, ObjectManager.Player.IsSpellReady(GhostlyStrike) && ObjectManager.Player.IsSpellReady(GhostlyStrike) && !ReadyToInterrupt(target) && ObjectManager.Player.ComboPoints < 5 && !readyToEviscerate);
+            TryUseAbility(GhostlyStrike, 40, ObjectManager.Player.IsSpellReady(GhostlyStrike) && ObjectManager.Player.IsSpellReady(GhostlyStrike) && !ReadyToInterrupt() && ObjectManager.Player.ComboPoints < 5 && !readyToEviscerate);
 
             TryUseAbilityById(BloodFury, 3, 0, ObjectManager.Player.IsSpellReady(BloodFury) && Container.HostileTarget.HealthPercent > 80);
 
@@ -175,13 +167,13 @@ namespace BackstabRogueBot
 
             // Caster interrupt abilities
 
-            TryUseAbility(Kick, 25, ReadyToInterrupt(target));
+            TryUseAbility(Kick, 25, ReadyToInterrupt());
 
             // we use Kidneyshot (with 1 or 2 combo points only) before Gouge as Gouge has a longer cooldown and requires more energy, so sometimes gouge doesn't fire before casting is done.
             
-            TryUseAbility(KidneyShot, 25, ReadyToInterrupt(target) && !ObjectManager.Player.IsSpellReady(Kick) && ObjectManager.Player.ComboPoints >= 1 && ObjectManager.Player.ComboPoints <=2);
+            TryUseAbility(KidneyShot, 25, ReadyToInterrupt() && !ObjectManager.Player.IsSpellReady(Kick) && ObjectManager.Player.ComboPoints >= 1 && ObjectManager.Player.ComboPoints <=2);
                         
-            TryUseAbility(Gouge, 45, ReadyToInterrupt(target) && !ObjectManager.Player.IsSpellReady(Kick));
+            TryUseAbility(Gouge, 45, ReadyToInterrupt() && !ObjectManager.Player.IsSpellReady(Kick));
         }
 
         void OnParryCallback(object sender, EventArgs e)
@@ -190,7 +182,7 @@ namespace BackstabRogueBot
             riposteStartTime = Environment.TickCount;
         }
 
-        bool ReadyToInterrupt(WoWUnit target) => Container.HostileTarget.Mana > 0 && (target.IsCasting || Container.HostileTarget.IsChanneling);
+        bool ReadyToInterrupt() => Container.HostileTarget.Mana > 0 && (Container.HostileTarget.IsCasting || Container.HostileTarget.IsChanneling);
 
         Action RiposteCallback => () => readyToRiposte = false;
 

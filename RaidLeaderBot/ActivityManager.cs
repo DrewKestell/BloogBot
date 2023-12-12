@@ -8,6 +8,8 @@ using RaidMemberBot.Models;
 using System.Net;
 using System.Windows;
 using Newtonsoft.Json;
+using RaidMemberBot.Game;
+using static RaidMemberBot.Constants.Enums;
 
 namespace RaidLeaderBot
 {
@@ -129,27 +131,7 @@ namespace RaidLeaderBot
                     }
                     else
                     {
-                        if (FindMissingSpells(raidMemberViewModel.Spells, newCharacterState, out int spellId))
-                        {
-                            InstanceCommand addSpell = new InstanceCommand()
-                            {
-                                CommandAction = CommandAction.AddSpell,
-                                CommandParam1 = spellId.ToString()
-                            };
-
-                            NextCommand[newCharacterState.ProcessId] = addSpell;
-                        }
-                        else if (FindMissingSpells(raidMemberViewModel.Talents, newCharacterState, out int talentId))
-                        {
-                            InstanceCommand addSpell = new InstanceCommand()
-                            {
-                                CommandAction = CommandAction.AddSpell,
-                                CommandParam1 = talentId.ToString()
-                            };
-
-                            NextCommand[newCharacterState.ProcessId] = addSpell;
-                        }
-                        else if (RaidLeader.CharacterName != newCharacterState.RaidLeader)
+                        if (RaidLeader.CharacterName != newCharacterState.RaidLeader)
                         {
                             InstanceCommand setLeaderCommand = new InstanceCommand()
                             {
@@ -159,7 +141,27 @@ namespace RaidLeaderBot
 
                             NextCommand[newCharacterState.ProcessId] = setLeaderCommand;
                         }
-                        else if (RaidLeader.CharacterName != newCharacterState.CharacterName && !newCharacterState.InParty)
+                        else if (FindMissingSkills(raidMemberViewModel.Skills, newCharacterState, out int skillSpellId))
+                        {
+                            InstanceCommand addSpell = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.AddSpell,
+                                CommandParam1 = skillSpellId.ToString()
+                            };
+
+                            NextCommand[newCharacterState.ProcessId] = addSpell;
+                        }
+                        else if (FindMissingSpells(raidMemberViewModel.Spells, newCharacterState, out int spellId))
+                        {
+                            InstanceCommand addSpell = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.AddSpell,
+                                CommandParam1 = spellId.ToString()
+                            };
+
+                            NextCommand[newCharacterState.ProcessId] = addSpell;
+                        }
+                        else if (RaidLeader.Guid != newCharacterState.Guid && !newCharacterState.InParty)
                         {
                             InstanceCommand addPartyMember = new InstanceCommand()
                             {
@@ -171,16 +173,7 @@ namespace RaidLeaderBot
                         }
                         else if (PartyMembersToStates.All(x => x.Value.InParty))
                         {
-                            if (PartyMembersToStates.All(x => x.Value.MapId == MapId))
-                            {
-                                InstanceCommand beginDungeon = new InstanceCommand()
-                                {
-                                    CommandAction = CommandAction.BeginDungeon,
-                                };
-
-                                NextCommand[newCharacterState.ProcessId] = beginDungeon;
-                            }
-                            else
+                            if (PartyMembersToStates.Any(x => x.Value.MapId != MapId))
                             {
                                 if (newCharacterState.Level != raidMemberViewModel.RaidMemberPreset.Level)
                                 {
@@ -205,11 +198,47 @@ namespace RaidLeaderBot
                                     NextCommand[newCharacterState.ProcessId] = goToCommand;
                                 }
                             }
+                            else
+                            {
+                                if (newCharacterState.Task == "Idle")
+                                {
+                                    InstanceCommand beginDungeon = new InstanceCommand()
+                                    {
+                                        CommandAction = CommandAction.BeginDungeon,
+                                    };
+
+                                    NextCommand[newCharacterState.ProcessId] = beginDungeon;
+                                }
+                                else
+                                {
+                                    InstanceCommand noneCommand = new InstanceCommand()
+                                    {
+                                        CommandAction = CommandAction.None,
+                                    };
+
+                                    NextCommand[newCharacterState.ProcessId] = noneCommand;
+                                }
+                            }
                         }
                     }
                 }
             }
             SendCommandToProcess(newCharacterState.ProcessId, NextCommand[newCharacterState.ProcessId]);
+        }
+
+        private bool FindMissingSkills(List<int> skills, CharacterState newCharacterState, out int skillSpellId)
+        {
+            skillSpellId = 0;
+            for (int i = 0; i < skills.Count; i++)
+            {
+                if (!newCharacterState.SkillList.Contains(skills[i]))
+                {
+                    skillSpellId = SkillsToSpellsList[skills[i]];
+                    Console.WriteLine($"[ACTIVITY MANAGER]{newCharacterState.CharacterName} Add skill {skills[i]} with spell {skillSpellId} {JsonConvert.SerializeObject(newCharacterState.SkillList)} {JsonConvert.SerializeObject(newCharacterState.SpellList)}");
+                    return true;
+                }
+            }
+            return false;
         }
 
         private bool FindMissingSpells(List<int> spellList, CharacterState newCharacterState, out int spellId)
@@ -220,6 +249,7 @@ namespace RaidLeaderBot
             {
                 if (!newCharacterState.SpellList.Contains(spellList[i]))
                 {
+                    Console.WriteLine($"[ACTIVITY MANAGER]{newCharacterState.CharacterName} Add spell {spellList[i]}");
                     spellId = spellList[i];
                     return true;
                 }
@@ -244,5 +274,44 @@ namespace RaidLeaderBot
         {
             PartyMembersToStates.Remove(raidMemberViewModel);
         }
+
+        public Dictionary<int, int> SkillsToSpellsList = new Dictionary<int, int>()
+        {
+            { 40, 2842 },
+            { 43, 201 },
+            { 44, 196 },
+            { 45, 264 },
+            { 46, 266 },
+            { 54, 198 },
+            { 55, 202 },
+            { 118, 674 },
+            { 129, 3273 },
+            { 136, 227 },
+            { 160, 199 },
+            //{ 164, 2 },
+            //{ 165, 2 },
+            //{ 171, 2 },
+            { 172, 197 },
+            { 173, 1180 },
+            { 176, 2567 },
+            //{ 182, 2 },
+            //{ 185, 2 },
+            //{ 186, 2 },
+            //{ 197, 2 },
+            //{ 202, 2 },
+            { 226, 5011 },
+            { 228, 5009 },
+            { 229, 200 },
+            //{ 293, 2 },
+            //{ 333, 2 },
+            //{ 356, 2 },
+            //{ 393, 2 },
+            { 413, 8737 },
+            { 414, 9077 },
+            { 415, 9078 },
+            { 433, 9116 },
+            //{ 473, 15590 },
+            { 633, 1804 },
+        };
     }
 }

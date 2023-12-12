@@ -22,7 +22,6 @@ namespace RetributionPaladinBot
         const string SealOfCommand = "Seal of Command";
         const string SealOfRighteousness = "Seal of Righteousness";
         const string SealOfTheCrusader = "Seal of the Crusader";
-        WoWUnit target;
 
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 
@@ -40,12 +39,12 @@ namespace RetributionPaladinBot
                 return;
             }
 
-            if (target == null || Container.HostileTarget.HealthPercent <= 0)
+            if (Container.HostileTarget == null || Container.HostileTarget.HealthPercent <= 0)
             {
-                target = ObjectManager.Aggressors[0];
+                Container.HostileTarget = ObjectManager.Aggressors[0];
             }
 
-            if (Update(target, 3))
+            if (Update(3))
                 return;
 
             TryCastSpell(Purify, ObjectManager.Player.IsPoisoned || ObjectManager.Player.IsDiseased, castOnSelf: true);
@@ -58,9 +57,9 @@ namespace RetributionPaladinBot
 
             TryCastSpell(Exorcism, Container.HostileTarget.CreatureType == CreatureType.Undead || Container.HostileTarget.CreatureType == CreatureType.Demon);
 
-            TryCastSpell(HammerOfJustice, Container.HostileTarget.CreatureType != CreatureType.Humanoid || (target.CreatureType == CreatureType.Humanoid && Container.HostileTarget.HealthPercent < 20));
+            TryCastSpell(HammerOfJustice, Container.HostileTarget.CreatureType != CreatureType.Humanoid || (Container.HostileTarget.CreatureType == CreatureType.Humanoid && Container.HostileTarget.HealthPercent < 20));
             
-            TryCastSpell(SealOfTheCrusader, !ObjectManager.Player.HasBuff(SealOfTheCrusader) && !target.HasDebuff(JudgementOfTheCrusader));
+            TryCastSpell(SealOfTheCrusader, !ObjectManager.Player.HasBuff(SealOfTheCrusader) && !Container.HostileTarget.HasDebuff(JudgementOfTheCrusader));
 
             TryCastSpell(SealOfRighteousness, !ObjectManager.Player.HasBuff(SealOfRighteousness) && Container.HostileTarget.HasDebuff(JudgementOfTheCrusader) && !ObjectManager.Player.IsSpellReady(SealOfCommand));
 

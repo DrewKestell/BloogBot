@@ -48,7 +48,7 @@ namespace AfflictionWarlockBot
                 }
             }
 
-            if (Update(Container.HostileTarget, 30))
+            if (Update(30))
                 return;
 
             ObjectManager.Pet?.Attack();

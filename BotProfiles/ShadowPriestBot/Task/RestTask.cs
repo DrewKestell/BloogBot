@@ -23,6 +23,10 @@ namespace ShadowPriestBot
 
         public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
         {
+            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
+
+            Functions.LuaCall($"SendChatMessage('.repairitems')");
+
             List<WoWItem> drinkItems = ObjectManager.Items.Where(x => x.ItemId == 1179).ToList();
             int drinkItemsCount = drinkItems.Sum(x => x.StackCount);
 

@@ -37,7 +37,7 @@ namespace RaidLeaderBot
                     response = JsonConvert.SerializeObject(MangosRepository.GetCreaturesByMapId(int.Parse(request.QueryParam1)));
                     break;
                 case QueryType.GetItemById:
-                    response = JsonConvert.SerializeObject(MangosRepository.GetItemById(ulong.Parse(request.QueryParam1)));
+                    response = JsonConvert.SerializeObject(MangosRepository.GetItemById(int.Parse(request.QueryParam1)));
                     break;
                 case QueryType.GetCreatureEquipTemplateById:
                     response = JsonConvert.SerializeObject(MangosRepository.GetCreatureEquipTemplateById(int.Parse(request.QueryParam1)));

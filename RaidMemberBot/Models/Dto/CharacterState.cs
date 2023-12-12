@@ -9,6 +9,7 @@ namespace RaidMemberBot.Models.Dto
         public int ProcessId { get; set; }
         public string CurrentActivity { get; set; }
         public string RaidLeader { get; set; }
+        public ulong RaidLeaderGuid { get; set; }
         public string Task { get; set; }
         public Class Class { get; set; } = Class.Warrior;
         public Race Race { get; set; } = Race.Human;
@@ -55,6 +56,7 @@ namespace RaidMemberBot.Models.Dto
         public bool IsOnTaxi { get; set; }
         public bool IsFlying { get; set; }
         public List<int> SpellList { get; set; } = new List<int>();
+        public List<int> SkillList { get; set; } = new List<int>();
         public Dictionary<ulong, string> WoWUnits { get; set; } = new Dictionary<ulong, string>();
         public Dictionary<ulong, string> WoWObjects { get; set; } = new Dictionary<ulong, string>();
     }

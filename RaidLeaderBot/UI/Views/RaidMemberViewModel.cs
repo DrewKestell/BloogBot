@@ -1,10 +1,11 @@
 ﻿using RaidLeaderBot.UI.Views.Talents;
+using RaidMemberBot.Models;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows;
 using System.Windows.Input;
 using static RaidMemberBot.Constants.Enums;
 
@@ -13,38 +14,6 @@ namespace RaidLeaderBot
     public sealed class RaidMemberViewModel : INotifyPropertyChanged
     {
         public int Index { get; set; }
-        public IEnumerable<TargetMarkers> EnumTargetMarkers
-        {
-            get
-            {
-                return Enum.GetValues(typeof(TargetMarkers)).Cast<TargetMarkers>();
-            }
-        }
-        public IEnumerable<Class> ClassIds
-        {
-            get
-            {
-                return Race switch
-                {
-                    Race.Human => new List<Class>() { Class.Mage, Class.Paladin, Class.Priest, Class.Rogue, Class.Warlock, Class.Warrior },
-                    Race.Dwarf => new List<Class>() { Class.Hunter, Class.Paladin, Class.Priest, Class.Rogue, Class.Warrior },
-                    Race.NightElf => new List<Class>() { Class.Druid, Class.Hunter, Class.Priest, Class.Rogue, Class.Warrior },
-                    Race.Gnome => new List<Class>() { Class.Mage, Class.Rogue, Class.Warlock },
-                    Race.Orc => new List<Class>() { Class.Hunter, Class.Rogue, Class.Shaman, Class.Warlock, Class.Warrior },
-                    Race.Undead => new List<Class>() { Class.Mage, Class.Priest, Class.Rogue, Class.Warlock, Class.Warrior },
-                    Race.Tauren => new List<Class>() { Class.Druid, Class.Hunter, Class.Shaman, Class.Warrior },
-                    Race.Troll => new List<Class>() { Class.Hunter, Class.Mage, Class.Priest, Class.Rogue, Class.Shaman, Class.Warrior },
-                    _ => Enum.GetValues(typeof(Class)).Cast<Class>(),
-                };
-            }
-        }
-        public IEnumerable<Race> Races
-        {
-            get
-            {
-                return IsAlliance ? new List<Race>() { Race.Human, Race.Dwarf, Race.NightElf, Race.Gnome } : new List<Race>() { Race.Orc, Race.Undead, Race.Tauren, Race.Troll };
-            }
-        }
         private RaidMemberPreset _raidMemberPreset;
         public RaidMemberPreset RaidMemberPreset
         {
@@ -74,8 +43,461 @@ namespace RaidLeaderBot
             OnPropertyChanged(nameof(RaidMemberPreset));
 
             SetTalentViewModel();
+            RefreshItemLists();
         }
         public bool IsAlliance { get; set; }
+        public ObservableCollection<ItemTemplate> HeadItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
+        public ObservableCollection<ItemTemplate> NeckItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
+        public ObservableCollection<ItemTemplate> ShoulderItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
+        public ObservableCollection<ItemTemplate> ShirtItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
+        public ObservableCollection<ItemTemplate> ChestItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
+        public ObservableCollection<ItemTemplate> WaistItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
+        public ObservableCollection<ItemTemplate> LegItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
+        public ObservableCollection<ItemTemplate> FeetItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
+        public ObservableCollection<ItemTemplate> WristItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
+        public ObservableCollection<ItemTemplate> HandItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
+        public ObservableCollection<ItemTemplate> FingerItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
+        public ObservableCollection<ItemTemplate> TrinketItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
+        public ObservableCollection<ItemTemplate> BackItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
+        public ObservableCollection<ItemTemplate> RobeItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
+        public ObservableCollection<ItemTemplate> MainHandItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
+        public ObservableCollection<ItemTemplate> OffHandItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
+        public ObservableCollection<ItemTemplate> RangedItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
+        public IEnumerable<TargetMarkers> EnumTargetMarkers
+        {
+            get
+            {
+                return Enum.GetValues(typeof(TargetMarkers)).Cast<TargetMarkers>();
+            }
+        }
+        public IEnumerable<Class> ClassIds
+        {
+            get
+            {
+                return Race switch
+                {
+                    Race.Human => new List<Class>() { Class.Mage, Class.Paladin, Class.Priest, Class.Rogue, Class.Warlock, Class.Warrior },
+                    Race.Dwarf => new List<Class>() { Class.Hunter, Class.Paladin, Class.Priest, Class.Rogue, Class.Warrior },
+                    Race.NightElf => new List<Class>() { Class.Druid, Class.Hunter, Class.Priest, Class.Rogue, Class.Warrior },
+                    Race.Gnome => new List<Class>() { Class.Mage, Class.Rogue, Class.Warlock },
+                    Race.Orc => new List<Class>() { Class.Hunter, Class.Rogue, Class.Shaman, Class.Warlock, Class.Warrior },
+                    Race.Undead => new List<Class>() { Class.Mage, Class.Priest, Class.Rogue, Class.Warlock, Class.Warrior },
+                    Race.Tauren => new List<Class>() { Class.Druid, Class.Hunter, Class.Shaman, Class.Warrior },
+                    Race.Troll => new List<Class>() { Class.Hunter, Class.Mage, Class.Priest, Class.Rogue, Class.Shaman, Class.Warrior },
+                    _ => Enum.GetValues(typeof(Class)).Cast<Class>(),
+                };
+            }
+        }
+        public int Level
+        {
+            get
+            {
+                return RaidMemberPreset.Level;
+            }
+            set
+            {
+                RaidMemberPreset.Level = value;
+                RefreshItemLists();
+            }
+        }
+
+        private void RefreshItemLists()
+        {
+            HeadItemTemplates.Clear();
+            NeckItemTemplates.Clear();
+            ShoulderItemTemplates.Clear();
+            BackItemTemplates.Clear();
+            ChestItemTemplates.Clear();
+            ShirtItemTemplates.Clear();
+            RangedItemTemplates.Clear();
+            WaistItemTemplates.Clear();
+            LegItemTemplates.Clear();
+            FeetItemTemplates.Clear();
+            WristItemTemplates.Clear();
+            HandItemTemplates.Clear();
+            FingerItemTemplates.Clear();
+            TrinketItemTemplates.Clear();
+
+            MainHandItemTemplates.Clear();
+            OffHandItemTemplates.Clear();
+            RangedItemTemplates.Clear();
+
+            HeadItemTemplates.Add(new ItemTemplate());
+            NeckItemTemplates.Add(new ItemTemplate());
+            ShoulderItemTemplates.Add(new ItemTemplate());
+            BackItemTemplates.Add(new ItemTemplate());
+            ChestItemTemplates.Add(new ItemTemplate());
+            RobeItemTemplates.Add(new ItemTemplate());
+            ShirtItemTemplates.Add(new ItemTemplate());
+            WaistItemTemplates.Add(new ItemTemplate());
+            LegItemTemplates.Add(new ItemTemplate());
+            FeetItemTemplates.Add(new ItemTemplate());
+            WristItemTemplates.Add(new ItemTemplate());
+            HandItemTemplates.Add(new ItemTemplate());
+            FingerItemTemplates.Add(new ItemTemplate());
+            TrinketItemTemplates.Add(new ItemTemplate());
+
+            MainHandItemTemplates.Add(new ItemTemplate());
+            OffHandItemTemplates.Add(new ItemTemplate());
+            RangedItemTemplates.Add(new ItemTemplate());
+
+            List<ItemTemplate> headTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Head);
+            List<ItemTemplate> neckTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, 0, InventoryType.Neck);
+            List<ItemTemplate> shouldersTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, 0, InventoryType.Shoulders);
+            List<ItemTemplate> shirtTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, 0, InventoryType.Shirt);
+            List<ItemTemplate> chestTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Chest);
+            List<ItemTemplate> waistTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Waist);
+            List<ItemTemplate> legTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Legs);
+            List<ItemTemplate> feetTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Feet);
+            List<ItemTemplate> wristTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Wrists);
+            List<ItemTemplate> handTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Hands);
+            List<ItemTemplate> fingerTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, 0, InventoryType.Finger);
+            List<ItemTemplate> trinketTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, 0, InventoryType.Trinket);
+            List<ItemTemplate> cloakTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, 1, InventoryType.Cloak);
+            List<ItemTemplate> offHanderTemplates = new List<ItemTemplate>();
+
+            if (Class == Class.Warrior || Class == Class.Paladin || Class == Class.Shaman)
+            {
+                offHanderTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, 6, InventoryType.Shield);
+            }
+
+            List<ItemTemplate> mainHanderTemplates = new List<ItemTemplate>();
+            List<ItemTemplate> rangedTemplates = new List<ItemTemplate>();
+
+            List<short> mainHandSubClasses = MainHandSubClasses.ToList();
+            List<short> offHandSubClasses = OffHandSubClasses.ToList();
+            List<short> rangedHandSubClasses = RangedSubClasses.ToList();
+
+            for(int i = 0; i < mainHandSubClasses.Count; i++)
+            {
+                List<ItemTemplate> weaponTemplates = MangosRepository.GetEquipmentByRequirements(Level, 2, mainHandSubClasses[i], InventoryType.Weapon);
+                List<ItemTemplate> twoHanderTemplates = MangosRepository.GetEquipmentByRequirements(Level, 2, mainHandSubClasses[i], InventoryType.TwoHander);
+                List<ItemTemplate> mainHandTemplates = MangosRepository.GetEquipmentByRequirements(Level, 2, mainHandSubClasses[i], InventoryType.MainHand);
+
+                for (int j = 0; j < weaponTemplates.Count; j++)
+                {
+                    mainHanderTemplates.Add(weaponTemplates[j]);
+                }
+                for (int j = 0; j < twoHanderTemplates.Count; j++)
+                {
+                    mainHanderTemplates.Add(twoHanderTemplates[j]);
+                }
+                for (int j = 0; j < mainHandTemplates.Count; j++)
+                {
+                    mainHanderTemplates.Add(mainHandTemplates[j]);
+                }
+            }
+
+            for (int i = 0; i < offHandSubClasses.Count; i++)
+            {
+                List<ItemTemplate> weaponTemplates = MangosRepository.GetEquipmentByRequirements(Level, 2, offHandSubClasses[i], InventoryType.Weapon);
+                List<ItemTemplate> offhandTemplates = MangosRepository.GetEquipmentByRequirements(Level, 2, offHandSubClasses[i], InventoryType.Offhand);
+                List<ItemTemplate> holdableTemplates = MangosRepository.GetEquipmentByRequirements(Level, 2, offHandSubClasses[i], InventoryType.Holdable);
+
+                for (int j = 0; j < weaponTemplates.Count; j++)
+                {
+                    offHanderTemplates.Add(weaponTemplates[j]);
+                }
+                for (int j = 0; j < offhandTemplates.Count; j++)
+                {
+                    offHanderTemplates.Add(offhandTemplates[j]);
+                }
+                for (int j = 0; j < holdableTemplates.Count; j++)
+                {
+                    offHanderTemplates.Add(holdableTemplates[j]);
+                }
+            }
+
+            for (int i = 0; i < offHandSubClasses.Count; i++)
+            {
+                List<ItemTemplate> weaponTemplates = MangosRepository.GetEquipmentByRequirements(Level, 2, offHandSubClasses[i], InventoryType.Weapon);
+                List<ItemTemplate> offhandTemplates = MangosRepository.GetEquipmentByRequirements(Level, 2, offHandSubClasses[i], InventoryType.Offhand);
+                List<ItemTemplate> holdableTemplates = MangosRepository.GetEquipmentByRequirements(Level, 2, offHandSubClasses[i], InventoryType.Holdable);
+
+                for (int j = 0; j < weaponTemplates.Count; j++)
+                {
+                    offHanderTemplates.Add(weaponTemplates[j]);
+                }
+                for (int j = 0; j < offhandTemplates.Count; j++)
+                {
+                    offHanderTemplates.Add(offhandTemplates[j]);
+                }
+                for (int j = 0; j < holdableTemplates.Count; j++)
+                {
+                    offHanderTemplates.Add(holdableTemplates[j]);
+                }
+            }
+
+            mainHanderTemplates = mainHanderTemplates.OrderBy(x => x.Name).ToList();
+            offHanderTemplates = offHanderTemplates.OrderBy(x => x.Name).ToList();
+
+            for (int i = 0; i < mainHanderTemplates.Count; i++)
+            {
+                MainHandItemTemplates.Add(mainHanderTemplates[i]);
+            }
+
+            for (int i = 0; i < offHanderTemplates.Count; i++)
+            {
+                OffHandItemTemplates.Add(offHanderTemplates[i]);
+            }
+
+            for (int i = 0; i < headTemplates.Count; i++)
+            {
+                HeadItemTemplates.Add(headTemplates[i]);
+            }
+
+            for (int i = 0; i < neckTemplates.Count; i++)
+            {
+                NeckItemTemplates.Add(neckTemplates[i]);
+            }
+
+            for (int i = 0; i < shouldersTemplates.Count; i++)
+            {
+                ShoulderItemTemplates.Add(shouldersTemplates[i]);
+            }
+
+            for (int i = 0; i < cloakTemplates.Count; i++)
+            {
+                BackItemTemplates.Add(cloakTemplates[i]);
+            }
+
+            for (int i = 0; i < shirtTemplates.Count; i++)
+            {
+                ShirtItemTemplates.Add(shirtTemplates[i]);
+            }
+
+            for (int i = 0; i < chestTemplates.Count; i++)
+            {
+                ChestItemTemplates.Add(chestTemplates[i]);
+            }
+
+            for (int i = 0; i < waistTemplates.Count; i++)
+            {
+                WaistItemTemplates.Add(waistTemplates[i]);
+            }
+
+            for (int i = 0; i < legTemplates.Count; i++)
+            {
+                LegItemTemplates.Add(legTemplates[i]);
+            }
+
+            for (int i = 0; i < feetTemplates.Count; i++)
+            {
+                FeetItemTemplates.Add(feetTemplates[i]);
+            }
+
+            for (int i = 0; i < wristTemplates.Count; i++)
+            {
+                WristItemTemplates.Add(wristTemplates[i]);
+            }
+
+            for (int i = 0; i < handTemplates.Count; i++)
+            {
+                HandItemTemplates.Add(handTemplates[i]);
+            }
+
+            for (int i = 0; i < fingerTemplates.Count; i++)
+            {
+                FingerItemTemplates.Add(fingerTemplates[i]);
+            }
+
+            for (int i = 0; i < trinketTemplates.Count; i++)
+            {
+                TrinketItemTemplates.Add(trinketTemplates[i]);
+            }
+
+            OnPropertyChanged(nameof(HeadItemTemplates));
+            OnPropertyChanged(nameof(NeckItemTemplates));
+            OnPropertyChanged(nameof(ShoulderItemTemplates));
+            OnPropertyChanged(nameof(BackItemTemplates));
+            OnPropertyChanged(nameof(ChestItemTemplates));
+        }
+
+        private short ArmorSubClass
+        {
+            get
+            {
+                short requiredSkill = 1;
+                switch (Class)
+                {
+                    case Class.Druid:
+                    case Class.Rogue:
+                        requiredSkill = 2;
+                        break;
+                    case Class.Hunter:
+                    case Class.Shaman:
+                        if (Level < 40)
+                        {
+                            requiredSkill = 2;
+                        }
+                        else
+                        {
+                            requiredSkill = 3;
+                        }
+                        break;
+                    case Class.Paladin:
+                    case Class.Warrior:
+                        if (Level < 40)
+                        {
+                            requiredSkill = 3;
+                        }
+                        else
+                        {
+                            requiredSkill = 4;
+                        }
+                        break;
+                }
+
+                return requiredSkill;
+            }
+        }
+        private List<short> MainHandSubClasses
+        {
+            get
+            {
+                List<short> weaponSubClasses = new List<short>();
+                switch (Class)
+                {
+                    case Class.Druid:
+
+                        break;
+                    case Class.Hunter:
+
+                        break;
+                    case Class.Mage:
+
+                        break;
+                    case Class.Paladin:
+
+                        break;
+                    case Class.Priest:
+
+                        break;
+                    case Class.Rogue:
+
+                        break;
+                    case Class.Shaman:
+
+                        break;
+                    case Class.Warlock:
+
+                        break;
+                    case Class.Warrior:
+                        if (Level > 19)
+                        {
+                            weaponSubClasses.Add(6);
+                        }
+
+                        weaponSubClasses.Add(0);
+                        weaponSubClasses.Add(1);
+                        weaponSubClasses.Add(4);
+                        weaponSubClasses.Add(5);
+                        weaponSubClasses.Add(7);
+                        weaponSubClasses.Add(8);
+                        weaponSubClasses.Add(10);
+                        weaponSubClasses.Add(13);
+                        weaponSubClasses.Add(15);
+                        weaponSubClasses.Add(17);
+                        weaponSubClasses.Add(20);
+                        break;
+                }
+
+                return weaponSubClasses;
+            }
+        }
+        private List<short> OffHandSubClasses
+        {
+            get
+            {
+                List<short> weaponSubClasses = new List<short>
+                {
+                    14
+                };
+                switch (Class)
+                {
+                    case Class.Druid:
+
+                        break;
+                    case Class.Hunter:
+
+                        break;
+                    case Class.Mage:
+
+                        break;
+                    case Class.Paladin:
+
+                        break;
+                    case Class.Priest:
+
+                        break;
+                    case Class.Rogue:
+
+                        break;
+                    case Class.Shaman:
+
+                        break;
+                    case Class.Warlock:
+
+                        break;
+                    case Class.Warrior:
+                        weaponSubClasses.Add(0);
+                        weaponSubClasses.Add(4);
+                        weaponSubClasses.Add(7);
+                        weaponSubClasses.Add(13);
+                        weaponSubClasses.Add(15);
+                        break;
+                }
+
+                return weaponSubClasses;
+            }
+        }
+        private List<short> RangedSubClasses
+        {
+            get
+            {
+                List<short> weaponSubClasses = new List<short>();
+                switch (Class)
+                {
+                    case Class.Druid:
+
+                        break;
+                    case Class.Hunter:
+
+                        break;
+                    case Class.Mage:
+
+                        break;
+                    case Class.Paladin:
+
+                        break;
+                    case Class.Priest:
+
+                        break;
+                    case Class.Rogue:
+
+                        break;
+                    case Class.Shaman:
+
+                        break;
+                    case Class.Warlock:
+
+                        break;
+                    case Class.Warrior:
+
+                        break;
+                }
+
+                return weaponSubClasses;
+            }
+        }
+
+        public IEnumerable<Race> Races
+        {
+            get
+            {
+                return IsAlliance ? new List<Race>() { Race.Human, Race.Dwarf, Race.NightElf, Race.Gnome } : new List<Race>() { Race.Orc, Race.Undead, Race.Tauren, Race.Troll };
+            }
+        }
         public Race Race
         {
             get => _raidMemberPreset.Race;
@@ -98,6 +520,7 @@ namespace RaidLeaderBot
             {
                 _raidMemberPreset.Class = value;
                 SetTalentViewModel();
+                RefreshItemLists();
                 OnPropertyChanged(nameof(Class));
             }
         }
@@ -138,6 +561,101 @@ namespace RaidLeaderBot
             OnPropertyChanged(nameof(RaidMemberTalentsViewModel));
         }
 
+        public ItemTemplate HeadItem
+        {
+            get => HeadItemTemplates.First(x => x.Entry == _raidMemberPreset.HeadItem);
+            set => _raidMemberPreset.HeadItem = value.Entry;
+        }
+        public ItemTemplate NeckItem
+        {
+            get => NeckItemTemplates.First(x => x.Entry == _raidMemberPreset.NeckItem);
+            set => _raidMemberPreset.NeckItem = value.Entry;
+        }
+        public ItemTemplate ShoulderItem
+        {
+            get => ShoulderItemTemplates.First(x => x.Entry == _raidMemberPreset.ShoulderItem);
+            set => _raidMemberPreset.ShoulderItem = value.Entry;
+        }
+        public ItemTemplate ChestItem
+        {
+            get => ChestItemTemplates.First(x => x.Entry == _raidMemberPreset.ChestItem);
+            set =>_raidMemberPreset.ChestItem = value.Entry;
+        }
+        public ItemTemplate BackItem
+        {
+            get => BackItemTemplates.First(x => x.Entry == _raidMemberPreset.BackItem);
+            set => _raidMemberPreset.BackItem = value.Entry;
+        }
+        public ItemTemplate RobeItem
+        {
+            get => RobeItemTemplates.First(x => x.Entry == _raidMemberPreset.RobeItem);
+            set => _raidMemberPreset.RobeItem = value.Entry;
+        }
+        public ItemTemplate ShirtItem
+        {
+            get => ShirtItemTemplates.First(x => x.Entry == _raidMemberPreset.ShirtItem);
+            set => _raidMemberPreset.ShirtItem = value.Entry;
+        }
+        public ItemTemplate WristsItem
+        {
+            get => WristItemTemplates.First(x => x.Entry == _raidMemberPreset.WristsItem);
+            set => _raidMemberPreset.WristsItem = value.Entry;
+        }
+        public ItemTemplate HandsItem
+        {
+            get => HandItemTemplates.First(x => x.Entry == _raidMemberPreset.HandsItem);
+            set => _raidMemberPreset.HandsItem = value.Entry;
+        }
+        public ItemTemplate WaistItem
+        {
+            get => WaistItemTemplates.First(x => x.Entry == _raidMemberPreset.WaistItem);
+            set => _raidMemberPreset.WaistItem = value.Entry;
+        }
+        public ItemTemplate LegsItem
+        {
+            get => LegItemTemplates.First(x => x.Entry == _raidMemberPreset.LegsItem);
+            set => _raidMemberPreset.LegsItem = value.Entry;
+        }
+        public ItemTemplate FeetItem
+        {
+            get => FeetItemTemplates.First(x => x.Entry == _raidMemberPreset.FeetItem);
+            set => _raidMemberPreset.FeetItem = value.Entry;
+        }
+        public ItemTemplate Finger1Item
+        {
+            get => FingerItemTemplates.First(x => x.Entry == _raidMemberPreset.Finger1Item);
+            set => _raidMemberPreset.Finger1Item = value.Entry;
+        }
+        public ItemTemplate Finger2Item
+        {
+            get => FingerItemTemplates.First(x => x.Entry == _raidMemberPreset.Finger2Item);
+            set => _raidMemberPreset.Finger2Item = value.Entry;
+        }
+        public ItemTemplate Trinket1Item
+        {
+            get => TrinketItemTemplates.First(x => x.Entry == _raidMemberPreset.Trinket1Item);
+            set => _raidMemberPreset.Trinket1Item = value.Entry;
+        }
+        public ItemTemplate Trinket2Item
+        {
+            get => TrinketItemTemplates.First(x => x.Entry == _raidMemberPreset.Trinket2Item);
+            set => _raidMemberPreset.Trinket2Item = value.Entry;
+        }
+        public ItemTemplate MainHandItem
+        {
+            get => MainHandItemTemplates.First(x => x.Entry == _raidMemberPreset.MainHandItem);
+            set => _raidMemberPreset.MainHandItem = value.Entry;
+        }
+        public ItemTemplate OffHandItem
+        {
+            get => OffHandItemTemplates.First(x => x.Entry == _raidMemberPreset.OffHandItem);
+            set => _raidMemberPreset.OffHandItem = value.Entry;
+        }
+        public ItemTemplate RangedItem
+        {
+            get => RangedItemTemplates.First(x => x.Entry == _raidMemberPreset.RangedItem);
+            set => _raidMemberPreset.RangedItem = value.Entry;
+        }
         public void StartBot()
         {
             ShouldRun = true;
@@ -473,6 +991,7 @@ namespace RaidLeaderBot
                 }
             }
         }
+        public List<int> Skills => _raidMemberPreset.Skills;
         public List<int> Spells => _raidMemberPreset.Spells;
         public List<int> Talents => _raidMemberPreset.Talents;
         private string _header;

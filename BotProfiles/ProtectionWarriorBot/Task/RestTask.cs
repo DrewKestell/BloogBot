@@ -15,6 +15,10 @@ namespace ProtectionWarriorBot
         readonly WoWItem foodItem;
         public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
         {
+            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
+
+            Functions.LuaCall($"SendChatMessage('.repairitems')");
+
             List<WoWItem> foodItems = ObjectManager.Items.Where(x => x.ItemId == 5479).ToList();
             int foodItemsCount = foodItems.Sum(x => x.StackCount);
 

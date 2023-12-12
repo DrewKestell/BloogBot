@@ -160,7 +160,7 @@
     <Compile Include="Server\NavigationSocketServer.cs" />
     <Compile Include="Settings\RaidLeaderBotSettings.cs" />
     <Compile Include="UI\Handlers\CommandHandler.cs" />
-    <Compile Include="UI\Converters\InverseBooleanConverter.cs" />
+    <Compile Include="UI\Converters\ValueConverter.cs" />
     <Compile Include="UI\Views\RaidMemberViewModel.cs" />
     <Compile Include="UI\RaidActivityManagerWindow.xaml.cs">
       <DependentUpon>RaidActivityManagerWindow.xaml</DependentUpon>

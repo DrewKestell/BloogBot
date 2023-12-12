@@ -3,6 +3,7 @@ using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
 using RaidMemberBot.Mem;
+using RaidMemberBot.Models.Dto;
 using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
@@ -24,16 +25,17 @@ namespace AfflictionWarlockBot
         LocalPet pet;
         public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
         {
+            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
+
+            Functions.LuaCall($"SendChatMessage('.repairitems')");
+
             List<WoWItem> foodItems = ObjectManager.Items.Where(x => x.ItemId == 5479).ToList();
             int foodItemsCount = foodItems.Sum(x => x.StackCount);
-
             if (foodItemsCount < 20)
             {
                 Functions.LuaCall($"SendChatMessage('.additem 5479 {20 - foodItemsCount}')");
             }
-
             foodItem = ObjectManager.Items.First(x => x.ItemId == 5479);
-
             List<WoWItem> drinkItems = ObjectManager.Items.Where(x => x.ItemId == 1179).ToList();
             int drinkItemsCount = drinkItems.Sum(x => x.StackCount);
 

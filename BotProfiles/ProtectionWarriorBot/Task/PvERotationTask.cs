@@ -37,7 +37,6 @@ namespace ProtectionWarriorBot
         const string ThunderClap = "Thunder Clap";
 
         readonly Stopwatch overpowerStopwatch = new Stopwatch();
-        WoWUnit target;
         Position tankSpot;
 
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
@@ -62,24 +61,25 @@ namespace ProtectionWarriorBot
             {
                 if (ObjectManager.Aggressors.Count == 0)
                 {
+                    Container.HostileTarget = null;
                     BotTasks.Pop();
                     return;
                 }
 
                 if (ObjectManager.Aggressors.Any(x => x.TargetGuid != ObjectManager.Player.Guid))
                 {
-                    target = ObjectManager.Aggressors.FindAll(x => x.TargetGuid != ObjectManager.Player.Guid).First();
-                    ObjectManager.Player.SetTarget(target.Guid);
+                    Container.HostileTarget = ObjectManager.Aggressors.FindAll(x => x.TargetGuid != ObjectManager.Player.Guid).First();
+                    ObjectManager.Player.SetTarget(Container.HostileTarget.Guid);
 
                     TryUseAbility(Taunt);
                 }
-                else if (target == null)
+                else if (Container.HostileTarget == null)
                 {
-                    target = ObjectManager.Aggressors.First();
-                    ObjectManager.Player.SetTarget(target.Guid);
+                    Container.HostileTarget = ObjectManager.Aggressors.First();
+                    ObjectManager.Player.SetTarget(Container.HostileTarget.Guid);
                 }
 
-                Container.HostileTarget = target;
+                Container.HostileTarget = Container.HostileTarget;
 
                 if (ObjectManager.Aggressors.All(x => x.TargetGuid == ObjectManager.Player.Guid))
                 {
@@ -99,14 +99,14 @@ namespace ProtectionWarriorBot
                     else
                     {
                         ObjectManager.Player.StopAllMovement();
-                        // ensure we're facing the target
-                        if (!ObjectManager.Player.IsFacing(target.Position))
-                            ObjectManager.Player.Face(target.Position);
+                        // ensure we're facing the Container.HostileTarget
+                        if (!ObjectManager.Player.IsFacing(Container.HostileTarget.Position))
+                            ObjectManager.Player.Face(Container.HostileTarget.Position);
                     }
                 }
                 else
                 {
-                    Update(target, 3);
+                    Update(3);
                 }
 
                 ObjectManager.Player.StartAttack();
@@ -124,7 +124,7 @@ namespace ProtectionWarriorBot
                         TryCastSpell(BattleStance);
                     }
 
-                    TryUseAbility(ThunderClap, 20, !target.HasDebuff(ThunderClap));
+                    TryUseAbility(ThunderClap, 20, !Container.HostileTarget.HasDebuff(ThunderClap));
 
                     TryUseAbility(Overpower, 5, ObjectManager.Player.CurrentStance == BattleStance && overpowerStopwatch.IsRunning);
                 }
@@ -139,7 +139,7 @@ namespace ProtectionWarriorBot
 
                     TryUseAbility(ShieldBash, 10, Container.HostileTarget.IsCasting && Container.HostileTarget.Mana > 0);
 
-                    TryUseAbility(Rend, 10, !target.HasDebuff(Rend) && Container.HostileTarget.HealthPercent > 50 && Container.HostileTarget.CreatureType != CreatureType.Elemental && Container.HostileTarget.CreatureType != CreatureType.Undead);
+                    TryUseAbility(Rend, 10, !Container.HostileTarget.HasDebuff(Rend) && Container.HostileTarget.HealthPercent > 50 && Container.HostileTarget.CreatureType != CreatureType.Elemental && Container.HostileTarget.CreatureType != CreatureType.Undead);
 
                     TryUseAbility(ShieldSlam, 20, Container.HostileTarget.HealthPercent > 30);
 
@@ -148,7 +148,7 @@ namespace ProtectionWarriorBot
                     TryUseAbility(HeroicStrike, 40, Container.HostileTarget.HealthPercent > 40 && !ObjectManager.Player.IsCasting);
                 }
 
-                TryUseAbility(DemoralizingShout, 10, !target.HasDebuff(DemoralizingShout));
+                TryUseAbility(DemoralizingShout, 10, !Container.HostileTarget.HasDebuff(DemoralizingShout));
 
                 TryUseAbility(LastStand, condition: ObjectManager.Player.HealthPercent <= 8);
 
@@ -156,7 +156,7 @@ namespace ProtectionWarriorBot
 
                 TryUseAbility(BattleShout, 10, !ObjectManager.Player.HasBuff(BattleShout));
 
-                TryUseAbility(ConcussionBlow, 15, !target.IsStunned && Container.HostileTarget.HealthPercent > 40);
+                TryUseAbility(ConcussionBlow, 15, !Container.HostileTarget.IsStunned && Container.HostileTarget.HealthPercent > 40);
 
                 TryUseAbility(Execute, 20, Container.HostileTarget.HealthPercent < 20);
 

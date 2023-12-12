@@ -26,6 +26,7 @@ namespace CombatRogueBot
 
             if (ObjectManager.Aggressors.Count == 0)
             {
+                Container.HostileTarget = null;
                 BotTasks.Pop();
                 return;
             }
@@ -35,7 +36,7 @@ namespace CombatRogueBot
                 Container.HostileTarget = ObjectManager.Aggressors.First();
             }
 
-            if (Update(Container.HostileTarget, 3))
+            if (Update(3))
                 return;
 
             TryUseAbility(AdrenalineRush, 0, ObjectManager.Aggressors.Count() == 3 && ObjectManager.Player.HealthPercent > 80);

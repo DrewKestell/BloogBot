@@ -74,6 +74,11 @@
             WardenBase = 0x00CE8978;
             WardenPageScanOffset = 0x00002B21;
             WardenMemScanOffset = 0x00002A7F;
+            PartyLeaderGuid = 0x00BC75F8;
+            Party1Guid = 0x00BC6F48;
+            Party2Guid = 0x00BC6F50;
+            Party3Guid = 0x00BC6F58;
+            Party4Guid = 0x00BC6F60;
         }
 
         // Functions
@@ -122,6 +127,11 @@
         public static int WardenMemScanOffset;
         public static int LocalPlayerFirstExtraBag;
         public static int LocalPlayerClass;
+        public static int PartyLeaderGuid;
+        public static int Party1Guid;
+        public static int Party2Guid;
+        public static int Party3Guid;
+        public static int Party4Guid;
 
         // Frames
         public static int MerchantFrameItemsBasePtr;

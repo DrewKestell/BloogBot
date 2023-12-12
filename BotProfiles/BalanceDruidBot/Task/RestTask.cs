@@ -17,7 +17,12 @@ namespace BalanceDruidBot
         const string Rejuvenation = "Rejuvenation";
         const string MoonkinForm = "Moonkin Form";
         WoWItem drinkItem;
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) { }
+        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
+        {
+            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
+
+            Functions.LuaCall($"SendChatMessage('.repairitems')");
+        }
 
         public void Update()
         {

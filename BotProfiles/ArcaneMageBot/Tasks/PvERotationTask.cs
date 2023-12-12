@@ -25,18 +25,10 @@ namespace ArcaneMageBot
         const string ManaShield = "Mana Shield";
         const string PresenceOfMind = "Presence of Mind";
 
-        readonly LocalPlayer player;
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
-
         bool frostNovaBackpedaling;
         int frostNovaBackpedalStartTime;
-        WoWUnit target;
 
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
-        {
-            player = ObjectManager.Player;
-        }
+        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 
         public void Update()
         {
@@ -55,12 +47,12 @@ namespace ArcaneMageBot
                 return;
             }
 
-            if (target == null || Container.HostileTarget.HealthPercent <= 0)
+            if (Container.HostileTarget == null || Container.HostileTarget.HealthPercent <= 0)
             {
-                target = ObjectManager.Aggressors[0];
+                Container.HostileTarget = ObjectManager.Aggressors[0];
             }
 
-            if (Update(target, 30))
+            if (Update(30))
                 return;
 
             bool hasWand = Inventory.GetEquippedItem(EquipSlot.Ranged) != null;

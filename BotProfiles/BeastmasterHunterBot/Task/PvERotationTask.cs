@@ -36,9 +36,6 @@ namespace BeastMasterHunterBot
         const string DistractingShot = "Distracting Shot";
         const string WingClip = "Wing Clip";
 
-        //readonly pet;
-        WoWUnit target;
-
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 
         public void Update()
@@ -54,13 +51,13 @@ namespace BeastMasterHunterBot
                 Container.HostileTarget = ObjectManager.Aggressors[0];
             }
 
-            if (Update(target, 28))
+            if (Update(28))
                 return;
 
             ObjectManager.Player.StopAllMovement();
 
             WoWItem gun = Inventory.GetEquippedItem(EquipSlot.Ranged);
-            bool canUseRanged = gun != null && ObjectManager.Player.Position.DistanceTo(target.Position) > 5 && ObjectManager.Player.Position.DistanceTo(target.Position) < 34;
+            bool canUseRanged = gun != null && ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) > 5 && ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) < 34;
             if (gun == null)
             {
                 Functions.LuaCall(AutoAttackLuaScript);

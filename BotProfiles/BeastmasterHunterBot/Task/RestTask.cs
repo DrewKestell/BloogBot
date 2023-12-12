@@ -4,6 +4,7 @@ using RaidMemberBot.AI;
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Helpers;
+using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,12 @@ namespace BeastMasterHunterBot
         readonly WoWItem foodItem;
         readonly WoWItem drinkItem;
         readonly WoWItem petFood;
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) { }
+        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
+        {
+            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
+
+            Functions.LuaCall($"SendChatMessage('.repairitems')");
+        }
 
         public void Update()
         {

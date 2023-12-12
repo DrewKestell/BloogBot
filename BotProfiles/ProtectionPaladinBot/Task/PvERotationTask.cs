@@ -46,7 +46,7 @@ namespace ProtectionPaladinBot
                 Container.HostileTarget = ObjectManager.Aggressors.First();
             }
 
-            if (Update(Container.HostileTarget, 4))
+            if (Update(4))
                 return;
 
             TryCastSpell(LayOnHands, ObjectManager.Player.Mana < ObjectManager.Player.GetManaCost(HolyLight) && ObjectManager.Player.HealthPercent < 10, castOnSelf: true);

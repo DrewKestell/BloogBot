@@ -362,7 +362,7 @@
     <Compile Include="Models\Dto\InstanceCommand.cs" />
     <Compile Include="Models\Dto\CharacterState.cs" />
     <Compile Include="Models\GameObject.cs" />
-    <Compile Include="Models\Item.cs" />
+    <Compile Include="Models\ItemTemplate.cs" />
     <Compile Include="Models\NpcVendorEntry.cs" />
     <Compile Include="Models\QuestTemplate.cs" />
     <Compile Include="Objects\LocalPet.cs" />

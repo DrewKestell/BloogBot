@@ -8,24 +8,24 @@ namespace RaidMemberBot.Models
         public CharacterEquip()
         {
         }
-        public Item HeadItem { get; set; }
-        public Item NeckItem { get; set; }
-        public Item ShoulderItem { get; set; }
-        public Item BackItem { get; set; }
-        public Item ChestItem { get; set; }
-        public Item WristItem { get; set; }
-        public Item HandItem { get; set; }
-        public Item WaistItem { get; set; }
-        public Item LegItem { get; set; }
-        public Item FeetItem { get; set; }
-        public Item Finger1Item { get; set; }
-        public Item Finger2Item { get; set; }
-        public Item Trinket1Item { get; set; }
-        public Item Trinket2Item { get; set; }
-        public Item MainHandItem { get; set; }
-        public Item OffHandItem { get; set; }
-        public Item RangedItem { get; set; }
-        public Item AmmoItem { get; set; }
+        public ItemTemplate HeadItem { get; set; }
+        public ItemTemplate NeckItem { get; set; }
+        public ItemTemplate ShoulderItem { get; set; }
+        public ItemTemplate BackItem { get; set; }
+        public ItemTemplate ChestItem { get; set; }
+        public ItemTemplate WristItem { get; set; }
+        public ItemTemplate HandItem { get; set; }
+        public ItemTemplate WaistItem { get; set; }
+        public ItemTemplate LegItem { get; set; }
+        public ItemTemplate FeetItem { get; set; }
+        public ItemTemplate Finger1Item { get; set; }
+        public ItemTemplate Finger2Item { get; set; }
+        public ItemTemplate Trinket1Item { get; set; }
+        public ItemTemplate Trinket2Item { get; set; }
+        public ItemTemplate MainHandItem { get; set; }
+        public ItemTemplate OffHandItem { get; set; }
+        public ItemTemplate RangedItem { get; set; }
+        public ItemTemplate AmmoItem { get; set; }
 
         public override string ToString()
         {
