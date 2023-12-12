@@ -161,6 +161,17 @@ namespace RaidLeaderBot
 
                             NextCommand[newCharacterState.ProcessId] = addSpell;
                         }
+                        else if (FindMissingEquipment(raidMemberViewModel, newCharacterState, out int itemId, out InventoryType inventorySlot))
+                        {
+                            InstanceCommand addEquipment = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.AddEquipment,
+                                CommandParam1 = itemId.ToString(),
+                                CommandParam2 = ((int)inventorySlot).ToString()
+                            };
+
+                            NextCommand[newCharacterState.ProcessId] = addEquipment;
+                        }
                         else if (RaidLeader.Guid != newCharacterState.Guid && !newCharacterState.InParty)
                         {
                             InstanceCommand addPartyMember = new InstanceCommand()
@@ -226,6 +237,27 @@ namespace RaidLeaderBot
             SendCommandToProcess(newCharacterState.ProcessId, NextCommand[newCharacterState.ProcessId]);
         }
 
+        private bool FindMissingEquipment(RaidMemberViewModel raidMemberViewModel, CharacterState newCharacterState, out int itemId, out InventoryType inventorySlot)
+        {
+            itemId = 0;
+            inventorySlot = InventoryType.NonEquippable;
+
+            if (raidMemberViewModel.HeadItem.Entry > 0 && newCharacterState.HeadItem != raidMemberViewModel.HeadItem.Entry)
+            {
+                inventorySlot = InventoryType.Head;
+                itemId = raidMemberViewModel.HeadItem.Entry;
+                return true;
+            }
+            if (raidMemberViewModel.RangedItem.Entry > 0 && newCharacterState.RangedItem != raidMemberViewModel.RangedItem.Entry)
+            {
+                inventorySlot = InventoryType.Ranged;
+                itemId = raidMemberViewModel.RangedItem.Entry;
+                return true;
+            }
+
+            return false;
+        }
+
         private bool FindMissingSkills(List<int> skills, CharacterState newCharacterState, out int skillSpellId)
         {
             skillSpellId = 0;
@@ -234,7 +266,6 @@ namespace RaidLeaderBot
                 if (!newCharacterState.SkillList.Contains(skills[i]))
                 {
                     skillSpellId = SkillsToSpellsList[skills[i]];
-                    Console.WriteLine($"[ACTIVITY MANAGER]{newCharacterState.CharacterName} Add skill {skills[i]} with spell {skillSpellId} {JsonConvert.SerializeObject(newCharacterState.SkillList)} {JsonConvert.SerializeObject(newCharacterState.SpellList)}");
                     return true;
                 }
             }
@@ -249,7 +280,6 @@ namespace RaidLeaderBot
             {
                 if (!newCharacterState.SpellList.Contains(spellList[i]))
                 {
-                    Console.WriteLine($"[ACTIVITY MANAGER]{newCharacterState.CharacterName} Add spell {spellList[i]}");
                     spellId = spellList[i];
                     return true;
                 }

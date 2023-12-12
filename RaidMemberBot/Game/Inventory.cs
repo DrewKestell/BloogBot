@@ -1,6 +1,7 @@
 ﻿using RaidMemberBot.Constants;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Mem;
+using RaidMemberBot.Models.Dto;
 using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
@@ -192,6 +193,107 @@ namespace RaidMemberBot.Game
             var guid = ObjectManager.Player.GetEquippedItemGuid(slot);
             if (guid == 0) return null;
             return ObjectManager.Items.FirstOrDefault(i => i.Guid == guid);
+        }
+        static public List<WoWItem> GetEquippedItems()
+        {
+            WoWItem headItem = GetEquippedItem(EquipSlot.Head);
+            WoWItem neckItem = GetEquippedItem(EquipSlot.Neck);
+            WoWItem shoulderItem = GetEquippedItem(EquipSlot.Shoulders);
+            WoWItem backItem = GetEquippedItem(EquipSlot.Back);
+            WoWItem chestItem = GetEquippedItem(EquipSlot.Chest);
+            WoWItem shirtItem = GetEquippedItem(EquipSlot.Shirt);
+            WoWItem tabardItem = GetEquippedItem(EquipSlot.Tabard);
+            WoWItem wristItem = GetEquippedItem(EquipSlot.Wrist);
+            WoWItem handsItem = GetEquippedItem(EquipSlot.Hands);
+            WoWItem waistItem = GetEquippedItem(EquipSlot.Waist);
+            WoWItem legsItem = GetEquippedItem(EquipSlot.Legs);
+            WoWItem feetItem = GetEquippedItem(EquipSlot.Feet);
+            WoWItem finger1Item = GetEquippedItem(EquipSlot.Finger1);
+            WoWItem finger2Item = GetEquippedItem(EquipSlot.Finger2);
+            WoWItem trinket1Item = GetEquippedItem(EquipSlot.Trinket1);
+            WoWItem trinket2Item = GetEquippedItem(EquipSlot.Trinket2);
+            WoWItem mainHandItem = GetEquippedItem(EquipSlot.MainHand);
+            WoWItem offHandItem = GetEquippedItem(EquipSlot.OffHand);
+            WoWItem rangedItem = GetEquippedItem(EquipSlot.Ranged);
+
+            List<WoWItem> list = new List<WoWItem>();
+            if (headItem != null)
+            {
+               list.Add(headItem);
+            }
+            if (neckItem != null)
+            {
+                list.Add(neckItem);
+            }
+            if (shoulderItem != null)
+            {
+                list.Add(shoulderItem);
+            }
+            if (backItem != null)
+            {
+                list.Add(backItem);
+            }
+            if (chestItem != null)
+            {
+                list.Add(chestItem);
+            }
+            if (shirtItem != null)
+            {
+                list.Add(shirtItem);
+            }
+            if (tabardItem != null)
+            {
+                list.Add(tabardItem);
+            }
+            if (wristItem != null)
+            {
+                list.Add(wristItem);
+            }
+            if (handsItem != null)
+            {
+                list.Add(handsItem);
+            }
+            if (waistItem != null)
+            {
+                list.Add(waistItem);
+            }
+            if (legsItem != null)
+            {
+                list.Add(legsItem);
+            }
+            if (feetItem != null)
+            {
+                list.Add(feetItem);
+            }
+            if (finger1Item != null)
+            {
+                list.Add(finger1Item);
+            }
+            if (finger2Item != null)
+            {
+                list.Add(finger2Item);
+            }
+            if (trinket1Item != null)
+            {
+                list.Add(trinket1Item);
+            }
+            if (trinket2Item != null)
+            {
+                list.Add(trinket2Item);
+            }
+            if (mainHandItem != null)
+            {
+                list.Add(mainHandItem);
+            }
+            if (offHandItem != null)
+            {
+                list.Add(offHandItem);
+            }
+            if (rangedItem != null)
+            {
+                list.Add(rangedItem);
+            }
+            return list;
         }
 
         static WoWContainer GetExtraBag(int parSlot)

@@ -3,6 +3,7 @@ using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,25 +11,7 @@ namespace ProtectionWarriorBot
 {
     class RestTask : BotTask, IBotTask
     {
-        const int stackCount = 5;
-
-        readonly WoWItem foodItem;
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
-        {
-            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
-
-            Functions.LuaCall($"SendChatMessage('.repairitems')");
-
-            List<WoWItem> foodItems = ObjectManager.Items.Where(x => x.ItemId == 5479).ToList();
-            int foodItemsCount = foodItems.Sum(x => x.StackCount);
-
-            if (foodItemsCount < 20)
-            {
-                Functions.LuaCall($"SendChatMessage('.additem 5479 {20 - foodItemsCount}')");
-            }
-
-            foodItem = ObjectManager.Items.First(x => x.ItemId == 5479);
-        }
+        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) { }
 
         public void Update()
         {
@@ -42,10 +25,28 @@ namespace ProtectionWarriorBot
                 return;
             }
 
+            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
+
+            if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
+            {
+                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                {
+                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                }
+
+                List<WoWItem> foodItems = ObjectManager.Items.Where(x => x.ItemId == 5479).ToList();
+                int foodItemsCount = foodItems.Sum(x => x.StackCount);
+
+                if (foodItemsCount < 20)
+                {
+                    Functions.LuaCall($"SendChatMessage('.additem 5479 {20 - foodItemsCount}')");
+                }
+            }
+
+            WoWItem foodItem = ObjectManager.Items.First(x => x.ItemId == 5479);
+
             if (foodItem != null && !ObjectManager.Player.IsEating)
                 foodItem.Use();
         }
-
-        bool InCombat => ObjectManager.Player.IsInCombat || ObjectManager.Units.Any(u => u.TargetGuid == ObjectManager.Player.Guid);
     }
 }

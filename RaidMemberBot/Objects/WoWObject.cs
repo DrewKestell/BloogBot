@@ -160,9 +160,9 @@ namespace RaidMemberBot.Objects
                 Console.WriteLine("Access violation on WoWObject.Name. Swallowing.");
                 return "";
             }
-            catch
+            catch (Exception e)
             {
-                Console.WriteLine("Catchall exception");
+                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
                 return "";
             }
         }

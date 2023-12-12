@@ -25,17 +25,23 @@ namespace ShadowPriestBot
         {
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
 
-            Functions.LuaCall($"SendChatMessage('.repairitems')");
-
-            List<WoWItem> drinkItems = ObjectManager.Items.Where(x => x.ItemId == 1179).ToList();
-            int drinkItemsCount = drinkItems.Sum(x => x.StackCount);
-
-            if (drinkItemsCount < 20)
+            if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
             {
-                Functions.LuaCall($"SendChatMessage('.additem 1179 {20 - drinkItemsCount}')");
-            }
+                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                {
+                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                }
 
-            drinkItem = ObjectManager.Items.First(x => x.ItemId == 1179);
+                List<WoWItem> drinkItems = ObjectManager.Items.Where(x => x.ItemId == 1179).ToList();
+                int drinkItemsCount = drinkItems.Sum(x => x.StackCount);
+
+                if (drinkItemsCount < 20)
+                {
+                    Functions.LuaCall($"SendChatMessage('.additem 1179 {20 - drinkItemsCount}')");
+                }
+
+                drinkItem = ObjectManager.Items.First(x => x.ItemId == 1179);
+            }
         }
 
         public void Update()

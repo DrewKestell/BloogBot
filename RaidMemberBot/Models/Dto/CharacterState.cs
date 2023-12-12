@@ -55,6 +55,25 @@ namespace RaidMemberBot.Models.Dto
         public bool IsOnMount { get; set; }
         public bool IsOnTaxi { get; set; }
         public bool IsFlying { get; set; }
+        public int HeadItem { get; set; }
+        public int NeckItem { get; set; }
+        public int ShoulderItem { get; set; }
+        public int ChestItem { get; set; }
+        public int BackItem { get; set; }
+        public int ShirtItem { get; set; }
+        public int Tabardtem { get; set; }
+        public int WristsItem { get; set; }
+        public int HandsItem { get; set; }
+        public int WaistItem { get; set; }
+        public int LegsItem { get; set; }
+        public int FeetItem { get; set; }
+        public int Finger1Item { get; set; }
+        public int Finger2Item { get; set; }
+        public int Trinket1Item { get; set; }
+        public int Trinket2Item { get; set; }
+        public int MainHandItem { get; set; }
+        public int OffHandItem { get; set; }
+        public int RangedItem { get; set; }
         public List<int> SpellList { get; set; } = new List<int>();
         public List<int> SkillList { get; set; } = new List<int>();
         public Dictionary<ulong, string> WoWUnits { get; set; } = new Dictionary<ulong, string>();

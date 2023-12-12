@@ -13,26 +13,8 @@ namespace EnhancementShamanBot
 {
     class RestTask : BotTask, IBotTask
     {
-        const int stackCount = 5;
-
         const string HealingWave = "Healing Wave";
-        readonly WoWItem drinkItem;
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
-        {
-            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
-
-            Functions.LuaCall($"SendChatMessage('.repairitems')");
-
-            List<WoWItem> drinkItems = ObjectManager.Items.Where(x => x.ItemId == 1179).ToList();
-            int drinkItemsCount = drinkItems.Sum(x => x.StackCount);
-
-            if (drinkItemsCount < 20)
-            {
-                Functions.LuaCall($"SendChatMessage('.additem 1179 {20 - drinkItemsCount}')");
-            }
-
-            drinkItem = ObjectManager.Items.First(x => x.ItemId == 1179);
-        }
+        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) { }
 
         public void Update()
         {
@@ -59,6 +41,26 @@ namespace EnhancementShamanBot
                         Functions.LuaCall($"CastSpellByName('{HealingWave}(Rank 1)')");
                 }
             }
+
+            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
+
+            if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
+            {
+                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                {
+                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                }
+
+                List<WoWItem> drinkItems = ObjectManager.Items.Where(x => x.ItemId == 1179).ToList();
+                int drinkItemsCount = drinkItems.Sum(x => x.StackCount);
+
+                if (drinkItemsCount < 20)
+                {
+                    Functions.LuaCall($"SendChatMessage('.additem 1179 {20 - drinkItemsCount}')");
+                }
+            }
+
+            WoWItem drinkItem = ObjectManager.Items.First(x => x.ItemId == 1179);
 
             if (ObjectManager.Player.Level > 10 && drinkItem != null && !ObjectManager.Player.IsDrinking && ObjectManager.Player.ManaPercent < 60)
                 drinkItem.Use();

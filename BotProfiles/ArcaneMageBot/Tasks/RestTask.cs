@@ -1,4 +1,5 @@
 ﻿using RaidMemberBot.AI;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
@@ -15,9 +16,6 @@ namespace ArcaneMageBot
         readonly WoWItem drinkItem;
         public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
         {
-            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
-
-            Functions.LuaCall($"SendChatMessage('.repairitems')");
         }
 
         public void Update()
@@ -44,6 +42,16 @@ namespace ArcaneMageBot
             {
                 Functions.LuaCall($"CastSpellByName('{Evocation}')");
                 return;
+            }
+
+            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
+
+            if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
+            {
+                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                {
+                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                }
             }
 
             if (ObjectManager.Player.Level > 3 && foodItem != null && !ObjectManager.Player.IsEating && ObjectManager.Player.HealthPercent < 80)

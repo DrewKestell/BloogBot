@@ -34,7 +34,7 @@ extern "C"
     {
         typedef void __fastcall func(char* code, const char* unused);
         func* f = (func*)ptr;
-        f(code, "Unused");
+        f(code, "LuaCall");
         return;
     }
 

@@ -16,6 +16,7 @@
         SetLevel,
         SetGearParams,
         AddSpell,
+        AddEquipment,
         SetActivity,
         SetRaidLeader,
         AddPartyMember,

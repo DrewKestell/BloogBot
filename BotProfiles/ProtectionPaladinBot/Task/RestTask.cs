@@ -15,14 +15,7 @@ namespace ProtectionPaladinBot
 
         const string HolyLight = "Holy Light";
 
-        readonly WoWItem drinkItem;
-
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
-        {
-            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
-
-            Functions.LuaCall($"SendChatMessage('.repairitems')");
-        }
+        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) { }
 
         public void Update()
         {
@@ -33,30 +26,7 @@ namespace ProtectionPaladinBot
                 Wait.RemoveAll();
                 ObjectManager.Player.Stand();
                 BotTasks.Pop();
-
-                int drinkCount = drinkItem == null ? 0 : Inventory.GetItemCount(drinkItem.ItemId);
-                if (!InCombat && drinkCount == 0)
-                {
-                    int drinkToBuy = 28 - (drinkCount / stackCount);
-                    //var itemsToBuy = new Dictionary<string, int>
-                    //{
-                    //    { container.BotSettings.Drink, drinkToBuy }
-                    //};
-
-                    //var currentHotspot = container.GetCurrentHotspot();
-                    //if (currentHotspot.TravelPath != null)
-                    //{
-                    //    BotTasks.Push(new TravelState(botTasks, container, currentHotspot.TravelPath.Waypoints, 0));
-                    //    BotTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.TravelPath.Waypoints[0]));
-                    //}
-
-                    //BotTasks.Push(new BuyItemsState(botTasks, currentHotspot.Innkeeper.Name, itemsToBuy));
-                    //BotTasks.Push(new SellItemsState(botTasks, container, currentHotspot.Innkeeper.Name));
-                    //BotTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.Innkeeper.Position));
-                    //container.CheckForTravelPath(botTasks, true, false);
-                }
-                else
-                    BotTasks.Push(new BuffTask(Container, BotTasks));
+                return;
 
             }
             
@@ -68,6 +38,35 @@ namespace ProtectionPaladinBot
                 if (ObjectManager.Player.HealthPercent > 70 && ObjectManager.Player.HealthPercent < 90)
                     Functions.LuaCall($"CastSpellByName('{HolyLight}(Rank 1)')");
             }
+
+            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
+
+            if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
+            {
+                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                {
+                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                }
+
+                List<WoWItem> foodItems = ObjectManager.Items.Where(x => x.ItemId == 5479).ToList();
+                int foodItemsCount = foodItems.Sum(x => x.StackCount);
+
+                if (foodItemsCount < 20)
+                {
+                    Functions.LuaCall($"SendChatMessage('.additem 5479 {20 - foodItemsCount}')");
+                }
+
+                List<WoWItem> drinkItems = ObjectManager.Items.Where(x => x.ItemId == 1179).ToList();
+                int drinkItemsCount = drinkItems.Sum(x => x.StackCount);
+
+                if (drinkItemsCount < 20)
+                {
+                    Functions.LuaCall($"SendChatMessage('.additem 1179 {20 - drinkItemsCount}')");
+                }
+            }
+
+            WoWItem foodItem = ObjectManager.Items.First(x => x.ItemId == 5479);
+            WoWItem drinkItem = ObjectManager.Items.First(x => x.ItemId == 1179);
 
             if (ObjectManager.Player.Level > 10 && drinkItem != null && !ObjectManager.Player.IsDrinking && ObjectManager.Player.ManaPercent < 60 && Wait.For("UseDrinkDelay", 1000, true))
                 drinkItem.Use();

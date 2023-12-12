@@ -5,6 +5,7 @@ using RaidMemberBot.Models.Dto;
 using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Reflection;
@@ -378,6 +379,179 @@ namespace RaidMemberBot.Game.Statics
                     _characterState.WoWObjects = GameObjects.OrderBy(x => x.Position.DistanceTo(Player.Position))
                                                             .Where(x => !string.IsNullOrEmpty(x.Name))
                                                             .ToDictionary(x => x.Guid, x => x.Name);
+
+
+                    WoWItem headItem = Inventory.GetEquippedItem(EquipSlot.Head);
+                    WoWItem neckItem = Inventory.GetEquippedItem(EquipSlot.Neck);
+                    WoWItem shoulderItem = Inventory.GetEquippedItem(EquipSlot.Shoulders);
+                    WoWItem backItem = Inventory.GetEquippedItem(EquipSlot.Back);
+                    WoWItem chestItem = Inventory.GetEquippedItem(EquipSlot.Chest);
+                    WoWItem shirtItem = Inventory.GetEquippedItem(EquipSlot.Shirt);
+                    WoWItem tabardItem = Inventory.GetEquippedItem(EquipSlot.Tabard);
+                    WoWItem wristItem = Inventory.GetEquippedItem(EquipSlot.Wrist);
+                    WoWItem handsItem = Inventory.GetEquippedItem(EquipSlot.Hands);
+                    WoWItem waistItem = Inventory.GetEquippedItem(EquipSlot.Waist);
+                    WoWItem legsItem = Inventory.GetEquippedItem(EquipSlot.Legs);
+                    WoWItem feetItem = Inventory.GetEquippedItem(EquipSlot.Feet);
+                    WoWItem finger1Item = Inventory.GetEquippedItem(EquipSlot.Finger1);
+                    WoWItem finger2Item = Inventory.GetEquippedItem(EquipSlot.Finger2);
+                    WoWItem trinket1Item = Inventory.GetEquippedItem(EquipSlot.Trinket1);
+                    WoWItem trinket2Item = Inventory.GetEquippedItem(EquipSlot.Trinket2);
+                    WoWItem mainHandItem = Inventory.GetEquippedItem(EquipSlot.MainHand);
+                    WoWItem offHandItem = Inventory.GetEquippedItem(EquipSlot.OffHand);
+                    WoWItem rangedItem = Inventory.GetEquippedItem(EquipSlot.Ranged);
+                    if (headItem != null)
+                    {
+                        _characterState.HeadItem = headItem.ItemId;
+                    }
+                    else
+                    {
+                        _characterState.HeadItem = 0;
+                    }
+                    if (neckItem != null)
+                    {
+                        _characterState.NeckItem = neckItem.ItemId;
+                    }
+                    else
+                    {
+                        _characterState.NeckItem = 0;
+                    }
+                    if (shoulderItem != null)
+                    {
+                        _characterState.ShoulderItem = shoulderItem.ItemId;
+                    }
+                    else
+                    {
+                        _characterState.ShoulderItem = 0;
+                    }
+                    if (backItem != null)
+                    {
+                        _characterState.BackItem = backItem.ItemId;
+                    }
+                    else
+                    {
+                        _characterState.BackItem = 0;
+                    }
+                    if (chestItem != null)
+                    {
+                        _characterState.ChestItem = chestItem.ItemId;
+                    }
+                    else
+                    {
+                        _characterState.ChestItem = 0;
+                    }
+                    if (shirtItem != null)
+                    {
+                        _characterState.ShirtItem = shirtItem.ItemId;
+                    }
+                    else
+                    {
+                        _characterState.ShirtItem = 0;
+                    }
+                    if (tabardItem != null)
+                    {
+                        _characterState.Tabardtem = tabardItem.ItemId;
+                    }
+                    else
+                    {
+                        _characterState.Tabardtem = 0;
+                    }
+                    if (wristItem != null)
+                    {
+                        _characterState.WristsItem = wristItem.ItemId;
+                    }
+                    else
+                    {
+                        _characterState.WristsItem = 0;
+                    }
+                    if (handsItem != null)
+                    {
+                        _characterState.HandsItem = handsItem.ItemId;
+                    }
+                    else
+                    {
+                        _characterState.HandsItem = 0;
+                    }
+                    if (waistItem != null)
+                    {
+                        _characterState.WaistItem = waistItem.ItemId;
+                    }
+                    else
+                    {
+                        _characterState.WaistItem = 0;
+                    }
+                    if (legsItem != null)
+                    {
+                        _characterState.LegsItem = legsItem.ItemId;
+                    }
+                    else
+                    {
+                        _characterState.LegsItem = 0;
+                    }
+                    if (feetItem != null)
+                    {
+                        _characterState.FeetItem = feetItem.ItemId;
+                    }
+                    else
+                    {
+                        _characterState.FeetItem = 0;
+                    }
+                    if (finger1Item != null)
+                    {
+                        _characterState.Finger1Item = finger1Item.ItemId;
+                    }
+                    else
+                    {
+                        _characterState.Finger1Item = 0;
+                    }
+                    if (finger2Item != null)
+                    {
+                        _characterState.Finger2Item = finger2Item.ItemId;
+                    }
+                    else
+                    {
+                        _characterState.Finger2Item = 0;
+                    }
+                    if (trinket1Item != null)
+                    {
+                        _characterState.Trinket1Item = trinket1Item.ItemId;
+                    }
+                    else
+                    {
+                        _characterState.Trinket1Item = 0;
+                    }
+                    if (trinket2Item != null)
+                    {
+                        _characterState.Trinket2Item = trinket2Item.ItemId;
+                    }
+                    else
+                    {
+                        _characterState.Trinket2Item = 0;
+                    }
+                    if (mainHandItem != null)
+                    {
+                        _characterState.MainHandItem = mainHandItem.ItemId;
+                    }
+                    else
+                    {
+                        _characterState.MainHandItem = 0;
+                    }
+                    if (offHandItem != null)
+                    {
+                        _characterState.OffHandItem = offHandItem.ItemId;
+                    }
+                    else
+                    {
+                        _characterState.OffHandItem = 0;
+                    }
+                    if (rangedItem != null)
+                    {
+                        _characterState.RangedItem = rangedItem.ItemId;
+                    }
+                    else
+                    {
+                        _characterState.RangedItem = 0;
+                    }
                 }
                 else
                 {
@@ -410,6 +584,26 @@ namespace RaidMemberBot.Game.Statics
                     _characterState.IsConfused = false;
                     _characterState.IsPoisoned = false;
                     _characterState.IsDiseased = false;
+                    _characterState.Facing = 0;
+                    _characterState.HeadItem = 0;
+                    _characterState.NeckItem = 0;
+                    _characterState.ShoulderItem = 0;
+                    _characterState.ChestItem = 0;
+                    _characterState.BackItem = 0;
+                    _characterState.ShirtItem = 0;
+                    _characterState.Tabardtem = 0;
+                    _characterState.WristsItem = 0;
+                    _characterState.HandsItem = 0;
+                    _characterState.WaistItem = 0;
+                    _characterState.LegsItem = 0;
+                    _characterState.FeetItem = 0;
+                    _characterState.Finger1Item = 0;
+                    _characterState.Finger2Item = 0;
+                    _characterState.Trinket1Item = 0;
+                    _characterState.Trinket2Item = 0;
+                    _characterState.MainHandItem = 0;
+                    _characterState.OffHandItem = 0;
+                    _characterState.RangedItem = 0;
                     _characterState.SpellList = new List<int>();
                     _characterState.SkillList = new List<int>();
                     _characterState.WoWObjects = new Dictionary<ulong, string>();

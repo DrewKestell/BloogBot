@@ -85,6 +85,11 @@ namespace RaidMemberBot.Mem
                 Console.WriteLine("Access Violation on " + address.ToString("X") + " with type Byte");
                 return default;
             }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
+                return default;
+            }
         }
 
         [HandleProcessCorruptedStateExceptions]
@@ -100,6 +105,11 @@ namespace RaidMemberBot.Mem
             catch (AccessViolationException)
             {
                 Console.WriteLine("Access Violation on " + address.ToString("X") + " with type Short");
+                return default;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
                 return default;
             }
         }
@@ -119,6 +129,11 @@ namespace RaidMemberBot.Mem
                 Console.WriteLine("Access Violation on " + address.ToString("X") + " with type Int");
                 return default;
             }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
+                return default;
+            }
         }
 
         [HandleProcessCorruptedStateExceptions]
@@ -134,6 +149,11 @@ namespace RaidMemberBot.Mem
             catch (AccessViolationException)
             {
                 Console.WriteLine("Access Violation on " + address.ToString("X") + " with type Uint");
+                return default;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
                 return default;
             }
         }
@@ -153,6 +173,11 @@ namespace RaidMemberBot.Mem
                 Console.WriteLine("Access Violation on " + address.ToString("X") + " with type Ulong");
                 return default;
             }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
+                return default;
+            }
         }
 
         [HandleProcessCorruptedStateExceptions]
@@ -170,6 +195,11 @@ namespace RaidMemberBot.Mem
                 Console.WriteLine("Access Violation on " + address.ToString("X") + " with type IntPtr");
                 return default;
             }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
+                return default;
+            }
         }
 
         [HandleProcessCorruptedStateExceptions]
@@ -185,6 +215,11 @@ namespace RaidMemberBot.Mem
             catch (AccessViolationException)
             {
                 Console.WriteLine("Access Violation on " + address.ToString("X") + " with type Float");
+                return default;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
                 return default;
             }
         }
@@ -213,6 +248,11 @@ namespace RaidMemberBot.Mem
                 Console.WriteLine("Access Violation on " + address.ToString("X") + " with type string");
                 return default;
             }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
+                return "";
+            }
         }
 
         [HandleProcessCorruptedStateExceptions]
@@ -239,6 +279,11 @@ namespace RaidMemberBot.Mem
             {
                 return default;
             }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
+                return default;
+            }
         }
 
         [HandleProcessCorruptedStateExceptions]
@@ -254,6 +299,11 @@ namespace RaidMemberBot.Mem
             catch (AccessViolationException)
             {
                 Console.WriteLine("Access Violation on " + address.ToString("X") + " with type ItemCacheEntry");
+                return default;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
                 return default;
             }
         }

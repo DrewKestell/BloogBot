@@ -6,6 +6,7 @@ using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using static RaidMemberBot.Constants.Enums;
@@ -14,6 +15,7 @@ namespace RaidMemberBot.Mem
 {
     static public class Functions
     {
+        static object locker = new object();
         static readonly Random random = new Random();
 
         [DllImport("FastCall.dll", EntryPoint = "BuyVendorItem")]
@@ -109,12 +111,6 @@ namespace RaidMemberBot.Mem
             return GetPlayerGuidFunction();
         }
 
-        static public Spell GetSpellDBEntry(int index)
-        {
-            // we don't use this in Vanilla, because we can get the spell entry directly from a static memory address
-            throw new NotImplementedException();
-        }
-
         [DllImport("FastCall.dll", EntryPoint = "GetText")]
         static extern IntPtr GetTextFunction(string varName, IntPtr ptr);
 
@@ -192,7 +188,7 @@ namespace RaidMemberBot.Mem
             LootSlotFunction(slot, (IntPtr)MemoryAddresses.LootSlotFunPtr);
         }
 
-        [DllImport("FastCall.dll", EntryPoint = "LuaCall")]
+        [DllImport("FastCall.dll", EntryPoint = "LuaCall", CallingConvention = CallingConvention.StdCall)]
         static extern void LuaCallFunction(string code, int ptr);
 
         static public void LuaCall(string code)

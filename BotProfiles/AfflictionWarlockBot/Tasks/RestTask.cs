@@ -14,37 +14,13 @@ namespace AfflictionWarlockBot
 {
     class RestTask : BotTask, IBotTask
     {
-        const int stackCount = 5;
-
         const string ConsumeShadows = "Consume Shadows";
         const string HealthFunnel = "Health Funnel";
         const string LifeTap = "Life Tap";
 
-        readonly WoWItem foodItem;
-        readonly WoWItem drinkItem;
         LocalPet pet;
         public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
         {
-            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
-
-            Functions.LuaCall($"SendChatMessage('.repairitems')");
-
-            List<WoWItem> foodItems = ObjectManager.Items.Where(x => x.ItemId == 5479).ToList();
-            int foodItemsCount = foodItems.Sum(x => x.StackCount);
-            if (foodItemsCount < 20)
-            {
-                Functions.LuaCall($"SendChatMessage('.additem 5479 {20 - foodItemsCount}')");
-            }
-            foodItem = ObjectManager.Items.First(x => x.ItemId == 5479);
-            List<WoWItem> drinkItems = ObjectManager.Items.Where(x => x.ItemId == 1179).ToList();
-            int drinkItemsCount = drinkItems.Sum(x => x.StackCount);
-
-            if (drinkItemsCount < 20)
-            {
-                Functions.LuaCall($"SendChatMessage('.additem 1179 {20 - drinkItemsCount}')");
-            }
-
-            drinkItem = ObjectManager.Items.First(x => x.ItemId == 1179);
         }
 
         public void Update()
@@ -75,16 +51,45 @@ namespace AfflictionWarlockBot
                 return;
             }
 
-            if (foodItem != null && !ObjectManager.Player.IsEating && ObjectManager.Player.HealthPercent < 80 && Wait.For("EatDelay", 500, true))
-                foodItem.Use();
+            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
 
-            if (drinkItem != null && !ObjectManager.Player.IsDrinking && ObjectManager.Player.ManaPercent < 60 && Wait.For("DrinkDelay", 500, true))
-                drinkItem.Use();
+            if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
+            {
+                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                {
+                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                }
+
+                List<WoWItem> foodItems = ObjectManager.Items.Where(x => x.ItemId == 5479).ToList();
+                int foodItemsCount = foodItems.Sum(x => x.StackCount);
+                if (foodItemsCount < 20)
+                {
+                    Functions.LuaCall($"SendChatMessage('.additem 5479 {20 - foodItemsCount}')");
+                }
+
+                WoWItem foodItem = ObjectManager.Items.First(x => x.ItemId == 5479);
+
+                List<WoWItem> drinkItems = ObjectManager.Items.Where(x => x.ItemId == 1179).ToList();
+                int drinkItemsCount = drinkItems.Sum(x => x.StackCount);
+
+                if (drinkItemsCount < 20)
+                {
+                    Functions.LuaCall($"SendChatMessage('.additem 1179 {20 - drinkItemsCount}')");
+                }
+
+                WoWItem drinkItem = ObjectManager.Items.First(x => x.ItemId == 1179);
+
+                if (foodItem != null && !ObjectManager.Player.IsEating && ObjectManager.Player.HealthPercent < 80 && Wait.For("EatDelay", 500, true))
+                    foodItem.Use();
+
+                if (drinkItem != null && !ObjectManager.Player.IsDrinking && ObjectManager.Player.ManaPercent < 60 && Wait.For("DrinkDelay", 500, true))
+                    drinkItem.Use();
+            }
 
             TryCastSpell(LifeTap, 0, int.MaxValue, ObjectManager.Player.HealthPercent > 85 && ObjectManager.Player.ManaPercent < 80);
         }
 
-        bool HealthOk => foodItem == null || ObjectManager.Player.HealthPercent >= 90 || (ObjectManager.Player.HealthPercent >= 70 && !ObjectManager.Player.IsEating);
+        bool HealthOk => ObjectManager.Player.HealthPercent >= 90 || (ObjectManager.Player.HealthPercent >= 70 && !ObjectManager.Player.IsEating);
 
         bool PetHealthOk => ObjectManager.Pet == null || ObjectManager.Pet.HealthPercent >= 80;
 

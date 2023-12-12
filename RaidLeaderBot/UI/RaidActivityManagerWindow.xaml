@@ -18,7 +18,6 @@
     <Window.Resources>
         <local:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
         <local:EnumDescriptionConverter x:Key="EnumDescriptionConverter"/>
-        <local:ItemNameConverter x:Key="ItemNameConverter"/>
         <Style x:Key="ControlBaseStyle" TargetType="{x:Type Control}">
             <Setter Property="HorizontalAlignment" Value="Left" />
             <Setter Property="VerticalAlignment" Value="Top" />

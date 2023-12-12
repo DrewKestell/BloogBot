@@ -21,7 +21,13 @@ namespace BalanceDruidBot
         {
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
 
-            Functions.LuaCall($"SendChatMessage('.repairitems')");
+            if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
+            {
+                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                {
+                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                }
+            }
         }
 
         public void Update()

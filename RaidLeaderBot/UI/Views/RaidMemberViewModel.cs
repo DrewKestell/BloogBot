@@ -166,7 +166,7 @@ namespace RaidLeaderBot
 
             List<short> mainHandSubClasses = MainHandSubClasses.ToList();
             List<short> offHandSubClasses = OffHandSubClasses.ToList();
-            List<short> rangedHandSubClasses = RangedSubClasses.ToList();
+            List<short> rangedSubClasses = RangedSubClasses.ToList();
 
             for(int i = 0; i < mainHandSubClasses.Count; i++)
             {
@@ -228,8 +228,29 @@ namespace RaidLeaderBot
                 }
             }
 
+            for (int i = 0; i < rangedSubClasses.Count; i++)
+            {
+                List<ItemTemplate> thrownTemplates = MangosRepository.GetEquipmentByRequirements(Level, 2, rangedSubClasses[i], InventoryType.Thrown);
+                List<ItemTemplate> rangedLeftTemplates = MangosRepository.GetEquipmentByRequirements(Level, 2, rangedSubClasses[i], InventoryType.Ranged);
+                List<ItemTemplate> rangedRightTemplates = MangosRepository.GetEquipmentByRequirements(Level, 2, rangedSubClasses[i], InventoryType.RangedRight);
+
+                for (int j = 0; j < thrownTemplates.Count; j++)
+                {
+                    rangedTemplates.Add(thrownTemplates[j]);
+                }
+                for (int j = 0; j < rangedLeftTemplates.Count; j++)
+                {
+                    rangedTemplates.Add(rangedLeftTemplates[j]);
+                }
+                for (int j = 0; j < rangedRightTemplates.Count; j++)
+                {
+                    rangedTemplates.Add(rangedRightTemplates[j]);
+                }
+            }
+
             mainHanderTemplates = mainHanderTemplates.OrderBy(x => x.Name).ToList();
             offHanderTemplates = offHanderTemplates.OrderBy(x => x.Name).ToList();
+            rangedTemplates = rangedTemplates.OrderBy(x => x.Name).ToList();
 
             for (int i = 0; i < mainHanderTemplates.Count; i++)
             {
@@ -239,6 +260,11 @@ namespace RaidLeaderBot
             for (int i = 0; i < offHanderTemplates.Count; i++)
             {
                 OffHandItemTemplates.Add(offHanderTemplates[i]);
+            }
+
+            for (int i = 0; i < rangedTemplates.Count; i++)
+            {
+                RangedItemTemplates.Add(rangedTemplates[i]);
             }
 
             for (int i = 0; i < headTemplates.Count; i++)
@@ -483,7 +509,10 @@ namespace RaidLeaderBot
 
                         break;
                     case Class.Warrior:
-
+                        weaponSubClasses.Add(2);
+                        weaponSubClasses.Add(3);
+                        weaponSubClasses.Add(16);
+                        weaponSubClasses.Add(18);
                         break;
                 }
 
