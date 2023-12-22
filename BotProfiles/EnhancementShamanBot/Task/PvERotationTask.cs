@@ -4,6 +4,7 @@ using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using System.Linq;
+using static RaidMemberBot.Constants.Enums;
 
 namespace EnhancementShamanBot
 {
@@ -33,7 +34,7 @@ namespace EnhancementShamanBot
 
         public void Update()
         {
-            if (ObjectManager.Player.HealthPercent < 30 && Container.HostileTarget.HealthPercent > 50 && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(HealingWave))
+            if (ObjectManager.Player.HealthPercent < 30 && ObjectManager.Player.Target.HealthPercent > 50 && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(HealingWave))
             {
                 BotTasks.Push(new HealTask(Container, BotTasks));
                 return;
@@ -41,31 +42,37 @@ namespace EnhancementShamanBot
 
             if (ObjectManager.Aggressors.Count == 0)
             {
-                Container.HostileTarget = null;
                 BotTasks.Pop();
                 return;
             }
 
-            if (Container.HostileTarget == null || Container.HostileTarget.HealthPercent <= 0)
-            {
-                Container.HostileTarget = ObjectManager.Aggressors.First();
-            }
-
-            ObjectManager.Player.StartAttack();
-
-            if (Update(3))
+            if (ObjectManager.Player.Target != null && Update(3))
                 return;
 
-            if (ObjectManager.Aggressors.Any(x => (x.IsChanneling || x.IsCasting) && x.ManaPercent > 0 && !natureImmuneCreatures.Contains(Container.HostileTarget.Name)))
+            if (ObjectManager.Aggressors.Any(x => (x.IsChanneling || x.IsCasting) && x.ManaPercent > 0 && !natureImmuneCreatures.Contains(ObjectManager.Player.Target.Name)) && ObjectManager.Player.IsSpellReady(EarthShock))
             {
-                Container.HostileTarget = ObjectManager.Aggressors.First(x => (x.IsChanneling || x.IsCasting) && x.ManaPercent > 0 && !natureImmuneCreatures.Contains(Container.HostileTarget.Name));
+                ObjectManager.Player.SetTarget(ObjectManager.Aggressors.First(x => (x.IsChanneling || x.IsCasting) && x.ManaPercent > 0 && !natureImmuneCreatures.Contains(ObjectManager.Player.Target.Name)).Guid);
                 TryCastSpell(EarthShock, 0, 20, true);
             }
             else
             {
-                TryCastSpell(GroundingTotem, 0, int.MaxValue, ObjectManager.Aggressors.Any(a => a.IsCasting && Container.HostileTarget.Mana > 0));
+                if (ObjectManager.Player.Target == null
+                    || ObjectManager.Player.Target.HealthPercent <= 0
+                    || !TargetIsHostile()
+                    || ObjectManager.CurrentTargetMarker != TargetMarker.Skull)
+                {
+                    WoWUnit nextDPSTarget = GetDPSTarget();
+                    if (nextDPSTarget != null)
+                    {
+                        ObjectManager.Player.SetTarget(nextDPSTarget.Guid);
+                    }
+                }
 
-                TryCastSpell(TremorTotem, 0, int.MaxValue, fearingCreatures.Contains(Container.HostileTarget.Name) && !ObjectManager.Units.Any(u => u.Position.DistanceTo(ObjectManager.Player.Position) < 29 && u.HealthPercent > 0 && u.Name.Contains(TremorTotem)));
+                ObjectManager.Player.StartAttack();
+
+                TryCastSpell(GroundingTotem, 0, int.MaxValue, ObjectManager.Aggressors.Any(a => a.IsCasting && ObjectManager.Player.Target.Mana > 0));
+
+                TryCastSpell(TremorTotem, 0, int.MaxValue, fearingCreatures.Contains(ObjectManager.Player.Target.Name) && !ObjectManager.Units.Any(u => u.Position.DistanceTo(ObjectManager.Player.Position) < 29 && u.HealthPercent > 0 && u.Name.Contains(TremorTotem)));
 
                 TryCastSpell(WindfuryWeapon, 0, int.MaxValue, !ObjectManager.Player.MainhandIsEnchanted && ObjectManager.Player.IsSpellReady(WindfuryWeapon));
 
@@ -73,17 +80,17 @@ namespace EnhancementShamanBot
 
                 TryCastSpell(ManaSpringTotem, 0, int.MaxValue, !ObjectManager.Units.Any(u => u.Position.DistanceTo(ObjectManager.Player.Position) < 19 && u.HealthPercent > 0 && u.Name.Contains(ManaSpringTotem)));
 
-                TryCastSpell(StoneskinTotem, 0, int.MaxValue, Container.HostileTarget.Mana == 0 && !ObjectManager.Units.Any(u => u.Position.DistanceTo(ObjectManager.Player.Position) < 19 && u.HealthPercent > 0 && (u.Name.Contains(StoneclawTotem) || u.Name.Contains(StoneskinTotem) || u.Name.Contains(TremorTotem))));
+                TryCastSpell(StoneskinTotem, 0, int.MaxValue, ObjectManager.Player.Target.Mana == 0 && !ObjectManager.Units.Any(u => u.Position.DistanceTo(ObjectManager.Player.Position) < 19 && u.HealthPercent > 0 && (u.Name.Contains(StoneclawTotem) || u.Name.Contains(StoneskinTotem) || u.Name.Contains(TremorTotem))));
 
-                TryCastSpell(SearingTotem, 0, int.MaxValue, Container.HostileTarget.HealthPercent > 70 && !fireImmuneCreatures.Contains(Container.HostileTarget.Name) && Container.HostileTarget.Position.DistanceTo(ObjectManager.Player.Position) < 20 && !ObjectManager.Units.Any(u => u.Position.DistanceTo(ObjectManager.Player.Position) < 19 && u.HealthPercent > 0 && u.Name.Contains(SearingTotem)));
+                TryCastSpell(SearingTotem, 0, int.MaxValue, ObjectManager.Player.Target.HealthPercent > 70 && !fireImmuneCreatures.Contains(ObjectManager.Player.Target.Name) && ObjectManager.Player.Target.Position.DistanceTo(ObjectManager.Player.Position) < 20 && !ObjectManager.Units.Any(u => u.Position.DistanceTo(ObjectManager.Player.Position) < 19 && u.HealthPercent > 0 && u.Name.Contains(SearingTotem)));
 
                 TryCastSpell(Stormstrike, 0, 5);
 
-                TryCastSpell(FlameShock, 0, 20, !Container.HostileTarget.HasDebuff(FlameShock) && Container.HostileTarget.HealthPercent > 70 || natureImmuneCreatures.Contains(Container.HostileTarget.Name) && !fireImmuneCreatures.Contains(Container.HostileTarget.Name));
+                TryCastSpell(FlameShock, 0, 20, !ObjectManager.Player.Target.HasDebuff(FlameShock) && ObjectManager.Player.Target.HealthPercent > 70 || natureImmuneCreatures.Contains(ObjectManager.Player.Target.Name) && !fireImmuneCreatures.Contains(ObjectManager.Player.Target.Name));
 
-                //TryCastSpell(EarthShock, 0, 20, !natureImmuneCreatures.Contains(target.Name) && !ObjectManager.Player.IsSpellReady(Stormstrike) && Container.HostileTarget.HealthPercent < 70 || Container.HostileTarget.HasDebuff(Stormstrike) || Container.HostileTarget.IsCasting || Container.HostileTarget.IsChanneling || ObjectManager.Player.HasBuff(Clearcasting));
+                //TryCastSpell(EarthShock, 0, 20, !natureImmuneCreatures.Contains(target.Name) && !ObjectManager.Player.IsSpellReady(Stormstrike) && ObjectManager.Player.Target.HealthPercent < 70 || ObjectManager.Player.Target.HasDebuff(Stormstrike) || ObjectManager.Player.Target.IsCasting || ObjectManager.Player.Target.IsChanneling || ObjectManager.Player.HasBuff(Clearcasting));
 
-                TryCastSpell(LightningShield, 0, int.MaxValue, !natureImmuneCreatures.Contains(Container.HostileTarget.Name) && !ObjectManager.Player.HasBuff(LightningShield));
+                TryCastSpell(LightningShield, 0, int.MaxValue, !natureImmuneCreatures.Contains(ObjectManager.Player.Target.Name) && !ObjectManager.Player.HasBuff(LightningShield));
 
                 TryCastSpell(RockbiterWeapon, 0, int.MaxValue, !ObjectManager.Player.MainhandIsEnchanted && ObjectManager.Player.IsSpellReady(RockbiterWeapon) && !ObjectManager.Player.IsSpellReady(FlametongueWeapon) && !ObjectManager.Player.IsSpellReady(WindfuryWeapon));
 

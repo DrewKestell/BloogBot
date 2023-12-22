@@ -2,7 +2,6 @@
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Frames;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Helpers;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,7 +54,7 @@ namespace RaidMemberBot.AI.SharedStates
             }
             if (state == State.Dialog && Wait.For("DialogFrameDelay", 500))
             {
-                dialogFrame.SelectFirstGossipOfType(ObjectManager.Player, Enums.DialogType.vendor);
+                dialogFrame.SelectFirstGossipOfType(Enums.DialogType.vendor);
                 state = State.PrepMerchantFrame;
             }
             if (state == State.CloseMerchantFrame && Wait.For("BuyItemsCloseMerchantFrameStateDelay", 2000))

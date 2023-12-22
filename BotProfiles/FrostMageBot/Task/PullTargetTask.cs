@@ -2,7 +2,6 @@
 using RaidMemberBot.Client;
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Helpers;
 using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
@@ -34,15 +33,15 @@ namespace FrostMageBot
             if (ObjectManager.Player.IsCasting)
                 return;
 
-            if (Container.HostileTarget.TappedByOther)
+            if (ObjectManager.Player.Target.TappedByOther)
             {
                 ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
                 return;
             }
 
-            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position);
-            if (distanceToTarget <= range && ObjectManager.Player.InLosWith(Container.HostileTarget.Position))
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position);
+            if (distanceToTarget <= range && ObjectManager.Player.InLosWith(ObjectManager.Player.Target.Position))
             {
                 if (ObjectManager.Player.IsMoving)
                     ObjectManager.Player.StopAllMovement();
@@ -62,7 +61,7 @@ namespace FrostMageBot
             }
             else
             {
-                Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+                Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
                 ObjectManager.Player.MoveToward(nextWaypoint[0]);
             }
         }

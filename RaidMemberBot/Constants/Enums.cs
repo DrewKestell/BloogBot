@@ -371,7 +371,7 @@ namespace RaidMemberBot.Constants
             [Description("Troll")]
             Troll
         }
-        public enum TargetMarkers
+        public enum TargetMarker : byte
         {
             [Description("None")]
             None,
@@ -511,7 +511,7 @@ namespace RaidMemberBot.Constants
         /// <summary>
         ///     Equip slot type in item DB
         /// </summary>
-        public enum InventoryType
+        public enum InventoryType : byte
         {
             NonEquippable = 0,
             Head = 1,
@@ -633,25 +633,30 @@ namespace RaidMemberBot.Constants
         /// </summary>
         public enum EquipSlot
         {
+            Ammo = 0,
             Head = 1,
             Neck = 2,
             Shoulders = 3,
-            Back = 15,
-            Chest = 5,
             Shirt = 4,
-            Tabard = 19,
-            Wrist = 9,
-            MainHand = 16,
-            OffHand = 17,
-            Ranged = 18,
-            Hands = 10,
+            Chest = 5,
             Waist = 6,
             Legs = 7,
             Feet = 8,
+            Wrist = 9,
+            Hands = 10,
             Finger1 = 11,
             Finger2 = 12,
             Trinket1 = 13,
-            Trinket2 = 14
+            Trinket2 = 14,
+            Back = 15,
+            MainHand = 16,
+            OffHand = 17,
+            Ranged = 18,
+            Tabard = 19,
+            Bag0 = 20,
+            Bag1 = 21,
+            Bag2 = 22,
+            Bag3 = 23,
         }
 
         /// <summary>

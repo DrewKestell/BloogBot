@@ -2,7 +2,6 @@
 using RaidMemberBot.Client;
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Helpers;
 using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
@@ -34,11 +33,11 @@ namespace AfflictionWarlockBot
             if (ObjectManager.Pet == null && (ObjectManager.Player.IsSpellReady(SummonImp) || ObjectManager.Player.IsSpellReady(SummonVoidwalker)))
             {
                 ObjectManager.Player.StopAllMovement();
-                BotTasks.Push(new SummonVoidwalkerTask(Container, BotTasks));
+                BotTasks.Push(new SummonPetTask(Container, BotTasks));
                 return;
             }
 
-            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position);
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position);
             if (distanceToTarget < 27 && ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady(pullingSpell))
             {
                 if (ObjectManager.Player.MovementFlags != MovementFlags.MOVEFLAG_NONE)
@@ -55,7 +54,7 @@ namespace AfflictionWarlockBot
                 return;
             }
 
-            Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+            Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
             if (nextWaypoint.Length > 1)
             {
                 currentWaypoint = nextWaypoint[1];

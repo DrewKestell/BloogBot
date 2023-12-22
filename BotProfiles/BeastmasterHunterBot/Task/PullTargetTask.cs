@@ -25,14 +25,13 @@ namespace BeastMasterHunterBot
             {
                 WoWUnit potentialNewTarget = ObjectManager.Hostiles.First();
 
-                if (potentialNewTarget != null && potentialNewTarget.Guid != Container.HostileTarget.Guid)
+                if (potentialNewTarget != null && potentialNewTarget.Guid != ObjectManager.Player.TargetGuid)
                 {
-                    Container.HostileTarget = potentialNewTarget;
                     ObjectManager.Player.SetTarget(potentialNewTarget.TargetGuid);
                 }
             }
 
-            if (ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) < 28)
+            if (ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) < 28)
             {
                 ObjectManager.Player.StopAllMovement();
                 Functions.LuaCall(GunLuaScript);
@@ -41,7 +40,7 @@ namespace BeastMasterHunterBot
                 return;
             } else
             {
-                Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+                Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
                 ObjectManager.Player.MoveToward(nextWaypoint[1]);
             }
         }

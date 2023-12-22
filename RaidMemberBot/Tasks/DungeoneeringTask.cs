@@ -7,8 +7,8 @@ using RaidMemberBot.Models.Dto;
 using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
-using System.Security.Cryptography;
 using ObjectManager = RaidMemberBot.Game.Statics.ObjectManager;
 
 namespace RaidMemberBot.AI.SharedStates
@@ -24,16 +24,14 @@ namespace RaidMemberBot.AI.SharedStates
         Position currentMajorWaypoint;
         Position currentMinorWaypoint;
         Position destination;
+        Position currentWaypoint;
 
         Position lastPosition;
         int lastTickTime;
         int stuckDuration;
-        int remainingWaypoints;
-        private bool CanProceed => ObjectManager.PartyMembers.All(x => (x.ManaPercent < 0 || x.ManaPercent > 80) && x.HealthPercent > 85);
-        private bool NeedsGuidance => Container.CurrentWaypoint.DistanceTo(ObjectManager.Player.Position) < 3 || !ObjectManager.Player.IsFacing(Container.CurrentWaypoint) || !ObjectManager.Player.IsMoving;
         public DungeoneeringTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Ordinary)
         {
-            isPartyLeader = container.State.RaidLeader == container.State.CharacterName;
+            isPartyLeader = Container.State.RaidLeader == Container.State.CharacterName;
 
             NavigationClient.Instance.isRaidLeader = isPartyLeader;
 
@@ -41,9 +39,7 @@ namespace RaidMemberBot.AI.SharedStates
             {
                 CreateWaypointMap();
             }
-
-            Container.CurrentWaypoint = ObjectManager.Player.Position;
-
+            currentWaypoint = ObjectManager.Player.Position;
             WoWEventHandler.Instance.OnUnitKilled += Instance_OnUnitKilled;
         }
 
@@ -71,9 +67,10 @@ namespace RaidMemberBot.AI.SharedStates
                     if (ObjectManager.Hostiles.Count(x => ObjectManager.Player.InLosWith(x.Position) && x.Position.DistanceTo(ObjectManager.Player.Position) < 25) > 0)
                     {
                         ObjectManager.Player.StopAllMovement();
-                        //Console.WriteLine($"DUNGEON: if the party is ready to pull");
-                        Container.HostileTarget = ObjectManager.Hostiles.Where(x => ObjectManager.Player.InLosWith(x.Position)).OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x.Position, true)).First();
-                        ObjectManager.Player.SetTarget(Container.HostileTarget.Guid);
+
+                        WoWUnit target = ObjectManager.Hostiles.Where(x => ObjectManager.Player.InLosWith(x.Position)).OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x.Position, true)).First();
+                        ObjectManager.Player.SetTarget(target.Guid);
+                        Functions.LuaCall($"SetRaidTarget(\"target\", 8)");
 
                         BotTasks.Push(Container.CreatePullTargetTask(Container, BotTasks));
                         return;
@@ -135,7 +132,8 @@ namespace RaidMemberBot.AI.SharedStates
             if (dungeonWaypoints.Count > 0)
             {
                 destination = dungeonWaypoints.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true)).First();
-            } else
+            }
+            else
             {
                 Functions.LuaCall("DoEmote(\"CHEER\")");
                 BotTasks.Pop();
@@ -145,7 +143,9 @@ namespace RaidMemberBot.AI.SharedStates
 
         private void CleanupWaypoints()
         {
-            dungeonWaypoints.RemoveAll(x => ObjectManager.Player.InLosWith(x) && NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true) < 20);
+            List<Position> positions = dungeonWaypoints.Where(x => ObjectManager.Player.InLosWith(x) && NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true) < 20).ToList();
+            Container.State.VisitedWaypoints.AddRange(positions);
+            dungeonWaypoints.RemoveAll(x => positions.Contains(x));
 
             Position[] minorWaypointKeys = minorWaypoints.Keys.ToArray();
 
@@ -165,8 +165,7 @@ namespace RaidMemberBot.AI.SharedStates
 
             if (locations.Length > 1)
             {
-                Container.CurrentWaypoint = locations[1];
-
+                currentWaypoint = locations[1];
                 if (lastPosition != null && ObjectManager.Player.Position.DistanceTo(lastPosition) <= 0.05)
                     stuckDuration += Environment.TickCount - lastTickTime;
 
@@ -178,7 +177,7 @@ namespace RaidMemberBot.AI.SharedStates
                 lastPosition = ObjectManager.Player.Position;
                 lastTickTime = Environment.TickCount;
 
-                ObjectManager.Player.MoveToward(Container.CurrentWaypoint);
+                ObjectManager.Player.MoveToward(locations[1]);
             }
         }
 
@@ -265,8 +264,6 @@ namespace RaidMemberBot.AI.SharedStates
                 currentMinorWaypoint = minorWaypointsListFinal.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true)).First();
                 destination = currentMinorWaypoint;
             }
-
-            remainingWaypoints = dungeonWaypoints.Count();
         }
 
         // implementation of Traveling Salesman Problem
@@ -476,5 +473,8 @@ namespace RaidMemberBot.AI.SharedStates
 
             return waypoints;
         }
+        private bool CanProceed => ObjectManager.PartyMembers.All(x => (x.ManaPercent < 0 || x.ManaPercent > 80) && x.HealthPercent > 85);
+        private bool NeedsGuidance => currentWaypoint.DistanceTo(ObjectManager.Player.Position) < 3 || !ObjectManager.Player.IsFacing(currentWaypoint) || !ObjectManager.Player.IsMoving;
+
     }
 }

@@ -23,14 +23,14 @@ namespace RaidMemberBot.Game.Frames
 
         public IList<DialogOption> DialogOptions { get; } = new List<DialogOption>();
 
-        public void CloseDialogFrame(WoWPlayer player) => player.LuaCall("CloseGossip()");
+        public void CloseDialogFrame() => Functions.LuaCall("CloseGossip()");
 
-        public void SelectFirstGossipOfType(WoWPlayer player, DialogType type)
+        public void SelectFirstGossipOfType(DialogType type)
         {
             for (var i = 0; i < DialogOptions.Count; i++)
             {
                 if (DialogOptions[i].Type != type) continue;
-                player.LuaCall("SelectGossipOption(" + (i + 1) + ")");
+                Functions.LuaCall("SelectGossipOption(" + (i + 1) + ")");
                 return;
             }
         }

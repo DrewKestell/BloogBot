@@ -1,5 +1,4 @@
-﻿using RaidMemberBot.Constants;
-using RaidMemberBot.Mem;
+﻿using RaidMemberBot.Mem;
 using System;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
@@ -91,8 +90,12 @@ namespace RaidMemberBot.Objects
             catch (AccessViolationException)
             {
                 Console.WriteLine("Access violation on WoWObject.Position. Swallowing.");
-                return new Position(0, 0, 0);
             }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[WOW OBJECT]{e.Message} {e.StackTrace}");
+            }
+            return new Position(0, 0, 0);
         }
 
         public float Facing => GetFacing();

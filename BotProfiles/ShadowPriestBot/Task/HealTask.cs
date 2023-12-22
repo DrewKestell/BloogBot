@@ -17,6 +17,8 @@ namespace ShadowPriestBot
 
         readonly string healingSpell;
 
+        Position currentWaypoint;
+
         public HealTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Heal)
         {
             if (ObjectManager.Player.IsSpellReady(Heal))
@@ -31,12 +33,11 @@ namespace ShadowPriestBot
             {
                 if (ObjectManager.Player.IsCasting) return;
 
-                List<WoWPlayer> unhealthyMembers = ObjectManager.PartyMembers.Where(x => x.HealthPercent < 60).OrderBy(x => x.Health).ToList();
+                List<WoWUnit> unhealthyMembers = ObjectManager.PartyMembers.Where(x => x.HealthPercent < 60).OrderBy(x => x.Health).ToList();
 
                 if (unhealthyMembers.Count > 0)
                 {
-                    Container.FriendlyTarget = unhealthyMembers[0];
-                    ObjectManager.Player.SetTarget(Container.FriendlyTarget.Guid);
+                    ObjectManager.Player.SetTarget(unhealthyMembers[0].Guid);
                 }
                 else
                 {
@@ -45,22 +46,32 @@ namespace ShadowPriestBot
                     return;
                 }
 
-                if (Container.FriendlyTarget.HealthPercent > 70 || ObjectManager.Player.Mana < ObjectManager.Player.GetManaCost(healingSpell))
-                {
-                    if (ObjectManager.Player.IsSpellReady(Renew) && ObjectManager.Player.Mana > ObjectManager.Player.GetManaCost(Renew) && !Container.FriendlyTarget.HasBuff("Renew"))
-                        Functions.LuaCall($"CastSpellByName('{Renew}')");
+                if (ObjectManager.Player.Target == null) return;
 
-                    BotTasks.Pop();
-                    return;
+                if (ObjectManager.Player.InLosWith(ObjectManager.Player.Target.Position))
+                {
+                    if (ObjectManager.Player.IsSpellReady(healingSpell) && ObjectManager.Player.Mana > ObjectManager.Player.GetManaCost(healingSpell))
+                    {
+                        ObjectManager.Player.StopAllMovement();
+                        Functions.LuaCall($"CastSpellByName('{healingSpell}')");
+                    }
+                    else
+                    {
+                        if (ObjectManager.Player.IsSpellReady(Renew) && ObjectManager.Player.Mana > ObjectManager.Player.GetManaCost(Renew) && !ObjectManager.Player.Target.HasBuff("Renew"))
+                        {
+                            Functions.LuaCall($"CastSpellByName('{Renew}')");
+                        }
+                        BotTasks.Pop();
+                        return;
+                    }
                 }
-
-                if (!ObjectManager.Player.InLosWith(Container.FriendlyTarget.Position))
+                else
                 {
-                    Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.FriendlyTarget.Position, true);
+                    Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
 
                     if (nextWaypoint.Length > 1)
                     {
-                        Container.CurrentWaypoint = nextWaypoint[1];
+                        currentWaypoint = nextWaypoint[1];
                     }
                     else
                     {
@@ -69,12 +80,7 @@ namespace ShadowPriestBot
                         return;
                     }
 
-                    ObjectManager.Player.MoveToward(Container.CurrentWaypoint);
-                }
-                else
-                {
-                    ObjectManager.Player.StopAllMovement();
-                    Functions.LuaCall($"CastSpellByName('{healingSpell}')");
+                    ObjectManager.Player.MoveToward(currentWaypoint);
                 }
             }
             catch (Exception e)

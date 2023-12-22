@@ -323,11 +323,16 @@
     <Compile Include="Objects\Position.cs" />
     <Compile Include="Objects\WoWContainer.cs" />
     <Compile Include="Objects\WoWPlayer.cs" />
+    <Compile Include="Tasks\AddEquipmentTask.cs" />
+    <Compile Include="Tasks\AddPetSpellTask.cs" />
+    <Compile Include="Tasks\AddTalentTask.cs" />
     <Compile Include="Tasks\BuyItemsTask.cs" />
     <Compile Include="Tasks\DungeoneeringTask.cs" />
+    <Compile Include="Tasks\AddSpellTask.cs" />
     <Compile Include="Tasks\QuestingTask.cs" />
     <Compile Include="Tasks\LoginTask.cs" />
     <Compile Include="Tasks\LogoutTask.cs" />
+    <Compile Include="Tasks\ResetCharacterStateTask.cs" />
     <Compile Include="Tasks\UseItemOnUnitTask.cs" />
     <Compile Include="Tasks\TurnInQuestFromNpcTask.cs" />
     <Compile Include="Tasks\CombatRotationTask.cs" />
@@ -336,7 +341,6 @@
     <Compile Include="Tasks\GatherObjectTask.cs" />
     <Compile Include="Tasks\LootTask.cs" />
     <Compile Include="Tasks\MoveToCorpseTask.cs" />
-    <Compile Include="Tasks\MoveToWaypointTask.cs" />
     <Compile Include="Tasks\ReleaseCorpseTask.cs" />
     <Compile Include="Tasks\PickUpQuestFromNpcTask.cs" />
     <Compile Include="Tasks\RepairEquipmentTask.cs" />

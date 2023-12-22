@@ -2,7 +2,6 @@
 using RaidMemberBot.AI.SharedStates;
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Helpers;
 using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
@@ -50,7 +49,7 @@ namespace BalanceDruidBot
                     ObjectManager.Player.StartMovement(ControlBits.Back);
                 }
 
-                ObjectManager.Player.SetTarget(Container.HostileTarget.Guid);
+                ObjectManager.Player.SetTarget(ObjectManager.Player.TargetGuid);
                 castingEntanglingRoots = false;
             }
 
@@ -77,9 +76,9 @@ namespace BalanceDruidBot
                 return;
             }
 
-            if (Container.HostileTarget == null || Container.HostileTarget.HealthPercent <= 0)
+            if (ObjectManager.Player.Target == null || ObjectManager.Player.Target.HealthPercent <= 0)
             {
-                Container.HostileTarget = ObjectManager.Aggressors[0];
+                ObjectManager.Player.SetTarget(ObjectManager.Aggressors[0].Guid);
             }
 
             if (Update(30))
@@ -87,7 +86,7 @@ namespace BalanceDruidBot
 
             // if we get an add, root it with Entangling Roots
             if (ObjectManager.Aggressors.Count() == 2 && secondaryTarget == null)
-                secondaryTarget = ObjectManager.Aggressors.Single(u => u.Guid != Container.HostileTarget.Guid);
+                secondaryTarget = ObjectManager.Aggressors.Single(u => u.Guid != ObjectManager.Player.TargetGuid);
 
             if (secondaryTarget != null && !secondaryTarget.HasDebuff(EntanglingRoots))
             {
@@ -103,11 +102,11 @@ namespace BalanceDruidBot
 
             TryCastSpell(AbolishPoison, 0, int.MaxValue, ObjectManager.Player.IsPoisoned && !ObjectManager.Player.HasBuff(MoonkinForm), castOnSelf: true);
 
-            TryCastSpell(InsectSwarm, 0, 30, !Container.HostileTarget.HasDebuff(InsectSwarm) && Container.HostileTarget.HealthPercent > 20 && !ImmuneToNatureDamage.Any(s => Container.HostileTarget.Name.Contains(s)));
+            TryCastSpell(InsectSwarm, 0, 30, !ObjectManager.Player.Target.HasDebuff(InsectSwarm) && ObjectManager.Player.Target.HealthPercent > 20 && !ImmuneToNatureDamage.Any(s => ObjectManager.Player.Target.Name.Contains(s)));
 
-            TryCastSpell(Moonfire, 0, 30, !Container.HostileTarget.HasDebuff(Moonfire));
+            TryCastSpell(Moonfire, 0, 30, !ObjectManager.Player.Target.HasDebuff(Moonfire));
 
-            TryCastSpell(Wrath, 0, 30, !ImmuneToNatureDamage.Any(s => Container.HostileTarget.Name.Contains(s)));
+            TryCastSpell(Wrath, 0, 30, !ImmuneToNatureDamage.Any(s => ObjectManager.Player.Target.Name.Contains(s)));
         }
     }
 }

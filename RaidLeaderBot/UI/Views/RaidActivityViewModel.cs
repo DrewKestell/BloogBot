@@ -23,9 +23,6 @@ namespace RaidLeaderBot
         public float PositionX => CharacterState.Position.X;
         public float PositionY => CharacterState.Position.Y;
         public float PositionZ => CharacterState.Position.Z;
-        public float WaypointX => CharacterState.Waypoint.X;
-        public float WaypointY => CharacterState.Waypoint.Y;
-        public float WaypointZ => CharacterState.Waypoint.Z;
         public RaidPreset SelectedRaidPreset => SelectedPresetRaidList[SelectedRaidIndex];
         public List<RaidPreset> SelectedPresetRaidList => RaidLeaderBotSettings.Instance.ActivityPresets[_activityPresetIndex];
         public RaidLeaderViewModel SelectedRaid => RaidPresetViewModels[SelectedRaidIndex];

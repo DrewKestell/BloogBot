@@ -1,7 +1,5 @@
-﻿using RaidMemberBot.Constants;
-using RaidMemberBot.Game.Statics;
+﻿using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Mem;
-using RaidMemberBot.Models.Dto;
 using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;

@@ -1,7 +1,6 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Helpers;
 using RaidMemberBot.Mem;
 using System.Collections.Generic;
 
@@ -33,7 +32,7 @@ namespace FeralDruidBot
                 return;
             }
 
-            if (ObjectManager.Player.IsSpellReady(WarStomp) && ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) <= 8)
+            if (ObjectManager.Player.IsSpellReady(WarStomp) && ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) <= 8)
                 Functions.LuaCall($"CastSpellByName('{WarStomp}')");
 
             CastSpell(HealingTouch, castOnSelf: true);

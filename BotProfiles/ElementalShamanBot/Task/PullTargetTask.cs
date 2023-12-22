@@ -31,7 +31,7 @@ namespace ElementalShamanBot
             {
                 WoWUnit potentialNewTarget = ObjectManager.Hostiles.First();
 
-                if (potentialNewTarget != null && potentialNewTarget.Guid != Container.HostileTarget.Guid)
+                if (potentialNewTarget != null && potentialNewTarget.Guid != ObjectManager.Player.TargetGuid)
                 {
                     target = potentialNewTarget;
                     ObjectManager.Player.SetTarget(potentialNewTarget.Guid);
@@ -47,7 +47,7 @@ namespace ElementalShamanBot
                 return;
             }
 
-            Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+            Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
 
             if (locations.Length > 1)
             {

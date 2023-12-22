@@ -1,11 +1,5 @@
 {
-  "DiscordBotEnabled": false,
-  "DiscordBotToken": "<>",
-  "DiscordGuildId": "303695206333546496",
-  "DiscordRoleId": "707118407157284936",
-  "DiscordChannelId": "706714451000426596",
-  "UseVerboseLogging": false,
-  "PathToWoW": "E:\\repos\\Elysium Project Game Client\\WoW.exe",
+  "PathToWoW": "E:\\repos\\Elysium Project Game Client\\WoW_tweaked.exe",
   "ConfigServerPort": 8087,
   "ListenAddress": "127.0.0.1"
 }

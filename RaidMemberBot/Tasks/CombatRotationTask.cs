@@ -1,4 +1,5 @@
-﻿using RaidMemberBot.Client;
+﻿using Newtonsoft.Json;
+using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
@@ -6,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static RaidMemberBot.Constants.Enums;
-using static RaidMemberBot.Game.Statics.WoWEventHandler;
 
 namespace RaidMemberBot.AI.SharedStates
 {
@@ -22,10 +22,7 @@ namespace RaidMemberBot.AI.SharedStates
 
         public bool Update(int desiredRange)
         {
-            ObjectManager.Player.SetTarget(Container.HostileTarget.Guid);
-
-            hostileTargetLastPosition = Container.HostileTarget.Position;
-
+            hostileTargetLastPosition = ObjectManager.Player.Target.Position;
             // melee classes occasionally end up in a weird state where they are too close to hit the mob,
             // so we backpedal a bit to correct the position
             if (backpedaling && Environment.TickCount - backpedalStartTime > 500)
@@ -38,44 +35,54 @@ namespace RaidMemberBot.AI.SharedStates
 
             // the server-side los check is broken on Kronos, so we have to rely on an error message on the client.
             // when we see it, move toward the unit a bit to correct the position.
-            if (!ObjectManager.Player.InLosWith(Container.HostileTarget.Position) || ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) > desiredRange)
+            if (!ObjectManager.Player.InLosWith(ObjectManager.Player.Target.Position) || ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) > desiredRange)
             {
-                Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
-
-                if (locations.Count(loc => ObjectManager.Player.InLosWith(loc)) > 1)
+                if (ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) <= desiredRange)
                 {
-                    currentWaypoint = locations.Where(loc => ObjectManager.Player.InLosWith(loc)).ToArray()[1];
+                    ObjectManager.Player.StopAllMovement();
+
+                    ObjectManager.Player.Face(ObjectManager.Player.Target.Position);
                 }
                 else
                 {
-                    currentWaypoint = locations[1];
-                }
+                    Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
 
-                ObjectManager.Player.MoveToward(currentWaypoint);
+                    if (locations.Count(loc => ObjectManager.Player.InLosWith(loc)) > 1)
+                    {
+                        currentWaypoint = locations.Where(loc => ObjectManager.Player.InLosWith(loc)).ToArray()[1];
+                    }
+                    else
+                    {
+                        currentWaypoint = locations[1];
+                    }
+
+                    ObjectManager.Player.MoveToward(currentWaypoint); 
+                    return true;
+                }
             }
             else
             {
                 ObjectManager.Player.StopAllMovement();
 
                 // ensure we're facing the target
-                if (!ObjectManager.Player.IsFacing(Container.HostileTarget.Position))
-                    ObjectManager.Player.Face(Container.HostileTarget.Position);
+                if (!ObjectManager.Player.IsFacing(ObjectManager.Player.Target.Position))
+                    ObjectManager.Player.Face(ObjectManager.Player.Target.Position);
 
                 // make sure casters don't move or anything while they're casting by returning here
-                if ((ObjectManager.Player.IsCasting || ObjectManager.Player.IsChanneling) && ObjectManager.Player.Class != Class.Warrior)
+                if ((ObjectManager.Player.IsCasting || ObjectManager.Player.IsChanneling) && ObjectManager.Player.Class != Class.Warrior && ObjectManager.Player.Class != Class.Rogue)
                     return true;
-            }       
+            }
 
             return false;
         }
 
         public bool TargetMovingTowardPlayer =>
             hostileTargetLastPosition != null &&
-            hostileTargetLastPosition.DistanceTo(ObjectManager.Player.Position) > Container.HostileTarget.Position.DistanceTo(ObjectManager.Player.Position);
+            hostileTargetLastPosition.DistanceTo(ObjectManager.Player.Position) > ObjectManager.Player.Target.Position.DistanceTo(ObjectManager.Player.Position);
 
         public bool TargetIsFleeing =>
             hostileTargetLastPosition != null &&
-            hostileTargetLastPosition.DistanceTo(ObjectManager.Player.Position) < Container.HostileTarget.Position.DistanceTo(ObjectManager.Player.Position);
+            hostileTargetLastPosition.DistanceTo(ObjectManager.Player.Position) < ObjectManager.Player.Target.Position.DistanceTo(ObjectManager.Player.Position);
 
         public void TryCastSpell(string name, int minRange, int maxRange, bool condition = true, Action callback = null, bool castOnSelf = false) =>
             TryCastSpellInternal(name, minRange, maxRange, condition, callback, castOnSelf);
@@ -85,7 +92,7 @@ namespace RaidMemberBot.AI.SharedStates
 
         void TryCastSpellInternal(string name, int minRange, int maxRange, bool condition = true, Action callback = null, bool castOnSelf = false)
         {
-            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position);
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position);
 
             if (ObjectManager.Player.IsSpellReady(name) && distanceToTarget >= minRange && distanceToTarget <= maxRange && condition && !ObjectManager.Player.IsStunned && ((!ObjectManager.Player.IsCasting && !ObjectManager.Player.IsChanneling) || ObjectManager.Player.Class == Class.Warrior))
             {
@@ -123,10 +130,27 @@ namespace RaidMemberBot.AI.SharedStates
             }
         }
 
-        void CleanUp()
+        public WoWUnit GetDPSTarget()
         {
-            ObjectManager.Player.StopAllMovement();
-            BotTasks.Pop();
+            List<WoWUnit> woWUnits = ObjectManager.Aggressors.ToList();
+
+            for (int i = 0; i < woWUnits.Count; i++)
+            {
+                ObjectManager.Player.SetTarget(woWUnits[i].Guid);
+
+                if (ObjectManager.CurrentTargetMarker == TargetMarker.Skull)
+                {
+                    return woWUnits[i];
+                }
+            }
+            return null;
+        }
+
+        public bool TargetIsHostile()
+        {
+            if (ObjectManager.Player.TargetGuid == 0)
+                return false;
+            return ObjectManager.Aggressors.Any(x => x.Guid == ObjectManager.Player.TargetGuid);
         }
     }
 }

@@ -3,7 +3,6 @@ using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 

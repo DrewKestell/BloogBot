@@ -1,7 +1,6 @@
 ﻿using RaidMemberBot.Game;
 using RaidMemberBot.Game.Frames;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Helpers;
 using RaidMemberBot.Models;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
@@ -29,10 +28,10 @@ namespace RaidMemberBot.AI.SharedStates
 
             ObjectManager.Items
                 .Where(i =>
-                    (i.Info.Name != "Hearthstone") 
-                    //&&
-                    //(i.Info.ItemClass != ItemClass.Quest) &&
-                    //(i.Info.ItemClass != ItemClass.Bag)
+                    (i.Info.Name != "Hearthstone")
+                //&&
+                //(i.Info.ItemClass != ItemClass.Quest) &&
+                //(i.Info.ItemClass != ItemClass.Bag)
                 );
         }
 
@@ -40,8 +39,7 @@ namespace RaidMemberBot.AI.SharedStates
         {
             if (npcPosition.DistanceTo(ObjectManager.Player.Position) > 5)
             {
-                Container.CurrentWaypoint = npcPosition;
-                BotTasks.Push(new MoveToWaypointTask(Container, BotTasks));
+                ObjectManager.Player.MoveToward(npcPosition);
                 return;
             }
             if (state == State.Uninitialized)
@@ -74,7 +72,7 @@ namespace RaidMemberBot.AI.SharedStates
                 if (Wait.For("SellItemDelay", 200))
                 {
                     WoWItem itemToSell = itemsToSell.ElementAt(itemIndex);
-                    merchantFrame.SellItemByGuid(1, npc.Guid,  itemToSell.Guid);
+                    merchantFrame.SellItemByGuid(1, npc.Guid, itemToSell.Guid);
 
                     itemIndex++;
 
@@ -86,7 +84,7 @@ namespace RaidMemberBot.AI.SharedStates
             }
             if (state == State.Dialog && Wait.For("DialogFrameDelay", 500))
             {
-                dialogFrame.SelectFirstGossipOfType(ObjectManager.Player, Constants.Enums.DialogType.vendor);
+                dialogFrame.SelectFirstGossipOfType(Constants.Enums.DialogType.vendor);
                 state = State.PrepMerchantFrame;
             }
             if (state == State.CloseMerchantFrame && Wait.For("BuyItemsCloseMerchantFrameStateDelay", 2000))

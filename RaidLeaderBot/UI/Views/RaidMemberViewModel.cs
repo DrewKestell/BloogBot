@@ -59,15 +59,15 @@ namespace RaidLeaderBot
         public ObservableCollection<ItemTemplate> FingerItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
         public ObservableCollection<ItemTemplate> TrinketItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
         public ObservableCollection<ItemTemplate> BackItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
-        public ObservableCollection<ItemTemplate> RobeItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
+        public ObservableCollection<ItemTemplate> TabardItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
         public ObservableCollection<ItemTemplate> MainHandItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
         public ObservableCollection<ItemTemplate> OffHandItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
         public ObservableCollection<ItemTemplate> RangedItemTemplates { get; set; } = new ObservableCollection<ItemTemplate>();
-        public IEnumerable<TargetMarkers> EnumTargetMarkers
+        public IEnumerable<TargetMarker> EnumTargetMarkers
         {
             get
             {
-                return Enum.GetValues(typeof(TargetMarkers)).Cast<TargetMarkers>();
+                return Enum.GetValues(typeof(TargetMarker)).Cast<TargetMarker>();
             }
         }
         public IEnumerable<Class> ClassIds
@@ -90,10 +90,7 @@ namespace RaidLeaderBot
         }
         public int Level
         {
-            get
-            {
-                return RaidMemberPreset.Level;
-            }
+            get => RaidMemberPreset.Level;
             set
             {
                 RaidMemberPreset.Level = value;
@@ -127,7 +124,7 @@ namespace RaidLeaderBot
             ShoulderItemTemplates.Add(new ItemTemplate());
             BackItemTemplates.Add(new ItemTemplate());
             ChestItemTemplates.Add(new ItemTemplate());
-            RobeItemTemplates.Add(new ItemTemplate());
+            TabardItemTemplates.Add(new ItemTemplate());
             ShirtItemTemplates.Add(new ItemTemplate());
             WaistItemTemplates.Add(new ItemTemplate());
             LegItemTemplates.Add(new ItemTemplate());
@@ -141,19 +138,19 @@ namespace RaidLeaderBot
             OffHandItemTemplates.Add(new ItemTemplate());
             RangedItemTemplates.Add(new ItemTemplate());
 
-            List<ItemTemplate> headTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Head);
-            List<ItemTemplate> neckTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, 0, InventoryType.Neck);
-            List<ItemTemplate> shouldersTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, 0, InventoryType.Shoulders);
-            List<ItemTemplate> shirtTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, 0, InventoryType.Shirt);
-            List<ItemTemplate> chestTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Chest);
-            List<ItemTemplate> waistTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Waist);
-            List<ItemTemplate> legTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Legs);
-            List<ItemTemplate> feetTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Feet);
-            List<ItemTemplate> wristTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Wrists);
-            List<ItemTemplate> handTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Hands);
-            List<ItemTemplate> fingerTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, 0, InventoryType.Finger);
-            List<ItemTemplate> trinketTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, 0, InventoryType.Trinket);
-            List<ItemTemplate> cloakTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, 1, InventoryType.Cloak);
+            List<ItemTemplate> headTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Head).OrderBy(x => x.RequiredLevel).ToList();
+            List<ItemTemplate> neckTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, 0, InventoryType.Neck).OrderBy(x => x.RequiredLevel).ToList();
+            List<ItemTemplate> shouldersTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, 0, InventoryType.Shoulders).OrderBy(x => x.RequiredLevel).ToList();
+            List<ItemTemplate> shirtTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, 0, InventoryType.Shirt).OrderBy(x => x.RequiredLevel).ToList();
+            List<ItemTemplate> chestTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Chest).OrderBy(x => x.RequiredLevel).ToList();
+            List<ItemTemplate> waistTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Waist).OrderBy(x => x.RequiredLevel).ToList();
+            List<ItemTemplate> legTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Legs).OrderBy(x => x.RequiredLevel).ToList(); ;
+            List<ItemTemplate> feetTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Feet).OrderBy(x => x.RequiredLevel).ToList();
+            List<ItemTemplate> wristTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Wrists).OrderBy(x => x.RequiredLevel).ToList();
+            List<ItemTemplate> handTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, ArmorSubClass, InventoryType.Hands).OrderBy(x => x.RequiredLevel).ToList();
+            List<ItemTemplate> fingerTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, 0, InventoryType.Finger).OrderBy(x => x.RequiredLevel).ToList(); ;
+            List<ItemTemplate> trinketTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, 0, InventoryType.Trinket).OrderBy(x => x.RequiredLevel).ToList();
+            List<ItemTemplate> cloakTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, 1, InventoryType.Cloak).OrderBy(x => x.RequiredLevel).ToList();
             List<ItemTemplate> offHanderTemplates = new List<ItemTemplate>();
 
             if (Class == Class.Warrior || Class == Class.Paladin || Class == Class.Shaman)
@@ -228,29 +225,43 @@ namespace RaidLeaderBot
                 }
             }
 
-            for (int i = 0; i < rangedSubClasses.Count; i++)
+            if (Class == Class.Druid || Class == Class.Paladin || Class == Class.Shaman)
             {
-                List<ItemTemplate> thrownTemplates = MangosRepository.GetEquipmentByRequirements(Level, 2, rangedSubClasses[i], InventoryType.Thrown);
-                List<ItemTemplate> rangedLeftTemplates = MangosRepository.GetEquipmentByRequirements(Level, 2, rangedSubClasses[i], InventoryType.Ranged);
-                List<ItemTemplate> rangedRightTemplates = MangosRepository.GetEquipmentByRequirements(Level, 2, rangedSubClasses[i], InventoryType.RangedRight);
+                for (int i = 0; i < rangedSubClasses.Count; i++)
+                {
+                    List<ItemTemplate> relicTemplates = MangosRepository.GetEquipmentByRequirements(Level, 4, rangedSubClasses[i], InventoryType.Relic);
 
-                for (int j = 0; j < thrownTemplates.Count; j++)
-                {
-                    rangedTemplates.Add(thrownTemplates[j]);
+                    for (int j = 0; j < relicTemplates.Count; j++)
+                    {
+                        rangedTemplates.Add(relicTemplates[j]);
+                    }
                 }
-                for (int j = 0; j < rangedLeftTemplates.Count; j++)
+            } else
+            {
+                for (int i = 0; i < rangedSubClasses.Count; i++)
                 {
-                    rangedTemplates.Add(rangedLeftTemplates[j]);
-                }
-                for (int j = 0; j < rangedRightTemplates.Count; j++)
-                {
-                    rangedTemplates.Add(rangedRightTemplates[j]);
+                    List<ItemTemplate> thrownTemplates = MangosRepository.GetEquipmentByRequirements(Level, 2, rangedSubClasses[i], InventoryType.Thrown);
+                    List<ItemTemplate> rangedLeftTemplates = MangosRepository.GetEquipmentByRequirements(Level, 2, rangedSubClasses[i], InventoryType.Ranged);
+                    List<ItemTemplate> rangedRightTemplates = MangosRepository.GetEquipmentByRequirements(Level, 2, rangedSubClasses[i], InventoryType.RangedRight);
+
+                    for (int j = 0; j < thrownTemplates.Count; j++)
+                    {
+                        rangedTemplates.Add(thrownTemplates[j]);
+                    }
+                    for (int j = 0; j < rangedLeftTemplates.Count; j++)
+                    {
+                        rangedTemplates.Add(rangedLeftTemplates[j]);
+                    }
+                    for (int j = 0; j < rangedRightTemplates.Count; j++)
+                    {
+                        rangedTemplates.Add(rangedRightTemplates[j]);
+                    }
                 }
             }
 
-            mainHanderTemplates = mainHanderTemplates.OrderBy(x => x.Name).ToList();
-            offHanderTemplates = offHanderTemplates.OrderBy(x => x.Name).ToList();
-            rangedTemplates = rangedTemplates.OrderBy(x => x.Name).ToList();
+            mainHanderTemplates = mainHanderTemplates.OrderBy(x => x.RequiredLevel).ToList();
+            offHanderTemplates = offHanderTemplates.OrderBy(x => x.RequiredLevel).ToList();
+            rangedTemplates = rangedTemplates.OrderBy(x => x.RequiredLevel).ToList();
 
             for (int i = 0; i < mainHanderTemplates.Count; i++)
             {
@@ -331,12 +342,6 @@ namespace RaidLeaderBot
             {
                 TrinketItemTemplates.Add(trinketTemplates[i]);
             }
-
-            OnPropertyChanged(nameof(HeadItemTemplates));
-            OnPropertyChanged(nameof(NeckItemTemplates));
-            OnPropertyChanged(nameof(ShoulderItemTemplates));
-            OnPropertyChanged(nameof(BackItemTemplates));
-            OnPropertyChanged(nameof(ChestItemTemplates));
         }
 
         private short ArmorSubClass
@@ -385,28 +390,72 @@ namespace RaidLeaderBot
                 switch (Class)
                 {
                     case Class.Druid:
-
+                        weaponSubClasses.Add(4);
+                        weaponSubClasses.Add(5);
+                        weaponSubClasses.Add(10);
+                        weaponSubClasses.Add(13);
+                        weaponSubClasses.Add(15);
                         break;
                     case Class.Hunter:
+                        if (Level > 19)
+                        {
+                            weaponSubClasses.Add(6);
+                        }
 
+                        weaponSubClasses.Add(0);
+                        weaponSubClasses.Add(1);
+                        weaponSubClasses.Add(2);
+                        weaponSubClasses.Add(3);
+                        weaponSubClasses.Add(7);
+                        weaponSubClasses.Add(8);
+                        weaponSubClasses.Add(10);
+                        weaponSubClasses.Add(13);
+                        weaponSubClasses.Add(15);
+                        weaponSubClasses.Add(16);
+                        weaponSubClasses.Add(18);
                         break;
                     case Class.Mage:
-
+                        weaponSubClasses.Add(7);
+                        weaponSubClasses.Add(10);
+                        weaponSubClasses.Add(15);
+                        weaponSubClasses.Add(19);
                         break;
                     case Class.Paladin:
-
+                        weaponSubClasses.Add(0);
+                        weaponSubClasses.Add(1);
+                        weaponSubClasses.Add(4);
+                        weaponSubClasses.Add(5);
+                        weaponSubClasses.Add(7);
+                        weaponSubClasses.Add(8);
                         break;
                     case Class.Priest:
-
+                        weaponSubClasses.Add(4);
+                        weaponSubClasses.Add(10);
+                        weaponSubClasses.Add(15);
+                        weaponSubClasses.Add(19);
                         break;
                     case Class.Rogue:
-
+                        weaponSubClasses.Add(2);
+                        weaponSubClasses.Add(3);
+                        weaponSubClasses.Add(4);
+                        weaponSubClasses.Add(7);
+                        weaponSubClasses.Add(13);
+                        weaponSubClasses.Add(15);
+                        weaponSubClasses.Add(16);
+                        weaponSubClasses.Add(18);
                         break;
                     case Class.Shaman:
-
+                        weaponSubClasses.Add(0);
+                        weaponSubClasses.Add(4);
+                        weaponSubClasses.Add(10);
+                        weaponSubClasses.Add(13);
+                        weaponSubClasses.Add(15);
                         break;
                     case Class.Warlock:
-
+                        weaponSubClasses.Add(7);
+                        weaponSubClasses.Add(10);
+                        weaponSubClasses.Add(15);
+                        weaponSubClasses.Add(19);
                         break;
                     case Class.Warrior:
                         if (Level > 19)
@@ -416,6 +465,8 @@ namespace RaidLeaderBot
 
                         weaponSubClasses.Add(0);
                         weaponSubClasses.Add(1);
+                        weaponSubClasses.Add(2);
+                        weaponSubClasses.Add(3);
                         weaponSubClasses.Add(4);
                         weaponSubClasses.Add(5);
                         weaponSubClasses.Add(7);
@@ -423,6 +474,7 @@ namespace RaidLeaderBot
                         weaponSubClasses.Add(10);
                         weaponSubClasses.Add(13);
                         weaponSubClasses.Add(15);
+                        weaponSubClasses.Add(16);
                         weaponSubClasses.Add(17);
                         weaponSubClasses.Add(20);
                         break;
@@ -442,28 +494,27 @@ namespace RaidLeaderBot
                 switch (Class)
                 {
                     case Class.Druid:
-
                         break;
                     case Class.Hunter:
-
+                        weaponSubClasses.Add(7);
+                        weaponSubClasses.Add(13);
+                        weaponSubClasses.Add(15);
                         break;
                     case Class.Mage:
-
                         break;
                     case Class.Paladin:
-
                         break;
                     case Class.Priest:
-
                         break;
                     case Class.Rogue:
-
+                        weaponSubClasses.Add(4);
+                        weaponSubClasses.Add(7);
+                        weaponSubClasses.Add(13);
+                        weaponSubClasses.Add(15);
                         break;
                     case Class.Shaman:
-
                         break;
                     case Class.Warlock:
-
                         break;
                     case Class.Warrior:
                         weaponSubClasses.Add(0);
@@ -485,29 +536,21 @@ namespace RaidLeaderBot
                 switch (Class)
                 {
                     case Class.Druid:
-
-                        break;
-                    case Class.Hunter:
-
+                        weaponSubClasses.Add(8);
                         break;
                     case Class.Mage:
-
+                    case Class.Priest:
+                    case Class.Warlock:
+                        weaponSubClasses.Add(19);
                         break;
                     case Class.Paladin:
-
-                        break;
-                    case Class.Priest:
-
-                        break;
-                    case Class.Rogue:
-
+                        weaponSubClasses.Add(7);
                         break;
                     case Class.Shaman:
-
+                        weaponSubClasses.Add(9);
                         break;
-                    case Class.Warlock:
-
-                        break;
+                    case Class.Hunter:
+                    case Class.Rogue:
                     case Class.Warrior:
                         weaponSubClasses.Add(2);
                         weaponSubClasses.Add(3);
@@ -615,9 +658,9 @@ namespace RaidLeaderBot
             get => BackItemTemplates.First(x => x.Entry == _raidMemberPreset.BackItem);
             set => _raidMemberPreset.BackItem = value.Entry;
         }
-        public ItemTemplate RobeItem
+        public ItemTemplate TabardItem
         {
-            get => RobeItemTemplates.First(x => x.Entry == _raidMemberPreset.RobeItem);
+            get => TabardItemTemplates.First(x => x.Entry == _raidMemberPreset.RobeItem);
             set => _raidMemberPreset.RobeItem = value.Entry;
         }
         public ItemTemplate ShirtItem

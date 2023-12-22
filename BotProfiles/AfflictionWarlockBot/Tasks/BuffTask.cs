@@ -16,6 +16,8 @@ namespace AfflictionWarlockBot
         public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
         {
+            ObjectManager.Player.Stand();
+
             if ((!ObjectManager.Player.IsSpellReady(DemonSkin) || ObjectManager.Player.HasBuff(DemonSkin)) && (!ObjectManager.Player.IsSpellReady(DemonArmor) || ObjectManager.Player.HasBuff(DemonArmor)))
             {
                 if (HasEnoughSoulShards)
@@ -34,7 +36,7 @@ namespace AfflictionWarlockBot
         }
 
         void TryCastSpell(string name, int requiredLevel = 1)
-        {
+        {            
             if (!ObjectManager.Player.HasBuff(name) && ObjectManager.Player.Level >= requiredLevel && ObjectManager.Player.IsSpellReady(name))
                 Functions.LuaCall($"CastSpellByName('{name}')");
         }
@@ -42,8 +44,8 @@ namespace AfflictionWarlockBot
         void DeleteSoulShard()
         {
             var ss = GetSoulShards.Last();
-            ObjectManager.Player.LuaCall($"PickupContainerItem({Inventory.GetBagId(ss.Guid)},{Inventory.GetSlotId(ss.Guid)})");
-            ObjectManager.Player.LuaCall("DeleteCursorItem()");
+             Functions.LuaCall($"PickupContainerItem({Inventory.GetBagId(ss.Guid)},{Inventory.GetSlotId(ss.Guid)})");
+             Functions.LuaCall("DeleteCursorItem()");
         }
 
         bool HasEnoughSoulShards => GetSoulShards.Count() <= 1;

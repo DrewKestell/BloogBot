@@ -47,7 +47,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tasks\RestTask.cs" />
     <Compile Include="AfflictionWarlockBot.cs" />
-    <Compile Include="Tasks\SummonVoidwalkerTask.cs" />
+    <Compile Include="Tasks\SummonPetTask.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\RaidMemberBot\RaidMemberBot.csproj">

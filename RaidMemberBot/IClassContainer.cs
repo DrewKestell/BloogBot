@@ -9,9 +9,6 @@ namespace RaidMemberBot.AI
     {
         public string Name { get; }
         public CharacterState State { get; }
-        public Position CurrentWaypoint { get; set; }
-        public WoWUnit HostileTarget { get; set; }
-        public WoWUnit FriendlyTarget { get; set; }
         Func<IClassContainer, Stack<IBotTask>, IBotTask> CreateRestTask { get; }
         Func<IClassContainer, Stack<IBotTask>, IBotTask> CreateBuffTask { get; }
         Func<IClassContainer, Stack<IBotTask>, IBotTask> CreatePullTargetTask { get; }

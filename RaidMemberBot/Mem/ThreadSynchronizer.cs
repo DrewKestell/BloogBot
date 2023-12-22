@@ -50,8 +50,8 @@ namespace RaidMemberBot
 
         const int GWL_WNDPROC = -4;
         const int WM_USER = 0x0400;
-        static IntPtr oldCallback;
-        static WindowProc newCallback;
+        static readonly IntPtr oldCallback;
+        static readonly WindowProc newCallback;
         static int windowHandle;
 
         static ThreadSynchronizer()
@@ -99,7 +99,7 @@ namespace RaidMemberBot
             }
             catch (Exception e)
             {
-                Console.WriteLine($"THREAD SYNCHRONIZER: {e.StackTrace}");
+                Console.WriteLine($"[THREAD]{e.Message} {e.StackTrace} {actionQueue.Count}");
             }
 
             return CallWindowProc(oldCallback, hWnd, msg, wParam, lParam);

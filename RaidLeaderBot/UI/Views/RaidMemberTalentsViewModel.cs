@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using static RaidMemberBot.Constants.Enums;
 using System.Windows;
 using System.Windows.Input;
-using Newtonsoft.Json;
 
 namespace RaidLeaderBot
 {
@@ -114,7 +109,217 @@ namespace RaidLeaderBot
             OnPropertyChanged(nameof(Talent3Index17Enabled));
             OnPropertyChanged(nameof(Talent3Index18Enabled));
 
-            Console.WriteLine(JsonConvert.SerializeObject(Talents));
+            OnPropertyChanged(nameof(Talent1Index1Content));
+            OnPropertyChanged(nameof(Talent1Index2Content));
+            OnPropertyChanged(nameof(Talent1Index3Content));
+            OnPropertyChanged(nameof(Talent1Index4Content));
+            OnPropertyChanged(nameof(Talent1Index5Content));
+            OnPropertyChanged(nameof(Talent1Index6Content));
+            OnPropertyChanged(nameof(Talent1Index7Content));
+            OnPropertyChanged(nameof(Talent1Index8Content));
+            OnPropertyChanged(nameof(Talent1Index9Content));
+            OnPropertyChanged(nameof(Talent1Index10Content));
+            OnPropertyChanged(nameof(Talent1Index11Content));
+            OnPropertyChanged(nameof(Talent1Index12Content));
+            OnPropertyChanged(nameof(Talent1Index13Content));
+            OnPropertyChanged(nameof(Talent1Index14Content));
+            OnPropertyChanged(nameof(Talent1Index15Content));
+            OnPropertyChanged(nameof(Talent1Index16Content));
+            OnPropertyChanged(nameof(Talent1Index17Content));
+            OnPropertyChanged(nameof(Talent1Index18Content));
+
+            OnPropertyChanged(nameof(Talent2Index1Content));
+            OnPropertyChanged(nameof(Talent2Index2Content));
+            OnPropertyChanged(nameof(Talent2Index3Content));
+            OnPropertyChanged(nameof(Talent2Index4Content));
+            OnPropertyChanged(nameof(Talent2Index5Content));
+            OnPropertyChanged(nameof(Talent2Index6Content));
+            OnPropertyChanged(nameof(Talent2Index7Content));
+            OnPropertyChanged(nameof(Talent2Index8Content));
+            OnPropertyChanged(nameof(Talent2Index9Content));
+            OnPropertyChanged(nameof(Talent2Index10Content));
+            OnPropertyChanged(nameof(Talent2Index11Content));
+            OnPropertyChanged(nameof(Talent2Index12Content));
+            OnPropertyChanged(nameof(Talent2Index13Content));
+            OnPropertyChanged(nameof(Talent2Index14Content));
+            OnPropertyChanged(nameof(Talent2Index15Content));
+            OnPropertyChanged(nameof(Talent2Index16Content));
+            OnPropertyChanged(nameof(Talent2Index17Content));
+            OnPropertyChanged(nameof(Talent2Index18Content));
+            OnPropertyChanged(nameof(Talent2Index19Content));
+
+            OnPropertyChanged(nameof(Talent3Index1Content));
+            OnPropertyChanged(nameof(Talent3Index2Content));
+            OnPropertyChanged(nameof(Talent3Index3Content));
+            OnPropertyChanged(nameof(Talent3Index4Content));
+            OnPropertyChanged(nameof(Talent3Index5Content));
+            OnPropertyChanged(nameof(Talent3Index6Content));
+            OnPropertyChanged(nameof(Talent3Index7Content));
+            OnPropertyChanged(nameof(Talent3Index8Content));
+            OnPropertyChanged(nameof(Talent3Index9Content));
+            OnPropertyChanged(nameof(Talent3Index10Content));
+            OnPropertyChanged(nameof(Talent3Index11Content));
+            OnPropertyChanged(nameof(Talent3Index12Content));
+            OnPropertyChanged(nameof(Talent3Index13Content));
+            OnPropertyChanged(nameof(Talent3Index14Content));
+            OnPropertyChanged(nameof(Talent3Index15Content));
+            OnPropertyChanged(nameof(Talent3Index16Content));
+            OnPropertyChanged(nameof(Talent3Index17Content));
+            OnPropertyChanged(nameof(Talent3Index18Content));
+        }
+        public void LoadTalentList()
+        {
+            for(int i = 0; i < Talent1Row1Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent1Row1Spells[i]))
+                {
+                    Talent1Spells.Add(Talent1Row1Spells[i]);
+                }
+            }
+            for (int i = 0; i < Talent1Row2Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent1Row2Spells[i]))
+                {
+                    Talent1Spells.Add(Talent1Row2Spells[i]);
+                }
+            }
+            for (int i = 0; i < Talent1Row3Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent1Row3Spells[i]))
+                {
+                    Talent1Spells.Add(Talent1Row3Spells[i]);
+                }
+            }
+            for (int i = 0; i < Talent1Row4Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent1Row4Spells[i]))
+                {
+                    Talent1Spells.Add(Talent1Row4Spells[i]);
+                }
+            }
+            for (int i = 0; i < Talent1Row5Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent1Row5Spells[i]))
+                {
+                    Talent1Spells.Add(Talent1Row5Spells[i]);
+                }
+            }
+            for (int i = 0; i < Talent1Row6Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent1Row6Spells[i]))
+                {
+                    Talent1Spells.Add(Talent1Row6Spells[i]);
+                }
+            }
+            for (int i = 0; i < Talent1Row7Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent1Row7Spells[i]))
+                {
+                    Talent1Spells.Add(Talent1Row7Spells[i]);
+                }
+            }
+
+            for (int i = 0; i < Talent2Row1Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent2Row1Spells[i]))
+                {
+                    Talent2Spells.Add(Talent2Row1Spells[i]);
+                }
+            }
+            for (int i = 0; i < Talent2Row2Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent2Row2Spells[i]))
+                {
+                    Talent2Spells.Add(Talent2Row2Spells[i]);
+                }
+            }
+            for (int i = 0; i < Talent2Row3Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent2Row3Spells[i]))
+                {
+                    Talent2Spells.Add(Talent2Row3Spells[i]);
+                }
+            }
+            for (int i = 0; i < Talent2Row4Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent2Row4Spells[i]))
+                {
+                    Talent2Spells.Add(Talent2Row4Spells[i]);
+                }
+            }
+            for (int i = 0; i < Talent2Row5Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent2Row5Spells[i]))
+                {
+                    Talent2Spells.Add(Talent2Row5Spells[i]);
+                }
+            }
+            for (int i = 0; i < Talent2Row6Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent2Row6Spells[i]))
+                {
+                    Talent2Spells.Add(Talent2Row6Spells[i]);
+                }
+            }
+            for (int i = 0; i < Talent2Row7Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent2Row7Spells[i]))
+                {
+                    Talent2Spells.Add(Talent2Row7Spells[i]);
+                }
+            }
+
+            for (int i = 0; i < Talent3Row1Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent3Row1Spells[i]))
+                {
+                    Talent3Spells.Add(Talent3Row1Spells[i]);
+                }
+            }
+            for (int i = 0; i < Talent3Row2Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent3Row2Spells[i]))
+                {
+                    Talent3Spells.Add(Talent3Row2Spells[i]);
+                }
+            }
+            for (int i = 0; i < Talent3Row3Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent3Row3Spells[i]))
+                {
+                    Talent3Spells.Add(Talent3Row3Spells[i]);
+                }
+            }
+            for (int i = 0; i < Talent3Row4Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent3Row4Spells[i]))
+                {
+                    Talent3Spells.Add(Talent3Row4Spells[i]);
+                }
+            }
+            for (int i = 0; i < Talent3Row5Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent3Row5Spells[i]))
+                {
+                    Talent3Spells.Add(Talent3Row5Spells[i]);
+                }
+            }
+            for (int i = 0; i < Talent3Row6Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent3Row6Spells[i]))
+                {
+                    Talent3Spells.Add(Talent3Row6Spells[i]);
+                }
+            }
+            for (int i = 0; i < Talent3Row7Spells.Count; i++)
+            {
+                if (Talents.Contains(Talent3Row7Spells[i]))
+                {
+                    Talent3Spells.Add(Talent3Row7Spells[i]);
+                }
+            }
+
+            RefreshButtonEnables();
         }
         public List<int> Talents => _raidMemberPreset.Talents;
         public List<int> Spells => _raidMemberPreset.Spells;
@@ -184,7 +389,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Add(Talent1Index1Spells[i]);
                         Talents.Add(Talent1Index1Spells[i]);
-                        Talent1Index1Content = $"{i + 1} / {Talent1Index1Spells.Count}";
                         break;
                     }
                 }
@@ -201,7 +405,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Remove(Talent1Index1Spells[i]);
                         Talents.Remove(Talent1Index1Spells[i]);
-                        Talent1Index1Content = $"{i} / {Talent1Index1Spells.Count}";
                         break;
                     }
                 }
@@ -217,7 +420,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Add(Talent1Index2Spells[i]);
                         Talents.Add(Talent1Index2Spells[i]);
-                        Talent1Index2Content = $"{i + 1} / {Talent1Index2Spells.Count}";
                         break;
                     }
                 }
@@ -233,7 +435,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Remove(Talent1Index2Spells[i]);
                         Talents.Remove(Talent1Index2Spells[i]);
-                        Talent1Index2Content = $"{i} / {Talent1Index2Spells.Count}";
                         break;
                     }
                 }
@@ -250,7 +451,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Add(Talent1Index3Spells[i]);
                         Talents.Add(Talent1Index3Spells[i]);
-                        Talent1Index3Content = $"{i + 1} / {Talent1Index3Spells.Count}";
                         break;
                     }
                 }
@@ -266,7 +466,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Remove(Talent1Index3Spells[i]);
                         Talents.Remove(Talent1Index3Spells[i]);
-                        Talent1Index3Content = $"{i} / {Talent1Index3Spells.Count}";
                         break;
                     }
                 }
@@ -282,7 +481,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Add(Talent1Index4Spells[i]);
                         Talents.Add(Talent1Index4Spells[i]);
-                        Talent1Index4Content = $"{i + 1} / {Talent1Index4Spells.Count}";
                         break;
                     }
                 }
@@ -298,7 +496,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Remove(Talent1Index4Spells[i]);
                         Talents.Remove(Talent1Index4Spells[i]);
-                        Talent1Index4Content = $"{i} / {Talent1Index4Spells.Count}";
                         break;
                     }
                 }
@@ -314,7 +511,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Add(Talent1Index5Spells[i]);
                         Talents.Add(Talent1Index5Spells[i]);
-                        Talent1Index5Content = $"{i + 1} / {Talent1Index5Spells.Count}";
                         break;
                     }
                 }
@@ -330,7 +526,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Remove(Talent1Index5Spells[i]);
                         Talents.Remove(Talent1Index5Spells[i]);
-                        Talent1Index5Content = $"{i} / {Talent1Index6Spells.Count}";
                         break;
                     }
                 }
@@ -346,7 +541,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Add(Talent1Index6Spells[i]);
                         Talents.Add(Talent1Index6Spells[i]);
-                        Talent1Index6Content = $"{i + 1} / {Talent1Index6Spells.Count}";
                         break;
                     }
                 }
@@ -362,7 +556,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Remove(Talent1Index6Spells[i]);
                         Talents.Remove(Talent1Index6Spells[i]);
-                        Talent1Index7Content = $"{i} / {Talent1Index7Spells.Count}";
                         break;
                     }
                 }
@@ -378,7 +571,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Add(Talent1Index7Spells[i]);
                         Talents.Add(Talent1Index7Spells[i]);
-                        Talent1Index7Content = $"{i + 1} / {Talent1Index7Spells.Count}";
                         break;
                     }
                 }
@@ -394,7 +586,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Remove(Talent1Index7Spells[i]);
                         Talents.Remove(Talent1Index7Spells[i]);
-                        Talent1Index7Content = $"{i} / {Talent1Index7Spells.Count}";
                         break;
                     }
                 }
@@ -410,7 +601,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Add(Talent1Index8Spells[i]);
                         Talents.Add(Talent1Index8Spells[i]);
-                        Talent1Index8Content = $"{i + 1} / {Talent1Index8Spells.Count}";
                         break;
                     }
                 }
@@ -426,7 +616,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Remove(Talent1Index8Spells[i]);
                         Talents.Remove(Talent1Index8Spells[i]);
-                        Talent1Index8Content = $"{i} / {Talent1Index8Spells.Count}";
                         break;
                     }
                 }
@@ -442,7 +631,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Add(Talent1Index9Spells[i]);
                         Talents.Add(Talent1Index9Spells[i]);
-                        Talent1Index9Content = $"{i + 1} / {Talent1Index9Spells.Count}";
                         break;
                     }
                 }
@@ -458,7 +646,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Remove(Talent1Index9Spells[i]);
                         Talents.Remove(Talent1Index9Spells[i]);
-                        Talent1Index9Content = $"{i} / {Talent1Index9Spells.Count}";
                         break;
                     }
                 }
@@ -474,7 +661,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Add(Talent1Index10Spells[i]);
                         Talents.Add(Talent1Index10Spells[i]);
-                        Talent1Index10Content = $"{i + 1} / {Talent1Index10Spells.Count}";
                         break;
                     }
                 }
@@ -490,7 +676,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Remove(Talent1Index10Spells[i]);
                         Talents.Remove(Talent1Index10Spells[i]);
-                        Talent1Index10Content = $"{i} / {Talent1Index10Spells.Count}";
                         break;
                     }
                 }
@@ -506,7 +691,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Add(Talent1Index11Spells[i]);
                         Talents.Add(Talent1Index11Spells[i]);
-                        Talent1Index11Content = $"{i + 1} / {Talent1Index11Spells.Count}";
                         break;
                     }
                 }
@@ -522,7 +706,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Remove(Talent1Index11Spells[i]);
                         Talents.Remove(Talent1Index11Spells[i]);
-                        Talent1Index11Content = $"{i} / {Talent1Index11Spells.Count}";
                         break;
                     }
                 }
@@ -538,7 +721,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Add(Talent1Index12Spells[i]);
                         Talents.Add(Talent1Index12Spells[i]);
-                        Talent1Index12Content = $"{i + 1} / {Talent1Index12Spells.Count}";
                         break;
                     }
                 }
@@ -554,7 +736,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Remove(Talent1Index12Spells[i]);
                         Talents.Remove(Talent1Index12Spells[i]);
-                        Talent1Index12Content = $"{i} / {Talent1Index12Spells.Count}";
                         break;
                     }
                 }
@@ -570,7 +751,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Add(Talent1Index13Spells[i]);
                         Talents.Add(Talent1Index13Spells[i]);
-                        Talent1Index13Content = $"{i + 1} / {Talent1Index13Spells.Count}";
                         break;
                     }
                 }
@@ -586,7 +766,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Remove(Talent1Index13Spells[i]);
                         Talents.Remove(Talent1Index13Spells[i]);
-                        Talent1Index13Content = $"{i} / {Talent1Index13Spells.Count}";
                         break;
                     }
                 }
@@ -602,7 +781,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Add(Talent1Index14Spells[i]);
                         Talents.Add(Talent1Index14Spells[i]);
-                        Talent1Index14Content = $"{i + 1} / {Talent1Index14Spells.Count}";
                         break;
                     }
                 }
@@ -618,7 +796,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Remove(Talent1Index14Spells[i]);
                         Talents.Remove(Talent1Index14Spells[i]);
-                        Talent1Index14Content = $"{i} / {Talent1Index14Spells.Count}";
                         break;
                     }
                 }
@@ -634,7 +811,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Add(Talent1Index15Spells[i]);
                         Talents.Add(Talent1Index15Spells[i]);
-                        Talent1Index15Content = $"{i + 1} / {Talent1Index15Spells.Count}";
                         break;
                     }
                 }
@@ -650,7 +826,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Remove(Talent1Index15Spells[i]);
                         Talents.Remove(Talent1Index15Spells[i]);
-                        Talent1Index15Content = $"{i} / {Talent1Index15Spells.Count}";
                         break;
                     }
                 }
@@ -666,7 +841,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Add(Talent1Index16Spells[i]);
                         Talents.Add(Talent1Index16Spells[i]);
-                        Talent1Index16Content = $"{i + 1} / {Talent1Index16Spells.Count}";
                         break;
                     }
                 }
@@ -682,7 +856,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Remove(Talent1Index16Spells[i]);
                         Talents.Remove(Talent1Index16Spells[i]);
-                        Talent1Index16Content = $"{i} / {Talent1Index16Spells.Count}";
                         break;
                     }
                 }
@@ -698,7 +871,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Add(Talent1Index17Spells[i]);
                         Talents.Add(Talent1Index17Spells[i]);
-                        Talent1Index17Content = $"{i + 1} / {Talent1Index17Spells.Count}";
                         break;
                     }
                 }
@@ -714,7 +886,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Remove(Talent1Index17Spells[i]);
                         Talents.Remove(Talent1Index17Spells[i]);
-                        Talent1Index17Content = $"{i} / {Talent1Index17Spells.Count}";
                         break;
                     }
                 }
@@ -730,7 +901,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Add(Talent1Index18Spells[i]);
                         Talents.Add(Talent1Index18Spells[i]);
-                        Talent1Index18Content = $"{i + 1} / {Talent1Index18Spells.Count}";
                         break;
                     }
                 }
@@ -746,7 +916,6 @@ namespace RaidLeaderBot
                     {
                         Talent1Spells.Remove(Talent1Index18Spells[i]);
                         Talents.Remove(Talent1Index18Spells[i]);
-                        Talent1Index18Content = $"{i} / {Talent1Index18Spells.Count}";
                         break;
                     }
                 }
@@ -827,7 +996,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Add(Talent2Index1Spells[i]);
                         Talents.Add(Talent2Index1Spells[i]);
-                        Talent2Index1Content = $"{i + 1} / {Talent2Index1Spells.Count}";
                         break;
                     }
                 }
@@ -844,7 +1012,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Remove(Talent2Index1Spells[i]);
                         Talents.Remove(Talent2Index1Spells[i]);
-                        Talent2Index1Content = $"{i} / {Talent2Index1Spells.Count}";
                         break;
                     }
                 }
@@ -860,7 +1027,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Add(Talent2Index2Spells[i]);
                         Talents.Add(Talent2Index2Spells[i]);
-                        Talent2Index2Content = $"{i + 1} / {Talent2Index2Spells.Count}";
                         break;
                     }
                 }
@@ -876,7 +1042,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Remove(Talent2Index2Spells[i]);
                         Talents.Remove(Talent2Index2Spells[i]);
-                        Talent2Index2Content = $"{i} / {Talent2Index2Spells.Count}";
                         break;
                     }
                 }
@@ -893,7 +1058,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Add(Talent2Index3Spells[i]);
                         Talents.Add(Talent2Index3Spells[i]);
-                        Talent2Index3Content = $"{i + 1} / {Talent2Index3Spells.Count}";
                         break;
                     }
                 }
@@ -909,7 +1073,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Remove(Talent2Index3Spells[i]);
                         Talents.Remove(Talent2Index3Spells[i]);
-                        Talent2Index3Content = $"{i} / {Talent2Index3Spells.Count}";
                         break;
                     }
                 }
@@ -925,7 +1088,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Add(Talent2Index4Spells[i]);
                         Talents.Add(Talent2Index4Spells[i]);
-                        Talent2Index4Content = $"{i + 1} / {Talent2Index4Spells.Count}";
                         break;
                     }
                 }
@@ -941,7 +1103,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Remove(Talent2Index4Spells[i]);
                         Talents.Remove(Talent2Index4Spells[i]);
-                        Talent2Index4Content = $"{i} / {Talent2Index4Spells.Count}";
                         break;
                     }
                 }
@@ -957,7 +1118,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Add(Talent2Index5Spells[i]);
                         Talents.Add(Talent2Index5Spells[i]);
-                        Talent2Index5Content = $"{i + 1} / {Talent2Index5Spells.Count}";
                         break;
                     }
                 }
@@ -973,7 +1133,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Remove(Talent2Index5Spells[i]);
                         Talents.Remove(Talent2Index5Spells[i]);
-                        Talent2Index5Content = $"{i} / {Talent2Index6Spells.Count}";
                         break;
                     }
                 }
@@ -989,7 +1148,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Add(Talent2Index6Spells[i]);
                         Talents.Add(Talent2Index6Spells[i]);
-                        Talent2Index6Content = $"{i + 1} / {Talent2Index6Spells.Count}";
                         break;
                     }
                 }
@@ -1005,7 +1163,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Remove(Talent2Index6Spells[i]);
                         Talents.Remove(Talent2Index6Spells[i]);
-                        Talent2Index7Content = $"{i} / {Talent2Index7Spells.Count}";
                         break;
                     }
                 }
@@ -1021,7 +1178,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Add(Talent2Index7Spells[i]);
                         Talents.Add(Talent2Index7Spells[i]);
-                        Talent2Index7Content = $"{i + 1} / {Talent2Index7Spells.Count}";
                         break;
                     }
                 }
@@ -1037,7 +1193,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Remove(Talent2Index7Spells[i]);
                         Talents.Remove(Talent2Index7Spells[i]);
-                        Talent2Index7Content = $"{i} / {Talent2Index7Spells.Count}";
                         break;
                     }
                 }
@@ -1053,7 +1208,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Add(Talent2Index8Spells[i]);
                         Talents.Add(Talent2Index8Spells[i]);
-                        Talent2Index8Content = $"{i + 1} / {Talent2Index8Spells.Count}";
                         break;
                     }
                 }
@@ -1069,7 +1223,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Remove(Talent2Index8Spells[i]);
                         Talents.Remove(Talent2Index8Spells[i]);
-                        Talent2Index8Content = $"{i} / {Talent2Index8Spells.Count}";
                         break;
                     }
                 }
@@ -1085,7 +1238,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Add(Talent2Index9Spells[i]);
                         Talents.Add(Talent2Index9Spells[i]);
-                        Talent2Index9Content = $"{i + 1} / {Talent2Index9Spells.Count}";
                         break;
                     }
                 }
@@ -1101,7 +1253,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Remove(Talent2Index9Spells[i]);
                         Talents.Remove(Talent2Index9Spells[i]);
-                        Talent2Index9Content = $"{i} / {Talent2Index9Spells.Count}";
                         break;
                     }
                 }
@@ -1117,7 +1268,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Add(Talent2Index10Spells[i]);
                         Talents.Add(Talent2Index10Spells[i]);
-                        Talent2Index10Content = $"{i + 1} / {Talent2Index10Spells.Count}";
                         break;
                     }
                 }
@@ -1133,7 +1283,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Remove(Talent2Index10Spells[i]);
                         Talents.Remove(Talent2Index10Spells[i]);
-                        Talent2Index10Content = $"{i} / {Talent2Index10Spells.Count}";
                         break;
                     }
                 }
@@ -1149,7 +1298,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Add(Talent2Index11Spells[i]);
                         Talents.Add(Talent2Index11Spells[i]);
-                        Talent2Index11Content = $"{i + 1} / {Talent2Index11Spells.Count}";
                         break;
                     }
                 }
@@ -1165,7 +1313,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Remove(Talent2Index11Spells[i]);
                         Talents.Remove(Talent2Index11Spells[i]);
-                        Talent2Index11Content = $"{i} / {Talent2Index11Spells.Count}";
                         break;
                     }
                 }
@@ -1181,7 +1328,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Add(Talent2Index12Spells[i]);
                         Talents.Add(Talent2Index12Spells[i]);
-                        Talent2Index12Content = $"{i + 1} / {Talent2Index12Spells.Count}";
                         break;
                     }
                 }
@@ -1197,7 +1343,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Remove(Talent2Index12Spells[i]);
                         Talents.Remove(Talent2Index12Spells[i]);
-                        Talent2Index12Content = $"{i} / {Talent2Index12Spells.Count}";
                         break;
                     }
                 }
@@ -1213,7 +1358,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Add(Talent2Index13Spells[i]);
                         Talents.Add(Talent2Index13Spells[i]);
-                        Talent2Index13Content = $"{i + 1} / {Talent2Index13Spells.Count}";
                         break;
                     }
                 }
@@ -1229,7 +1373,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Remove(Talent2Index13Spells[i]);
                         Talents.Remove(Talent2Index13Spells[i]);
-                        Talent2Index13Content = $"{i} / {Talent2Index13Spells.Count}";
                         break;
                     }
                 }
@@ -1245,7 +1388,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Add(Talent2Index14Spells[i]);
                         Talents.Add(Talent2Index14Spells[i]);
-                        Talent2Index14Content = $"{i + 1} / {Talent2Index14Spells.Count}";
                         break;
                     }
                 }
@@ -1261,7 +1403,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Remove(Talent2Index14Spells[i]);
                         Talents.Remove(Talent2Index14Spells[i]);
-                        Talent2Index14Content = $"{i} / {Talent2Index14Spells.Count}";
                         break;
                     }
                 }
@@ -1277,7 +1418,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Add(Talent2Index15Spells[i]);
                         Talents.Add(Talent2Index15Spells[i]);
-                        Talent2Index15Content = $"{i + 1} / {Talent2Index15Spells.Count}";
                         break;
                     }
                 }
@@ -1293,7 +1433,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Remove(Talent2Index15Spells[i]);
                         Talents.Remove(Talent2Index15Spells[i]);
-                        Talent2Index15Content = $"{i} / {Talent2Index15Spells.Count}";
                         break;
                     }
                 }
@@ -1309,7 +1448,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Add(Talent2Index16Spells[i]);
                         Talents.Add(Talent2Index16Spells[i]);
-                        Talent2Index16Content = $"{i + 1} / {Talent2Index16Spells.Count}";
                         break;
                     }
                 }
@@ -1325,7 +1463,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Remove(Talent2Index16Spells[i]);
                         Talents.Remove(Talent2Index16Spells[i]);
-                        Talent2Index16Content = $"{i} / {Talent2Index16Spells.Count}";
                         break;
                     }
                 }
@@ -1341,7 +1478,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Add(Talent2Index17Spells[i]);
                         Talents.Add(Talent2Index17Spells[i]);
-                        Talent2Index17Content = $"{i + 1} / {Talent2Index17Spells.Count}";
                         break;
                     }
                 }
@@ -1357,7 +1493,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Remove(Talent2Index17Spells[i]);
                         Talents.Remove(Talent2Index17Spells[i]);
-                        Talent2Index17Content = $"{i} / {Talent2Index17Spells.Count}";
                         break;
                     }
                 }
@@ -1373,7 +1508,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Add(Talent2Index18Spells[i]);
                         Talents.Add(Talent2Index18Spells[i]);
-                        Talent2Index18Content = $"{i + 1} / {Talent2Index18Spells.Count}";
                         break;
                     }
                 }
@@ -1389,7 +1523,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Remove(Talent2Index18Spells[i]);
                         Talents.Remove(Talent2Index18Spells[i]);
-                        Talent2Index18Content = $"{i} / {Talent2Index18Spells.Count}";
                         break;
                     }
                 }
@@ -1405,7 +1538,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Add(Talent2Index19Spells[i]);
                         Talents.Add(Talent2Index19Spells[i]);
-                        Talent2Index19Content = $"{i + 1} / {Talent2Index19Spells.Count}";
                         break;
                     }
                 }
@@ -1421,7 +1553,6 @@ namespace RaidLeaderBot
                     {
                         Talent2Spells.Remove(Talent2Index19Spells[i]);
                         Talents.Remove(Talent2Index19Spells[i]);
-                        Talent2Index19Content = $"{i} / {Talent2Index19Spells.Count}";
                         break;
                     }
                 }
@@ -1504,7 +1635,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Add(Talent3Index1Spells[i]);
                         Talents.Add(Talent3Index1Spells[i]);
-                        Talent3Index1Content = $"{i + 1} / {Talent3Index1Spells.Count}";
                         break;
                     }
                 }
@@ -1521,7 +1651,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Remove(Talent3Index1Spells[i]);
                         Talents.Remove(Talent3Index1Spells[i]);
-                        Talent3Index1Content = $"{i} / {Talent3Index1Spells.Count}";
                         break;
                     }
                 }
@@ -1537,7 +1666,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Add(Talent3Index2Spells[i]);
                         Talents.Add(Talent3Index2Spells[i]);
-                        Talent3Index2Content = $"{i + 1} / {Talent3Index2Spells.Count}";
                         break;
                     }
                 }
@@ -1553,7 +1681,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Remove(Talent3Index2Spells[i]);
                         Talents.Remove(Talent3Index2Spells[i]);
-                        Talent3Index2Content = $"{i} / {Talent3Index2Spells.Count}";
                         break;
                     }
                 }
@@ -1570,7 +1697,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Add(Talent3Index3Spells[i]);
                         Talents.Add(Talent3Index3Spells[i]);
-                        Talent3Index3Content = $"{i + 1} / {Talent3Index3Spells.Count}";
                         break;
                     }
                 }
@@ -1586,7 +1712,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Remove(Talent3Index3Spells[i]);
                         Talents.Remove(Talent3Index3Spells[i]);
-                        Talent3Index3Content = $"{i} / {Talent3Index3Spells.Count}";
                         break;
                     }
                 }
@@ -1602,7 +1727,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Add(Talent3Index4Spells[i]);
                         Talents.Add(Talent3Index4Spells[i]);
-                        Talent3Index4Content = $"{i + 1} / {Talent3Index4Spells.Count}";
                         break;
                     }
                 }
@@ -1618,7 +1742,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Remove(Talent3Index4Spells[i]);
                         Talents.Remove(Talent3Index4Spells[i]);
-                        Talent3Index4Content = $"{i} / {Talent3Index4Spells.Count}";
                         break;
                     }
                 }
@@ -1634,7 +1757,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Add(Talent3Index5Spells[i]);
                         Talents.Add(Talent3Index5Spells[i]);
-                        Talent3Index5Content = $"{i + 1} / {Talent3Index5Spells.Count}";
                         break;
                     }
                 }
@@ -1650,7 +1772,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Remove(Talent3Index5Spells[i]);
                         Talents.Remove(Talent3Index5Spells[i]);
-                        Talent3Index5Content = $"{i} / {Talent3Index6Spells.Count}";
                         break;
                     }
                 }
@@ -1666,7 +1787,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Add(Talent3Index6Spells[i]);
                         Talents.Add(Talent3Index6Spells[i]);
-                        Talent3Index6Content = $"{i + 1} / {Talent3Index6Spells.Count}";
                         break;
                     }
                 }
@@ -1682,7 +1802,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Remove(Talent3Index6Spells[i]);
                         Talents.Remove(Talent3Index6Spells[i]);
-                        Talent3Index7Content = $"{i} / {Talent3Index7Spells.Count}";
                         break;
                     }
                 }
@@ -1698,7 +1817,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Add(Talent3Index7Spells[i]);
                         Talents.Add(Talent3Index7Spells[i]);
-                        Talent3Index7Content = $"{i + 1} / {Talent3Index7Spells.Count}";
                         break;
                     }
                 }
@@ -1714,7 +1832,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Remove(Talent3Index7Spells[i]);
                         Talents.Remove(Talent3Index7Spells[i]);
-                        Talent3Index7Content = $"{i} / {Talent3Index7Spells.Count}";
                         break;
                     }
                 }
@@ -1730,7 +1847,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Add(Talent3Index8Spells[i]);
                         Talents.Add(Talent3Index8Spells[i]);
-                        Talent3Index8Content = $"{i + 1} / {Talent3Index8Spells.Count}";
                         break;
                     }
                 }
@@ -1746,7 +1862,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Remove(Talent3Index8Spells[i]);
                         Talents.Remove(Talent3Index8Spells[i]);
-                        Talent3Index8Content = $"{i} / {Talent3Index8Spells.Count}";
                         break;
                     }
                 }
@@ -1762,7 +1877,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Add(Talent3Index9Spells[i]);
                         Talents.Add(Talent3Index9Spells[i]);
-                        Talent3Index9Content = $"{i + 1} / {Talent3Index9Spells.Count}";
                         break;
                     }
                 }
@@ -1778,7 +1892,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Remove(Talent3Index9Spells[i]);
                         Talents.Remove(Talent3Index9Spells[i]);
-                        Talent3Index9Content = $"{i} / {Talent3Index9Spells.Count}";
                         break;
                     }
                 }
@@ -1794,7 +1907,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Add(Talent3Index10Spells[i]);
                         Talents.Add(Talent3Index10Spells[i]);
-                        Talent3Index10Content = $"{i + 1} / {Talent3Index10Spells.Count}";
                         break;
                     }
                 }
@@ -1810,7 +1922,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Remove(Talent3Index10Spells[i]);
                         Talents.Remove(Talent3Index10Spells[i]);
-                        Talent3Index10Content = $"{i} / {Talent3Index10Spells.Count}";
                         break;
                     }
                 }
@@ -1826,7 +1937,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Add(Talent3Index11Spells[i]);
                         Talents.Add(Talent3Index11Spells[i]);
-                        Talent3Index11Content = $"{i + 1} / {Talent3Index11Spells.Count}";
                         break;
                     }
                 }
@@ -1842,7 +1952,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Remove(Talent3Index11Spells[i]);
                         Talents.Remove(Talent3Index11Spells[i]);
-                        Talent3Index11Content = $"{i} / {Talent3Index11Spells.Count}";
                         break;
                     }
                 }
@@ -1858,7 +1967,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Add(Talent3Index12Spells[i]);
                         Talents.Add(Talent3Index12Spells[i]);
-                        Talent3Index12Content = $"{i + 1} / {Talent3Index12Spells.Count}";
                         break;
                     }
                 }
@@ -1874,7 +1982,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Remove(Talent3Index12Spells[i]);
                         Talents.Remove(Talent3Index12Spells[i]);
-                        Talent3Index12Content = $"{i} / {Talent3Index12Spells.Count}";
                         break;
                     }
                 }
@@ -1890,7 +1997,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Add(Talent3Index13Spells[i]);
                         Talents.Add(Talent3Index13Spells[i]);
-                        Talent3Index13Content = $"{i + 1} / {Talent3Index13Spells.Count}";
                         break;
                     }
                 }
@@ -1906,7 +2012,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Remove(Talent3Index13Spells[i]);
                         Talents.Remove(Talent3Index13Spells[i]);
-                        Talent3Index13Content = $"{i} / {Talent3Index13Spells.Count}";
                         break;
                     }
                 }
@@ -1922,7 +2027,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Add(Talent3Index14Spells[i]);
                         Talents.Add(Talent3Index14Spells[i]);
-                        Talent3Index14Content = $"{i + 1} / {Talent3Index14Spells.Count}";
                         break;
                     }
                 }
@@ -1938,7 +2042,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Remove(Talent3Index14Spells[i]);
                         Talents.Remove(Talent3Index14Spells[i]);
-                        Talent3Index14Content = $"{i} / {Talent3Index14Spells.Count}";
                         break;
                     }
                 }
@@ -1954,7 +2057,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Add(Talent3Index15Spells[i]);
                         Talents.Add(Talent3Index15Spells[i]);
-                        Talent3Index15Content = $"{i + 1} / {Talent3Index15Spells.Count}";
                         break;
                     }
                 }
@@ -1970,7 +2072,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Remove(Talent3Index15Spells[i]);
                         Talents.Remove(Talent3Index15Spells[i]);
-                        Talent3Index15Content = $"{i} / {Talent3Index15Spells.Count}";
                         break;
                     }
                 }
@@ -1986,7 +2087,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Add(Talent3Index16Spells[i]);
                         Talents.Add(Talent3Index16Spells[i]);
-                        Talent3Index16Content = $"{i + 1} / {Talent3Index16Spells.Count}";
                         break;
                     }
                 }
@@ -2002,7 +2102,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Remove(Talent3Index16Spells[i]);
                         Talents.Remove(Talent3Index16Spells[i]);
-                        Talent3Index16Content = $"{i} / {Talent3Index16Spells.Count}";
                         break;
                     }
                 }
@@ -2018,7 +2117,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Add(Talent3Index17Spells[i]);
                         Talents.Add(Talent3Index17Spells[i]);
-                        Talent3Index17Content = $"{i + 1} / {Talent3Index17Spells.Count}";
                         break;
                     }
                 }
@@ -2034,7 +2132,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Remove(Talent3Index17Spells[i]);
                         Talents.Remove(Talent3Index17Spells[i]);
-                        Talent3Index17Content = $"{i} / {Talent3Index17Spells.Count}";
                         break;
                     }
                 }
@@ -2050,7 +2147,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Add(Talent3Index18Spells[i]);
                         Talents.Add(Talent3Index18Spells[i]);
-                        Talent3Index18Content = $"{i + 1} / {Talent3Index18Spells.Count}";
                         break;
                     }
                 }
@@ -2066,7 +2162,6 @@ namespace RaidLeaderBot
                     {
                         Talent3Spells.Remove(Talent3Index18Spells[i]);
                         Talents.Remove(Talent3Index18Spells[i]);
-                        Talent3Index18Content = $"{i} / {Talent3Index18Spells.Count}";
                         break;
                     }
                 }
@@ -2111,42 +2206,24 @@ namespace RaidLeaderBot
         public ICommand Talent3Index17RemoveCommand => _talent3Index17RemoveCommand ??= new CommandHandler(RemoveTalent3Index17, true);
         public ICommand Talent3Index18RemoveCommand => _talent3Index18RemoveCommand ??= new CommandHandler(RemoveTalent3Index18, true);
 
-        private string _talent1Index1Content;
-        private string _talent1Index2Content;
-        private string _talent1Index3Content;
-        private string _talent1Index4Content;
-        private string _talent1Index5Content;
-        private string _talent1Index6Content;
-        private string _talent1Index7Content;
-        private string _talent1Index8Content;
-        private string _talent1Index9Content;
-        private string _talent1Index10Content;
-        private string _talent1Index11Content;
-        private string _talent1Index12Content;
-        private string _talent1Index13Content;
-        private string _talent1Index14Content;
-        private string _talent1Index15Content;
-        private string _talent1Index16Content;
-        private string _talent1Index17Content;
-        private string _talent1Index18Content;
-        public string Talent1Index1Content { get => _talent1Index1Content; set { _talent1Index1Content = value; OnPropertyChanged(nameof(Talent1Index1Content)); } }
-        public string Talent1Index2Content { get => _talent1Index2Content; set { _talent1Index2Content = value; OnPropertyChanged(nameof(Talent1Index2Content)); } }
-        public string Talent1Index3Content { get => _talent1Index3Content; set { _talent1Index3Content = value; OnPropertyChanged(nameof(Talent1Index3Content)); } }
-        public string Talent1Index4Content { get => _talent1Index4Content; set { _talent1Index4Content = value; OnPropertyChanged(nameof(Talent1Index4Content)); } }
-        public string Talent1Index5Content { get => _talent1Index5Content; set { _talent1Index5Content = value; OnPropertyChanged(nameof(Talent1Index5Content)); } }
-        public string Talent1Index6Content { get => _talent1Index6Content; set { _talent1Index6Content = value; OnPropertyChanged(nameof(Talent1Index6Content)); } }
-        public string Talent1Index7Content { get => _talent1Index7Content; set { _talent1Index7Content = value; OnPropertyChanged(nameof(Talent1Index7Content)); } }
-        public string Talent1Index8Content { get => _talent1Index8Content; set { _talent1Index8Content = value; OnPropertyChanged(nameof(Talent1Index8Content)); } }
-        public string Talent1Index9Content { get => _talent1Index9Content; set { _talent1Index9Content = value; OnPropertyChanged(nameof(Talent1Index9Content)); } }
-        public string Talent1Index10Content { get => _talent1Index10Content; set { _talent1Index10Content = value; OnPropertyChanged(nameof(Talent1Index10Content)); } }
-        public string Talent1Index11Content { get => _talent1Index11Content; set { _talent1Index11Content = value; OnPropertyChanged(nameof(Talent1Index11Content)); } }
-        public string Talent1Index12Content { get => _talent1Index12Content; set { _talent1Index12Content = value; OnPropertyChanged(nameof(Talent1Index12Content)); } }
-        public string Talent1Index13Content { get => _talent1Index13Content; set { _talent1Index13Content = value; OnPropertyChanged(nameof(Talent1Index13Content)); } }
-        public string Talent1Index14Content { get => _talent1Index14Content; set { _talent1Index14Content = value; OnPropertyChanged(nameof(Talent1Index14Content)); } }
-        public string Talent1Index15Content { get => _talent1Index15Content; set { _talent1Index15Content = value; OnPropertyChanged(nameof(Talent1Index15Content)); } }
-        public string Talent1Index16Content { get => _talent1Index16Content; set { _talent1Index16Content = value; OnPropertyChanged(nameof(Talent1Index16Content)); } }
-        public string Talent1Index17Content { get => _talent1Index17Content; set { _talent1Index17Content = value; OnPropertyChanged(nameof(Talent1Index17Content)); } }
-        public string Talent1Index18Content { get => _talent1Index18Content; set { _talent1Index18Content = value; OnPropertyChanged(nameof(Talent1Index18Content)); } }
+        public string Talent1Index1Content => Talent1Index1Spells.Count(x => Talent1Spells.Contains(x)) + " / " + Talent1Index1Spells.Count;
+        public string Talent1Index2Content => Talent1Index2Spells.Count(x => Talent1Spells.Contains(x)) + " / " + Talent1Index2Spells.Count;
+        public string Talent1Index3Content => Talent1Index3Spells.Count(x => Talent1Spells.Contains(x)) + " / " + Talent1Index3Spells.Count;
+        public string Talent1Index4Content => Talent1Index4Spells.Count(x => Talent1Spells.Contains(x)) + " / " + Talent1Index4Spells.Count;
+        public string Talent1Index5Content => Talent1Index5Spells.Count(x => Talent1Spells.Contains(x)) + " / " + Talent1Index5Spells.Count;
+        public string Talent1Index6Content => Talent1Index6Spells.Count(x => Talent1Spells.Contains(x)) + " / " + Talent1Index6Spells.Count;
+        public string Talent1Index7Content => Talent1Index7Spells.Count(x => Talent1Spells.Contains(x)) + " / " + Talent1Index7Spells.Count;
+        public string Talent1Index8Content => Talent1Index8Spells.Count(x => Talent1Spells.Contains(x)) + " / " + Talent1Index8Spells.Count;
+        public string Talent1Index9Content => Talent1Index9Spells.Count(x => Talent1Spells.Contains(x)) + " / " + Talent1Index9Spells.Count;
+        public string Talent1Index10Content => Talent1Index10Spells.Count(x => Talent1Spells.Contains(x)) + " / " + Talent1Index10Spells.Count;
+        public string Talent1Index11Content => Talent1Index11Spells.Count(x => Talent1Spells.Contains(x)) + " / " + Talent1Index11Spells.Count;
+        public string Talent1Index12Content => Talent1Index12Spells.Count(x => Talent1Spells.Contains(x)) + " / " + Talent1Index12Spells.Count;
+        public string Talent1Index13Content => Talent1Index13Spells.Count(x => Talent1Spells.Contains(x)) + " / " + Talent1Index13Spells.Count;
+        public string Talent1Index14Content => Talent1Index14Spells.Count(x => Talent1Spells.Contains(x)) + " / " + Talent1Index14Spells.Count;
+        public string Talent1Index15Content => Talent1Index15Spells.Count(x => Talent1Spells.Contains(x)) + " / " + Talent1Index15Spells.Count;
+        public string Talent1Index16Content => Talent1Index16Spells.Count(x => Talent1Spells.Contains(x)) + " / " + Talent1Index16Spells.Count;
+        public string Talent1Index17Content => Talent1Index17Spells.Count(x => Talent1Spells.Contains(x)) + " / " + Talent1Index17Spells.Count;
+        public string Talent1Index18Content => Talent1Index18Spells.Count(x => Talent1Spells.Contains(x)) + " / " + Talent1Index18Spells.Count;
         public virtual bool Talent1Index1Enabled => true;
         public virtual bool Talent1Index2Enabled => true;
         public virtual bool Talent1Index3Enabled => true;
@@ -2294,44 +2371,25 @@ namespace RaidLeaderBot
         public int Talent1Index17Row { get => _talent1Index17Row; set { _talent1Index17Row = value; OnPropertyChanged(nameof(Talent1Index17Row)); } }
         public int Talent1Index18Row { get => _talent1Index18Row; set { _talent1Index18Row = value; OnPropertyChanged(nameof(Talent1Index18Row)); } }
 
-        private string _talent2Index1Content;
-        private string _talent2Index2Content;
-        private string _talent2Index3Content;
-        private string _talent2Index4Content;
-        private string _talent2Index5Content;
-        private string _talent2Index6Content;
-        private string _talent2Index7Content;
-        private string _talent2Index8Content;
-        private string _talent2Index9Content;
-        private string _talent2Index10Content;
-        private string _talent2Index11Content;
-        private string _talent2Index12Content;
-        private string _talent2Index13Content;
-        private string _talent2Index14Content;
-        private string _talent2Index15Content;
-        private string _talent2Index16Content;
-        private string _talent2Index17Content;
-        private string _talent2Index18Content;
-        private string _talent2Index19Content;
-        public string Talent2Index1Content { get => _talent2Index1Content; set { _talent2Index1Content = value; OnPropertyChanged(nameof(Talent2Index1Content)); } }
-        public string Talent2Index2Content { get => _talent2Index2Content; set { _talent2Index2Content = value; OnPropertyChanged(nameof(Talent2Index2Content)); } }
-        public string Talent2Index3Content { get => _talent2Index3Content; set { _talent2Index3Content = value; OnPropertyChanged(nameof(Talent2Index3Content)); } }
-        public string Talent2Index4Content { get => _talent2Index4Content; set { _talent2Index4Content = value; OnPropertyChanged(nameof(Talent2Index4Content)); } }
-        public string Talent2Index5Content { get => _talent2Index5Content; set { _talent2Index5Content = value; OnPropertyChanged(nameof(Talent2Index5Content)); } }
-        public string Talent2Index6Content { get => _talent2Index6Content; set { _talent2Index6Content = value; OnPropertyChanged(nameof(Talent2Index6Content)); } }
-        public string Talent2Index7Content { get => _talent2Index7Content; set { _talent2Index7Content = value; OnPropertyChanged(nameof(Talent2Index7Content)); } }
-        public string Talent2Index8Content { get => _talent2Index8Content; set { _talent2Index8Content = value; OnPropertyChanged(nameof(Talent2Index8Content)); } }
-        public string Talent2Index9Content { get => _talent2Index9Content; set { _talent2Index9Content = value; OnPropertyChanged(nameof(Talent2Index9Content)); } }
-        public string Talent2Index10Content { get => _talent2Index10Content; set { _talent2Index10Content = value; OnPropertyChanged(nameof(Talent2Index10Content)); } }
-        public string Talent2Index11Content { get => _talent2Index11Content; set { _talent2Index11Content = value; OnPropertyChanged(nameof(Talent2Index11Content)); } }
-        public string Talent2Index12Content { get => _talent2Index12Content; set { _talent2Index12Content = value; OnPropertyChanged(nameof(Talent2Index12Content)); } }
-        public string Talent2Index13Content { get => _talent2Index13Content; set { _talent2Index13Content = value; OnPropertyChanged(nameof(Talent2Index13Content)); } }
-        public string Talent2Index14Content { get => _talent2Index14Content; set { _talent2Index14Content = value; OnPropertyChanged(nameof(Talent2Index14Content)); } }
-        public string Talent2Index15Content { get => _talent2Index15Content; set { _talent2Index15Content = value; OnPropertyChanged(nameof(Talent2Index15Content)); } }
-        public string Talent2Index16Content { get => _talent2Index16Content; set { _talent2Index16Content = value; OnPropertyChanged(nameof(Talent2Index16Content)); } }
-        public string Talent2Index17Content { get => _talent2Index17Content; set { _talent2Index17Content = value; OnPropertyChanged(nameof(Talent2Index17Content)); } }
-        public string Talent2Index18Content { get => _talent2Index18Content; set { _talent2Index18Content = value; OnPropertyChanged(nameof(Talent2Index18Content)); } }
-        public string Talent2Index19Content { get => _talent2Index19Content; set { _talent2Index19Content = value; OnPropertyChanged(nameof(Talent2Index19Content)); } }
+        public string Talent2Index1Content => Talent2Index1Spells.Count(x => Talent2Spells.Contains(x)) + " / " + Talent2Index1Spells.Count;
+        public string Talent2Index2Content => Talent2Index2Spells.Count(x => Talent2Spells.Contains(x)) + " / " + Talent2Index2Spells.Count;
+        public string Talent2Index3Content => Talent2Index3Spells.Count(x => Talent2Spells.Contains(x)) + " / " + Talent2Index3Spells.Count;
+        public string Talent2Index4Content => Talent2Index4Spells.Count(x => Talent2Spells.Contains(x)) + " / " + Talent2Index4Spells.Count;
+        public string Talent2Index5Content => Talent2Index5Spells.Count(x => Talent2Spells.Contains(x)) + " / " + Talent2Index5Spells.Count;
+        public string Talent2Index6Content => Talent2Index6Spells.Count(x => Talent2Spells.Contains(x)) + " / " + Talent2Index6Spells.Count;
+        public string Talent2Index7Content => Talent2Index7Spells.Count(x => Talent2Spells.Contains(x)) + " / " + Talent2Index7Spells.Count;
+        public string Talent2Index8Content => Talent2Index8Spells.Count(x => Talent2Spells.Contains(x)) + " / " + Talent2Index8Spells.Count;
+        public string Talent2Index9Content => Talent2Index9Spells.Count(x => Talent2Spells.Contains(x)) + " / " + Talent2Index9Spells.Count;
+        public string Talent2Index10Content => Talent2Index10Spells.Count(x => Talent2Spells.Contains(x)) + " / " + Talent2Index10Spells.Count;
+        public string Talent2Index11Content => Talent2Index11Spells.Count(x => Talent2Spells.Contains(x)) + " / " + Talent2Index11Spells.Count;
+        public string Talent2Index12Content => Talent2Index12Spells.Count(x => Talent2Spells.Contains(x)) + " / " + Talent2Index12Spells.Count;
+        public string Talent2Index13Content => Talent2Index13Spells.Count(x => Talent2Spells.Contains(x)) + " / " + Talent2Index13Spells.Count;
+        public string Talent2Index14Content => Talent2Index14Spells.Count(x => Talent2Spells.Contains(x)) + " / " + Talent2Index14Spells.Count;
+        public string Talent2Index15Content => Talent2Index15Spells.Count(x => Talent2Spells.Contains(x)) + " / " + Talent2Index15Spells.Count;
+        public string Talent2Index16Content => Talent2Index16Spells.Count(x => Talent2Spells.Contains(x)) + " / " + Talent2Index16Spells.Count;
+        public string Talent2Index17Content => Talent2Index17Spells.Count(x => Talent2Spells.Contains(x)) + " / " + Talent2Index17Spells.Count;
+        public string Talent2Index18Content => Talent2Index18Spells.Count(x => Talent2Spells.Contains(x)) + " / " + Talent2Index18Spells.Count;
+        public string Talent2Index19Content => Talent2Index19Spells.Count(x => Talent2Spells.Contains(x)) + " / " + Talent2Index19Spells.Count;
         public int Talent2Index1Column { get => _talent2Index1Column; set { _talent2Index1Column = value; OnPropertyChanged(nameof(Talent2Index1Column)); } }
         public int Talent2Index2Column { get => _talent2Index2Column; set { _talent2Index2Column = value; OnPropertyChanged(nameof(Talent2Index2Column)); } }
         public int Talent2Index3Column { get => _talent2Index3Column; set { _talent2Index3Column = value; OnPropertyChanged(nameof(Talent2Index3Column)); } }
@@ -2371,42 +2429,24 @@ namespace RaidLeaderBot
         public int Talent2Index18Row { get => _talent2Index18Row; set { _talent2Index18Row = value; OnPropertyChanged(nameof(Talent2Index18Row)); } }
         public int Talent2Index19Row { get => _talent2Index19Row; set { _talent2Index19Row = value; OnPropertyChanged(nameof(Talent2Index19Row)); } }
 
-        private string _talent3Index1Content;
-        private string _talent3Index2Content;
-        private string _talent3Index3Content;
-        private string _talent3Index4Content;
-        private string _talent3Index5Content;
-        private string _talent3Index6Content;
-        private string _talent3Index7Content;
-        private string _talent3Index8Content;
-        private string _talent3Index9Content;
-        private string _talent3Index10Content;
-        private string _talent3Index11Content;
-        private string _talent3Index12Content;
-        private string _talent3Index13Content;
-        private string _talent3Index14Content;
-        private string _talent3Index15Content;
-        private string _talent3Index16Content;
-        private string _talent3Index17Content;
-        private string _talent3Index18Content;
-        public string Talent3Index1Content { get => _talent3Index1Content; set { _talent3Index1Content = value; OnPropertyChanged(nameof(Talent3Index1Content)); } }
-        public string Talent3Index2Content { get => _talent3Index2Content; set { _talent3Index2Content = value; OnPropertyChanged(nameof(Talent3Index2Content)); } }
-        public string Talent3Index3Content { get => _talent3Index3Content; set { _talent3Index3Content = value; OnPropertyChanged(nameof(Talent3Index3Content)); } }
-        public string Talent3Index4Content { get => _talent3Index4Content; set { _talent3Index4Content = value; OnPropertyChanged(nameof(Talent3Index4Content)); } }
-        public string Talent3Index5Content { get => _talent3Index5Content; set { _talent3Index5Content = value; OnPropertyChanged(nameof(Talent3Index5Content)); } }
-        public string Talent3Index6Content { get => _talent3Index6Content; set { _talent3Index6Content = value; OnPropertyChanged(nameof(Talent3Index6Content)); } }
-        public string Talent3Index7Content { get => _talent3Index7Content; set { _talent3Index7Content = value; OnPropertyChanged(nameof(Talent3Index7Content)); } }
-        public string Talent3Index8Content { get => _talent3Index8Content; set { _talent3Index8Content = value; OnPropertyChanged(nameof(Talent3Index8Content)); } }
-        public string Talent3Index9Content { get => _talent3Index9Content; set { _talent3Index9Content = value; OnPropertyChanged(nameof(Talent3Index9Content)); } }
-        public string Talent3Index10Content { get => _talent3Index10Content; set { _talent3Index10Content = value; OnPropertyChanged(nameof(Talent3Index10Content)); } }
-        public string Talent3Index11Content { get => _talent3Index11Content; set { _talent3Index11Content = value; OnPropertyChanged(nameof(Talent3Index11Content)); } }
-        public string Talent3Index12Content { get => _talent3Index12Content; set { _talent3Index12Content = value; OnPropertyChanged(nameof(Talent3Index12Content)); } }
-        public string Talent3Index13Content { get => _talent3Index13Content; set { _talent3Index13Content = value; OnPropertyChanged(nameof(Talent3Index13Content)); } }
-        public string Talent3Index14Content { get => _talent3Index14Content; set { _talent3Index14Content = value; OnPropertyChanged(nameof(Talent3Index14Content)); } }
-        public string Talent3Index15Content { get => _talent3Index15Content; set { _talent3Index15Content = value; OnPropertyChanged(nameof(Talent3Index15Content)); } }
-        public string Talent3Index16Content { get => _talent3Index16Content; set { _talent3Index16Content = value; OnPropertyChanged(nameof(Talent3Index16Content)); } }
-        public string Talent3Index17Content { get => _talent3Index17Content; set { _talent3Index17Content = value; OnPropertyChanged(nameof(Talent3Index17Content)); } }
-        public string Talent3Index18Content { get => _talent3Index18Content; set { _talent3Index18Content = value; OnPropertyChanged(nameof(Talent3Index18Content)); } }
+        public string Talent3Index1Content => Talent3Index1Spells.Count(x => Talent3Spells.Contains(x)) + " / " + Talent3Index1Spells.Count;
+        public string Talent3Index2Content => Talent3Index2Spells.Count(x => Talent3Spells.Contains(x)) + " / " + Talent3Index2Spells.Count;
+        public string Talent3Index3Content => Talent3Index3Spells.Count(x => Talent3Spells.Contains(x)) + " / " + Talent3Index3Spells.Count;
+        public string Talent3Index4Content => Talent3Index4Spells.Count(x => Talent3Spells.Contains(x)) + " / " + Talent3Index4Spells.Count;
+        public string Talent3Index5Content => Talent3Index5Spells.Count(x => Talent3Spells.Contains(x)) + " / " + Talent3Index5Spells.Count;
+        public string Talent3Index6Content => Talent3Index6Spells.Count(x => Talent3Spells.Contains(x)) + " / " + Talent3Index6Spells.Count;
+        public string Talent3Index7Content => Talent3Index7Spells.Count(x => Talent3Spells.Contains(x)) + " / " + Talent3Index7Spells.Count;
+        public string Talent3Index8Content => Talent3Index8Spells.Count(x => Talent3Spells.Contains(x)) + " / " + Talent3Index8Spells.Count;
+        public string Talent3Index9Content => Talent3Index9Spells.Count(x => Talent3Spells.Contains(x)) + " / " + Talent3Index9Spells.Count;
+        public string Talent3Index10Content => Talent3Index10Spells.Count(x => Talent3Spells.Contains(x)) + " / " + Talent3Index10Spells.Count;
+        public string Talent3Index11Content => Talent3Index11Spells.Count(x => Talent3Spells.Contains(x)) + " / " + Talent3Index11Spells.Count;
+        public string Talent3Index12Content => Talent3Index12Spells.Count(x => Talent3Spells.Contains(x)) + " / " + Talent3Index12Spells.Count;
+        public string Talent3Index13Content => Talent3Index13Spells.Count(x => Talent3Spells.Contains(x)) + " / " + Talent3Index13Spells.Count;
+        public string Talent3Index14Content => Talent3Index14Spells.Count(x => Talent3Spells.Contains(x)) + " / " + Talent3Index14Spells.Count;
+        public string Talent3Index15Content => Talent3Index15Spells.Count(x => Talent3Spells.Contains(x)) + " / " + Talent3Index15Spells.Count;
+        public string Talent3Index16Content => Talent3Index16Spells.Count(x => Talent3Spells.Contains(x)) + " / " + Talent3Index16Spells.Count;
+        public string Talent3Index17Content => Talent3Index17Spells.Count(x => Talent3Spells.Contains(x)) + " / " + Talent3Index17Spells.Count;
+        public string Talent3Index18Content => Talent3Index18Spells.Count(x => Talent3Spells.Contains(x)) + " / " + Talent3Index18Spells.Count;
         public int Talent3Index1Column { get => _talent3Index1Column; set { _talent3Index1Column = value; OnPropertyChanged(nameof(Talent3Index1Column)); } }
         public int Talent3Index2Column { get => _talent3Index2Column; set { _talent3Index2Column = value; OnPropertyChanged(nameof(Talent3Index2Column)); } }
         public int Talent3Index3Column { get => _talent3Index3Column; set { _talent3Index3Column = value; OnPropertyChanged(nameof(Talent3Index3Column)); } }

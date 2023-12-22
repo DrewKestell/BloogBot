@@ -13,14 +13,14 @@ namespace RetributionPaladinBot
 
         public void Update()
         {
-            if (Container.HostileTarget.TappedByOther || (ObjectManager.Aggressors.Count() > 0 && !ObjectManager.Aggressors.Any(a => a.Guid == Container.HostileTarget.Guid)))
+            if (ObjectManager.Player.Target.TappedByOther || (ObjectManager.Aggressors.Count() > 0 && !ObjectManager.Aggressors.Any(a => a.Guid == ObjectManager.Player.TargetGuid)))
             {
                 ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
                 return;
             }
 
-            if (ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) < 3 || ObjectManager.Player.IsInCombat)
+            if (ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) < 3 || ObjectManager.Player.IsInCombat)
             {
                 ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
@@ -28,7 +28,7 @@ namespace RetributionPaladinBot
                 return;
             }
 
-            Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+            Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
             ObjectManager.Player.MoveToward(nextWaypoint[0]);
         }
     }

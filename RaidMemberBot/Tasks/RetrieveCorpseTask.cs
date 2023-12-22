@@ -1,7 +1,6 @@
 ﻿using RaidMemberBot.Client;
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Helpers;
 using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
@@ -81,8 +80,6 @@ namespace RaidMemberBot.AI.SharedStates
 
                 initialized = true;
 
-                Container.CurrentWaypoint = resPosition;
-                BotTasks.Push(new MoveToWaypointTask(Container, BotTasks));
                 return;
             }
 

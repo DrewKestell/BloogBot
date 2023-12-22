@@ -1,5 +1,4 @@
-﻿using RaidMemberBot.Constants;
-using RaidMemberBot.Game;
+﻿using RaidMemberBot.Game;
 using RaidMemberBot.Mem;
 using System;
 using System.Collections.Generic;
@@ -143,10 +142,6 @@ namespace RaidMemberBot.Objects
             return new Spell(spellId, spellCost, spellName, spellDescription, spellTooltip);
         }
 
-        public void LuaCall(string code) => Functions.LuaCall(code);
-
-        public string[] LuaCallWithResults(string code) => Functions.LuaCallWithResult(code);
-
         public IEnumerable<Spell> Buffs
         {
             get
@@ -187,7 +182,7 @@ namespace RaidMemberBot.Objects
 
             for (var i = 1; i <= 16; i++)
             {
-                var result = LuaCallWithResults("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10} = UnitDebuff('" + target.ToString().ToLower() + "', " + i + ")");
+                var result = Functions.LuaCallWithResult("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10} = UnitDebuff('" + target.ToString().ToLower() + "', " + i + ")");
                 var icon = result[0];
                 var stackCount = result[1];
                 var debuffTypeString = result[2];

@@ -2,7 +2,6 @@
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Frames;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,19 +22,19 @@ namespace RaidMemberBot.AI.SharedStates
 
         public void Update()
         {
-            if (ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) >= 5)
+            if (ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) >= 5)
             {
-                Objects.Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+                Objects.Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
                 ObjectManager.Player.MoveToward(nextWaypoint[0]);
             }
 
-            if (Container.HostileTarget.CanBeLooted && currentState == LootStates.Initial && ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) < 5)
+            if (ObjectManager.Player.Target.CanBeLooted && currentState == LootStates.Initial && ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) < 5)
             {
                 ObjectManager.Player.StopAllMovement();
                 
                 if (Wait.For("StartLootDelay", 200))
                 {
-                    Container.HostileTarget.Interact();
+                    ObjectManager.Player.Target.Interact();
                     currentState = LootStates.RightClicked;
                     return;
                 }
@@ -46,7 +45,7 @@ namespace RaidMemberBot.AI.SharedStates
             //  - loot frame is open, but we've already looted everything we want
             //  - stuck count is greater than 5 (perhaps the corpse is in an awkward position the character can't reach)
             //  - we've been in the loot state for over 10 seconds (again, perhaps the corpse is unreachable. most common example of this is when a mob dies on a cliff that we can't climb)
-            if ((currentState == LootStates.Initial && !Container.HostileTarget.CanBeLooted) || (lootFrame != null && lootIndex == lootFrame.LootItems.Count) || stuckCount > 5 || Environment.TickCount - startTime > 10000)
+            if ((currentState == LootStates.Initial && !ObjectManager.Player.Target.CanBeLooted) || (lootFrame != null && lootIndex == lootFrame.LootItems.Count) || stuckCount > 5 || Environment.TickCount - startTime > 10000)
             {
                 ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();

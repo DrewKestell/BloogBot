@@ -1,6 +1,4 @@
 ﻿using MySql.Data.MySqlClient;
-using Newtonsoft.Json;
-using RaidMemberBot.Constants;
 using RaidMemberBot.Models;
 using System;
 using System.Collections.Generic;

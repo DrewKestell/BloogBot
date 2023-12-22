@@ -389,7 +389,6 @@ namespace RaidMemberBot.Game.Statics
             {
                 if (OnWrongLogin == null) return;
                 if (parArgs.Length != 2) return;
-                if ((string)parArgs[0] != "OKAY") return;
                 if (((string)parArgs[1]).Contains("The information you have entered is not valid."))
                 {
                     OnWrongLogin.Invoke(this, new EventArgs()); 

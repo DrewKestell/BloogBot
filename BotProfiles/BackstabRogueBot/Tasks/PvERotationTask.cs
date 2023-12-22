@@ -63,9 +63,9 @@ namespace BackstabRogueBot
                 return;
             }
 
-            if (Container.HostileTarget == null || Container.HostileTarget.HealthPercent <= 0)
+            if (ObjectManager.Player.Target == null || ObjectManager.Player.Target.HealthPercent <= 0)
             {
-                Container.HostileTarget = ObjectManager.Aggressors.First();
+                ObjectManager.Player.SetTarget(ObjectManager.Aggressors.First().Guid);
             }
 
             if (Update(3))
@@ -131,7 +131,7 @@ namespace BackstabRogueBot
 
             // set secondaryTarget
             // if (ObjectManager.Aggressors.Count() == 2 && secondaryTarget == null)
-            //    secondaryTarget = ObjectManager.Aggressors.Single(u => u.Guid != Container.HostileTarget.Guid);
+            //    secondaryTarget = ObjectManager.Aggressors.Single(u => u.Guid != ObjectManager.Player.TargetGuid);
 
             //if (secondaryTarget != null && !secondaryTarget.HasDebuff(Blind))
             // {
@@ -142,22 +142,22 @@ namespace BackstabRogueBot
             // ----- COMBAT ROTATION -----
 
             bool readyToEviscerate =
-                Container.HostileTarget.HealthPercent <= 20 && ObjectManager.Player.ComboPoints >= 2
-                || Container.HostileTarget.HealthPercent <= 30 && ObjectManager.Player.ComboPoints >= 3
-                || Container.HostileTarget.HealthPercent <= 40 && ObjectManager.Player.ComboPoints >= 4
+                ObjectManager.Player.Target.HealthPercent <= 20 && ObjectManager.Player.ComboPoints >= 2
+                || ObjectManager.Player.Target.HealthPercent <= 30 && ObjectManager.Player.ComboPoints >= 3
+                || ObjectManager.Player.Target.HealthPercent <= 40 && ObjectManager.Player.ComboPoints >= 4
                 || ObjectManager.Player.ComboPoints == 5;
             
             TryUseAbility(Eviscerate, 35, readyToEviscerate);
 
-            TryUseAbility(SliceAndDice, 25, !ObjectManager.Player.HasBuff(SliceAndDice) && Container.HostileTarget.HealthPercent > 40 && ObjectManager.Player.ComboPoints <= 3 && ObjectManager.Player.ComboPoints >= 2);
+            TryUseAbility(SliceAndDice, 25, !ObjectManager.Player.HasBuff(SliceAndDice) && ObjectManager.Player.Target.HealthPercent > 40 && ObjectManager.Player.ComboPoints <= 3 && ObjectManager.Player.ComboPoints >= 2);
 
-            // TryUseAbility(ExposeArmor, 25, ObjectManager.Player.HasBuff(SliceAndDice) && Container.HostileTarget.HealthPercent > 50 && ObjectManager.Player.ComboPoints <= 2 && ObjectManager.Player.ComboPoints >= 1);
+            // TryUseAbility(ExposeArmor, 25, ObjectManager.Player.HasBuff(SliceAndDice) && ObjectManager.Player.Target.HealthPercent > 50 && ObjectManager.Player.ComboPoints <= 2 && ObjectManager.Player.ComboPoints >= 1);
 
             TryUseAbility(SinisterStrike, 45, !ObjectManager.Player.IsSpellReady(GhostlyStrike) && !ReadyToInterrupt() && ObjectManager.Player.ComboPoints < 5 && !readyToEviscerate);
         
             TryUseAbility(GhostlyStrike, 40, ObjectManager.Player.IsSpellReady(GhostlyStrike) && ObjectManager.Player.IsSpellReady(GhostlyStrike) && !ReadyToInterrupt() && ObjectManager.Player.ComboPoints < 5 && !readyToEviscerate);
 
-            TryUseAbilityById(BloodFury, 3, 0, ObjectManager.Player.IsSpellReady(BloodFury) && Container.HostileTarget.HealthPercent > 80);
+            TryUseAbilityById(BloodFury, 3, 0, ObjectManager.Player.IsSpellReady(BloodFury) && ObjectManager.Player.Target.HealthPercent > 80);
 
             TryUseAbility(Evasion, 0, ObjectManager.Aggressors.Count() > 1);
 
@@ -182,7 +182,7 @@ namespace BackstabRogueBot
             riposteStartTime = Environment.TickCount;
         }
 
-        bool ReadyToInterrupt() => Container.HostileTarget.Mana > 0 && (Container.HostileTarget.IsCasting || Container.HostileTarget.IsChanneling);
+        bool ReadyToInterrupt() => ObjectManager.Player.Target.Mana > 0 && (ObjectManager.Player.Target.IsCasting || ObjectManager.Player.Target.IsChanneling);
 
         Action RiposteCallback => () => readyToRiposte = false;
 

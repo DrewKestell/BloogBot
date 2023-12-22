@@ -21,6 +21,9 @@ namespace EnhancementShamanBot
                 return;
             }
 
+            if (ObjectManager.Player.IsMoving)
+                ObjectManager.Player.StopAllMovement();
+
             if (ObjectManager.Player.IsSpellReady(WarStomp))
                 Functions.LuaCall($"CastSpellByName('{WarStomp}')");
 

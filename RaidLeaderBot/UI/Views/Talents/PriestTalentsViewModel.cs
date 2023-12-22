@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 
 namespace RaidLeaderBot.UI.Views.Talents
 {
@@ -17,27 +12,27 @@ namespace RaidLeaderBot.UI.Views.Talents
             Talent2Header = "Holy";
             Talent3Header = "Shadow";
 
-            // Improved Heroic Strike
+            // Unbreakable Will
             Talent1Index1Row = 0;
             Talent1Index1Column = 1;
-            // Deflection
+            // Wand Specialization
             Talent1Index2Row = 0;
             Talent1Index2Column = 2;
 
-            // Improved Rend
+            // Silent Resolve
             Talent1Index3Row = 2;
             Talent1Index3Column = 0;
-            // Improved Charge
+            // Improved Power Word: Fortitude
             Talent1Index4Row = 2;
             Talent1Index4Column = 1;
-            // Tactical Mastery
+            // Improved Power Word: Shield
             Talent1Index5Row = 2;
             Talent1Index5Column = 2;
-            // Improved Thunder Clap
+            // Martyrdom
             Talent1Index6Row = 2;
             Talent1Index6Column = 3;
 
-            // Improved Overpower
+            // Inner Focus
             Talent1Index7Row = 4;
             Talent1Index7Column = 1;
             // Anger Management

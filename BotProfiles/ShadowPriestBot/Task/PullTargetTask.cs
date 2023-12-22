@@ -2,7 +2,6 @@
 using RaidMemberBot.Client;
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Helpers;
 using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
@@ -21,6 +20,7 @@ namespace ShadowPriestBot
 
         readonly string pullingSpell;
 
+        Position currentWaypoint;
         internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull)
         {
             if (ObjectManager.Player.HasBuff(ShadowForm))
@@ -37,14 +37,13 @@ namespace ShadowPriestBot
             {
                 WoWUnit potentialNewTarget = ObjectManager.Hostiles.First();
 
-                if (potentialNewTarget != null && potentialNewTarget.Guid != Container.HostileTarget.Guid)
+                if (potentialNewTarget != null && potentialNewTarget.Guid != ObjectManager.Player.TargetGuid)
                 {
-                    Container.HostileTarget = potentialNewTarget;
                     ObjectManager.Player.SetTarget(potentialNewTarget.Guid);
                 }
             }
 
-            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position);
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position);
             if (distanceToTarget < 27)
             {
                 if (ObjectManager.Player.IsMoving)
@@ -56,7 +55,7 @@ namespace ShadowPriestBot
                     {
                         if (Wait.For("ShadowPriestPullDelay", 250))
                         {
-                            ObjectManager.Player.SetTarget(Container.HostileTarget.Guid);
+                            ObjectManager.Player.SetTarget(ObjectManager.Player.TargetGuid);
                             Wait.Remove("ShadowPriestPullDelay");
 
                             if (!ObjectManager.Player.IsInCombat)
@@ -76,10 +75,10 @@ namespace ShadowPriestBot
             }
             else
             {
-                Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+                Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
                 if (nextWaypoint.Length > 1)
                 {
-                    Container.CurrentWaypoint = nextWaypoint[1];
+                    currentWaypoint = nextWaypoint[1];
                 }
                 else
                 {
@@ -88,7 +87,7 @@ namespace ShadowPriestBot
                     return;
                 }
 
-                ObjectManager.Player.MoveToward(Container.CurrentWaypoint);
+                ObjectManager.Player.MoveToward(currentWaypoint);
             }
         }
     }

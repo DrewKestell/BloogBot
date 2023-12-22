@@ -1,6 +1,5 @@
 ﻿using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Helpers;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using System.Linq;

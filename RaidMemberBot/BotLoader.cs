@@ -1,5 +1,4 @@
-﻿using Discord;
-using RaidMemberBot.AI;
+﻿using RaidMemberBot.AI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;

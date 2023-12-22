@@ -1,12 +1,8 @@
-﻿
-using Newtonsoft.Json;
-using RaidMemberBot.Constants;
-using RaidMemberBot.Game;
+﻿using RaidMemberBot.Constants;
 using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using static RaidMemberBot.Constants.Enums;
@@ -15,7 +11,7 @@ namespace RaidMemberBot.Mem
 {
     static public class Functions
     {
-        static object locker = new object();
+        static readonly object locker = new object();
         static readonly Random random = new Random();
 
         [DllImport("FastCall.dll", EntryPoint = "BuyVendorItem")]
@@ -188,35 +184,41 @@ namespace RaidMemberBot.Mem
             LootSlotFunction(slot, (IntPtr)MemoryAddresses.LootSlotFunPtr);
         }
 
-        [DllImport("FastCall.dll", EntryPoint = "LuaCall", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("FastCall.dll", EntryPoint = "LuaCall")]
         static extern void LuaCallFunction(string code, int ptr);
 
         static public void LuaCall(string code)
         {
-            LuaCallFunction(code, MemoryAddresses.LuaCallFunPtr);
+            lock (locker)
+            {
+                LuaCallFunction(code, MemoryAddresses.LuaCallFunPtr);
+            }
         }
         static public string[] LuaCallWithResult(string code)
         {
-            var luaVarNames = new List<string>();
-            for (var i = 0; i < 11; i++)
+            lock (locker)
             {
-                var currentPlaceHolder = "{" + i + "}";
-                if (!code.Contains(currentPlaceHolder)) break;
-                var randomName = GetRandomLuaVarName();
-                code = code.Replace(currentPlaceHolder, randomName);
-                luaVarNames.Add(randomName);
+                var luaVarNames = new List<string>();
+                for (var i = 0; i < 11; i++)
+                {
+                    var currentPlaceHolder = "{" + i + "}";
+                    if (!code.Contains(currentPlaceHolder)) break;
+                    var randomName = GetRandomLuaVarName();
+                    code = code.Replace(currentPlaceHolder, randomName);
+                    luaVarNames.Add(randomName);
+                }
+
+                LuaCall(code);
+
+                var results = new List<string>();
+                foreach (var varName in luaVarNames)
+                {
+                    var address = GetText(varName);
+                    results.Add(MemoryManager.ReadString(address));
+                }
+
+                return results.ToArray();
             }
-
-            LuaCall(code);
-
-            var results = new List<string>();
-            foreach (var varName in luaVarNames)
-            {
-                var address = GetText(varName);
-                results.Add(MemoryManager.ReadString(address));
-            }
-
-            return results.ToArray();
         }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]

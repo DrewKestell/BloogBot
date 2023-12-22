@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using RaidMemberBot.Objects;
+using System.Collections.Generic;
 using System.Numerics;
 using static RaidMemberBot.Constants.Enums;
 
@@ -17,10 +19,8 @@ namespace RaidMemberBot.Models.Dto
         public string BotProfileName { get; set; }
         public int Level { get; set; }
         public int MapId { get; set; }
-        public int WaypointMapId { get; set; }
         public string Zone { get; set; }
         public Vector3 Position { get; set; } = new Vector3();
-        public Vector3 Waypoint { get; set; } = new Vector3();
         public ulong Guid { get; set; }
         public float Facing { get; set; }
         public ulong HostileTargetGuid { get; set; }
@@ -37,6 +37,9 @@ namespace RaidMemberBot.Models.Dto
         public int Casting { get; set; }
         public int ChannelingId { get; set; }
         public bool IsConnected { get; set; }
+        public bool IsReadyToStart { get; set; }
+        public bool IsReset { get; set; }
+        public bool IsDone { get; set; }
         public bool InParty { get; set; }
         public bool InRaid { get; set; }
         public bool InCombat { get; set; }
@@ -74,9 +77,13 @@ namespace RaidMemberBot.Models.Dto
         public int MainHandItem { get; set; }
         public int OffHandItem { get; set; }
         public int RangedItem { get; set; }
-        public List<int> SpellList { get; set; } = new List<int>();
-        public List<int> SkillList { get; set; } = new List<int>();
+        public List<int> Spells { get; set; } = new List<int>();
+        public List<int> Skills { get; set; } = new List<int>();
+        public List<int> Talents { get; set; } = new List<int>();
+        public List<int> PetSpells { get; set; } = new List<int>();
         public Dictionary<ulong, string> WoWUnits { get; set; } = new Dictionary<ulong, string>();
         public Dictionary<ulong, string> WoWObjects { get; set; } = new Dictionary<ulong, string>();
+        [JsonIgnore]
+        public List<Position> VisitedWaypoints { get; } = new List<Position>();
     }
 }

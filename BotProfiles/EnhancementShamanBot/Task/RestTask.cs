@@ -1,11 +1,8 @@
-﻿using Newtonsoft.Json;
-using RaidMemberBot.AI;
+﻿using RaidMemberBot.AI;
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Helpers;
 using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -30,6 +27,7 @@ namespace EnhancementShamanBot
 
             if (!ObjectManager.Player.IsDrinking && Wait.For("HealSelfDelay", 3500, true))
             {
+                ObjectManager.Player.StopAllMovement();
                 ObjectManager.Player.Stand();
                 if (ObjectManager.Player.HealthPercent < 70)
                     Functions.LuaCall($"CastSpellByName('{HealingWave}')");

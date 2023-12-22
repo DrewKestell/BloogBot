@@ -1,6 +1,4 @@
 ﻿using Newtonsoft.Json;
-using RaidLeaderBot.UI.Views.Talents;
-using RaidMemberBot.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -589,6 +587,7 @@ namespace RaidLeaderBot
                         break;
                     case Class.Hunter:
                         list.Add(75);
+                        list.Add(674);
                         list.Add(2973);
                         list.Add(1494);
 
@@ -1836,6 +1835,7 @@ namespace RaidLeaderBot
                         }
                         break;
                     case Class.Rogue:
+                        list.Add(674);
                         list.Add(1804);
                         list.Add(1752);
                         list.Add(2098);
@@ -2713,6 +2713,7 @@ namespace RaidLeaderBot
                         }
                         break;
                     case Class.Warrior:
+                        list.Add(674);
                         list.Add(7919);
                         list.Add(2480);
                         list.Add(2764);

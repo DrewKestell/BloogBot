@@ -5,10 +5,6 @@ using Functions = RaidMemberBot.Mem.Functions;
 using static RaidMemberBot.Constants.Enums;
 using RaidMemberBot.Mem;
 using System.Collections.Generic;
-using RaidMemberBot.Constants;
-using Newtonsoft.Json;
-using RaidMemberBot.Game;
-using System.Windows.Documents;
 
 namespace RaidMemberBot.Objects
 {
@@ -46,13 +42,7 @@ namespace RaidMemberBot.Objects
         public readonly IDictionary<string, int[]> PlayerSpells = new Dictionary<string, int[]>();
         public readonly List<int> PlayerSkills = new List<int>();
 
-        public WoWUnit Target { get; set; }
-
-        bool turning;
-        int totalTurns;
-        int turnCount;
-        float amountPerTurn;
-        Position turningToward;
+        public WoWUnit Target => (WoWUnit)ObjectManager.Objects.FirstOrDefault(x => x.Guid == TargetGuid);
 
         public Class Class => (Class)MemoryManager.ReadByte((IntPtr)MemoryAddresses.LocalPlayerClass);
         public string Race => Functions.LuaCallWithResult("{0} = UnitRace('player')")[0];
@@ -70,79 +60,79 @@ namespace RaidMemberBot.Objects
                 SetFacing((float)(Math.PI * 2) + Facing);
                 return;
             }
+            SetFacing(GetFacingForPosition(pos));
+            return;
+            //if this is a new position, restart the turning flow
+            //if (turning && pos != turningToward)
+            //{
+            //    ResetFacingState();
+            //    return;
+            //}
 
-            // if this is a new position, restart the turning flow
-            if (turning && pos != turningToward)
-            {
-                ResetFacingState();
-                return;
-            }
+            //// return if we're already facing the position
+            //if (!turning && IsFacing(pos))
+            //    return;
 
-            // return if we're already facing the position
-            if (!turning && IsFacing(pos))
-                return;
+            //if (!turning)
+            //{
+            //    var requiredFacing = GetFacingForPosition(pos);
+            //    float amountToTurn;
+            //    if (requiredFacing > Facing)
+            //    {
+            //        if (requiredFacing - Facing > Math.PI)
+            //        {
+            //            amountToTurn = -((float)(Math.PI * 2) - requiredFacing + Facing);
+            //        }
+            //        else
+            //        {
+            //            amountToTurn = requiredFacing - Facing;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        if (Facing - requiredFacing > Math.PI)
+            //        {
+            //            amountToTurn = (float)(Math.PI * 2) - Facing + requiredFacing;
+            //        }
+            //        else
+            //        {
+            //            amountToTurn = requiredFacing - Facing;
+            //        }
+            //    }
 
-            if (!turning)
-            {
-                var requiredFacing = GetFacingForPosition(pos);
-                float amountToTurn;
-                if (requiredFacing > Facing)
-                {
-                    if (requiredFacing - Facing > Math.PI)
-                    {
-                        amountToTurn = -((float)(Math.PI * 2) - requiredFacing + Facing);
-                    }
-                    else
-                    {
-                        amountToTurn = requiredFacing - Facing;
-                    }
-                }
-                else
-                {
-                    if (Facing - requiredFacing > Math.PI)
-                    {
-                        amountToTurn = (float)(Math.PI * 2) - Facing + requiredFacing;
-                    }
-                    else
-                    {
-                        amountToTurn = requiredFacing - Facing;
-                    }
-                }
+            //    // if the turn amount is relatively small, just face that direction immediately
+            //    if (Math.Abs(amountToTurn) < 0.05)
+            //    {
+            //        SetFacing(requiredFacing);
+            //        ResetFacingState();
+            //        return;
+            //    }
 
-                // if the turn amount is relatively small, just face that direction immediately
-                if (Math.Abs(amountToTurn) < 0.05)
-                {
-                    SetFacing(requiredFacing);
-                    ResetFacingState();
-                    return;
-                }
+            //    turning = true;
+            //    turningToward = pos;
+            //    amountPerTurn = amountToTurn / 2;
+            //}
+            //if (turning)
+            //{
+            //    if (turnCount < 1)
+            //    {
+            //        var twoPi = (float)(Math.PI * 2);
+            //        var newFacing = Facing + amountPerTurn;
 
-                turning = true;
-                turningToward = pos;
-                totalTurns = random.Next(2, 5);
-                amountPerTurn = amountToTurn / totalTurns;
-            }
-            if (turning)
-            {
-                if (turnCount < totalTurns - 1)
-                {
-                    var twoPi = (float)(Math.PI * 2);
-                    var newFacing = Facing + amountPerTurn;
+            //        if (newFacing < 0)
+            //            newFacing = twoPi + amountPerTurn + Facing;
+            //        else if (newFacing > Math.PI * 2)
+            //            newFacing = amountPerTurn - (twoPi - Facing);
 
-                    if (newFacing < 0)
-                        newFacing = twoPi + amountPerTurn + Facing;
-                    else if (newFacing > Math.PI * 2)
-                        newFacing = amountPerTurn - (twoPi - Facing);
-
-                    SetFacing(newFacing);
-                    turnCount++;
-                }
-                else
-                {
-                    SetFacing(GetFacingForPosition(pos));
-                    ResetFacingState();
-                }
-            }
+            //        SetFacing(newFacing);
+            //        turnCount++;
+            //    }
+            //    else
+            //    {
+            //        SetFacing(GetFacingForPosition(pos));
+            //        ResetFacingState();
+            //    }
+            //}
         }
 
         // Nat added this to see if he could test out the cleave radius which is larger than that isFacing radius
@@ -158,17 +148,6 @@ namespace RaidMemberBot.Objects
         {
             Face(pos);
             StartMovement(ControlBits.Front);
-        }
-
-        void ResetFacingState()
-        {
-            turning = false;
-            totalTurns = 0;
-            turnCount = 0;
-            amountPerTurn = 0;
-            turningToward = null;
-            StopMovement(ControlBits.StrafeLeft);
-            StopMovement(ControlBits.StrafeRight);
         }
 
         public void Turn180()
@@ -216,7 +195,7 @@ namespace RaidMemberBot.Objects
                 && u.CreatureType.HasFlag(CreatureType.Humanoid | CreatureType.Undead)
             );
 
-        public void Stand() => LuaCall("DoEmote(\"STAND\")");
+        public void Stand() => Functions.LuaCall("DoEmote(\"STAND\")");
 
         public string CurrentStance
         {
@@ -239,7 +218,7 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var result = LuaCallWithResults($"{{0}} = UnitIsGhost('player')");
+                var result = Functions.LuaCallWithResult($"{{0}} = UnitIsGhost('player')");
 
                 if (result.Length > 0)
                     return result[0] == "1";
@@ -256,7 +235,7 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var result = ObjectManager.Player.LuaCallWithResults($"{{0}} = GetComboPoints('target')");
+                var result = Functions.LuaCallWithResult($"{{0}} = GetComboPoints('target')");
 
                 if (result.Length > 0)
                     return Convert.ToByte(result[0]);
@@ -322,7 +301,7 @@ namespace RaidMemberBot.Objects
             var skillPtr1 = MemoryManager.ReadIntPtr(IntPtr.Add(Pointer, 8));
             var skillPtr2 = IntPtr.Add(skillPtr1, 0xB38);
 
-            var maxSkills = MemoryManager.ReadInt((IntPtr) 0x00B700B4);
+            var maxSkills = MemoryManager.ReadInt((IntPtr)0x00B700B4);
             for (var i = 0; i < maxSkills + 12; i++)
             {
                 var curPointer = IntPtr.Add(skillPtr2, i * 12);
@@ -374,7 +353,7 @@ namespace RaidMemberBot.Objects
 
         public bool KnowsSpell(string name) => PlayerSpells.ContainsKey(name);
 
-        public bool MainhandIsEnchanted => LuaCallWithResults("{0} = GetWeaponEnchantInfo()")[0] == "1";
+        public bool MainhandIsEnchanted => Functions.LuaCallWithResult("{0} = GetWeaponEnchantInfo()")[0] == "1";
 
         public ulong GetBackpackItemGuid(int slot) => MemoryManager.ReadUlong(GetDescriptorPtr() + (MemoryAddresses.LocalPlayer_BackpackFirstItemOffset + (slot * 8)));
 
@@ -396,7 +375,7 @@ namespace RaidMemberBot.Objects
             {
                 if (PlayerSpells.ContainsKey("Riposte"))
                 {
-                    var results = LuaCallWithResults("{0}, {1} = IsUsableSpell('Riposte')");
+                    var results = Functions.LuaCallWithResult("{0}, {1} = IsUsableSpell('Riposte')");
                     if (results.Length > 0)
                         return results[0] == "1";
                     else

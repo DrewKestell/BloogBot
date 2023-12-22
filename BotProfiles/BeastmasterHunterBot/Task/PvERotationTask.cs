@@ -2,7 +2,6 @@
 
 using RaidMemberBot.AI;
 using RaidMemberBot.AI.SharedStates;
-using RaidMemberBot.Constants;
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Mem;
@@ -46,9 +45,9 @@ namespace BeastMasterHunterBot
                 return;
             }
 
-            if (Container.HostileTarget == null || Container.HostileTarget.HealthPercent <= 0)
+            if (ObjectManager.Player.Target == null || ObjectManager.Player.Target.HealthPercent <= 0)
             {
-                Container.HostileTarget = ObjectManager.Aggressors[0];
+                ObjectManager.Player.SetTarget(ObjectManager.Aggressors[0].Guid);
             }
 
             if (Update(28))
@@ -57,7 +56,7 @@ namespace BeastMasterHunterBot
             ObjectManager.Player.StopAllMovement();
 
             WoWItem gun = Inventory.GetEquippedItem(EquipSlot.Ranged);
-            bool canUseRanged = gun != null && ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) > 5 && ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) < 34;
+            bool canUseRanged = gun != null && ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) > 5 && ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) < 34;
             if (gun == null)
             {
                 Functions.LuaCall(AutoAttackLuaScript);
@@ -73,7 +72,7 @@ namespace BeastMasterHunterBot
                 //     TryCastSpell(HuntersMark, 0, 34);
                 //}
                 //else 
-                if (!Container.HostileTarget.HasDebuff(SerpentSting))
+                if (!ObjectManager.Player.Target.HasDebuff(SerpentSting))
                 { 
                     TryCastSpell(SerpentSting, 0, 34);
                 }

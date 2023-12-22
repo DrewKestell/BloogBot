@@ -1,5 +1,4 @@
 ﻿using Binarysharp.Assemblers.Fasm;
-using Newtonsoft.Json;
 using RaidMemberBot.Game;
 using System;
 using System.Diagnostics;
@@ -87,7 +86,7 @@ namespace RaidMemberBot.Mem
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
+                Console.WriteLine($"[MEMORY]{e.Message}{e.InnerException.StackTrace}");
                 return default;
             }
         }
@@ -109,7 +108,7 @@ namespace RaidMemberBot.Mem
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
+                Console.WriteLine($"[MEMORY]{e.Message}{e.InnerException.StackTrace}");
                 return default;
             }
         }
@@ -131,7 +130,7 @@ namespace RaidMemberBot.Mem
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
+                Console.WriteLine($"[MEMORY]{e.Message}{e.InnerException.StackTrace}");
                 return default;
             }
         }
@@ -153,7 +152,7 @@ namespace RaidMemberBot.Mem
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
+                Console.WriteLine($"[MEMORY]{e.Message}{e.InnerException.StackTrace}");
                 return default;
             }
         }
@@ -175,7 +174,7 @@ namespace RaidMemberBot.Mem
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
+                Console.WriteLine($"[MEMORY]{e.Message}{e.InnerException.StackTrace}");
                 return default;
             }
         }
@@ -197,7 +196,7 @@ namespace RaidMemberBot.Mem
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
+                Console.WriteLine($"[MEMORY]{e.Message}{e.InnerException.StackTrace}");
                 return default;
             }
         }
@@ -219,7 +218,7 @@ namespace RaidMemberBot.Mem
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
+                Console.WriteLine($"[MEMORY]{e.Message}{e.InnerException.StackTrace}");
                 return default;
             }
         }
@@ -229,7 +228,6 @@ namespace RaidMemberBot.Mem
         {
             if (address == IntPtr.Zero)
                 return null;
-
             try
             {
                 var buffer = ReadBytes(address, size);
@@ -250,7 +248,7 @@ namespace RaidMemberBot.Mem
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
+                Console.WriteLine($"[MEMORY]{e.Message}{e.InnerException.StackTrace}");
                 return "";
             }
         }
@@ -281,7 +279,7 @@ namespace RaidMemberBot.Mem
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
+                Console.WriteLine($"[MEMORY]{e.Message}{e.InnerException.StackTrace}");
                 return default;
             }
         }
@@ -291,7 +289,6 @@ namespace RaidMemberBot.Mem
         {
             if (address == IntPtr.Zero)
                 return null;
-
             try
             {
                 return new ItemCacheEntry(address);
@@ -303,7 +300,7 @@ namespace RaidMemberBot.Mem
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Catchall exception {e.Message} {e.StackTrace}");
+                Console.WriteLine($"[MEMORY]{e.Message}{e.InnerException.StackTrace}");
                 return default;
             }
         }

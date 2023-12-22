@@ -13,7 +13,7 @@ namespace ProtectionPaladinBot
 
         public void Update()
         {
-            if (ObjectManager.Aggressors.Count() > 0 && !ObjectManager.Aggressors.Any(a => a.Guid == Container.HostileTarget.Guid))
+            if (ObjectManager.Aggressors.Count() > 0 && !ObjectManager.Aggressors.Any(a => a.Guid == ObjectManager.Player.TargetGuid))
             {
                 ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
@@ -28,8 +28,8 @@ namespace ProtectionPaladinBot
                 return;
             }
 
-            Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
-            ObjectManager.Player.MoveToward(nextWaypoint[0]);
+            Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+            ObjectManager.Player.MoveToward(nextWaypoint[1]);
         }
     }
 }

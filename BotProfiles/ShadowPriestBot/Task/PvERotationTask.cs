@@ -46,9 +46,9 @@ namespace ShadowPriestBot
                 return;
             }
 
-            if (Container.HostileTarget == null || Container.HostileTarget.HealthPercent <= 0)
+            if (ObjectManager.Player.Target == null || ObjectManager.Player.Target.HealthPercent <= 0)
             {
-                Container.HostileTarget = ObjectManager.Aggressors.First();
+                ObjectManager.Player.SetTarget(ObjectManager.Aggressors.First().Guid);
             }
 
             if (Update(30))
@@ -64,12 +64,12 @@ namespace ShadowPriestBot
 
                 //TryCastSpell(ShadowForm, 0, int.MaxValue, !ObjectManager.Player.HasBuff(ShadowForm));
 
-                //TryCastSpell(VampiricEmbrace, 0, 29, ObjectManager.Player.HealthPercent < 100 && !Container.HostileTarget.HasDebuff(VampiricEmbrace) && Container.HostileTarget.HealthPercent > 50);
+                //TryCastSpell(VampiricEmbrace, 0, 29, ObjectManager.Player.HealthPercent < 100 && !ObjectManager.Player.Target.HasDebuff(VampiricEmbrace) && ObjectManager.Player.Target.HealthPercent > 50);
 
-                //bool noNeutralsNearby = !ObjectManager.Units.Any(u => u.Guid != Container.HostileTarget.Guid && u.UnitReaction == UnitReaction.Neutral && u.Position.DistanceTo(ObjectManager.Player.Position) <= 10);
-                //TryCastSpell(PsychicScream, 0, 7, (Container.HostileTarget.Position.DistanceTo(ObjectManager.Player.Position) < 8 && !ObjectManager.Player.HasBuff(PowerWordShield)) || ObjectManager.Aggressors.Count() > 1 && Container.HostileTarget.CreatureType != CreatureType.Elemental);
+                //bool noNeutralsNearby = !ObjectManager.Units.Any(u => u.Guid != ObjectManager.Player.TargetGuid && u.UnitReaction == UnitReaction.Neutral && u.Position.DistanceTo(ObjectManager.Player.Position) <= 10);
+                //TryCastSpell(PsychicScream, 0, 7, (ObjectManager.Player.Target.Position.DistanceTo(ObjectManager.Player.Position) < 8 && !ObjectManager.Player.HasBuff(PowerWordShield)) || ObjectManager.Aggressors.Count() > 1 && ObjectManager.Player.Target.CreatureType != CreatureType.Elemental);
 
-                TryCastSpell(ShadowWordPain, 0, 29, Container.HostileTarget.HealthPercent > 70 && !Container.HostileTarget.HasDebuff(ShadowWordPain));
+                TryCastSpell(ShadowWordPain, 0, 29, ObjectManager.Player.Target.HealthPercent > 70 && !ObjectManager.Player.Target.HasDebuff(ShadowWordPain));
 
                 TryCastSpell(DispelMagic, 0, int.MaxValue, ObjectManager.Player.HasMagicDebuff, castOnSelf: true);
 
@@ -80,11 +80,11 @@ namespace ShadowPriestBot
 
                 TryCastSpell(InnerFire, 0, int.MaxValue, !ObjectManager.Player.HasBuff(InnerFire));
 
-                //TryCastSpell(PowerWordShield, 0, int.MaxValue, !ObjectManager.Player.HasDebuff(WeakenedSoul) && !ObjectManager.Player.HasBuff(PowerWordShield) && (Container.HostileTarget.HealthPercent > 20 || ObjectManager.Player.HealthPercent < 10), castOnSelf: true);
+                //TryCastSpell(PowerWordShield, 0, int.MaxValue, !ObjectManager.Player.HasDebuff(WeakenedSoul) && !ObjectManager.Player.HasBuff(PowerWordShield) && (ObjectManager.Player.Target.HealthPercent > 20 || ObjectManager.Player.HealthPercent < 10), castOnSelf: true);
 
                 //TryCastSpell(MindBlast, 0, 29);
 
-                //if (ObjectManager.Player.IsSpellReady(MindFlay) && Container.HostileTarget.Position.DistanceTo(ObjectManager.Player.Position) <= 19 && (!ObjectManager.Player.IsSpellReady(PowerWordShield) || ObjectManager.Player.HasBuff(PowerWordShield)))
+                //if (ObjectManager.Player.IsSpellReady(MindFlay) && ObjectManager.Player.Target.Position.DistanceTo(ObjectManager.Player.Position) <= 19 && (!ObjectManager.Player.IsSpellReady(PowerWordShield) || ObjectManager.Player.HasBuff(PowerWordShield)))
                 //    TryCastSpell(MindFlay, 0, 19);
                 //else
                 //    TryCastSpell(Smite, 0, 29, !ObjectManager.Player.HasBuff(ShadowForm));

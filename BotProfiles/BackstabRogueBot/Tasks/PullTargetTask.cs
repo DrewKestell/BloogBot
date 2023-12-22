@@ -29,14 +29,14 @@ namespace BackstabRogueBot
 
         public void Update()
         {
-            if (Container.HostileTarget.TappedByOther)
+            if (ObjectManager.Player.Target.TappedByOther)
             {
                 ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
                 return;
             }
 
-            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position);
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position);
             if (distanceToTarget < 30 && !ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(Garrote) && !ObjectManager.Player.IsInCombat)
                 Functions.LuaCall($"CastSpellByName('{Stealth}')");
 
@@ -105,27 +105,27 @@ namespace BackstabRogueBot
 
             if (distanceToTarget < 25 && ObjectManager.Player.IsSpellReady(Distract) && ObjectManager.Player.IsSpellReady(Distract) && ObjectManager.Player.HasBuff(Stealth))
             {
-                //var delta = Container.HostileTarget.Position - ObjectManager.Player.Position;
+                //var delta = ObjectManager.Player.Target.Position - ObjectManager.Player.Position;
                 //var normalizedVector = delta.GetNormalizedVector();
                 //var scaledVector = normalizedVector * 5;
-                //var targetPosition = Container.HostileTarget.Position + scaledVector;
+                //var targetPosition = ObjectManager.Player.Target.Position + scaledVector;
 
                 //Functions.CastSpellAtPosition(Distract, targe.Position);
             }
 
-            if (distanceToTarget < 5 && ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(Ambush) && DaggerEquipped && !ObjectManager.Player.IsInCombat && ObjectManager.Player.IsBehind(Container.HostileTarget))
+            if (distanceToTarget < 5 && ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(Ambush) && DaggerEquipped && !ObjectManager.Player.IsInCombat && ObjectManager.Player.IsBehind(ObjectManager.Player.Target))
             {
                 Functions.LuaCall($"CastSpellByName('{Ambush}')");
                 return;
             }
 
-            if (distanceToTarget < 5 && ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(Garrote) && !DaggerEquipped && !ObjectManager.Player.IsInCombat && ObjectManager.Player.IsBehind(Container.HostileTarget))
+            if (distanceToTarget < 5 && ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(Garrote) && !DaggerEquipped && !ObjectManager.Player.IsInCombat && ObjectManager.Player.IsBehind(ObjectManager.Player.Target))
             {
                 Functions.LuaCall($"CastSpellByName('{Garrote}')");
                 return;
             }
 
-            if (distanceToTarget < 5 && ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(CheapShot) && !ObjectManager.Player.IsInCombat && !ObjectManager.Player.IsBehind(Container.HostileTarget))
+            if (distanceToTarget < 5 && ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(CheapShot) && !ObjectManager.Player.IsInCombat && !ObjectManager.Player.IsBehind(ObjectManager.Player.Target))
             {
                 Functions.LuaCall($"CastSpellByName('{CheapShot}')");
                 return;
@@ -139,7 +139,7 @@ namespace BackstabRogueBot
                 return;
             }
 
-            Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+            Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
             ObjectManager.Player.MoveToward(nextWaypoint[0]);
         }
     }

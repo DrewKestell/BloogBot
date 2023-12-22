@@ -22,7 +22,7 @@ namespace ShadowPriestBot
                 return;
             }
 
-            if (!ObjectManager.Player.IsSpellReady(PowerWordFortitude) || ObjectManager.PartyMembers.All(x => x != null && x.HasBuff(PowerWordFortitude)))
+            if (!ObjectManager.Player.IsSpellReady(PowerWordFortitude) || ObjectManager.PartyMembers.All(x => x.HasBuff(PowerWordFortitude)))
             {
                 BotTasks.Pop();
                 return;
@@ -43,6 +43,7 @@ namespace ShadowPriestBot
                 {
                     ObjectManager.Player.StopAllMovement();
                     BotTasks.Pop();
+                    return;
                 }
             }
 

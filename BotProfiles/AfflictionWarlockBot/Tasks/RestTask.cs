@@ -1,9 +1,7 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Helpers;
 using RaidMemberBot.Mem;
-using RaidMemberBot.Models.Dto;
 using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
@@ -18,17 +16,14 @@ namespace AfflictionWarlockBot
         const string HealthFunnel = "Health Funnel";
         const string LifeTap = "Life Tap";
 
-        LocalPet pet;
         public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
         {
         }
 
         public void Update()
         {
-            pet = ObjectManager.Pet;
-
-            if (pet != null && pet.HealthPercent < 60 && pet.CanUse(ConsumeShadows) && pet.IsCasting && pet.ChannelingId == 0)
-                pet.Cast(ConsumeShadows);
+            if (ObjectManager.Pet != null && ObjectManager.Pet.HealthPercent < 60 && ObjectManager.Pet.CanUse(ConsumeShadows) && ObjectManager.Pet.IsCasting && ObjectManager.Pet.ChannelingId == 0)
+                ObjectManager.Pet.Cast(ConsumeShadows);
 
             if (InCombat || (HealthOk && ManaOk))
             {
@@ -37,10 +32,10 @@ namespace AfflictionWarlockBot
 
                 if (InCombat || PetHealthOk)
                 {
-                    pet?.FollowPlayer();
+                    ObjectManager.Pet?.FollowPlayer();
                     BotTasks.Pop();
 
-                    BotTasks.Push(new SummonVoidwalkerTask(Container, BotTasks));
+                    BotTasks.Push(new SummonPetTask(Container, BotTasks));
                 }
                 else
                 {

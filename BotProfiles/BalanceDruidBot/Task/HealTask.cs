@@ -1,7 +1,6 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Helpers;
 using RaidMemberBot.Mem;
 using System.Collections.Generic;
 
@@ -28,7 +27,7 @@ namespace BalanceDruidBot
                 return;
             }
 
-            if (ObjectManager.Player.IsSpellReady(WarStomp) && ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) <= 8)
+            if (ObjectManager.Player.IsSpellReady(WarStomp) && ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) <= 8)
                 Functions.LuaCall($"CastSpellByName('{WarStomp}')");
 
             TryCastSpell(MoonkinForm, ObjectManager.Player.HasBuff(MoonkinForm));

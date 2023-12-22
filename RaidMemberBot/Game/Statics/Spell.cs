@@ -1,5 +1,4 @@
-﻿using RaidMemberBot.Constants;
-using System.Text;
+﻿using System.Text;
 using static RaidMemberBot.Constants.Enums;
 
 namespace RaidMemberBot.Game

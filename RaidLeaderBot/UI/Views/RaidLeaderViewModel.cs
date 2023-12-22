@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace RaidLeaderBot
@@ -195,7 +196,7 @@ namespace RaidLeaderBot
             }
         }
 
-        public void StartAllRaidMembers()
+        public async void StartAllRaidMembers()
         {
             try
             {
@@ -206,15 +207,16 @@ namespace RaidLeaderBot
                     if (_activityContainer.PartyMembersToStates[RaidMemberViewModels[i]].ProcessId == 0)
                     {
                         RaidMemberLauncher.Instance.LaunchProcess(RaidLeaderPortNumber);
+                        await Task.Delay(5000);
                     }
                 }
 
                 OnPropertyChanged(nameof(CanStart));
                 OnPropertyChanged(nameof(CanStop));
             }
-            catch
+            catch (Exception e)
             {
-                Console.WriteLine("Error encountered starting bot.");
+                Console.WriteLine($"Error encountered starting bot. {e.Message} {e.InnerException} {e.StackTrace}");
             }
         }
         public void StopAllRaidMembers()

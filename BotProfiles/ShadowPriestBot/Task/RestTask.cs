@@ -1,8 +1,6 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Game;
-using RaidMemberBot.Game.Frames;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Helpers;
 using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
@@ -12,37 +10,12 @@ namespace ShadowPriestBot
 {
     class RestTask : BotTask, IBotTask
     {
-        const int stackCount = 5;
-
         const string AbolishDisease = "Abolish Disease";
         const string CureDisease = "Cure Disease";
         const string LesserHeal = "Lesser Heal";
         const string Heal = "Heal";
         const string ShadowForm = "Shadowform";
-        readonly WoWItem drinkItem;
-
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
-        {
-            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
-
-            if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
-            {
-                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
-                {
-                    Functions.LuaCall($"SendChatMessage('.repairitems')");
-                }
-
-                List<WoWItem> drinkItems = ObjectManager.Items.Where(x => x.ItemId == 1179).ToList();
-                int drinkItemsCount = drinkItems.Sum(x => x.StackCount);
-
-                if (drinkItemsCount < 20)
-                {
-                    Functions.LuaCall($"SendChatMessage('.additem 1179 {20 - drinkItemsCount}')");
-                }
-
-                drinkItem = ObjectManager.Items.First(x => x.ItemId == 1179);
-            }
-        }
+        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) { }
 
         public void Update()
         {
@@ -66,30 +39,6 @@ namespace ShadowPriestBot
                 Wait.RemoveAll();
                 ObjectManager.Player.Stand();
                 BotTasks.Pop();
-
-                int drinkCount = drinkItem == null ? 0 : Inventory.GetItemCount(drinkItem.ItemId);
-
-                if (!InCombat && drinkCount == 0)
-                {
-                    int drinkToBuy = 28 - (drinkCount / stackCount);
-                    //var itemsToBuy = new Dictionary<string, int>
-                    //{
-                    //    { container.BotSettings.Drink, drinkToBuy }
-                    //};
-
-                    //var currentHotspot = container.GetCurrentHotspot();
-                    //if (currentHotspot.TravelPath != null)
-                    //{
-                    //    BotTasks.Push(new TravelState(botTasks, container, currentHotspot.TravelPath.Waypoints, 0));
-                    //    BotTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.TravelPath.Waypoints[0]));
-                    //}
-
-                    //BotTasks.Push(new BuyItemsState(botTasks, currentHotspot.Innkeeper.Name, itemsToBuy));
-                    //BotTasks.Push(new SellItemsState(botTasks, container, currentHotspot.Innkeeper.Name));
-                    //BotTasks.Push(new MoveToPositionState(botTasks, container, currentHotspot.Innkeeper.Position));
-                    //container.CheckForTravelPath(botTasks, true, false);
-                }
-                else
                     BotTasks.Push(new BuffTask(Container, BotTasks));
 
                 return;
@@ -97,6 +46,29 @@ namespace ShadowPriestBot
             else
             {
                 ObjectManager.Player.StopAllMovement();
+            }
+
+            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
+
+            if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
+            {
+                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                {
+                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                }
+
+                List<WoWItem> drinkItems = ObjectManager.Items.Where(x => x.ItemId == 1179).ToList();
+                int drinkItemsCount = drinkItems.Sum(x => x.StackCount);
+
+                if (drinkItemsCount < 20)
+                {
+                    Functions.LuaCall($"SendChatMessage('.additem 1179 {20 - drinkItemsCount}')");
+                }
+
+                WoWItem drinkItem = ObjectManager.Items.First(x => x.ItemId == 1179);
+
+                if (ObjectManager.Player.Level >= 5 && drinkItem != null && !ObjectManager.Player.IsDrinking && ObjectManager.Player.ManaPercent < 60)
+                    drinkItem.Use();
             }
 
             if (!ObjectManager.Player.IsDrinking && Wait.For("HealSelfDelay", 3500, true))
@@ -120,9 +92,6 @@ namespace ShadowPriestBot
                 if (ObjectManager.Player.HealthPercent < 70)
                     Functions.LuaCall($"CastSpellByName('{LesserHeal}',1)");
             }
-
-            if (ObjectManager.Player.Level >= 5 && drinkItem != null && !ObjectManager.Player.IsDrinking && ObjectManager.Player.ManaPercent < 60)
-                drinkItem.Use();
         }
 
         bool HealthOk => ObjectManager.Player.HealthPercent > 90;

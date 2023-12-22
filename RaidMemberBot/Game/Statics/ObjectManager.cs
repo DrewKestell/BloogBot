@@ -1,14 +1,10 @@
-﻿using Newtonsoft.Json;
-using RaidMemberBot.Constants;
+﻿using RaidMemberBot.Constants;
 using RaidMemberBot.Mem;
 using RaidMemberBot.Models.Dto;
 using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net.Sockets;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using static RaidMemberBot.Constants.Enums;
@@ -48,8 +44,6 @@ namespace RaidMemberBot.Game.Statics
 
         static public LocalPet Pet { get; private set; }
 
-        static public IEnumerable<WoWObject> AllObjects => Objects;
-
         static public IEnumerable<WoWUnit> Units => Objects.OfType<WoWUnit>().Where(o => o.ObjectType == WoWObjectTypes.OT_UNIT).ToList();
 
         static public IEnumerable<WoWPlayer> Players => Objects.OfType<WoWPlayer>();
@@ -60,7 +54,16 @@ namespace RaidMemberBot.Game.Statics
 
         static public IEnumerable<WoWGameObject> GameObjects => Objects.OfType<WoWGameObject>();
 
-        static public WoWUnit CurrentTarget => Units.FirstOrDefault(u => Player.TargetGuid == u.Guid);
+        static public TargetMarker CurrentTargetMarker
+        {
+            get
+            {
+                var result = Functions.LuaCallWithResult("{0} = GetRaidTargetIndex(\"target\")")[0];
+                if (string.IsNullOrEmpty(result))
+                    return TargetMarker.None;
+                return (TargetMarker)byte.Parse(result);
+            }
+        }
 
         static public bool IsLoggedIn => _ingame1 && _ingame2 && MemoryManager.ReadByte((IntPtr)0xB4B424) == 1;
 
@@ -139,15 +142,11 @@ namespace RaidMemberBot.Game.Statics
             }
         }
 
-        static public IEnumerable<WoWPlayer> PartyMembers
+        static public IEnumerable<WoWUnit> PartyMembers
         {
             get
             {
-                var partyMembers = new List<WoWPlayer>();
-
-                var leader = Players.FirstOrDefault(p => p.Guid == PartyLeaderGuid);
-                if (leader != null)
-                    partyMembers.Add(leader);
+                var partyMembers = new List<WoWPlayer>() { Player };
 
                 var partyMember1 = Players.FirstOrDefault(p => p.Guid == Party1Guid);
                 if (partyMember1 != null)
@@ -183,7 +182,7 @@ namespace RaidMemberBot.Game.Statics
                 .Where(u =>
                     u.TargetGuid == Player?.Guid ||
                     u.TargetGuid == Pet?.Guid ||
-                    PartyMembers.Any(x => x.Guid == u.TargetGuid))
+                PartyMembers.Any(x => u.TargetGuid == x.Guid))
             .ToList();
 
         static public IEnumerable<WoWUnit> Hostiles =>
@@ -200,7 +199,7 @@ namespace RaidMemberBot.Game.Statics
         // talentIndex is counter left to right, top to bottom, starting at 1
         static public sbyte GetTalentRank(int tabIndex, int talentIndex)
         {
-            var results = Player.LuaCallWithResults($"{{0}}, {{1}}, {{2}}, {{3}}, {{4}} = GetTalentInfo({tabIndex},{talentIndex})");
+            var results = Functions.LuaCallWithResult($"{{0}}, {{1}}, {{2}}, {{3}}, {{4}} = GetTalentInfo({tabIndex},{talentIndex})");
 
             if (results.Length == 5)
                 return Convert.ToSByte(results[4]);
@@ -240,9 +239,10 @@ namespace RaidMemberBot.Game.Statics
 
         static void EnumerateVisibleObjects()
         {
-            if (!IsLoggedIn) return;
             ThreadSynchronizer.RunOnMainThread(() =>
             {
+                if (!IsLoggedIn) return;
+
                 playerGuid = Functions.GetPlayerGuid();
                 if (playerGuid == 0)
                 {
@@ -351,9 +351,8 @@ namespace RaidMemberBot.Game.Statics
                     _characterState.IsPoisoned = Player.IsPoisoned;
                     _characterState.IsDiseased = Player.IsDiseased;
                     _characterState.Zone = MinimapZoneText;
-                    _characterState.InParty = !string.IsNullOrEmpty(Functions.LuaCallWithResult($"{{0}} = UnitName('party1')")[0]);
+                    _characterState.InParty = int.Parse(Functions.LuaCallWithResult("{0} = GetNumPartyMembers()")[0]) > 0;
                     _characterState.InRaid = int.Parse(Functions.LuaCallWithResult("{0} = GetNumRaidMembers()")[0]) > 0;
-                    _characterState.RaidLeaderGuid = PartyLeaderGuid;
                     _characterState.MapId = (int)MapId;
                     _characterState.Class = Player.Class;
                     _characterState.Race = Enum.GetValues(typeof(Race)).Cast<Race>().Where(x => x.GetDescription() == Player.Race).First();
@@ -367,8 +366,8 @@ namespace RaidMemberBot.Game.Statics
                     _characterState.ComboPoints = Player.ComboPoints;
                     _characterState.Facing = Player.Facing;
                     _characterState.Position = new System.Numerics.Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z);
-                    _characterState.SpellList = Player.PlayerSpells.Values.SelectMany(x => x).OrderBy(x => x).ToList();
-                    _characterState.SkillList = Player.PlayerSkills.OrderBy(x => x).ToList();
+                    _characterState.Spells = Player.PlayerSpells.Values.SelectMany(x => x).OrderBy(x => x).ToList();
+                    _characterState.Skills = Player.PlayerSkills.OrderBy(x => x).ToList();
 
                     List<WoWUnit> units = Units.OrderBy(x => x.Position.DistanceTo(Player.Position))
                                             .ToList();
@@ -379,7 +378,6 @@ namespace RaidMemberBot.Game.Statics
                     _characterState.WoWObjects = GameObjects.OrderBy(x => x.Position.DistanceTo(Player.Position))
                                                             .Where(x => !string.IsNullOrEmpty(x.Name))
                                                             .ToDictionary(x => x.Guid, x => x.Name);
-
 
                     WoWItem headItem = Inventory.GetEquippedItem(EquipSlot.Head);
                     WoWItem neckItem = Inventory.GetEquippedItem(EquipSlot.Neck);
@@ -400,6 +398,7 @@ namespace RaidMemberBot.Game.Statics
                     WoWItem mainHandItem = Inventory.GetEquippedItem(EquipSlot.MainHand);
                     WoWItem offHandItem = Inventory.GetEquippedItem(EquipSlot.OffHand);
                     WoWItem rangedItem = Inventory.GetEquippedItem(EquipSlot.Ranged);
+
                     if (headItem != null)
                     {
                         _characterState.HeadItem = headItem.ItemId;
@@ -552,62 +551,6 @@ namespace RaidMemberBot.Game.Statics
                     {
                         _characterState.RangedItem = 0;
                     }
-                }
-                else
-                {
-                    _characterState.Guid = 0;
-                    _characterState.MapId = 0;
-                    _characterState.Position = new System.Numerics.Vector3();
-                    _characterState.Waypoint = new System.Numerics.Vector3();
-                    _characterState.Level = 0;
-                    _characterState.Class = 0;
-                    _characterState.Race = 0;
-                    _characterState.CharacterName = string.Empty;
-                    _characterState.Zone = (LoginStates)Enum.Parse(typeof(LoginStates), MemoryManager.ReadString(Offsets.CharacterScreen.LoginState)) == LoginStates.charselect ? "Character Select Screen" : "Login Screen";
-                    _characterState.HostileTargetGuid = 0;
-                    _characterState.FriendlyTargetGuid = 0;
-                    _characterState.CurrentHealth = 0;
-                    _characterState.CurrentMana = 0;
-                    _characterState.MaxHealth = 0;
-                    _characterState.MaxMana = 0;
-                    _characterState.Rage = 0;
-                    _characterState.ComboPoints = 0;
-                    _characterState.Energy = 0;
-                    _characterState.Casting = 0;
-                    _characterState.ChannelingId = 0;
-                    _characterState.InParty = false;
-                    _characterState.InCombat = false;
-                    _characterState.IsMoving = false;
-                    _characterState.IsOnMount = false;
-                    _characterState.IsFalling = false;
-                    _characterState.IsStunned = false;
-                    _characterState.IsConfused = false;
-                    _characterState.IsPoisoned = false;
-                    _characterState.IsDiseased = false;
-                    _characterState.Facing = 0;
-                    _characterState.HeadItem = 0;
-                    _characterState.NeckItem = 0;
-                    _characterState.ShoulderItem = 0;
-                    _characterState.ChestItem = 0;
-                    _characterState.BackItem = 0;
-                    _characterState.ShirtItem = 0;
-                    _characterState.Tabardtem = 0;
-                    _characterState.WristsItem = 0;
-                    _characterState.HandsItem = 0;
-                    _characterState.WaistItem = 0;
-                    _characterState.LegsItem = 0;
-                    _characterState.FeetItem = 0;
-                    _characterState.Finger1Item = 0;
-                    _characterState.Finger2Item = 0;
-                    _characterState.Trinket1Item = 0;
-                    _characterState.Trinket2Item = 0;
-                    _characterState.MainHandItem = 0;
-                    _characterState.OffHandItem = 0;
-                    _characterState.RangedItem = 0;
-                    _characterState.SpellList = new List<int>();
-                    _characterState.SkillList = new List<int>();
-                    _characterState.WoWObjects = new Dictionary<ulong, string>();
-                    _characterState.WoWUnits = new Dictionary<ulong, string>();
                 }
             }
             catch (Exception ex)

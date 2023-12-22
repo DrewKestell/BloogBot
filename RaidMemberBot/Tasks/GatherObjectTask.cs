@@ -1,7 +1,6 @@
 ﻿using RaidMemberBot.Game;
 using RaidMemberBot.Game.Frames;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Helpers;
 using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
@@ -31,7 +30,7 @@ namespace RaidMemberBot.AI.SharedStates
 
             if (Wait.For("InteractWithObjectDelay", 15000, true))
             {
-                Container.HostileTarget.Interact();
+                ObjectManager.Player.Target.Interact();
             }
 
             if (lootFrame.LootItems.Count(x => x.Info.Name == target.Name) > initialCount)

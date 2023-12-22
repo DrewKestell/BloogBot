@@ -3,7 +3,6 @@ using RaidMemberBot.AI.SharedStates;
 using RaidMemberBot.Client;
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Helpers;
 using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System;
@@ -49,9 +48,9 @@ namespace FeralDruidBot
                 return;
             }
 
-            if (Container.HostileTarget == null || Container.HostileTarget.HealthPercent <= 0)
+            if (ObjectManager.Player.Target == null || ObjectManager.Player.Target.HealthPercent <= 0)
             {
-                Container.HostileTarget = ObjectManager.Aggressors.First();
+                ObjectManager.Player.SetTarget(ObjectManager.Aggressors.First().Guid);
             }
 
             if (Update(3))
@@ -70,7 +69,7 @@ namespace FeralDruidBot
                 return;
             }
 
-            if (Container.HostileTarget.TappedByOther)
+            if (ObjectManager.Player.Target.TappedByOther)
             {
                 ObjectManager.Player.StopAllMovement();
                 Wait.RemoveAll();
@@ -78,7 +77,7 @@ namespace FeralDruidBot
                 return;
             }
 
-            if (Container.HostileTarget.Health == 0)
+            if (ObjectManager.Player.Target.Health == 0)
             {
                 const string waitKey = "PopCombatState";
 
@@ -94,10 +93,10 @@ namespace FeralDruidBot
             }
 
             if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
-                ObjectManager.Player.SetTarget(Container.HostileTarget.Guid);
+                ObjectManager.Player.SetTarget(ObjectManager.Player.TargetGuid);
 
-            // ensure we're facing the Container.HostileTarget
-            if (!ObjectManager.Player.IsFacing(Container.HostileTarget.Position)) ObjectManager.Player.Face(Container.HostileTarget.Position);
+            // ensure we're facing the ObjectManager.Player.Target
+            if (!ObjectManager.Player.IsFacing(ObjectManager.Player.Target.Position)) ObjectManager.Player.Face(ObjectManager.Player.Target.Position);
 
             // ensure auto-attack is turned on
             Functions.LuaCall(AutoAttackLuaScript);
@@ -106,14 +105,14 @@ namespace FeralDruidBot
             if (ObjectManager.Player.Level <= 12)
             {
                 // if low on mana, move into melee range
-                if (ObjectManager.Player.ManaPercent < 20 && ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) > 5)
+                if (ObjectManager.Player.ManaPercent < 20 && ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) > 5)
                 {
-                    ObjectManager.Player.MoveToward(Container.HostileTarget.Position);
+                    ObjectManager.Player.MoveToward(ObjectManager.Player.Target.Position);
                     return;
                 }
                 else ObjectManager.Player.StopAllMovement();
 
-                TryCastSpell(Moonfire, 0, 10, !Container.HostileTarget.HasDebuff(Moonfire));
+                TryCastSpell(Moonfire, 0, 10, !ObjectManager.Player.Target.HasDebuff(Moonfire));
 
                 TryCastSpell(Wrath, 10, 30);
             }
@@ -121,9 +120,9 @@ namespace FeralDruidBot
             else if (ObjectManager.Player.Level > 12 && ObjectManager.Player.Level < 20)
             {
                 // ensure we're in melee range
-                if ((ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) > 3 && ObjectManager.Player.CurrentShapeshiftForm == BearForm && Container.HostileTarget.IsInCombat && !TargetMovingTowardPlayer) || (!Container.HostileTarget.IsInCombat && ObjectManager.Player.IsCasting))
+                if ((ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) > 3 && ObjectManager.Player.CurrentShapeshiftForm == BearForm && ObjectManager.Player.Target.IsInCombat && !TargetMovingTowardPlayer) || (!ObjectManager.Player.Target.IsInCombat && ObjectManager.Player.IsCasting))
                 {
-                    Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+                    Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
                     ObjectManager.Player.MoveToward(nextWaypoint[0]);
                 }
                 else
@@ -133,7 +132,7 @@ namespace FeralDruidBot
 
                 if (ObjectManager.Aggressors.Count() > 1)
                 {
-                    TryUseBearAbility(DemoralizingRoar, 10, !Container.HostileTarget.HasDebuff(DemoralizingRoar) && ObjectManager.Player.CurrentShapeshiftForm == BearForm);
+                    TryUseBearAbility(DemoralizingRoar, 10, !ObjectManager.Player.Target.HasDebuff(DemoralizingRoar) && ObjectManager.Player.CurrentShapeshiftForm == BearForm);
                 }
 
                 TryUseBearAbility(Enrage, condition: ObjectManager.Player.CurrentShapeshiftForm == BearForm);
@@ -144,9 +143,9 @@ namespace FeralDruidBot
             else if (ObjectManager.Player.Level >= 20)
             {
                 // ensure we're in melee range
-                if ((ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) > 3 && ObjectManager.Player.CurrentShapeshiftForm == CatForm && Container.HostileTarget.IsInCombat && !TargetMovingTowardPlayer) || (!Container.HostileTarget.IsInCombat && ObjectManager.Player.IsCasting))
+                if ((ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) > 3 && ObjectManager.Player.CurrentShapeshiftForm == CatForm && ObjectManager.Player.Target.IsInCombat && !TargetMovingTowardPlayer) || (!ObjectManager.Player.Target.IsInCombat && ObjectManager.Player.IsCasting))
                 {
-                    Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+                    Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
                     ObjectManager.Player.MoveToward(nextWaypoint[0]);
                 }
                 else
@@ -154,16 +153,16 @@ namespace FeralDruidBot
 
                 TryCastSpell(CatForm, 0, 50, ObjectManager.Player.CurrentShapeshiftForm != CatForm);
 
-                TryUseCatAbility(TigersFury, 30, condition: Container.HostileTarget.HealthPercent > 30 && !ObjectManager.Player.HasBuff(TigersFury));
+                TryUseCatAbility(TigersFury, 30, condition: ObjectManager.Player.Target.HealthPercent > 30 && !ObjectManager.Player.HasBuff(TigersFury));
 
-                TryUseCatAbility(Rake, 35, condition: Container.HostileTarget.HealthPercent > 50 && !Container.HostileTarget.HasDebuff(Rake));
+                TryUseCatAbility(Rake, 35, condition: ObjectManager.Player.Target.HealthPercent > 50 && !ObjectManager.Player.Target.HasDebuff(Rake));
 
                 TryUseCatAbility(Claw, 40);
 
-                //TryUseCatAbility(Rip, 30, true, (Container.HostileTarget.HealthPercent < 70 && !Container.HostileTarget.HasDebuff(Rip)));
+                //TryUseCatAbility(Rip, 30, true, (ObjectManager.Player.Target.HealthPercent < 70 && !ObjectManager.Player.Target.HasDebuff(Rip)));
             }
 
-            targetLastPosition = Container.HostileTarget.Position;
+            targetLastPosition = ObjectManager.Player.Target.Position;
         }
 
         void TryUseBearAbility(string name, int requiredRage = 0, bool condition = true, Action callback = null)
@@ -192,7 +191,7 @@ namespace FeralDruidBot
 
         void TryCastSpell(string name, int minRange, int maxRange, bool condition = true, Action callback = null)
         {
-            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position);
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position);
 
             if (ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(name) && distanceToTarget >= minRange && distanceToTarget <= maxRange && condition && !ObjectManager.Player.IsStunned && ObjectManager.Player.IsCasting && ObjectManager.Player.ChannelingId == 0)
             {

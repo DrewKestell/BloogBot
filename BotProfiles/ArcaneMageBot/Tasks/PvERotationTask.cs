@@ -3,7 +3,6 @@ using RaidMemberBot.AI.SharedStates;
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Mem;
-using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,9 +46,9 @@ namespace ArcaneMageBot
                 return;
             }
 
-            if (Container.HostileTarget == null || Container.HostileTarget.HealthPercent <= 0)
+            if (ObjectManager.Player.Target == null || ObjectManager.Player.Target.HealthPercent <= 0)
             {
-                Container.HostileTarget = ObjectManager.Aggressors[0];
+                ObjectManager.Player.SetTarget(ObjectManager.Aggressors[0].Guid);
             }
 
             if (Update(30))
@@ -60,17 +59,17 @@ namespace ArcaneMageBot
             if (useWand)
                 Functions.LuaCall(WandLuaScript);
 
-            TryCastSpell(PresenceOfMind, 0, 50, Container.HostileTarget.HealthPercent > 80);
+            TryCastSpell(PresenceOfMind, 0, 50, ObjectManager.Player.Target.HealthPercent > 80);
 
-            TryCastSpell(ArcanePower, 0, 50, Container.HostileTarget.HealthPercent > 80);
+            TryCastSpell(ArcanePower, 0, 50, ObjectManager.Player.Target.HealthPercent > 80);
 
-            TryCastSpell(Counterspell, 0, 29, Container.HostileTarget.Mana > 0 && Container.HostileTarget.IsCasting);
+            TryCastSpell(Counterspell, 0, 29, ObjectManager.Player.Target.Mana > 0 && ObjectManager.Player.Target.IsCasting);
 
             TryCastSpell(ManaShield, 0, 50, !ObjectManager.Player.HasBuff(ManaShield) && ObjectManager.Player.HealthPercent < 20);
 
             TryCastSpell(FireBlast, 0, 19, !ObjectManager.Player.HasBuff(Clearcasting));
 
-            TryCastSpell(FrostNova, 0, 10, !ObjectManager.Units.Any(u => u.Guid != Container.HostileTarget.Guid && u.Health > 0 && u.Position.DistanceTo(ObjectManager.Player.Position) < 15), callback: FrostNovaCallback);
+            TryCastSpell(FrostNova, 0, 10, !ObjectManager.Units.Any(u => u.Guid != ObjectManager.Player.TargetGuid && u.Health > 0 && u.Position.DistanceTo(ObjectManager.Player.Position) < 15), callback: FrostNovaCallback);
 
             TryCastSpell(Fireball, 0, 34, ObjectManager.Player.Level < 15 || ObjectManager.Player.HasBuff(PresenceOfMind));
 

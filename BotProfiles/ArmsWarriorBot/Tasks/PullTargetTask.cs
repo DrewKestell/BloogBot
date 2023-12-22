@@ -13,7 +13,7 @@ namespace ArmsWarriorBot
 
         public void Update()
         {
-            if (Container.HostileTarget.TappedByOther)
+            if (ObjectManager.Player.Target.TappedByOther)
             {
                 ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
@@ -28,8 +28,8 @@ namespace ArmsWarriorBot
                 return;
             }
 
-            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position);
-            if (distanceToTarget < 25 && distanceToTarget > 8 && ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady("Charge") && ObjectManager.Player.InLosWith(Container.HostileTarget.Position))
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position);
+            if (distanceToTarget < 25 && distanceToTarget > 8 && ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady("Charge") && ObjectManager.Player.InLosWith(ObjectManager.Player.Target.Position))
             {
                 if (ObjectManager.Player.IsCasting)
                 {
@@ -45,7 +45,7 @@ namespace ArmsWarriorBot
                 return;
             }
 
-            Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
+            Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
             ObjectManager.Player.MoveToward(nextWaypoint[0]);
         }
     }

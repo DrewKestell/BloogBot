@@ -1,6 +1,4 @@
-﻿using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Models.Dto;
-using RaidMemberBot.Objects;
+﻿using RaidMemberBot.Models.Dto;
 using System;
 using System.Collections.Generic;
 
@@ -10,10 +8,6 @@ namespace RaidMemberBot.AI
     {
         public string Name { get; }
         public CharacterState State { get; }
-        public LocalPlayer Player { get => ObjectManager.Player; }
-        public Position CurrentWaypoint { get; set; }
-        public WoWUnit HostileTarget { get; set; }
-        public WoWUnit FriendlyTarget { get; set; }
         public Func<IClassContainer, Stack<IBotTask>, IBotTask> CreateRestTask { get; }
         public Func<IClassContainer, Stack<IBotTask>, IBotTask> CreateBuffTask { get; }
         public Func<IClassContainer, Stack<IBotTask>, IBotTask> CreatePullTargetTask { get; }

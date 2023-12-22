@@ -2,7 +2,6 @@
 using RaidMemberBot.Client;
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Helpers;
 using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
@@ -17,14 +16,14 @@ namespace EnhancementShamanBot
 
         public void Update()
         {
-            if (Container.HostileTarget.TappedByOther || (ObjectManager.Aggressors.Count() > 0 && !ObjectManager.Aggressors.Any(a => a.Guid == Container.HostileTarget.Guid)))
+            if (ObjectManager.Player.Target.TappedByOther || (ObjectManager.Aggressors.Count() > 0 && !ObjectManager.Aggressors.Any(a => a.Guid == ObjectManager.Player.TargetGuid)))
             {
                 Wait.RemoveAll();
                 BotTasks.Pop();
                 return;
             }
 
-            if (ObjectManager.Player.Position.DistanceTo(Container.HostileTarget.Position) < 27 && ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady(LightningBolt) && ObjectManager.Player.InLosWith(Container.HostileTarget.Position))
+            if (ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) < 27 && ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady(LightningBolt) && ObjectManager.Player.InLosWith(ObjectManager.Player.Target.Position))
             {
                 if (ObjectManager.Player.IsMoving)
                     ObjectManager.Player.StopAllMovement();
@@ -45,8 +44,8 @@ namespace EnhancementShamanBot
                 return;
             }
 
-            Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, Container.HostileTarget.Position, true);
-            ObjectManager.Player.MoveToward(nextWaypoint[0]);
+            Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+            ObjectManager.Player.MoveToward(nextWaypoint[1]);
         }
     }
 }

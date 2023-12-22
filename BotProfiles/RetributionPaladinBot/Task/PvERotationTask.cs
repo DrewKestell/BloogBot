@@ -1,7 +1,6 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.AI.SharedStates;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using static RaidMemberBot.Constants.Enums;
 
@@ -27,7 +26,7 @@ namespace RetributionPaladinBot
 
         public void Update()
         {
-            if (ObjectManager.Player.HealthPercent < 30 && Container.HostileTarget.HealthPercent > 50 && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(HolyLight))
+            if (ObjectManager.Player.HealthPercent < 30 && ObjectManager.Player.Target.HealthPercent > 50 && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(HolyLight))
             {
                 BotTasks.Push(new HealTask(Container, BotTasks));
                 return;
@@ -39,9 +38,9 @@ namespace RetributionPaladinBot
                 return;
             }
 
-            if (Container.HostileTarget == null || Container.HostileTarget.HealthPercent <= 0)
+            if (ObjectManager.Player.Target == null || ObjectManager.Player.Target.HealthPercent <= 0)
             {
-                Container.HostileTarget = ObjectManager.Aggressors[0];
+                ObjectManager.Player.SetTarget(ObjectManager.Aggressors[0].Guid);
             }
 
             if (Update(3))
@@ -55,19 +54,19 @@ namespace RetributionPaladinBot
 
             TryCastSpell(SanctityAura, !ObjectManager.Player.HasBuff(SanctityAura));
 
-            TryCastSpell(Exorcism, Container.HostileTarget.CreatureType == CreatureType.Undead || Container.HostileTarget.CreatureType == CreatureType.Demon);
+            TryCastSpell(Exorcism, ObjectManager.Player.Target.CreatureType == CreatureType.Undead || ObjectManager.Player.Target.CreatureType == CreatureType.Demon);
 
-            TryCastSpell(HammerOfJustice, Container.HostileTarget.CreatureType != CreatureType.Humanoid || (Container.HostileTarget.CreatureType == CreatureType.Humanoid && Container.HostileTarget.HealthPercent < 20));
+            TryCastSpell(HammerOfJustice, ObjectManager.Player.Target.CreatureType != CreatureType.Humanoid || (ObjectManager.Player.Target.CreatureType == CreatureType.Humanoid && ObjectManager.Player.Target.HealthPercent < 20));
             
-            TryCastSpell(SealOfTheCrusader, !ObjectManager.Player.HasBuff(SealOfTheCrusader) && !Container.HostileTarget.HasDebuff(JudgementOfTheCrusader));
+            TryCastSpell(SealOfTheCrusader, !ObjectManager.Player.HasBuff(SealOfTheCrusader) && !ObjectManager.Player.Target.HasDebuff(JudgementOfTheCrusader));
 
-            TryCastSpell(SealOfRighteousness, !ObjectManager.Player.HasBuff(SealOfRighteousness) && Container.HostileTarget.HasDebuff(JudgementOfTheCrusader) && !ObjectManager.Player.IsSpellReady(SealOfCommand));
+            TryCastSpell(SealOfRighteousness, !ObjectManager.Player.HasBuff(SealOfRighteousness) && ObjectManager.Player.Target.HasDebuff(JudgementOfTheCrusader) && !ObjectManager.Player.IsSpellReady(SealOfCommand));
 
-            TryCastSpell(SealOfCommand, !ObjectManager.Player.HasBuff(SealOfCommand) && Container.HostileTarget.HasDebuff(JudgementOfTheCrusader));
+            TryCastSpell(SealOfCommand, !ObjectManager.Player.HasBuff(SealOfCommand) && ObjectManager.Player.Target.HasDebuff(JudgementOfTheCrusader));
 
-            TryCastSpell(HolyShield, !ObjectManager.Player.HasBuff(HolyShield) && Container.HostileTarget.HealthPercent > 50);
+            TryCastSpell(HolyShield, !ObjectManager.Player.HasBuff(HolyShield) && ObjectManager.Player.Target.HealthPercent > 50);
 
-            TryCastSpell(Judgement, ObjectManager.Player.HasBuff(SealOfTheCrusader) || ((ObjectManager.Player.HasBuff(SealOfRighteousness) || ObjectManager.Player.HasBuff(SealOfCommand)) && (ObjectManager.Player.ManaPercent >= 95 || Container.HostileTarget.HealthPercent <= 3)));
+            TryCastSpell(Judgement, ObjectManager.Player.HasBuff(SealOfTheCrusader) || ((ObjectManager.Player.HasBuff(SealOfRighteousness) || ObjectManager.Player.HasBuff(SealOfCommand)) && (ObjectManager.Player.ManaPercent >= 95 || ObjectManager.Player.Target.HealthPercent <= 3)));
         }
     }
 }

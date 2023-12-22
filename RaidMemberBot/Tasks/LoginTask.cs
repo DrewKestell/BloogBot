@@ -1,7 +1,6 @@
 ﻿using RaidMemberBot.Constants;
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Helpers;
 using RaidMemberBot.Mem;
 using System;
 using System.Collections.Generic;
@@ -26,6 +25,7 @@ namespace RaidMemberBot.AI.SharedStates
         ~LoginTask()
         {
             WoWEventHandler.Instance.OnWrongLogin -= Instance_OnWrongLogin;
+            WoWEventHandler.Instance.OnHandshakeBegin -= Instance_OnHandshakeBegin;
         }
 
         private void Instance_OnHandshakeBegin(object sender, EventArgs e)
@@ -85,7 +85,6 @@ namespace RaidMemberBot.AI.SharedStates
         public void DefaultServerLogin()
         {
             if (LoginState != Enums.LoginStates.login) return;
-            ObjectManager.AntiAfk();
             Functions.LuaCall($"DefaultServerLogin('{accountName}', 'password');");
         }
 
@@ -95,7 +94,6 @@ namespace RaidMemberBot.AI.SharedStates
         public void EnterWorld()
         {
             const string str = "if CharSelectEnterWorldButton ~= nil then CharSelectEnterWorldButton:Click()  end";
-            ObjectManager.AntiAfk();
             Functions.LuaCall(str);
         }
     }
