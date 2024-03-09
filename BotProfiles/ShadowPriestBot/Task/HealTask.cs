@@ -17,8 +17,6 @@ namespace ShadowPriestBot
 
         readonly string healingSpell;
 
-        Position currentWaypoint;
-
         public HealTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Heal)
         {
             if (ObjectManager.Player.IsSpellReady(Heal))
@@ -31,13 +29,12 @@ namespace ShadowPriestBot
         {
             try
             {
-                if (ObjectManager.Player.IsCasting) return;
-
-                List<WoWUnit> unhealthyMembers = ObjectManager.PartyMembers.Where(x => x.HealthPercent < 60).OrderBy(x => x.Health).ToList();
+                List<WoWPlayer> unhealthyMembers = ObjectManager.PartyMembers.Where(x => x.HealthPercent < 70).OrderBy(x => x.Health).ToList();
 
                 if (unhealthyMembers.Count > 0)
                 {
                     ObjectManager.Player.SetTarget(unhealthyMembers[0].Guid);
+                    ObjectManager.Player.StopAllMovement();
                 }
                 else
                 {
@@ -46,23 +43,17 @@ namespace ShadowPriestBot
                     return;
                 }
 
-                if (ObjectManager.Player.Target == null) return;
+                if (ObjectManager.Player.IsCasting) return;
 
-                if (ObjectManager.Player.InLosWith(ObjectManager.Player.Target.Position))
+                if (ObjectManager.Player.InLosWith(ObjectManager.Player.Target.Position) && ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) < 20)
                 {
-                    if (ObjectManager.Player.IsSpellReady(healingSpell) && ObjectManager.Player.Mana > ObjectManager.Player.GetManaCost(healingSpell))
+                    if (!ObjectManager.Player.Target.HasBuff(Renew))
                     {
-                        ObjectManager.Player.StopAllMovement();
-                        Functions.LuaCall($"CastSpellByName('{healingSpell}')");
+                        Functions.LuaCall($"CastSpellByName('{Renew}')");
                     }
-                    else
+                    else if (ObjectManager.Player.IsSpellReady(healingSpell))
                     {
-                        if (ObjectManager.Player.IsSpellReady(Renew) && ObjectManager.Player.Mana > ObjectManager.Player.GetManaCost(Renew) && !ObjectManager.Player.Target.HasBuff("Renew"))
-                        {
-                            Functions.LuaCall($"CastSpellByName('{Renew}')");
-                        }
-                        BotTasks.Pop();
-                        return;
+                        Functions.LuaCall($"CastSpellByName('{healingSpell}')");
                     }
                 }
                 else
@@ -71,7 +62,7 @@ namespace ShadowPriestBot
 
                     if (nextWaypoint.Length > 1)
                     {
-                        currentWaypoint = nextWaypoint[1];
+                        ObjectManager.Player.MoveToward(nextWaypoint[1]);
                     }
                     else
                     {
@@ -79,8 +70,6 @@ namespace ShadowPriestBot
                         BotTasks.Pop();
                         return;
                     }
-
-                    ObjectManager.Player.MoveToward(currentWaypoint);
                 }
             }
             catch (Exception e)

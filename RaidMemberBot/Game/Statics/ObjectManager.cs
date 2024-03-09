@@ -142,25 +142,25 @@ namespace RaidMemberBot.Game.Statics
             }
         }
 
-        static public IEnumerable<WoWUnit> PartyMembers
+        static public IEnumerable<WoWPlayer> PartyMembers
         {
             get
             {
                 var partyMembers = new List<WoWPlayer>() { Player };
 
-                var partyMember1 = Players.FirstOrDefault(p => p.Guid == Party1Guid);
+                var partyMember1 = (WoWPlayer) Objects.FirstOrDefault(p => p.Guid == Party1Guid);
                 if (partyMember1 != null)
                     partyMembers.Add(partyMember1);
 
-                var partyMember2 = Players.FirstOrDefault(p => p.Guid == Party2Guid);
+                var partyMember2 = (WoWPlayer)Objects.FirstOrDefault(p => p.Guid == Party2Guid);
                 if (partyMember2 != null)
                     partyMembers.Add(partyMember2);
 
-                var partyMember3 = Players.FirstOrDefault(p => p.Guid == Party3Guid);
+                var partyMember3 = (WoWPlayer)Objects.FirstOrDefault(p => p.Guid == Party3Guid);
                 if (partyMember3 != null)
                     partyMembers.Add(partyMember3);
 
-                var partyMember4 = Players.FirstOrDefault(p => p.Guid == Party4Guid);
+                var partyMember4 = (WoWPlayer)Objects.FirstOrDefault(p => p.Guid == Party4Guid);
                 if (partyMember4 != null)
                     partyMembers.Add(partyMember4);
 
@@ -176,13 +176,23 @@ namespace RaidMemberBot.Game.Statics
         static public ulong Party3Guid => MemoryManager.ReadUlong((IntPtr)MemoryAddresses.Party3Guid);
         static public ulong Party4Guid => MemoryManager.ReadUlong((IntPtr)MemoryAddresses.Party4Guid);
 
+        static public List<WoWUnit> CasterAggressors =>
+            Aggressors
+                .Where(u => u.ManaPercent > 0)
+            .ToList();
+
+        static public List<WoWUnit> MeleeAggressors =>
+            Aggressors
+                .Where(u => u.ManaPercent <= 0)
+            .ToList();
+
         static public List<WoWUnit> Aggressors =>
             Hostiles
-                .Where(u => u.IsInCombat)
-                .Where(u =>
-                    u.TargetGuid == Player?.Guid ||
-                    u.TargetGuid == Pet?.Guid ||
-                PartyMembers.Any(x => u.TargetGuid == x.Guid))
+                .Where(u => u.IsInCombat || u.IsFleeing)
+                //.Where(u =>
+                //    u.TargetGuid == Pet?.Guid || 
+                //    u.IsFleeing ||
+                //    PartyMembers.Any(x => u.TargetGuid == x.Guid))
             .ToList();
 
         static public IEnumerable<WoWUnit> Hostiles =>

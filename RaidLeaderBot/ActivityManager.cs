@@ -89,8 +89,7 @@ namespace RaidLeaderBot
                 {
                     if (!newCharacterState.IsReset)
                     {
-                        if (newCharacterState.AccountName != raidMemberViewModel.AccountName
-                        || newCharacterState.BotProfileName != raidMemberViewModel.BotProfileName)
+                        if (newCharacterState.AccountName != raidMemberViewModel.AccountName || newCharacterState.BotProfileName != raidMemberViewModel.BotProfileName)
                         {
                             InstanceCommand loginCommand = new InstanceCommand()
                             {
@@ -136,7 +135,7 @@ namespace RaidLeaderBot
                             NextCommand[newCharacterState.ProcessId] = resetCharacterState;
                         }
                     }
-                    else if (newCharacterState.IsReset && !newCharacterState.IsReadyToStart)
+                    else if (!newCharacterState.IsReadyToStart)
                     {
                         if (newCharacterState.Zone != "GM Island")
                         {
@@ -221,6 +220,126 @@ namespace RaidLeaderBot
                             };
 
                             NextCommand[newCharacterState.ProcessId] = addTalent;
+                        }
+                        else if (raidMemberViewModel.RaidMemberPreset.IsRole1 && !newCharacterState.IsRole1)
+                        {
+                            InstanceCommand addRole = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.AddRole,
+                                CommandParam1 = "1",
+                            };
+
+                            NextCommand[newCharacterState.ProcessId] = addRole;
+                        }
+                        else if (raidMemberViewModel.RaidMemberPreset.IsRole2 && !newCharacterState.IsRole2)
+                        {
+                            InstanceCommand addRole = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.AddRole,
+                                CommandParam1 = "2",
+                            };
+
+                            NextCommand[newCharacterState.ProcessId] = addRole;
+                        }
+                        else if (raidMemberViewModel.RaidMemberPreset.IsRole3 && !newCharacterState.IsRole3)
+                        {
+                            InstanceCommand addRole = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.AddRole,
+                                CommandParam1 = "3",
+                            };
+
+                            NextCommand[newCharacterState.ProcessId] = addRole;
+                        }
+                        else if (raidMemberViewModel.RaidMemberPreset.IsRole4 && !newCharacterState.IsRole4)
+                        {
+                            InstanceCommand addRole = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.AddRole,
+                                CommandParam1 = "4",
+                            };
+
+                            NextCommand[newCharacterState.ProcessId] = addRole;
+                        }
+                        else if (raidMemberViewModel.RaidMemberPreset.IsRole5 && !newCharacterState.IsRole5)
+                        {
+                            InstanceCommand addRole = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.AddRole,
+                                CommandParam1 = "5",
+                            };
+
+                            NextCommand[newCharacterState.ProcessId] = addRole;
+                        }
+                        else if (raidMemberViewModel.RaidMemberPreset.IsRole6 && !newCharacterState.IsRole6)
+                        {
+                            InstanceCommand addRole = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.AddRole,
+                                CommandParam1 = "6",
+                            };
+
+                            NextCommand[newCharacterState.ProcessId] = addRole;
+                        }
+                        else if (raidMemberViewModel.RaidMemberPreset.IsMainTank && !newCharacterState.IsMainTank)
+                        {
+                            InstanceCommand addRole = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.AddRole,
+                                CommandParam1 = "7",
+                            };
+
+                            NextCommand[newCharacterState.ProcessId] = addRole;
+                        }
+                        else if (raidMemberViewModel.RaidMemberPreset.IsMainHealer && !newCharacterState.IsMainHealer)
+                        {
+                            InstanceCommand addRole = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.AddRole,
+                                CommandParam1 = "8",
+                            };
+
+                            NextCommand[newCharacterState.ProcessId] = addRole;
+                        }
+                        else if (raidMemberViewModel.RaidMemberPreset.IsOffTank && !newCharacterState.IsOffTank)
+                        {
+                            InstanceCommand addRole = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.AddRole,
+                                CommandParam1 = "9",
+                            };
+
+                            NextCommand[newCharacterState.ProcessId] = addRole;
+                        }
+                        else if (raidMemberViewModel.RaidMemberPreset.IsOffHealer && !newCharacterState.IsOffHealer)
+                        {
+                            InstanceCommand addRole = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.AddRole,
+                                CommandParam1 = "10",
+                            };
+
+                            NextCommand[newCharacterState.ProcessId] = addRole;
+                        }
+                        else if (raidMemberViewModel.RaidMemberPreset.ShouldCleanse && !newCharacterState.ShouldCleanse)
+                        {
+                            InstanceCommand addRole = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.AddRole,
+                                CommandParam1 = "11",
+                            };
+
+                            NextCommand[newCharacterState.ProcessId] = addRole;
+                        }
+                        else if (raidMemberViewModel.RaidMemberPreset.ShouldRebuff && !newCharacterState.ShouldRebuff)
+                        {
+                            InstanceCommand addRole = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.AddRole,
+                                CommandParam1 = "12",
+                            };
+
+                            NextCommand[newCharacterState.ProcessId] = addRole;
                         }
                         else if (!newCharacterState.IsReadyToStart)
                         {

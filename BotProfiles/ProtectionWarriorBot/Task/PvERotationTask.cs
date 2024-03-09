@@ -41,7 +41,10 @@ namespace ProtectionWarriorBot
 
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
         {
-            if (Container.State.VisitedWaypoints.Count(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true) > 15) > 0)
+            WoWUnit nearestHostile = ObjectManager.Hostiles.Where(x => !x.IsInCombat).OrderBy(x => x.Position.DistanceTo(ObjectManager.Player.Position)).First();
+            float distance = nearestHostile.Position.DistanceTo(ObjectManager.Player.Position) < 15 ? 30 : 15;
+
+            if (Container.State.VisitedWaypoints.Count(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true) > distance) > 0)
                 tankSpot = Container.State.VisitedWaypoints.Where(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true) > 15)
                     .OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true))
                     .First();
@@ -70,33 +73,54 @@ namespace ProtectionWarriorBot
                 return;
             }
 
+            ObjectManager.Player.StartAttack();
+
             List<WoWUnit> looseUnits = ObjectManager.Aggressors.Where(x => x.TargetGuid != ObjectManager.Player.Guid).OrderBy(x => x.Position.DistanceTo(ObjectManager.Player.Position)).ToList();
+            WoWUnit nearestHostile = ObjectManager.Hostiles.Where(x => !x.IsInCombat).OrderBy(x => x.Position.DistanceTo(ObjectManager.Player.Position)).First();
 
             if (looseUnits.Count > 0)
             {
-                if (ObjectManager.Player.Target.TargetGuid == ObjectManager.Player.Guid)
+                WoWUnit looseUnit = looseUnits.First();
+
+                if ((looseUnit.ManaPercent <= 0 && (nearestHostile.Position.DistanceTo(looseUnit.Position) > 20 || looseUnit.Position.DistanceTo(ObjectManager.Player.Position) < 8)) 
+                    || (looseUnit.ManaPercent > 0 && ObjectManager.Player.Position.DistanceTo(looseUnit.Position) < 5))
                 {
                     ObjectManager.Player.SetTarget(looseUnits.First().Guid);
-                }
 
-                if (ObjectManager.Player.CurrentStance != DefensiveStance)
-                    TryCastSpell(DefensiveStance);
+                    if (Update(5))
+                        return;
+                    else
+                        ObjectManager.Player.StopAllMovement();
+
+                    if (ObjectManager.Player.CurrentStance != DefensiveStance)
+                        TryCastSpell(DefensiveStance);
+
+                    if (ObjectManager.Player.IsSpellReady(Taunt))
+                        TryUseAbility(Taunt);
+                    else
+                        TryUseAbility(SunderArmor);
+                }
                 else
-                    TryUseAbility(Taunt);
+                    ThreatRotation();
             }
             else
             {
-                WoWUnit currentDPSTarget = GetDPSTarget();
-                if (currentDPSTarget == null)
-                {
-                    currentDPSTarget = ObjectManager.Aggressors.OrderBy(x => x.Health).Last();
-                    ObjectManager.Player.SetTarget(currentDPSTarget.Guid);
+                ThreatRotation();
+            }
+        }
 
-                    Functions.LuaCall($"SetRaidTarget(\"target\", 8)");
-                }
+        private void ThreatRotation()
+        {
+            WoWUnit currentDPSTarget = GetDPSTarget();
+            if (currentDPSTarget == null)
+            {
+                currentDPSTarget = ObjectManager.Aggressors.OrderBy(x => x.Health).Last();
+                ObjectManager.Player.SetTarget(currentDPSTarget.Guid);
+
+                Functions.LuaCall($"SetRaidTarget(\"target\", 8)");
             }
 
-            if (tankSpot.DistanceTo(ObjectManager.Player.Position) > 3 && looseUnits.Count == 0)
+            if (tankSpot.DistanceTo(ObjectManager.Player.Position) > 5)
             {
                 Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, tankSpot, true);
 
@@ -105,11 +129,11 @@ namespace ProtectionWarriorBot
                 else
                     ObjectManager.Player.StopAllMovement();
             }
-            else if (Update(3))
-                return;
             else
+            {
                 ObjectManager.Player.StopAllMovement();
-
+                ObjectManager.Player.Face(currentDPSTarget.Position);
+            }
             ObjectManager.Player.StartAttack();
 
             TryUseAbility(Bloodrage, condition: ObjectManager.Player.Target.HealthPercent > 50);
@@ -118,6 +142,7 @@ namespace ProtectionWarriorBot
             {
                 TryUseAbility(Retaliation);
             }
+
             if (ObjectManager.Aggressors.Count() >= 4 && !ObjectManager.Aggressors.All(u => u.HasDebuff(ThunderClap)))
             {
                 if (ObjectManager.Player.CurrentStance != BattleStance)
@@ -125,29 +150,26 @@ namespace ProtectionWarriorBot
                     TryCastSpell(BattleStance);
                 }
 
-                TryUseAbility(ThunderClap, 20, !ObjectManager.Player.Target.HasDebuff(ThunderClap));
+                TryUseAbility(ThunderClap, 20);
 
-                TryUseAbility(Overpower, 5, ObjectManager.Player.CurrentStance == BattleStance && overpowerStopwatch.IsRunning);
+                TryUseAbility(Overpower, 5, overpowerStopwatch.IsRunning);
             }
-            else
+            else if (ObjectManager.Player.CurrentStance != DefensiveStance)
             {
-                if (ObjectManager.Player.CurrentStance != DefensiveStance)
-                {
-                    TryCastSpell(DefensiveStance);
-                }
-
-                TryUseAbility(Revenge, 5, ObjectManager.Player.CurrentStance == DefensiveStance && overpowerStopwatch.IsRunning);
-
-                TryUseAbility(ShieldBash, 10, ObjectManager.Player.Target.IsCasting && ObjectManager.Player.Target.Mana > 0);
-
-                TryUseAbility(Rend, 10, !ObjectManager.Player.Target.HasDebuff(Rend) && ObjectManager.Player.Target.HealthPercent > 50 && ObjectManager.Player.Target.CreatureType != CreatureType.Elemental && ObjectManager.Player.Target.CreatureType != CreatureType.Undead);
-
-                TryUseAbility(ShieldSlam, 20, ObjectManager.Player.Target.HealthPercent > 30);
-
-                TryUseAbility(SunderArmor, 15);
-
-                TryUseAbility(HeroicStrike, 40, ObjectManager.Player.Target.HealthPercent > 40 && !ObjectManager.Player.IsCasting);
+                TryCastSpell(DefensiveStance);
             }
+
+            TryUseAbility(Revenge, 5, ObjectManager.Player.CurrentStance == DefensiveStance && overpowerStopwatch.IsRunning);
+
+            TryUseAbility(ShieldBash, 10, ObjectManager.Player.Target.IsCasting && ObjectManager.Player.Target.Mana > 0);
+
+            TryUseAbility(Rend, 10, !ObjectManager.Player.Target.HasDebuff(Rend) && ObjectManager.Player.Target.HealthPercent > 50 && ObjectManager.Player.Target.CreatureType != CreatureType.Elemental && ObjectManager.Player.Target.CreatureType != CreatureType.Undead);
+
+            TryUseAbility(ShieldSlam, 20, ObjectManager.Player.Target.HealthPercent > 30);
+
+            TryUseAbility(SunderArmor, 15);
+
+            TryUseAbility(HeroicStrike, 40, ObjectManager.Player.Target.HealthPercent > 40 && !ObjectManager.Player.IsCasting);
 
             TryUseAbility(DemoralizingShout, 10, !ObjectManager.Player.Target.HasDebuff(DemoralizingShout));
 

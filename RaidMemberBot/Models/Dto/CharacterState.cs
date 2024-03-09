@@ -23,8 +23,6 @@ namespace RaidMemberBot.Models.Dto
         public Vector3 Position { get; set; } = new Vector3();
         public ulong Guid { get; set; }
         public float Facing { get; set; }
-        public ulong HostileTargetGuid { get; set; }
-        public ulong FriendlyTargetGuid { get; set; }
         public string CharacterName { get; set; }
         public int CurrentHealth { get; set; }
         public int CurrentMana { get; set; }
@@ -56,8 +54,18 @@ namespace RaidMemberBot.Models.Dto
         public bool IsMoving { get; set; }
         public bool IsFalling { get; set; }
         public bool IsOnMount { get; set; }
-        public bool IsOnTaxi { get; set; }
-        public bool IsFlying { get; set; }
+        public bool IsMainTank { get; set; }
+        public bool IsOffTank { get; set; }
+        public bool IsMainHealer { get; set; }
+        public bool IsOffHealer { get; set; }
+        public bool ShouldCleanse { get; set; }
+        public bool ShouldRebuff { get; set; }
+        public bool IsRole1 { get; set; }
+        public bool IsRole2 { get; set; }
+        public bool IsRole3 { get; set; }
+        public bool IsRole4 { get; set; }
+        public bool IsRole5 { get; set; }
+        public bool IsRole6 { get; set; }
         public int HeadItem { get; set; }
         public int NeckItem { get; set; }
         public int ShoulderItem { get; set; }

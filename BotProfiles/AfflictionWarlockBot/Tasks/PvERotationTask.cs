@@ -40,47 +40,47 @@ namespace AfflictionWarlockBot
             }
             else if (!ObjectManager.Player.IsCasting)
             {
-                if (ObjectManager.Player.Target == null
-                    || ObjectManager.Player.Target.HealthPercent <= 0
-                    || !TargetIsHostile()
-                    || ObjectManager.CurrentTargetMarker != TargetMarker.Skull)
+                AssignDPSTarget();
+            }
+
+            AssignDPSTarget();
+
+            if (!raidLeader.IsMoving)
+            {
+                if (MoveBehindTank(8))
+                    return;
+                else
                 {
-                    WoWUnit nextDPSTarget = GetDPSTarget();
-                    if (nextDPSTarget != null)
+                    ObjectManager.Player.StopAllMovement();
+                    ObjectManager.Player.Face(ObjectManager.Player.Target.Position);
+                    ObjectManager.Pet?.Attack();
+
+                    TryCastSpell(LifeTap, 0, int.MaxValue, ObjectManager.Player.HealthPercent > 85 && ObjectManager.Player.ManaPercent < 80);
+
+                    // if target is low on health, turn off wand and cast drain soul
+                    if (ObjectManager.Player.Target.HealthPercent <= 20)
                     {
-                        ObjectManager.Player.SetTarget(nextDPSTarget.Guid);
-                        ObjectManager.Player.StartAttack();
+                        Functions.LuaCall(TurnOffWandLuaScript);
+                        TryCastSpell(DrainSoul, 0, 29);
+                    }
+                    else
+                    {
+                        //TryCastSpell(DeathCoil, 0, 28, (target.IsCasting || ObjectManager.Player.Target.IsChanneling) && ObjectManager.Player.Target.HealthPercent > 20);
+
+                        TryCastSpell(CurseOfAgony, 0, 28, !ObjectManager.Player.Target.HasDebuff(CurseOfAgony) && ObjectManager.Player.Target.HealthPercent > 90);
+
+                        TryCastSpell(Immolate, 0, 28, !ObjectManager.Player.Target.HasDebuff(Immolate) && ObjectManager.Player.Target.HealthPercent > 30);
+
+                        TryCastSpell(Corruption, 0, 28, !ObjectManager.Player.Target.HasDebuff(Corruption) && ObjectManager.Player.Target.HealthPercent > 30);
+
+                        TryCastSpell(SiphonLife, 0, 28, !ObjectManager.Player.Target.HasDebuff(SiphonLife) && ObjectManager.Player.Target.HealthPercent > 50);
+
+                        TryCastSpell(ShadowBolt, 0, 28, ObjectManager.Player.Target.HealthPercent > 40);
                     }
                 }
             }
-
-            if (Update(28))
-                return;
-
-            ObjectManager.Pet?.Attack();
-
-            // if target is low on health, turn off wand and cast drain soul
-            if (ObjectManager.Player.Target.HealthPercent <= 20)
-            {
-                Functions.LuaCall(TurnOffWandLuaScript);
-                TryCastSpell(DrainSoul, 0, 29);
-            }
             else
-            {
-                //TryCastSpell(DeathCoil, 0, 28, (target.IsCasting || ObjectManager.Player.Target.IsChanneling) && ObjectManager.Player.Target.HealthPercent > 20);
-
-                TryCastSpell(LifeTap, 0, int.MaxValue, ObjectManager.Player.HealthPercent > 85 && ObjectManager.Player.ManaPercent < 80);
-
-                TryCastSpell(CurseOfAgony, 0, 28, !ObjectManager.Player.Target.HasDebuff(CurseOfAgony) && ObjectManager.Player.Target.HealthPercent > 90);
-
-                TryCastSpell(Immolate, 0, 28, !ObjectManager.Player.Target.HasDebuff(Immolate) && ObjectManager.Player.Target.HealthPercent > 30);
-
-                TryCastSpell(Corruption, 0, 28, !ObjectManager.Player.Target.HasDebuff(Corruption) && ObjectManager.Player.Target.HealthPercent > 30);
-
-                TryCastSpell(SiphonLife, 0, 28, !ObjectManager.Player.Target.HasDebuff(SiphonLife) && ObjectManager.Player.Target.HealthPercent > 50);
-
-                TryCastSpell(ShadowBolt, 0, 28, ObjectManager.Player.Target.HealthPercent > 40);
-            }
+                ObjectManager.Player.StopAllMovement();
         }
     }
 }

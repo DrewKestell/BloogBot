@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using RaidMemberBot.Client;
+﻿using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
@@ -12,16 +11,24 @@ namespace RaidMemberBot.AI.SharedStates
 {
     public abstract class CombatRotationTask : BotTask
     {
-        Position currentWaypoint;
         Position hostileTargetLastPosition;
 
         bool backpedaling;
         int backpedalStartTime;
 
-        public CombatRotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Combat) { }
+        public WoWUnit raidLeader;
+        public CombatRotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Combat)
+        {
+            raidLeader = ObjectManager.PartyMembers.First(x => x.Guid == ObjectManager.PartyLeaderGuid);
+        }
 
         public bool Update(int desiredRange)
         {
+            if (!Container.State.IsMainTank && ObjectManager.Aggressors.Any(x => x.TargetGuid == ObjectManager.Player.Guid))
+            {
+                MoveTowardsTank();
+                return true;
+            }
             hostileTargetLastPosition = ObjectManager.Player.Target.Position;
             // melee classes occasionally end up in a weird state where they are too close to hit the mob,
             // so we backpedal a bit to correct the position
@@ -45,18 +52,9 @@ namespace RaidMemberBot.AI.SharedStates
                 }
                 else
                 {
-                    Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+                    Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.GetPointBehindUnit(3), true);
 
-                    if (locations.Count(loc => ObjectManager.Player.InLosWith(loc)) > 1)
-                    {
-                        currentWaypoint = locations.Where(loc => ObjectManager.Player.InLosWith(loc)).ToArray()[1];
-                    }
-                    else
-                    {
-                        currentWaypoint = locations[1];
-                    }
-
-                    ObjectManager.Player.MoveToward(currentWaypoint); 
+                    ObjectManager.Player.MoveToward(locations[1]);
                     return true;
                 }
             }
@@ -74,6 +72,55 @@ namespace RaidMemberBot.AI.SharedStates
             }
 
             return false;
+        }
+
+        public bool MoveTowardsTank()
+        {
+            if (raidLeader.Position.DistanceTo(ObjectManager.Player.Position) > 5)
+            {
+                Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, raidLeader.Position, true);
+
+                ObjectManager.Player.MoveToward(locations[1]);
+                return true;
+            }
+            else
+            {
+                ObjectManager.Player.StopAllMovement();
+                return false;
+            }
+        }
+
+        public bool MoveBehindTarget(float distance)
+        {
+            if (ObjectManager.Player.Target == null) return true;
+
+            if (ObjectManager.Player.IsBehind(ObjectManager.Player.Target)
+                && ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) < distance + 1
+                && ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) > distance - 1)
+            {
+                return false;
+            }
+
+            Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.GetPointBehindUnit(distance), true);
+
+            ObjectManager.Player.MoveToward(locations[1]);
+            return true;
+        }
+        public bool MoveBehindTank(float distance)
+        {
+            if (ObjectManager.Player.IsBehind(raidLeader)
+                && ObjectManager.Player.Position.DistanceTo(raidLeader.Position) < distance + 1
+                && ObjectManager.Player.Position.DistanceTo(raidLeader.Position) > distance - 1)
+            {
+                ObjectManager.Player.StopAllMovement();
+                ObjectManager.Player.Face(raidLeader.Position);
+                return false;
+            }
+
+            Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, raidLeader.GetPointBehindUnit(distance), true);
+
+            ObjectManager.Player.MoveToward(locations[1]);
+            return true;
         }
 
         public bool TargetMovingTowardPlayer =>
@@ -151,6 +198,17 @@ namespace RaidMemberBot.AI.SharedStates
             if (ObjectManager.Player.TargetGuid == 0)
                 return false;
             return ObjectManager.Aggressors.Any(x => x.Guid == ObjectManager.Player.TargetGuid);
+        }
+
+        public void AssignDPSTarget()
+        {
+            if (ObjectManager.Player.Target == null
+                || ObjectManager.Player.Target.HealthPercent <= 0
+                || !TargetIsHostile()
+                || ObjectManager.CurrentTargetMarker != TargetMarker.Skull)
+            {
+                GetDPSTarget();
+            }
         }
     }
 }

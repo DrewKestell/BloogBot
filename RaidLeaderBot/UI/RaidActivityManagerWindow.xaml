@@ -1161,8 +1161,6 @@
 
                 <Label Grid.Row="6" Grid.Column="7" Grid.ColumnSpan="3" Content="{Binding CharacterState.Casting}" HorizontalContentAlignment="Left"/>
                 <Label Grid.Row="7" Grid.Column="7" Grid.ColumnSpan="3" Content="{Binding CharacterState.ChannelingId}" HorizontalContentAlignment="Left"/>
-                <Label Grid.Row="8" Grid.Column="7" Grid.ColumnSpan="3" Content="{Binding CharacterState.HostileTargetGuid}" HorizontalContentAlignment="Left"/>
-                <Label Grid.Row="9" Grid.Column="7" Grid.ColumnSpan="3" Content="{Binding CharacterState.FriendlyTargetGuid}" HorizontalContentAlignment="Left"/>
                 <Label Grid.Row="10" Grid.Column="7" Content="{Binding CharacterState.IsDiseased}" HorizontalContentAlignment="Left"/>
                 <Label Grid.Row="11" Grid.Column="7" Content="{Binding CharacterState.IsPoisoned}" HorizontalContentAlignment="Left"/>
                 <Label Grid.Row="12" Grid.Column="7" Content="{Binding CharacterState.IsCursed}" HorizontalContentAlignment="Left"/>
@@ -1177,8 +1175,6 @@
                 <Label Grid.Row="11" Grid.Column="9" Content="{Binding CharacterState.InCombat}" HorizontalContentAlignment="Left"/>
                 <Label Grid.Row="13" Grid.Column="9" Content="{Binding CharacterState.IsFalling}" HorizontalContentAlignment="Left"/>
                 <Label Grid.Row="14" Grid.Column="9" Content="{Binding CharacterState.IsOnMount}" HorizontalContentAlignment="Left"/>
-                <Label Grid.Row="15" Grid.Column="9" Content="{Binding CharacterState.IsFlying}" HorizontalContentAlignment="Left"/>
-                <Label Grid.Row="16" Grid.Column="9" Content="{Binding CharacterState.IsOnTaxi}" HorizontalContentAlignment="Left"/>
                 <Label Grid.Row="6" Grid.Column="1" Content="{Binding CharacterState.Facing}"  HorizontalContentAlignment="Right" VerticalContentAlignment="Bottom" />
 
                 <Label Grid.Row="3" Grid.Column="0" Content="Position:" HorizontalContentAlignment="Right"/>

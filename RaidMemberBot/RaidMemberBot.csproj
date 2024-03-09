@@ -329,6 +329,7 @@
     <Compile Include="Tasks\BuyItemsTask.cs" />
     <Compile Include="Tasks\DungeoneeringTask.cs" />
     <Compile Include="Tasks\AddSpellTask.cs" />
+    <Compile Include="Tasks\AddRoleTask.cs" />
     <Compile Include="Tasks\QuestingTask.cs" />
     <Compile Include="Tasks\LoginTask.cs" />
     <Compile Include="Tasks\LogoutTask.cs" />

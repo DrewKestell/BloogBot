@@ -3,6 +3,7 @@ using System;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using static RaidMemberBot.Constants.Enums;
+using static RaidMemberBot.Constants.Offsets;
 
 namespace RaidMemberBot.Objects
 {
@@ -98,6 +99,13 @@ namespace RaidMemberBot.Objects
             return new Position(0, 0, 0);
         }
 
+        public Position GetPointBehindUnit(float parDistanceToMove)
+        {
+            var newX = Position.X + parDistanceToMove * (float)-Math.Cos(Facing);
+            var newY = Position.Y + parDistanceToMove * (float)-Math.Sin(Facing);
+            var end = new Position(newX, newY, Position.Z);
+            return end;
+        }
         public float Facing => GetFacing();
 
         [HandleProcessCorruptedStateExceptions]
@@ -107,7 +115,13 @@ namespace RaidMemberBot.Objects
             {
                 if (ObjectType == WoWObjectTypes.OT_PLAYER || ObjectType == WoWObjectTypes.OT_UNIT)
                 {
-                    return MemoryManager.ReadFloat(Pointer + 0x9C4);
+                    float facing = MemoryManager.ReadFloat(Pointer + 0x9C4);
+
+                    if (facing < 0)
+                    {
+                        facing = (float)(Math.PI * 2) + facing;
+                    }
+                    return facing;
                 }
                 else
                 {

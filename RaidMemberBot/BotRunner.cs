@@ -138,6 +138,10 @@ namespace RaidMemberBot.AI
                                     Console.WriteLine($"[BOT RUNNER] AddEquipment {instanceCommand.CommandParam1} {instanceCommand.CommandParam2}");
                                     botTasks.Push(new AddEquipmentTask(classContainer, botTasks, int.Parse(instanceCommand.CommandParam1), int.Parse(instanceCommand.CommandParam2)));
                                     break;
+                                case CommandAction.AddRole:
+                                    Console.WriteLine($"[BOT RUNNER] AddRole {instanceCommand.CommandParam1}");
+                                    botTasks.Push(new AddRoleTask(classContainer, botTasks, int.Parse(instanceCommand.CommandParam1)));
+                                    break;
                                 case CommandAction.TeleTo:
                                     Console.WriteLine($"[BOT RUNNER] TeleTo Map: {instanceCommand.CommandParam4} XYZ: {instanceCommand.CommandParam1} {instanceCommand.CommandParam2} {instanceCommand.CommandParam3}");
                                     Functions.LuaCall($"SendChatMessage(\".go xyz {instanceCommand.CommandParam1} {instanceCommand.CommandParam2} {instanceCommand.CommandParam3} {instanceCommand.CommandParam4}\")");

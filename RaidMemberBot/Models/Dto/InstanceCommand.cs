@@ -34,6 +34,7 @@
         ExecuteLuaCommand,
         BeginDungeon,
         MarkTarget,
+        AddRole,
         QueuePvP,
         Pull
     }

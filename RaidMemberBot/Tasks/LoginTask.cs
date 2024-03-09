@@ -11,6 +11,7 @@ namespace RaidMemberBot.AI.SharedStates
     {
         string accountName;
         bool isHandShaking;
+        bool handshakeReset;
 
         int lastTickTime;
         int handshakeDuration;
@@ -49,9 +50,10 @@ namespace RaidMemberBot.AI.SharedStates
             }
             else if (LoginState == Enums.LoginStates.login)
             {
-                if (!GlueDialogText.Contains("Handshaking"))
+                if (!GlueDialogText.Contains("Handshaking") || handshakeReset)
                 {
                     DefaultServerLogin();
+                    handshakeReset = false;
                 }
                 else if (GlueDialogText == "Handshaking")
                 {
@@ -62,6 +64,8 @@ namespace RaidMemberBot.AI.SharedStates
                         {
                             Console.WriteLine("[LOGIN TASK] handshakeDuration > 2000");
                             ResetLogin();
+                            handshakeReset = true;
+                            handshakeDuration = 0;
                         }
                     }
                 }

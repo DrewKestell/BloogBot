@@ -20,58 +20,71 @@ namespace CombatRogueBot
         const string Riposte = "Riposte";
         const string SinisterStrike = "Sinister Strike";
         const string SliceAndDice = "Slice and Dice";
+
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 
         public void Update()
         {
-
             if (ObjectManager.Aggressors.Count == 0)
             {
                 BotTasks.Pop();
                 return;
             }
 
-            if (ObjectManager.Player.Target == null
-                || ObjectManager.Player.Target.HealthPercent <= 0
-                || !TargetIsHostile()
-                || ObjectManager.CurrentTargetMarker != TargetMarker.Skull)
+            if (ObjectManager.Aggressors.Any(x => x.TargetGuid == ObjectManager.Player.Guid))
             {
-                WoWUnit nextDPSTarget = GetDPSTarget();
-                if (nextDPSTarget != null)
-                {
-                    ObjectManager.Player.SetTarget(nextDPSTarget.Guid);
-                }
+                Update(0);
+                return;
             }
 
-            if (Update(3))
-                return;
+            if (ObjectManager.CasterAggressors.Any(x => x.TargetGuid == ObjectManager.Player.Guid))
+            {
+                if (MoveBehindTank(15))
+                    return;
+            }
 
-            TryUseAbility(AdrenalineRush, 0, ObjectManager.Aggressors.Count() == 3 && ObjectManager.Player.HealthPercent > 80);
+            AssignDPSTarget();
 
-            TryUseAbilityById(BloodFury, 3, 0, ObjectManager.Player.Target.HealthPercent > 80);
+            if (!raidLeader.IsMoving && ObjectManager.Player.Target != null && ObjectManager.Player.Target.Position.DistanceTo(raidLeader.Position) <= 5)
+            {
+                if (MoveBehindTarget(3))
+                    return;
+                else
+                {
+                    ObjectManager.Player.StopAllMovement();
+                    ObjectManager.Player.Face(ObjectManager.Player.Target.Position);
+                    ObjectManager.Player.StartAttack();
 
-            TryUseAbility(Evasion, 0, ObjectManager.Aggressors.Count() > 1);
+                    TryUseAbility(AdrenalineRush, 0, ObjectManager.Aggressors.Count() == 3 && ObjectManager.Player.HealthPercent > 80);
 
-            TryUseAbility(BladeFlurry, 25, ObjectManager.Aggressors.Count() > 1);
+                    TryUseAbilityById(BloodFury, 3, 0, ObjectManager.Player.Target.HealthPercent > 80);
 
-            TryUseAbility(SliceAndDice, 25, !ObjectManager.Player.HasBuff(SliceAndDice) && ObjectManager.Player.Target.HealthPercent > 70 && ObjectManager.Player.ComboPoints == 2);
+                    TryUseAbility(Evasion, 0, ObjectManager.Aggressors.Count() > 1);
 
-            TryUseAbility(Riposte, 10, ObjectManager.Player.CanRiposte);
+                    TryUseAbility(BladeFlurry, 25, ObjectManager.Aggressors.Count() > 1);
 
-            TryUseAbility(Kick, 25, ReadyToInterrupt(ObjectManager.Player.Target));
+                    TryUseAbility(SliceAndDice, 25, !ObjectManager.Player.HasBuff(SliceAndDice) && ObjectManager.Player.Target.HealthPercent > 70 && ObjectManager.Player.ComboPoints == 2);
 
-            TryUseAbility(Gouge, 45, ReadyToInterrupt(ObjectManager.Player.Target) && !ObjectManager.Player.IsSpellReady(Kick));
+                    TryUseAbility(Riposte, 10, ObjectManager.Player.CanRiposte);
 
-            bool readyToEviscerate =
-                ObjectManager.Player.Target.HealthPercent <= 15 && ObjectManager.Player.ComboPoints >= 2
-                || ObjectManager.Player.Target.HealthPercent <= 25 && ObjectManager.Player.ComboPoints >= 3
-                || ObjectManager.Player.Target.HealthPercent <= 35 && ObjectManager.Player.ComboPoints >= 4
-                || ObjectManager.Player.ComboPoints == 5;
-            TryUseAbility(Eviscerate, 35, readyToEviscerate);
+                    TryUseAbility(Kick, 25, ReadyToInterrupt(ObjectManager.Player.Target));
 
-            TryUseAbility(SinisterStrike, 45, ObjectManager.Player.ComboPoints < 5);
+                    TryUseAbility(Gouge, 45, ReadyToInterrupt(ObjectManager.Player.Target) && !ObjectManager.Player.IsSpellReady(Kick));
+
+                    bool readyToEviscerate =
+                        ObjectManager.Player.Target.HealthPercent <= 15 && ObjectManager.Player.ComboPoints >= 2
+                        || ObjectManager.Player.Target.HealthPercent <= 25 && ObjectManager.Player.ComboPoints >= 3
+                        || ObjectManager.Player.Target.HealthPercent <= 35 && ObjectManager.Player.ComboPoints >= 4
+                        || ObjectManager.Player.ComboPoints == 5;
+                    TryUseAbility(Eviscerate, 35, readyToEviscerate);
+
+                    TryUseAbility(SinisterStrike, 45, ObjectManager.Player.ComboPoints < 5);
+                }
+            }
+            else
+                ObjectManager.Player.StopAllMovement();
         }
 
-        bool ReadyToInterrupt(WoWUnit target) => ObjectManager.Player.Target.Mana > 0 && (target.IsCasting || ObjectManager.Player.Target.IsChanneling);
+        bool ReadyToInterrupt(WoWUnit target) => Container.State.IsRole1 && ObjectManager.Player.Target.Mana > 0 && (target.IsCasting || ObjectManager.Player.Target.IsChanneling);
     }
 }

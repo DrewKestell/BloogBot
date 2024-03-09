@@ -65,6 +65,8 @@ namespace RaidMemberBot.Objects
 
         public bool IsConfused => UnitFlags.HasFlag(UnitFlags.UNIT_FLAG_CONFUSED);
 
+        public bool IsFleeing => UnitFlags.HasFlag(UnitFlags.UNIT_FLAG_FLEEING);
+
         public ulong SummonedByGuid => MemoryManager.ReadUlong(GetDescriptorPtr() + MemoryAddresses.WoWUnit_SummonedByGuidOffset);
 
         public int FactionId => MemoryManager.ReadInt(GetDescriptorPtr() + MemoryAddresses.WoWUnit_FactionIdOffset);
@@ -89,6 +91,10 @@ namespace RaidMemberBot.Objects
 
         public bool IsBehind(WoWUnit target)
         {
+            if (target == null) return false;
+
+            float facing = GetFacingForPosition(target.Position);
+
             var halfPi = Math.PI / 2;
             var twoPi = Math.PI * 2;
             var leftThreshold = target.Facing - halfPi;
@@ -96,13 +102,13 @@ namespace RaidMemberBot.Objects
 
             bool condition;
             if (leftThreshold < 0)
-                condition = Facing < rightThreshold || Facing > twoPi + leftThreshold;
+                condition = facing < rightThreshold || facing > twoPi + leftThreshold;
             else if (rightThreshold > twoPi)
-                condition = Facing > leftThreshold || Facing < rightThreshold - twoPi;
+                condition = facing > leftThreshold || facing < rightThreshold - twoPi;
             else
-                condition = Facing > leftThreshold && Facing < rightThreshold;
+                condition = facing > leftThreshold && facing < rightThreshold;
 
-            return condition && IsFacing(target.Position);
+            return condition;
         }
 
         public MovementFlags MovementFlags => (MovementFlags)MemoryManager.ReadInt(IntPtr.Add(Pointer, MemoryAddresses.WoWUnit_MovementFlagsOffset));

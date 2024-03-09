@@ -99,7 +99,7 @@ namespace RaidMemberBot
             }
             catch (Exception e)
             {
-                Console.WriteLine($"[THREAD]{e.Message} {e.StackTrace} {actionQueue.Count}");
+                Console.WriteLine($"[THREAD]{e.Message} {e.StackTrace}");
             }
 
             return CallWindowProc(oldCallback, hWnd, msg, wParam, lParam);
