@@ -1,5 +1,6 @@
 ﻿using RaidMemberBot.AI.SharedStates;
 using RaidMemberBot.Client;
+using RaidMemberBot.Constants;
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Mem;
@@ -53,19 +54,19 @@ namespace RaidMemberBot.AI
                 });
             };
 
-            _asyncBotTaskRunnerTask = Task.Run(StartBotTaskRunnerAsync);
-            _asyncServerFeedbackTask = Task.Run(StartServerFeedbackAsync);
+            _asyncBotTaskRunnerTask = StartBotTaskRunnerAsync();
+            _asyncServerFeedbackTask = StartServerFeedbackAsync();
         }
-        private async void StartServerFeedbackAsync()
+        private async Task StartServerFeedbackAsync()
         {
             Console.WriteLine($"[BOT RUNNER] Start server feedback task started.");
             while (true)
             {
-                try
-                {
-                    InstanceCommand instanceCommand = CommandClient.Instance.GetCommandBasedOnState(characterState);
+                InstanceCommand instanceCommand = CommandClient.Instance.GetCommandBasedOnState(characterState);
 
-                    if (instanceCommand.CommandAction != CommandAction.None && botTasks.Count == 0)
+                if (instanceCommand.CommandAction != CommandAction.None)
+                {
+                    if(botTasks.Count == 0)
                     {
                         ThreadSynchronizer.RunOnMainThread(() =>
                         {
@@ -113,16 +114,9 @@ namespace RaidMemberBot.AI
                                     Console.WriteLine($"[BOT RUNNER] AddPartyMember {instanceCommand.CommandParam1}");
                                     Functions.LuaCall($"InviteByName(\"{instanceCommand.CommandParam1}\")");
                                     break;
-                                case CommandAction.SetFacing:
-                                    ObjectManager.Player.SetFacing(float.Parse(instanceCommand.CommandParam1));
-                                    break;
                                 case CommandAction.SetLevel:
                                     Console.WriteLine($"[BOT RUNNER] SetLevel - {instanceCommand.CommandParam1}");
                                     Functions.LuaCall($"SendChatMessage(\".character level {ObjectManager.Player.Name} {instanceCommand.CommandParam1}\")");
-                                    break;
-                                case CommandAction.ExecuteLuaCommand:
-                                    Console.WriteLine($"[BOT RUNNER] ExecuteChatCommand - {instanceCommand.CommandParam1}");
-                                    Functions.LuaCall(instanceCommand.CommandParam1);
                                     break;
                                 case CommandAction.SetReadyState:
                                     Console.WriteLine($"[BOT RUNNER] SetReadyState - {instanceCommand.CommandParam1}");
@@ -149,16 +143,34 @@ namespace RaidMemberBot.AI
                             }
                         });
                     }
-                    await Task.Delay(500);
+                    else
+                    {
+                        switch(instanceCommand.CommandAction)
+                        {
+                            case CommandAction.SetFacing:
+                                ObjectManager.Player.SetFacing(float.Parse(instanceCommand.CommandParam1));
+                                break;
+                            case CommandAction.SetCombatLocation:
+                                characterState.TankPosition = new System.Numerics.Vector3(
+                                    float.Parse(instanceCommand.CommandParam1),
+                                    float.Parse(instanceCommand.CommandParam2),
+                                    float.Parse(instanceCommand.CommandParam3));
+                                characterState.TankFacing = float.Parse(instanceCommand.CommandParam4);
+
+                                Console.WriteLine($"[BOT RUNNER] SetCombatLocation {instanceCommand.CommandParam1} {instanceCommand.CommandParam2} {instanceCommand.CommandParam3} {instanceCommand.CommandParam4}");
+                                break;
+                            case CommandAction.ExecuteLuaCommand:
+                                Console.WriteLine($"[BOT RUNNER] ExecuteChatCommand - {instanceCommand.CommandParam1}");
+                                Functions.LuaCall(instanceCommand.CommandParam1);
+                                break;
+                        }
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[BOT RUNNER]{ex.Message} {ex.StackTrace}");
-                }
+                await Task.Delay(500);
             }
         }
 
-        private async void StartBotTaskRunnerAsync()
+        private async Task StartBotTaskRunnerAsync()
         {
             Console.WriteLine($"[BOT RUNNER] Bot Task Runner started.");
             while (true)
@@ -173,13 +185,11 @@ namespace RaidMemberBot.AI
                         }
                         if (botTasks.Count > 0)
                         {
-                            characterState.Task = botTasks.Peek()?.GetType()?.Name;
-
                             botTasks.Peek()?.Update();
                         }
                         else
                         {
-                            characterState.Task = "Idle";
+                            characterState.Action = "Idle";
 
                             if (ObjectManager.Player != null && classContainer != null)
                             {

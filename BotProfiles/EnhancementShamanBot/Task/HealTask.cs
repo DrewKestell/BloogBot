@@ -17,6 +17,7 @@ namespace EnhancementShamanBot
 
             if (ObjectManager.Player.HealthPercent > 70 || ObjectManager.Player.Mana < ObjectManager.Player.GetManaCost(HealingWave))
             {
+                Container.State.Action = "Done Healing";
                 BotTasks.Pop();
                 return;
             }
@@ -27,6 +28,7 @@ namespace EnhancementShamanBot
             if (ObjectManager.Player.IsSpellReady(WarStomp))
                 Functions.LuaCall($"CastSpellByName('{WarStomp}')");
 
+            Container.State.Action = "Healing";
             Functions.LuaCall($"CastSpellByName('{HealingWave}',1)");
         }
     }

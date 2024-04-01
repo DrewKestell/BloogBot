@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using RaidMemberBot.Constants;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using System.Numerics;
@@ -12,7 +13,7 @@ namespace RaidMemberBot.Models.Dto
         public string CurrentActivity { get; set; }
         public string RaidLeader { get; set; }
         public ulong RaidLeaderGuid { get; set; }
-        public string Task { get; set; }
+        public string Action { get; set; }
         public Class Class { get; set; } = Class.Warrior;
         public Race Race { get; set; } = Race.Human;
         public string AccountName { get; set; }
@@ -20,9 +21,11 @@ namespace RaidMemberBot.Models.Dto
         public int Level { get; set; }
         public int MapId { get; set; }
         public string Zone { get; set; }
-        public Vector3 Position { get; set; } = new Vector3();
         public ulong Guid { get; set; }
+        public Vector3 Position { get; set; }
         public float Facing { get; set; }
+        public Vector3 TankPosition { get; set; }
+        public float TankFacing { get; set; }
         public string CharacterName { get; set; }
         public int CurrentHealth { get; set; }
         public int CurrentMana { get; set; }
@@ -93,5 +96,7 @@ namespace RaidMemberBot.Models.Dto
         public Dictionary<ulong, string> WoWObjects { get; set; } = new Dictionary<ulong, string>();
         [JsonIgnore]
         public List<Position> VisitedWaypoints { get; } = new List<Position>();
+        [JsonIgnore]
+        public Position DungeonStart { get; set; }
     }
 }

@@ -45,6 +45,15 @@ namespace RaidLeaderBot
                 _raidActivityPresetViewModel.SetMemberFocusState(i, _raidActivityPresetViewModel.RaidPresetViewModels[_raidActivityPresetViewModel.SelectedRaidIndex].RaidMemberViewModels[i].Index == raidMemberViewModel.Index);
             }
         }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            if (DataContext is RaidLeaderViewModel rlvm)
+            {
+                rlvm.Dispose();
+            }
+            base.OnClosing(e);
+        }
     }
     public enum ActivityType
     {

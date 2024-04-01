@@ -43,44 +43,45 @@ namespace AfflictionWarlockBot
                 AssignDPSTarget();
             }
 
-            AssignDPSTarget();
-
-            if (!raidLeader.IsMoving)
+            if (MoveBehindTankSpot(8))
             {
-                if (MoveBehindTank(8))
-                    return;
-                else
-                {
-                    ObjectManager.Player.StopAllMovement();
-                    ObjectManager.Player.Face(ObjectManager.Player.Target.Position);
-                    ObjectManager.Pet?.Attack();
-
-                    TryCastSpell(LifeTap, 0, int.MaxValue, ObjectManager.Player.HealthPercent > 85 && ObjectManager.Player.ManaPercent < 80);
-
-                    // if target is low on health, turn off wand and cast drain soul
-                    if (ObjectManager.Player.Target.HealthPercent <= 20)
-                    {
-                        Functions.LuaCall(TurnOffWandLuaScript);
-                        TryCastSpell(DrainSoul, 0, 29);
-                    }
-                    else
-                    {
-                        //TryCastSpell(DeathCoil, 0, 28, (target.IsCasting || ObjectManager.Player.Target.IsChanneling) && ObjectManager.Player.Target.HealthPercent > 20);
-
-                        TryCastSpell(CurseOfAgony, 0, 28, !ObjectManager.Player.Target.HasDebuff(CurseOfAgony) && ObjectManager.Player.Target.HealthPercent > 90);
-
-                        TryCastSpell(Immolate, 0, 28, !ObjectManager.Player.Target.HasDebuff(Immolate) && ObjectManager.Player.Target.HealthPercent > 30);
-
-                        TryCastSpell(Corruption, 0, 28, !ObjectManager.Player.Target.HasDebuff(Corruption) && ObjectManager.Player.Target.HealthPercent > 30);
-
-                        TryCastSpell(SiphonLife, 0, 28, !ObjectManager.Player.Target.HasDebuff(SiphonLife) && ObjectManager.Player.Target.HealthPercent > 50);
-
-                        TryCastSpell(ShadowBolt, 0, 28, ObjectManager.Player.Target.HealthPercent > 40);
-                    }
-                }
+                Container.State.Action = "Moving behind tank spot";
+                return;
             }
             else
+            {
                 ObjectManager.Player.StopAllMovement();
+
+                if (ObjectManager.Player.Target == null) return;
+
+                Container.State.Action = "Performing DPS rotation";
+
+                ObjectManager.Player.Face(ObjectManager.Player.Target.Position);
+                ObjectManager.Pet?.Attack();
+
+                TryCastSpell(LifeTap, 0, int.MaxValue, ObjectManager.Player.HealthPercent > 85 && ObjectManager.Player.ManaPercent < 80);
+
+                // if target is low on health, turn off wand and cast drain soul
+                if (ObjectManager.Player.Target.HealthPercent <= 20)
+                {
+                    Functions.LuaCall(TurnOffWandLuaScript);
+                    TryCastSpell(DrainSoul, 0, 29);
+                }
+                else
+                {
+                    //TryCastSpell(DeathCoil, 0, 28, (target.IsCasting || ObjectManager.Player.Target.IsChanneling) && ObjectManager.Player.Target.HealthPercent > 20);
+
+                    TryCastSpell(CurseOfAgony, 0, 28, !ObjectManager.Player.Target.HasDebuff(CurseOfAgony) && ObjectManager.Player.Target.HealthPercent > 90);
+
+                    TryCastSpell(Immolate, 0, 28, !ObjectManager.Player.Target.HasDebuff(Immolate) && ObjectManager.Player.Target.HealthPercent > 30);
+
+                    TryCastSpell(Corruption, 0, 28, !ObjectManager.Player.Target.HasDebuff(Corruption) && ObjectManager.Player.Target.HealthPercent > 30);
+
+                    TryCastSpell(SiphonLife, 0, 28, !ObjectManager.Player.Target.HasDebuff(SiphonLife) && ObjectManager.Player.Target.HealthPercent > 50);
+
+                    TryCastSpell(ShadowBolt, 0, 28, ObjectManager.Player.Target.HealthPercent > 40);
+                }
+            }
         }
     }
 }

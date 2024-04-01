@@ -5,6 +5,7 @@ using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using static RaidMemberBot.Constants.Enums;
@@ -28,7 +29,7 @@ namespace RaidMemberBot.Game.Statics
         static internal IList<WoWObject> Objects = new List<WoWObject>();
         static internal IList<WoWObject> ObjectsBuffer = new List<WoWObject>();
 
-        static internal void Initialize(CharacterState parProbe)
+        static internal async Task Initialize(CharacterState parProbe)
         {
             _characterState = parProbe;
 
@@ -37,7 +38,7 @@ namespace RaidMemberBot.Game.Statics
 
             WoWEventHandler.Instance.OnEvent += OnEvent;
 
-            StartEnumeration();
+            await StartEnumeration();
         }
 
         static public LocalPlayer Player { get; private set; }
@@ -231,7 +232,7 @@ namespace RaidMemberBot.Game.Statics
             _ingame1 = true;
         }
 
-        static internal async void StartEnumeration()
+        static internal async Task StartEnumeration()
         {
             while (true)
             {
@@ -375,7 +376,7 @@ namespace RaidMemberBot.Game.Statics
                     _characterState.Energy = Player.Energy;
                     _characterState.ComboPoints = Player.ComboPoints;
                     _characterState.Facing = Player.Facing;
-                    _characterState.Position = new System.Numerics.Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z);
+                    _characterState.Position = new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z);
                     _characterState.Spells = Player.PlayerSpells.Values.SelectMany(x => x).OrderBy(x => x).ToList();
                     _characterState.Skills = Player.PlayerSkills.OrderBy(x => x).ToList();
 

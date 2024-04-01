@@ -32,6 +32,7 @@ namespace RaidMemberBot.AI.SharedStates
         public DungeoneeringTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Ordinary)
         {
             isPartyLeader = Container.State.RaidLeader == Container.State.CharacterName;
+            Container.State.DungeonStart = ObjectManager.Player.Position;
 
             NavigationClient.Instance.isRaidLeader = isPartyLeader;
 
@@ -40,7 +41,9 @@ namespace RaidMemberBot.AI.SharedStates
                 CreateWaypointMap();
             }
             currentWaypoint = ObjectManager.Player.Position;
+
             WoWEventHandler.Instance.OnUnitKilled += Instance_OnUnitKilled;
+            Console.WriteLine($"[DUNGEONEERING TASK] Sorting encounter data");
         }
 
         private void Instance_OnUnitKilled(object sender, EventArgs e)
@@ -85,6 +88,7 @@ namespace RaidMemberBot.AI.SharedStates
                             }
                         }
 
+                        Container.State.Action = "Moving to next waypoint";
                         ApproachDestination();
                     }
                 }
@@ -111,6 +115,7 @@ namespace RaidMemberBot.AI.SharedStates
                         destination = locations[1];
 
                         ApproachDestination();
+                        Container.State.Action = $"Following {Container.State.RaidLeader}";
                     }
                 }
                 else
@@ -143,7 +148,7 @@ namespace RaidMemberBot.AI.SharedStates
 
         private void CleanupWaypoints()
         {
-            List<Position> positions = dungeonWaypoints.Where(x => ObjectManager.Player.InLosWith(x) && NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true) < 20).ToList();
+            List<Position> positions = dungeonWaypoints.Where(x => ObjectManager.Player.InLosWith(x) && NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true) < 5).ToList();
             Container.State.VisitedWaypoints.AddRange(positions);
             dungeonWaypoints.RemoveAll(x => positions.Contains(x));
 
@@ -219,7 +224,7 @@ namespace RaidMemberBot.AI.SharedStates
                 }
             }
 
-            Console.WriteLine($"DUNGEONEERING TASK: Optimizing Boss route[{majorWaypoints.Count}]");
+            Console.WriteLine($"[DUNGEONEERING TASK] Optimizing Boss route[{majorWaypoints.Count}]");
             majorWaypoints = TravelingDungeonCrawler(majorWaypoints, 0);
 
             for (int i = 0; i < majorWaypoints.Count; i++)
@@ -228,11 +233,11 @@ namespace RaidMemberBot.AI.SharedStates
 
                 if (i < majorWaypoints.Count - 1)
                 {
-                    Console.WriteLine($"DUNGEONEERING TASK: {JsonConvert.SerializeObject(majorWaypoints[i])}\t=> {JsonConvert.SerializeObject(majorWaypoints[i + 1])}");
+                    Console.WriteLine($"[DUNGEONEERING TASK] {JsonConvert.SerializeObject(majorWaypoints[i])}\t=> {JsonConvert.SerializeObject(majorWaypoints[i + 1])}");
                 }
             }
 
-            //Console.WriteLine($"DUNGEONEERING TASK: Optimizing sub routes");
+            //Console.WriteLine($"[DUNGEONEERING TASK] Optimizing sub routes");
             for (int i = 0; i < dungeonWaypoints.Count; i++)
             {
                 if (!majorWaypoints.Contains(dungeonWaypoints[i]))
@@ -250,7 +255,7 @@ namespace RaidMemberBot.AI.SharedStates
                 {
                     if (minorWaypointsList.Count < 10)
                     {
-                        Console.WriteLine($"DUNGEONEERING TASK: Optimizing sub route[{minorWaypointsList.Count}]");
+                        Console.WriteLine($"[DUNGEONEERING TASK] Optimizing sub route[{minorWaypointsList.Count}]");
 
                         minorWaypointsList = TravelingDungeonCrawler(minorWaypointsList, 0);
                     }

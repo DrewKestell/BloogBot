@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
 using RaidMemberBot.Constants;
+using RaidMemberBot.Mem;
 using System;
+using System.Collections.Generic;
+using System.Windows.Documents;
 
 namespace RaidMemberBot.Objects
 {
@@ -44,11 +47,29 @@ namespace RaidMemberBot.Objects
             return (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
         }
 
+        public bool ComesWithinPath(List<Position> pathPositions, float distanceTo)
+        {
+            foreach (var position in pathPositions)
+            {
+                if (distanceTo > DistanceTo(position))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public Position GetNormalizedVector()
         {
             var magnitude = Math.Sqrt(X * X + Y * Y + Z * Z);
 
             return new Position((float)(X / magnitude), (float)(Y / magnitude), (float)(Z / magnitude));
+        }
+        public bool InLosWith(Position position)
+        {
+            if (position.X == X && position.Y == Y && position.Z == Z) return true;
+            var i = Functions.Intersect(this, position);
+            return i.X == 0 && i.Y == 0 && i.Z == 0;
         }
 
         public static Position operator -(Position a, Position b) =>
@@ -61,7 +82,5 @@ namespace RaidMemberBot.Objects
         new Position(a.X * n, a.Y * n, a.Z * n);
 
         public XYZ ToXYZ() => new XYZ(X, Y, Z);
-
-        public override string ToString() => $"X: {Math.Round(X, 2)}, Y: {Math.Round(Y, 2)}, Z: {Math.Round(Z, 2)}";
     }
 }

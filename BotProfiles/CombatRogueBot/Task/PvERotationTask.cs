@@ -39,7 +39,7 @@ namespace CombatRogueBot
 
             if (ObjectManager.CasterAggressors.Any(x => x.TargetGuid == ObjectManager.Player.Guid))
             {
-                if (MoveBehindTank(15))
+                if (MoveBehindTankSpot(15))
                     return;
             }
 

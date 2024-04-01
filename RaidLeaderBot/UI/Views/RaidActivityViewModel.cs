@@ -34,7 +34,7 @@ namespace RaidLeaderBot
             _databaseSocketServer = new DatabaseSocketServer(RaidLeaderBotSettings.Instance.DatabasePort, IPAddress.Parse(RaidLeaderBotSettings.Instance.ListenAddress));
             _navigationSocketServer = new NavigationSocketServer(RaidLeaderBotSettings.Instance.NavigationPort, IPAddress.Parse(RaidLeaderBotSettings.Instance.ListenAddress));
 
-            ConfigSockerServer.Instance.Start();
+            ConfigSocketServer.Instance.Start();
 
             _databaseSocketServer.Start();
             _navigationSocketServer.Start();
@@ -52,7 +52,7 @@ namespace RaidLeaderBot
             _asyncCharacterStateRefresherTask = Task.Run(StartCharacterStateRefresherAsync);
             OnPropertyChanged(nameof(ActivityPresetIndexes));
         }
-        private async void StartCharacterStateRefresherAsync()
+        private async Task StartCharacterStateRefresherAsync()
         {
             while (true)
             {

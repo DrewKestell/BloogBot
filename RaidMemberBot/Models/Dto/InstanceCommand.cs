@@ -27,6 +27,7 @@
         GoTo,
         TeleTo,
         SetFacing,
+        SetCombatLocation,
         MoveForward,
         InteractWith,
         CastSpellOn,

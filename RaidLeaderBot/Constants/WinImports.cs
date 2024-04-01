@@ -19,6 +19,23 @@ namespace RaidLeaderBot
             ref STARTUPINFO lpStartupInfo,
             out PROCESS_INFORMATION lpProcessInformation);
 
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool CloseHandle(IntPtr hObject);
+
+        public static void CloseProcess(IntPtr processHandle)
+        {
+            if (processHandle != IntPtr.Zero)
+            {
+                // Close the process using its handle
+                if (!CloseHandle(processHandle))
+                {
+                    // Handle the case where the close operation fails
+                    throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
+                }
+            }
+        }
+
         [DllImport("kernel32.dll")]
         internal static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
 

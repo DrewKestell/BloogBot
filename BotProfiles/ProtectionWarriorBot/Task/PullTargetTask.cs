@@ -4,9 +4,9 @@ using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using static RaidMemberBot.Constants.Enums;
 
 namespace ProtectionWarriorBot
@@ -46,6 +46,21 @@ namespace ProtectionWarriorBot
                     Functions.LuaCall($"SendChatMessage('.additem 2516 {200 - shotsCount}')");
                 }
             }
+            
+            WoWUnit nearestHostile = ObjectManager.Hostiles.Where(x => !x.IsInCombat).OrderBy(x => x.Position.DistanceTo(ObjectManager.Player.Position)).First();
+            float distance = nearestHostile.Position.DistanceTo(ObjectManager.Player.Position) < 15 ? 30 : 15;
+
+            Position tankSpot;
+
+            if (Container.State.VisitedWaypoints.Count(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true) > distance) > 0)
+                tankSpot = Container.State.VisitedWaypoints.Where(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true) > 15)
+                    .OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true))
+                    .First();
+            else
+                tankSpot = ObjectManager.Player.Position;
+
+            Container.State.TankPosition = new Vector3(tankSpot.X, tankSpot.Y, tankSpot.Z);
+            Container.State.TankFacing = ObjectManager.Player.Facing;
         }
 
         public void Update()

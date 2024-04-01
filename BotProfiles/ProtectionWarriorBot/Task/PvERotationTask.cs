@@ -37,22 +37,12 @@ namespace ProtectionWarriorBot
         const string ThunderClap = "Thunder Clap";
 
         readonly Stopwatch overpowerStopwatch = new Stopwatch();
-        readonly Position tankSpot;
 
+        readonly Position tankSpot;
+        WoWUnit currentDPSTarget;
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
         {
-            WoWUnit nearestHostile = ObjectManager.Hostiles.Where(x => !x.IsInCombat).OrderBy(x => x.Position.DistanceTo(ObjectManager.Player.Position)).First();
-            float distance = nearestHostile.Position.DistanceTo(ObjectManager.Player.Position) < 15 ? 30 : 15;
-
-            if (Container.State.VisitedWaypoints.Count(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true) > distance) > 0)
-                tankSpot = Container.State.VisitedWaypoints.Where(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true) > 15)
-                    .OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true))
-                    .First();
-            else
-                tankSpot = ObjectManager.Player.Position;
-
-            Console.WriteLine($"{tankSpot.X} {tankSpot.Y} {tankSpot.Z} - {ObjectManager.Player.Position.X} {ObjectManager.Player.Position.Y} {ObjectManager.Player.Position.Z}");
-
+            tankSpot = new Position(Container.State.TankPosition.X, Container.State.TankPosition.Y, Container.State.TankPosition.Z);
             WoWEventHandler.Instance.OnBlockParryDodge += Instance_OnBlockParryDodge;
         }
         ~PvERotationTask()
@@ -82,59 +72,62 @@ namespace ProtectionWarriorBot
             {
                 WoWUnit looseUnit = looseUnits.First();
 
-                if ((looseUnit.ManaPercent <= 0 && (nearestHostile.Position.DistanceTo(looseUnit.Position) > 20 || looseUnit.Position.DistanceTo(ObjectManager.Player.Position) < 8)) 
-                    || (looseUnit.ManaPercent > 0 && ObjectManager.Player.Position.DistanceTo(looseUnit.Position) < 5))
-                {
-                    ObjectManager.Player.SetTarget(looseUnits.First().Guid);
+                ObjectManager.Player.SetTarget(looseUnits.First().Guid);
 
-                    if (Update(5))
-                        return;
-                    else
-                        ObjectManager.Player.StopAllMovement();
+                if (Update(5))
+                {
+                    Container.State.Action = "Running to loose mob";
+                }
+                else
+                {
+                    Container.State.Action = "Threatening loose mob";
+                    ObjectManager.Player.StopAllMovement();
 
                     if (ObjectManager.Player.CurrentStance != DefensiveStance)
                         TryCastSpell(DefensiveStance);
-
-                    if (ObjectManager.Player.IsSpellReady(Taunt))
+                    else if (ObjectManager.Player.IsSpellReady(Taunt))
                         TryUseAbility(Taunt);
                     else
-                        TryUseAbility(SunderArmor);
+                        ThreatRotation();
                 }
-                else
-                    ThreatRotation();
             }
             else
             {
-                ThreatRotation();
+                currentDPSTarget = GetDPSTarget();
+
+                if (currentDPSTarget == null)
+                {
+                    currentDPSTarget = ObjectManager.Aggressors.OrderBy(x => x.Health).Last();
+                    ObjectManager.Player.SetTarget(currentDPSTarget.Guid);
+
+                    Functions.LuaCall($"SetRaidTarget(\"target\", 8)");
+                }
+
+                if (tankSpot.DistanceTo(ObjectManager.Player.Position) > 5)
+                {
+                    Container.State.Action = "Moving to tank spot";
+                    Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, tankSpot, true);
+
+                    if (locations.Length > 1)
+                        ObjectManager.Player.MoveToward(locations[1]);
+                    else
+                        ObjectManager.Player.StopAllMovement();
+                }
+                else
+                {
+                    Container.State.Action = "Tanking aggressors";
+
+                    ObjectManager.Player.StopAllMovement();
+                    ObjectManager.Player.Face(currentDPSTarget.Position);
+
+                    ThreatRotation();
+                }
             }
         }
 
         private void ThreatRotation()
         {
-            WoWUnit currentDPSTarget = GetDPSTarget();
-            if (currentDPSTarget == null)
-            {
-                currentDPSTarget = ObjectManager.Aggressors.OrderBy(x => x.Health).Last();
-                ObjectManager.Player.SetTarget(currentDPSTarget.Guid);
-
-                Functions.LuaCall($"SetRaidTarget(\"target\", 8)");
-            }
-
-            if (tankSpot.DistanceTo(ObjectManager.Player.Position) > 5)
-            {
-                Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, tankSpot, true);
-
-                if (locations.Length > 1)
-                    ObjectManager.Player.MoveToward(locations[1]);
-                else
-                    ObjectManager.Player.StopAllMovement();
-            }
-            else
-            {
-                ObjectManager.Player.StopAllMovement();
-                ObjectManager.Player.Face(currentDPSTarget.Position);
-            }
-            ObjectManager.Player.StartAttack();
+            if (ObjectManager.Player.Target == null) return;
 
             TryUseAbility(Bloodrage, condition: ObjectManager.Player.Target.HealthPercent > 50);
 

@@ -111,6 +111,28 @@ namespace RaidMemberBot.Objects
             return condition;
         }
 
+        public bool IsBehind(Position position, float targetFacing)
+        {
+            if (position == null) return false;
+
+            float facing = GetFacingForPosition(position);
+
+            var halfPi = Math.PI / 2;
+            var twoPi = Math.PI * 2;
+            var leftThreshold = targetFacing - halfPi;
+            var rightThreshold = targetFacing + halfPi;
+
+            bool condition;
+            if (leftThreshold < 0)
+                condition = facing < rightThreshold || facing > twoPi + leftThreshold;
+            else if (rightThreshold > twoPi)
+                condition = facing > leftThreshold || facing < rightThreshold - twoPi;
+            else
+                condition = facing > leftThreshold && facing < rightThreshold;
+
+            return condition;
+        }
+
         public MovementFlags MovementFlags => (MovementFlags)MemoryManager.ReadInt(IntPtr.Add(Pointer, MemoryAddresses.WoWUnit_MovementFlagsOffset));
 
         public bool IsMoving => MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FORWARD);

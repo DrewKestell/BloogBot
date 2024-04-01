@@ -8,13 +8,13 @@ using System.Text;
 
 namespace RaidLeaderBot.Server
 {
-    public class ConfigSockerServer : BaseSocketServer
+    public class ConfigSocketServer : BaseSocketServer
     {
         private Dictionary<int, List<int>> CommandPortToProcessIds = new Dictionary<int, List<int>>();
 
-        public static ConfigSockerServer Instance { get; private set; } = new ConfigSockerServer(RaidLeaderBotSettings.Instance.ConfigServerPort, IPAddress.Parse(RaidLeaderBotSettings.Instance.ListenAddress));
+        public static ConfigSocketServer Instance { get; private set; } = new ConfigSocketServer(RaidLeaderBotSettings.Instance.ConfigServerPort, IPAddress.Parse(RaidLeaderBotSettings.Instance.ListenAddress));
 
-        private ConfigSockerServer(int port, IPAddress ipAddress) : base(port, ipAddress)
+        private ConfigSocketServer(int port, IPAddress ipAddress) : base(port, ipAddress)
         {
             Console.WriteLine($"[CONFIG SERVER]Port {port}");
         }

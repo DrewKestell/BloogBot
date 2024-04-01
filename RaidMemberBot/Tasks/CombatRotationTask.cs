@@ -1,6 +1,7 @@
 ﻿using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Mem;
+using RaidMemberBot.Models.Dto;
 using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
@@ -24,11 +25,14 @@ namespace RaidMemberBot.AI.SharedStates
 
         public bool Update(int desiredRange)
         {
+            if (ObjectManager.Player.Target == null) return true;
+
             if (!Container.State.IsMainTank && ObjectManager.Aggressors.Any(x => x.TargetGuid == ObjectManager.Player.Guid))
             {
                 MoveTowardsTank();
                 return true;
             }
+
             hostileTargetLastPosition = ObjectManager.Player.Target.Position;
             // melee classes occasionally end up in a weird state where they are too close to hit the mob,
             // so we backpedal a bit to correct the position
@@ -106,21 +110,39 @@ namespace RaidMemberBot.AI.SharedStates
             ObjectManager.Player.MoveToward(locations[1]);
             return true;
         }
-        public bool MoveBehindTank(float distance)
+        public bool MoveBehindTankSpot(float distance)
         {
-            if (ObjectManager.Player.IsBehind(raidLeader)
-                && ObjectManager.Player.Position.DistanceTo(raidLeader.Position) < distance + 1
-                && ObjectManager.Player.Position.DistanceTo(raidLeader.Position) > distance - 1)
+            Position tankPosition = new Position(Container.State.TankPosition.X, Container.State.TankPosition.Y, Container.State.TankPosition.Z);
+            Position position = GetPointBehindPosition(tankPosition, Container.State.TankFacing, distance);
+
+            if ((NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, position, ObjectManager.Player.Position, true) > distance + 0.5
+                || !tankPosition.InLosWith(position)
+                || position.ComesWithinPath(new List<Position>() { Container.State.DungeonStart }, 5))
+                && distance > 2)
+            {
+                return MoveBehindTankSpot(distance - 2);
+            }
+
+            if (ObjectManager.Player.IsBehind(tankPosition, Container.State.TankFacing)
+                && ObjectManager.Player.Position.DistanceTo(tankPosition) < distance + 1
+                && ObjectManager.Player.Position.DistanceTo(tankPosition) > distance - 1)
             {
                 ObjectManager.Player.StopAllMovement();
-                ObjectManager.Player.Face(raidLeader.Position);
                 return false;
             }
 
-            Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, raidLeader.GetPointBehindUnit(distance), true);
+            Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, position, true);
 
             ObjectManager.Player.MoveToward(locations[1]);
             return true;
+        }
+        private Position GetPointBehindPosition(Position position, float facing, float parDistanceToMove)
+        {
+            var newX = position.X + parDistanceToMove * (float)-Math.Cos(facing);
+            var newY = position.Y + parDistanceToMove * (float)-Math.Sin(facing);
+            var end = new Position(newX, newY, position.Z);
+
+            return end;
         }
 
         public bool TargetMovingTowardPlayer =>

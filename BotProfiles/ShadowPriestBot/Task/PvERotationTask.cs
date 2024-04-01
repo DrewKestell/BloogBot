@@ -46,24 +46,6 @@ namespace ShadowPriestBot
                 return;
             }
 
-            WoWUnit woWUnit = ObjectManager.Aggressors.FirstOrDefault(x => x.TargetGuid == ObjectManager.Player.Guid);
-            if (woWUnit != null)
-            {
-                if (woWUnit.ManaPercent > 5)
-                {
-                    if (MoveBehindTank(15))
-                        return;
-                }
-                else
-                {
-                    if (MoveBehindTank(3))
-                        return;
-                    else
-                        ObjectManager.Player.StopAllMovement();
-                    return;
-                }
-            }
-
             if (ObjectManager.PartyMembers.Any(x => x.HealthPercent < 70) && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(LesserHeal))
             {
                 ObjectManager.Player.StopAllMovement();
@@ -72,53 +54,75 @@ namespace ShadowPriestBot
                 return;
             }
 
-            AssignDPSTarget();
-
-            if (!raidLeader.IsMoving)
+            WoWUnit woWUnit = ObjectManager.Aggressors.FirstOrDefault(x => x.TargetGuid == ObjectManager.Player.Guid);
+            if (woWUnit != null)
             {
-                if (MoveBehindTank(8))
-                    return;
-                else
+                if (woWUnit.ManaPercent > 5)
                 {
-                    ObjectManager.Player.StopAllMovement();
-                    ObjectManager.Player.Face(ObjectManager.Player.Target.Position);
-
-                    if (useWand)
-                        Functions.LuaCall(WandLuaScript);
-                    else
+                    if (MoveBehindTankSpot(30))
                     {
-                        //TryCastSpell(ShadowForm, 0, int.MaxValue, !ObjectManager.Player.HasBuff(ShadowForm));
-
-                        //TryCastSpell(VampiricEmbrace, 0, 29, ObjectManager.Player.HealthPercent < 100 && !ObjectManager.Player.Target.HasDebuff(VampiricEmbrace) && ObjectManager.Player.Target.HealthPercent > 50);
-
-                        //bool noNeutralsNearby = !ObjectManager.Units.Any(u => u.Guid != ObjectManager.Player.TargetGuid && u.UnitReaction == UnitReaction.Neutral && u.Position.DistanceTo(ObjectManager.Player.Position) <= 10);
-                        //TryCastSpell(PsychicScream, 0, 7, (ObjectManager.Player.Target.Position.DistanceTo(ObjectManager.Player.Position) < 8 && !ObjectManager.Player.HasBuff(PowerWordShield)) || ObjectManager.Aggressors.Count() > 1 && ObjectManager.Player.Target.CreatureType != CreatureType.Elemental);
-
-                        TryCastSpell(ShadowWordPain, 0, 29, ObjectManager.Player.Target.HealthPercent > 70 && !ObjectManager.Player.Target.HasDebuff(ShadowWordPain));
-
-                        TryCastSpell(DispelMagic, 0, int.MaxValue, ObjectManager.Player.HasMagicDebuff, castOnSelf: true);
-
-                        if (ObjectManager.Player.IsSpellReady(AbolishDisease))
-                            TryCastSpell(AbolishDisease, 0, int.MaxValue, ObjectManager.Player.IsDiseased && !ObjectManager.Player.HasBuff(ShadowForm), castOnSelf: true);
-                        else if (ObjectManager.Player.IsSpellReady(CureDisease))
-                            TryCastSpell(CureDisease, 0, int.MaxValue, ObjectManager.Player.IsDiseased && !ObjectManager.Player.HasBuff(ShadowForm), castOnSelf: true);
-
-                        TryCastSpell(InnerFire, 0, int.MaxValue, !ObjectManager.Player.HasBuff(InnerFire));
-
-                        //TryCastSpell(PowerWordShield, 0, int.MaxValue, !ObjectManager.Player.HasDebuff(WeakenedSoul) && !ObjectManager.Player.HasBuff(PowerWordShield) && (ObjectManager.Player.Target.HealthPercent > 20 || ObjectManager.Player.HealthPercent < 10), castOnSelf: true);
-
-                        //TryCastSpell(MindBlast, 0, 29);
-
-                        //if (ObjectManager.Player.IsSpellReady(MindFlay) && ObjectManager.Player.Target.Position.DistanceTo(ObjectManager.Player.Position) <= 19 && (!ObjectManager.Player.IsSpellReady(PowerWordShield) || ObjectManager.Player.HasBuff(PowerWordShield)))
-                        //    TryCastSpell(MindFlay, 0, 19);
-                        //else
-                        //    TryCastSpell(Smite, 0, 29, !ObjectManager.Player.HasBuff(ShadowForm));
+                        Container.State.Action = "Moving far behind tank spot";
+                        return;
                     }
                 }
+                else
+                {
+                    if (MoveBehindTankSpot(3))
+                    {
+                        Container.State.Action = "Moving close behind tank spot";
+                        return;
+                    }
+                    else
+                        ObjectManager.Player.StopAllMovement();
+                }
+            }
+
+            AssignDPSTarget();
+
+            if (MoveBehindTankSpot(8))
+            {
+                Container.State.Action = "Moving close behind tank spot";
+                return;
             }
             else
             {
+                Container.State.Action = "Attacking target";
                 ObjectManager.Player.StopAllMovement();
+                if (ObjectManager.Player.Target == null) return;
+
+                ObjectManager.Player.Face(ObjectManager.Player.Target.Position);
+
+                if (useWand && ObjectManager.Player.Target.HasDebuff(ShadowWordPain))
+                    Functions.LuaCall(WandLuaScript);
+                else
+                {
+                    //TryCastSpell(ShadowForm, 0, int.MaxValue, !ObjectManager.Player.HasBuff(ShadowForm));
+
+                    //TryCastSpell(VampiricEmbrace, 0, 29, ObjectManager.Player.HealthPercent < 100 && !ObjectManager.Player.Target.HasDebuff(VampiricEmbrace) && ObjectManager.Player.Target.HealthPercent > 50);
+
+                    //bool noNeutralsNearby = !ObjectManager.Units.Any(u => u.Guid != ObjectManager.Player.TargetGuid && u.UnitReaction == UnitReaction.Neutral && u.Position.DistanceTo(ObjectManager.Player.Position) <= 10);
+                    //TryCastSpell(PsychicScream, 0, 7, (ObjectManager.Player.Target.Position.DistanceTo(ObjectManager.Player.Position) < 8 && !ObjectManager.Player.HasBuff(PowerWordShield)) || ObjectManager.Aggressors.Count() > 1 && ObjectManager.Player.Target.CreatureType != CreatureType.Elemental);
+
+                    TryCastSpell(DispelMagic, 0, int.MaxValue, ObjectManager.Player.HasMagicDebuff, castOnSelf: true);
+
+                    if (ObjectManager.Player.IsSpellReady(AbolishDisease))
+                        TryCastSpell(AbolishDisease, 0, int.MaxValue, ObjectManager.Player.IsDiseased && !ObjectManager.Player.HasBuff(ShadowForm), castOnSelf: true);
+                    else if (ObjectManager.Player.IsSpellReady(CureDisease))
+                        TryCastSpell(CureDisease, 0, int.MaxValue, ObjectManager.Player.IsDiseased && !ObjectManager.Player.HasBuff(ShadowForm), castOnSelf: true);
+
+                    TryCastSpell(InnerFire, 0, int.MaxValue, !ObjectManager.Player.HasBuff(InnerFire));
+
+                    TryCastSpell(ShadowWordPain, 0, 29, ObjectManager.Player.Target.HealthPercent > 10 && !ObjectManager.Player.Target.HasDebuff(ShadowWordPain));
+
+                    //TryCastSpell(PowerWordShield, 0, int.MaxValue, !ObjectManager.Player.HasDebuff(WeakenedSoul) && !ObjectManager.Player.HasBuff(PowerWordShield) && (ObjectManager.Player.Target.HealthPercent > 20 || ObjectManager.Player.HealthPercent < 10), castOnSelf: true);
+
+                    //TryCastSpell(MindBlast, 0, 29);
+
+                    //if (ObjectManager.Player.IsSpellReady(MindFlay) && ObjectManager.Player.Target.Position.DistanceTo(ObjectManager.Player.Position) <= 19 && (!ObjectManager.Player.IsSpellReady(PowerWordShield) || ObjectManager.Player.HasBuff(PowerWordShield)))
+                    //    TryCastSpell(MindFlay, 0, 19);
+                    //else
+                    //    TryCastSpell(Smite, 0, 29, !ObjectManager.Player.HasBuff(ShadowForm));
+                }
             }
         }
     }

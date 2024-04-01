@@ -1,31 +1,39 @@
-﻿using RaidMemberBot.Models.Dto;
+﻿using EnvDTE80;
+using RaidLeaderBot.Utilities;
+using RaidMemberBot.Models.Dto;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace RaidLeaderBot
 {
-    public sealed class RaidLeaderViewModel : INotifyPropertyChanged
+    public sealed class RaidLeaderViewModel : INotifyPropertyChanged, IDisposable
     {
         private readonly ActivityManager _activityContainer;
         private readonly RaidPreset _preset;
+        private readonly ProcessTracker _processTracker;
         public int Index { get; set; }
         public IEnumerable<ActivityType> EnumActivityTypes => Enum.GetValues(typeof(ActivityType)).Cast<ActivityType>();
         public ObservableCollection<RaidMemberViewModel> RaidMemberViewModels { get; set; } = new ObservableCollection<RaidMemberViewModel>();
         public RaidLeaderViewModel()
         {
             _preset = new RaidPreset();
+            _processTracker = new ProcessTracker();
         }
         public RaidLeaderViewModel(RaidPreset raidPreset)
         {
             _preset = raidPreset;
             _activityContainer = new ActivityManager(_preset.RaidLeaderPort, 389);
-
+            _processTracker = new ProcessTracker();
             _preset.RaidMemberPresets ??= new List<RaidMemberPreset>() { new RaidMemberPreset() };
 
             for (int i = 0; i < _preset.RaidMemberPresets.Count; i++)
@@ -196,18 +204,52 @@ namespace RaidLeaderBot
             }
         }
 
-        public async void StartAllRaidMembers()
+        public void StartAllRaidMembers()
         {
             try
             {
+                var dte2 = (DTE2)Marshal.GetActiveObject("VisualStudio.DTE");
+                var debugger = dte2.Debugger as Debugger2;
                 for (int i = 0; i < RaidMemberViewModels.Count; i++)
                 {
                     RaidMemberViewModels[i].ShouldRun = true;
 
                     if (_activityContainer.PartyMembersToStates[RaidMemberViewModels[i]].ProcessId == 0)
                     {
-                        RaidMemberLauncher.Instance.LaunchProcess(RaidLeaderPortNumber);
-                        await Task.Delay(5000);
+                        Dispatcher.CurrentDispatcher.InvokeAsync(async () =>
+                        {
+                            var processId = await RaidMemberLauncher.Instance.LaunchProcess(RaidLeaderPortNumber, _processTracker, CancellationToken.None);
+                            if (processId != 0)
+                            {
+                                RetryWithTimeout retryWithTimeout = new RetryWithTimeout(() =>
+                                {
+                                    try
+                                    {
+                                        Process processToAttachTo = Process.GetProcessById(processId.Value);
+                                        if (processToAttachTo != null)
+                                        {
+                                            foreach (EnvDTE.Process process in debugger.LocalProcesses)
+                                            {
+                                                if (process.ProcessID == processId)
+                                                {
+                                                    process.Attach();
+                                                    Console.WriteLine($"Attached to process {processId}");
+                                                    return true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    catch (COMException ex) when (ex.HResult == unchecked((int)0x80010001)) // RPC_E_CALL_REJECTED
+                                    {
+                                        Console.WriteLine("Retrying due to COM exception...");
+                                        Thread.Sleep(1000); // Wait before retrying
+                                    }
+                                    return false;
+                                });
+                                await retryWithTimeout.ExecuteWithRetry(CancellationToken.None);
+                            }
+                            await Task.Delay(5000);
+                        });                       
                     }
                 }
 
@@ -392,6 +434,11 @@ namespace RaidLeaderBot
         internal void QueueCommandToProcess(int processId, InstanceCommand command)
         {
             _activityContainer.QueueCommandToProcess(processId, command);
+        }
+
+        public void Dispose()
+        {
+            _processTracker?.Dispose();
         }
     }
 }

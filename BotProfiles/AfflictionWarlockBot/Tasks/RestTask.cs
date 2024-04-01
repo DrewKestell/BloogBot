@@ -16,9 +16,7 @@ namespace AfflictionWarlockBot
         const string HealthFunnel = "Health Funnel";
         const string LifeTap = "Life Tap";
 
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
-        {
-        }
+        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) { }
 
         public void Update()
         {
@@ -47,6 +45,8 @@ namespace AfflictionWarlockBot
             }
 
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
+
+            TryCastSpell(LifeTap, 0, int.MaxValue, ObjectManager.Player.HealthPercent > 85 && ObjectManager.Player.ManaPercent < 80);
 
             if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
             {
@@ -80,8 +80,6 @@ namespace AfflictionWarlockBot
                 if (drinkItem != null && !ObjectManager.Player.IsDrinking && ObjectManager.Player.ManaPercent < 60 && Wait.For("DrinkDelay", 500, true))
                     drinkItem.Use();
             }
-
-            TryCastSpell(LifeTap, 0, int.MaxValue, ObjectManager.Player.HealthPercent > 85 && ObjectManager.Player.ManaPercent < 80);
         }
 
         bool HealthOk => ObjectManager.Player.HealthPercent >= 90 || (ObjectManager.Player.HealthPercent >= 70 && !ObjectManager.Player.IsEating);

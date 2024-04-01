@@ -54,6 +54,8 @@ namespace RaidMemberBot.Objects
 
         public void Face(Position pos)
         {
+            if (pos == null) return;
+
             // sometimes the client gets in a weird state and CurrentFacing is negative. correct that here.
             if (Facing < 0)
             {
@@ -363,10 +365,7 @@ namespace RaidMemberBot.Objects
 
         public bool InLosWith(Position position)
         {
-
-            if (position.X == Position.X && position.Y == Position.Y && position.Z == Position.Z) return true;
-            var i = Functions.Intersect(Position, position);
-            return i.X == 0 && i.Y == 0 && i.Z == 0;
+            return Position.InLosWith(position);
         }
 
         public bool CanRiposte

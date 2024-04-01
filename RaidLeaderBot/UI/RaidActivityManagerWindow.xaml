@@ -1104,16 +1104,16 @@
                     <ColumnDefinition Width="72"/>
                     <ColumnDefinition Width="64"/>
                 </Grid.ColumnDefinitions>
-                <Label Grid.Row="0" Grid.Column="0" Content="Task:" HorizontalContentAlignment="Right"/>
-                <Label Grid.Row="0" Grid.Column="1" Content="{Binding CharacterState.Task}" Grid.ColumnSpan="5" HorizontalContentAlignment="Left"/>
+                <Label Grid.Row="0" Grid.Column="0" Content="Action:" HorizontalContentAlignment="Right"/>
+                <Label Grid.Row="0" Grid.Column="1" Content="{Binding CharacterState.Action}" Grid.ColumnSpan="5" HorizontalContentAlignment="Left"/>
 
                 <Label Grid.Row="1" Grid.Column="0" Content="Zone:" HorizontalContentAlignment="Right"/>
                 <Label Grid.Row="1" Grid.Column="1" Content="{Binding CharacterState.Zone}" Grid.ColumnSpan="5" HorizontalContentAlignment="Left"/>
 
                 <Label Grid.Row="3" Grid.Column="1" HorizontalContentAlignment="Left" Content="{Binding CharacterState.MapId}"/>
-                <Label Grid.Row="3" Grid.Column="2" HorizontalContentAlignment="Left" Content="{Binding DestinationX}"/>
-                <Label Grid.Row="3" Grid.Column="3" HorizontalContentAlignment="Left" Content="{Binding DestinationY}"/>
-                <Label Grid.Row="3" Grid.Column="4" HorizontalContentAlignment="Left" Content="{Binding DestinationZ}"/>
+                <Label Grid.Row="3" Grid.Column="2" HorizontalContentAlignment="Left" Content="{Binding PositionX}"/>
+                <Label Grid.Row="3" Grid.Column="3" HorizontalContentAlignment="Left" Content="{Binding PositionY}"/>
+                <Label Grid.Row="3" Grid.Column="4" HorizontalContentAlignment="Left" Content="{Binding PositionZ}"/>
 
                 <Label Grid.Row="0" Grid.Column="6" Content="GUID:" HorizontalContentAlignment="Right"/>
                 <Label Grid.Row="0" Grid.Column="7" Content="{Binding CharacterState.Guid}" Grid.ColumnSpan="3" HorizontalContentAlignment="Left"/>

@@ -10,6 +10,7 @@ using System.Windows;
 using static RaidMemberBot.Constants.Enums;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Google.Protobuf.WellKnownTypes;
 
 namespace RaidLeaderBot
 {
@@ -53,6 +54,10 @@ namespace RaidLeaderBot
                     if (PartyMembersToStates.Values.ElementAt(i).ProcessId == characterState.ProcessId)
                     {
                         PartyMembersToStates[PartyMembersToStates.Keys.ElementAt(i)] = characterState;
+                        if (RaidLeader != null && characterState.RaidLeaderGuid == characterState.Guid)
+                        {
+                            RaidLeader = characterState;
+                        }
 
                         if (!characterState.IsConnected)
                         {
@@ -148,27 +153,6 @@ namespace RaidLeaderBot
                                 CommandParam4 = "1",
                             };
                             NextCommand[newCharacterState.ProcessId] = goToCommand;
-                        }
-                        else if (RaidLeader.CharacterName != newCharacterState.RaidLeader)
-                        {
-                            InstanceCommand setLeaderCommand = new InstanceCommand()
-                            {
-                                CommandAction = CommandAction.SetRaidLeader,
-                                CommandParam1 = RaidLeader.CharacterName,
-                                CommandParam2 = RaidLeader.Guid.ToString()
-                            };
-
-                            NextCommand[newCharacterState.ProcessId] = setLeaderCommand;
-                        }
-                        else if (RaidLeader.Guid != newCharacterState.Guid && !newCharacterState.InParty)
-                        {
-                            InstanceCommand addPartyMember = new InstanceCommand()
-                            {
-                                CommandAction = CommandAction.AddPartyMember,
-                                CommandParam1 = newCharacterState.CharacterName,
-                            };
-
-                            NextCommand[RaidLeader.ProcessId] = addPartyMember;
                         }
                         else if (newCharacterState.Level < raidMemberViewModel.Level)
                         {
@@ -341,6 +325,27 @@ namespace RaidLeaderBot
 
                             NextCommand[newCharacterState.ProcessId] = addRole;
                         }
+                        else if (RaidLeader.CharacterName != newCharacterState.RaidLeader)
+                        {
+                            InstanceCommand setLeaderCommand = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.SetRaidLeader,
+                                CommandParam1 = RaidLeader.CharacterName,
+                                CommandParam2 = RaidLeader.Guid.ToString()
+                            };
+
+                            NextCommand[newCharacterState.ProcessId] = setLeaderCommand;
+                        }
+                        else if (RaidLeader.Guid != newCharacterState.Guid && !newCharacterState.InParty)
+                        {
+                            InstanceCommand addPartyMember = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.AddPartyMember,
+                                CommandParam1 = newCharacterState.CharacterName,
+                            };
+
+                            NextCommand[RaidLeader.ProcessId] = addPartyMember;
+                        }
                         else if (!newCharacterState.IsReadyToStart)
                         {
                             InstanceCommand setReadyState = new InstanceCommand()
@@ -372,7 +377,7 @@ namespace RaidLeaderBot
                         }
                         else
                         {
-                            if (newCharacterState.Task == "Idle")
+                            if (newCharacterState.Action == "Idle")
                             {
                                 InstanceCommand beginDungeon = new InstanceCommand()
                                 {
@@ -390,6 +395,23 @@ namespace RaidLeaderBot
                                 };
 
                                 NextCommand[newCharacterState.ProcessId] = addTalent;
+                            }
+                            else if (RaidLeader.Guid != newCharacterState.Guid
+                                && Math.Round((decimal)newCharacterState.TankPosition.X, 2) != Math.Round((decimal)RaidLeader.TankPosition.X, 2)
+                                && Math.Round((decimal)newCharacterState.TankPosition.Y, 2) != Math.Round((decimal)RaidLeader.TankPosition.Y, 2)
+                                && Math.Round((decimal)newCharacterState.TankPosition.Z, 2) != Math.Round((decimal)RaidLeader.TankPosition.Z, 2)
+                                && Math.Round((decimal)newCharacterState.TankFacing, 2) != Math.Round((decimal)RaidLeader.TankFacing, 2))
+                            {
+                                InstanceCommand setCombatLocation = new InstanceCommand()
+                                {
+                                    CommandAction = CommandAction.SetCombatLocation,
+                                    CommandParam1 = RaidLeader.TankPosition.X.ToString(),
+                                    CommandParam2 = RaidLeader.TankPosition.Y.ToString(),
+                                    CommandParam3 = RaidLeader.TankPosition.Z.ToString(),
+                                    CommandParam4 = RaidLeader.TankFacing.ToString()
+                                };
+
+                                NextCommand[newCharacterState.ProcessId] = setCombatLocation;
                             }
                             else
                             {

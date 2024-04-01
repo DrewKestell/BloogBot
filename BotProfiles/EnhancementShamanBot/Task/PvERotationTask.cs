@@ -47,39 +47,49 @@ namespace EnhancementShamanBot
                 return;
             }
 
+            AssignDPSTarget();
+
+            if (ObjectManager.Player.Target == null) return;
+
             if (ObjectManager.CasterAggressors.Any(x => (x.IsChanneling || x.IsCasting) && x.ManaPercent > 0 && !natureImmuneCreatures.Contains(ObjectManager.Player.Target.Name)) && ObjectManager.Player.IsSpellReady(EarthShock))
             {
-                WoWUnit nearestHostile = ObjectManager.Hostiles.Where(x => !x.IsInCombat).OrderBy(x => x.Position.DistanceTo(ObjectManager.Player.Position)).First();
                 WoWUnit castingUnit = ObjectManager.CasterAggressors.First(x => (x.IsChanneling || x.IsCasting) && x.ManaPercent > 0 && !natureImmuneCreatures.Contains(ObjectManager.Player.Target.Name));
+                WoWUnit nearestHostile = ObjectManager.Hostiles.Where(x => !x.IsInCombat).OrderBy(x => x.Position.DistanceTo(castingUnit.Position)).First();
 
-                if (nearestHostile.Position.DistanceTo(castingUnit.Position) > 45)
+                if (nearestHostile.Position.DistanceTo(castingUnit.Position) > 15)
                 {
                     ObjectManager.Player.SetTarget(castingUnit.Guid);
 
                     if (ObjectManager.Player.IsSpellReady(EarthShock))
                     {
-                        TryCastSpell(EarthShock, 0, 20, true);
-
-                        if (Update(15))
+                        if (Update(20))
+                        {
+                            Container.State.Action = $"Moving to interrupt ({nearestHostile.Position.DistanceTo(castingUnit.Position)})";
                             return;
+                        }
+
+                        TryCastSpell(EarthShock, 0, 20, true);
                     }
                 }
             }
-
-            if (ObjectManager.CasterAggressors.Any(x => x.TargetGuid == ObjectManager.Player.Guid))
+            else if (ObjectManager.CasterAggressors.Any(x => x.TargetGuid == ObjectManager.Player.Guid))
             {
-                if (MoveBehindTank(30))
+                if (MoveBehindTankSpot(30))
+                {
+                    Container.State.Action = "Moving behind tank";
                     return;
+                }
             }
-
-            AssignDPSTarget();
-
-            if (!raidLeader.IsMoving)
+            else
             {
-                if (MoveBehindTarget(3))
-                    return;
+                if (new Position(Container.State.TankPosition.X, Container.State.TankPosition.Y, Container.State.TankPosition.Z).DistanceTo(ObjectManager.Player.Target.Position) < 8 && MoveBehindTarget(3))
+                {
+                    Container.State.Action = "Moving behind target";
+                }
                 else
                 {
+                    Container.State.Action = "Attacking target";
+
                     ObjectManager.Player.StopAllMovement();
                     ObjectManager.Player.Face(ObjectManager.Player.Target.Position);
                     ObjectManager.Player.StartAttack();
@@ -111,8 +121,6 @@ namespace EnhancementShamanBot
                     TryCastSpell(FlametongueWeapon, 0, int.MaxValue, !ObjectManager.Player.MainhandIsEnchanted && ObjectManager.Player.IsSpellReady(FlametongueWeapon) && !ObjectManager.Player.IsSpellReady(WindfuryWeapon));
                 }
             }
-            else
-                ObjectManager.Player.StopAllMovement();
         }
     }
 }

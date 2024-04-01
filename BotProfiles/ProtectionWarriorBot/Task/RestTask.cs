@@ -45,7 +45,10 @@ namespace ProtectionWarriorBot
             WoWItem foodItem = ObjectManager.Items.First(x => x.ItemId == 5479);
 
             if (foodItem != null && !ObjectManager.Player.IsEating)
+            {
+                Container.State.Action = "Eating";
                 foodItem.Use();
+            }
         }
     }
 }

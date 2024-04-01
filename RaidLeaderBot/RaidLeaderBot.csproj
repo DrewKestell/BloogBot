@@ -65,6 +65,12 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="envdte, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="envdte80, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="Google.Protobuf, Version=3.21.9.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Protobuf.3.21.9\lib\net45\Google.Protobuf.dll</HintPath>
     </Reference>
@@ -150,8 +156,8 @@
     <Compile Include="AccountUsageRegistry.cs" />
     <Compile Include="ActivityManager.cs" />
     <Compile Include="Pathfinding\Navigation.cs" />
-    <Compile Include="UI\Views\RaidActivityViewModel.cs" />
     <Compile Include="RaidMemberLauncher.cs" />
+    <Compile Include="UI\Views\RaidActivityViewModel.cs" />
     <Compile Include="UI\Views\RaidMemberTalentsViewModel.cs" />
     <Compile Include="Repository\MangosRepository.cs" />
     <Compile Include="Server\ConfigSocketServer.cs" />
@@ -184,6 +190,8 @@
     <Compile Include="UI\Views\Talents\ShamanTalentsViewModel.cs" />
     <Compile Include="UI\Views\Talents\WarlockTalentsViewModel.cs" />
     <Compile Include="UI\Views\Talents\WarriorTalentsViewModel.cs" />
+    <Compile Include="Utilities\ProcessTracker.cs" />
+    <Compile Include="Utilities\RetryWithTimeout.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
