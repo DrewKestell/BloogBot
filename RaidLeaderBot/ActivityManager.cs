@@ -377,7 +377,7 @@ namespace RaidLeaderBot
                         }
                         else
                         {
-                            if (newCharacterState.Action == "Idle")
+                            if (PartyMembersToStates.All(x => x.Value.IsReadyToStart) && !newCharacterState.HasStarted)
                             {
                                 InstanceCommand beginDungeon = new InstanceCommand()
                                 {
@@ -385,16 +385,6 @@ namespace RaidLeaderBot
                                 };
 
                                 NextCommand[newCharacterState.ProcessId] = beginDungeon;
-                            }
-                            else if (!newCharacterState.InCombat && FindMissingTalents(raidMemberViewModel, newCharacterState, out int talentSpellId))
-                            {
-                                InstanceCommand addTalent = new InstanceCommand()
-                                {
-                                    CommandAction = CommandAction.AddTalent,
-                                    CommandParam1 = talentSpellId.ToString(),
-                                };
-
-                                NextCommand[newCharacterState.ProcessId] = addTalent;
                             }
                             else if (RaidLeader.Guid != newCharacterState.Guid
                                 && Math.Round((decimal)newCharacterState.TankPosition.X, 2) != Math.Round((decimal)RaidLeader.TankPosition.X, 2)
@@ -413,6 +403,28 @@ namespace RaidLeaderBot
 
                                 NextCommand[newCharacterState.ProcessId] = setCombatLocation;
                             }
+                            else if (RaidLeader.Guid != newCharacterState.Guid
+                                && RaidLeader.TankInPosition != newCharacterState.TankInPosition)
+                            {
+
+                                InstanceCommand setTankPosition = new InstanceCommand()
+                                {
+                                    CommandAction = CommandAction.SetTankInPosition,
+                                    CommandParam1 = RaidLeader.TankInPosition.ToString(),
+                                };
+
+                                NextCommand[newCharacterState.ProcessId] = setTankPosition;
+                            }
+                            else if (!newCharacterState.InCombat && FindMissingTalents(raidMemberViewModel, newCharacterState, out int talentSpellId))
+                            {
+                                InstanceCommand addTalent = new InstanceCommand()
+                                {
+                                    CommandAction = CommandAction.AddTalent,
+                                    CommandParam1 = talentSpellId.ToString(),
+                                };
+
+                                NextCommand[newCharacterState.ProcessId] = addTalent;
+                            }
                             else
                             {
                                 NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
@@ -423,6 +435,15 @@ namespace RaidLeaderBot
                         }
                     }
                 }
+            }
+            else
+            {
+                InstanceCommand stopCommand = new InstanceCommand()
+                {
+                    CommandAction = CommandAction.FullStop
+                };
+
+                NextCommand[newCharacterState.ProcessId] = stopCommand;
             }
             SendCommandToProcess(newCharacterState.ProcessId, NextCommand[newCharacterState.ProcessId]);
         }

@@ -43,10 +43,12 @@ namespace AfflictionWarlockBot
 
                 return;
             }
-
-            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
+            else
+                ObjectManager.Player.StopAllMovement();
 
             TryCastSpell(LifeTap, 0, int.MaxValue, ObjectManager.Player.HealthPercent > 85 && ObjectManager.Player.ManaPercent < 80);
+
+            ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
 
             if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
             {
@@ -68,9 +70,7 @@ namespace AfflictionWarlockBot
                 int drinkItemsCount = drinkItems.Sum(x => x.StackCount);
 
                 if (drinkItemsCount < 20)
-                {
                     Functions.LuaCall($"SendChatMessage('.additem 1179 {20 - drinkItemsCount}')");
-                }
 
                 WoWItem drinkItem = ObjectManager.Items.First(x => x.ItemId == 1179);
 

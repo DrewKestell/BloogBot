@@ -2,8 +2,6 @@
 using RaidMemberBot.Constants;
 using RaidMemberBot.Mem;
 using System;
-using System.Collections.Generic;
-using System.Windows.Documents;
 
 namespace RaidMemberBot.Objects
 {
@@ -45,18 +43,6 @@ namespace RaidMemberBot.Objects
             var deltaY = Y - position.Y;
 
             return (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
-        }
-
-        public bool ComesWithinPath(List<Position> pathPositions, float distanceTo)
-        {
-            foreach (var position in pathPositions)
-            {
-                if (distanceTo > DistanceTo(position))
-                {
-                    return true;
-                }
-            }
-            return false;
         }
 
         public Position GetNormalizedVector()

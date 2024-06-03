@@ -2,11 +2,11 @@
 
 namespace RaidMemberBot.Constants
 {
-    internal static class Offsets
+    public static class Offsets
     {
         #region Opcodes
 
-        internal enum OpCodes
+        public enum OpCodes
         {
             MSG_NULL_ACTION = 0x000,
             CMSG_BOOTME = 0x001,
@@ -922,158 +922,159 @@ namespace RaidMemberBot.Constants
         /// <summary>
         ///     Offsets for WoW, no commenting needed
         /// </summary>
-        internal static class Player
+        public static class Player
         {
-            internal static IntPtr Class = (IntPtr)0xC27E81;
-            internal static IntPtr IsIngame = (IntPtr)0xB4B424;
-            internal static IntPtr IsGhost = (IntPtr)0x835A48;
-            internal static IntPtr Name = (IntPtr)0x827D88;
-            internal static IntPtr TargetGuid = (IntPtr)0x74E2D8;
-            internal static IntPtr IsChannelingDescriptor = (IntPtr)0x240;
-            internal static IntPtr IsCasting = (IntPtr)0xCECA88;
-            internal static int ComboPoints1 = 0xE68;
-            internal static int ComboPoints2 = 0x1029;
-            internal static IntPtr CharacterCount = (IntPtr)0x00B42140;
+            public static IntPtr Class = (IntPtr)0xC27E81;
+            public static IntPtr IsIngame = (IntPtr)0xB4B424;
+            public static IntPtr IsGhost = (IntPtr)0x835A48;
+            public static IntPtr Name = (IntPtr)0x827D88;
+            public static IntPtr TargetGuid = (IntPtr)0x74E2D8;
+            public static IntPtr LastHostileTargetGuid = (IntPtr)0x74E2E8;
+            public static IntPtr IsChannelingDescriptor = (IntPtr)0x240;
+            public static IntPtr IsCasting = (IntPtr)0xCECA88;
+            public static int ComboPoints1 = 0xE68;
+            public static int ComboPoints2 = 0x1029;
+            public static IntPtr CharacterCount = (IntPtr)0x00B42140;
 
-            internal static IntPtr QuestLog = (IntPtr)0x318;
+            public static IntPtr QuestLog = (IntPtr)0x318;
 
-            internal static IntPtr CorpsePositionX = (IntPtr)0x00B4E284;
-            internal static IntPtr CorpsePositionY = (IntPtr)0x00B4E288;
-            internal static IntPtr CorpsePositionZ = (IntPtr)0x00B4E28C;
+            public static IntPtr CorpsePositionX = (IntPtr)0x00B4E284;
+            public static IntPtr CorpsePositionY = (IntPtr)0x00B4E288;
+            public static IntPtr CorpsePositionZ = (IntPtr)0x00B4E28C;
 
-            internal static IntPtr CtmX = (IntPtr)0xC4D890;
-            internal static IntPtr CtmY = (IntPtr)0xC4D894;
-            internal static IntPtr CtmZ = (IntPtr)0xC4D898;
-            internal static IntPtr CtmState = (IntPtr)0xC4D888;
+            public static IntPtr CtmX = (IntPtr)0xC4D890;
+            public static IntPtr CtmY = (IntPtr)0xC4D894;
+            public static IntPtr CtmZ = (IntPtr)0xC4D898;
+            public static IntPtr CtmState = (IntPtr)0xC4D888;
 
-            internal static int MovementStruct = 0x9A8;
+            public static int MovementStruct = 0x9A8;
 
-            internal static IntPtr IsLooting = (IntPtr)0xB71B48;
-            internal static IntPtr IsInCC = (IntPtr)0xB4B3E4;
+            public static IntPtr IsLooting = (IntPtr)0xB71B48;
+            public static IntPtr IsInCC = (IntPtr)0xB4B3E4;
 
-            internal static int RealZoneText = 0xB4B404;
-            internal static IntPtr ContinentText = (IntPtr)0x00C961A0;
-            internal static IntPtr MinimapZoneText = (IntPtr)0xB4DA28;
+            public static int RealZoneText = 0xB4B404;
+            public static IntPtr ContinentText = (IntPtr)0x00C961A0;
+            public static IntPtr MinimapZoneText = (IntPtr)0xB4DA28;
         }
 
-        internal static class Warden
+        public static class Warden
         {
-            internal static IntPtr WardenPtr1 = (IntPtr)0x0CE8978;
-            internal static IntPtr WardenMemScanStart = (IntPtr)0x2A7F;
-            internal static IntPtr WardenPageScan = (IntPtr)0x2B21;
+            public static IntPtr WardenPtr1 = (IntPtr)0x0CE8978;
+            public static IntPtr WardenMemScanStart = (IntPtr)0x2A7F;
+            public static IntPtr WardenPageScan = (IntPtr)0x2B21;
         }
 
-        internal static class CharacterScreen
+        public static class CharacterScreen
         {
-            internal static IntPtr Pointer = (IntPtr)0xB42144;
-            internal static IntPtr Size = (IntPtr)0x120;
-            internal static IntPtr NumCharacters = IntPtr.Subtract(Pointer, 0x4);
-            internal static IntPtr LoginState = (IntPtr)0xB41478;
+            public static IntPtr Pointer = (IntPtr)0xB42144;
+            public static IntPtr Size = (IntPtr)0x120;
+            public static IntPtr NumCharacters = IntPtr.Subtract(Pointer, 0x4);
+            public static IntPtr LoginState = (IntPtr)0xB41478;
         }
 
-        internal static class Misc
+        public static class Misc
         {
-            internal static IntPtr LuaState = (IntPtr)0x00CEEF74;
-            internal static IntPtr GameVersion = (IntPtr)0x00837C04;
-            internal static IntPtr MapId = (IntPtr)0x84C498;
-            internal static IntPtr AntiDc = (IntPtr)0x00B41D98;
-            internal static IntPtr LoginState = (IntPtr)0xB41478;
-            internal static IntPtr RealmName = (IntPtr)0x00C27FC1;
-            internal static IntPtr CGInputControlActive = (IntPtr)0xBE1148;
+            public static IntPtr LuaState = (IntPtr)0x00CEEF74;
+            public static IntPtr GameVersion = (IntPtr)0x00837C04;
+            public static IntPtr MapId = (IntPtr)0x84C498;
+            public static IntPtr AntiDc = (IntPtr)0x00B41D98;
+            public static IntPtr LoginState = (IntPtr)0xB41478;
+            public static IntPtr RealmName = (IntPtr)0x00C27FC1;
+            public static IntPtr CGInputControlActive = (IntPtr)0xBE1148;
         }
 
-        internal static class Hooks
+        public static class Hooks
         {
-            internal static IntPtr ChatMessage = (IntPtr)0x0049A7C9;
-            internal static IntPtr ErrorEnum = (IntPtr)0x00496807;
-            internal static IntPtr UpdateSpells = (IntPtr)0x004B302A;
-            internal static IntPtr SignalEvent_0 = (IntPtr)0x00703E72;
-            internal static IntPtr SignalEvent = (IntPtr)0x00703F76;
+            public static IntPtr ChatMessage = (IntPtr)0x0049A7C9;
+            public static IntPtr ErrorEnum = (IntPtr)0x00496807;
+            public static IntPtr UpdateSpells = (IntPtr)0x004B302A;
+            public static IntPtr SignalEvent_0 = (IntPtr)0x00703E72;
+            public static IntPtr SignalEvent = (IntPtr)0x00703F76;
         }
 
-        internal static class Functions
+        public static class Functions
         {
-            internal static IntPtr SelectCharacter = (IntPtr)0x472740;
-            internal static IntPtr CastAtPos = (IntPtr)0x6E60F0;
-            internal static IntPtr EnterWorld = (IntPtr)0x0046B500;
-            internal static IntPtr GetCreatureRank = (IntPtr)0x00605620;
-            internal static IntPtr GetCreatureType = (IntPtr)0x00605570;
-            internal static IntPtr CastSpellByName = (IntPtr)0x004B4AB0;
+            public static IntPtr SelectCharacter = (IntPtr)0x472740;
+            public static IntPtr CastAtPos = (IntPtr)0x6E60F0;
+            public static IntPtr EnterWorld = (IntPtr)0x0046B500;
+            public static IntPtr GetCreatureRank = (IntPtr)0x00605620;
+            public static IntPtr GetCreatureType = (IntPtr)0x00605570;
+            public static IntPtr CastSpellByName = (IntPtr)0x004B4AB0;
 
-            internal static IntPtr RetrieveCorpse = (IntPtr)0x0048D260;
-            internal static IntPtr RepopMe = (IntPtr)0x005E0AE0;
+            public static IntPtr RetrieveCorpse = (IntPtr)0x0048D260;
+            public static IntPtr RepopMe = (IntPtr)0x005E0AE0;
 
-            internal static IntPtr LootSlotAt = (IntPtr)0x004C2790;
-            internal static IntPtr IsTransport = (IntPtr)0x007C61C0;
-            internal static IntPtr ConfirmBindLoot = (IntPtr)0x0048DD00;
+            public static IntPtr LootSlotAt = (IntPtr)0x004C2790;
+            public static IntPtr IsTransport = (IntPtr)0x007C61C0;
+            public static IntPtr ConfirmBindLoot = (IntPtr)0x0048DD00;
 
-            internal static IntPtr CanCompleteQuest = (IntPtr)0x4DF580;
-            internal static IntPtr CanUseItem = (IntPtr)0x005EA930;
+            public static IntPtr CanCompleteQuest = (IntPtr)0x4DF580;
+            public static IntPtr CanUseItem = (IntPtr)0x005EA930;
 
-            internal static IntPtr UnitReaction = (IntPtr)0x006061E0;
-            internal static IntPtr SetTarget = (IntPtr)0x493540;
-            internal static IntPtr LastHardwareAction = (IntPtr)0x00CF0BC8;
-            internal static IntPtr AutoLoot = (IntPtr)0x4C1FA0;
-            internal static IntPtr ClickToMove = (IntPtr)0x00611130;
-            internal static IntPtr AcceptQuest = (IntPtr)0x005EAC10;
-            internal static IntPtr CompleteQuest = (IntPtr)0x005EACA0;
-            internal static IntPtr GetText = (IntPtr)0x703BF0;
-            internal static IntPtr DoString = (IntPtr)0x00704CD0;
-            internal static IntPtr GetEndscene = (IntPtr)0x5A17B6;
-            internal static IntPtr IsLooting = (IntPtr)0x006126B0;
-            internal static IntPtr GetLootSlots = (IntPtr)0x004C2260;
-            internal static IntPtr OnRightClickObject = (IntPtr)0x005F8660;
-            internal static IntPtr OnRightClickUnit = (IntPtr)0x60BEA0;
-            internal static IntPtr SetFacing = (IntPtr)0x007C6F30;
-            internal static IntPtr SendMovementPacket = (IntPtr)0x00600A30;
-            internal static IntPtr PerformDefaultAction = (IntPtr)0x00481F60;
-            internal static IntPtr CGInputControl__GetActive = (IntPtr)0x005143E0;
-            internal static IntPtr CGInputControl__SetControlBit = (IntPtr)0x00515090;
-            internal static IntPtr EnumVisibleObjects = (IntPtr)0x00468380;
-            internal static IntPtr BuyVendorItem = (IntPtr)0x005E1E90;
-            internal static IntPtr GetPtrForGuid = (IntPtr)0x464870;
-            internal static IntPtr ClntObjMgrGetActivePlayer = (IntPtr)0x00468550;
-            internal static IntPtr ClntObjMgrGetMapId = (IntPtr)0x00468580;
-            internal static IntPtr NetClientSend = (IntPtr)0x005379A0;
-            internal static IntPtr GetSpellCooldown = (IntPtr)0x006E13E0;
-            internal static IntPtr GetSpellCooldownPtr1 = (IntPtr)0x00CECAEC;
-            internal static IntPtr UseItem = (IntPtr)0x005D8D00;
-            internal static IntPtr DbQueryCreatureCache = (IntPtr)0x00556AA0;
-            internal static IntPtr DbQueryCreatureCachePtr1 = (IntPtr)0x00C0E354;
-            internal static IntPtr ClientConnection = (IntPtr)0x005AB490;
+            public static IntPtr UnitReaction = (IntPtr)0x006061E0;
+            public static IntPtr SetTarget = (IntPtr)0x493540;
+            public static IntPtr LastHardwareAction = (IntPtr)0x00CF0BC8;
+            public static IntPtr AutoLoot = (IntPtr)0x4C1FA0;
+            public static IntPtr ClickToMove = (IntPtr)0x00611130;
+            public static IntPtr AcceptQuest = (IntPtr)0x005EAC10;
+            public static IntPtr CompleteQuest = (IntPtr)0x005EACA0;
+            public static IntPtr GetText = (IntPtr)0x703BF0;
+            public static IntPtr DoString = (IntPtr)0x00704CD0;
+            public static IntPtr GetEndscene = (IntPtr)0x5A17B6;
+            public static IntPtr IsLooting = (IntPtr)0x006126B0;
+            public static IntPtr GetLootSlots = (IntPtr)0x004C2260;
+            public static IntPtr OnRightClickObject = (IntPtr)0x005F8660;
+            public static IntPtr OnRightClickUnit = (IntPtr)0x60BEA0;
+            public static IntPtr SetFacing = (IntPtr)0x007C6F30;
+            public static IntPtr SendMovementPacket = (IntPtr)0x00600A30;
+            public static IntPtr PerformDefaultAction = (IntPtr)0x00481F60;
+            public static IntPtr CGInputControl__GetActive = (IntPtr)0x005143E0;
+            public static IntPtr CGInputControl__SetControlBit = (IntPtr)0x00515090;
+            public static IntPtr EnumVisibleObjects = (IntPtr)0x00468380;
+            public static IntPtr BuyVendorItem = (IntPtr)0x005E1E90;
+            public static IntPtr GetPtrForGuid = (IntPtr)0x464870;
+            public static IntPtr ClntObjMgrGetActivePlayer = (IntPtr)0x00468550;
+            public static IntPtr ClntObjMgrGetMapId = (IntPtr)0x00468580;
+            public static IntPtr NetClientSend = (IntPtr)0x005379A0;
+            public static IntPtr GetSpellCooldown = (IntPtr)0x006E13E0;
+            public static IntPtr GetSpellCooldownPtr1 = (IntPtr)0x00CECAEC;
+            public static IntPtr UseItem = (IntPtr)0x005D8D00;
+            public static IntPtr DbQueryCreatureCache = (IntPtr)0x00556AA0;
+            public static IntPtr DbQueryCreatureCachePtr1 = (IntPtr)0x00C0E354;
+            public static IntPtr ClientConnection = (IntPtr)0x005AB490;
 
-            internal static IntPtr SellItem = (IntPtr)0x005E1D50;
+            public static IntPtr SellItem = (IntPtr)0x005E1D50;
 
-            internal static IntPtr LuaGetArgCount = (IntPtr)0x006F3070;
-            internal static IntPtr HandleSpellTerrainClick = (IntPtr)0x6E60F0;
+            public static IntPtr LuaGetArgCount = (IntPtr)0x006F3070;
+            public static IntPtr HandleSpellTerrainClick = (IntPtr)0x6E60F0;
 
-            internal static IntPtr DefaultServerLogin = (IntPtr)0x0046D160;
+            public static IntPtr DefaultServerLogin = (IntPtr)0x0046D160;
 
-            internal static IntPtr IsSceneEnd = (IntPtr)0x005A17A0;
-            internal static IntPtr EndScenePtr1 = (IntPtr)0x38a8;
-            internal static IntPtr EndScenePtr2 = (IntPtr)0xa8;
+            public static IntPtr IsSceneEnd = (IntPtr)0x005A17A0;
+            public static IntPtr EndScenePtr1 = (IntPtr)0x38a8;
+            public static IntPtr EndScenePtr2 = (IntPtr)0xa8;
 
-            internal static IntPtr ItemCacheGetRow = (IntPtr)0x0055BA30;
-            internal static IntPtr ItemCacheBasePtr = (IntPtr)0x00C0E2A0;
+            public static IntPtr ItemCacheGetRow = (IntPtr)0x0055BA30;
+            public static IntPtr ItemCacheBasePtr = (IntPtr)0x00C0E2A0;
 
-            internal static IntPtr QuestCacheGetRow = (IntPtr)0x00562A40;
-            internal static IntPtr QuestCacheBasePtr = (IntPtr)0x00C0E1B0;
+            public static IntPtr QuestCacheGetRow = (IntPtr)0x00562A40;
+            public static IntPtr QuestCacheBasePtr = (IntPtr)0x00C0E1B0;
 
-            internal static IntPtr LuaRegisterFunc = (IntPtr)0x00704120;
-            internal static IntPtr LuaUnregFunc = (IntPtr)0x00704160;
-            internal static IntPtr LuaIsString = (IntPtr)0x006F3510;
-            internal static IntPtr LuaIsNumber = (IntPtr)0x006F34D0;
-            internal static IntPtr LuaToString = (IntPtr)0x006F3690;
-            internal static IntPtr LuaToNumber = (IntPtr)0x006F3620;
+            public static IntPtr LuaRegisterFunc = (IntPtr)0x00704120;
+            public static IntPtr LuaUnregFunc = (IntPtr)0x00704160;
+            public static IntPtr LuaIsString = (IntPtr)0x006F3510;
+            public static IntPtr LuaIsNumber = (IntPtr)0x006F34D0;
+            public static IntPtr LuaToString = (IntPtr)0x006F3690;
+            public static IntPtr LuaToNumber = (IntPtr)0x006F3620;
 
-            internal static IntPtr Intersect = (IntPtr)0x6aa160;
+            public static IntPtr Intersect = (IntPtr)0x6aa160;
 
-            internal static IntPtr CastSpell = (IntPtr)0x6E5A90;
-            internal static IntPtr AbandonQuest = (IntPtr)0x5EAF40;
-            internal static IntPtr GetGameObjectPosition = (IntPtr)0x005F9F50;
+            public static IntPtr CastSpell = (IntPtr)0x6E5A90;
+            public static IntPtr AbandonQuest = (IntPtr)0x5EAF40;
+            public static IntPtr GetGameObjectPosition = (IntPtr)0x005F9F50;
         }
 
-        internal enum Party : uint
+        public enum Party : uint
         {
             leaderGuid = 0x00BC75F8,
             party1Guid = 0x00BC6F48,
@@ -1082,115 +1083,127 @@ namespace RaidMemberBot.Constants
             party4Guid = 0x00BC6F60
         }
 
-        internal static class ObjectManager
+        public enum RaidIcon : uint
         {
-            internal static IntPtr CurObjGuid = (IntPtr)0x30;
-            internal static IntPtr ManagerBase = (IntPtr)0x00B41414;
-            internal static IntPtr PlayerGuid = (IntPtr)0xc0;
-            internal static IntPtr FirstObj = (IntPtr)0xac;
-            internal static IntPtr NextObj = (IntPtr)0x3c;
-            internal static IntPtr ObjType = (IntPtr)0x14;
-            internal static int DescriptorOffset = 0x8;
+            Star = 0x00771368,
+            Circle = 0x00771370,
+            Diamond = 0x00771378,
+            Triangle = 0x00771380,
+            Moon = 0x00771388,
+            Square = 0x00771390,
+            Cross = 0x00771398,
+            Skull = 0x007713A0
         }
 
-        internal static class PlayerObject
+        public static class ObjectManager
         {
-            internal static IntPtr NameBase = (IntPtr)0xC0E230;
-            internal static int NameBaseNextGuid = 0xc;
+            public static IntPtr CurObjGuid = (IntPtr)0x30;
+            public static IntPtr ManagerBase = (IntPtr)0x00B41414;
+            public static IntPtr PlayerGuid = (IntPtr)0xc0;
+            public static IntPtr FirstObj = (IntPtr)0xac;
+            public static IntPtr NextObj = (IntPtr)0x3c;
+            public static IntPtr ObjType = (IntPtr)0x14;
+            public static int DescriptorOffset = 0x8;
         }
 
-        internal static class Unit
+        public static class PlayerObject
         {
-            internal static int PosX = 0x9B8;
-            internal static int PosY = 0x9BC;
-            internal static int PosZ = 0x9BC + 4;
-            internal static int AuraBase = 0xBC;
-            internal static int DebuffBase = 0x13C;
-
-            internal static int NameBase = 0xB30;
-            internal static int IsCritterOffset = 24;
+            public static IntPtr NameBase = (IntPtr)0xC0E230;
+            public static int NameBaseNextGuid = 0xc;
         }
 
-        internal static class GameObject
+        public static class Unit
         {
-            internal static int PosX = 0x3C;
-            internal static int PosY = 0x3C + 0x4;
-            internal static int PosZ = 0x3C + 0x8;
+            public static int PosX = 0x9B8;
+            public static int PosY = 0x9BC;
+            public static int PosZ = 0x9BC + 4;
+            public static int AuraBase = 0xBC;
+            public static int DebuffBase = 0x13C;
 
-            internal static int NameBase = 0x214;
-            internal static int NameBasePtr1 = 0x8;
+            public static int NameBase = 0xB30;
+            public static int IsCritterOffset = 24;
         }
 
-        internal static class Item
+        public static class GameObject
         {
-            internal static int UseItemPtr1 = 0xABE8;
-            internal static int ItemCachePtrQuality = 0x1C;
-            internal static int ItemCachePtrName = 0x8;
+            public static int PosX = 0x3C;
+            public static int PosY = 0x3C + 0x4;
+            public static int PosZ = 0x3C + 0x8;
 
-            internal static int ItemSlots = 0x6c8;
+            public static int NameBase = 0x214;
+            public static int NameBasePtr1 = 0x8;
         }
 
-        internal static class Descriptors
+        public static class Item
         {
-            internal static int GotLoot = 0xB4;
+            public static int UseItemPtr1 = 0xABE8;
+            public static int ItemCachePtrQuality = 0x1C;
+            public static int ItemCachePtrName = 0x8;
 
-            internal static int SummonedByGuid = 0x30;
-
-            internal static int NpcId = 0xE74;
-
-            internal static int DynamicFlags = 0x23C;
-            internal static int Flags = 0xB8;
-
-            internal static int ChannelingId = 0x240;
-            internal static int CreatedByGuid = 0x38;
-            internal static int GameObjectCreatedByGuid = 0x18;
-
-            internal static int MovementFlags = 0x9E8;
-
-            internal static int Health = 0x58;
-            internal static int MaxHealth = 0x70;
-            internal static int FactionId = 0x8C;
-            internal static int Mana = 0x5C;
-            internal static int MaxMana = 0x74;
-            internal static int Rage = 0x60;
-            internal static int Energy = 0x68;
-            internal static int TargetGuid = 0x40;
-            internal static int CorpseOwnedBy = 0x18;
-
-            internal static int ItemId = 0xC;
-            internal static int ItemDurability = 0xB8;
-            internal static int ItemMaxDurability = 0xBC;
-            internal static int ItemStackCount = 0x38;
-
-            internal static int Level = 0x88;
-
-            internal static int MountDisplayId = 0x214;
-
-            internal static int ContainerTotalSlots = 0x6c8;
-            internal static int CorpseX = 0x24;
-            internal static int CorpseY = 0x28;
-            internal static int CorpseZ = 0x2c;
-
-            internal static int NextLevelXp = 0xB34;
-            internal static int CurrentXp = 0xB30;
+            public static int ItemSlots = 0x6c8;
         }
 
-        internal static class Buffs
+        public static class Descriptors
         {
-            internal static IntPtr FirstBuff = (IntPtr)0xBC;
-            internal static IntPtr FirstDebuff = (IntPtr)0x13C;
-            internal static IntPtr NextBuff = (IntPtr)0x4;
+            public static int GotLoot = 0xB4;
+
+            public static int SummonedByGuid = 0x30;
+
+            public static int NpcId = 0xE74;
+
+            public static int DynamicFlags = 0x23C;
+            public static int Flags = 0xB8;
+
+            public static int ChannelingId = 0x240;
+            public static int CreatedByGuid = 0x38;
+            public static int GameObjectCreatedByGuid = 0x18;
+
+            public static int MovementFlags = 0x9E8;
+
+            public static int Health = 0x58;
+            public static int MaxHealth = 0x70;
+            public static int FactionId = 0x8C;
+            public static int Mana = 0x5C;
+            public static int MaxMana = 0x74;
+            public static int Rage = 0x60;
+            public static int Energy = 0x68;
+            public static int TargetGuid = 0x40;
+            public static int CorpseOwnedBy = 0x18;
+
+            public static int ItemId = 0xC;
+            public static int ItemDurability = 0xB8;
+            public static int ItemMaxDurability = 0xBC;
+            public static int ItemStackCount = 0x38;
+
+            public static int Level = 0x88;
+
+            public static int MountDisplayId = 0x214;
+
+            public static int ContainerTotalSlots = 0x6c8;
+            public static int CorpseX = 0x24;
+            public static int CorpseY = 0x28;
+            public static int CorpseZ = 0x2c;
+
+            public static int NextLevelXp = 0xB34;
+            public static int CurrentXp = 0xB30;
         }
 
-        internal static class Hacks
+        public static class Buffs
         {
-            internal static IntPtr DisableCollision = (IntPtr)0x6ABC5A;
-            internal static IntPtr CtmPatch = (IntPtr)0x860A90;
-            internal static IntPtr Wallclimb = (IntPtr)0x0080DFFC;
-            internal static IntPtr Collision3 = (IntPtr)0x006ABF13;
-            internal static IntPtr LootPatch = (IntPtr)0x004C21C0;
-            internal static IntPtr LootPatch2 = (IntPtr)0x004C28FF;
-            internal static IntPtr LuaUnlock = (IntPtr)0x494A50;
+            public static IntPtr FirstBuff = (IntPtr)0xBC;
+            public static IntPtr FirstDebuff = (IntPtr)0x13C;
+            public static IntPtr NextBuff = (IntPtr)0x4;
+        }
+
+        public static class Hacks
+        {
+            public static IntPtr DisableCollision = (IntPtr)0x6ABC5A;
+            public static IntPtr CtmPatch = (IntPtr)0x860A90;
+            public static IntPtr Wallclimb = (IntPtr)0x0080DFFC;
+            public static IntPtr Collision3 = (IntPtr)0x006ABF13;
+            public static IntPtr LootPatch = (IntPtr)0x004C21C0;
+            public static IntPtr LootPatch2 = (IntPtr)0x004C28FF;
+            public static IntPtr LuaUnlock = (IntPtr)0x494A50;
         }
     }
 }

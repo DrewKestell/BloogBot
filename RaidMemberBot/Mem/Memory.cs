@@ -67,13 +67,17 @@ namespace RaidMemberBot.Mem
         static extern bool VirtualProtect(IntPtr lpAddress, UIntPtr dwSize, uint flNewProtect, out uint lpflOldProtect);
 
         static readonly IntPtr wowProcessHandle = Process.GetCurrentProcess().Handle;
+        public static readonly IntPtr imageBase = Process.GetCurrentProcess().MainModule.BaseAddress;
         static readonly FasmNet fasm = new FasmNet();
 
         [HandleProcessCorruptedStateExceptions]
-        static internal byte ReadByte(IntPtr address)
+        static internal byte ReadByte(IntPtr address, bool isRelative = false)
         {
             if (address == IntPtr.Zero)
                 return 0;
+
+            if (isRelative)
+                address = imageBase + (int)address;
 
             try
             {
@@ -92,10 +96,13 @@ namespace RaidMemberBot.Mem
         }
 
         [HandleProcessCorruptedStateExceptions]
-        static public short ReadShort(IntPtr address)
+        static public short ReadShort(IntPtr address, bool isRelative = false)
         {
             if (address == IntPtr.Zero)
                 return 0;
+
+            if (isRelative)
+                address = imageBase + (int)address;
 
             try
             {
@@ -114,10 +121,13 @@ namespace RaidMemberBot.Mem
         }
 
         [HandleProcessCorruptedStateExceptions]
-        static public int ReadInt(IntPtr address)
+        static public int ReadInt(IntPtr address, bool isRelative = false)
         {
             if (address == IntPtr.Zero)
                 return 0;
+
+            if (isRelative)
+                address = imageBase + (int)address;
 
             try
             {
@@ -136,10 +146,13 @@ namespace RaidMemberBot.Mem
         }
 
         [HandleProcessCorruptedStateExceptions]
-        static public uint ReadUint(IntPtr address)
+        static public uint ReadUint(IntPtr address, bool isRelative = false)
         {
             if (address == IntPtr.Zero)
                 return 0;
+
+            if (isRelative)
+                address = imageBase + (int)address;
 
             try
             {
@@ -158,10 +171,13 @@ namespace RaidMemberBot.Mem
         }
 
         [HandleProcessCorruptedStateExceptions]
-        static public ulong ReadUlong(IntPtr address)
+        static public ulong ReadUlong(IntPtr address, bool isRelative = false)
         {
             if (address == IntPtr.Zero)
                 return 0;
+
+            if (isRelative)
+                address = imageBase + (int) address;
 
             try
             {
@@ -180,10 +196,13 @@ namespace RaidMemberBot.Mem
         }
 
         [HandleProcessCorruptedStateExceptions]
-        static public IntPtr ReadIntPtr(IntPtr address)
+        static public IntPtr ReadIntPtr(IntPtr address, bool isRelative = false)
         {
             if (address == IntPtr.Zero)
                 return IntPtr.Zero;
+
+            if (isRelative)
+                address = imageBase + (int)address;
 
             try
             {
@@ -202,10 +221,13 @@ namespace RaidMemberBot.Mem
         }
 
         [HandleProcessCorruptedStateExceptions]
-        static public float ReadFloat(IntPtr address)
+        static public float ReadFloat(IntPtr address, bool isRelative = false)
         {
             if (address == IntPtr.Zero)
                 return 0;
+
+            if (isRelative)
+                address = imageBase + (int)address;
 
             try
             {
@@ -224,10 +246,14 @@ namespace RaidMemberBot.Mem
         }
 
         [HandleProcessCorruptedStateExceptions]
-        static public string ReadString(IntPtr address, int size = 512)
+        static public string ReadString(IntPtr address, int size = 512, bool isRelative = false)
         {
             if (address == IntPtr.Zero)
                 return null;
+
+            if (isRelative)
+                address = imageBase + (int)address;
+
             try
             {
                 var buffer = ReadBytes(address, size);
@@ -254,10 +280,13 @@ namespace RaidMemberBot.Mem
         }
 
         [HandleProcessCorruptedStateExceptions]
-        static public byte[] ReadBytes(IntPtr address, int count)
+        static public byte[] ReadBytes(IntPtr address, int count, bool isRelative = false)
         {
             if (address == IntPtr.Zero)
                 return null;
+
+            if (isRelative)
+                address = imageBase + (int)address;
 
             try
             {
@@ -289,6 +318,7 @@ namespace RaidMemberBot.Mem
         {
             if (address == IntPtr.Zero)
                 return null;
+
             try
             {
                 return new ItemCacheEntry(address);

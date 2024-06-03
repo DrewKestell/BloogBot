@@ -1,7 +1,7 @@
 ﻿using RaidMemberBot.Client;
+using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Mem;
-using RaidMemberBot.Models.Dto;
 using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
@@ -21,7 +21,10 @@ namespace RaidMemberBot.AI.SharedStates
         public CombatRotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Combat)
         {
             raidLeader = ObjectManager.PartyMembers.First(x => x.Guid == ObjectManager.PartyLeaderGuid);
+            Container.State.Action = "Starting combat rotation";
         }
+
+        public abstract void PerformCombatRotation();
 
         public bool Update(int desiredRange)
         {
@@ -46,7 +49,7 @@ namespace RaidMemberBot.AI.SharedStates
 
             // the server-side los check is broken on Kronos, so we have to rely on an error message on the client.
             // when we see it, move toward the unit a bit to correct the position.
-            if (!ObjectManager.Player.InLosWith(ObjectManager.Player.Target.Position) || ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) > desiredRange)
+            if (!ObjectManager.Player.InLosWith(ObjectManager.Player.Target) || ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) > desiredRange)
             {
                 if (ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) <= desiredRange)
                 {
@@ -82,6 +85,7 @@ namespace RaidMemberBot.AI.SharedStates
         {
             if (raidLeader.Position.DistanceTo(ObjectManager.Player.Position) > 5)
             {
+                Container.State.Action = "Moving towards tank";
                 Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, raidLeader.Position, true);
 
                 ObjectManager.Player.MoveToward(locations[1]);
@@ -89,6 +93,7 @@ namespace RaidMemberBot.AI.SharedStates
             }
             else
             {
+                Container.State.Action = "In position near tank";
                 ObjectManager.Player.StopAllMovement();
                 return false;
             }
@@ -105,6 +110,7 @@ namespace RaidMemberBot.AI.SharedStates
                 return false;
             }
 
+            Container.State.Action = "Moving behind target";
             Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.GetPointBehindUnit(distance), true);
 
             ObjectManager.Player.MoveToward(locations[1]);
@@ -112,15 +118,19 @@ namespace RaidMemberBot.AI.SharedStates
         }
         public bool MoveBehindTankSpot(float distance)
         {
+            if (distance < 3)
+            {
+                ObjectManager.Player.StopAllMovement();
+                return false;
+            }
+
             Position tankPosition = new Position(Container.State.TankPosition.X, Container.State.TankPosition.Y, Container.State.TankPosition.Z);
             Position position = GetPointBehindPosition(tankPosition, Container.State.TankFacing, distance);
+            Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, position, true);
 
-            if ((NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, position, ObjectManager.Player.Position, true) > distance + 0.5
-                || !tankPosition.InLosWith(position)
-                || position.ComesWithinPath(new List<Position>() { Container.State.DungeonStart }, 5))
-                && distance > 2)
+            if (!tankPosition.InLosWith(position) || locations.Length < 2 || !locations[1].InLosWith(position))
             {
-                return MoveBehindTankSpot(distance - 2);
+                return MoveBehindTankSpot(distance - 1);
             }
 
             if (ObjectManager.Player.IsBehind(tankPosition, Container.State.TankFacing)
@@ -131,11 +141,13 @@ namespace RaidMemberBot.AI.SharedStates
                 return false;
             }
 
-            Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, position, true);
+            Container.State.Action = "Moving behind tank spot";
+            ObjectManager.Pet?.FollowPlayer();
 
             ObjectManager.Player.MoveToward(locations[1]);
             return true;
         }
+
         private Position GetPointBehindPosition(Position position, float facing, float parDistanceToMove)
         {
             var newX = position.X + parDistanceToMove * (float)-Math.Cos(facing);
@@ -143,6 +155,24 @@ namespace RaidMemberBot.AI.SharedStates
             var end = new Position(newX, newY, position.Z);
 
             return end;
+        }
+
+        public bool MoveTowardsTarget()
+        {
+            if (!ObjectManager.Player.InLosWith(ObjectManager.Player.Target))
+            {
+                Container.State.Action = "Moving towards target";
+                Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+
+                ObjectManager.Player.MoveToward(locations[1]);
+                return true;
+            }
+            else
+            {
+                Container.State.Action = "Have LOS of the target";
+                ObjectManager.Player.StopAllMovement();
+                return false;
+            }
         }
 
         public bool TargetMovingTowardPlayer =>
@@ -161,9 +191,17 @@ namespace RaidMemberBot.AI.SharedStates
 
         void TryCastSpellInternal(string name, int minRange, int maxRange, bool condition = true, Action callback = null, bool castOnSelf = false)
         {
+            if (ObjectManager.Player.Target == null) return;
+
             float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position);
 
-            if (ObjectManager.Player.IsSpellReady(name) && distanceToTarget >= minRange && distanceToTarget <= maxRange && condition && !ObjectManager.Player.IsStunned && ((!ObjectManager.Player.IsCasting && !ObjectManager.Player.IsChanneling) || ObjectManager.Player.Class == Class.Warrior))
+            if (ObjectManager.Player.IsSpellReady(name)
+                && distanceToTarget >= minRange
+                && distanceToTarget <= maxRange
+                && condition
+                && !ObjectManager.Player.IsStunned
+                && ((!ObjectManager.Player.IsCasting && !ObjectManager.Player.IsChanneling) || ObjectManager.Player.Class == Class.Warrior)
+                && Wait.For("GlobalCooldown", 1000, true))
             {
                 Functions.LuaCall($"CastSpellByName('{name}')");
                 callback?.Invoke();
@@ -199,22 +237,6 @@ namespace RaidMemberBot.AI.SharedStates
             }
         }
 
-        public WoWUnit GetDPSTarget()
-        {
-            List<WoWUnit> woWUnits = ObjectManager.Aggressors.ToList();
-
-            for (int i = 0; i < woWUnits.Count; i++)
-            {
-                ObjectManager.Player.SetTarget(woWUnits[i].Guid);
-
-                if (ObjectManager.CurrentTargetMarker == TargetMarker.Skull)
-                {
-                    return woWUnits[i];
-                }
-            }
-            return null;
-        }
-
         public bool TargetIsHostile()
         {
             if (ObjectManager.Player.TargetGuid == 0)
@@ -224,13 +246,7 @@ namespace RaidMemberBot.AI.SharedStates
 
         public void AssignDPSTarget()
         {
-            if (ObjectManager.Player.Target == null
-                || ObjectManager.Player.Target.HealthPercent <= 0
-                || !TargetIsHostile()
-                || ObjectManager.CurrentTargetMarker != TargetMarker.Skull)
-            {
-                GetDPSTarget();
-            }
+            ObjectManager.Player.SetTarget(ObjectManager.SkullTargetGuid);
         }
     }
 }

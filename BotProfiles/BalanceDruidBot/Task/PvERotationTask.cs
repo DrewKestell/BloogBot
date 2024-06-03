@@ -108,5 +108,10 @@ namespace BalanceDruidBot
 
             TryCastSpell(Wrath, 0, 30, !ImmuneToNatureDamage.Any(s => ObjectManager.Player.Target.Name.Contains(s)));
         }
+
+        public override void PerformCombatRotation()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

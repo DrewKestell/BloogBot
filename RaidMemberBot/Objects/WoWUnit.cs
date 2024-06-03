@@ -23,6 +23,8 @@ namespace RaidMemberBot.Objects
         {
         }
 
+        public int CreatureId => int.Parse(Guid.ToString("X").Substring(10, 6), System.Globalization.NumberStyles.HexNumber);
+
         public ulong TargetGuid => MemoryManager.ReadUlong(GetDescriptorPtr() + MemoryAddresses.WoWUnit_TargetGuidOffset);
 
         public int Health => MemoryManager.ReadInt(GetDescriptorPtr() + MemoryAddresses.WoWUnit_HealthOffset);
@@ -41,7 +43,13 @@ namespace RaidMemberBot.Objects
 
         public int Energy => MemoryManager.ReadInt(GetDescriptorPtr() + MemoryAddresses.WoWUnit_EnergyOffset);
 
-        public int ChannelingId => MemoryManager.ReadInt(GetDescriptorPtr() + 0x240);
+        public float Height => MemoryManager.ReadFloat(IntPtr.Add(Pointer, MemoryAddresses.WoWUnit_HeightOffset));
+
+        public float BoundingRadius => MemoryManager.ReadFloat(IntPtr.Add(GetDescriptorPtr(), MemoryAddresses.WoWUnit_BoundingRadiusOffset));
+
+        public float CombatReach => MemoryManager.ReadFloat(IntPtr.Add(GetDescriptorPtr(), MemoryAddresses.WoWUnit_CombatReachOffset));
+
+        public int ChannelingId => MemoryManager.ReadInt(GetDescriptorPtr() + MemoryAddresses.WoWUnit_CurrentChannelingOffset);
 
         public bool IsChanneling => ChannelingId > 0;
 
@@ -131,6 +139,16 @@ namespace RaidMemberBot.Objects
                 condition = facing > leftThreshold && facing < rightThreshold;
 
             return condition;
+        }
+        public bool InLosWith(WoWUnit otherUnit)
+        {
+            Position newThisPosition = new Position(Position.X, Position.Y, Position.Z + Height);
+            Position newOtherPosition = new Position(otherUnit.Position.X, otherUnit.Position.Y, otherUnit.Position.Z + otherUnit.Height);
+
+            return newThisPosition.InLosWith(otherUnit.Position)
+                && Position.InLosWith(newOtherPosition)
+                && newThisPosition.InLosWith(newOtherPosition)
+                && Position.InLosWith(otherUnit.Position);
         }
 
         public MovementFlags MovementFlags => (MovementFlags)MemoryManager.ReadInt(IntPtr.Add(Pointer, MemoryAddresses.WoWUnit_MovementFlagsOffset));

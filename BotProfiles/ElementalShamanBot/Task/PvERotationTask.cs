@@ -37,6 +37,11 @@ namespace ElementalShamanBot
 
         }
 
+        public override void PerformCombatRotation()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public void Update()
         {
             if (ObjectManager.Aggressors.Count == 0)

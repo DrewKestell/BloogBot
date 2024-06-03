@@ -105,5 +105,10 @@ namespace ArmsWarriorBot
                 }
             }
         }
+
+        public override void PerformCombatRotation()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

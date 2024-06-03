@@ -76,6 +76,11 @@ namespace ArcaneMageBot
             TryCastSpell(ArcaneMissiles, 0, 29, ObjectManager.Player.Level >= 15);
         }
 
+        public override void PerformCombatRotation()
+        {
+            throw new NotImplementedException();
+        }
+
         Action FrostNovaCallback => () =>
         {
             frostNovaBackpedaling = true;

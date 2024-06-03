@@ -1,11 +1,4 @@
-﻿using RaidMemberBot.Client;
-using RaidMemberBot.Game;
-using RaidMemberBot.Game.Frames;
-using RaidMemberBot.Game.Statics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using static RaidMemberBot.Constants.Enums;
+﻿using System.Collections.Generic;
 
 namespace RaidMemberBot.AI.SharedStates
 {

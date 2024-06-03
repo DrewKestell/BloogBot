@@ -27,6 +27,11 @@ namespace ProtectionPaladinBot
         const string SealOfTheCrusader = "Seal of the Crusader";
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 
+        public override void PerformCombatRotation()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public void Update()
         {
             if (ObjectManager.Player.HealthPercent < 30 && ObjectManager.Player.Target.HealthPercent > 50 && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(HolyLight))

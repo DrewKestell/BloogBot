@@ -44,13 +44,13 @@ namespace ShadowPriestBot
                 return;
             }
             else
-            {
                 ObjectManager.Player.StopAllMovement();
-            }
 
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
 
-            if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
+            if (ObjectManager.Player.Target == null) return;
+
+            if (ObjectManager.Player.Target.Guid == ObjectManager.Player.Guid)
             {
                 if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
                 {
@@ -68,7 +68,10 @@ namespace ShadowPriestBot
                 WoWItem drinkItem = ObjectManager.Items.First(x => x.ItemId == 1179);
 
                 if (ObjectManager.Player.Level >= 5 && drinkItem != null && !ObjectManager.Player.IsDrinking && ObjectManager.Player.ManaPercent < 60)
+                {
                     drinkItem.Use();
+                    Container.State.Action = "Drinking";
+                }
             }
 
             if (!ObjectManager.Player.IsDrinking && Wait.For("HealSelfDelay", 3500, true))

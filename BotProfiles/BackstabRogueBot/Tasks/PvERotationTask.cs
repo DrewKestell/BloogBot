@@ -184,6 +184,11 @@ namespace BackstabRogueBot
 
         bool ReadyToInterrupt() => ObjectManager.Player.Target.Mana > 0 && (ObjectManager.Player.Target.IsCasting || ObjectManager.Player.Target.IsChanneling);
 
+        public override void PerformCombatRotation()
+        {
+            throw new NotImplementedException();
+        }
+
         Action RiposteCallback => () => readyToRiposte = false;
 
         public object ItemSubclass { get; private set; }

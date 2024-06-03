@@ -129,6 +129,11 @@ namespace FrostMageBot
             }
         }
 
+        public override void PerformCombatRotation()
+        {
+            throw new NotImplementedException();
+        }
+
         Action FrostNovaCallback => () =>
         {
             frostNovaStartedMoving = false;

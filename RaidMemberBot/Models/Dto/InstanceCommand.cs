@@ -12,6 +12,7 @@
     public enum CommandAction
     {
         None,
+        FullStop,
         SetAccountInfo,
         SetLevel,
         SetReadyState,
@@ -20,6 +21,7 @@
         AddEquipment,
         SetActivity,
         SetRaidLeader,
+        SetTankInPosition,
         AddPartyMember,
         ResetCharacterState,
         ConvertToRaid,

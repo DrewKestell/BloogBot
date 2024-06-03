@@ -3,7 +3,6 @@ using System;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using static RaidMemberBot.Constants.Enums;
-using static RaidMemberBot.Constants.Offsets;
 
 namespace RaidMemberBot.Objects
 {
@@ -29,6 +28,7 @@ namespace RaidMemberBot.Objects
 
             rightClickObjectFunction = Marshal.GetDelegateForFunctionPointer<RightClickObjectDelegate>((IntPtr)0x60BEA0);
         }
+        public float ScaleX => MemoryManager.ReadFloat(IntPtr.Add(GetDescriptorPtr(), MemoryAddresses.WoWObject_ScaleXOffset));
 
         public virtual Position Position => GetPosition();
 

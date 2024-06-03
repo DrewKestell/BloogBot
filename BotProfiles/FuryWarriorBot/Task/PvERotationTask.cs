@@ -206,5 +206,10 @@ namespace FuryWarriorBot
             // ObjectManager.Player.StartMovement(ControlBits.StrafeLeft);
             // ObjectManager.Player.StartMovement(ControlBits.Right);
         }
+
+        public override void PerformCombatRotation()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -50,7 +50,7 @@ namespace BalanceDruidBot
                 Functions.LuaCall($"CastSpellByName('{MoonkinForm}')");
             }
 
-            if (ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) < range && ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady(pullingSpell) && ObjectManager.Player.InLosWith(ObjectManager.Player.Target.Position))
+            if (ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) < range && ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady(pullingSpell) && ObjectManager.Player.InLosWith(ObjectManager.Player.Target))
             {
                 if (ObjectManager.Player.IsMoving)
                     ObjectManager.Player.StopAllMovement();

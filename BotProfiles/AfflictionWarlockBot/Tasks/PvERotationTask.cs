@@ -3,6 +3,7 @@ using RaidMemberBot.AI.SharedStates;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Mem;
 using RaidMemberBot.Objects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using static RaidMemberBot.Constants.Enums;
@@ -25,6 +26,7 @@ namespace AfflictionWarlockBot
 
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 
+
         public void Update()
         {
             if (ObjectManager.Aggressors.Count() == 0)
@@ -33,54 +35,49 @@ namespace AfflictionWarlockBot
                 return;
             }
 
-            if (ObjectManager.Aggressors.Any(u => !u.HasDebuff(CurseOfAgony) || !u.HasDebuff(Immolate) || !u.HasDebuff(Corruption)))
-            {
-                WoWUnit target = ObjectManager.Aggressors.First(u => !u.HasDebuff(CurseOfAgony) || !u.HasDebuff(Immolate) || !u.HasDebuff(Corruption));
-                ObjectManager.Player.SetTarget(target.Guid);
-            }
-            else if (!ObjectManager.Player.IsCasting)
-            {
-                AssignDPSTarget();
-            }
+            AssignDPSTarget();
 
-            if (MoveBehindTankSpot(8))
+            if (ObjectManager.Player.Target == null) return;
+
+            if (Container.State.TankInPosition)
             {
-                Container.State.Action = "Moving behind tank spot";
+                if (MoveTowardsTarget())
+                    return;
+
+                PerformCombatRotation();
+            }
+            else if (MoveBehindTankSpot(15))
                 return;
+            else
+                ObjectManager.Player.StopAllMovement();
+        }
+        public override void PerformCombatRotation()
+        {
+            Container.State.Action = "Attacking target";
+
+            ObjectManager.Player.StopAllMovement();
+            ObjectManager.Player.Face(ObjectManager.Player.Target.Position);
+            ObjectManager.Pet?.Attack();
+
+            TryCastSpell(LifeTap, 0, int.MaxValue, ObjectManager.Player.HealthPercent > 85 && ObjectManager.Player.ManaPercent < 80);
+
+            // if target is low on health, turn off wand and cast drain soul
+            if (ObjectManager.Player.Target.HealthPercent <= 20)
+            {
+                Functions.LuaCall(TurnOffWandLuaScript);
+                TryCastSpell(DrainSoul, 0, 29);
             }
             else
             {
-                ObjectManager.Player.StopAllMovement();
+                TryCastSpell(CurseOfAgony, 0, 28, !ObjectManager.Player.Target.HasDebuff(CurseOfAgony) && ObjectManager.Player.Target.HealthPercent > 90);
 
-                if (ObjectManager.Player.Target == null) return;
+                TryCastSpell(Immolate, 0, 28, !ObjectManager.Player.Target.HasDebuff(Immolate) && ObjectManager.Player.Target.HealthPercent > 30);
 
-                Container.State.Action = "Performing DPS rotation";
+                TryCastSpell(Corruption, 0, 28, !ObjectManager.Player.Target.HasDebuff(Corruption) && ObjectManager.Player.Target.HealthPercent > 30);
 
-                ObjectManager.Player.Face(ObjectManager.Player.Target.Position);
-                ObjectManager.Pet?.Attack();
+                TryCastSpell(SiphonLife, 0, 28, !ObjectManager.Player.Target.HasDebuff(SiphonLife) && ObjectManager.Player.Target.HealthPercent > 50);
 
-                TryCastSpell(LifeTap, 0, int.MaxValue, ObjectManager.Player.HealthPercent > 85 && ObjectManager.Player.ManaPercent < 80);
-
-                // if target is low on health, turn off wand and cast drain soul
-                if (ObjectManager.Player.Target.HealthPercent <= 20)
-                {
-                    Functions.LuaCall(TurnOffWandLuaScript);
-                    TryCastSpell(DrainSoul, 0, 29);
-                }
-                else
-                {
-                    //TryCastSpell(DeathCoil, 0, 28, (target.IsCasting || ObjectManager.Player.Target.IsChanneling) && ObjectManager.Player.Target.HealthPercent > 20);
-
-                    TryCastSpell(CurseOfAgony, 0, 28, !ObjectManager.Player.Target.HasDebuff(CurseOfAgony) && ObjectManager.Player.Target.HealthPercent > 90);
-
-                    TryCastSpell(Immolate, 0, 28, !ObjectManager.Player.Target.HasDebuff(Immolate) && ObjectManager.Player.Target.HealthPercent > 30);
-
-                    TryCastSpell(Corruption, 0, 28, !ObjectManager.Player.Target.HasDebuff(Corruption) && ObjectManager.Player.Target.HealthPercent > 30);
-
-                    TryCastSpell(SiphonLife, 0, 28, !ObjectManager.Player.Target.HasDebuff(SiphonLife) && ObjectManager.Player.Target.HealthPercent > 50);
-
-                    TryCastSpell(ShadowBolt, 0, 28, ObjectManager.Player.Target.HealthPercent > 40);
-                }
+                TryCastSpell(ShadowBolt, 0, 28, ObjectManager.Player.Target.HealthPercent > 40);
             }
         }
     }

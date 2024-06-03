@@ -5,6 +5,8 @@ using Functions = RaidMemberBot.Mem.Functions;
 using static RaidMemberBot.Constants.Enums;
 using RaidMemberBot.Mem;
 using System.Collections.Generic;
+using RaidMemberBot.Game;
+using RaidMemberBot.Constants;
 
 namespace RaidMemberBot.Objects
 {
@@ -41,8 +43,10 @@ namespace RaidMemberBot.Objects
 
         public readonly IDictionary<string, int[]> PlayerSpells = new Dictionary<string, int[]>();
         public readonly List<int> PlayerSkills = new List<int>();
-
+        public new ulong TargetGuid => MemoryManager.ReadUlong(Offsets.Player.TargetGuid, true);
         public WoWUnit Target => (WoWUnit)ObjectManager.Objects.FirstOrDefault(x => x.Guid == TargetGuid);
+
+        public bool TargetInMeleeRange => Functions.LuaCallWithResult("{0} = CheckInteractDistance(\"target\", 3)")[0] == "1";
 
         public Class Class => (Class)MemoryManager.ReadByte((IntPtr)MemoryAddresses.LocalPlayerClass);
         public string Race => Functions.LuaCallWithResult("{0} = UnitRace('player')")[0];
@@ -171,9 +175,12 @@ namespace RaidMemberBot.Objects
 
         public void StopAllMovement()
         {
-            var bits = ControlBits.Front | ControlBits.Back | ControlBits.Left | ControlBits.Right | ControlBits.StrafeLeft | ControlBits.StrafeRight;
+            if (MovementFlags != MovementFlags.MOVEFLAG_NONE)
+            {
+                var bits = ControlBits.Front | ControlBits.Back | ControlBits.Left | ControlBits.Right | ControlBits.StrafeLeft | ControlBits.StrafeRight;
 
-            StopMovement(bits);
+                StopMovement(bits);
+            }
         }
 
         public void StopMovement(ControlBits bits)
@@ -220,7 +227,7 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var result = Functions.LuaCallWithResult($"{{0}} = UnitIsGhost('player')");
+                var result = Functions.LuaCallWithResult("{0} = UnitIsGhost('player')");
 
                 if (result.Length > 0)
                     return result[0] == "1";
@@ -229,7 +236,10 @@ namespace RaidMemberBot.Objects
             }
         }
 
-        public void SetTarget(ulong guid) => Functions.SetTarget(guid);
+        public void SetTarget(ulong guid)
+        {
+            Functions.SetTarget(guid);
+        }
 
         ulong ComboPointGuid { get; set; }
 
@@ -237,7 +247,7 @@ namespace RaidMemberBot.Objects
         {
             get
             {
-                var result = Functions.LuaCallWithResult($"{{0}} = GetComboPoints('target')");
+                var result = Functions.LuaCallWithResult("{0} = GetComboPoints('target')");
 
                 if (result.Length > 0)
                     return Convert.ToByte(result[0]);
@@ -362,11 +372,6 @@ namespace RaidMemberBot.Objects
         public ulong GetEquippedItemGuid(EquipSlot slot) => MemoryManager.ReadUlong(IntPtr.Add(Pointer, MemoryAddresses.LocalPlayer_EquipmentFirstItemOffset + ((int)slot - 1) * 0x8));
 
         public WoWItem GetEquippedItem(EquipSlot slot) => ObjectManager.Items.FirstOrDefault(x => x.Guid == GetEquippedItemGuid(slot));
-
-        public bool InLosWith(Position position)
-        {
-            return Position.InLosWith(position);
-        }
 
         public bool CanRiposte
         {

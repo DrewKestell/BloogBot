@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using RaidMemberBot.Constants;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using System.Numerics;
@@ -39,11 +38,15 @@ namespace RaidMemberBot.Models.Dto
         public int ChannelingId { get; set; }
         public bool IsConnected { get; set; }
         public bool IsReadyToStart { get; set; }
+        public bool HasStarted { get; set; }
+        public bool TankInPosition { get; set; }
         public bool IsReset { get; set; }
         public bool IsDone { get; set; }
         public bool InParty { get; set; }
         public bool InRaid { get; set; }
         public bool InCombat { get; set; }
+        public ulong TargetGuid { get; set; }
+        public string TargetPointer { get; set; }
         public bool IsDiseased { get; set; }
         public bool IsPoisoned { get; set; }
         public bool IsCursed { get; set; }
@@ -98,5 +101,7 @@ namespace RaidMemberBot.Models.Dto
         public List<Position> VisitedWaypoints { get; } = new List<Position>();
         [JsonIgnore]
         public Position DungeonStart { get; set; }
+        [JsonIgnore]
+        public List<List<Creature>> Encounters { get; } = new List<List<Creature>>();
     }
 }

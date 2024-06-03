@@ -37,6 +37,11 @@ namespace BeastMasterHunterBot
 
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 
+        public override void PerformCombatRotation()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public void Update()
         {
             if (ObjectManager.Aggressors.Count == 0)

@@ -42,7 +42,10 @@ namespace RaidMemberBot.Client
         public float CalculatePathingDistance(uint mapId, Position startPosition, Position endPosition, bool smoothPath)
         {
             Position[] locations = CalculatePath(mapId, startPosition, endPosition, smoothPath);
-
+            return CalculatePathingDistance(locations);
+        }
+        public float CalculatePathingDistance(Position[] locations)
+        {
             float distance = 0;
             for (int i = 0; i < locations.Length - 1; i++)
             {

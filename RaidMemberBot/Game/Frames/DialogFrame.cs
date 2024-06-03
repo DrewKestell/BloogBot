@@ -1,5 +1,4 @@
 ﻿using RaidMemberBot.Mem;
-using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
 using static RaidMemberBot.Constants.Enums;

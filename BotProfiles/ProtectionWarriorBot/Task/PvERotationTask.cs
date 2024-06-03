@@ -70,17 +70,18 @@ namespace ProtectionWarriorBot
 
             if (looseUnits.Count > 0)
             {
+                Container.State.TankInPosition = false;
                 WoWUnit looseUnit = looseUnits.First();
 
-                ObjectManager.Player.SetTarget(looseUnits.First().Guid);
+                ObjectManager.Player.SetTarget(looseUnit.Guid);
 
-                if (Update(5))
+                if ((looseUnit.ManaPercent < 10 || looseUnit.Position.DistanceTo(ObjectManager.Player.Position) < 8) && Update(5))
                 {
                     Container.State.Action = "Running to loose mob";
                 }
                 else
                 {
-                    Container.State.Action = "Threatening loose mob";
+                    Container.State.Action = "Picking up loose mob";
                     ObjectManager.Player.StopAllMovement();
 
                     if (ObjectManager.Player.CurrentStance != DefensiveStance)
@@ -88,23 +89,26 @@ namespace ProtectionWarriorBot
                     else if (ObjectManager.Player.IsSpellReady(Taunt))
                         TryUseAbility(Taunt);
                     else
-                        ThreatRotation();
+                        PerformCombatRotation();
                 }
             }
             else
             {
-                currentDPSTarget = GetDPSTarget();
-
-                if (currentDPSTarget == null)
+                if (ObjectManager.SkullTargetGuid == 0 || !ObjectManager.Hostiles.Any(x => x.Guid == ObjectManager.SkullTargetGuid))
                 {
                     currentDPSTarget = ObjectManager.Aggressors.OrderBy(x => x.Health).Last();
                     ObjectManager.Player.SetTarget(currentDPSTarget.Guid);
 
-                    Functions.LuaCall($"SetRaidTarget(\"target\", 8)");
+                    Functions.LuaCall("SetRaidTarget('target', 8)");
+                }
+                else
+                {
+                    currentDPSTarget = ObjectManager.Units.First(x => x.Guid == ObjectManager.SkullTargetGuid);
                 }
 
                 if (tankSpot.DistanceTo(ObjectManager.Player.Position) > 5)
                 {
+                    Container.State.TankInPosition = false;
                     Container.State.Action = "Moving to tank spot";
                     Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, tankSpot, true);
 
@@ -115,17 +119,18 @@ namespace ProtectionWarriorBot
                 }
                 else
                 {
+                    Container.State.TankInPosition = true;
                     Container.State.Action = "Tanking aggressors";
 
                     ObjectManager.Player.StopAllMovement();
                     ObjectManager.Player.Face(currentDPSTarget.Position);
 
-                    ThreatRotation();
+                    PerformCombatRotation();
                 }
             }
         }
 
-        private void ThreatRotation()
+        public override void PerformCombatRotation()
         {
             if (ObjectManager.Player.Target == null) return;
 
@@ -136,18 +141,19 @@ namespace ProtectionWarriorBot
                 TryUseAbility(Retaliation);
             }
 
-            if (ObjectManager.Aggressors.Count() >= 4 && !ObjectManager.Aggressors.All(u => u.HasDebuff(ThunderClap)))
-            {
-                if (ObjectManager.Player.CurrentStance != BattleStance)
-                {
-                    TryCastSpell(BattleStance);
-                }
+            //if (ObjectManager.Aggressors.Count() >= 4 && !ObjectManager.Aggressors.All(u => u.HasDebuff(ThunderClap)))
+            //{
+            //    if (ObjectManager.Player.CurrentStance != BattleStance)
+            //    {
+            //        TryCastSpell(BattleStance);
+            //    }
 
-                TryUseAbility(ThunderClap, 20);
+            //    TryUseAbility(ThunderClap, 20);
 
-                TryUseAbility(Overpower, 5, overpowerStopwatch.IsRunning);
-            }
-            else if (ObjectManager.Player.CurrentStance != DefensiveStance)
+            //    TryUseAbility(Overpower, 5, overpowerStopwatch.IsRunning);
+            //}
+            //else
+            if (ObjectManager.Player.CurrentStance != DefensiveStance)
             {
                 TryCastSpell(DefensiveStance);
             }

@@ -23,7 +23,7 @@ namespace EnhancementShamanBot
                 return;
             }
 
-            if (ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) < 27 && ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady(LightningBolt) && ObjectManager.Player.InLosWith(ObjectManager.Player.Target.Position))
+            if (ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) < 27 && ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady(LightningBolt) && ObjectManager.Player.InLosWith(ObjectManager.Player.Target))
             {
                 if (ObjectManager.Player.IsMoving)
                     ObjectManager.Player.StopAllMovement();

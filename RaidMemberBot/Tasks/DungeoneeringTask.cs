@@ -1,14 +1,14 @@
 ﻿using Newtonsoft.Json;
 using RaidMemberBot.Client;
+using RaidMemberBot.Constants;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Mem;
 using RaidMemberBot.Models;
-using RaidMemberBot.Models.Dto;
 using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
+using System.Windows;
 using ObjectManager = RaidMemberBot.Game.Statics.ObjectManager;
 
 namespace RaidMemberBot.AI.SharedStates
@@ -31,6 +31,8 @@ namespace RaidMemberBot.AI.SharedStates
         int stuckDuration;
         public DungeoneeringTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Ordinary)
         {
+            Container.State.Action = "Preparing to start dungeon";
+            Container.State.HasStarted = true;
             isPartyLeader = Container.State.RaidLeader == Container.State.CharacterName;
             Container.State.DungeonStart = ObjectManager.Player.Position;
 
@@ -67,13 +69,21 @@ namespace RaidMemberBot.AI.SharedStates
                 if (CanProceed)
                 {
                     // if the party is ready to pull
-                    if (ObjectManager.Hostiles.Count(x => ObjectManager.Player.InLosWith(x.Position) && x.Position.DistanceTo(ObjectManager.Player.Position) < 25) > 0)
+                    if (ObjectManager.Hostiles.Count(x => ObjectManager.Player.InLosWith(x) && x.Position.DistanceTo(ObjectManager.Player.Position) < 25) > 0)
                     {
                         ObjectManager.Player.StopAllMovement();
 
-                        WoWUnit target = ObjectManager.Hostiles.Where(x => ObjectManager.Player.InLosWith(x.Position)).OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x.Position, true)).First();
+                        WoWUnit target = ObjectManager.Hostiles.Where(x => ObjectManager.Player.InLosWith(x)).OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x.Position, true)).First();
+
+                        Console.WriteLine($"** PULLING ** {target.Pointer.ToString("X")} {IntPtr.Add(target.Pointer, MemoryAddresses.WoWUnit_BoundingRadiusOffset)} {IntPtr.Add(target.Pointer, MemoryAddresses.WoWUnit_CombatReachOffset)}");
+                        //if (Container.State.Encounters.Any(x => x.Any(y => y.Guid == target.CreatureId)))
+                        //{
+                        //    List<Creature> creatures = Container.State.Encounters.FirstOrDefault(x => x.Any(y => y.Guid == target.CreatureId));
+                        //    Console.WriteLine($"Got it! {JsonConvert.SerializeObject(creatures)}");
+                        //}
+
                         ObjectManager.Player.SetTarget(target.Guid);
-                        Functions.LuaCall($"SetRaidTarget(\"target\", 8)");
+                        Functions.LuaCall($"SetRaidTarget('target', 8)");
 
                         BotTasks.Push(Container.CreatePullTargetTask(Container, BotTasks));
                         return;
@@ -92,6 +102,8 @@ namespace RaidMemberBot.AI.SharedStates
                         ApproachDestination();
                     }
                 }
+                else
+                    Container.State.Action = "Waiting for party to recover";
             }
             else
             {
@@ -120,12 +132,14 @@ namespace RaidMemberBot.AI.SharedStates
                 }
                 else
                 {
+                    Container.State.Action = $"Waiting on {Container.State.RaidLeader}";
                     ObjectManager.Player.StopAllMovement();
                 }
             }
 
             if (!CanProceed)
             {
+                Container.State.Action = $"Waiting on party members";
                 ObjectManager.Player.StopAllMovement();
                 BotTasks.Push(Container.CreateRestTask(Container, BotTasks));
             }
@@ -148,7 +162,7 @@ namespace RaidMemberBot.AI.SharedStates
 
         private void CleanupWaypoints()
         {
-            List<Position> positions = dungeonWaypoints.Where(x => ObjectManager.Player.InLosWith(x) && NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true) < 5).ToList();
+            List<Position> positions = dungeonWaypoints.Where(x => ObjectManager.Player.Position.InLosWith(x) && NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true) < 5).ToList();
             Container.State.VisitedWaypoints.AddRange(positions);
             dungeonWaypoints.RemoveAll(x => positions.Contains(x));
 
@@ -165,7 +179,6 @@ namespace RaidMemberBot.AI.SharedStates
 
         private void ApproachDestination()
         {
-            //Console.WriteLine($"DUNGEON: ApproachDestination");
             Position[] locations = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, destination, true);
 
             if (locations.Length > 1)
@@ -194,6 +207,7 @@ namespace RaidMemberBot.AI.SharedStates
             minorWaypoints = new Dictionary<Position, List<Position>>();
 
             dungeonWaypoints = GetWaypointsListFromEncounters(encounters);
+            dungeonWaypoints.AddRange(GetWaypointsListFromPathing(encounters));
 
             destination = dungeonWaypoints.OrderBy(x => NavigationClient.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true)).First();
 
@@ -230,14 +244,8 @@ namespace RaidMemberBot.AI.SharedStates
             for (int i = 0; i < majorWaypoints.Count; i++)
             {
                 minorWaypoints.Add(majorWaypoints[i], new List<Position>());
-
-                if (i < majorWaypoints.Count - 1)
-                {
-                    Console.WriteLine($"[DUNGEONEERING TASK] {JsonConvert.SerializeObject(majorWaypoints[i])}\t=> {JsonConvert.SerializeObject(majorWaypoints[i + 1])}");
-                }
             }
 
-            //Console.WriteLine($"[DUNGEONEERING TASK] Optimizing sub routes");
             for (int i = 0; i < dungeonWaypoints.Count; i++)
             {
                 if (!majorWaypoints.Contains(dungeonWaypoints[i]))
@@ -255,8 +263,6 @@ namespace RaidMemberBot.AI.SharedStates
                 {
                     if (minorWaypointsList.Count < 10)
                     {
-                        Console.WriteLine($"[DUNGEONEERING TASK] Optimizing sub route[{minorWaypointsList.Count}]");
-
                         minorWaypointsList = TravelingDungeonCrawler(minorWaypointsList, 0);
                     }
                 }
@@ -416,19 +422,17 @@ namespace RaidMemberBot.AI.SharedStates
         private List<Position> GetWaypointsListFromEncounters(List<Creature> encounters)
         {
             List<Position> waypoints = new List<Position>();
+            Dictionary<int, HashSet<int>> creatureLinkedMapping = new Dictionary<int, HashSet<int>>();
 
             for (int i = 0; i < encounters.Count; i++)
             {
-                Dictionary<int, HashSet<int>> creatureLinkedMapping = new Dictionary<int, HashSet<int>>();
-
                 CreatureTemplate creatureTemplate = DatabaseClient.Instance.GetCreatureTemplateById(encounters[i].Id);
                 List<CreatureGrouping> creatureLinkings = DatabaseClient.Instance.GetCreatureMappingByMemberGuid(encounters[i].Guid);
-
                 foreach (CreatureGrouping creatureLinking in creatureLinkings)
                 {
                     if (!creatureLinkedMapping.ContainsKey(creatureLinking.LeaderGuid))
                     {
-                        creatureLinkedMapping.Add(creatureLinking.LeaderGuid, new HashSet<int>());
+                        creatureLinkedMapping.Add(creatureLinking.LeaderGuid, new HashSet<int>() { creatureLinking.LeaderGuid });
                     }
 
                     if (creatureLinkedMapping.TryGetValue(creatureLinking.LeaderGuid, out HashSet<int> creatures))
@@ -457,6 +461,7 @@ namespace RaidMemberBot.AI.SharedStates
                             centerY += creature.PositionY;
                             centerZ += creature.PositionZ;
                         }
+
                         Position centerPoint = new Position(centerX / creatureLinkMappingValues.Value.Count,
                                                             centerY / creatureLinkMappingValues.Value.Count,
                                                             centerZ / creatureLinkMappingValues.Value.Count);
@@ -474,6 +479,36 @@ namespace RaidMemberBot.AI.SharedStates
                 {
                     waypoints.Add(new Position(encounters[i].PositionX, encounters[i].PositionY, encounters[i].PositionZ));
                 }
+            }
+
+            for (int i = 0; i < encounters.Count; i++)
+            {
+                HashSet<int> hashSet = creatureLinkedMapping.Values.FirstOrDefault(x => x.Any(y => y == encounters[i].Guid));
+                if (hashSet == null || hashSet.Count == 0)
+                {
+                    Container.State.Encounters.Add(new List<Creature>() { encounters[i] });
+                }
+                else if (!Container.State.Encounters.Any(x => x.Any(y => y.Guid == encounters[i].Guid)))
+                {
+                    List<Creature> creatures = new List<Creature>();
+                    foreach (int creatureGuid in hashSet)
+                    {
+                        creatures.Add(encounters.First(x => x.Guid == creatureGuid));
+                    }
+                    Container.State.Encounters.Add(creatures);
+                }
+            }
+            //Console.WriteLine($"** {JsonConvert.SerializeObject(Container.State.Encounters, Formatting.Indented)}");
+            return waypoints;
+        }
+
+        private List<Position> GetWaypointsListFromPathing(List<Creature> encounters)
+        {
+            List<Position> waypoints = new List<Position>();
+
+            foreach (Creature creature in encounters)
+            {
+                waypoints.Add(new Position(creature.PositionX, creature.PositionY, creature.PositionZ));
             }
 
             return waypoints;

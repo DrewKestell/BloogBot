@@ -1,7 +1,6 @@
 ﻿using RaidMemberBot.AI;
 using RaidMemberBot.Mem.AntiWarden;
 using System;
-using System.Diagnostics;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Threading;

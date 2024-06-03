@@ -1,5 +1,4 @@
 ﻿using RaidMemberBot.Models.Dto;
-using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
 

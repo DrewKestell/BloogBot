@@ -1,16 +1,13 @@
 ﻿using RaidMemberBot.AI.SharedStates;
 using RaidMemberBot.Client;
-using RaidMemberBot.Constants;
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Mem;
 using RaidMemberBot.Models.Dto;
-using RaidMemberBot.Objects;
 using RaidMemberBot.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -66,7 +63,7 @@ namespace RaidMemberBot.AI
 
                 if (instanceCommand.CommandAction != CommandAction.None)
                 {
-                    if(botTasks.Count == 0)
+                    if (botTasks.Count == 0)
                     {
                         ThreadSynchronizer.RunOnMainThread(() =>
                         {
@@ -103,14 +100,17 @@ namespace RaidMemberBot.AI
                                     AssignClassContainer();
                                     break;
                                 case CommandAction.AddTalent:
+                                    characterState.Action = "Adding talents";
                                     botTasks.Push(new AddTalentTask(classContainer, botTasks, int.Parse(instanceCommand.CommandParam1)));
                                     Console.WriteLine($"[BOT RUNNER] AddTalent {instanceCommand.CommandParam1}");
                                     break;
                                 case CommandAction.AddSpell:
+                                    characterState.Action = "Adding spells";
                                     botTasks.Push(new AddSpellTask(classContainer, botTasks, int.Parse(instanceCommand.CommandParam1)));
                                     Console.WriteLine($"[BOT RUNNER] AddSpell {instanceCommand.CommandParam1}");
                                     break;
                                 case CommandAction.AddPartyMember:
+                                    characterState.Action = "Inviting party members";
                                     Console.WriteLine($"[BOT RUNNER] AddPartyMember {instanceCommand.CommandParam1}");
                                     Functions.LuaCall($"InviteByName(\"{instanceCommand.CommandParam1}\")");
                                     break;
@@ -129,6 +129,7 @@ namespace RaidMemberBot.AI
                                     botTasks.Push(new DungeoneeringTask(classContainer, botTasks));
                                     break;
                                 case CommandAction.AddEquipment:
+                                    characterState.Action = "Adding equipment";
                                     Console.WriteLine($"[BOT RUNNER] AddEquipment {instanceCommand.CommandParam1} {instanceCommand.CommandParam2}");
                                     botTasks.Push(new AddEquipmentTask(classContainer, botTasks, int.Parse(instanceCommand.CommandParam1), int.Parse(instanceCommand.CommandParam2)));
                                     break;
@@ -145,10 +146,13 @@ namespace RaidMemberBot.AI
                     }
                     else
                     {
-                        switch(instanceCommand.CommandAction)
+                        switch (instanceCommand.CommandAction)
                         {
                             case CommandAction.SetFacing:
                                 ObjectManager.Player.SetFacing(float.Parse(instanceCommand.CommandParam1));
+                                break;
+                            case CommandAction.SetTankInPosition:
+                                characterState.TankInPosition = bool.Parse(instanceCommand.CommandParam1);
                                 break;
                             case CommandAction.SetCombatLocation:
                                 characterState.TankPosition = new System.Numerics.Vector3(
@@ -156,12 +160,17 @@ namespace RaidMemberBot.AI
                                     float.Parse(instanceCommand.CommandParam2),
                                     float.Parse(instanceCommand.CommandParam3));
                                 characterState.TankFacing = float.Parse(instanceCommand.CommandParam4);
-
-                                Console.WriteLine($"[BOT RUNNER] SetCombatLocation {instanceCommand.CommandParam1} {instanceCommand.CommandParam2} {instanceCommand.CommandParam3} {instanceCommand.CommandParam4}");
                                 break;
                             case CommandAction.ExecuteLuaCommand:
-                                Console.WriteLine($"[BOT RUNNER] ExecuteChatCommand - {instanceCommand.CommandParam1}");
+                                Console.WriteLine($"[BOT RUNNER] ExecuteLuaCommand - {instanceCommand.CommandParam1}");
                                 Functions.LuaCall(instanceCommand.CommandParam1);
+                                break;
+                            case CommandAction.FullStop:
+                                botTasks.Clear();
+                                if (ObjectManager.Player != null && classContainer != null)
+                                {
+                                    ObjectManager.Player.StopAllMovement();
+                                }
                                 break;
                         }
                     }
@@ -187,18 +196,9 @@ namespace RaidMemberBot.AI
                         {
                             botTasks.Peek()?.Update();
                         }
-                        else
-                        {
-                            characterState.Action = "Idle";
-
-                            if (ObjectManager.Player != null && classContainer != null)
-                            {
-                                ObjectManager.Player.StopAllMovement();
-                            }
-                        }
                     });
 
-                    await Task.Delay(100);
+                    await Task.Delay(50);
                 }
                 catch (Exception ex)
                 {

@@ -199,5 +199,10 @@ namespace FeralDruidBot
                 callback?.Invoke();
             }
         }
+
+        public override void PerformCombatRotation()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

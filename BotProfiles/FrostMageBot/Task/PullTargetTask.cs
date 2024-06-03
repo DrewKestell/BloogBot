@@ -41,7 +41,7 @@ namespace FrostMageBot
             }
 
             float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position);
-            if (distanceToTarget <= range && ObjectManager.Player.InLosWith(ObjectManager.Player.Target.Position))
+            if (distanceToTarget <= range && ObjectManager.Player.InLosWith(ObjectManager.Player.Target))
             {
                 if (ObjectManager.Player.IsMoving)
                     ObjectManager.Player.StopAllMovement();

@@ -32,42 +32,42 @@ namespace ShadowPriestBot
             if (unhealthyMembers.Count > 0 && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(healingSpell))
             {
                 ObjectManager.Player.SetTarget(unhealthyMembers[0].Guid);
-                ObjectManager.Player.StopAllMovement();
+
+                if (ObjectManager.Player.Target == null || ObjectManager.Player.Target.Guid != unhealthyMembers[0].Guid)
+                    return;
             }
             else
             {
+                Container.State.Action = $"Exiting healing";
                 ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
                 return;
             }
 
-            if (ObjectManager.Player.IsCasting || ObjectManager.Player.Target == null) return;
+            if (ObjectManager.Player.IsCasting || ObjectManager.Player.Target == null)
+                return;
 
-            if (ObjectManager.Player.InLosWith(ObjectManager.Player.Target.Position) && ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) < 20)
+            if (ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) < 40 && ObjectManager.Player.InLosWith(ObjectManager.Player.Target))
             {
-                Container.State.Action = $"Healing {ObjectManager.Player.Target.Name}";
+                ObjectManager.Player.StopAllMovement();
 
                 if (!ObjectManager.Player.Target.HasBuff(Renew))
-                {
                     Functions.LuaCall($"CastSpellByName('{Renew}')");
-                }
-                else if (ObjectManager.Player.IsSpellReady(healingSpell))
-                {
+                if (ObjectManager.Player.IsSpellReady(healingSpell))
                     Functions.LuaCall($"CastSpellByName('{healingSpell}')");
-                }
             }
             else
             {
                 Position[] nextWaypoint = NavigationClient.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
 
-                Container.State.Action = $"Moving to heal {ObjectManager.Player.Target.Name}";
-
                 if (nextWaypoint.Length > 1)
                 {
+                    Container.State.Action = $"Moving to heal {ObjectManager.Player.Target.Name}";
                     ObjectManager.Player.MoveToward(nextWaypoint[1]);
                 }
                 else
                 {
+                    Container.State.Action = $"Can't move to heal {ObjectManager.Player.Target.Name}";
                     ObjectManager.Player.StopAllMovement();
                     BotTasks.Pop();
                     return;

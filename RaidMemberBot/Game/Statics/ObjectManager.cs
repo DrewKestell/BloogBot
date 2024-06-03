@@ -6,8 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using static RaidMemberBot.Constants.Enums;
 
 namespace RaidMemberBot.Game.Statics
@@ -55,16 +57,14 @@ namespace RaidMemberBot.Game.Statics
 
         static public IEnumerable<WoWGameObject> GameObjects => Objects.OfType<WoWGameObject>();
 
-        static public TargetMarker CurrentTargetMarker
-        {
-            get
-            {
-                var result = Functions.LuaCallWithResult("{0} = GetRaidTargetIndex(\"target\")")[0];
-                if (string.IsNullOrEmpty(result))
-                    return TargetMarker.None;
-                return (TargetMarker)byte.Parse(result);
-            }
-        }
+        static public ulong StarTargetGuid => MemoryManager.ReadUlong((IntPtr)Offsets.RaidIcon.Star, true);
+        static public ulong CircleTargetGuid => MemoryManager.ReadUlong((IntPtr)Offsets.RaidIcon.Circle, true);
+        static public ulong DiamondTargetGuid => MemoryManager.ReadUlong((IntPtr)Offsets.RaidIcon.Diamond, true);
+        static public ulong TriangleTargetGuid => MemoryManager.ReadUlong((IntPtr)Offsets.RaidIcon.Triangle, true);
+        static public ulong MoonTargetGuid => MemoryManager.ReadUlong((IntPtr)Offsets.RaidIcon.Moon, true);
+        static public ulong SquareTargetGuid => MemoryManager.ReadUlong((IntPtr)Offsets.RaidIcon.Square, true);
+        static public ulong CrossTargetGuid => MemoryManager.ReadUlong((IntPtr)Offsets.RaidIcon.Cross, true);
+        static public ulong SkullTargetGuid => MemoryManager.ReadUlong((IntPtr)Offsets.RaidIcon.Skull, true);
 
         static public bool IsLoggedIn => _ingame1 && _ingame2 && MemoryManager.ReadByte((IntPtr)0xB4B424) == 1;
 
@@ -114,7 +114,7 @@ namespace RaidMemberBot.Game.Statics
             {
                 try
                 {
-                    var objectManagerPtr = MemoryManager.ReadIntPtr((IntPtr)0x00B41414);
+                    var objectManagerPtr = MemoryManager.ReadIntPtr(Offsets.ObjectManager.ManagerBase);
                     return MemoryManager.ReadUint(IntPtr.Add(objectManagerPtr, 0xCC));
                 }
                 catch (Exception)
@@ -149,7 +149,7 @@ namespace RaidMemberBot.Game.Statics
             {
                 var partyMembers = new List<WoWPlayer>() { Player };
 
-                var partyMember1 = (WoWPlayer) Objects.FirstOrDefault(p => p.Guid == Party1Guid);
+                var partyMember1 = (WoWPlayer)Objects.FirstOrDefault(p => p.Guid == Party1Guid);
                 if (partyMember1 != null)
                     partyMembers.Add(partyMember1);
 
@@ -190,10 +190,10 @@ namespace RaidMemberBot.Game.Statics
         static public List<WoWUnit> Aggressors =>
             Hostiles
                 .Where(u => u.IsInCombat || u.IsFleeing)
-                //.Where(u =>
-                //    u.TargetGuid == Pet?.Guid || 
-                //    u.IsFleeing ||
-                //    PartyMembers.Any(x => u.TargetGuid == x.Guid))
+            //.Where(u =>
+            //    u.TargetGuid == Pet?.Guid || 
+            //    u.IsFleeing ||
+            //    PartyMembers.Any(x => u.TargetGuid == x.Guid))
             .ToList();
 
         static public IEnumerable<WoWUnit> Hostiles =>
@@ -355,6 +355,11 @@ namespace RaidMemberBot.Game.Statics
                     _characterState.ChannelingId = Player.ChannelingId;
                     _characterState.InCombat = Player.IsInCombat;
                     _characterState.IsMoving = Player.IsMoving;
+                    _characterState.TargetGuid = Player.TargetGuid;
+                    if (Player.Target != null)
+                        _characterState.TargetPointer = ((Player.BoundingRadius * Player.ScaleX) + Player.CombatReach + (Player.Target.BoundingRadius * Player.Target.ScaleX) + Player.Target.CombatReach).ToString("0.00") + " " + Player.Position.DistanceTo(Player.Target.Position).ToString("0.00");
+                    else
+                        _characterState.TargetPointer = "";
                     _characterState.IsOnMount = Player.IsMounted;
                     _characterState.IsFalling = Player.IsFalling;
                     _characterState.IsStunned = Player.IsStunned;
@@ -381,7 +386,8 @@ namespace RaidMemberBot.Game.Statics
                     _characterState.Skills = Player.PlayerSkills.OrderBy(x => x).ToList();
 
                     List<WoWUnit> units = Units.OrderBy(x => x.Position.DistanceTo(Player.Position))
-                                            .ToList();
+                    .ToList();
+
                     units.Insert(0, Player);
 
                     _characterState.WoWUnits = units.Where(x => !string.IsNullOrEmpty(x.Name))

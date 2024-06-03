@@ -78,7 +78,7 @@ namespace ProtectionWarriorBot
                 return;
             }
 
-            if (ObjectManager.Player.Target.Health == 0 || (!ObjectManager.Player.InLosWith(ObjectManager.Player.Target.Position) && Wait.For("LosTimer", 2000)))
+            if (ObjectManager.Player.Target.Health == 0 || (!ObjectManager.Player.InLosWith(ObjectManager.Player.Target) && Wait.For("LosTimer", 2000)))
             {
                 if (ObjectManager.Player.IsMoving)
                     ObjectManager.Player.StopAllMovement();
@@ -88,7 +88,7 @@ namespace ProtectionWarriorBot
 
             float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position);
 
-            if (distanceToTarget < 25 && distanceToTarget > 8 && ObjectManager.Player.InLosWith(ObjectManager.Player.Target.Position))
+            if (distanceToTarget < 25 && distanceToTarget > 8 && ObjectManager.Player.InLosWith(ObjectManager.Player.Target))
             {
                 ObjectManager.Player.StopAllMovement();
 

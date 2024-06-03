@@ -79,13 +79,17 @@
         public static int WoWUnit_LevelOffset = 0x88;
         public static int WoWUnit_FactionIdOffset = 0x8C;
         public static int WoWUnit_UnitFlagsOffset = 0xB8;
+        public static int WoWUnit_BoundingRadiusOffset = 0x204;
+        public static int WoWUnit_CombatReachOffset = 0x208;
         public static int WoWUnit_DynamicFlagsOffset = 0x23C;
-        public static int WoWUnit_CurrentChannelingOffset;
+        public static int WoWUnit_HeightOffset = 0xA5C;
+        public static int WoWUnit_CurrentChannelingOffset = 0x240;
 
         // Offsets
         public static int LocalPlayer_SetFacingOffset = 0x9A8;
         public static int LocalPlayer_EquipmentFirstItemOffset = 0x2508;
         public static int WoWObject_DescriptorOffset = 0x8;
+        public static int WoWObject_ScaleXOffset = 0x10;
         public static int WoWObject_GetPositionFunOffset;
         public static int WoWObject_GetFacingFunOffset;
         public static int WoWObject_InteractFunOffset;
