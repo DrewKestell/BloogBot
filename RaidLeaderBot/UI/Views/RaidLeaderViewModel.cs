@@ -1,4 +1,5 @@
 ﻿using EnvDTE80;
+using RaidLeaderBot.Activity;
 using RaidLeaderBot.Utilities;
 using RaidMemberBot.Models.Dto;
 using System;
@@ -18,7 +19,7 @@ namespace RaidLeaderBot
 {
     public sealed class RaidLeaderViewModel : INotifyPropertyChanged, IDisposable
     {
-        private readonly ActivityManager _activityContainer;
+        private readonly List<ActivityManager> _activityContainer;
         private readonly RaidPreset _preset;
         private readonly ProcessTracker _processTracker;
         public int Index { get; set; }
@@ -32,7 +33,7 @@ namespace RaidLeaderBot
         public RaidLeaderViewModel(RaidPreset raidPreset)
         {
             _preset = raidPreset;
-            _activityContainer = new ActivityManager(_preset.RaidLeaderPort, 389);
+            _activityContainer = new List<ActivityManager>() { new DungeonActivityManager(_preset.RaidLeaderPort, 389) };
             _processTracker = new ProcessTracker();
             _preset.RaidMemberPresets ??= new List<RaidMemberPreset>() { new RaidMemberPreset() };
 
@@ -50,7 +51,7 @@ namespace RaidLeaderBot
             OnPropertyChanged(nameof(IsHorde));
         }
 
-        public CharacterState GetCharacterStateByRaidMemberViewModel(RaidMemberViewModel index) => _activityContainer.PartyMembersToStates[index];
+        public CharacterState GetCharacterStateByRaidMemberViewModel(RaidMemberViewModel index) => _activityContainer[0].PartyMembersToStates[index];
 
         private ICommand _startAllRaidMembersCommand;
         private ICommand _stopAllRaidMembersCommand;
@@ -214,7 +215,7 @@ namespace RaidLeaderBot
                 {
                     RaidMemberViewModels[i].ShouldRun = true;
 
-                    if (_activityContainer.PartyMembersToStates[RaidMemberViewModels[i]].ProcessId == 0)
+                    if (_activityContainer[0].PartyMembersToStates[RaidMemberViewModels[i]].ProcessId == 0)
                     {
                         Dispatcher.CurrentDispatcher.InvokeAsync(async () =>
                         {
@@ -299,7 +300,7 @@ namespace RaidLeaderBot
         private void AddRaidMember(RaidMemberViewModel raidMemberViewModel)
         {
             RaidMemberViewModels.Add(raidMemberViewModel);
-            _activityContainer.AddRaidMember(raidMemberViewModel);
+            _activityContainer[0].AddRaidMember(raidMemberViewModel);
         }
         public void RemoveRaidMember()
         {
@@ -308,7 +309,7 @@ namespace RaidLeaderBot
 
             RaidMemberViewModels.RemoveAt(focusedIndex);
             _preset.RaidMemberPresets.RemoveAt(focusedIndex);
-            _activityContainer.RemoveRaidMember(raidMemberViewModel);
+            _activityContainer[0].RemoveRaidMember(raidMemberViewModel);
 
             int newIndex = focusedIndex - 1;
             newIndex = Math.Max(newIndex, 0);
@@ -433,7 +434,7 @@ namespace RaidLeaderBot
 
         internal void QueueCommandToProcess(int processId, InstanceCommand command)
         {
-            _activityContainer.QueueCommandToProcess(processId, command);
+            _activityContainer[0].QueueCommandToProcess(processId, command);
         }
 
         public void Dispose()

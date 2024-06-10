@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-using RaidMemberBot.Client;
-using RaidMemberBot.Constants;
+﻿using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Mem;
 using RaidMemberBot.Models;
@@ -8,7 +6,6 @@ using RaidMemberBot.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
 using ObjectManager = RaidMemberBot.Game.Statics.ObjectManager;
 
 namespace RaidMemberBot.AI.SharedStates

@@ -5,7 +5,6 @@ using Functions = RaidMemberBot.Mem.Functions;
 using static RaidMemberBot.Constants.Enums;
 using RaidMemberBot.Mem;
 using System.Collections.Generic;
-using RaidMemberBot.Game;
 using RaidMemberBot.Constants;
 
 namespace RaidMemberBot.Objects

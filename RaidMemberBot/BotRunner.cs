@@ -96,8 +96,8 @@ namespace RaidMemberBot.AI
                                     characterState.AccountName = instanceCommand.CommandParam1;
                                     characterState.BotProfileName = instanceCommand.CommandParam2;
 
-                                    botTasks.Push(new LoginTask(classContainer, botTasks, characterState.AccountName));
                                     AssignClassContainer();
+                                    botTasks.Push(new LoginTask(classContainer, botTasks, characterState.AccountName));
                                     break;
                                 case CommandAction.AddTalent:
                                     characterState.Action = "Adding talents";
@@ -125,8 +125,20 @@ namespace RaidMemberBot.AI
                                     characterState.IsReadyToStart = bool.Parse(instanceCommand.CommandParam1);
                                     break;
                                 case CommandAction.BeginDungeon:
-                                    Console.WriteLine($"[BOT RUNNER] Begin dungeon");
+                                    Console.WriteLine($"[BOT RUNNER] Begin Dungeon | {ObjectManager.ZoneText}");
                                     botTasks.Push(new DungeoneeringTask(classContainer, botTasks));
+                                    break;
+                                case CommandAction.BeginBattleGrounds:
+                                    Console.WriteLine($"[BOT RUNNER] Begin dungeon");
+                                    break;
+                                case CommandAction.BeginGathering:
+                                    Console.WriteLine($"[BOT RUNNER] Begin dungeon");
+                                    break;
+                                case CommandAction.BeginQuesting:
+                                    Console.WriteLine($"[BOT RUNNER] Begin Questing");
+                                    break;
+                                case CommandAction.BeginWorldPvP:
+                                    Console.WriteLine($"[BOT RUNNER] Begin World PvP");
                                     break;
                                 case CommandAction.AddEquipment:
                                     characterState.Action = "Adding equipment";

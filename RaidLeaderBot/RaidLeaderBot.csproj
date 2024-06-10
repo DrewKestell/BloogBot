@@ -154,7 +154,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccountUsageRegistry.cs" />
-    <Compile Include="ActivityManager.cs" />
+    <Compile Include="Activity\ActivityManager.cs" />
+    <Compile Include="Activity\DungeonActivityManager.cs" />
     <Compile Include="Pathfinding\Navigation.cs" />
     <Compile Include="RaidMemberLauncher.cs" />
     <Compile Include="UI\Views\RaidActivityViewModel.cs" />

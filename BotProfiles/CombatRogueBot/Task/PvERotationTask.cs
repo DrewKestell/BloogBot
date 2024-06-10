@@ -4,7 +4,6 @@ using RaidMemberBot.Game.Statics;
 using RaidMemberBot.Objects;
 using System.Collections.Generic;
 using System.Linq;
-using static RaidMemberBot.Constants.Enums;
 
 namespace CombatRogueBot
 {

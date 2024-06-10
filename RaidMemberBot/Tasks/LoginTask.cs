@@ -53,17 +53,20 @@ namespace RaidMemberBot.AI.SharedStates
                 if (!GlueDialogText.Contains("Handshaking") || handshakeReset)
                 {
                     DefaultServerLogin();
+
                     handshakeReset = false;
                 }
                 else if (GlueDialogText == "Handshaking")
                 {
-                    if (isHandShaking && GlueDialogText == "Handshaking")
+                    if (isHandShaking)
                     {
                         handshakeDuration += Environment.TickCount - lastTickTime;
                         if (handshakeDuration > 2000)
                         {
                             Console.WriteLine("[LOGIN TASK] handshakeDuration > 2000");
                             ResetLogin();
+
+                            isHandShaking = false;
                             handshakeReset = true;
                             handshakeDuration = 0;
                         }
@@ -79,8 +82,7 @@ namespace RaidMemberBot.AI.SharedStates
         public void ResetLogin()
         {
             Functions.LuaCall("arg1 = 'ESCAPE' GlueDialog_OnKeyDown()");
-            Functions.LuaCall(
-                "if RealmListCancelButton ~= nil then if RealmListCancelButton:IsVisible() then RealmListCancelButton:Click(); end end ");
+            Functions.LuaCall("if RealmListCancelButton ~= nil then if RealmListCancelButton:IsVisible() then RealmListCancelButton:Click(); end end ");
         }
 
         /// <summary>

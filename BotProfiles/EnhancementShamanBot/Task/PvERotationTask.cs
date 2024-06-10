@@ -1,15 +1,8 @@
-﻿using Newtonsoft.Json;
-using RaidMemberBot.AI;
+﻿using RaidMemberBot.AI;
 using RaidMemberBot.AI.SharedStates;
-using RaidMemberBot.Client;
 using RaidMemberBot.Game.Statics;
-using RaidMemberBot.Objects;
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Numerics;
-using static RaidMemberBot.Constants.Enums;
 
 namespace EnhancementShamanBot
 {
