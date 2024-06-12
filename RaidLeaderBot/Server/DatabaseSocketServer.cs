@@ -11,7 +11,7 @@ namespace RaidLeaderBot
     {
         public DatabaseSocketServer(int port, IPAddress ipAddress) : base(port, ipAddress)
         {
-            Console.WriteLine($"[DATABASE SERVER]Port {port}");
+            Console.WriteLine($"[DATABASE SERVER {port}] Started");
         }
 
         public override int HandleRequest(string payload, Socket clientSocket)

@@ -44,6 +44,7 @@ namespace RaidMemberBot.Models.Dto
         public bool IsDone { get; set; }
         public bool InParty { get; set; }
         public bool InRaid { get; set; }
+        public bool InBGQueue { get; set; }
         public bool InCombat { get; set; }
         public ulong TargetGuid { get; set; }
         public string TargetPointer { get; set; }

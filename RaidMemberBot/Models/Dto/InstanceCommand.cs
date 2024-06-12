@@ -24,8 +24,6 @@
         SetTankInPosition,
         AddPartyMember,
         ResetCharacterState,
-        ConvertToRaid,
-        ConvertToParty,
         GoTo,
         TeleTo,
         SetFacing,

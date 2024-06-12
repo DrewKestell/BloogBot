@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1.Ocsp;
 using RaidLeaderBot.Pathfinding;
 using RaidMemberBot.Models.Dto;
 using RaidMemberBot.Objects;
@@ -17,7 +18,9 @@ namespace RaidLeaderBot
 
         public NavigationSocketServer(int port, IPAddress ipAddress) : base(port, ipAddress)
         {
-            Console.WriteLine($"[NAVIGATION SERVER]Port {port}");
+            Console.Write($"[NAVIGATION SERVER {port}] Starting...");
+            Navigation.Instance.CalculatePath(1, new Position(-1, -1, -1), new Position(1, 1, 1), true);
+            Console.WriteLine(" started!");
         }
 
         public override int HandleRequest(string payload, Socket clientSocket)

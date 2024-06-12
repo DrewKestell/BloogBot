@@ -200,72 +200,72 @@ namespace RaidLeaderBot
 
             { Tuple.Create(Race.NightElf, Class.Warrior), new Dictionary<string, bool>()
                 {
-                    {"NiWr1", false},
-                    {"NiWr2", false},
-                    {"NiWr3", false},
-                    {"NiWr4", false},
-                    {"NiWr5", false},
-                    {"NiWr6", false},
-                    {"NiWr7", false},
-                    {"NiWr8", false},
-                    {"NiWr9", false},
-                    {"NiWr10", false}
+                    {"NEWr1", false},
+                    {"NEWr2", false},
+                    {"NEWr3", false},
+                    {"NEWr4", false},
+                    {"NEWr5", false},
+                    {"NEWr6", false},
+                    {"NEWr7", false},
+                    {"NEWr8", false},
+                    {"NEWr9", false},
+                    {"NEWr10", false}
                 }
             },
             { Tuple.Create(Race.NightElf, Class.Hunter), new Dictionary<string, bool>()
                 {
-                    {"NiHu1", false},
-                    {"NiHu2", false},
-                    {"NiHu3", false},
-                    {"NiHu4", false},
-                    {"NiHu5", false},
-                    {"NiHu6", false},
-                    {"NiHu7", false},
-                    {"NiHu8", false},
-                    {"NiHu9", false},
-                    {"NiHu10", false}
+                    {"NEHu1", false},
+                    {"NEHu2", false},
+                    {"NEHu3", false},
+                    {"NEHu4", false},
+                    {"NEHu5", false},
+                    {"NEHu6", false},
+                    {"NEHu7", false},
+                    {"NEHu8", false},
+                    {"NEHu9", false},
+                    {"NEHu10", false}
                 }
             },
             { Tuple.Create(Race.NightElf, Class.Rogue), new Dictionary<string, bool>()
                 {
-                    {"NiRo1", false},
-                    {"NiRo2", false},
-                    {"NiRo3", false},
-                    {"NiRo4", false},
-                    {"NiRo5", false},
-                    {"NiRo6", false},
-                    {"NiRo7", false},
-                    {"NiRo8", false},
-                    {"NiRo9", false},
-                    {"NiRo10", false}
+                    {"NERo1", false},
+                    {"NERo2", false},
+                    {"NERo3", false},
+                    {"NERo4", false},
+                    {"NERo5", false},
+                    {"NERo6", false},
+                    {"NERo7", false},
+                    {"NERo8", false},
+                    {"NERo9", false},
+                    {"NERo10", false}
                 }
             },
             { Tuple.Create(Race.NightElf, Class.Priest), new Dictionary<string, bool>()
                 {
-                    {"NiPr1", false},
-                    {"NiPr2", false},
-                    {"NiPr3", false},
-                    {"NiPr4", false},
-                    {"NiPr5", false},
-                    {"NiPr6", false},
-                    {"NiPr7", false},
-                    {"NiPr8", false},
-                    {"NiPr9", false},
-                    {"NiPr10", false}
+                    {"NEPr1", false},
+                    {"NEPr2", false},
+                    {"NEPr3", false},
+                    {"NEPr4", false},
+                    {"NEPr5", false},
+                    {"NEPr6", false},
+                    {"NEPr7", false},
+                    {"NEPr8", false},
+                    {"NEPr9", false},
+                    {"NEPr10", false}
                 }
             },
             { Tuple.Create(Race.NightElf, Class.Druid), new Dictionary<string, bool>()
                 {
-                    {"NiDr1", false},
-                    {"NiDr2", false},
-                    {"NiDr3", false},
-                    {"NiDr4", false},
-                    {"NiDr5", false},
-                    {"NiDr6", false},
-                    {"NiDr7", false},
-                    {"NiDr8", false},
-                    {"NiDr9", false},
-                    {"NiDr10", false}
+                    {"NEDr1", false},
+                    {"NEDr2", false},
+                    {"NEDr3", false},
+                    {"NEDr4", false},
+                    {"NEDr5", false},
+                    {"NEDr6", false},
+                    {"NEDr7", false},
+                    {"NEDr8", false},
+                    {"NEDr9", false},
+                    {"NEDr10", false}
                 }
             },
 

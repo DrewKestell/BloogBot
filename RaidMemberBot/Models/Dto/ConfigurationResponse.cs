@@ -4,6 +4,6 @@
     {
         public int NavigationServerPort { get; set; }
         public int DatabaseServerPort { get; set; }
-        public int RaidLeaderServerPort { get; set; }
+        public int ActivityManagerServerPort { get; set; }
     }
 }

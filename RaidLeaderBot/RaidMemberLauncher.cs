@@ -35,7 +35,6 @@ namespace RaidLeaderBot
                 out PROCESS_INFORMATION processInfo);
 
             ConfigSocketServer.Instance.AddProcessToCommandPortMapping((int)processInfo.dwProcessId, raidLeaderPortNumber);
-
             await Task.Delay(1000, cancellationToken);
 
             string loaderPath = default;
@@ -47,6 +46,7 @@ namespace RaidLeaderBot
                 LaunchProcess(currentFolder, processInfo, out loaderPath, out error, out processHandle, out loaderPathPtr);
                 return error <= 0;
             });
+            Console.WriteLine("Here 1");
             bool launchedProcessSucceeded = await launchProcessRetry.ExecuteWithRetry(cancellationToken);
 
             if (!launchedProcessSucceeded)
@@ -62,6 +62,7 @@ namespace RaidLeaderBot
                 error = InjectCodeToProcess(loaderPath, processHandle, loaderPathPtr, ref bytesWritten);
                 return error <= 0 && bytesWritten > 0;
             });
+            Console.WriteLine("Here 2");
             bool injectionSucceeded = await injectCodeRetry.ExecuteWithRetry(cancellationToken);
 
             if (!injectionSucceeded)
@@ -76,6 +77,7 @@ namespace RaidLeaderBot
                 GetLoaderDllPointer(out error, out loaderDllPointer);
                 return error <= 0 && loaderDllPointer != IntPtr.Zero;
             });
+            Console.WriteLine("Here 3");
             bool getLoaderDllPointerSucceeded = await getLoaderDllPointerRetry.ExecuteWithRetry(cancellationToken);
 
             if (!getLoaderDllPointerSucceeded)
@@ -88,6 +90,7 @@ namespace RaidLeaderBot
             {
                 return CreateRemoteThreadForLoader(processHandle, loaderDllPointer, loaderPathPtr, out error) && error <= 0;
             });
+            Console.WriteLine("Here 4");
             bool createRemoteThreadSucceeded = await createRemoteThreadRetry.ExecuteWithRetry(cancellationToken);
 
             if (!createRemoteThreadSucceeded)

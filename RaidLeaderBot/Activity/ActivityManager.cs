@@ -4,10 +4,10 @@ using static RaidLeaderBot.WinImports;
 using System;
 using System.Linq;
 using RaidMemberBot.Models.Dto;
-using RaidMemberBot.Models;
 using System.Net;
 using System.Windows;
 using static RaidMemberBot.Constants.Enums;
+using Newtonsoft.Json;
 
 namespace RaidLeaderBot.Activity
 {
@@ -24,7 +24,7 @@ namespace RaidLeaderBot.Activity
         public readonly Dictionary<RaidMemberViewModel, CharacterState> PartyMembersToStates = new Dictionary<RaidMemberViewModel, CharacterState>();
         protected readonly Dictionary<int, InstanceCommand> NextCommand = new Dictionary<int, InstanceCommand>();
 
-        public ActivityManager(int portNumber, int mapId)
+        public ActivityManager(ActivityType activityType, int portNumber, int mapId)
         {
             _commandSocketServer = new CommandSocketServer(portNumber, IPAddress.Parse(RaidLeaderBotSettings.Instance.ListenAddress));
             _commandSocketServer.Start();
@@ -32,6 +32,7 @@ namespace RaidLeaderBot.Activity
             _commandSocketServer.InstanceUpdateObservable.Subscribe(OnInstanceUpdate);
 
             MapId = mapId;
+            Activity = activityType;
         }
         ~ActivityManager()
         {
@@ -43,10 +44,17 @@ namespace RaidLeaderBot.Activity
             Application.Current.Dispatcher.Invoke(() =>
             {
                 RaidMemberViewModel raidMemberViewModel = UpdateCharacterState(state);
-                if (BotPreparedToStart(raidMemberViewModel, state))
+                if (raidMemberViewModel.ShouldRun)
                 {
-                    CheckForCommand(raidMemberViewModel, state);
+                    if (BotPreparedToStart(raidMemberViewModel, state))
+                        CheckForCommand(raidMemberViewModel, state);
                 }
+                else
+                    NextCommand[state.ProcessId] = new InstanceCommand()
+                    {
+                        CommandAction = CommandAction.FullStop
+                    };
+
                 SendCommandToProcess(state.ProcessId, NextCommand[state.ProcessId]);
             });
         }
@@ -95,62 +103,22 @@ namespace RaidLeaderBot.Activity
         protected abstract void CheckForCommand(RaidMemberViewModel raidMemberViewModel, CharacterState newCharacterState);
         protected bool BotPreparedToStart(RaidMemberViewModel raidMemberViewModel, CharacterState newCharacterState)
         {
-            Console.WriteLine("BotPreparedToStart");
             if (newCharacterState.ProcessId > 0)
             {
-                if (!newCharacterState.IsReset)
+               if (!newCharacterState.IsReset)
                 {
                     if (newCharacterState.AccountName != raidMemberViewModel.AccountName || newCharacterState.BotProfileName != raidMemberViewModel.BotProfileName)
                     {
-                        InstanceCommand loginCommand = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.SetAccountInfo,
                             CommandParam1 = raidMemberViewModel.AccountName,
                             CommandParam2 = raidMemberViewModel.BotProfileName,
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = loginCommand;
                     }
-                    else if (string.IsNullOrEmpty(newCharacterState.CurrentActivity))
+                    else if (newCharacterState.Zone != "GM Island")
                     {
-                        InstanceCommand setActivityCommand = new InstanceCommand()
-                        {
-                            CommandAction = CommandAction.SetActivity,
-                            CommandParam1 = Activity.ToString(),
-                        };
-
-                        NextCommand[newCharacterState.ProcessId] = setActivityCommand;
-                    }
-                    else if (RaidLeader == null)
-                    {
-                        if (raidMemberViewModel.RaidMemberPreset.IsMainTank && !string.IsNullOrEmpty(newCharacterState.CharacterName))
-                        {
-                            RaidLeader = newCharacterState;
-
-                            InstanceCommand setLeaderCommand = new InstanceCommand()
-                            {
-                                CommandAction = CommandAction.SetRaidLeader,
-                                CommandParam1 = RaidLeader.CharacterName,
-                            };
-
-                            NextCommand[newCharacterState.ProcessId] = setLeaderCommand;
-                        }
-                    }
-                    else
-                    {
-                        InstanceCommand resetCharacterState = new InstanceCommand()
-                        {
-                            CommandAction = CommandAction.ResetCharacterState,
-                        };
-
-                        NextCommand[newCharacterState.ProcessId] = resetCharacterState;
-                    }
-                }
-                else if (!newCharacterState.IsReadyToStart)
-                {
-                    if (newCharacterState.Zone != "GM Island")
-                    {
-                        InstanceCommand goToCommand = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.TeleTo,
                             CommandParam1 = "16226",
@@ -158,219 +126,207 @@ namespace RaidLeaderBot.Activity
                             CommandParam3 = "13",
                             CommandParam4 = "1",
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = goToCommand;
                     }
-                    else if (newCharacterState.Level < raidMemberViewModel.Level)
+                    else if (string.IsNullOrEmpty(newCharacterState.CurrentActivity))
                     {
-                        InstanceCommand setLevelCommand = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
+                        {
+                            CommandAction = CommandAction.SetActivity,
+                            CommandParam1 = Activity.ToString(),
+                            CommandParam2 = MapId.ToString(),
+                        };
+                    }
+                    else if (RaidLeader == null)
+                    {
+                        if (raidMemberViewModel.RaidMemberPreset.IsMainTank && !string.IsNullOrEmpty(newCharacterState.CharacterName))
+                        {
+                            RaidLeader = newCharacterState;
+
+                            NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
+                            {
+                                CommandAction = CommandAction.SetRaidLeader,
+                                CommandParam1 = RaidLeader.CharacterName,
+                                CommandParam2 = RaidLeader.Guid.ToString(),
+                            };
+                        }
+                    }
+                    else
+                    {
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
+                        {
+                            CommandAction = CommandAction.ResetCharacterState,
+                        };
+                    }
+                }
+                else if (!newCharacterState.IsReadyToStart)
+                {
+                    if (newCharacterState.Level < raidMemberViewModel.Level)
+                    {
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.SetLevel,
                             CommandParam1 = raidMemberViewModel.Level.ToString()
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = setLevelCommand;
                     }
                     else if (FindMissingSkills(raidMemberViewModel.Skills, newCharacterState, out int skillSpellId))
                     {
-                        InstanceCommand addSpell = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.AddSpell,
                             CommandParam1 = skillSpellId.ToString()
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = addSpell;
                     }
                     else if (FindMissingSpells(raidMemberViewModel.Spells, newCharacterState, out int spellId))
                     {
-                        InstanceCommand addSpell = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.AddSpell,
                             CommandParam1 = spellId.ToString()
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = addSpell;
                     }
                     else if (FindMissingEquipment(raidMemberViewModel, newCharacterState, out int itemId, out EquipSlot equipSlot))
                     {
-                        InstanceCommand addEquipment = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.AddEquipment,
                             CommandParam1 = itemId.ToString(),
                             CommandParam2 = ((int)equipSlot).ToString()
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = addEquipment;
                     }
                     else if (FindMissingTalents(raidMemberViewModel, newCharacterState, out int preTalentSpellId))
                     {
-                        InstanceCommand addTalent = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.AddTalent,
                             CommandParam1 = preTalentSpellId.ToString(),
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = addTalent;
                     }
                     else if (raidMemberViewModel.RaidMemberPreset.IsRole1 && !newCharacterState.IsRole1)
                     {
-                        InstanceCommand addRole = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.AddRole,
                             CommandParam1 = "1",
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = addRole;
                     }
                     else if (raidMemberViewModel.RaidMemberPreset.IsRole2 && !newCharacterState.IsRole2)
                     {
-                        InstanceCommand addRole = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.AddRole,
                             CommandParam1 = "2",
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = addRole;
                     }
                     else if (raidMemberViewModel.RaidMemberPreset.IsRole3 && !newCharacterState.IsRole3)
                     {
-                        InstanceCommand addRole = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.AddRole,
                             CommandParam1 = "3",
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = addRole;
                     }
                     else if (raidMemberViewModel.RaidMemberPreset.IsRole4 && !newCharacterState.IsRole4)
                     {
-                        InstanceCommand addRole = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.AddRole,
                             CommandParam1 = "4",
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = addRole;
                     }
                     else if (raidMemberViewModel.RaidMemberPreset.IsRole5 && !newCharacterState.IsRole5)
                     {
-                        InstanceCommand addRole = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.AddRole,
                             CommandParam1 = "5",
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = addRole;
                     }
                     else if (raidMemberViewModel.RaidMemberPreset.IsRole6 && !newCharacterState.IsRole6)
                     {
-                        InstanceCommand addRole = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.AddRole,
                             CommandParam1 = "6",
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = addRole;
                     }
                     else if (raidMemberViewModel.RaidMemberPreset.IsMainTank && !newCharacterState.IsMainTank)
                     {
-                        InstanceCommand addRole = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.AddRole,
                             CommandParam1 = "7",
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = addRole;
                     }
                     else if (raidMemberViewModel.RaidMemberPreset.IsMainHealer && !newCharacterState.IsMainHealer)
                     {
-                        InstanceCommand addRole = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.AddRole,
                             CommandParam1 = "8",
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = addRole;
                     }
                     else if (raidMemberViewModel.RaidMemberPreset.IsOffTank && !newCharacterState.IsOffTank)
                     {
-                        InstanceCommand addRole = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.AddRole,
                             CommandParam1 = "9",
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = addRole;
                     }
                     else if (raidMemberViewModel.RaidMemberPreset.IsOffHealer && !newCharacterState.IsOffHealer)
                     {
-                        InstanceCommand addRole = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.AddRole,
                             CommandParam1 = "10",
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = addRole;
                     }
                     else if (raidMemberViewModel.RaidMemberPreset.ShouldCleanse && !newCharacterState.ShouldCleanse)
                     {
-                        InstanceCommand addRole = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.AddRole,
                             CommandParam1 = "11",
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = addRole;
                     }
                     else if (raidMemberViewModel.RaidMemberPreset.ShouldRebuff && !newCharacterState.ShouldRebuff)
                     {
-                        InstanceCommand addRole = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.AddRole,
                             CommandParam1 = "12",
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = addRole;
                     }
-                    else if (RaidLeader.CharacterName != newCharacterState.RaidLeader)
+                    else if (RaidLeader.Guid != newCharacterState.RaidLeaderGuid)
                     {
-                        InstanceCommand setLeaderCommand = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.SetRaidLeader,
                             CommandParam1 = RaidLeader.CharacterName,
                             CommandParam2 = RaidLeader.Guid.ToString()
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = setLeaderCommand;
-                    }
-                    else if (RaidLeader.Guid != newCharacterState.Guid && !newCharacterState.InParty)
-                    {
-                        InstanceCommand addPartyMember = new InstanceCommand()
-                        {
-                            CommandAction = CommandAction.AddPartyMember,
-                            CommandParam1 = newCharacterState.CharacterName,
-                        };
-
-                        NextCommand[RaidLeader.ProcessId] = addPartyMember;
                     }
                     else if (!newCharacterState.IsReadyToStart)
                     {
-                        InstanceCommand setReadyState = new InstanceCommand()
+                        NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                         {
                             CommandAction = CommandAction.SetReadyState,
                             CommandParam1 = true.ToString()
                         };
-
-                        NextCommand[newCharacterState.ProcessId] = setReadyState;
                     }
                 }
-                else
+                else if (RaidLeader.Guid != newCharacterState.Guid && !(newCharacterState.InParty || newCharacterState.InRaid))
                 {
-                    Console.WriteLine("BotPreparedToStart true");
-                    return true;
+                    NextCommand[RaidLeader.ProcessId] = new InstanceCommand()
+                    {
+                        CommandAction = CommandAction.AddPartyMember,
+                        CommandParam1 = newCharacterState.CharacterName,
+                    };
+                    return false;
                 }
+                else
+                    return true;
             }
-            Console.WriteLine("BotPreparedToStart false");
             return false;
         }
 

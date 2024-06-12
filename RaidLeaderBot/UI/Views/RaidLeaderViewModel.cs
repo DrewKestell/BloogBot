@@ -11,7 +11,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -19,7 +18,7 @@ namespace RaidLeaderBot
 {
     public sealed class RaidLeaderViewModel : INotifyPropertyChanged, IDisposable
     {
-        private readonly List<ActivityManager> _activityContainer;
+        private ActivityManager _activityContainer;
         private readonly RaidPreset _preset;
         private readonly ProcessTracker _processTracker;
         public int Index { get; set; }
@@ -33,9 +32,10 @@ namespace RaidLeaderBot
         public RaidLeaderViewModel(RaidPreset raidPreset)
         {
             _preset = raidPreset;
-            _activityContainer = new List<ActivityManager>() { new DungeonActivityManager(_preset.RaidLeaderPort, 389) };
             _processTracker = new ProcessTracker();
             _preset.RaidMemberPresets ??= new List<RaidMemberPreset>() { new RaidMemberPreset() };
+
+            SetCurrentActivty();
 
             for (int i = 0; i < _preset.RaidMemberPresets.Count; i++)
             {
@@ -51,7 +51,7 @@ namespace RaidLeaderBot
             OnPropertyChanged(nameof(IsHorde));
         }
 
-        public CharacterState GetCharacterStateByRaidMemberViewModel(RaidMemberViewModel index) => _activityContainer[0].PartyMembersToStates[index];
+        public CharacterState GetCharacterStateByRaidMemberViewModel(RaidMemberViewModel index) => _activityContainer.PartyMembersToStates[index];
 
         private ICommand _startAllRaidMembersCommand;
         private ICommand _stopAllRaidMembersCommand;
@@ -215,7 +215,7 @@ namespace RaidLeaderBot
                 {
                     RaidMemberViewModels[i].ShouldRun = true;
 
-                    if (_activityContainer[0].PartyMembersToStates[RaidMemberViewModels[i]].ProcessId == 0)
+                    if (_activityContainer.PartyMembersToStates[RaidMemberViewModels[i]].ProcessId == 0)
                     {
                         Dispatcher.CurrentDispatcher.InvokeAsync(async () =>
                         {
@@ -249,8 +249,7 @@ namespace RaidLeaderBot
                                 });
                                 await retryWithTimeout.ExecuteWithRetry(CancellationToken.None);
                             }
-                            await Task.Delay(5000);
-                        });                       
+                        });
                     }
                 }
 
@@ -300,7 +299,7 @@ namespace RaidLeaderBot
         private void AddRaidMember(RaidMemberViewModel raidMemberViewModel)
         {
             RaidMemberViewModels.Add(raidMemberViewModel);
-            _activityContainer[0].AddRaidMember(raidMemberViewModel);
+            _activityContainer.AddRaidMember(raidMemberViewModel);
         }
         public void RemoveRaidMember()
         {
@@ -309,7 +308,7 @@ namespace RaidLeaderBot
 
             RaidMemberViewModels.RemoveAt(focusedIndex);
             _preset.RaidMemberPresets.RemoveAt(focusedIndex);
-            _activityContainer[0].RemoveRaidMember(raidMemberViewModel);
+            _activityContainer.RemoveRaidMember(raidMemberViewModel);
 
             int newIndex = focusedIndex - 1;
             newIndex = Math.Max(newIndex, 0);
@@ -326,6 +325,130 @@ namespace RaidLeaderBot
             for (int i = RaidMemberViewModels.Count; i < MaxGroupSize; i++)
                 AddRaidMember();
         }
+        public void SetCurrentActivty()
+        {
+            switch (_preset.Activity)
+            {
+                case ActivityType.WarsongGulch19:
+                case ActivityType.WarsongGulch29:
+                case ActivityType.WarsongGulch39:
+                case ActivityType.WarsongGulch49:
+                case ActivityType.WarsongGulch59:
+                case ActivityType.WarsongGulch60:
+                    _activityContainer = new WarsongGultchActivityManager(_preset.Activity, _preset.RaidLeaderPort, 489);
+                    break;
+                case ActivityType.ArathiBasin29:
+                case ActivityType.ArathiBasin39:
+                case ActivityType.ArathiBasin49:
+                case ActivityType.ArathiBasin59:
+                case ActivityType.ArathiBasin60:
+                    _activityContainer = new WarsongGultchActivityManager(_preset.Activity, _preset.RaidLeaderPort, 529);
+                    break;
+                case ActivityType.AlteracValley:
+                    _activityContainer = new WarsongGultchActivityManager(_preset.Activity, _preset.RaidLeaderPort, 30);
+                    break;
+                case ActivityType.BlackfathomDeeps:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 48);
+                    break;
+                case ActivityType.BlackrockDepths:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 230);
+                    break;
+                case ActivityType.BlackwingLair:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 469);
+                    break;
+                case ActivityType.DireMaul:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 429);
+                    break;
+                case ActivityType.Gnomeregan:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 90);
+                    break;
+                case ActivityType.LowerBlackrockSpire:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 229);
+                    break;
+                case ActivityType.MaraudonEarthSongFalls:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 349);
+                    break;
+                case ActivityType.MaraudonFoulsporeCavern:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 349);
+                    break;
+                case ActivityType.MaraudonWickedGrotto:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 349);
+                    break;
+                case ActivityType.MoltenCore:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 409);
+                    break;
+                case ActivityType.Naxxramas:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 533);
+                    break;
+                case ActivityType.OnyxiasLair:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 249);
+                    break;
+                case ActivityType.RagefireChasm:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 389);
+                    break;
+                case ActivityType.RazorfenDowns:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 129);
+                    break;
+                case ActivityType.RazorfenKraul:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 47);
+                    break;
+                case ActivityType.RuinsOfAhnQiraj:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 509);
+                    break;
+                case ActivityType.Scholomance:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 289);
+                    break;
+                case ActivityType.ShadowfangKeep:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 33);
+                    break;
+                case ActivityType.SMArmory:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 189);
+                    break;
+                case ActivityType.SMCathedral:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 189);
+                    break;
+                case ActivityType.SMGraveyard:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 189);
+                    break;
+                case ActivityType.SMLibrary:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 189);
+                    break;
+                case ActivityType.StratholmeAlive:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 329);
+                    break;
+                case ActivityType.StratholmeUndead:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 329);
+                    break;
+                case ActivityType.TempleOfAhnQiraj:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 531);
+                    break;
+                case ActivityType.TempleOfAtalHakkar:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 109);
+                    break;
+                case ActivityType.TheDeadmines:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 36);
+                    break;
+                case ActivityType.TheStockade:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 34);
+                    break;
+                case ActivityType.Uldaman:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 70);
+                    break;
+                case ActivityType.UpperBlackrockSpire:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 229);
+                    break;
+                case ActivityType.WailingCaverns:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 43);
+                    break;
+                case ActivityType.ZulFarrak:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 209);
+                    break;
+                case ActivityType.ZulGurub:
+                    _activityContainer = new DungeonActivityManager(_preset.Activity, _preset.RaidLeaderPort, 309);
+                    break;
+            }
+
+        }
         public ActivityType CurrentActivity
         {
             get
@@ -335,6 +458,8 @@ namespace RaidLeaderBot
             set
             {
                 _preset.Activity = value;
+
+                SetCurrentActivty();
                 OnPropertyChanged(nameof(CurrentActivity));
             }
         }
@@ -434,7 +559,7 @@ namespace RaidLeaderBot
 
         internal void QueueCommandToProcess(int processId, InstanceCommand command)
         {
-            _activityContainer[0].QueueCommandToProcess(processId, command);
+            _activityContainer.QueueCommandToProcess(processId, command);
         }
 
         public void Dispose()

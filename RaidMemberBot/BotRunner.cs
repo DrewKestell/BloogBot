@@ -1,4 +1,6 @@
-﻿using RaidMemberBot.AI.SharedStates;
+﻿using Newtonsoft.Json;
+using RaidMemberBot.AI.SharedStates;
+using RaidMemberBot.AI.SharedTasks;
 using RaidMemberBot.Client;
 using RaidMemberBot.Game;
 using RaidMemberBot.Game.Statics;
@@ -56,110 +58,111 @@ namespace RaidMemberBot.AI
         }
         private async Task StartServerFeedbackAsync()
         {
-            Console.WriteLine($"[BOT RUNNER] Start server feedback task started.");
+            Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] Start server feedback task started.");
             while (true)
             {
                 InstanceCommand instanceCommand = CommandClient.Instance.GetCommandBasedOnState(characterState);
-
-                if (instanceCommand.CommandAction != CommandAction.None)
+                if (botTasks.Count == 0 && instanceCommand.CommandAction != CommandAction.None)
                 {
-                    if (botTasks.Count == 0)
-                    {
-                        ThreadSynchronizer.RunOnMainThread(() =>
-                        {
-                            switch (instanceCommand.CommandAction)
-                            {
-                                case CommandAction.SetRaidLeader:
-                                    Console.WriteLine($"[BOT RUNNER] SetRaidLeader {characterState.RaidLeader}");
-                                    characterState.RaidLeader = instanceCommand.CommandParam1;
-
-                                    if (!string.IsNullOrEmpty(instanceCommand.CommandParam2))
-                                    {
-                                        characterState.RaidLeaderGuid = ulong.Parse(instanceCommand.CommandParam2);
-                                    }
-                                    else
-                                    {
-                                        characterState.RaidLeaderGuid = ObjectManager.Player.Guid;
-                                    }
-                                    break;
-                                case CommandAction.ResetCharacterState:
-                                    Console.WriteLine($"[BOT RUNNER] ResetCharacterState");
-                                    botTasks.Push(new ResetCharacterStateTask(classContainer, botTasks));
-                                    break;
-                                case CommandAction.SetActivity:
-                                    Console.WriteLine($"[BOT RUNNER] SetActivity {characterState.CurrentActivity}");
-                                    characterState.CurrentActivity = instanceCommand.CommandParam1;
-                                    _activityMapId = 389;//int.Parse(instanceCommand.CommandParam2);
-                                    break;
-                                case CommandAction.SetAccountInfo:
-                                    Console.WriteLine($"[BOT RUNNER] SetAccountInfo [{instanceCommand.CommandParam1}] [{instanceCommand.CommandParam2}]");
-                                    characterState.AccountName = instanceCommand.CommandParam1;
-                                    characterState.BotProfileName = instanceCommand.CommandParam2;
-
-                                    AssignClassContainer();
-                                    botTasks.Push(new LoginTask(classContainer, botTasks, characterState.AccountName));
-                                    break;
-                                case CommandAction.AddTalent:
-                                    characterState.Action = "Adding talents";
-                                    botTasks.Push(new AddTalentTask(classContainer, botTasks, int.Parse(instanceCommand.CommandParam1)));
-                                    Console.WriteLine($"[BOT RUNNER] AddTalent {instanceCommand.CommandParam1}");
-                                    break;
-                                case CommandAction.AddSpell:
-                                    characterState.Action = "Adding spells";
-                                    botTasks.Push(new AddSpellTask(classContainer, botTasks, int.Parse(instanceCommand.CommandParam1)));
-                                    Console.WriteLine($"[BOT RUNNER] AddSpell {instanceCommand.CommandParam1}");
-                                    break;
-                                case CommandAction.AddPartyMember:
-                                    characterState.Action = "Inviting party members";
-                                    Console.WriteLine($"[BOT RUNNER] AddPartyMember {instanceCommand.CommandParam1}");
-                                    Functions.LuaCall($"InviteByName(\"{instanceCommand.CommandParam1}\")");
-                                    break;
-                                case CommandAction.SetLevel:
-                                    Console.WriteLine($"[BOT RUNNER] SetLevel - {instanceCommand.CommandParam1}");
-                                    Functions.LuaCall($"SendChatMessage(\".character level {ObjectManager.Player.Name} {instanceCommand.CommandParam1}\")");
-                                    break;
-                                case CommandAction.SetReadyState:
-                                    Console.WriteLine($"[BOT RUNNER] SetReadyState - {instanceCommand.CommandParam1}");
-                                    Functions.LuaCall($"ResetInstances()");
-                                    Functions.LuaCall($"SendChatMessage(\".maxskill\")");
-                                    characterState.IsReadyToStart = bool.Parse(instanceCommand.CommandParam1);
-                                    break;
-                                case CommandAction.BeginDungeon:
-                                    Console.WriteLine($"[BOT RUNNER] Begin Dungeon | {ObjectManager.ZoneText}");
-                                    botTasks.Push(new DungeoneeringTask(classContainer, botTasks));
-                                    break;
-                                case CommandAction.BeginBattleGrounds:
-                                    Console.WriteLine($"[BOT RUNNER] Begin dungeon");
-                                    break;
-                                case CommandAction.BeginGathering:
-                                    Console.WriteLine($"[BOT RUNNER] Begin dungeon");
-                                    break;
-                                case CommandAction.BeginQuesting:
-                                    Console.WriteLine($"[BOT RUNNER] Begin Questing");
-                                    break;
-                                case CommandAction.BeginWorldPvP:
-                                    Console.WriteLine($"[BOT RUNNER] Begin World PvP");
-                                    break;
-                                case CommandAction.AddEquipment:
-                                    characterState.Action = "Adding equipment";
-                                    Console.WriteLine($"[BOT RUNNER] AddEquipment {instanceCommand.CommandParam1} {instanceCommand.CommandParam2}");
-                                    botTasks.Push(new AddEquipmentTask(classContainer, botTasks, int.Parse(instanceCommand.CommandParam1), int.Parse(instanceCommand.CommandParam2)));
-                                    break;
-                                case CommandAction.AddRole:
-                                    Console.WriteLine($"[BOT RUNNER] AddRole {instanceCommand.CommandParam1}");
-                                    botTasks.Push(new AddRoleTask(classContainer, botTasks, int.Parse(instanceCommand.CommandParam1)));
-                                    break;
-                                case CommandAction.TeleTo:
-                                    Console.WriteLine($"[BOT RUNNER] TeleTo Map: {instanceCommand.CommandParam4} XYZ: {instanceCommand.CommandParam1} {instanceCommand.CommandParam2} {instanceCommand.CommandParam3}");
-                                    Functions.LuaCall($"SendChatMessage(\".go xyz {instanceCommand.CommandParam1} {instanceCommand.CommandParam2} {instanceCommand.CommandParam3} {instanceCommand.CommandParam4}\")");
-                                    break;
-                            }
-                        });
-                    }
-                    else
+                    ThreadSynchronizer.RunOnMainThread(() =>
                     {
                         switch (instanceCommand.CommandAction)
                         {
+                            case CommandAction.SetRaidLeader:
+                                Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] SetRaidLeader {instanceCommand.CommandParam1} {instanceCommand.CommandParam2}");
+                                characterState.RaidLeader = instanceCommand.CommandParam1;
+                                characterState.RaidLeaderGuid = ulong.Parse(instanceCommand.CommandParam2);
+                                break;
+                            case CommandAction.SetActivity:
+                                Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] SetActivity {instanceCommand.CommandParam1}");
+                                characterState.CurrentActivity = instanceCommand.CommandParam1;
+                                _activityMapId = int.Parse(instanceCommand.CommandParam2);
+                                break;
+                            case CommandAction.SetAccountInfo:
+                                Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] SetAccountInfo {instanceCommand.CommandParam1} {instanceCommand.CommandParam2}");
+                                characterState.AccountName = instanceCommand.CommandParam1;
+                                characterState.BotProfileName = instanceCommand.CommandParam2;
+
+                                AssignClassContainer();
+
+                                botTasks.Push(new LoginTask(classContainer, botTasks, characterState.AccountName));
+                                break;
+                            case CommandAction.BeginGathering:
+                                Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] Begin Gathering");
+                                break;
+                            case CommandAction.BeginQuesting:
+                                Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] Begin Questing");
+                                break;
+                            case CommandAction.BeginWorldPvP:
+                                Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] Begin World PvP");
+                                break;
+                            case CommandAction.AddTalent:
+                                characterState.Action = "Adding talents";
+                                botTasks.Push(new AddTalentTask(classContainer, botTasks, int.Parse(instanceCommand.CommandParam1)));
+                                Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] AddTalent {instanceCommand.CommandParam1}");
+                                break;
+                            case CommandAction.AddSpell:
+                                characterState.Action = "Adding spells";
+                                botTasks.Push(new AddSpellTask(classContainer, botTasks, int.Parse(instanceCommand.CommandParam1)));
+                                Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] AddSpell {instanceCommand.CommandParam1}");
+                                break;
+                            case CommandAction.AddPartyMember:
+                                characterState.Action = "Inviting members";
+                                Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] AddPartyMember {instanceCommand.CommandParam1}");
+                                botTasks.Push(new AddPartyMemberTask(classContainer, botTasks, instanceCommand.CommandParam1));
+                                break;
+                            case CommandAction.SetLevel:
+                                Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] SetLevel {instanceCommand.CommandParam1}");
+                                botTasks.Push(new ExecuteBlockingLuaTask(classContainer, botTasks, $"SendChatMessage(\".character level {ObjectManager.Player.Name} {instanceCommand.CommandParam1}\")"));
+                                break;
+                            case CommandAction.SetReadyState:
+                                Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] SetReadyState {instanceCommand.CommandParam1}");
+                                botTasks.Push(new ExecuteBlockingLuaTask(classContainer, botTasks, "SendChatMessage(\".maxskill\")"));
+                                characterState.IsReadyToStart = bool.Parse(instanceCommand.CommandParam1);
+                                break;
+                            case CommandAction.BeginDungeon:
+                                Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] Begin Dungeon {ObjectManager.ZoneText}");
+                                botTasks.Push(new DungeoneeringTask(classContainer, botTasks));
+                                break;
+                            case CommandAction.BeginBattleGrounds:
+                                Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] Begin Battleground {instanceCommand.CommandParam1}");
+                                switch (instanceCommand.CommandParam1)
+                                {
+                                    case "WSG":
+                                        botTasks.Push(new WarsongGultchTask(classContainer, botTasks));
+                                        break;
+                                    case "AB":
+                                        break;
+                                    case "AV":
+                                        break;
+                                }
+                                break;
+                            case CommandAction.QueuePvP:
+                                Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] Begin QueuePvP {instanceCommand.CommandParam1}");
+                                botTasks.Push(new QueueForBattlegroundTask(classContainer, botTasks, ObjectManager.Units.First(x => x.Name.StartsWith(instanceCommand.CommandParam2))));
+                                break;
+                            case CommandAction.AddEquipment:
+                                characterState.Action = "Adding equipment";
+                                Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] AddEquipment {instanceCommand.CommandParam1} {instanceCommand.CommandParam2}");
+                                botTasks.Push(new AddEquipmentTask(classContainer, botTasks, int.Parse(instanceCommand.CommandParam1), int.Parse(instanceCommand.CommandParam2)));
+                                break;
+                            case CommandAction.AddRole:
+                                Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] AddRole {instanceCommand.CommandParam1}");
+                                botTasks.Push(new AddRoleTask(classContainer, botTasks, int.Parse(instanceCommand.CommandParam1)));
+                                break;
+                            case CommandAction.TeleTo:
+                                Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] TeleTo Map: {instanceCommand.CommandParam4} XYZ: {instanceCommand.CommandParam1} {instanceCommand.CommandParam2} {instanceCommand.CommandParam3}");
+                                botTasks.Push(new ExecuteBlockingLuaTask(classContainer, botTasks, $"SendChatMessage(\".go xyz {instanceCommand.CommandParam1} {instanceCommand.CommandParam2} {instanceCommand.CommandParam3} {instanceCommand.CommandParam4}\")"));
+                                break;
+                            case CommandAction.ResetCharacterState:
+                                Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] ResetCharacterState");
+                                botTasks.Push(new ExecuteBlockingLuaTask(classContainer, botTasks, "ResetInstances()"));
+                                botTasks.Push(new ResetCharacterStateTask(classContainer, botTasks));
+                                break;
+                            case CommandAction.ExecuteLuaCommand:
+                                Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] ExecuteLuaCommand {instanceCommand.CommandParam1}");
+                                botTasks.Push(new ExecuteBlockingLuaTask(classContainer, botTasks, instanceCommand.CommandParam1));
+                                break;
                             case CommandAction.SetFacing:
                                 ObjectManager.Player.SetFacing(float.Parse(instanceCommand.CommandParam1));
                                 break;
@@ -173,10 +176,6 @@ namespace RaidMemberBot.AI
                                     float.Parse(instanceCommand.CommandParam3));
                                 characterState.TankFacing = float.Parse(instanceCommand.CommandParam4);
                                 break;
-                            case CommandAction.ExecuteLuaCommand:
-                                Console.WriteLine($"[BOT RUNNER] ExecuteLuaCommand - {instanceCommand.CommandParam1}");
-                                Functions.LuaCall(instanceCommand.CommandParam1);
-                                break;
                             case CommandAction.FullStop:
                                 botTasks.Clear();
                                 if (ObjectManager.Player != null && classContainer != null)
@@ -185,7 +184,7 @@ namespace RaidMemberBot.AI
                                 }
                                 break;
                         }
-                    }
+                    });
                 }
                 await Task.Delay(500);
             }
@@ -193,7 +192,7 @@ namespace RaidMemberBot.AI
 
         private async Task StartBotTaskRunnerAsync()
         {
-            Console.WriteLine($"[BOT RUNNER] Bot Task Runner started.");
+            Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}] Bot Task Runner started.");
             while (true)
             {
                 try
@@ -214,7 +213,7 @@ namespace RaidMemberBot.AI
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[BOT RUNNER]{ex.Message} {ex.StackTrace}");
+                    Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}]{ex.Message} {ex.StackTrace}");
                 }
             }
         }
@@ -229,7 +228,7 @@ namespace RaidMemberBot.AI
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[BOT RUNNER]ReloadBots {ex.Message} {ex.StackTrace}");
+                Console.WriteLine($"[BOT RUNNER {Process.GetCurrentProcess().Id}]ReloadBots {ex.Message} {ex.StackTrace}");
             }
         }
     }

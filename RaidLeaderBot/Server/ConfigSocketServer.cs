@@ -16,7 +16,7 @@ namespace RaidLeaderBot.Server
 
         private ConfigSocketServer(int port, IPAddress ipAddress) : base(port, ipAddress)
         {
-            Console.WriteLine($"[CONFIG SERVER]Port {port}");
+            Console.WriteLine($"[CONFIG SERVER {port}] Started");
         }
         public void AddProcessToCommandPortMapping(int processId, int commandPortNumber)
         {
@@ -44,6 +44,9 @@ namespace RaidLeaderBot.Server
         }
         public override int HandleRequest(string payload, Socket clientSocket)
         {
+            if (string.IsNullOrEmpty(payload))
+                return 0;
+
             ConfigurationRequest request = JsonConvert.DeserializeObject<ConfigurationRequest>(payload);
             int raidLeaderPort = 0;
 
@@ -57,13 +60,13 @@ namespace RaidLeaderBot.Server
             }
 
             ConfigurationResponse configurationResponse = new ConfigurationResponse() {
-                RaidLeaderServerPort = raidLeaderPort,
+                ActivityManagerServerPort = raidLeaderPort,
                 DatabaseServerPort = RaidLeaderBotSettings.Instance.DatabasePort,
                 NavigationServerPort = RaidLeaderBotSettings.Instance.NavigationPort
             };
 
             string response = JsonConvert.SerializeObject(configurationResponse);
-            Console.WriteLine($"CONFIG SERVER:{response}");
+            Console.WriteLine($"[CONFIG SERVER {_port}]:{response}");
 
             byte[] bytes = Encoding.ASCII.GetBytes(response);
             int totalSent = 0;

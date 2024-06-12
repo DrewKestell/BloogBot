@@ -39,7 +39,7 @@ namespace RaidMemberBot.Client
                 {
                     try
                     {
-                        _commandSocket.Connect(IPAddress.Parse(RaidMemberSettings.Instance.ListenAddress), ConfigClient.Instance.ConfigurationResponse.RaidLeaderServerPort);
+                        _commandSocket.Connect(IPAddress.Parse(RaidMemberSettings.Instance.ListenAddress), ConfigClient.Instance.ConfigurationResponse.ActivityManagerServerPort);
                     }
                     catch (SocketException e)
                     {

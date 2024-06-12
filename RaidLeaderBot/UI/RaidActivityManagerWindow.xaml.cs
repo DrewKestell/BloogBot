@@ -19,10 +19,6 @@ namespace RaidLeaderBot
             DataContext = _raidActivityPresetViewModel;
 
             _raidActivityPresetViewModel.Initialize();
-
-            Console.Write($"[RAIDLEADER]Loading navigation tiles...");
-            Navigation.Instance.CalculatePath(1, new Position(0,0,0), new Position(0, 0, 0), true);
-            Console.WriteLine($" Loaded.");
         }        
 
         private void RaidPresetGroupBox_MouseLeftClick(object sender, MouseEventArgs e)

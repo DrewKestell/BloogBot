@@ -8,6 +8,8 @@ namespace RaidMemberBot.Tasks
 {
     internal class ResetCharacterStateTask : BotTask, IBotTask
     {
+        bool leaveParty;
+        bool leaveBattleGround;
         bool resetLevel;
         bool resetSpells;
         bool resetTalents;
@@ -20,10 +22,14 @@ namespace RaidMemberBot.Tasks
             if (Wait.For("ResetStagger", 500))
                 return;
 
-            if (!resetLevel)
+            if (!leaveParty)
+            {
+                Functions.LuaCall("LeaveParty()");
+                leaveParty = true;
+            }
+            else if (!resetLevel)
             {
                 Functions.LuaCall($"SendChatMessage(\".character level {ObjectManager.Player.Name} 1\")");
-                Functions.LuaCall("LeaveParty()");
                 resetLevel = true;
             }
             else if (!resetSpells)

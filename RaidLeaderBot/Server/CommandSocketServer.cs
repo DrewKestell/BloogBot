@@ -21,6 +21,10 @@ namespace RaidLeaderBot
 
         public override int HandleRequest(string payload, Socket clientSocket)
         {
+            if (string.IsNullOrEmpty(payload))
+            {
+                return 0;
+            }
             CharacterState instanceUpdate = JsonConvert.DeserializeObject<CharacterState>(payload);
             int processId = instanceUpdate.ProcessId;
 
@@ -28,7 +32,7 @@ namespace RaidLeaderBot
             {
                 if (!_processIds.ContainsKey(processId))
                 {
-                    Console.WriteLine($"[COMMAND SERVER]Process connected {processId}");
+                    Console.WriteLine($"[COMMAND SERVER {_port}]Process connected {processId}");
                     _processIds.Add(processId, clientSocket);
                 }
 

@@ -625,8 +625,8 @@ namespace RaidLeaderBot
                                             list.Add(14281);
                                             list.Add(136);
                                             list.Add(2974);
-                                            list.Add(4196);
-                                            list.Add(24556);
+                                            //list.Add(4196);
+                                            //list.Add(24556);
 
                                             list.Remove(4195);
                                             list.Remove(24547);
@@ -1190,7 +1190,7 @@ namespace RaidLeaderBot
                     case Class.Paladin:
                         list.Add(635);
                         list.Add(20154);
-                        list.Add(465);
+                        //list.Add(465);
                         list.Add(21084);
 
                         if (Level > 3)

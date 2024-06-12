@@ -9,14 +9,13 @@ namespace RaidLeaderBot.Activity
     {
         protected override bool ActivityRunCondition => PartyMembersToStates.All(x => x.Value.InParty && x.Value.IsReadyToStart);
 
-        public DungeonActivityManager(int portNumber, int mapId) : base(portNumber, mapId)
+        public DungeonActivityManager(ActivityType activityType, int portNumber, int mapId) : base(activityType, portNumber, mapId)
         {
 
         }
 
         protected override void CheckForCommand(RaidMemberViewModel raidMemberViewModel, CharacterState newCharacterState)
         {
-            Console.WriteLine("CheckForCommand");
             if (raidMemberViewModel.ShouldRun)
             {
                 if (BotPreparedToStart(raidMemberViewModel, newCharacterState))
@@ -28,7 +27,7 @@ namespace RaidLeaderBot.Activity
                             if (newCharacterState.MapId != MapId)
                             {
                                 AreaTriggerTeleport areaTriggerTeleport = MangosRepository.GetAreaTriggerTeleportByMapId(MapId);
-                                InstanceCommand goToCommand = new InstanceCommand()
+                                NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                                 {
                                     CommandAction = CommandAction.TeleTo,
                                     CommandParam1 = areaTriggerTeleport.TargetPositionX.ToString(),
@@ -36,19 +35,16 @@ namespace RaidLeaderBot.Activity
                                     CommandParam3 = areaTriggerTeleport.TargetPositionZ.ToString(),
                                     CommandParam4 = MapId.ToString(),
                                 };
-                                NextCommand[newCharacterState.ProcessId] = goToCommand;
                             }
                         }
                         else
                         {
                             if (PartyMembersToStates.All(x => x.Value.IsReadyToStart) && !newCharacterState.HasStarted)
                             {
-                                InstanceCommand beginDungeon = new InstanceCommand()
+                                NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                                 {
                                     CommandAction = CommandAction.BeginDungeon,
                                 };
-
-                                NextCommand[newCharacterState.ProcessId] = beginDungeon;
                             }
                             else if (RaidLeader.Guid != newCharacterState.Guid
                                 && Math.Round((decimal)newCharacterState.TankPosition.X, 2) != Math.Round((decimal)RaidLeader.TankPosition.X, 2)
@@ -56,7 +52,7 @@ namespace RaidLeaderBot.Activity
                                 && Math.Round((decimal)newCharacterState.TankPosition.Z, 2) != Math.Round((decimal)RaidLeader.TankPosition.Z, 2)
                                 && Math.Round((decimal)newCharacterState.TankFacing, 2) != Math.Round((decimal)RaidLeader.TankFacing, 2))
                             {
-                                InstanceCommand setCombatLocation = new InstanceCommand()
+                                NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                                 {
                                     CommandAction = CommandAction.SetCombatLocation,
                                     CommandParam1 = RaidLeader.TankPosition.X.ToString(),
@@ -64,30 +60,23 @@ namespace RaidLeaderBot.Activity
                                     CommandParam3 = RaidLeader.TankPosition.Z.ToString(),
                                     CommandParam4 = RaidLeader.TankFacing.ToString()
                                 };
-
-                                NextCommand[newCharacterState.ProcessId] = setCombatLocation;
                             }
                             else if (RaidLeader.Guid != newCharacterState.Guid
                                 && RaidLeader.TankInPosition != newCharacterState.TankInPosition)
                             {
-
-                                InstanceCommand setTankPosition = new InstanceCommand()
+                                NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                                 {
                                     CommandAction = CommandAction.SetTankInPosition,
                                     CommandParam1 = RaidLeader.TankInPosition.ToString(),
                                 };
-
-                                NextCommand[newCharacterState.ProcessId] = setTankPosition;
                             }
                             else if (!newCharacterState.InCombat && FindMissingTalents(raidMemberViewModel, newCharacterState, out int talentSpellId))
                             {
-                                InstanceCommand addTalent = new InstanceCommand()
+                                NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                                 {
                                     CommandAction = CommandAction.AddTalent,
                                     CommandParam1 = talentSpellId.ToString(),
                                 };
-
-                                NextCommand[newCharacterState.ProcessId] = addTalent;
                             }
                             else
                             {
@@ -102,12 +91,10 @@ namespace RaidLeaderBot.Activity
             }
             else
             {
-                InstanceCommand stopCommand = new InstanceCommand()
+                NextCommand[newCharacterState.ProcessId] = new InstanceCommand()
                 {
                     CommandAction = CommandAction.FullStop
                 };
-
-                NextCommand[newCharacterState.ProcessId] = stopCommand;
             }
         }
     }

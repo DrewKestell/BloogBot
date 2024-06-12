@@ -218,7 +218,7 @@ namespace RaidLeaderBot
             InstanceCommand command = new InstanceCommand()
             {
                 CommandAction = CommandAction.ExecuteLuaCommand,
-                CommandParam1 = $"SendChatMessage('{ChatCommandToExecute}')",
+                CommandParam1 = $"{ChatCommandToExecute}",
             };
 
             SelectedRaid.QueueCommandToProcess(CharacterState.ProcessId, command);

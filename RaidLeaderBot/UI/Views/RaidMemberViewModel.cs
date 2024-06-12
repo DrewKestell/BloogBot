@@ -79,7 +79,7 @@ namespace RaidLeaderBot
                     Race.Human => new List<Class>() { Class.Mage, Class.Paladin, Class.Priest, Class.Rogue, Class.Warlock, Class.Warrior },
                     Race.Dwarf => new List<Class>() { Class.Hunter, Class.Paladin, Class.Priest, Class.Rogue, Class.Warrior },
                     Race.NightElf => new List<Class>() { Class.Druid, Class.Hunter, Class.Priest, Class.Rogue, Class.Warrior },
-                    Race.Gnome => new List<Class>() { Class.Mage, Class.Rogue, Class.Warlock },
+                    Race.Gnome => new List<Class>() { Class.Mage, Class.Rogue, Class.Warlock, Class.Warrior },
                     Race.Orc => new List<Class>() { Class.Hunter, Class.Rogue, Class.Shaman, Class.Warlock, Class.Warrior },
                     Race.Undead => new List<Class>() { Class.Mage, Class.Priest, Class.Rogue, Class.Warlock, Class.Warrior },
                     Race.Tauren => new List<Class>() { Class.Druid, Class.Hunter, Class.Shaman, Class.Warrior },
@@ -165,7 +165,7 @@ namespace RaidLeaderBot
             List<short> offHandSubClasses = OffHandSubClasses.ToList();
             List<short> rangedSubClasses = RangedSubClasses.ToList();
 
-            for(int i = 0; i < mainHandSubClasses.Count; i++)
+            for (int i = 0; i < mainHandSubClasses.Count; i++)
             {
                 List<ItemTemplate> weaponTemplates = MangosRepository.GetEquipmentByRequirements(Level, 2, mainHandSubClasses[i], InventoryType.Weapon);
                 List<ItemTemplate> twoHanderTemplates = MangosRepository.GetEquipmentByRequirements(Level, 2, mainHandSubClasses[i], InventoryType.TwoHander);
@@ -236,7 +236,8 @@ namespace RaidLeaderBot
                         rangedTemplates.Add(relicTemplates[j]);
                     }
                 }
-            } else
+            }
+            else
             {
                 for (int i = 0; i < rangedSubClasses.Count; i++)
                 {
@@ -308,6 +309,16 @@ namespace RaidLeaderBot
                 ChestItemTemplates.Add(chestTemplates[i]);
             }
 
+            for (int i = 0; i < handTemplates.Count; i++)
+            {
+                HandItemTemplates.Add(handTemplates[i]);
+            }
+
+            for (int i = 0; i < wristTemplates.Count; i++)
+            {
+                WristItemTemplates.Add(wristTemplates[i]);
+            }
+
             for (int i = 0; i < waistTemplates.Count; i++)
             {
                 WaistItemTemplates.Add(waistTemplates[i]);
@@ -342,6 +353,26 @@ namespace RaidLeaderBot
             {
                 TrinketItemTemplates.Add(trinketTemplates[i]);
             }
+
+            OnPropertyChanged(nameof(HeadItem));
+            OnPropertyChanged(nameof(NeckItem));
+            OnPropertyChanged(nameof(ShoulderItem));
+            OnPropertyChanged(nameof(BackItem));
+            OnPropertyChanged(nameof(ChestItem));
+            OnPropertyChanged(nameof(ShirtItem));
+            OnPropertyChanged(nameof(HandsItem));
+            OnPropertyChanged(nameof(WaistItem));
+            OnPropertyChanged(nameof(WristsItem));
+            OnPropertyChanged(nameof(LegsItem));
+            OnPropertyChanged(nameof(FeetItem));
+            OnPropertyChanged(nameof(WristsItem));
+            OnPropertyChanged(nameof(Finger1Item));
+            OnPropertyChanged(nameof(Finger2Item));
+            OnPropertyChanged(nameof(Trinket1Item));
+            OnPropertyChanged(nameof(Trinket2Item));
+            OnPropertyChanged(nameof(MainHandItem));
+            OnPropertyChanged(nameof(OffHandItem));
+            OnPropertyChanged(nameof(RangedItem));
         }
 
         private short ArmorSubClass
@@ -636,97 +667,211 @@ namespace RaidLeaderBot
         public ItemTemplate HeadItem
         {
             get => HeadItemTemplates.First(x => x.Entry == _raidMemberPreset.HeadItem);
-            set => _raidMemberPreset.HeadItem = value.Entry;
+            set
+            {
+                if (value != null)
+                    _raidMemberPreset.HeadItem = value.Entry;
+                else
+                    _raidMemberPreset.HeadItem = 0;
+            }
         }
         public ItemTemplate NeckItem
         {
             get => NeckItemTemplates.First(x => x.Entry == _raidMemberPreset.NeckItem);
-            set => _raidMemberPreset.NeckItem = value.Entry;
+            set
+            {
+                if (value != null)
+                    _raidMemberPreset.NeckItem = value.Entry;
+                else
+                    _raidMemberPreset.NeckItem = 0;
+            }
         }
         public ItemTemplate ShoulderItem
         {
             get => ShoulderItemTemplates.First(x => x.Entry == _raidMemberPreset.ShoulderItem);
-            set => _raidMemberPreset.ShoulderItem = value.Entry;
+            set
+            {
+                if (value != null)
+                    _raidMemberPreset.ShoulderItem = value.Entry;
+                else
+                    _raidMemberPreset.ShoulderItem = 0;
+            }
         }
         public ItemTemplate ChestItem
         {
             get => ChestItemTemplates.First(x => x.Entry == _raidMemberPreset.ChestItem);
-            set =>_raidMemberPreset.ChestItem = value.Entry;
+            set
+            {
+                if (value != null)
+                    _raidMemberPreset.ChestItem = value.Entry;
+                else
+                    _raidMemberPreset.ChestItem = 0;
+            }
         }
         public ItemTemplate BackItem
         {
             get => BackItemTemplates.First(x => x.Entry == _raidMemberPreset.BackItem);
-            set => _raidMemberPreset.BackItem = value.Entry;
+            set
+            {
+                if (value != null)
+                    _raidMemberPreset.BackItem = value.Entry;
+                else
+                    _raidMemberPreset.BackItem = 0;
+            }
         }
         public ItemTemplate TabardItem
         {
             get => TabardItemTemplates.First(x => x.Entry == _raidMemberPreset.RobeItem);
-            set => _raidMemberPreset.RobeItem = value.Entry;
+            set
+            {
+                if (value != null)
+                    _raidMemberPreset.RobeItem = value.Entry;
+                else
+                    _raidMemberPreset.RobeItem = 0;
+            }
         }
         public ItemTemplate ShirtItem
         {
             get => ShirtItemTemplates.First(x => x.Entry == _raidMemberPreset.ShirtItem);
-            set => _raidMemberPreset.ShirtItem = value.Entry;
+            set
+            {
+                if (value != null)
+                    _raidMemberPreset.ShirtItem = value.Entry;
+                else
+                    _raidMemberPreset.ShirtItem = 0;
+            }
         }
         public ItemTemplate WristsItem
         {
             get => WristItemTemplates.First(x => x.Entry == _raidMemberPreset.WristsItem);
-            set => _raidMemberPreset.WristsItem = value.Entry;
+            set
+            {
+                if (value != null)
+                    _raidMemberPreset.WristsItem = value.Entry;
+                else
+                    _raidMemberPreset.WristsItem = 0;
+            }
         }
         public ItemTemplate HandsItem
         {
             get => HandItemTemplates.First(x => x.Entry == _raidMemberPreset.HandsItem);
-            set => _raidMemberPreset.HandsItem = value.Entry;
+            set
+            {
+                if (value != null)
+                    _raidMemberPreset.HandsItem = value.Entry;
+                else
+                    _raidMemberPreset.HandsItem = 0;
+            }
         }
         public ItemTemplate WaistItem
         {
             get => WaistItemTemplates.First(x => x.Entry == _raidMemberPreset.WaistItem);
-            set => _raidMemberPreset.WaistItem = value.Entry;
+            set
+            {
+                if (value != null)
+                    _raidMemberPreset.WaistItem = value.Entry;
+                else
+                    _raidMemberPreset.WaistItem = 0;
+            }
         }
         public ItemTemplate LegsItem
         {
             get => LegItemTemplates.First(x => x.Entry == _raidMemberPreset.LegsItem);
-            set => _raidMemberPreset.LegsItem = value.Entry;
+            set
+            {
+                if (value != null)
+                    _raidMemberPreset.LegsItem = value.Entry;
+                else
+                    _raidMemberPreset.LegsItem = 0;
+            }
         }
         public ItemTemplate FeetItem
         {
             get => FeetItemTemplates.First(x => x.Entry == _raidMemberPreset.FeetItem);
-            set => _raidMemberPreset.FeetItem = value.Entry;
+            set
+            {
+                if (value != null)
+                    _raidMemberPreset.FeetItem = value.Entry;
+                else
+                    _raidMemberPreset.FeetItem = 0;
+            }
         }
         public ItemTemplate Finger1Item
         {
             get => FingerItemTemplates.First(x => x.Entry == _raidMemberPreset.Finger1Item);
-            set => _raidMemberPreset.Finger1Item = value.Entry;
+            set
+            {
+                if (value != null)
+                    _raidMemberPreset.Finger1Item = value.Entry;
+                else
+                    _raidMemberPreset.Finger1Item = 0;
+            }
         }
         public ItemTemplate Finger2Item
         {
             get => FingerItemTemplates.First(x => x.Entry == _raidMemberPreset.Finger2Item);
-            set => _raidMemberPreset.Finger2Item = value.Entry;
+            set
+            {
+                if (value != null)
+                    _raidMemberPreset.Finger2Item = value.Entry;
+                else
+                    _raidMemberPreset.Finger2Item = 0;
+            }
         }
         public ItemTemplate Trinket1Item
         {
             get => TrinketItemTemplates.First(x => x.Entry == _raidMemberPreset.Trinket1Item);
-            set => _raidMemberPreset.Trinket1Item = value.Entry;
+            set
+            {
+                if (value != null)
+                    _raidMemberPreset.Trinket1Item = value.Entry;
+                else
+                    _raidMemberPreset.Trinket1Item = 0;
+            }
         }
         public ItemTemplate Trinket2Item
         {
             get => TrinketItemTemplates.First(x => x.Entry == _raidMemberPreset.Trinket2Item);
-            set => _raidMemberPreset.Trinket2Item = value.Entry;
+            set
+            {
+                if (value != null)
+                    _raidMemberPreset.Trinket2Item = value.Entry;
+                else
+                    _raidMemberPreset.Trinket2Item = 0;
+            }
         }
         public ItemTemplate MainHandItem
         {
             get => MainHandItemTemplates.First(x => x.Entry == _raidMemberPreset.MainHandItem);
-            set => _raidMemberPreset.MainHandItem = value.Entry;
+            set
+            {
+                if (value != null)
+                    _raidMemberPreset.MainHandItem = value.Entry;
+                else
+                    _raidMemberPreset.MainHandItem = 0;
+            }
         }
         public ItemTemplate OffHandItem
         {
             get => OffHandItemTemplates.First(x => x.Entry == _raidMemberPreset.OffHandItem);
-            set => _raidMemberPreset.OffHandItem = value.Entry;
+            set
+            {
+                if (value != null)
+                    _raidMemberPreset.OffHandItem = value.Entry;
+                else
+                    _raidMemberPreset.OffHandItem = 0;
+            }
         }
         public ItemTemplate RangedItem
         {
             get => RangedItemTemplates.First(x => x.Entry == _raidMemberPreset.RangedItem);
-            set => _raidMemberPreset.RangedItem = value.Entry;
+            set
+            {
+                if (value != null)
+                    _raidMemberPreset.RangedItem = value.Entry;
+                else
+                    _raidMemberPreset.RangedItem = 0;
+            }
         }
         public void StartBot()
         {
