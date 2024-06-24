@@ -1,0 +1,22 @@
+﻿syntax = "proto3";
+
+package communication;
+
+// Message that can carry a variety of payload types
+message DataMessage {
+    bytes payload = 1;  // bytes payload using the Any type
+}
+
+// Message used for controlling communication and reporting errors
+message ControlMessage {
+    int32 error_code = 1;         // Error code
+    string error_description = 2; // Human-readable description of the error
+}
+
+// Universal message format that encapsulates various types of messages
+message UniversalMessage {
+    oneof message_content {
+        DataMessage data = 1;
+        ControlMessage control = 2;
+    }
+}

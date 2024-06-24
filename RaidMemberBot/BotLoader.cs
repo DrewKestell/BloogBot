@@ -39,6 +39,28 @@ namespace RaidMemberBot
                 try
                 {
                     string path = Path.Combine(currentFolder, botPath);
+
+                    if (!File.Exists(path))
+                    {
+                        var parent = Directory.GetParent(currentFolder);
+                        path = Path.Combine(parent.FullName, botPath);
+                    }
+
+                    if (!File.Exists(path))
+                    {
+                        path = Path.Combine(currentFolder, "Debug", botPath);
+                    }
+
+                    if (!File.Exists(path))
+                    {
+                        path = Path.Combine(currentFolder, "Release", botPath);
+                    }
+
+                    if (!File.Exists(path))
+                    {
+                        throw new FileNotFoundException($"BOT LOADER: {botPath} not found.");
+                    }
+
                     Assembly assembly = Assembly.Load(File.ReadAllBytes(path));
                     string assemblyName = assembly.FullName.Split(',')[0];
                     if (assemblies.ContainsKey(assemblyName))

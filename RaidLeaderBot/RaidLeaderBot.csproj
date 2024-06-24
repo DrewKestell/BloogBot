@@ -157,6 +157,8 @@
     <Compile Include="Activity\ActivityManager.cs" />
     <Compile Include="Activity\WarsongGultchActivityManager.cs" />
     <Compile Include="Activity\DungeonActivityManager.cs" />
+    <Compile Include="Communication\ActivityManagerService.cs" />
+    <Compile Include="Communication\Models\Communication.cs" />
     <Compile Include="Pathfinding\Navigation.cs" />
     <Compile Include="RaidMemberLauncher.cs" />
     <Compile Include="UI\Views\RaidActivityViewModel.cs" />
@@ -200,6 +202,9 @@
     <Content Include="Settings\RaidLeaderBotSettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Communication\Models\ProtoDef\communication.proto" />
+    <None Include="Communication\Models\ProtoDef\protocsharp.bat" />
+    <None Include="Communication\Models\ProtoDef\protocpp.bat" />
     <None Include="packages.config" />
     <Resource Include="Fonts\LifeCraft_Font.ttf" />
   </ItemGroup>
