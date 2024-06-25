@@ -25,8 +25,8 @@
 // No rough configuration needed. :)
 #pragma comment( lib, "mscoree" )
 
-#define LOAD_DLL_FILE_NAME L"RaidMemberBot.exe"
-#define NAMESPACE_AND_CLASS L"RaidMemberBot.Loader"
+#define LOAD_DLL_FILE_NAME L"WoWClientBot.exe"
+#define NAMESPACE_AND_CLASS L"WoWClientBot.Loader"
 #define MAIN_METHOD L"Load"
 #define MAIN_METHOD_ARGS L"NONE"
 
