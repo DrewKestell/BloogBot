@@ -93,9 +93,7 @@ int main(int argc, char* argv[]) {
         tcp::endpoint endpoint(tcp::v4(), std::atoi(argv[1]));
         tcp::acceptor acceptor(io_context, endpoint);
 
-        while (true) {
-            co_spawn(io_context, handle_client(acceptor), detached);
-        }
+        co_spawn(io_context, handle_client(acceptor), detached);
 
         io_context.run();
     }

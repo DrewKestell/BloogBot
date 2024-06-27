@@ -1,8 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
-using WoWClientBot.Models;
+using WoWActivityMember.Models;
 
 namespace WoWStateManagerUI.Views
 {

@@ -1,5 +1,5 @@
 ﻿using System.Windows.Data;
-using WoWClientBot.Constants;
+using WoWActivityMember.Constants;
 
 namespace WoWStateManagerUI.Converters
 {

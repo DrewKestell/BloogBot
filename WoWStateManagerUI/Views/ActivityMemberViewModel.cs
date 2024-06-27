@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using WoWClientBot.Models;
+using WoWActivityMember.Models;
 
 namespace WoWStateManagerUI.Views
 {
@@ -16,10 +16,11 @@ namespace WoWStateManagerUI.Views
         {
             _activityMemberPreset = activityMemberPreset;
 
-            OnPropertyChanged(nameof(AccountName));
-            OnPropertyChanged(nameof(BotProfileName));
-            OnPropertyChanged(nameof(BeginStateConfigName));
-            OnPropertyChanged(nameof(EndStateConfigName));
+            OnPropertyChanged(nameof(Account));
+            OnPropertyChanged(nameof(BehaviorProfile));
+            OnPropertyChanged(nameof(ProgressionConfig));
+            OnPropertyChanged(nameof(InitialStateConfig));
+            OnPropertyChanged(nameof(EndStateConfig));
             OnPropertyChanged(nameof(IsFocused));
         }
         private bool _isFocused;
@@ -32,42 +33,51 @@ namespace WoWStateManagerUI.Views
                 OnPropertyChanged(nameof(IsFocused));
             }
         }
-        public string AccountName
+        public string Account
         {
-            get => _activityMemberPreset.AccountName;
+            get => _activityMemberPreset.Account;
             set
             {
-                _activityMemberPreset.AccountName = value;
-                OnPropertyChanged(nameof(AccountName));
+                _activityMemberPreset.Account = value;
+                OnPropertyChanged(nameof(Account));
             }
         }
+        public string BehaviorProfile
+        {
+            get => _activityMemberPreset.BehaviorProfile;
+            set
+            {
+                _activityMemberPreset.BehaviorProfile = value;
 
-        public string BotProfileName
+                OnPropertyChanged(nameof(BehaviorProfile));
+            }
+        }
+        public string ProgressionConfig
         {
-            get => _activityMemberPreset.BotProfileName;
+            get => _activityMemberPreset.ProgressionConfig;
             set
             {
-                _activityMemberPreset.BotProfileName = value;
+                _activityMemberPreset.ProgressionConfig = value;
 
-                OnPropertyChanged(nameof(BotProfileName));
+                OnPropertyChanged(nameof(ProgressionConfig));
             }
         }
-        public string BeginStateConfigName
+        public string InitialStateConfig
         {
-            get => _activityMemberPreset.BeginStateConfigName;
+            get => _activityMemberPreset.InitialStateConfig;
             set
             {
-                _activityMemberPreset.BeginStateConfigName = value;
-                OnPropertyChanged(nameof(BeginStateConfigName));
+                _activityMemberPreset.InitialStateConfig = value;
+                OnPropertyChanged(nameof(InitialStateConfig));
             }
         }
-        public string EndStateConfigName
+        public string EndStateConfig
         {
-            get => _activityMemberPreset.EndStateConfigName;
+            get => _activityMemberPreset.EndStateConfig;
             set
             {
-                _activityMemberPreset.EndStateConfigName = value;
-                OnPropertyChanged(nameof(EndStateConfigName));
+                _activityMemberPreset.EndStateConfig = value;
+                OnPropertyChanged(nameof(EndStateConfig));
             }
         }
 

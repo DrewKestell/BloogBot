@@ -1,13 +1,12 @@
-﻿using Newtonsoft.Json;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
-using WoWClientBot.Client;
-using WoWClientBot.Models;
+using WoWActivityMember.Client;
+using WoWActivityMember.Models;
 
 namespace WoWStateManagerUI.Views
 {
@@ -218,10 +217,10 @@ namespace WoWStateManagerUI.Views
 
                                 for (int i = 0; i < activityViewModel.ActivityState.ActivityMemberPresets.Count; i++)
                                 {
-                                    activityViewModel.ActivityState.ActivityMemberPresets[i].AccountName = item.ActivityMemberPresets[i].AccountName;
-                                    activityViewModel.ActivityState.ActivityMemberPresets[i].BotProfileName = item.ActivityMemberPresets[i].BotProfileName;
-                                    activityViewModel.ActivityState.ActivityMemberPresets[i].BeginStateConfigName = item.ActivityMemberPresets[i].BeginStateConfigName;
-                                    activityViewModel.ActivityState.ActivityMemberPresets[i].EndStateConfigName = item.ActivityMemberPresets[i].EndStateConfigName;
+                                    activityViewModel.ActivityState.ActivityMemberPresets[i].Account = item.ActivityMemberPresets[i].Account;
+                                    activityViewModel.ActivityState.ActivityMemberPresets[i].BehaviorProfile = item.ActivityMemberPresets[i].BehaviorProfile;
+                                    activityViewModel.ActivityState.ActivityMemberPresets[i].InitialStateConfig = item.ActivityMemberPresets[i].InitialStateConfig;
+                                    activityViewModel.ActivityState.ActivityMemberPresets[i].EndStateConfig = item.ActivityMemberPresets[i].EndStateConfig;
                                 }
                             }
                             else

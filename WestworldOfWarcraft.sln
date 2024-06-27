@@ -24,77 +24,103 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Navigation", "Pathfinding\V
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FastCall", "FastCall\FastCall.vcxproj", "{DB2443BF-7C7E-4E62-BF95-304280073190}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaNGOSDBDomain", "Servers\MaNGOSDBServer\MaNGOSDBDomain.csproj", "{CC0D3276-55B7-402A-90E3-6EBD4DF28A61}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaNGOSDBDomain", "MaNGOSDBDomain\MaNGOSDBDomain.csproj", "{CC0D3276-55B7-402A-90E3-6EBD4DF28A61}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Servers", "Servers", "{16B4B6BD-7FCE-4DDF-B50C-B4C9A96E9765}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWStateManager", "Servers\WoWStateManager\WoWStateManager.csproj", "{9503EBCF-FAD9-4013-A248-89802E6D6A98}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWStateManager", "WoWStateManager\WoWStateManager.csproj", "{9503EBCF-FAD9-4013-A248-89802E6D6A98}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaseSocketMessanger", "Servers\BaseSocketServer\BaseSocketMessanger.csproj", "{1E5EEA92-FCD2-4F7F-9CE8-ECE67214173B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaseSocketMessanger", "BaseSocketServer\BaseSocketMessanger.csproj", "{1E5EEA92-FCD2-4F7F-9CE8-ECE67214173B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinProcessImports", "WinImports\WinProcessImports.csproj", "{5D05B147-35A8-4A10-906E-58C96E2504E4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaNGOSDBDomainApp", "Servers\MaNGOSDBDomainApp\MaNGOSDBDomainApp.csproj", "{6A4F4121-083E-4313-A50C-0BB17D4C09F8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaNGOSDBDomainApp", "MaNGOSDBDomainApp\MaNGOSDBDomainApp.csproj", "{6A4F4121-083E-4313-A50C-0BB17D4C09F8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWClientBot", "WoWClientBot\WoWClientBot.csproj", "{AF4BA739-45FB-44CD-886C-B0125261FE5B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWActivityMember", "WoWActivityMember\WoWActivityMember.csproj", "{AF4BA739-45FB-44CD-886C-B0125261FE5B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWStateManagerUI", "WoWStateManagerUI\WoWStateManagerUI.csproj", "{6DE7B8BF-F51F-49AD-B80D-E28733B86AE2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarlockAffliction", "BotProfiles\WarlockAffliction\WarlockAffliction.csproj", "{380B2960-37DE-4D9E-8517-A26277801A67}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarlockAffliction", "WarlockAffliction\WarlockAffliction.csproj", "{380B2960-37DE-4D9E-8517-A26277801A67}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarlockDemonology", "BotProfiles\WarlockDemonology\WarlockDemonology.csproj", "{4EB12A50-F39E-458E-9CCD-2D94F7F5DC79}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarlockDemonology", "WarlockDemonology\WarlockDemonology.csproj", "{4EB12A50-F39E-458E-9CCD-2D94F7F5DC79}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarriorArms", "BotProfiles\WarriorArms\WarriorArms.csproj", "{CE63FD85-0CF3-4A2B-9034-C5E44B266B96}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarriorArms", "WarriorArms\WarriorArms.csproj", "{CE63FD85-0CF3-4A2B-9034-C5E44B266B96}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarriorFury", "BotProfiles\WarriorFury\WarriorFury.csproj", "{E6E2BDCC-E4D7-4C22-AB6E-5B548FCA2098}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarriorFury", "WarriorFury\WarriorFury.csproj", "{E6E2BDCC-E4D7-4C22-AB6E-5B548FCA2098}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarriorProtection", "BotProfiles\WarriorProtection\WarriorProtection.csproj", "{BBB9A77D-C3A1-46B5-870B-6C36C26691CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarriorProtection", "WarriorProtection\WarriorProtection.csproj", "{BBB9A77D-C3A1-46B5-870B-6C36C26691CF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShamanElemental", "BotProfiles\ShamanElemental\ShamanElemental.csproj", "{AF2EDF74-B0F9-4E89-AE62-D3F39A55D245}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShamanElemental", "ShamanElemental\ShamanElemental.csproj", "{AF2EDF74-B0F9-4E89-AE62-D3F39A55D245}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShamanEnhancement", "BotProfiles\ShamanEnhancement\ShamanEnhancement.csproj", "{28219FC4-0D6A-4DA9-8F15-0B99DBE1649F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShamanEnhancement", "ShamanEnhancement\ShamanEnhancement.csproj", "{28219FC4-0D6A-4DA9-8F15-0B99DBE1649F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShamanRestoration", "BotProfiles\ShamanRestoration\ShamanRestoration.csproj", "{D7663393-ED5B-4080-84D4-FCF383A8B5C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShamanRestoration", "ShamanRestoration\ShamanRestoration.csproj", "{D7663393-ED5B-4080-84D4-FCF383A8B5C3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RogueAssassin", "BotProfiles\RogueAssassin\RogueAssassin.csproj", "{B2D66C8F-61AA-41FE-AB6A-3FDF76C1E13D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RogueAssassin", "RogueAssassin\RogueAssassin.csproj", "{B2D66C8F-61AA-41FE-AB6A-3FDF76C1E13D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RogueCombat", "BotProfiles\RogueCombat\RogueCombat.csproj", "{8E9D8402-8408-4C8A-9A63-940195DFC99C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RogueCombat", "RogueCombat\RogueCombat.csproj", "{8E9D8402-8408-4C8A-9A63-940195DFC99C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RogueSubtlety", "BotProfiles\RogueSubtlety\RogueSubtlety.csproj", "{0D10CE59-702C-401C-BBAA-42BD983F8F33}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RogueSubtlety", "RogueSubtlety\RogueSubtlety.csproj", "{0D10CE59-702C-401C-BBAA-42BD983F8F33}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PriestDiscipline", "BotProfiles\PriestDiscipline\PriestDiscipline.csproj", "{0A9418BF-17BB-4C50-88FE-EC9594438E2C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PriestDiscipline", "PriestDiscipline\PriestDiscipline.csproj", "{0A9418BF-17BB-4C50-88FE-EC9594438E2C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PriestHoly", "BotProfiles\PriestHoly\PriestHoly.csproj", "{9FBA89B6-0DF9-4CD8-ADBA-1E702231A9CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PriestHoly", "PriestHoly\PriestHoly.csproj", "{9FBA89B6-0DF9-4CD8-ADBA-1E702231A9CF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PriestShadow", "BotProfiles\PriestShadow\PriestShadow.csproj", "{75AAE875-A1EA-4335-A13D-BEFA023C0FB1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PriestShadow", "PriestShadow\PriestShadow.csproj", "{75AAE875-A1EA-4335-A13D-BEFA023C0FB1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaladinHoly", "BotProfiles\PaladinHoly\PaladinHoly.csproj", "{98C82CBB-C2C2-4E43-93D7-3F1C5E4EBBBA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaladinHoly", "PaladinHoly\PaladinHoly.csproj", "{98C82CBB-C2C2-4E43-93D7-3F1C5E4EBBBA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaladinProtection", "BotProfiles\PaladinProtection\PaladinProtection.csproj", "{66EAFCFB-7DEB-4D3B-8B86-BDADFC3CAE95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaladinProtection", "PaladinProtection\PaladinProtection.csproj", "{66EAFCFB-7DEB-4D3B-8B86-BDADFC3CAE95}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaladinRetribution", "BotProfiles\PaladinRetribution\PaladinRetribution.csproj", "{E6AE7CFB-7056-49BA-ABCA-E2497D1E937A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaladinRetribution", "PaladinRetribution\PaladinRetribution.csproj", "{E6AE7CFB-7056-49BA-ABCA-E2497D1E937A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MageArcane", "BotProfiles\MageArcane\MageArcane.csproj", "{40554F74-E7AD-40B7-B1CA-20D76F2EDEB5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MageArcane", "MageArcane\MageArcane.csproj", "{40554F74-E7AD-40B7-B1CA-20D76F2EDEB5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MageFire", "BotProfiles\MageFire\MageFire.csproj", "{39CFE37F-7769-41E8-9926-C07E0561B1AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MageFire", "MageFire\MageFire.csproj", "{39CFE37F-7769-41E8-9926-C07E0561B1AC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MageFrost", "BotProfiles\MageFrost\MageFrost.csproj", "{51BECEDC-8BCA-4F55-930A-71CC817197D3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MageFrost", "MageFrost\MageFrost.csproj", "{51BECEDC-8BCA-4F55-930A-71CC817197D3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HunterBeastMastery", "BotProfiles\HunterBeastMastery\HunterBeastMastery.csproj", "{687AF47A-D9B8-41D7-916F-F17D5C6529B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HunterBeastMastery", "HunterBeastMastery\HunterBeastMastery.csproj", "{687AF47A-D9B8-41D7-916F-F17D5C6529B9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HunterMarksmanship", "BotProfiles\HunterMarksmanship\HunterMarksmanship.csproj", "{66DFE5E0-6010-45F4-AF70-C0728DC5F54C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HunterMarksmanship", "HunterMarksmanship\HunterMarksmanship.csproj", "{66DFE5E0-6010-45F4-AF70-C0728DC5F54C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HunterSurvival", "BotProfiles\HunterSurvival\HunterSurvival.csproj", "{F195CF46-F0D1-41E2-833C-68176020802A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HunterSurvival", "HunterSurvival\HunterSurvival.csproj", "{F195CF46-F0D1-41E2-833C-68176020802A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DruidBalance", "BotProfiles\DruidBalance\DruidBalance.csproj", "{A8DE0319-8AE5-4DB5-AD27-5870B109C186}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DruidBalance", "DruidBalance\DruidBalance.csproj", "{A8DE0319-8AE5-4DB5-AD27-5870B109C186}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DruidFeral", "BotProfiles\DruidFeralCombat\DruidFeral.csproj", "{147335C9-3F20-4297-B7F1-5F48977ADD54}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DruidFeral", "DruidFeralCombat\DruidFeral.csproj", "{147335C9-3F20-4297-B7F1-5F48977ADD54}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DruidRestoration", "BotProfiles\DruidRestoration\DruidRestoration.csproj", "{2D92A6EF-41F0-4296-B46C-04A939735301}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DruidRestoration", "DruidRestoration\DruidRestoration.csproj", "{2D92A6EF-41F0-4296-B46C-04A939735301}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWStateManagerRunner", "Servers\WoWStateManagerRunner\WoWStateManagerRunner.csproj", "{89EF81D5-AC25-4D8C-A1B7-7C45596B02EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWStateManagerRunner", "WoWStateManagerRunner\WoWStateManagerRunner.csproj", "{89EF81D5-AC25-4D8C-A1B7-7C45596B02EE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarlockDestruction", "BotProfiles\WarlockDestruction\WarlockDestruction.csproj", "{3FA755A4-A27F-4FC3-A3A1-D441B83291B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarlockDestruction", "WarlockDestruction\WarlockDestruction.csproj", "{3FA755A4-A27F-4FC3-A3A1-D441B83291B2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ActivityManager", "ActivityManager\ActivityManager.vcxproj", "{1E44B438-C82D-46DE-9450-A769A0D62C9A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "StateProfiles", "StateProfiles", "{A2FE953C-B58B-462B-9CDE-C2BBFBF87602}"
+	ProjectSection(SolutionItems) = preProject
+		StateProfiles\War19ArmsPvP.json = StateProfiles\War19ArmsPvP.json
+		StateProfiles\War29ArmsPvP.json = StateProfiles\War29ArmsPvP.json
+		StateProfiles\War39ArmsPvP.json = StateProfiles\War39ArmsPvP.json
+		StateProfiles\War49ArmsPvP.json = StateProfiles\War49ArmsPvP.json
+		StateProfiles\War59ArmsPvP.json = StateProfiles\War59ArmsPvP.json
+		StateProfiles\War60ArmsPvP.json = StateProfiles\War60ArmsPvP.json
+		StateProfiles\War8.json = StateProfiles\War8.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProgressionProfiles", "ProgressionProfiles", "{433062C7-E0FF-4E7D-99DC-7FA120C380E4}"
+	ProjectSection(SolutionItems) = preProject
+		ProgressionProfiles\DruidBase.json = ProgressionProfiles\DruidBase.json
+		ProgressionProfiles\HunterBase.json = ProgressionProfiles\HunterBase.json
+		ProgressionProfiles\MageBase.json = ProgressionProfiles\MageBase.json
+		ProgressionProfiles\PaladinBase.json = ProgressionProfiles\PaladinBase.json
+		ProgressionProfiles\PriestBase.json = ProgressionProfiles\PriestBase.json
+		ProgressionProfiles\RogueBase.json = ProgressionProfiles\RogueBase.json
+		ProgressionProfiles\ShamanBase.json = ProgressionProfiles\ShamanBase.json
+		ProgressionProfiles\WarlockBase.json = ProgressionProfiles\WarlockBase.json
+		ProgressionProfiles\WarriorBase.json = ProgressionProfiles\WarriorBase.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -748,6 +774,22 @@ Global
 		{3FA755A4-A27F-4FC3-A3A1-D441B83291B2}.Release|x64.Build.0 = Release|Any CPU
 		{3FA755A4-A27F-4FC3-A3A1-D441B83291B2}.Release|x86.ActiveCfg = Release|Any CPU
 		{3FA755A4-A27F-4FC3-A3A1-D441B83291B2}.Release|x86.Build.0 = Release|Any CPU
+		{1E44B438-C82D-46DE-9450-A769A0D62C9A}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{1E44B438-C82D-46DE-9450-A769A0D62C9A}.Debug|Any CPU.Build.0 = Debug|x64
+		{1E44B438-C82D-46DE-9450-A769A0D62C9A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1E44B438-C82D-46DE-9450-A769A0D62C9A}.Debug|Win32.Build.0 = Debug|Win32
+		{1E44B438-C82D-46DE-9450-A769A0D62C9A}.Debug|x64.ActiveCfg = Debug|x64
+		{1E44B438-C82D-46DE-9450-A769A0D62C9A}.Debug|x64.Build.0 = Debug|x64
+		{1E44B438-C82D-46DE-9450-A769A0D62C9A}.Debug|x86.ActiveCfg = Debug|Win32
+		{1E44B438-C82D-46DE-9450-A769A0D62C9A}.Debug|x86.Build.0 = Debug|Win32
+		{1E44B438-C82D-46DE-9450-A769A0D62C9A}.Release|Any CPU.ActiveCfg = Release|x64
+		{1E44B438-C82D-46DE-9450-A769A0D62C9A}.Release|Any CPU.Build.0 = Release|x64
+		{1E44B438-C82D-46DE-9450-A769A0D62C9A}.Release|Win32.ActiveCfg = Release|Win32
+		{1E44B438-C82D-46DE-9450-A769A0D62C9A}.Release|Win32.Build.0 = Release|Win32
+		{1E44B438-C82D-46DE-9450-A769A0D62C9A}.Release|x64.ActiveCfg = Release|x64
+		{1E44B438-C82D-46DE-9450-A769A0D62C9A}.Release|x64.Build.0 = Release|x64
+		{1E44B438-C82D-46DE-9450-A769A0D62C9A}.Release|x86.ActiveCfg = Release|Win32
+		{1E44B438-C82D-46DE-9450-A769A0D62C9A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -790,6 +832,9 @@ Global
 		{2D92A6EF-41F0-4296-B46C-04A939735301} = {9EA6DDFC-036A-49B7-A4FA-AF875355BC2E}
 		{89EF81D5-AC25-4D8C-A1B7-7C45596B02EE} = {16B4B6BD-7FCE-4DDF-B50C-B4C9A96E9765}
 		{3FA755A4-A27F-4FC3-A3A1-D441B83291B2} = {9EA6DDFC-036A-49B7-A4FA-AF875355BC2E}
+		{1E44B438-C82D-46DE-9450-A769A0D62C9A} = {534477D1-2551-45F3-97AE-A0BEEC5FC043}
+		{A2FE953C-B58B-462B-9CDE-C2BBFBF87602} = {9EA6DDFC-036A-49B7-A4FA-AF875355BC2E}
+		{433062C7-E0FF-4E7D-99DC-7FA120C380E4} = {9EA6DDFC-036A-49B7-A4FA-AF875355BC2E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1D542335-5812-4666-9874-ACFCC515267C}
