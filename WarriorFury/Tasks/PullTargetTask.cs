@@ -4,7 +4,7 @@ using WoWActivityMember.Mem;
 using WoWActivityMember.Game;
 using WoWActivityMember.Objects;
 
-namespace FuryWarriorBot
+namespace WarriorFury.Tasks
 {
     class PullTargetTask : BotTask, IBotTask
     {

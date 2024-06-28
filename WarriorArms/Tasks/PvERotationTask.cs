@@ -4,7 +4,7 @@ using WoWActivityMember.Tasks;
 using WoWActivityMember.Tasks.SharedStates;
 using static WoWActivityMember.Constants.Enums;
 
-namespace ArmsWarriorBot
+namespace WarriorArms.Tasks
 {
     class PvERotationTask : CombatRotationTask, IBotTask
     {

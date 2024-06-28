@@ -1,11 +1,11 @@
-﻿// Friday owns this file!
+﻿
 
-using BeastMasterHunterBot;
 using WoWActivityMember.Tasks;
 using WoWActivityMember.Game.Statics;
 using WoWActivityMember.Mem;
+using HunterBeastMastery.Tasks;
 
-namespace BeastmasterHunterBot
+namespace HunterBeastMastery
 {
     class PetManagerState : BotTask, IBotTask
     {

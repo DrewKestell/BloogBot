@@ -4,7 +4,7 @@ using WoWActivityMember.Mem;
 using WoWActivityMember.Objects;
 using WoWActivityMember.Tasks;
 
-namespace ShadowPriestBot
+namespace PriestShadow.Tasks
 {
     class RestTask : BotTask, IBotTask
     {

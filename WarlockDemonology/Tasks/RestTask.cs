@@ -5,7 +5,7 @@ using WoWActivityMember.Objects;
 using WoWActivityMember.Tasks;
 using static WoWActivityMember.Constants.Enums;
 
-namespace WarlockAffliction.Tasks
+namespace WarlockDemonology.Tasks
 {
     class RestTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Rest), IBotTask
     {

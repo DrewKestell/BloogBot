@@ -1,6 +1,6 @@
 ﻿using WoWActivityMember.Tasks;
 
-namespace ProtectionWarriorBot
+namespace WarriorProtection.Tasks
 {
     class BuffTask : BotTask, IBotTask
     {

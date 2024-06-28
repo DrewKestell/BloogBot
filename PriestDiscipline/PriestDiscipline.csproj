@@ -10,4 +10,10 @@
     <ProjectReference Include="..\WoWActivityMember\WoWActivityMember.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="System.ComponentModel.Composition">
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8.1\System.ComponentModel.Composition.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

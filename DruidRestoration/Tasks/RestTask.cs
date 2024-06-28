@@ -6,7 +6,7 @@ namespace DruidRestoration.Tasks
     {        
         public void Update()
         {
-            
+            BotTasks.Pop();
         }        
     }
 }

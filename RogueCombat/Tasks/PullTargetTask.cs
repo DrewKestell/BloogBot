@@ -5,7 +5,7 @@ using WoWActivityMember.Objects;
 using WoWActivityMember.Tasks;
 using static WoWActivityMember.Constants.Enums;
 
-namespace CombatRogueBot
+namespace RogueCombat.Tasks
 {
     class PullTargetTask : BotTask, IBotTask
     {

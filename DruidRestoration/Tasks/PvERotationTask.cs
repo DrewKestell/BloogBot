@@ -3,7 +3,7 @@ using WoWActivityMember.Tasks;
 using WoWActivityMember.Game.Statics;
 using WoWActivityMember.Mem;
 
-namespace WarlockAffliction.Tasks
+namespace DruidRestoration.Tasks
 {
     class PvERotationTask : CombatRotationTask, IBotTask
     {

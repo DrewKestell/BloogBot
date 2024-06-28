@@ -1,18 +1,9 @@
-﻿using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
+﻿using WoWActivityMember.Tasks;
 
-namespace WarlockAffliction.Tasks
+namespace RogueSubtlety.Tasks
 {
     class PullTargetTask : BotTask, IBotTask
     {
-        const string SummonImp = "Summon Imp";
-        const string SummonVoidwalker = "Summon Voidwalker";
-        const string CurseOfAgony = "Curse of Agony";
-        const string ShadowBolt = "Shadow Bolt";
-
-        readonly string pullingSpell;
-        Position currentWaypoint;
-
         internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull)
         {
             
@@ -20,7 +11,7 @@ namespace WarlockAffliction.Tasks
 
         public void Update()
         {
-
+            BotTasks.Pop();
         }
     }
 }

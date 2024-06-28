@@ -6,7 +6,7 @@ using WoWActivityMember.Mem;
 using WoWActivityMember.Objects;
 using WoWActivityMember.Tasks;
 
-namespace BackstabRogueBot
+namespace RogueAssassin.Tasks
 {
     class RestTask : BotTask, IBotTask
     {

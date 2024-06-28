@@ -4,7 +4,7 @@ using WoWActivityMember.Mem;
 using WoWActivityMember.Objects;
 using WoWActivityMember.Tasks;
 
-namespace CombatRogueBot
+namespace RogueCombat.Tasks
 {
     class RestTask : BotTask, IBotTask
     {

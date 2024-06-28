@@ -1,6 +1,6 @@
 ﻿using WoWActivityMember.Tasks;
 
-namespace ElementalShamanBot
+namespace ShamanElemental.Tasks
 {
     class BuffTask : BotTask, IBotTask
     {

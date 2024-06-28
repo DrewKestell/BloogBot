@@ -2,7 +2,7 @@
 using WoWActivityMember.Mem;
 using WoWActivityMember.Tasks;
 
-namespace EnhancementShamanBot
+namespace ShamanEnhancement.Tasks
 {
     class HealTask : BotTask, IBotTask
     {

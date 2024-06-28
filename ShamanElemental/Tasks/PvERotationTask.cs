@@ -3,7 +3,7 @@ using WoWActivityMember.Game.Statics;
 using WoWActivityMember.Tasks;
 using WoWActivityMember.Tasks.SharedStates;
 
-namespace ElementalShamanBot
+namespace ShamanElemental.Tasks
 {
     class PvERotationTask : CombatRotationTask, IBotTask
     {

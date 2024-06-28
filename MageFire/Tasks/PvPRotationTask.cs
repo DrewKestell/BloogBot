@@ -1,5 +1,4 @@
-﻿using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Tasks;
+﻿using WoWActivityMember.Tasks;
 using WoWActivityMember.Tasks.SharedStates;
 
 namespace MageFire.Tasks
@@ -13,27 +12,7 @@ namespace MageFire.Tasks
 
         public void Update()
         {
-            if (ObjectManager.Aggressors.Count() == 0)
-            {
-                BotTasks.Pop();
-                return;
-            }
-
-            AssignDPSTarget();
-
-            if (ObjectManager.Player.Target == null) return;
-
-            //if (Container.State.TankInPosition)
-            //{
-            //    if (MoveTowardsTarget())
-            //        return;
-
-            //    PerformCombatRotation();
-            //}
-            //else if (MoveBehindTankSpot(15))
-            //    return;
-            //else
-            //    ObjectManager.Player.StopAllMovement();
+            BotTasks.Pop();
         }
         public override void PerformCombatRotation()
         {

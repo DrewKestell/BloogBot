@@ -1,6 +1,6 @@
 ﻿using WoWActivityMember.Tasks;
 
-namespace CombatRogueBot
+namespace RogueCombat.Tasks
 {
     class BuffTask : BotTask, IBotTask
     {

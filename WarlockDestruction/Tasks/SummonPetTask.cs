@@ -3,7 +3,7 @@ using WoWActivityMember.Game.Statics;
 using WoWActivityMember.Mem;
 using WoWActivityMember.Tasks;
 
-namespace WarlockAffliction.Tasks
+namespace WarlockDestruction.Tasks
 {
     class SummonPetTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Buff), IBotTask
     {

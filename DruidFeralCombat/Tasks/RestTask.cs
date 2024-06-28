@@ -4,7 +4,7 @@ using WoWActivityMember.Game.Statics;
 using WoWActivityMember.Mem;
 using WoWActivityMember.Objects;
 
-namespace FeralDruidBot
+namespace DruidFeral.Tasks
 {
     class RestTask : BotTask, IBotTask
     {

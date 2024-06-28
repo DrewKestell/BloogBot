@@ -4,7 +4,7 @@ using WoWActivityMember.Mem;
 using WoWActivityMember.Objects;
 using WoWActivityMember.Tasks;
 
-namespace WarlockAffliction.Tasks
+namespace WarlockDemonology.Tasks
 {
     class BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Buff), IBotTask
     {

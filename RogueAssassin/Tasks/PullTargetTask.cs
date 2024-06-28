@@ -7,7 +7,7 @@ using WoWActivityMember.Objects;
 using WoWActivityMember.Tasks;
 using static WoWActivityMember.Constants.Enums;
 
-namespace BackstabRogueBot
+namespace RogueAssassin.Tasks
 {
     class PullTargetTask : BotTask, IBotTask
     {

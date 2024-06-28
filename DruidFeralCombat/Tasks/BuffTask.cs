@@ -2,7 +2,7 @@
 using WoWActivityMember.Game.Statics;
 using WoWActivityMember.Mem;
 
-namespace FeralDruidBot
+namespace DruidFeral.Tasks
 {
     class BuffTask : BotTask, IBotTask
     {

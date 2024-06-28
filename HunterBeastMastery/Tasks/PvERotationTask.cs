@@ -1,4 +1,4 @@
-﻿// Friday owns this file!
+﻿
 
 using WoWActivityMember.Tasks;
 using WoWActivityMember.Tasks.SharedStates;
@@ -8,7 +8,7 @@ using WoWActivityMember.Mem;
 using WoWActivityMember.Objects;
 using static WoWActivityMember.Constants.Enums;
 
-namespace BeastMasterHunterBot
+namespace HunterBeastMastery.Tasks
 {
     class PvERotationTask : CombatRotationTask, IBotTask
     {
@@ -38,7 +38,7 @@ namespace BeastMasterHunterBot
 
         public override void PerformCombatRotation()
         {
-            throw new System.NotImplementedException();
+
         }
 
         public void Update()
@@ -68,7 +68,7 @@ namespace BeastMasterHunterBot
             else if (canUseRanged && ObjectManager.Player.ManaPercent < 60)
             {
                 Functions.LuaCall(GunLuaScript);
-            } 
+            }
             else if (gun != null && canUseRanged)
             {
                 //if (!target.HasDebuff(HuntersMark)) 
@@ -77,7 +77,7 @@ namespace BeastMasterHunterBot
                 //}
                 //else 
                 if (!ObjectManager.Player.Target.HasDebuff(SerpentSting))
-                { 
+                {
                     TryCastSpell(SerpentSting, 0, 34);
                 }
                 else if (ObjectManager.Player.ManaPercent > 60)
@@ -91,7 +91,7 @@ namespace BeastMasterHunterBot
             }
             else
             {
-            // melee rotation
+                // melee rotation
                 TryCastSpell(RaptorStrike, 0, 5);
             }
         }

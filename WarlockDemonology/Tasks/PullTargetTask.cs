@@ -5,7 +5,7 @@ using WoWActivityMember.Objects;
 using WoWActivityMember.Tasks;
 using static WoWActivityMember.Constants.Enums;
 
-namespace WarlockAffliction.Tasks
+namespace WarlockDemonology.Tasks
 {
     class PullTargetTask : BotTask, IBotTask
     {

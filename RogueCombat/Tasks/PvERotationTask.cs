@@ -3,7 +3,7 @@ using WoWActivityMember.Objects;
 using WoWActivityMember.Tasks;
 using WoWActivityMember.Tasks.SharedStates;
 
-namespace CombatRogueBot
+namespace RogueCombat.Tasks
 {
     class PvERotationTask : CombatRotationTask, IBotTask
     {
@@ -22,7 +22,6 @@ namespace CombatRogueBot
 
         public override void PerformCombatRotation()
         {
-            throw new System.NotImplementedException();
         }
 
         public void Update()

@@ -3,7 +3,7 @@ using WoWActivityMember.Game;
 using WoWActivityMember.Game.Statics;
 using WoWActivityMember.Mem;
 
-namespace FeralDruidBot
+namespace DruidFeral.Tasks
 {
     class HealTask : BotTask, IBotTask
     {

@@ -3,7 +3,7 @@ using WoWActivityMember.Game.Statics;
 using WoWActivityMember.Objects;
 using WoWActivityMember.Tasks;
 
-namespace ElementalShamanBot
+namespace ShamanElemental.Tasks
 {
     class PullTargetTask : BotTask, IBotTask
     {

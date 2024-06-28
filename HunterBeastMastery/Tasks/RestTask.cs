@@ -1,4 +1,4 @@
-﻿// Friday owns this file!
+﻿
 
 using WoWActivityMember.Game;
 using WoWActivityMember.Game.Statics;
@@ -6,7 +6,7 @@ using WoWActivityMember.Mem;
 using WoWActivityMember.Objects;
 using WoWActivityMember.Tasks;
 
-namespace BeastMasterHunterBot
+namespace HunterBeastMastery.Tasks
 {
     // TODO: add in ammo buying/management
     class RestTask : BotTask, IBotTask

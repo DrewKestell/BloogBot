@@ -1,4 +1,4 @@
-﻿// Friday owns this file!
+﻿
 
 using WoWActivityMember.Tasks;
 using WoWActivityMember.Game;
@@ -6,7 +6,7 @@ using WoWActivityMember.Game.Statics;
 using WoWActivityMember.Mem;
 using WoWActivityMember.Objects;
 
-namespace BeastMasterHunterBot
+namespace HunterBeastMastery.Tasks
 {
     class PullTargetTask : BotTask, IBotTask
     {

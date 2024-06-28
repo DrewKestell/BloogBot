@@ -3,7 +3,7 @@ using WoWActivityMember.Mem;
 using WoWActivityMember.Tasks;
 using WoWActivityMember.Tasks.SharedStates;
 
-namespace WarlockAffliction.Tasks
+namespace WarlockDemonology.Tasks
 {
     class PvPRotationTask : CombatRotationTask, IBotTask
     {

@@ -8,7 +8,7 @@ namespace WarlockAffliction
     [Export(typeof(IBot))]
     class WarlockAfflictionBot : IBot
     {
-        public string Name => "Warlock - Affliction";
+        public string Name => "Warlock Affliction";
 
         public string FileName => "WarlockAffliction.dll";
 

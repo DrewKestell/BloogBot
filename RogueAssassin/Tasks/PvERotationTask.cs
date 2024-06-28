@@ -9,7 +9,7 @@ using WoWActivityMember.Tasks;
 using WoWActivityMember.Tasks.SharedStates;
 using static WoWActivityMember.Constants.Enums;
 
-namespace BackstabRogueBot
+namespace RogueAssassin.Tasks
 {
     class PvERotationTask : CombatRotationTask, IBotTask
     {

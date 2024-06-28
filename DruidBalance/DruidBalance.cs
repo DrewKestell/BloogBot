@@ -6,9 +6,9 @@ using System.ComponentModel.Composition;
 namespace DruidBalance
 {
     [Export(typeof(IBot))]
-    class DruidBalanceBot : IBot
+    class DruidBalance : IBot
     {
-        public string Name => "Druid - Balance";
+        public string Name => "Balance Druid";
 
         public string FileName => "DruidBalance.dll";
 

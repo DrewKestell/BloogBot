@@ -2,7 +2,7 @@
 using WoWActivityMember.Mem;
 using WoWActivityMember.Tasks;
 
-namespace WarlockAffliction.Tasks
+namespace WarlockDemonology.Tasks
 {
     class SummonPetTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Buff), IBotTask
     {

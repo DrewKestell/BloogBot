@@ -1,10 +1,10 @@
-﻿// Friday owns this file!
+﻿
 
 using WoWActivityMember.Tasks;
 using WoWActivityMember.Game.Statics;
 using WoWActivityMember.Mem;
 
-namespace BeastMasterHunterBot
+namespace HunterBeastMastery.Tasks
 {
     class BuffTask : BotTask, IBotTask
     {

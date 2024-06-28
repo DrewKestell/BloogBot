@@ -38,7 +38,7 @@ namespace WoWActivityMember
                 "CombatRogueBot.dll", 
                 "ElementalShamanBot.dll", 
                 "EnhancementShamanBot.dll", 
-                "FeralDruidBot.dll", 
+                "DruidFeral.Tasks.dll", 
                 "FrostMageBot.dll", 
                 "FuryWarriorBot.dll", 
                 "ProtectionPaladinBot.dll", 

@@ -5,7 +5,7 @@ using WoWActivityMember.Game.Statics;
 using WoWActivityMember.Objects;
 using static WoWActivityMember.Constants.Enums;
 
-namespace FuryWarriorBot
+namespace WarriorFury.Tasks
 {
     class PvERotationTask : CombatRotationTask, IBotTask
     {

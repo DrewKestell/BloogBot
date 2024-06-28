@@ -2,7 +2,7 @@
 using WoWActivityMember.Tasks;
 using WoWActivityMember.Tasks.SharedStates;
 
-namespace EnhancementShamanBot
+namespace ShamanEnhancement.Tasks
 {
     class PvERotationTask : CombatRotationTask, IBotTask
     {

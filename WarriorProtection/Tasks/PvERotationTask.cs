@@ -7,7 +7,7 @@ using WoWActivityMember.Mem;
 using WoWActivityMember.Objects;
 using static WoWActivityMember.Constants.Enums;
 
-namespace ProtectionWarriorBot
+namespace WarriorProtection.Tasks
 {
     class PvERotationTask : CombatRotationTask, IBotTask
     {
