@@ -26,6 +26,7 @@ namespace WoWStateManagerUI.Views
         public WoWStateManagerViewModel() { }
 
         private ICommand _connectToWoWStateManagerCommand;
+        private ICommand _applyWorldStateCommand;
         private ICommand _addActivityCommand;
         private ICommand _removeActivityCommand;
         private ICommand _addActivityMemberCommand;
@@ -33,6 +34,7 @@ namespace WoWStateManagerUI.Views
         private ICommand _setMaxRaidSizeCommand;
         private ICommand _setMinRaidSizeCommand;
         public ICommand ConnectToCommand => _connectToWoWStateManagerCommand ??= new CommandHandler(ConnectTo, true);
+        public ICommand ApplyWorldStateCommand => _applyWorldStateCommand ??= new CommandHandler(ApplyWorldState, true);
         public ICommand AddActivityCommand => _addActivityCommand ??= new CommandHandler(AddActivity, true);
         public ICommand RemoveActivityCommand => _removeActivityCommand ??= new CommandHandler(RemoveActivity, true);
         public ICommand AddActivityMemberCommand => _addActivityMemberCommand ??= new CommandHandler(AddActivityMember, true);
@@ -44,6 +46,10 @@ namespace WoWStateManagerUI.Views
         {
             HeartbeatTask?.Dispose();
             HeartbeatTask = Task.Factory.StartNew(WoWStateHeartbeatTask);
+        }
+        private void ApplyWorldState()
+        {
+            UserActivityCommand.ActivityAction = ActivityAction.ApplyDesiredState;
         }
 
         private void AddActivity()
