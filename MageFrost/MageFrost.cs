@@ -12,7 +12,7 @@ namespace MageFrost
 
         public string FileName => "MageFrost.dll";
 
-        public IClassContainer GetClassContainer(CharacterState probe) =>
+        public IClassContainer GetClassContainer(ActivityMemberState probe) =>
             new ClassContainer(
                 Name,
                 CreateRestTask,

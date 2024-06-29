@@ -30,10 +30,7 @@ namespace BaseSocketServer
         public void Stop()
         {
             _listen = false;
-            if (_backgroundTask != null)
-            {
-                _backgroundTask.Wait(TimeSpan.FromSeconds(5));
-            }
+            _backgroundTask?.Wait(TimeSpan.FromSeconds(5));
             _connectionSocket?.Close();
         }
 
@@ -41,7 +38,7 @@ namespace BaseSocketServer
 
         private async Task StartAsync()
         {
-            Console.WriteLine($"{DateTime.Now}| Starting listener on port {_port}");
+            Console.WriteLine($"{DateTime.Now}|[SOCKET SERVER : {_port}]Starting listener on port {_port}");
             while (_listen)
             {
                 Socket clientSocket = _connectionSocket.Accept();
@@ -61,7 +58,7 @@ namespace BaseSocketServer
                 }
                 catch (SocketException e)
                 {
-                    Console.WriteLine($"{DateTime.Now}| Process {processId} disconnected due to {e.SocketErrorCode}");
+                    Console.WriteLine($"{DateTime.Now}|[SOCKET SERVER : {_port}]Process {processId} disconnected due to {e.SocketErrorCode}");
                     _processIds.Remove(processId);
                     clientSocket.Close();
                     return;
@@ -70,7 +67,7 @@ namespace BaseSocketServer
             _processIds.Remove(processId);
             clientSocket.Close();
         }
-        protected int SendMessage(string message, Socket clientSocket)
+        protected static int SendMessage(string message, Socket clientSocket)
         {
             byte[] bytes = Encoding.ASCII.GetBytes(message);
             while (bytes.Length > 1024)

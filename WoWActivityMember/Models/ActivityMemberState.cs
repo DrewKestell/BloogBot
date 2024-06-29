@@ -1,6 +1,6 @@
 ﻿namespace WoWActivityMember.Models
 {
-    public class CharacterState
+    public class ActivityMemberState
     {
         public int ProcessId { get; set; }
         public string AccountName { get; set; } = string.Empty;

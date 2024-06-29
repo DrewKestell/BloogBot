@@ -12,7 +12,7 @@ namespace RogueCombat
 
         public string FileName => "RogueCombat.dll";
 
-        public IClassContainer GetClassContainer(CharacterState probe) =>
+        public IClassContainer GetClassContainer(ActivityMemberState probe) =>
             new ClassContainer(
                 Name,
                 CreateRestTask,

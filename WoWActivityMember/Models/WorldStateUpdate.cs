@@ -1,6 +1,6 @@
 ﻿namespace WoWActivityMember.Models
 {
-    public class ActivityCommand
+    public class WorldStateUpdate
     {
         public int ProcessId { get; set; }
         public ActivityAction ActivityAction { get; set; }
@@ -18,6 +18,7 @@
         AddActivityMember,
         EditActivityMember,
         SetMinMemberSize,
-        SetMaxMemberSize
+        SetMaxMemberSize,
+        ApplyDesiredState
     }
 }

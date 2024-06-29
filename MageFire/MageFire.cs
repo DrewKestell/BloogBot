@@ -12,7 +12,7 @@ namespace MageFire
 
         public string FileName => "MageFire.dll";
 
-        public IClassContainer GetClassContainer(CharacterState probe) =>
+        public IClassContainer GetClassContainer(ActivityMemberState probe) =>
             new ClassContainer(
                 Name,
                 CreateRestTask,

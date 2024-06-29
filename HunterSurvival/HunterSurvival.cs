@@ -12,7 +12,7 @@ namespace HunterSurvival
 
         public string FileName => "HunterSurvival.dll";
 
-        public IClassContainer GetClassContainer(CharacterState probe) =>
+        public IClassContainer GetClassContainer(ActivityMemberState probe) =>
             new ClassContainer(
                 Name,
                 CreateRestTask,

@@ -17,7 +17,6 @@ namespace BaseSocketServer
             _ipAddress = iPAddress;
         }
 
-
         protected string SendMessage(string message)
         {
             try

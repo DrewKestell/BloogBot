@@ -14,12 +14,10 @@ namespace WoWStateManagerUI.Views
         public ActivityViewModel(ActivityState activityState)
         {
             ActivityState = activityState;
-            ActivityState.ActivityMemberPresets ??= [];
+            ActivityState.ActivityMemberStates ??= [];
 
-            for (int i = 0; i < ActivityState.ActivityMemberPresets.Count; i++)
-            {
-                AddActivityMember(ActivityState.ActivityMemberPresets[i]);
-            }
+            for (int i = 0; i < ActivityState.ActivityMemberStates.Count; i++)
+                AddActivityMember(ActivityState.ActivityMemberStates[i]);
 
             OnPropertyChanged(nameof(ActivityState));
             OnPropertyChanged(nameof(CurrentActivity));
@@ -28,7 +26,7 @@ namespace WoWStateManagerUI.Views
         public void AddNewActivityMember()
         {
             ActivityMemberPreset activityMemberPreset = new();
-            ActivityState.ActivityMemberPresets.Add(activityMemberPreset);
+            ActivityState.ActivityMemberStates.Add(activityMemberPreset);
 
             AddActivityMember(activityMemberPreset);
 
@@ -46,7 +44,7 @@ namespace WoWStateManagerUI.Views
             int focusedIndex = ActivityMemberViewModels.IndexOf(activityMemberViewModel);
 
             ActivityMemberViewModels.RemoveAt(focusedIndex);
-            ActivityState.ActivityMemberPresets.RemoveAt(focusedIndex);
+            ActivityState.ActivityMemberStates.RemoveAt(focusedIndex);
 
             int newIndex = focusedIndex - 1;
             newIndex = Math.Max(newIndex, 0);

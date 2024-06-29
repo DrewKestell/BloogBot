@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using Google.Protobuf;
 
-namespace RaidLeaderBot.Communication
+namespace WoWStateManager.Communication
 {
     public class ActivityManagerService : IDisposable
     {

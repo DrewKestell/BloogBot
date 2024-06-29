@@ -1,7 +1,5 @@
 ﻿using WoWActivityMember.Tasks;
 using WoWActivityMember.Tasks.SharedStates;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
 
 namespace WarriorProtection.Tasks
 {

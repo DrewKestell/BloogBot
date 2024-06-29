@@ -9,13 +9,13 @@ namespace WoWActivityMember.Client
     {
         public bool IsRaidLeader { get; private set; }
 
-        public CharacterState GetCommandBasedOnState(CharacterState characterState)
+        public ActivityMemberState GetCommandBasedOnState(ActivityMemberState characterState)
         {
             //IsRaidLeader = string.IsNullOrEmpty(characterState.RaidLeader) && characterState.RaidLeader == characterState.CharacterName;
 
             string json = SendMessage(JsonConvert.SerializeObject(characterState));
 
-            return JsonConvert.DeserializeObject<CharacterState>(json);
+            return JsonConvert.DeserializeObject<ActivityMemberState>(json);
         }
     }
 }

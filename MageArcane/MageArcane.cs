@@ -12,7 +12,7 @@ namespace MageArcane
 
         public string FileName => "MageArcane.dll";
 
-        public IClassContainer GetClassContainer(CharacterState probe) =>
+        public IClassContainer GetClassContainer(ActivityMemberState probe) =>
             new ClassContainer(
                 Name,
                 CreateRestTask,

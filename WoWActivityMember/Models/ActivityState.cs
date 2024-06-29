@@ -6,11 +6,8 @@ namespace WoWActivityMember.Models
     public class ActivityState
     {
         public int ProcessId { get; set; }
-        public bool IsConnected { get; set; }
-        public bool IsFocused { get; set; }
-        public bool ShouldRun { get; set; }
         public ActivityType ActivityType { get; set; }
-        public List<ActivityMemberPreset> ActivityMemberPresets { get; set; } = [];
+        public List<ActivityMemberPreset> ActivityMemberStates { get; set; } = [];
         [JsonIgnore]
         public int MaxActivitySize
         {

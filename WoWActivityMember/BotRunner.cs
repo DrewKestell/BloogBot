@@ -14,8 +14,8 @@ namespace WoWActivityMember.Tasks
     {
         readonly Stack<IBotTask> botTasks = new();
         readonly BotLoader botLoader = new();
-        readonly CharacterState currentCharacterState;
-        readonly CharacterState desiredCharacterState;
+        readonly ActivityMemberState currentActivityMemberState;
+        readonly ActivityMemberState desiredActivityMemberState;
         readonly ActivityCommandClient activityCommandClient;
         readonly MaNGOSDBClient maNGOSDBClient;
 
@@ -32,12 +32,12 @@ namespace WoWActivityMember.Tasks
         {
             Bots = new ObservableCollection<IBot>(botLoader.ReloadBots());
 
-            currentCharacterState = new CharacterState()
+            currentActivityMemberState = new ActivityMemberState()
             {
                 ProcessId = Environment.ProcessId
             };
 
-            ObjectManager.Initialize(currentCharacterState);
+            ObjectManager.Initialize(currentActivityMemberState);
 
             WoWEventHandler.Instance.OnPartyInvite += (sender, args) =>
             {
@@ -58,31 +58,31 @@ namespace WoWActivityMember.Tasks
             {
                 try
                 {
-                    CharacterState incomingCharacterState = activityCommandClient.GetCommandBasedOnState(currentCharacterState);
-                    desiredCharacterState.AccountName = incomingCharacterState.AccountName;
-                    desiredCharacterState.BehaviorProfileName = incomingCharacterState.BehaviorProfileName;
+                    ActivityMemberState incomingActivityMemberState = activityCommandClient.GetCommandBasedOnState(currentActivityMemberState);
+                    desiredActivityMemberState.AccountName = incomingActivityMemberState.AccountName;
+                    desiredActivityMemberState.BehaviorProfileName = incomingActivityMemberState.BehaviorProfileName;
 
-                    desiredCharacterState.Spells.RemoveAll(x => !incomingCharacterState.Spells.Contains(x));
-                    desiredCharacterState.Skills.RemoveAll(x => !incomingCharacterState.Skills.Contains(x));
-                    desiredCharacterState.Talents.RemoveAll(x => !incomingCharacterState.Talents.Contains(x));
-                    desiredCharacterState.PetSpells.RemoveAll(x => !incomingCharacterState.PetSpells.Contains(x));
-                    desiredCharacterState.ActivityMembers.RemoveAll(x => !incomingCharacterState.ActivityMembers.Contains(x));
+                    desiredActivityMemberState.Spells.RemoveAll(x => !incomingActivityMemberState.Spells.Contains(x));
+                    desiredActivityMemberState.Skills.RemoveAll(x => !incomingActivityMemberState.Skills.Contains(x));
+                    desiredActivityMemberState.Talents.RemoveAll(x => !incomingActivityMemberState.Talents.Contains(x));
+                    desiredActivityMemberState.PetSpells.RemoveAll(x => !incomingActivityMemberState.PetSpells.Contains(x));
+                    desiredActivityMemberState.ActivityMembers.RemoveAll(x => !incomingActivityMemberState.ActivityMembers.Contains(x));
 
-                    foreach (var item in incomingCharacterState.Spells)
-                        if (!desiredCharacterState.Spells.Contains(item))
-                            desiredCharacterState.Spells.Add(item);
-                    foreach (var item in incomingCharacterState.Skills)
-                        if (!desiredCharacterState.Skills.Contains(item))
-                            desiredCharacterState.Skills.Add(item);
-                    foreach (var item in incomingCharacterState.Talents)
-                        if (!desiredCharacterState.Talents.Contains(item))
-                            desiredCharacterState.Talents.Add(item);
-                    foreach (var item in incomingCharacterState.PetSpells)
-                        if (!desiredCharacterState.PetSpells.Contains(item))
-                            desiredCharacterState.PetSpells.Add(item);
-                    foreach (var item in incomingCharacterState.ActivityMembers)
-                        if (!desiredCharacterState.ActivityMembers.Contains(item))
-                            desiredCharacterState.ActivityMembers.Add(item);
+                    foreach (var item in incomingActivityMemberState.Spells)
+                        if (!desiredActivityMemberState.Spells.Contains(item))
+                            desiredActivityMemberState.Spells.Add(item);
+                    foreach (var item in incomingActivityMemberState.Skills)
+                        if (!desiredActivityMemberState.Skills.Contains(item))
+                            desiredActivityMemberState.Skills.Add(item);
+                    foreach (var item in incomingActivityMemberState.Talents)
+                        if (!desiredActivityMemberState.Talents.Contains(item))
+                            desiredActivityMemberState.Talents.Add(item);
+                    foreach (var item in incomingActivityMemberState.PetSpells)
+                        if (!desiredActivityMemberState.PetSpells.Contains(item))
+                            desiredActivityMemberState.PetSpells.Add(item);
+                    foreach (var item in incomingActivityMemberState.ActivityMembers)
+                        if (!desiredActivityMemberState.ActivityMembers.Contains(item))
+                            desiredActivityMemberState.ActivityMembers.Add(item);
                 }
                 catch (Exception e)
                 {
@@ -111,8 +111,8 @@ namespace WoWActivityMember.Tasks
                         //    botTasks.Push(new DungeoneeringTask(classContainer, botTasks));
                         //    break;
                         //case CharacterAction.BeginBattleGrounds:
-                        //    Console.WriteLine($"[BOT RUNNER : {Environment.ProcessId}] Begin Battleground {desiredCharacterState.CommandParam1}");
-                        //    switch (desiredCharacterState.CommandParam1)
+                        //    Console.WriteLine($"[BOT RUNNER : {Environment.ProcessId}] Begin Battleground {desiredActivityMemberState.CommandParam1}");
+                        //    switch (desiredActivityMemberState.CommandParam1)
                         //    {
                         //        case "WSG":
                         //            botTasks.Push(new WarsongGultchTask(classContainer, botTasks));
@@ -120,48 +120,48 @@ namespace WoWActivityMember.Tasks
                         //    }
                         //    break;
                         //case CharacterAction.QueuePvP:
-                        //    Console.WriteLine($"[BOT RUNNER : {Environment.ProcessId}] Begin QueuePvP {desiredCharacterState.CommandParam1}");
-                        //    botTasks.Push(new QueueForBattlegroundTask(classContainer, botTasks, ObjectManager.Units.First(x => x.Name.StartsWith(desiredCharacterState.CommandParam2))));
+                        //    Console.WriteLine($"[BOT RUNNER : {Environment.ProcessId}] Begin QueuePvP {desiredActivityMemberState.CommandParam1}");
+                        //    botTasks.Push(new QueueForBattlegroundTask(classContainer, botTasks, ObjectManager.Units.First(x => x.Name.StartsWith(desiredActivityMemberState.CommandParam2))));
                         //    break;
                         //case CharacterAction.AddEquipment:
-                        //    currentCharacterState.Action = "Adding equipment";
-                        //    Console.WriteLine($"[BOT RUNNER : {Environment.ProcessId}] AddEquipment {desiredCharacterState.CommandParam1} {desiredCharacterState.CommandParam2}");
-                        //    botTasks.Push(new AddEquipmentTask(classContainer, botTasks, int.Parse(desiredCharacterState.CommandParam1), int.Parse(desiredCharacterState.CommandParam2)));
+                        //    currentActivityMemberState.Action = "Adding equipment";
+                        //    Console.WriteLine($"[BOT RUNNER : {Environment.ProcessId}] AddEquipment {desiredActivityMemberState.CommandParam1} {desiredActivityMemberState.CommandParam2}");
+                        //    botTasks.Push(new AddEquipmentTask(classContainer, botTasks, int.Parse(desiredActivityMemberState.CommandParam1), int.Parse(desiredActivityMemberState.CommandParam2)));
                         //    break;
 
-                        foreach (var activityMember in desiredCharacterState.ActivityMembers)
-                            if (!currentCharacterState.ActivityMembers.Contains(activityMember))
+                        foreach (var activityMember in desiredActivityMemberState.ActivityMembers)
+                            if (!currentActivityMemberState.ActivityMembers.Contains(activityMember))
                                 botTasks.Push(new AddPartyMemberTask(classContainer, botTasks, activityMember));
 
-                        foreach (var skill in desiredCharacterState.Skills)
-                            if (!currentCharacterState.Skills.Contains(skill))
+                        foreach (var skill in desiredActivityMemberState.Skills)
+                            if (!currentActivityMemberState.Skills.Contains(skill))
                                 botTasks.Push(new AddSpellTask(classContainer, botTasks, skill));
 
-                        foreach (var spell in desiredCharacterState.Spells)
-                            if (!currentCharacterState.Spells.Contains(spell))
+                        foreach (var spell in desiredActivityMemberState.Spells)
+                            if (!currentActivityMemberState.Spells.Contains(spell))
                                 botTasks.Push(new AddSpellTask(classContainer, botTasks, spell));
 
-                        foreach (var talent in desiredCharacterState.Talents)
-                            if (!currentCharacterState.Talents.Contains(talent))
+                        foreach (var talent in desiredActivityMemberState.Talents)
+                            if (!currentActivityMemberState.Talents.Contains(talent))
                                 botTasks.Push(new AddSpellTask(classContainer, botTasks, talent));
 
-                        foreach (var petSpell in desiredCharacterState.PetSpells)
-                            if (!currentCharacterState.PetSpells.Contains(petSpell))
+                        foreach (var petSpell in desiredActivityMemberState.PetSpells)
+                            if (!currentActivityMemberState.PetSpells.Contains(petSpell))
                                 botTasks.Push(new AddSpellTask(classContainer, botTasks, petSpell));
 
-                        //if (desiredCharacterState.Level != currentCharacterState.Level)
-                        //    botTasks.Push(new ExecuteBlockingLuaTask(classContainer, botTasks, $"SendChatMessage(\".character level {ObjectManager.Player.Name} {desiredCharacterState.Level}\")"));
+                        //if (desiredActivityMemberState.Level != currentActivityMemberState.Level)
+                        //    botTasks.Push(new ExecuteBlockingLuaTask(classContainer, botTasks, $"SendChatMessage(\".character level {ObjectManager.Player.Name} {desiredActivityMemberState.Level}\")"));
 
-                        if (desiredCharacterState.BehaviorProfileName != currentCharacterState.BehaviorProfileName)
+                        if (desiredActivityMemberState.BehaviorProfileName != currentActivityMemberState.BehaviorProfileName)
                         {
                             AssignClassContainer();
 
-                            botTasks.Push(new ResetCharacterStateTask(classContainer, botTasks));
+                            botTasks.Push(new ResetActivityMemberStateTask(classContainer, botTasks));
                         }
 
-                        if (desiredCharacterState.AccountName != currentCharacterState.AccountName)
+                        if (desiredActivityMemberState.AccountName != currentActivityMemberState.AccountName)
                         {
-                            currentCharacterState.AccountName = desiredCharacterState.AccountName;
+                            currentActivityMemberState.AccountName = desiredActivityMemberState.AccountName;
                             botTasks.Push(new LoginTask(classContainer, botTasks));
                         }
 
@@ -182,9 +182,9 @@ namespace WoWActivityMember.Tasks
         {
             try
             {
-                currentBot = Bots.First(b => b.Name == currentCharacterState.BehaviorProfileName);
+                currentBot = Bots.First(b => b.Name == currentActivityMemberState.BehaviorProfileName);
 
-                classContainer = currentBot.GetClassContainer(currentCharacterState);
+                classContainer = currentBot.GetClassContainer(currentActivityMemberState);
             }
             catch (Exception ex)
             {

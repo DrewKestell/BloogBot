@@ -19,12 +19,12 @@ namespace WoWActivityMember.Game.Statics
         static readonly bool _ingame2 = true;
         static EnumerateVisibleObjectsCallbackVanilla CallbackDelegate;
         static IntPtr callbackPtr;
-        static CharacterState _characterState;
+        static ActivityMemberState _characterState;
 
         static internal IList<WoWObject> Objects = new List<WoWObject>();
         static internal IList<WoWObject> ObjectsBuffer = new List<WoWObject>();
 
-        static internal async Task Initialize(CharacterState parProbe)
+        static internal async Task Initialize(ActivityMemberState parProbe)
         {
             _characterState = parProbe;
 

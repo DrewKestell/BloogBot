@@ -6,38 +6,36 @@ using System.Reactive.Subjects;
 using System.Text;
 using WoWActivityMember.Models;
 
-namespace WoWStateManager
+namespace WoWStateManager.Listeners
 {
-    public class WorldStateActivityServer(int port, IPAddress ipAddress) : AbstractSocketServer(port, ipAddress)
+    public class WorldStateManagerSocketListener() : AbstractSocketServer(8089, IPAddress.Parse("127.0.0.1"))
     {
-        private readonly Subject<ActivityState> _instanceUpdateSubject = new();
+        private readonly Subject<WorldStateUpdate> _instanceUpdateSubject = new();
 
-        public IObservable<ActivityState> InstanceUpdateObservable => _instanceUpdateSubject;
+        public IObservable<WorldStateUpdate> InstanceUpdateObservable => _instanceUpdateSubject;
 
         public override int HandleRequest(string payload, Socket clientSocket)
         {
             if (string.IsNullOrEmpty(payload))
-            {
                 return 0;
-            }
-            ActivityState instanceUpdate = JsonConvert.DeserializeObject<ActivityState>(payload);
+
+            WorldStateUpdate instanceUpdate = JsonConvert.DeserializeObject<WorldStateUpdate>(payload);
             int processId = instanceUpdate.ProcessId;
 
             if (processId != 0)
             {
                 if (!_processIds.ContainsKey(processId))
                 {
-                    Console.WriteLine($"[ACTIVITY MANAGER SERVER {_port}]Process connected {processId}");
+                    Console.WriteLine($"{DateTime.Now}|[WORLD STATE MANAGER SERVER : {_port}] Process connected {processId}");
                     _processIds.Add(processId, clientSocket);
                 }
 
-                instanceUpdate.IsConnected = true;
                 _instanceUpdateSubject.OnNext(instanceUpdate);
             }
             return processId;
         }
 
-        public bool SendCommandToProcess(int processId, CharacterState characterState)
+        public bool SendCommandToProcess(int processId, List<ActivityState> activityStates)
         {
             if (_processIds.ContainsKey(processId))
             {
@@ -46,13 +44,14 @@ namespace WoWStateManager
                 {
                     if (clientSocket != null && clientSocket.Connected)
                     {
-                        clientSocket.Send(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(characterState)));
+                        string payload = JsonConvert.SerializeObject(activityStates);
+                        clientSocket.Send(Encoding.ASCII.GetBytes(payload));
                         return true;
                     }
                 }
                 catch (SocketException e)
                 {
-                    Console.WriteLine($"{e.Message} {e.ErrorCode} {e.NativeErrorCode} {e.SocketErrorCode}");
+                    Console.WriteLine($"{DateTime.Now}|[WORLD STATE MANAGER SERVER : {_port}] {e.Message} {e.ErrorCode} {e.NativeErrorCode} {e.SocketErrorCode}");
                 }
             }
             return false;

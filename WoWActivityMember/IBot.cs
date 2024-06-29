@@ -8,7 +8,7 @@ namespace WoWActivityMember.Tasks
 
         string FileName { get; }
 
-        IClassContainer GetClassContainer(CharacterState probe);
+        IClassContainer GetClassContainer(ActivityMemberState probe);
 
         IBotTask CreateRestTask(IClassContainer container, Stack<IBotTask> botTasks);
 

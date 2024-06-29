@@ -6,7 +6,7 @@ namespace WoWActivityMember.Tasks
     public class ClassContainer : IClassContainer
     {
         public string Name { get; }
-        public CharacterState State { get; }
+        public ActivityMemberState State { get; }
         public Func<IClassContainer, Stack<IBotTask>, IBotTask> CreateRestTask { get; }
         public Func<IClassContainer, Stack<IBotTask>, IBotTask> CreateBuffTask { get; }
         public Func<IClassContainer, Stack<IBotTask>, IBotTask> CreatePullTargetTask { get; }
@@ -20,7 +20,7 @@ namespace WoWActivityMember.Tasks
             Func<IClassContainer, Stack<IBotTask>, IBotTask> createPullTargetTask,
             Func<IClassContainer, Stack<IBotTask>, IBotTask> createPvERotationTask,
             Func<IClassContainer, Stack<IBotTask>, IBotTask> createPvPRotationTask,
-            CharacterState state)
+            ActivityMemberState state)
         {
             Name = name;
             State = state;

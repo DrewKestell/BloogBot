@@ -4,7 +4,7 @@ using WoWActivityMember.Mem;
 
 namespace WoWActivityMember.Tasks
 {
-    internal class ResetCharacterStateTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Ordinary), IBotTask
+    internal class ResetActivityMemberStateTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Ordinary), IBotTask
     {
         bool startedTeleport;
         bool leaveParty;

@@ -1,61 +1,147 @@
-﻿using BaseSocketServer;
-using Newtonsoft.Json;
-using System.Net;
-using System.Net.Sockets;
-using System.Reactive.Subjects;
-using System.Text;
-using WoWActivityMember.Models;
+﻿using WoWActivityMember.Models;
+using WoWStateManager.Listeners;
+using WoWStateManager.Models;
 
 namespace WoWStateManager
 {
-    public class WorldStateManagerServer(int port, IPAddress ipAddress) : AbstractSocketServer(port, ipAddress)
+    public class WorldStateManagerServer
     {
-        private readonly Subject<ActivityCommand> _instanceUpdateSubject = new();
-
-        public IObservable<ActivityCommand> InstanceUpdateObservable => _instanceUpdateSubject;
-
-        public override int HandleRequest(string payload, Socket clientSocket)
+        private readonly WorldStateManagerSocketListener WorldStateManagerSocketListener;
+        private readonly WorldStateActivitySocketListener WorldStateActivitySocketListener;
+        private readonly List<ActivityState> CurrentActivityList;
+        public WorldStateManagerServer()
         {
-            if (string.IsNullOrEmpty(payload))
-            {
-                return 0;
-            }
-            ActivityCommand instanceUpdate = JsonConvert.DeserializeObject<ActivityCommand>(payload);
-            int processId = instanceUpdate.ProcessId;
+            WorldStateManagerSocketListener = new WorldStateManagerSocketListener();
+            WorldStateActivitySocketListener = new WorldStateActivitySocketListener();
 
-            if (processId != 0)
+            CurrentActivityList = WoWStateManagerSettings.Instance.ActivityPresets.Select(x => new ActivityState()
             {
-                if (!_processIds.ContainsKey(processId))
-                {
-                    Console.WriteLine($"{DateTime.Now}| [ACTIVITY MANAGER SERVER : {_port}]Process connected {processId}");
-                    _processIds.Add(processId, clientSocket);
-                }
+                ActivityType = x.ActivityType,
+                ActivityMemberStates = x.ActivityMemberPresets,
+            }).ToList();
 
-                _instanceUpdateSubject.OnNext(instanceUpdate);
-            }
-            return processId;
+            WorldStateManagerSocketListener.InstanceUpdateObservable.Subscribe(OnWorldStateUpdate);
+            WorldStateActivitySocketListener.InstanceUpdateObservable.Subscribe(OnActivityManagerUpdate);
+
+            WorldStateManagerSocketListener.Start();
+            WorldStateActivitySocketListener.Start();
         }
 
-        public bool SendCommandToProcess(int processId, List<ActivityState> activityStates)
+        private void OnActivityManagerUpdate(ActivityState state)
         {
-            if (_processIds.ContainsKey(processId))
+            if (CurrentActivityList.Any(x => x.ProcessId == state.ProcessId))
             {
-                _processIds.TryGetValue(processId, out Socket clientSocket);
-                try
+                WorldStateActivitySocketListener.SendCommandToProcess(state.ProcessId,
+                    CurrentActivityList.First(x => x.ProcessId == state.ProcessId));
+            }
+            else if (CurrentActivityList.Any(x => x.ProcessId == 0))
+            {
+                ActivityState activityState = CurrentActivityList.First(x => x.ProcessId == 0);
+                activityState.ProcessId = state.ProcessId;
+
+                WorldStateActivitySocketListener.SendCommandToProcess(state.ProcessId,
+                    activityState);
+            }
+            else
+            {
+                WorldStateActivitySocketListener.SendCommandToProcess(state.ProcessId,
+                    new ActivityState() { ActivityType = ActivityType.Idle });
+            }
+        }
+
+        private void OnWorldStateUpdate(WorldStateUpdate worldStateUpdate)
+        {
+            if (worldStateUpdate.ActivityAction != ActivityAction.None)
+            {
+                Console.WriteLine($"{DateTime.Now}|[WOW STATE MANAGER RUNNER]Processing Activity - {worldStateUpdate.ActivityAction} {worldStateUpdate.CommandParam1} {worldStateUpdate.CommandParam2} {worldStateUpdate.CommandParam3} {worldStateUpdate.CommandParam4}");
+
+                int activityIndex = int.Parse(worldStateUpdate.CommandParam1);
+                int activityMemberIndex = int.Parse(worldStateUpdate.CommandParam2);
+                switch (worldStateUpdate.ActivityAction)
                 {
-                    if (clientSocket != null && clientSocket.Connected)
-                    {
-                        string payload = JsonConvert.SerializeObject(activityStates);
-                        clientSocket.Send(Encoding.ASCII.GetBytes(payload));
-                        return true;
-                    }
-                }
-                catch (SocketException e)
-                {
-                    Console.WriteLine($"{DateTime.Now}| {e.Message} {e.ErrorCode} {e.NativeErrorCode} {e.SocketErrorCode}");
+                    case ActivityAction.AddActivity:
+                        WoWStateManagerSettings.Instance.ActivityPresets.Add(new ActivityPreset());
+                        break;
+                    case ActivityAction.EditActivity:
+                        if (worldStateUpdate.CommandParam3 == "Remove")
+                            WoWStateManagerSettings.Instance.ActivityPresets.RemoveAt(activityIndex);
+                        else
+                        {
+                            WoWStateManagerSettings.Instance.ActivityPresets[activityIndex].ActivityType = (ActivityType)Enum.Parse(typeof(ActivityType), worldStateUpdate.CommandParam3);
+
+                            while (WoWStateManagerSettings.Instance.ActivityPresets[activityIndex].MinActivitySize > WoWStateManagerSettings.Instance.ActivityPresets[activityIndex].ActivityMemberPresets.Count)
+                                WoWStateManagerSettings.Instance.ActivityPresets[activityIndex].ActivityMemberPresets.Add(new ActivityMemberPreset());
+
+                            while (WoWStateManagerSettings.Instance.ActivityPresets[activityIndex].MaxActivitySize < WoWStateManagerSettings.Instance.ActivityPresets[activityIndex].ActivityMemberPresets.Count)
+                                WoWStateManagerSettings.Instance.ActivityPresets[activityIndex].ActivityMemberPresets.RemoveAt(WoWStateManagerSettings.Instance.ActivityPresets[activityIndex].ActivityMemberPresets.Count - 1);
+                        }
+                        break;
+                    case ActivityAction.AddActivityMember:
+                        WoWStateManagerSettings.Instance.ActivityPresets[activityIndex].ActivityMemberPresets.Add(new ActivityMemberPreset());
+                        break;
+                    case ActivityAction.EditActivityMember:
+                        ActivityPreset activityPreset = WoWStateManagerSettings.Instance.ActivityPresets[activityIndex];
+                        ActivityMemberPreset activityMemberPreset = activityPreset.ActivityMemberPresets[activityMemberIndex];
+
+                        switch (worldStateUpdate.CommandParam3)
+                        {
+                            case "BehaviorProfile":
+                                activityMemberPreset.BehaviorProfile = worldStateUpdate.CommandParam4;
+                                break;
+                            case "Account":
+                                activityMemberPreset.Account = worldStateUpdate.CommandParam4;
+                                break;
+                            case "ProgressionConfig":
+                                activityMemberPreset.ProgressionConfig = worldStateUpdate.CommandParam4;
+                                break;
+                            case "InitialStateConfig":
+                                activityMemberPreset.InitialStateConfig = worldStateUpdate.CommandParam4;
+                                break;
+                            case "EndStateConfig":
+                                activityMemberPreset.EndStateConfig = worldStateUpdate.CommandParam4;
+                                break;
+                            case "Remove":
+                                activityPreset.ActivityMemberPresets.RemoveAt(activityMemberIndex);
+                                break;
+                        }
+                        break;
+                    case ActivityAction.SetMaxMemberSize:
+                        while (WoWStateManagerSettings.Instance.ActivityPresets[activityIndex].MaxActivitySize > WoWStateManagerSettings.Instance.ActivityPresets[activityIndex].ActivityMemberPresets.Count)
+                            WoWStateManagerSettings.Instance.ActivityPresets[activityIndex].ActivityMemberPresets.Add(new ActivityMemberPreset());
+                        break;
+                    case ActivityAction.SetMinMemberSize:
+                        while (WoWStateManagerSettings.Instance.ActivityPresets[activityIndex].MinActivitySize < WoWStateManagerSettings.Instance.ActivityPresets[activityIndex].ActivityMemberPresets.Count)
+                            WoWStateManagerSettings.Instance.ActivityPresets[activityIndex].ActivityMemberPresets.RemoveAt(WoWStateManagerSettings.Instance.ActivityPresets[activityIndex].ActivityMemberPresets.Count - 1);
+                        break;
+                    case ActivityAction.ApplyDesiredState:
+                        WoWStateManagerSettings.Instance.SaveConfig();
+
+                        for (int i = 0; i < WoWStateManagerSettings.Instance.ActivityPresets.Count; i++)
+                            if (CurrentActivityList.Count < i)
+                                CurrentActivityList.Add(new ActivityState()
+                                {
+                                    ActivityType = WoWStateManagerSettings.Instance.ActivityPresets[i].ActivityType,
+                                    ActivityMemberStates = WoWStateManagerSettings.Instance.ActivityPresets[i].ActivityMemberPresets
+                                });
+                            else
+                            {
+                                CurrentActivityList[i].ActivityType = WoWStateManagerSettings.Instance.ActivityPresets[i].ActivityType;
+                                CurrentActivityList[i].ActivityMemberStates = WoWStateManagerSettings.Instance.ActivityPresets[i].ActivityMemberPresets;
+                            }
+
+                        if (CurrentActivityList.Count > WoWStateManagerSettings.Instance.ActivityPresets.Count)
+                            CurrentActivityList.RemoveRange(WoWStateManagerSettings.Instance.ActivityPresets.Count, CurrentActivityList.Count - WoWStateManagerSettings.Instance.ActivityPresets.Count);
+
+                        break;
                 }
             }
-            return false;
+            WorldStateManagerSocketListener.SendCommandToProcess(worldStateUpdate.ProcessId,
+                WoWStateManagerSettings.Instance.ActivityPresets.Select(x => new ActivityState()
+                {
+                    ProcessId = WoWStateManagerSettings.Instance.ActivityPresets.IndexOf(x) + 1 > CurrentActivityList.Count ? 0 : CurrentActivityList[WoWStateManagerSettings.Instance.ActivityPresets.IndexOf(x)].ProcessId,
+                    ActivityType = x.ActivityType,
+                    ActivityMemberStates = x.ActivityMemberPresets
+                }).ToList());
         }
     }
 }

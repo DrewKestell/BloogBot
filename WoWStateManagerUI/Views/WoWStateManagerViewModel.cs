@@ -21,8 +21,8 @@ namespace WoWStateManagerUI.Views
         public string ConsoleLogText { get { return ConsoleLogDataSB.ToString(); } set { } }
         private Task HeartbeatTask { get; set; }
         private WorldStateCommandClient WorldStateCommandClient { get; set; }
-        private ActivityCommand DefaultActivityCommand { get; } = new ActivityCommand() { ActivityAction = ActivityAction.None, ProcessId = Environment.ProcessId };
-        private ActivityCommand UserActivityCommand { get; set; } = new ActivityCommand() { ActivityAction = ActivityAction.None, ProcessId = Environment.ProcessId };
+        private WorldStateUpdate DefaultActivityCommand { get; } = new WorldStateUpdate() { ActivityAction = ActivityAction.None, ProcessId = Environment.ProcessId };
+        private WorldStateUpdate UserActivityCommand { get; set; } = new WorldStateUpdate() { ActivityAction = ActivityAction.None, ProcessId = Environment.ProcessId };
         public WoWStateManagerViewModel() { }
 
         private ICommand _connectToWoWStateManagerCommand;
@@ -155,16 +155,6 @@ namespace WoWStateManagerUI.Views
             }
         }
 
-        public ActivityType ActivityType { 
-            get {
-                return SelectedActivity.CurrentActivity;
-            } 
-            set 
-            { 
-
-            } 
-        }
-
         public bool CanAddActivityMember => SelectedActivity != null && SelectedActivityMemberViewModels.Count < SelectedActivity.ActivityState.MaxActivitySize;
         public bool CanRemoveActivityMember => SelectedActivity != null && SelectedActivityMemberViewModels.Count > SelectedActivity.ActivityState.MinActivitySize;
         private async Task WoWStateHeartbeatTask()
@@ -205,22 +195,24 @@ namespace WoWStateManagerUI.Views
                                 ActivityViewModel activityViewModel = ActivityViewModels.First(x => x.ActivityState.ProcessId == item.ProcessId);
                                 activityViewModel.ActivityState.ActivityType = item.ActivityType;
 
-                                while (activityViewModel.ActivityState.ActivityMemberPresets.Count < item.ActivityMemberPresets.Count)
+                                while (activityViewModel.ActivityState.ActivityMemberStates.Count < item.ActivityMemberStates.Count)
                                 {
+                                    LogMessage($"{DateTime.Now}| Adding new activity member Activity: {activityViewModel.ActivityState.ProcessId}");
                                     activityViewModel.AddNewActivityMember();
                                 }
 
-                                while (activityViewModel.ActivityState.ActivityMemberPresets.Count > item.ActivityMemberPresets.Count)
+                                while (activityViewModel.ActivityState.ActivityMemberStates.Count > item.ActivityMemberStates.Count)
                                 {
+                                    LogMessage($"{DateTime.Now}| Removing activity member Activity: {activityViewModel.ActivityState.ProcessId} {SelectedActivityMember.BehaviorProfile}");
                                     activityViewModel.RemoveActivityMember();
                                 }
 
-                                for (int i = 0; i < activityViewModel.ActivityState.ActivityMemberPresets.Count; i++)
+                                for (int i = 0; i < activityViewModel.ActivityState.ActivityMemberStates.Count; i++)
                                 {
-                                    activityViewModel.ActivityState.ActivityMemberPresets[i].Account = item.ActivityMemberPresets[i].Account;
-                                    activityViewModel.ActivityState.ActivityMemberPresets[i].BehaviorProfile = item.ActivityMemberPresets[i].BehaviorProfile;
-                                    activityViewModel.ActivityState.ActivityMemberPresets[i].InitialStateConfig = item.ActivityMemberPresets[i].InitialStateConfig;
-                                    activityViewModel.ActivityState.ActivityMemberPresets[i].EndStateConfig = item.ActivityMemberPresets[i].EndStateConfig;
+                                    activityViewModel.ActivityState.ActivityMemberStates[i].Account = item.ActivityMemberStates[i].Account;
+                                    activityViewModel.ActivityState.ActivityMemberStates[i].BehaviorProfile = item.ActivityMemberStates[i].BehaviorProfile;
+                                    activityViewModel.ActivityState.ActivityMemberStates[i].InitialStateConfig = item.ActivityMemberStates[i].InitialStateConfig;
+                                    activityViewModel.ActivityState.ActivityMemberStates[i].EndStateConfig = item.ActivityMemberStates[i].EndStateConfig;
                                 }
                             }
                             else

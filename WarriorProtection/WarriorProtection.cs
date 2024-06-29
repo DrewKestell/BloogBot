@@ -12,7 +12,7 @@ namespace WarriorProtection
 
         public string FileName => "WarriorProtection.dll";
 
-        public IClassContainer GetClassContainer(CharacterState probe) =>
+        public IClassContainer GetClassContainer(ActivityMemberState probe) =>
             new ClassContainer(
                 Name,
                 CreateRestTask,

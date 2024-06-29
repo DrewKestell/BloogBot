@@ -12,7 +12,7 @@ namespace HunterBeastMastery
 
         public string FileName => "HunterBeastMastery.dll";
 
-        public IClassContainer GetClassContainer(CharacterState probe) =>
+        public IClassContainer GetClassContainer(ActivityMemberState probe) =>
             new ClassContainer(
                 Name,
                 CreateRestTask,
