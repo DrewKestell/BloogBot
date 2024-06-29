@@ -21,9 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BaseSocketServer\BaseSocketMessanger.csproj" />
     <ProjectReference Include="..\MaNGOSDBDomain\MaNGOSDBDomain.csproj" />
-    <ProjectReference Include="..\MaNGOSDBServer\MaNGOSDBDomain.csproj" />
     <ProjectReference Include="..\Servers\BaseSocketServer\BaseSocketMessanger.csproj" />
-    <ProjectReference Include="..\Servers\MaNGOSDBServer\MaNGOSDBDomain.csproj" />
     <ProjectReference Include="..\WinImports\WinProcessImports.csproj" />
   </ItemGroup>
 

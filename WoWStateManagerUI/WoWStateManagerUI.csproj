@@ -14,7 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WoWActivityMember\WoWActivityMember.csproj" />
-    <ProjectReference Include="..\WoWClientBot\WoWActivityMember.csproj" />
   </ItemGroup>
 
 </Project>

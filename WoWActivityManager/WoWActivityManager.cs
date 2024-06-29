@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Net;
+﻿using System.Net;
 using WoWActivityManager.Clients;
 using WoWActivityManager.Listeners;
 using WoWActivityMember.Models;

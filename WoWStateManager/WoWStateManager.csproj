@@ -17,13 +17,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Reactive" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\WoWActivityMember\WoWActivityMember.csproj" />
-    <ProjectReference Include="..\WoWClientBot\WoWActivityMember.csproj" />
     <ProjectReference Include="..\BaseSocketServer\BaseSocketMessanger.csproj" />
   </ItemGroup>
 
