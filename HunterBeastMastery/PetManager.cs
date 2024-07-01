@@ -7,11 +7,11 @@ using HunterBeastMastery.Tasks;
 
 namespace HunterBeastMastery
 {
-    class PetManagerState : BotTask, IBotTask
+    internal class PetManagerState : BotTask, IBotTask
     {
-        const string CallPet = "Call Pet";
-        const string RevivePet = "Revive Pet";
-        const string FeedPet = "Feed Pet";
+        private const string CallPet = "Call Pet";
+        private const string RevivePet = "Revive Pet";
+        private const string FeedPet = "Feed Pet";
 
         public PetManagerState(Stack<IBotTask> botTasks, IClassContainer container) : base(container, botTasks, TaskType.Buff) { }
 

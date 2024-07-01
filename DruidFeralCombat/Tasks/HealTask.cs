@@ -5,13 +5,12 @@ using WoWActivityMember.Mem;
 
 namespace DruidFeral.Tasks
 {
-    class HealTask : BotTask, IBotTask
+    internal class HealTask : BotTask, IBotTask
     {
-        const string BearForm = "Bear Form";
-        const string CatForm = "Cat Form";
-
-        const string WarStomp = "War Stomp";
-        const string HealingTouch = "Healing Touch";
+        private const string BearForm = "Bear Form";
+        private const string CatForm = "Cat Form";
+        private const string WarStomp = "War Stomp";
+        private const string HealingTouch = "Healing Touch";
         public HealTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Heal) { }
 
         public void Update()
@@ -37,7 +36,7 @@ namespace DruidFeral.Tasks
             CastSpell(HealingTouch, castOnSelf: true);
         }
 
-        void CastSpell(string name, bool castOnSelf = false)
+        private void CastSpell(string name, bool castOnSelf = false)
         {
             if (ObjectManager.Player.IsSpellReady(name))
             {

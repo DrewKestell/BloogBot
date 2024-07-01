@@ -6,9 +6,9 @@ using WoWActivityMember.Tasks;
 
 namespace RogueCombat.Tasks
 {
-    class RestTask : BotTask, IBotTask
+    internal class RestTask : BotTask, IBotTask
     {
-        const string Cannibalize = "Cannibalize";
+        private const string Cannibalize = "Cannibalize";
         public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
         {
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);

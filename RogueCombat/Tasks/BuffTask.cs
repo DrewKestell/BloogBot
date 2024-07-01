@@ -2,7 +2,7 @@
 
 namespace RogueCombat.Tasks
 {
-    class BuffTask : BotTask, IBotTask
+    internal class BuffTask : BotTask, IBotTask
     {
         public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()

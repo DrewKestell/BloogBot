@@ -5,28 +5,28 @@ using System.Text;
 
 namespace WoWActivityMember.Mem.AntiWarden
 {
-    static class WardenDisabler
+    internal static class WardenDisabler
     {
-        static readonly byte[] pageScanOriginalBytes = { 0x8B, 0x45, 0x08, 0x8A, 0x04 }; // first 5 bytes of Warden's PageScan function
-        static readonly byte[] memScanOriginalBytes = { 0x56, 0x57, 0xFC, 0x8B, 0x54 }; // first 5 bytes of Warden's MemScan function
+        private static readonly byte[] pageScanOriginalBytes = { 0x8B, 0x45, 0x08, 0x8A, 0x04 }; // first 5 bytes of Warden's PageScan function
+        private static readonly byte[] memScanOriginalBytes = { 0x56, 0x57, 0xFC, 0x8B, 0x54 }; // first 5 bytes of Warden's MemScan function
 
         // different client versions have different function signatures for this hook. the game crashes with an access violation unless you
         // use the right signature here (likely due to stack or register corruption)
-        delegate void DisableWardenVanillaDelegate(IntPtr _);
-        static DisableWardenVanillaDelegate disableWardenVanillaDelegate;
+        private delegate void DisableWardenVanillaDelegate(IntPtr _);
 
-        static IntPtr wardenPageScanFunPtr = IntPtr.Zero;
-        static IntPtr wardenMemScanFunPtr = IntPtr.Zero;
+        private static DisableWardenVanillaDelegate disableWardenVanillaDelegate;
+        private static IntPtr wardenPageScanFunPtr = IntPtr.Zero;
+        private static IntPtr wardenMemScanFunPtr = IntPtr.Zero;
 
         // Module scan
         [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-        static extern IntPtr GetModuleHandle(string lpModuleName);
+        private static extern IntPtr GetModuleHandle(string lpModuleName);
 
         [DllImport("kernel32", CharSet = CharSet.Ansi, ExactSpelling = true, SetLastError = true)]
-        static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
+        private static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
 
         [StructLayout(LayoutKind.Sequential)]
-        struct MODULEENTRY32
+        private struct MODULEENTRY32
         {
             internal uint dwSize;
             internal uint th32ModuleID;
@@ -41,21 +41,19 @@ namespace WoWActivityMember.Mem.AntiWarden
         }
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern bool Module32First(IntPtr hSnapshot, ref MODULEENTRY32 lpme);
+        private static extern bool Module32First(IntPtr hSnapshot, ref MODULEENTRY32 lpme);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern bool Module32Next(IntPtr hSnapshot, ref MODULEENTRY32 lpme);
+        private static extern bool Module32Next(IntPtr hSnapshot, ref MODULEENTRY32 lpme);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern void SetLastError(uint dwErrCode);
+        private static extern void SetLastError(uint dwErrCode);
 
-        static Module32FirstDelegate module32FirstDelegate;
-        static Detour module32FirstHook;
-
-        static Module32NextDelegate module32NextDelegate;
-        static Detour module32NextHook;
-
-        static readonly IList<string> modules = new List<string>
+        private static Module32FirstDelegate module32FirstDelegate;
+        private static Detour module32FirstHook;
+        private static Module32NextDelegate module32NextDelegate;
+        private static Detour module32NextHook;
+        private static readonly IList<string> modules = new List<string>
         {
             "wow.exe",
             "ntdll.dll",
@@ -181,7 +179,7 @@ namespace WoWActivityMember.Mem.AntiWarden
             //InitializeModuleScanHook();
         }
 
-        static void DisableWardenInternal(IntPtr _)
+        private static void DisableWardenInternal(IntPtr _)
         {
             Console.WriteLine("[WARDEN] DisableWardenHook called.");
             Console.WriteLine($"[WARDEN] WardenPtr = {_} (0x{_.ToString("X")})");
@@ -195,13 +193,13 @@ namespace WoWActivityMember.Mem.AntiWarden
         }
 
         #region InitializeWardenPageScanHook
-        delegate void WardenPageScanDelegate(IntPtr readBase, int readOffset, IntPtr writeTo);
-        static WardenPageScanDelegate wardenPageScanDelegate;
+        private delegate void WardenPageScanDelegate(IntPtr readBase, int readOffset, IntPtr writeTo);
 
-        static readonly byte[] seed = new byte[4];
-        static readonly byte[] buffer = new byte[20];
+        private static WardenPageScanDelegate wardenPageScanDelegate;
+        private static readonly byte[] seed = new byte[4];
+        private static readonly byte[] buffer = new byte[20];
 
-        static void InitializeWardenPageScanHook(IntPtr wardenModuleStart)
+        private static void InitializeWardenPageScanHook(IntPtr wardenModuleStart)
         {
             IntPtr pageScanPtr = IntPtr.Zero;
 
@@ -252,7 +250,7 @@ namespace WoWActivityMember.Mem.AntiWarden
             Console.WriteLine($"[WARDEN] PageScan Hooked! WardenModulePtr=0x{wardenModuleStart.ToString("X")} OriginalPageScanFunPtr=0x{pageScanPtr.ToString("X")} DetourFunPtr=0x{wardenPageScanDetourPtr.ToString("X")}");
         }
 
-        static void WardenPageScanHook(IntPtr readBase, int readOffset, IntPtr writeTo)
+        private static void WardenPageScanHook(IntPtr readBase, int readOffset, IntPtr writeTo)
         {
             // Logging this to the console lags the client like crazy.
             // Console.WriteLine($"[WARDEN PageScan] BaseAddr: {readBase.ToString("X")}, Offset: {readOffset}");
@@ -275,10 +273,11 @@ namespace WoWActivityMember.Mem.AntiWarden
         #endregion
 
         #region InitializeWardenMemScanHook
-        delegate void WardenMemScanDelegate(IntPtr addr, int size, IntPtr bufferStart);
-        static WardenMemScanDelegate wardenMemScanDelegate;
+        private delegate void WardenMemScanDelegate(IntPtr addr, int size, IntPtr bufferStart);
 
-        static void InitializeWardenMemScanHook(IntPtr wardenModuleStart)
+        private static WardenMemScanDelegate wardenMemScanDelegate;
+
+        private static void InitializeWardenMemScanHook(IntPtr wardenModuleStart)
         {
             IntPtr memScanPtr = IntPtr.Zero;
             for (var i = 0x10000; i > 0; i--)
@@ -327,7 +326,7 @@ namespace WoWActivityMember.Mem.AntiWarden
             Console.WriteLine($"[WARDEN] MemScan Hooked! WardenModulePtr={wardenModuleStart.ToString("X")} OriginalMemScanFunPtr=0x{memScanPtr.ToString("X")} DetourFunPtr=0x{wardenMemScanDetourPtr.ToString("X")}");
         }
 
-        static void WardenMemScanHook(IntPtr addr, int size, IntPtr bufferStart)
+        private static void WardenMemScanHook(IntPtr addr, int size, IntPtr bufferStart)
         {
             // todo: will size ever be 0?
             if (size != 0)
@@ -353,12 +352,12 @@ namespace WoWActivityMember.Mem.AntiWarden
         #endregion
 
         [UnmanagedFunctionPointer(CallingConvention.Winapi)]
-        delegate bool Module32FirstDelegate(IntPtr snapshot, ref MODULEENTRY32 module);
+        private delegate bool Module32FirstDelegate(IntPtr snapshot, ref MODULEENTRY32 module);
 
         [UnmanagedFunctionPointer(CallingConvention.Winapi)]
-        delegate bool Module32NextDelegate(IntPtr snapshot, ref MODULEENTRY32 module);
+        private delegate bool Module32NextDelegate(IntPtr snapshot, ref MODULEENTRY32 module);
 
-        static void InitializeModuleScanHook()
+        private static void InitializeModuleScanHook()
         {
             var handle = GetModuleHandle("kernel32.dll");
             var firstAddr = GetProcAddress(handle, "Module32First");
@@ -375,9 +374,9 @@ namespace WoWActivityMember.Mem.AntiWarden
             Console.WriteLine($"[WARDEN] ModuleScan Hooked 0x{(int)handle:X} 0x{(int)firstAddr:X} 0x{(int)nextAddr:X}");
         }
 
-        static readonly HashSet<string> protectedItems = [];
+        private static readonly HashSet<string> protectedItems = [];
 
-        static bool Module32FirstDetour(IntPtr snapshot, ref MODULEENTRY32 module)
+        private static bool Module32FirstDetour(IntPtr snapshot, ref MODULEENTRY32 module)
         {
             Console.WriteLine("[WARDEN ModuleScan] Started");
 
@@ -400,7 +399,7 @@ namespace WoWActivityMember.Mem.AntiWarden
             return ret;
         }
 
-        static bool Module32NextDetour(IntPtr snapshot, ref MODULEENTRY32 module)
+        private static bool Module32NextDetour(IntPtr snapshot, ref MODULEENTRY32 module)
         {
             module32NextHook.Remove();
             var ret = Module32Next(snapshot, ref module);

@@ -6,13 +6,12 @@ using WoWActivityMember.Tasks;
 
 namespace PriestShadow.Tasks
 {
-    class HealTask : BotTask, IBotTask
+    internal class HealTask : BotTask, IBotTask
     {
-        const string LesserHeal = "Lesser Heal";
-        const string Heal = "Heal";
-        const string Renew = "Renew";
-
-        readonly string healingSpell;
+        private const string LesserHeal = "Lesser Heal";
+        private const string Heal = "Heal";
+        private const string Renew = "Renew";
+        private readonly string healingSpell;
 
         public HealTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Heal)
         {

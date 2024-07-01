@@ -5,13 +5,12 @@ using WoWActivityMember.Objects;
 
 namespace WoWActivityMember.Tasks.SharedStates
 {
-    class GatherObjectTask : BotTask, IBotTask
+    internal class GatherObjectTask : BotTask, IBotTask
     {
-        readonly WoWGameObject target;
-        readonly int initialCount = 0;
-
-        readonly int startTime = Environment.TickCount;
-        readonly LootFrame lootFrame;
+        private readonly WoWGameObject target;
+        private readonly int initialCount = 0;
+        private readonly int startTime = Environment.TickCount;
+        private readonly LootFrame lootFrame;
         internal GatherObjectTask(IClassContainer container, Stack<IBotTask> botTasks, WoWGameObject target) : base(container, botTasks, TaskType.Ordinary)
         {
             this.target = target;

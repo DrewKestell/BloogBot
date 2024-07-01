@@ -6,9 +6,9 @@ using WoWActivityMember.Objects;
 
 namespace DruidFeral.Tasks
 {
-    class PullTargetTask : BotTask, IBotTask
+    internal class PullTargetTask : BotTask, IBotTask
     {
-        const string Wrath = "Wrath";
+        private const string Wrath = "Wrath";
 
         internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull) { }
         public void Update()

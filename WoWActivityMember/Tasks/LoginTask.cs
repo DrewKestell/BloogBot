@@ -7,11 +7,10 @@ namespace WoWActivityMember.Tasks.SharedStates
 {
     public class LoginTask : BotTask, IBotTask
     {
-        bool isHandShaking;
-        bool handshakeReset;
-
-        int lastTickTime;
-        int handshakeDuration;
+        private bool isHandShaking;
+        private bool handshakeReset;
+        private int lastTickTime;
+        private int handshakeDuration;
 
         public LoginTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Ordinary)
         {
@@ -72,9 +71,11 @@ namespace WoWActivityMember.Tasks.SharedStates
             lastTickTime = Environment.TickCount;
         }
 
-        Enums.LoginStates LoginState => (Enums.LoginStates)Enum.Parse(typeof(Enums.LoginStates), MemoryManager.ReadString(Offsets.CharacterScreen.LoginState));
-        string GlueDialogText => Functions.LuaCallWithResult("{0} = GlueDialogText:GetText()")[0];
-        int MaxCharacterCount => MemoryManager.ReadInt(0x00B42140);
+        private Enums.LoginStates LoginState => (Enums.LoginStates)Enum.Parse(typeof(Enums.LoginStates), MemoryManager.ReadString(Offsets.CharacterScreen.LoginState));
+
+        private string GlueDialogText => Functions.LuaCallWithResult("{0} = GlueDialogText:GetText()")[0];
+
+        private int MaxCharacterCount => MemoryManager.ReadInt(0x00B42140);
         public void ResetLogin()
         {
             Functions.LuaCall("arg1 = 'ESCAPE' GlueDialog_OnKeyDown()");

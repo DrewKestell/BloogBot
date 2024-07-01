@@ -6,14 +6,13 @@ using WoWActivityMember.Objects;
 
 namespace DruidBalance.Tasks
 {
-    class RestTask : BotTask, IBotTask
+    internal class RestTask : BotTask, IBotTask
     {
-        const int stackCount = 5;
-
-        const string Regrowth = "Regrowth";
-        const string Rejuvenation = "Rejuvenation";
-        const string MoonkinForm = "Moonkin Form";
-        WoWItem drinkItem;
+        private const int stackCount = 5;
+        private const string Regrowth = "Regrowth";
+        private const string Rejuvenation = "Rejuvenation";
+        private const string MoonkinForm = "Moonkin Form";
+        private WoWItem drinkItem;
         public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
         {
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
@@ -88,13 +87,13 @@ namespace DruidBalance.Tasks
                 drinkItem.Use();
         }
 
-        bool HealthOk => ObjectManager.Player.HealthPercent >= 81;
+        private bool HealthOk => ObjectManager.Player.HealthPercent >= 81;
 
-        bool ManaOk => (ObjectManager.Player.Level < 6 && ObjectManager.Player.ManaPercent > 50) || ObjectManager.Player.ManaPercent >= 90 || (ObjectManager.Player.ManaPercent >= 65 && !ObjectManager.Player.IsDrinking);
+        private bool ManaOk => (ObjectManager.Player.Level < 6 && ObjectManager.Player.ManaPercent > 50) || ObjectManager.Player.ManaPercent >= 90 || (ObjectManager.Player.ManaPercent >= 65 && !ObjectManager.Player.IsDrinking);
 
-        bool InCombat => ObjectManager.Aggressors.Count() > 0;
+        private bool InCombat => ObjectManager.Aggressors.Count() > 0;
 
-        void TryCastSpell(string name, bool condition = true)
+        private void TryCastSpell(string name, bool condition = true)
         {
             if (ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.IsCasting && ObjectManager.Player.Mana > ObjectManager.Player.GetManaCost(name) && !ObjectManager.Player.IsDrinking && condition)
             {

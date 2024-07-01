@@ -7,12 +7,11 @@ namespace WoWActivityMember.Tasks.SharedStates
 {
     public class LootTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Ordinary), IBotTask
     {
-        readonly int startTime = Environment.TickCount;
-
-        readonly int stuckCount;
-        readonly LootFrame lootFrame;
-        int lootIndex;
-        LootStates currentState;
+        private readonly int startTime = Environment.TickCount;
+        private readonly int stuckCount;
+        private readonly LootFrame lootFrame;
+        private int lootIndex;
+        private LootStates currentState;
 
         public void Update()
         {
@@ -80,7 +79,7 @@ namespace WoWActivityMember.Tasks.SharedStates
         }
     }
 
-    enum LootStates
+    internal enum LootStates
     {
         Initial,
         RightClicked,

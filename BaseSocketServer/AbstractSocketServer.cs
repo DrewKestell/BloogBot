@@ -12,8 +12,7 @@ namespace BaseSocketServer
         protected Socket _connectionSocket;
         private Task _backgroundTask;
         private bool _listen;
-
-        readonly int BufferSize = 1024;
+        private readonly int BufferSize = 1024;
 
         public List<int> ConnectedProcessIds { get { return [.. _processIds.Keys]; } }
         public void Start()

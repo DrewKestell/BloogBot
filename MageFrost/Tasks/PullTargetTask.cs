@@ -6,15 +6,13 @@ using WoWActivityMember.Tasks;
 
 namespace MageFrost.Tasks
 {
-    class PullTargetTask : BotTask, IBotTask
+    internal class PullTargetTask : BotTask, IBotTask
     {
-        const string waitKey = "FrostMagePull";
-
-        const string Fireball = "Fireball";
-        const string Frostbolt = "Frostbolt";
-
-        readonly string pullingSpell;
-        readonly int range;
+        private const string waitKey = "FrostMagePull";
+        private const string Fireball = "Fireball";
+        private const string Frostbolt = "Frostbolt";
+        private readonly string pullingSpell;
+        private readonly int range;
 
         internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull)
         {

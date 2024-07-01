@@ -6,12 +6,11 @@ using WoWActivityMember.Tasks;
 
 namespace MageArcane.Tasks
 {
-    class PullTargetTask : BotTask, IBotTask
+    internal class PullTargetTask : BotTask, IBotTask
     {
-        const string Fireball = "Fireball";
-        const string Frostbolt = "Frostbolt";
-
-        readonly string pullingSpell;
+        private const string Fireball = "Fireball";
+        private const string Frostbolt = "Frostbolt";
+        private readonly string pullingSpell;
 
         internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull)
         {

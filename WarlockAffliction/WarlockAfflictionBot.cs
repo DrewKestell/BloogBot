@@ -6,7 +6,7 @@ using WoWActivityMember.Models;
 namespace WarlockAffliction
 {
     [Export(typeof(IBot))]
-    class WarlockAfflictionBot : IBot
+    internal class WarlockAfflictionBot : IBot
     {
         public string Name => "Warlock Affliction";
 

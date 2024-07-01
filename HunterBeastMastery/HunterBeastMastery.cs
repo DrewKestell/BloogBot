@@ -6,7 +6,7 @@ using WoWActivityMember.Tasks;
 namespace HunterBeastMastery
 {
     [Export(typeof(IBot))]
-    class HunterBeastMastery : IBot
+    internal class HunterBeastMastery : IBot
     {
         public string Name => "Beast Mastery Hunter";
 

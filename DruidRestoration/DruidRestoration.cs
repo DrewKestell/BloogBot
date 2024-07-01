@@ -6,7 +6,7 @@ using DruidRestoration.Tasks;
 namespace DruidRestoration
 {
     [Export(typeof(IBot))]
-    class DruidRestoration : IBot
+    internal class DruidRestoration : IBot
     {
         public string Name => "Restoration Druid";
 

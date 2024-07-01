@@ -6,15 +6,15 @@ namespace WoWActivityMember.Tasks
 {
     internal class ResetActivityMemberStateTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Ordinary), IBotTask
     {
-        bool startedTeleport;
-        bool leaveParty;
-        bool leaveBattleGround;
-        bool resetLevel;
-        bool resetSpells;
-        bool resetTalents;
-        bool resetInstances;
-        bool attackMacroPickedUp;
-        bool attackMacroPlaced;
+        private bool startedTeleport;
+        private bool leaveParty;
+        private bool leaveBattleGround;
+        private bool resetLevel;
+        private bool resetSpells;
+        private bool resetTalents;
+        private bool resetInstances;
+        private bool attackMacroPickedUp;
+        private bool attackMacroPlaced;
 
         public void Update()
         {

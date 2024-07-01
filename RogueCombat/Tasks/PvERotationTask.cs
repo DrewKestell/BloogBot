@@ -5,18 +5,18 @@ using WoWActivityMember.Tasks.SharedStates;
 
 namespace RogueCombat.Tasks
 {
-    class PvERotationTask : CombatRotationTask, IBotTask
+    internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        const string AdrenalineRush = "Adrenaline Rush";
-        const string BladeFlurry = "Blade Flurry";
-        const string Evasion = "Evasion";
-        const string Eviscerate = "Eviscerate";
-        const string Gouge = "Gouge";
-        const string BloodFury = "Blood Fury";
-        const string Kick = "Kick";
-        const string Riposte = "Riposte";
-        const string SinisterStrike = "Sinister Strike";
-        const string SliceAndDice = "Slice and Dice";
+        private const string AdrenalineRush = "Adrenaline Rush";
+        private const string BladeFlurry = "Blade Flurry";
+        private const string Evasion = "Evasion";
+        private const string Eviscerate = "Eviscerate";
+        private const string Gouge = "Gouge";
+        private const string BloodFury = "Blood Fury";
+        private const string Kick = "Kick";
+        private const string Riposte = "Riposte";
+        private const string SinisterStrike = "Sinister Strike";
+        private const string SliceAndDice = "Slice and Dice";
 
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 
@@ -86,6 +86,6 @@ namespace RogueCombat.Tasks
                 ObjectManager.Player.StopAllMovement();
         }
 
-        bool ReadyToInterrupt(WoWUnit target) => ObjectManager.Player.Target.Mana > 0 && (target.IsCasting || ObjectManager.Player.Target.IsChanneling);
+        private bool ReadyToInterrupt(WoWUnit target) => ObjectManager.Player.Target.Mana > 0 && (target.IsCasting || ObjectManager.Player.Target.IsChanneling);
     }
 }

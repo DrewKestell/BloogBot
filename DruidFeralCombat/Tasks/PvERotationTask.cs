@@ -7,32 +7,31 @@ using WoWActivityMember.Objects;
 
 namespace DruidFeral.Tasks
 {
-    class PvERotationTask : CombatRotationTask, IBotTask
+    internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        const string AutoAttackLuaScript = "if IsCurrentAction('12') == nil then CastSpellByName('Attack') end";
+        private const string AutoAttackLuaScript = "if IsCurrentAction('12') == nil then CastSpellByName('Attack') end";
 
         // Shapeshifting
-        const string BearForm = "Bear Form";
-        const string CatForm = "Cat Form";
-        const string HumanForm = "Human Form";
+        private const string BearForm = "Bear Form";
+        private const string CatForm = "Cat Form";
+        private const string HumanForm = "Human Form";
 
         // Bear
-        const string Maul = "Maul";
-        const string Enrage = "Enrage";
-        const string DemoralizingRoar = "Demoralizing Roar";
+        private const string Maul = "Maul";
+        private const string Enrage = "Enrage";
+        private const string DemoralizingRoar = "Demoralizing Roar";
 
         // Cat
-        const string Claw = "Claw";
-        const string Rake = "Rake";
-        const string Rip = "Rip";
-        const string TigersFury = "Tiger's Fury";
+        private const string Claw = "Claw";
+        private const string Rake = "Rake";
+        private const string Rip = "Rip";
+        private const string TigersFury = "Tiger's Fury";
 
         // Human
-        const string HealingTouch = "Healing Touch";
-        const string Moonfire = "Moonfire";
-        const string Wrath = "Wrath";
-        
-        Position targetLastPosition;
+        private const string HealingTouch = "Healing Touch";
+        private const string Moonfire = "Moonfire";
+        private const string Wrath = "Wrath";
+        private Position targetLastPosition;
 
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 
@@ -161,7 +160,7 @@ namespace DruidFeral.Tasks
             targetLastPosition = ObjectManager.Player.Target.Position;
         }
 
-        void TryUseBearAbility(string name, int requiredRage = 0, bool condition = true, Action callback = null)
+        private void TryUseBearAbility(string name, int requiredRage = 0, bool condition = true, Action callback = null)
         {
             if (ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.Rage >= requiredRage && !ObjectManager.Player.IsStunned && ObjectManager.Player.CurrentShapeshiftForm == BearForm && condition)
             {
@@ -170,7 +169,7 @@ namespace DruidFeral.Tasks
             }
         }
 
-        void TryUseCatAbility(string name, int requiredEnergy = 0, bool requiresComboPoints = false, bool condition = true, Action callback = null)
+        private void TryUseCatAbility(string name, int requiredEnergy = 0, bool requiresComboPoints = false, bool condition = true, Action callback = null)
         {
             if (ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.Energy >= requiredEnergy && (!requiresComboPoints || ObjectManager.Player.ComboPoints > 0) && !ObjectManager.Player.IsStunned && ObjectManager.Player.CurrentShapeshiftForm == CatForm && condition)
             {
@@ -179,13 +178,13 @@ namespace DruidFeral.Tasks
             }
         }
 
-        void CastSpell(string name)
+        private void CastSpell(string name)
         {
             if (ObjectManager.Player.IsSpellReady(name) && !ObjectManager.Player.IsCasting)
                 Functions.LuaCall($"CastSpellByName(\"{name}\")");
         }
 
-        void TryCastSpell(string name, int minRange, int maxRange, bool condition = true, Action callback = null)
+        private void TryCastSpell(string name, int minRange, int maxRange, bool condition = true, Action callback = null)
         {
             float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position);
 

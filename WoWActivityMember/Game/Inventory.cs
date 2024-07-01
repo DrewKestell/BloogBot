@@ -236,7 +236,7 @@ namespace WoWActivityMember.Game
             return list;
         }
 
-        static WoWContainer GetExtraBag(int parSlot)
+        private static WoWContainer GetExtraBag(int parSlot)
         {
             if (parSlot > 3 || parSlot < 0) return null;
             var bagGuid = MemoryManager.ReadUlong(IntPtr.Add(MemoryAddresses.LocalPlayerFirstExtraBag, parSlot * 8));

@@ -6,7 +6,7 @@ using WarlockDemonology.Tasks;
 namespace WarlockDemonology
 {
     [Export(typeof(IBot))]
-    class WarlockDemonology : IBot
+    internal class WarlockDemonology : IBot
     {
         public string Name => "Demonology Warlock";
 

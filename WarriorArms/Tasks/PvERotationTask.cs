@@ -6,32 +6,31 @@ using static WoWActivityMember.Constants.Enums;
 
 namespace WarriorArms.Tasks
 {
-    class PvERotationTask : CombatRotationTask, IBotTask
+    internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        static readonly string[] SunderTargets = { "Snapjaw", "Snapper", "Tortoise", "Spikeshell", "Burrower", "Borer", // turtles
+        private static readonly string[] SunderTargets = { "Snapjaw", "Snapper", "Tortoise", "Spikeshell", "Burrower", "Borer", // turtles
             "Bear", "Grizzly", "Ashclaw", "Mauler", "Shardtooth", "Plaguebear", "Bristlefur", "Thistlefur", // bears
             "Scorpid", "Flayer", "Stinger", "Lasher", "Pincer", // scorpids
             "Crocolisk", "Vicejaw", "Deadmire", "Snapper", "Daggermaw", // crocs
             "Crawler", "Crustacean", // crabs
             "Stag" }; // other
 
-        const string SunderArmorIcon = "Interface\\Icons\\Ability_Warrior_Sunder";
-
-        const string BattleShout = "Battle Shout";
-        const string Bloodrage = "Bloodrage";
-        const string BloodFury = "Blood Fury";
-        const string DemoralizingShout = "Demoralizing Shout";
-        const string Execute = "Execute";
-        const string Hamstring = "Hamstring";
-        const string HeroicStrike = "Heroic Strike";
-        const string MortalStrike = "Mortal Strike";
-        const string Overpower = "Overpower";
-        const string Rend = "Rend";
-        const string Retaliation = "Retaliation";
-        const string SunderArmor = "Sunder Armor";
-        const string SweepingStrikes = "Sweeping Strikes";
-        const string ThunderClap = "Thunder Clap";
-        const string IntimidatingShout = "Intimidating Shout";
+        private const string SunderArmorIcon = "Interface\\Icons\\Ability_Warrior_Sunder";
+        private const string BattleShout = "Battle Shout";
+        private const string Bloodrage = "Bloodrage";
+        private const string BloodFury = "Blood Fury";
+        private const string DemoralizingShout = "Demoralizing Shout";
+        private const string Execute = "Execute";
+        private const string Hamstring = "Hamstring";
+        private const string HeroicStrike = "Heroic Strike";
+        private const string MortalStrike = "Mortal Strike";
+        private const string Overpower = "Overpower";
+        private const string Rend = "Rend";
+        private const string Retaliation = "Retaliation";
+        private const string SunderArmor = "Sunder Armor";
+        private const string SweepingStrikes = "Sweeping Strikes";
+        private const string ThunderClap = "Thunder Clap";
+        private const string IntimidatingShout = "Intimidating Shout";
 
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 

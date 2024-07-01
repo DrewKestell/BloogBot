@@ -6,7 +6,7 @@ using WarriorFury.Tasks;
 namespace WarriorFury
 {
     [Export(typeof(IBot))]
-    class WarriorFury : IBot
+    internal class WarriorFury : IBot
     {
         public string Name => "Fury Warrior";
 

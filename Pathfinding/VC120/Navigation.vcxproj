@@ -45,14 +45,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\..\Bot\$(Configuration)\</OutDir>
+    <OutDir>$(Configuration)\</OutDir>
     <TargetExt>.dll</TargetExt>
     <IntDir>..\$(Configuration)\</IntDir>
     <TargetName>Navigation</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\..\Bot\$(Configuration)\</OutDir>
+    <OutDir>$(Configuration)\</OutDir>
     <TargetExt>.dll</TargetExt>
     <TargetName>Navigation</TargetName>
     <IntDir>..\$(Configuration)\</IntDir>

@@ -4,7 +4,7 @@ namespace WoWActivityMember.Game.Frames
 {
     public class MerchantFrame
     {
-        readonly IList<MerchantItem> items = new List<MerchantItem>();
+        private readonly IList<MerchantItem> items = new List<MerchantItem>();
 
         public readonly bool Ready;
 

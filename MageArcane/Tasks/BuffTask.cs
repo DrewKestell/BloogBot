@@ -5,16 +5,15 @@ using WoWActivityMember.Tasks;
 
 namespace MageArcane.Tasks
 {
-    class BuffTask : BotTask, IBotTask
+    internal class BuffTask : BotTask, IBotTask
     {
-        const string ArcaneIntellect = "Arcane Intellect";
-        const string FrostArmor = "Frost Armor";
-        const string IceArmor = "Ice Armor";
-        const string DampenMagic = "Dampen Magic";
-
-        readonly Stack<IBotTask> botTasks;
-        readonly IClassContainer container;
-        readonly LocalPlayer player;
+        private const string ArcaneIntellect = "Arcane Intellect";
+        private const string FrostArmor = "Frost Armor";
+        private const string IceArmor = "Ice Armor";
+        private const string DampenMagic = "Dampen Magic";
+        private readonly Stack<IBotTask> botTasks;
+        private readonly IClassContainer container;
+        private readonly LocalPlayer player;
 
         public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
@@ -36,7 +35,7 @@ namespace MageArcane.Tasks
             TryCastSpell(DampenMagic, castOnSelf: true);
         }
 
-        void TryCastSpell(string name, bool castOnSelf = false)
+        private void TryCastSpell(string name, bool castOnSelf = false)
         {
             if (!ObjectManager.Player.HasBuff(name) && ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.IsSpellReady(name))
             {

@@ -8,7 +8,7 @@ namespace WoWActivityMember.Objects
 {
     public class WoWUnit : WoWObject
     {
-        static readonly string[] ImmobilizedSpellText = { "Immobilized" };
+        private static readonly string[] ImmobilizedSpellText = { "Immobilized" };
 
         public WoWUnit() { }
 

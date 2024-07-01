@@ -6,13 +6,13 @@ using WoWActivityMember.Tasks;
 
 namespace PriestShadow.Tasks
 {
-    class RestTask : BotTask, IBotTask
+    internal class RestTask : BotTask, IBotTask
     {
-        const string AbolishDisease = "Abolish Disease";
-        const string CureDisease = "Cure Disease";
-        const string LesserHeal = "Lesser Heal";
-        const string Heal = "Heal";
-        const string ShadowForm = "Shadowform";
+        private const string AbolishDisease = "Abolish Disease";
+        private const string CureDisease = "Cure Disease";
+        private const string LesserHeal = "Lesser Heal";
+        private const string Heal = "Heal";
+        private const string ShadowForm = "Shadowform";
         public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) { }
 
         public void Update()
@@ -94,10 +94,10 @@ namespace PriestShadow.Tasks
             }
         }
 
-        bool HealthOk => ObjectManager.Player.HealthPercent > 90;
+        private bool HealthOk => ObjectManager.Player.HealthPercent > 90;
 
-        bool ManaOk => (ObjectManager.Player.Level < 5 && ObjectManager.Player.ManaPercent > 50) || ObjectManager.Player.ManaPercent >= 90 || (ObjectManager.Player.ManaPercent >= 65 && !ObjectManager.Player.IsDrinking);
+        private bool ManaOk => (ObjectManager.Player.Level < 5 && ObjectManager.Player.ManaPercent > 50) || ObjectManager.Player.ManaPercent >= 90 || (ObjectManager.Player.ManaPercent >= 65 && !ObjectManager.Player.IsDrinking);
 
-        bool InCombat => ObjectManager.Player.IsInCombat || ObjectManager.Units.Any(u => u.TargetGuid == ObjectManager.Player.Guid);
+        private bool InCombat => ObjectManager.Player.IsInCombat || ObjectManager.Units.Any(u => u.TargetGuid == ObjectManager.Player.Guid);
     }
 }

@@ -5,7 +5,7 @@ namespace WoWActivityMember.Tasks.SharedStates
 {
     public class AddPetSpellTask(IClassContainer container, Stack<IBotTask> botTasks, int spellId) : BotTask(container, botTasks, TaskType.Ordinary), IBotTask
     {
-        readonly int spellId = spellId;
+        private readonly int spellId = spellId;
 
         public void Update()
         {

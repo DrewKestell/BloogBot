@@ -4,8 +4,8 @@ namespace WoWActivityMember.Game
 {
     public static class Wait
     {
-        static readonly ConcurrentDictionary<string, Item> Items = new();
-        static readonly object _lock = new();
+        private static readonly ConcurrentDictionary<string, Item> Items = new();
+        private static readonly object _lock = new();
 
         public static bool For(string parName, int parMs, bool trueOnNonExist = false)
         {
@@ -42,7 +42,7 @@ namespace WoWActivityMember.Game
             }
         }
 
-        class Item
+        private class Item
         {
             internal DateTime Added { get; } = DateTime.UtcNow;
         }

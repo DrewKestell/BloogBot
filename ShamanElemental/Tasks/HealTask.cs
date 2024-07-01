@@ -4,10 +4,10 @@ using WoWActivityMember.Tasks;
 
 namespace ShamanElemental.Tasks
 {
-    class HealTask : BotTask, IBotTask
+    internal class HealTask : BotTask, IBotTask
     {
-        const string WarStomp = "War Stomp";
-        const string HealingWave = "Healing Wave";
+        private const string WarStomp = "War Stomp";
+        private const string HealingWave = "Healing Wave";
 
         public HealTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Heal) { }
 

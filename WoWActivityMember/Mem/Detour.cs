@@ -6,12 +6,12 @@ namespace WoWActivityMember.Helpers.GreyMagic.Internals
 {
     internal class Detour
     {
-        readonly IntPtr hook;
-        readonly Delegate hookDelegate; // pinned here to prevent GC
-        readonly IntPtr target;
-        readonly Delegate targetDelegate; // pinned here to prevent GC
-        readonly List<byte> newBytes;
-        readonly List<byte> orginalBytes;
+        private readonly IntPtr hook;
+        private readonly Delegate hookDelegate; // pinned here to prevent GC
+        private readonly IntPtr target;
+        private readonly Delegate targetDelegate; // pinned here to prevent GC
+        private readonly List<byte> newBytes;
+        private readonly List<byte> orginalBytes;
 
         internal Detour(Delegate target, Delegate hook, string name)
         {

@@ -2,10 +2,10 @@
 
 namespace WoWStateManagerUI
 {
-    class CommandHandler(Action action, bool canExecute) : ICommand
+    internal class CommandHandler(Action action, bool canExecute) : ICommand
     {
-        readonly Action action = action;
-        readonly bool canExecute = canExecute;
+        private readonly Action action = action;
+        private readonly bool canExecute = canExecute;
 
         public void Execute(object parameter) => action();
 

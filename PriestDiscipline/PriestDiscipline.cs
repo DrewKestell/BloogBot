@@ -6,7 +6,7 @@ using PriestDiscipline.Tasks;
 namespace PriestDiscipline
 {
     [Export(typeof(IBot))]
-    class PriestDiscipline : IBot
+    internal class PriestDiscipline : IBot
     {
         public string Name => "Discipline Priest";
 

@@ -5,7 +5,7 @@ namespace WoWActivityMember.Game
 {
     public class ItemCacheInfo
     {
-        static readonly IList<ItemSubclass[]> ItemSubclasses = new List<ItemSubclass[]>
+        private static readonly IList<ItemSubclass[]> ItemSubclasses = new List<ItemSubclass[]>
         {
             // these are untested for Vanilla
             new []
@@ -165,8 +165,7 @@ namespace WoWActivityMember.Game
                 ItemSubclass.MiscMount
             }
         };
-
-        readonly ItemCacheEntry itemCacheEntry;
+        private readonly ItemCacheEntry itemCacheEntry;
 
         internal ItemCacheInfo(ItemCacheEntry itemCacheEntry)
         {
@@ -190,7 +189,7 @@ namespace WoWActivityMember.Game
 
     public class ItemCacheEntry
     {
-        readonly IntPtr baseAddress;
+        private readonly IntPtr baseAddress;
 
         internal ItemCacheEntry(IntPtr baseAddress)
         {

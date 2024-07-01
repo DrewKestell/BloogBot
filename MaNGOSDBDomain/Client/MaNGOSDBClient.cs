@@ -6,7 +6,7 @@ using System.Net;
 
 namespace MaNGOSDBDomain.Client
 {
-    public class MaNGOSDBClient(int configPort, IPAddress ipAddress) : AbstractSocketClient(configPort, ipAddress)
+    public class MaNGOSDBClient(IPAddress ipAddress) : AbstractSocketClient(8080, ipAddress)
     {
         public List<CreatureMovement> GetCreatureMovementByGuid(int guid)
         {

@@ -6,13 +6,11 @@ using WoWActivityMember.Tasks;
 
 namespace ShamanElemental.Tasks
 {
-    class RestTask : BotTask, IBotTask
+    internal class RestTask : BotTask, IBotTask
     {
-        const int stackCount = 5;
-
-        const string HealingWave = "Healing Wave";
-
-        readonly WoWItem drinkItem;
+        private const int stackCount = 5;
+        private const string HealingWave = "Healing Wave";
+        private readonly WoWItem drinkItem;
         public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
         {
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
@@ -80,10 +78,10 @@ namespace ShamanElemental.Tasks
                 drinkItem.Use();
         }
 
-        bool HealthOk => ObjectManager.Player.HealthPercent > 90;
+        private bool HealthOk => ObjectManager.Player.HealthPercent > 90;
 
-        bool ManaOk => (ObjectManager.Player.Level <= 10 && ObjectManager.Player.ManaPercent > 50) || ObjectManager.Player.ManaPercent >= 90 || (ObjectManager.Player.ManaPercent >= 65 && !ObjectManager.Player.IsDrinking);
+        private bool ManaOk => (ObjectManager.Player.Level <= 10 && ObjectManager.Player.ManaPercent > 50) || ObjectManager.Player.ManaPercent >= 90 || (ObjectManager.Player.ManaPercent >= 65 && !ObjectManager.Player.IsDrinking);
 
-        bool InCombat => ObjectManager.Player.IsInCombat || ObjectManager.Units.Any(u => u.TargetGuid == ObjectManager.Player.Guid);
+        private bool InCombat => ObjectManager.Player.IsInCombat || ObjectManager.Units.Any(u => u.TargetGuid == ObjectManager.Player.Guid);
     }
 }

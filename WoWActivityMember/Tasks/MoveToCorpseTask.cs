@@ -6,10 +6,9 @@ namespace WoWActivityMember.Tasks.SharedStates
 {
     public class MoveToCorpseTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Ordinary), IBotTask
     {
-        bool walkingOnWater;
-        readonly int stuckCount;
-
-        bool initialized;
+        private bool walkingOnWater;
+        private readonly int stuckCount;
+        private bool initialized;
 
         public void Update()
         {

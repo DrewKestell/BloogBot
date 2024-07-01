@@ -6,7 +6,7 @@ using PaladinProtection.Tasks;
 namespace PaladinProtection
 {
     [Export(typeof(IBot))]
-    class PaladinProtection : IBot
+    internal class PaladinProtection : IBot
     {
         public string Name => "Protection Paladin";
 

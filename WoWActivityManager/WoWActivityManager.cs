@@ -7,20 +7,23 @@ namespace WoWActivityManager
 {
     public class WoWActivityManager
     {
-        Task _updateCurrentStateTask;
-        WoWActivityMemberListener _woWActivityMemberListener;
-        WoWStateManagerClient _stateManagerClient;
-        ActivityState ActivityState { get; set; }
+        private Task _updateCurrentStateTask;
+        private WoWActivityMemberListener _woWActivityMemberListener;
+        private WoWStateManagerClient _stateManagerClient;
+
+        private ActivityState ActivityState { get; set; }
         protected ActivityState CurrentActivity { get; }
 
         public WoWActivityManager()
         {
-            _updateCurrentStateTask = Task.Factory.StartNew(() => UpdateCurrentState());
-        }
-        public async Task UpdateCurrentState()
-        {
             _woWActivityMemberListener = new WoWActivityMemberListener();
             _stateManagerClient = new WoWStateManagerClient(8089, IPAddress.Parse("127.0.0.1"));
+
+            _updateCurrentStateTask = Task.Factory.StartNew(() => UpdateCurrentState());
+        }
+
+        public async Task UpdateCurrentState()
+        {
 
             while (true)
             {

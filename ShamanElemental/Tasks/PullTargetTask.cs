@@ -5,13 +5,12 @@ using WoWActivityMember.Tasks;
 
 namespace ShamanElemental.Tasks
 {
-    class PullTargetTask : BotTask, IBotTask
+    internal class PullTargetTask : BotTask, IBotTask
     {
-        const string LightningBolt = "Lightning Bolt";
-
-        readonly int stuckCount;
-        Position currentWaypoint;
-        WoWUnit target;
+        private const string LightningBolt = "Lightning Bolt";
+        private readonly int stuckCount;
+        private Position currentWaypoint;
+        private WoWUnit target;
 
         internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull) { }
 

@@ -6,9 +6,9 @@ using WoWActivityMember.Tasks;
 
 namespace ShamanEnhancement.Tasks
 {
-    class PullTargetTask : BotTask, IBotTask
+    internal class PullTargetTask : BotTask, IBotTask
     {
-        const string LightningBolt = "Lightning Bolt";
+        private const string LightningBolt = "Lightning Bolt";
         internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull) { }
 
         public void Update()

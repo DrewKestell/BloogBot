@@ -8,35 +8,31 @@ using static WoWActivityMember.Constants.Enums;
 
 namespace MageFrost.Tasks
 {
-    class PvERotationTask : CombatRotationTask, IBotTask
+    internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        const string WandLuaScript = "if IsAutoRepeatAction(11) == nil then CastSpellByName('Shoot') end";
-
-        readonly string[] FireWardTargets = new[] { "Fire", "Flame", "Infernal", "Searing", "Hellcaller", "Dragon", "Whelp" };
-        readonly string[] FrostWardTargets = new[] { "Ice", "Frost" };
-
-        const string ColdSnap = "Cold Snap";
-        const string ConeOfCold = "Cone of Cold";
-        const string Counterspell = "Counterspell";
-        const string Evocation = "Evocation";
-        const string Fireball = "Fireball";
-        const string FireBlast = "Fire Blast";
-        const string FireWard = "Fire Ward";
-        const string FrostNova = "Frost Nova";
-        const string FrostWard = "Frost Ward";
-        const string Frostbite = "Frostbite";
-        const string Frostbolt = "Frostbolt";
-        const string IceBarrier = "Ice Barrier";
-        const string IcyVeins = "Icy Veins";
-        const string SummonWaterElemental = "Summon Water Elemental";
-
-        readonly string nuke;
-        readonly int range;
-
-        bool frostNovaBackpedaling;
-        int frostNovaBackpedalStartTime;
-        bool frostNovaJumped;
-        bool frostNovaStartedMoving;
+        private const string WandLuaScript = "if IsAutoRepeatAction(11) == nil then CastSpellByName('Shoot') end";
+        private readonly string[] FireWardTargets = new[] { "Fire", "Flame", "Infernal", "Searing", "Hellcaller", "Dragon", "Whelp" };
+        private readonly string[] FrostWardTargets = new[] { "Ice", "Frost" };
+        private const string ColdSnap = "Cold Snap";
+        private const string ConeOfCold = "Cone of Cold";
+        private const string Counterspell = "Counterspell";
+        private const string Evocation = "Evocation";
+        private const string Fireball = "Fireball";
+        private const string FireBlast = "Fire Blast";
+        private const string FireWard = "Fire Ward";
+        private const string FrostNova = "Frost Nova";
+        private const string FrostWard = "Frost Ward";
+        private const string Frostbite = "Frostbite";
+        private const string Frostbolt = "Frostbolt";
+        private const string IceBarrier = "Ice Barrier";
+        private const string IcyVeins = "Icy Veins";
+        private const string SummonWaterElemental = "Summon Water Elemental";
+        private readonly string nuke;
+        private readonly int range;
+        private bool frostNovaBackpedaling;
+        private int frostNovaBackpedalStartTime;
+        private bool frostNovaJumped;
+        private bool frostNovaStartedMoving;
 
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
         {
@@ -131,7 +127,7 @@ namespace MageFrost.Tasks
             throw new NotImplementedException();
         }
 
-        Action FrostNovaCallback => () =>
+        private Action FrostNovaCallback => () =>
         {
             frostNovaStartedMoving = false;
             frostNovaJumped = false;
@@ -139,6 +135,6 @@ namespace MageFrost.Tasks
             frostNovaBackpedalStartTime = Environment.TickCount;
         };
 
-        bool IsTargetFrozen => ObjectManager.Player.Target.HasDebuff(Frostbite) || ObjectManager.Player.Target.HasDebuff(FrostNova);
+        private bool IsTargetFrozen => ObjectManager.Player.Target.HasDebuff(Frostbite) || ObjectManager.Player.Target.HasDebuff(FrostNova);
     }
 }

@@ -9,20 +9,17 @@ namespace WoWActivityMember.Tasks.SharedStates
 {
     public class DungeoneeringTask : BotTask, IBotTask
     {
-        readonly bool isPartyLeader;
-
-        List<Position> dungeonWaypoints;
-        List<Position> majorWaypoints;
-        Dictionary<Position, List<Position>> minorWaypoints;
-
-        Position currentMajorWaypoint;
-        Position currentMinorWaypoint;
-        Position destination;
-        Position currentWaypoint;
-
-        Position lastPosition;
-        int lastTickTime;
-        int stuckDuration;
+        private readonly bool isPartyLeader;
+        private List<Position> dungeonWaypoints;
+        private List<Position> majorWaypoints;
+        private Dictionary<Position, List<Position>> minorWaypoints;
+        private Position currentMajorWaypoint;
+        private Position currentMinorWaypoint;
+        private Position destination;
+        private Position currentWaypoint;
+        private Position lastPosition;
+        private int lastTickTime;
+        private int stuckDuration;
         public DungeoneeringTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Ordinary)
         {
             if (isPartyLeader)

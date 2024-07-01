@@ -4,10 +4,10 @@ using WoWActivityMember.Tasks;
 
 namespace WarlockDemonology.Tasks
 {
-    class SummonPetTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Buff), IBotTask
+    internal class SummonPetTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Buff), IBotTask
     {
-        const string SummonImp = "Summon Imp";
-        const string SummonVoidwalker = "Summon Voidwalker";
+        private const string SummonImp = "Summon Imp";
+        private const string SummonVoidwalker = "Summon Voidwalker";
 
         public void Update()
         {

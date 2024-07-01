@@ -5,13 +5,13 @@ using WoWActivityMember.Mem;
 
 namespace DruidBalance.Tasks
 {
-    class HealTask : BotTask, IBotTask
+    internal class HealTask : BotTask, IBotTask
     {
-        const string WarStomp = "War Stomp";
-        const string HealingTouch = "Healing Touch";
-        const string Rejuvenation = "Rejuvenation";
-        const string Barkskin = "Barkskin";
-        const string MoonkinForm = "Moonkin Form";
+        private const string WarStomp = "War Stomp";
+        private const string HealingTouch = "Healing Touch";
+        private const string Rejuvenation = "Rejuvenation";
+        private const string Barkskin = "Barkskin";
+        private const string MoonkinForm = "Moonkin Form";
 
         public HealTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Heal) { }
 
@@ -38,7 +38,7 @@ namespace DruidBalance.Tasks
             TryCastSpell(HealingTouch);
         }
 
-        void TryCastSpell(string name, bool condition = true)
+        private void TryCastSpell(string name, bool condition = true)
         {
             if (ObjectManager.Player.IsSpellReady(name) && condition)
                 Functions.LuaCall($"CastSpellByName('{name}',1)");

@@ -4,12 +4,12 @@ using WoWActivityMember.Mem;
 
 namespace DruidBalance.Tasks
 {
-    class BuffTask : BotTask, IBotTask
+    internal class BuffTask : BotTask, IBotTask
     {
-        const string MarkOfTheWild = "Mark of the Wild";
-        const string Thorns = "Thorns";
-        const string OmenOfClarity = "Omen of Clarity";
-        const string MoonkinForm = "Moonkin Form";
+        private const string MarkOfTheWild = "Mark of the Wild";
+        private const string Thorns = "Thorns";
+        private const string OmenOfClarity = "Omen of Clarity";
+        private const string MoonkinForm = "Moonkin Form";
 
         public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
@@ -36,7 +36,7 @@ namespace DruidBalance.Tasks
             TryCastSpell(OmenOfClarity);
         }
 
-        void TryCastSpell(string name)
+        private void TryCastSpell(string name)
         {
             if (!ObjectManager.Player.HasBuff(name) && ObjectManager.Player.IsSpellReady(name))
                 Functions.LuaCall($"CastSpellByName('{name}',1)");

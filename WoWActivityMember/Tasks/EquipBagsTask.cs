@@ -5,7 +5,7 @@ namespace WoWActivityMember.Tasks.SharedStates
 {
     public class EquipBagsTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Ordinary), IBotTask
     {
-        WoWItem newBag;
+        private WoWItem newBag;
 
         public void Update()
         {

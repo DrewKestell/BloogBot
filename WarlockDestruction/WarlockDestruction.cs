@@ -6,7 +6,7 @@ using WarlockDestruction.Tasks;
 namespace WarlockDestruction
 {
     [Export(typeof(IBot))]
-    class WarlockDestruction : IBot
+    internal class WarlockDestruction : IBot
     {
         public string Name => "Destruction Warlock";
 

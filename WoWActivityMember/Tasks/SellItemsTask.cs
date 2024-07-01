@@ -8,16 +8,15 @@ namespace WoWActivityMember.Tasks.SharedStates
 {
     public class SellItemsTask : BotTask, IBotTask
     {
-        readonly string npcName;
-        readonly LocalPlayer player;
-        readonly IEnumerable<WoWItem> itemsToSell;
-
-        State state = State.Uninitialized;
-        readonly Position npcPosition;
-        WoWUnit npc;
-        readonly DialogFrame dialogFrame;
-        readonly MerchantFrame merchantFrame;
-        int itemIndex;
+        private readonly string npcName;
+        private readonly LocalPlayer player;
+        private readonly IEnumerable<WoWItem> itemsToSell;
+        private State state = State.Uninitialized;
+        private readonly Position npcPosition;
+        private WoWUnit npc;
+        private readonly DialogFrame dialogFrame;
+        private readonly MerchantFrame merchantFrame;
+        private int itemIndex;
 
         public SellItemsTask(IClassContainer container, Stack<IBotTask> botTasks, Creature vendorNpc) : base(container, botTasks, TaskType.Ordinary)
         {
@@ -96,7 +95,7 @@ namespace WoWActivityMember.Tasks.SharedStates
             }
         }
 
-        enum State
+        private enum State
         {
             Uninitialized,
             Interacting,

@@ -6,7 +6,7 @@ using RogueSubtlety.Tasks;
 namespace RogueSubtlety
 {
     [Export(typeof(IBot))]
-    class RogueSubtlety : IBot
+    internal class RogueSubtlety : IBot
     {
         public string Name => "Subtlety Rogue";
 

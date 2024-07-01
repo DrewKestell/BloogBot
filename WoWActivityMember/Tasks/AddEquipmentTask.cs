@@ -6,15 +6,14 @@ namespace WoWActivityMember.Tasks
 {
     public class AddEquipmentTask(IClassContainer container, Stack<IBotTask> botTasks, int equipmentId, int inventorySlot) : BotTask(container, botTasks, TaskType.Ordinary), IBotTask
     {
-        readonly int equipmentId = equipmentId;
-        readonly int inventorySlot = inventorySlot;
-
-        bool oldItemPickedUp;
-        bool oldItemDeleted;
-        bool newItemAdded;
-        bool newItemPickedUp;
-        bool newItemEquipped;
-        bool newItemEquipConfirmed;
+        private readonly int equipmentId = equipmentId;
+        private readonly int inventorySlot = inventorySlot;
+        private bool oldItemPickedUp;
+        private bool oldItemDeleted;
+        private bool newItemAdded;
+        private bool newItemPickedUp;
+        private bool newItemEquipped;
+        private bool newItemEquipConfirmed;
 
         public void Update()
         {

@@ -7,28 +7,28 @@ namespace WoWActivityMember
     static public class ThreadSynchronizer
     {
         [DllImport("user32.dll")]
-        static extern IntPtr SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+        private static extern IntPtr SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
 
         [DllImport("user32.dll")]
-        static extern int CallWindowProc(IntPtr lpPrevWndFunc, IntPtr hWnd, int Msg, int wParam, int lParam);
+        private static extern int CallWindowProc(IntPtr lpPrevWndFunc, IntPtr hWnd, int Msg, int wParam, int lParam);
 
         [DllImport("user32.dll")]
-        static extern int GetWindowThreadProcessId(IntPtr handle, out int processId);
+        private static extern int GetWindowThreadProcessId(IntPtr handle, out int processId);
 
         [DllImport("user32.dll")]
-        static extern bool IsWindowVisible(IntPtr hWnd);
+        private static extern bool IsWindowVisible(IntPtr hWnd);
 
         [DllImport("user32.dll")]
-        static extern int GetWindowTextLength(IntPtr hWnd);
+        private static extern int GetWindowTextLength(IntPtr hWnd);
 
         [DllImport("user32.dll")]
-        static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+        private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
         [DllImport("user32.dll")]
-        static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+        private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
 
         [DllImport("user32.dll")]
-        static extern int SendMessage(
+        private static extern int SendMessage(
             int hWnd,
             uint Msg,
             int wParam,
@@ -36,21 +36,20 @@ namespace WoWActivityMember
         );
 
         [DllImport("kernel32.dll")]
-        static extern uint GetCurrentThreadId();
+        private static extern uint GetCurrentThreadId();
 
-        delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+        private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
 
-        delegate int WindowProc(IntPtr hWnd, int Msg, int wParam, int lParam);
+        private delegate int WindowProc(IntPtr hWnd, int Msg, int wParam, int lParam);
 
-        static readonly Queue<Action> actionQueue = new();
-        static readonly Queue<Delegate> delegateQueue = new();
-        static readonly Queue<object> returnValueQueue = new();
-
-        const int GWL_WNDPROC = -4;
-        const int WM_USER = 0x0400;
-        static readonly IntPtr oldCallback;
-        static readonly WindowProc newCallback;
-        static int windowHandle;
+        private static readonly Queue<Action> actionQueue = new();
+        private static readonly Queue<Delegate> delegateQueue = new();
+        private static readonly Queue<object> returnValueQueue = new();
+        private const int GWL_WNDPROC = -4;
+        private const int WM_USER = 0x0400;
+        private static readonly IntPtr oldCallback;
+        private static readonly WindowProc newCallback;
+        private static int windowHandle;
 
         static ThreadSynchronizer()
         {
@@ -80,7 +79,7 @@ namespace WoWActivityMember
             return (T)returnValueQueue.Dequeue();
         }
 
-        static int WndProc(IntPtr hWnd, int msg, int wParam, int lParam)
+        private static int WndProc(IntPtr hWnd, int msg, int wParam, int lParam)
         {
             try
             {
@@ -103,7 +102,7 @@ namespace WoWActivityMember
             return CallWindowProc(oldCallback, hWnd, msg, wParam, lParam);
         }
 
-        static bool FindWindowProc(IntPtr hWnd, IntPtr lParam)
+        private static bool FindWindowProc(IntPtr hWnd, IntPtr lParam)
         {
             GetWindowThreadProcessId(hWnd, out int procId);
             if (procId != Environment.ProcessId) return true;
@@ -117,6 +116,6 @@ namespace WoWActivityMember
             return true;
         }
 
-        static void SendUserMessage() => SendMessage(windowHandle, WM_USER, 0, 0);
+        private static void SendUserMessage() => SendMessage(windowHandle, WM_USER, 0, 0);
     }
 }

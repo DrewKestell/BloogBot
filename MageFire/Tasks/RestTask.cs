@@ -2,7 +2,7 @@
 
 namespace MageFire.Tasks
 {
-    class RestTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Rest), IBotTask
+    internal class RestTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Rest), IBotTask
     {
         public void Update()
         {

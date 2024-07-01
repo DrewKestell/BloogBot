@@ -10,29 +10,28 @@ using static WoWActivityMember.Constants.Enums;
 
 namespace HunterBeastMastery.Tasks
 {
-    class PvERotationTask : CombatRotationTask, IBotTask
+    internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        const string AutoAttackLuaScript = "if IsCurrentAction('84') == nil then CastSpellByName('Attack') end";
-        const string GunLuaScript = "if IsAutoRepeatAction(11) == nil then CastSpellByName('Auto Shot') end"; // 8-35 yards
-        const string LosErrorMessage = "Target not in line of sight";
-        const string OutOfAmmoErrorMessage = "Ammo needs to be in the paper doll ammo slot before it can be fired";
-
-        const string RaptorStrike = "Raptor Strike";
-        const string ArcaneShot = "Arcane Shot";
-        const string SerpentSting = "Serpent Sting";
-        const string MultiShot = "Multi-Shot";
-        const string ImmolationTrap = "Immolation Trap";
-        const string MongooseBite = "Mongoose Bite";
-        const string HuntersMark = "Hunter's Mark";
-        const string Parry = "Parry";
-        const string RapidFire = "Rapid Fire";
-        const string ConcussiveShot = "Concussive Shot";
-        const string ScareBeast = "Scare Beast";
-        const string AspectOfTheHawk = "Aspect of the Hawk";
-        const string CallPet = "Call Pet";
-        const string MendPet = "Mend Pet";
-        const string DistractingShot = "Distracting Shot";
-        const string WingClip = "Wing Clip";
+        private const string AutoAttackLuaScript = "if IsCurrentAction('84') == nil then CastSpellByName('Attack') end";
+        private const string GunLuaScript = "if IsAutoRepeatAction(11) == nil then CastSpellByName('Auto Shot') end"; // 8-35 yards
+        private const string LosErrorMessage = "Target not in line of sight";
+        private const string OutOfAmmoErrorMessage = "Ammo needs to be in the paper doll ammo slot before it can be fired";
+        private const string RaptorStrike = "Raptor Strike";
+        private const string ArcaneShot = "Arcane Shot";
+        private const string SerpentSting = "Serpent Sting";
+        private const string MultiShot = "Multi-Shot";
+        private const string ImmolationTrap = "Immolation Trap";
+        private const string MongooseBite = "Mongoose Bite";
+        private const string HuntersMark = "Hunter's Mark";
+        private const string Parry = "Parry";
+        private const string RapidFire = "Rapid Fire";
+        private const string ConcussiveShot = "Concussive Shot";
+        private const string ScareBeast = "Scare Beast";
+        private const string AspectOfTheHawk = "Aspect of the Hawk";
+        private const string CallPet = "Call Pet";
+        private const string MendPet = "Mend Pet";
+        private const string DistractingShot = "Distracting Shot";
+        private const string WingClip = "Wing Clip";
 
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 

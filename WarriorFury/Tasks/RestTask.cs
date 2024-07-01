@@ -6,11 +6,10 @@ using WoWActivityMember.Objects;
 
 namespace WarriorFury.Tasks
 {
-    class RestTask : BotTask, IBotTask
+    internal class RestTask : BotTask, IBotTask
     {
-        const int stackCount = 5;
-
-        readonly WoWItem foodItem;
+        private const int stackCount = 5;
+        private readonly WoWItem foodItem;
         public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
         {
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
@@ -64,6 +63,6 @@ namespace WarriorFury.Tasks
                 foodItem.Use();
         }
 
-        bool InCombat => ObjectManager.Aggressors.Count() > 0;
+        private bool InCombat => ObjectManager.Aggressors.Count() > 0;
     }
 }

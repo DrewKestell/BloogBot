@@ -9,17 +9,17 @@ namespace WoWActivityMember.Game.Statics
 {
     public class ObjectManager
     {
-        const int OBJECT_TYPE_OFFSET = 0x14;
+        private const int OBJECT_TYPE_OFFSET = 0x14;
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        delegate int EnumerateVisibleObjectsCallbackVanilla(int filter, ulong guid);
+        private delegate int EnumerateVisibleObjectsCallbackVanilla(int filter, ulong guid);
 
-        static ulong playerGuid;
-        static volatile bool _ingame1 = true;
-        static readonly bool _ingame2 = true;
-        static EnumerateVisibleObjectsCallbackVanilla CallbackDelegate;
-        static IntPtr callbackPtr;
-        static ActivityMemberState _characterState;
+        private static ulong playerGuid;
+        private static volatile bool _ingame1 = true;
+        private static readonly bool _ingame2 = true;
+        private static EnumerateVisibleObjectsCallbackVanilla CallbackDelegate;
+        private static IntPtr callbackPtr;
+        private static ActivityMemberState _characterState;
 
         static internal IList<WoWObject> Objects = new List<WoWObject>();
         static internal IList<WoWObject> ObjectsBuffer = new List<WoWObject>();
@@ -241,7 +241,7 @@ namespace WoWActivityMember.Game.Statics
             }
         }
 
-        static void EnumerateVisibleObjects()
+        private static void EnumerateVisibleObjects()
         {
             ThreadSynchronizer.RunOnMainThread(() =>
             {
@@ -289,12 +289,12 @@ namespace WoWActivityMember.Game.Statics
         }
 
         // EnumerateVisibleObjects callback has the parameter order swapped between Vanilla and other client versions.
-        static int CallbackVanilla(int filter, ulong guid)
+        private static int CallbackVanilla(int filter, ulong guid)
         {
             return CallbackInternal(guid, filter);
         }
 
-        static int CallbackInternal(ulong guid, int filter)
+        private static int CallbackInternal(ulong guid, int filter)
         {
             if (guid == 0) return 0;
             var pointer = Functions.GetObjectPtr(guid);
@@ -336,7 +336,7 @@ namespace WoWActivityMember.Game.Statics
             return 1;
         }
 
-        static void UpdateProbe()
+        private static void UpdateProbe()
         {
             try
             {

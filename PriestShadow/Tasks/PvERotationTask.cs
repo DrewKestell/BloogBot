@@ -8,28 +8,27 @@ using static WoWActivityMember.Constants.Enums;
 
 namespace PriestShadow.Tasks
 {
-    class PvERotationTask : CombatRotationTask, IBotTask
+    internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        const string WandLuaScript = "if IsAutoRepeatAction(72) == nil then CastSpellByName('Shoot') end";
-        const string TurnOffWandLuaScript = "if IsAutoRepeatAction(72) ~= nil then CastSpellByName('Shoot') end";
-
-        const string AbolishDisease = "Abolish Disease";
-        const string CureDisease = "Cure Disease";
-        const string DispelMagic = "Dispel Magic";
-        const string Fade = "Fade";
-        const string InnerFire = "Inner Fire";
-        const string LesserHeal = "Lesser Heal";
-        const string MindBlast = "Mind Blast";
-        const string MindFlay = "Mind Flay";
-        const string PowerWordShield = "Power Word: Shield";
-        const string PsychicScream = "Psychic Scream";
-        const string ShadowForm = "Shadowform";
-        const string ShadowWordPain = "Shadow Word: Pain";
-        const string Smite = "Smite";
-        const string VampiricEmbrace = "Vampiric Embrace";
-        const string WeakenedSoul = "Weakened Soul";
-        const string Heal = "Heal";
-        const string Renew = "Renew";
+        private const string WandLuaScript = "if IsAutoRepeatAction(72) == nil then CastSpellByName('Shoot') end";
+        private const string TurnOffWandLuaScript = "if IsAutoRepeatAction(72) ~= nil then CastSpellByName('Shoot') end";
+        private const string AbolishDisease = "Abolish Disease";
+        private const string CureDisease = "Cure Disease";
+        private const string DispelMagic = "Dispel Magic";
+        private const string Fade = "Fade";
+        private const string InnerFire = "Inner Fire";
+        private const string LesserHeal = "Lesser Heal";
+        private const string MindBlast = "Mind Blast";
+        private const string MindFlay = "Mind Flay";
+        private const string PowerWordShield = "Power Word: Shield";
+        private const string PsychicScream = "Psychic Scream";
+        private const string ShadowForm = "Shadowform";
+        private const string ShadowWordPain = "Shadow Word: Pain";
+        private const string Smite = "Smite";
+        private const string VampiricEmbrace = "Vampiric Embrace";
+        private const string WeakenedSoul = "Weakened Soul";
+        private const string Heal = "Heal";
+        private const string Renew = "Renew";
         private readonly bool hasWand;
 
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)

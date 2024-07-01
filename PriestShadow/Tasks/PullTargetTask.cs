@@ -6,18 +6,16 @@ using WoWActivityMember.Tasks;
 
 namespace PriestShadow.Tasks
 {
-    class PullTargetTask : BotTask, IBotTask
+    internal class PullTargetTask : BotTask, IBotTask
     {
-        const string HolyFire = "Holy Fire";
-        const string MindBlast = "Mind Blast";
-        const string PowerWordShield = "Power Word: Shield";
-        const string ShadowForm = "Shadowform";
-        const string Smite = "Smite";
-        const string WeakenedSoul = "WeakenedSoul";
-
-        readonly string pullingSpell;
-
-        Position currentWaypoint;
+        private const string HolyFire = "Holy Fire";
+        private const string MindBlast = "Mind Blast";
+        private const string PowerWordShield = "Power Word: Shield";
+        private const string ShadowForm = "Shadowform";
+        private const string Smite = "Smite";
+        private const string WeakenedSoul = "WeakenedSoul";
+        private readonly string pullingSpell;
+        private Position currentWaypoint;
         internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull)
         {
             if (ObjectManager.Player.HasBuff(ShadowForm))

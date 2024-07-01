@@ -2,7 +2,7 @@
 
 namespace WoWActivityMember.Mem
 {
-    static class HackManager
+    internal static class HackManager
     {
         static internal IList<Hack> Hacks { get; } = new List<Hack>();
 

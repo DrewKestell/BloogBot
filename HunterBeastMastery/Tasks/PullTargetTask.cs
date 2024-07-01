@@ -8,12 +8,12 @@ using WoWActivityMember.Objects;
 
 namespace HunterBeastMastery.Tasks
 {
-    class PullTargetTask : BotTask, IBotTask
+    internal class PullTargetTask : BotTask, IBotTask
     {
-        const string GunLuaScript = "if IsAutoRepeatAction(11) == nil then CastSpellByName('Auto Shot') end";
-        const string SerpentSting = "Serpent Sting";
-        const string AspectOfTheMonkey = "Aspect Of The Monkey";
-        const string AspectOfTheCheetah = "Aspect Of The Cheetah";
+        private const string GunLuaScript = "if IsAutoRepeatAction(11) == nil then CastSpellByName('Auto Shot') end";
+        private const string SerpentSting = "Serpent Sting";
+        private const string AspectOfTheMonkey = "Aspect Of The Monkey";
+        private const string AspectOfTheCheetah = "Aspect Of The Cheetah";
 
         internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull) { }
 

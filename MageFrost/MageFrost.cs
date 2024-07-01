@@ -6,7 +6,7 @@ using MageFrost.Tasks;
 namespace MageFrost
 {
     [Export(typeof(IBot))]
-    class MageFrost : IBot
+    internal class MageFrost : IBot
     {
         public string Name => "Frost Mage";
 

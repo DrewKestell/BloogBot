@@ -8,7 +8,7 @@ using WoWActivityMember.Models;
 
 namespace WoWStateManager.Listeners
 {
-    public class WorldStateActivitySocketListener() : AbstractSocketServer(8089, IPAddress.Parse("127.0.0.1"))
+    public class WorldStateActivitySocketListener() : AbstractSocketServer(8088, IPAddress.Parse("127.0.0.1"))
     {
         private readonly Subject<ActivityState> _instanceUpdateSubject = new();
 

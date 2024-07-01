@@ -8,14 +8,12 @@ namespace WoWActivityMember.Tasks.SharedStates
 {
     public class RepairEquipmentTask(IClassContainer container, Stack<IBotTask> botTasks, string npcName) : BotTask(container, botTasks, TaskType.Ordinary), IBotTask
     {
-        readonly string npcName = npcName;
-        readonly LocalPlayer player = ObjectManager.Player;
-
-        State state = State.Uninitialized;
-        WoWUnit npc;
-
-        readonly DialogFrame dialogFrame;
-        readonly MerchantFrame merchantFrame;
+        private readonly string npcName = npcName;
+        private readonly LocalPlayer player = ObjectManager.Player;
+        private State state = State.Uninitialized;
+        private WoWUnit npc;
+        private readonly DialogFrame dialogFrame;
+        private readonly MerchantFrame merchantFrame;
 
         public void Update()
         {
@@ -61,7 +59,7 @@ namespace WoWActivityMember.Tasks.SharedStates
             }
         }
 
-        enum State
+        private enum State
         {
             Uninitialized,
             Interacting,

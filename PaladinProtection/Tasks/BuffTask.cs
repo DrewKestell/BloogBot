@@ -4,11 +4,11 @@ using WoWActivityMember.Tasks;
 
 namespace PaladinProtection.Tasks 
 {
-    class BuffTask : BotTask, IBotTask
+    internal class BuffTask : BotTask, IBotTask
     {
-        const string BlessingOfKings = "Blessing of Kings";
-        const string BlessingOfMight = "Blessing of Might";
-        const string BlessingOfSanctuary = "Blessing of Sanctuary";
+        private const string BlessingOfKings = "Blessing of Kings";
+        private const string BlessingOfMight = "Blessing of Might";
+        private const string BlessingOfSanctuary = "Blessing of Sanctuary";
 
         public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
@@ -29,7 +29,7 @@ namespace PaladinProtection.Tasks
                 TryCastSpell(BlessingOfSanctuary);
         }
 
-        void TryCastSpell(string name)
+        private void TryCastSpell(string name)
         {
             if (!ObjectManager.Player.HasBuff(name) && ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.Mana > ObjectManager.Player.GetManaCost(name))
             {

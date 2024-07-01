@@ -6,11 +6,11 @@ using WoWActivityMember.Tasks;
 
 namespace PriestShadow.Tasks
 {
-    class BuffTask : BotTask, IBotTask
+    internal class BuffTask : BotTask, IBotTask
     {
-        const string PowerWordFortitude = "Power Word: Fortitude";
-        const string ShadowProtection = "Shadow Protection";
-        const string LesserHeal = "Lesser Heal";
+        private const string PowerWordFortitude = "Power Word: Fortitude";
+        private const string ShadowProtection = "Shadow Protection";
+        private const string LesserHeal = "Lesser Heal";
         public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
         {

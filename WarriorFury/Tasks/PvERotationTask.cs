@@ -7,41 +7,37 @@ using static WoWActivityMember.Constants.Enums;
 
 namespace WarriorFury.Tasks
 {
-    class PvERotationTask : CombatRotationTask, IBotTask
+    internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        const string BattleStance = "Battle Stance";
-        const string BerserkerStance = "Berserker Stance";
-
-        const string BattleShout = "Battle Shout";
-        const string BerserkerRage = "Berserker Rage";
-        const string Berserking = "Berserking";
-        const string BloodFury = "Blood Fury";
-        const string Bloodrage = "Bloodrage";
-        const string Bloodthirst = "Bloodthirst";
-        const string Cleave = "Cleave";
-        const string DeathWish = "Death Wish";
-        const string DemoralizingShout = "Demoralizing Shout";
-        const string Execute = "Execute";
-        const string HeroicStrike = "Heroic Strike";
-        const string Overpower = "Overpower";
-        const string Pummel = "Pummel";
-        const string Rend = "Rend";
-        const string Retaliation = "Retaliation";
-        const string Slam = "Slam";
-        const string SunderArmor = "Sunder Armor";
-        const string ThunderClap = "Thunder Clap";
-        const string Hamstring = "Ham String";
-        const string IntimidatingShout = "Intimidating Shout";
-        const string Whirlwind = "Whirlwind";
-
-        bool slamReady;
-        int slamReadyStartTime;
-
-        bool backpedaling;
-        int backpedalStartTime;
-        int backpedalDuration;
-
-        readonly Stopwatch overpowerStopwatch = new();
+        private const string BattleStance = "Battle Stance";
+        private const string BerserkerStance = "Berserker Stance";
+        private const string BattleShout = "Battle Shout";
+        private const string BerserkerRage = "Berserker Rage";
+        private const string Berserking = "Berserking";
+        private const string BloodFury = "Blood Fury";
+        private const string Bloodrage = "Bloodrage";
+        private const string Bloodthirst = "Bloodthirst";
+        private const string Cleave = "Cleave";
+        private const string DeathWish = "Death Wish";
+        private const string DemoralizingShout = "Demoralizing Shout";
+        private const string Execute = "Execute";
+        private const string HeroicStrike = "Heroic Strike";
+        private const string Overpower = "Overpower";
+        private const string Pummel = "Pummel";
+        private const string Rend = "Rend";
+        private const string Retaliation = "Retaliation";
+        private const string Slam = "Slam";
+        private const string SunderArmor = "Sunder Armor";
+        private const string ThunderClap = "Thunder Clap";
+        private const string Hamstring = "Ham String";
+        private const string IntimidatingShout = "Intimidating Shout";
+        private const string Whirlwind = "Whirlwind";
+        private bool slamReady;
+        private int slamReadyStartTime;
+        private bool backpedaling;
+        private int backpedalStartTime;
+        private int backpedalDuration;
+        private readonly Stopwatch overpowerStopwatch = new();
 
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
         {
@@ -160,24 +156,24 @@ namespace WarriorFury.Tasks
             }
         }
 
-        void OnSlamReadyCallback(object sender, EventArgs e)
+        private void OnSlamReadyCallback(object sender, EventArgs e)
         {
             OnSlamReady();
         }
 
-        void OnSlamReady()
+        private void OnSlamReady()
         {
             slamReady = true;
             slamReadyStartTime = Environment.TickCount;
         }
 
-        void SlamCallback()
+        private void SlamCallback()
         {
             slamReady = false;
         }
 
         // Check to see if toon is facing all the ObjectManager.Player.Targets and they are within melee, used to determine if player should walkbackwards to reposition ObjectManager.Player.Targets in front of mob.
-        bool FacingAllTargets
+        private bool FacingAllTargets
         {
             get
             {
@@ -186,7 +182,7 @@ namespace WarriorFury.Tasks
         }
 
         // Check to see if toon is with melee distance of mobs.  This is used to determine if player should use single mob rotation or multi-mob rotation.
-        bool AggressorsInMelee
+        private bool AggressorsInMelee
         {
             get
             {
@@ -194,7 +190,7 @@ namespace WarriorFury.Tasks
             }
         }
 
-        void WalkBack(int milleseconds)
+        private void WalkBack(int milleseconds)
         {
             backpedaling = true;
             backpedalStartTime = Environment.TickCount;

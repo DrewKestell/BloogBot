@@ -7,7 +7,7 @@ namespace WoWActivityMember.Tasks.SharedStates
 {
     public class EquipArmorTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Ordinary), IBotTask
     {
-        static readonly IDictionary<Class, ItemClass> desiredArmorTypes = new Dictionary<Class, ItemClass>
+        private static readonly IDictionary<Class, ItemClass> desiredArmorTypes = new Dictionary<Class, ItemClass>
         {
             { Class.Druid, ItemClass.Leather },
             { Class.Hunter, ItemClass.Mail },
@@ -19,8 +19,7 @@ namespace WoWActivityMember.Tasks.SharedStates
             { Class.Warlock, ItemClass.Cloth },
             { Class.Warrior, ItemClass.Mail }
         };
-
-        readonly IList<EquipSlot> slotsToCheck = new List<EquipSlot>
+        private readonly IList<EquipSlot> slotsToCheck = new List<EquipSlot>
         {
             EquipSlot.Back,
             EquipSlot.Chest,
@@ -32,11 +31,9 @@ namespace WoWActivityMember.Tasks.SharedStates
             EquipSlot.Waist,
             EquipSlot.Wrist
         };
-
-        readonly LocalPlayer player;
-
-        EquipSlot? emptySlot;
-        WoWItem itemToEquip;
+        private readonly LocalPlayer player;
+        private EquipSlot? emptySlot;
+        private WoWItem itemToEquip;
 
         public void Update()
         {

@@ -7,15 +7,14 @@ namespace WoWActivityMember.Tasks.SharedStates
 {
     public class RetrieveCorpseTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Ordinary), IBotTask
     {
-        const int resDistance = 30;
+        private const int resDistance = 30;
 
         // res distance is around 36 units, so we build up a grid of 38 units 
         // in every direction, adding 1 to account for the center.
-        static readonly int length = Convert.ToInt32(Math.Pow((resDistance * 2) + 1, 2.0));
-        readonly Position[] resLocs = new Position[length];
-        readonly LocalPlayer player;
-
-        bool initialized;
+        private static readonly int length = Convert.ToInt32(Math.Pow((resDistance * 2) + 1, 2.0));
+        private readonly Position[] resLocs = new Position[length];
+        private readonly LocalPlayer player;
+        private bool initialized;
 
         public void Update()
         {

@@ -6,11 +6,11 @@ using WoWActivityMember.Mem;
 
 namespace HunterBeastMastery.Tasks
 {
-    class BuffTask : BotTask, IBotTask
+    internal class BuffTask : BotTask, IBotTask
     {
-        const string AspectOfTheMonkey = "Aspect of the Monkey";
-        const string AspectOfTheCheetah = "Aspect of the Cheetah";
-        const string AspectOfTheHawk = "Aspect of the Hawk";
+        private const string AspectOfTheMonkey = "Aspect of the Monkey";
+        private const string AspectOfTheCheetah = "Aspect of the Cheetah";
+        private const string AspectOfTheHawk = "Aspect of the Hawk";
 
         public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
@@ -24,7 +24,7 @@ namespace HunterBeastMastery.Tasks
             TryCastSpell(AspectOfTheHawk);
         }
 
-        void TryCastSpell(string name, int requiredLevel = 1)
+        private void TryCastSpell(string name, int requiredLevel = 1)
         {
             if (!ObjectManager.Player.HasBuff(name) && ObjectManager.Player.Level >= requiredLevel && ObjectManager.Player.IsSpellReady(name))
                 Functions.LuaCall($"CastSpellByName('{name}')");

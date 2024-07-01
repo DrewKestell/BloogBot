@@ -6,12 +6,11 @@ using WoWActivityMember.Tasks;
 
 namespace MageArcane.Tasks
 {
-    class RestTask : BotTask, IBotTask
+    internal class RestTask : BotTask, IBotTask
     {
-        const string Evocation = "Evocation";
-
-        readonly WoWItem foodItem;
-        readonly WoWItem drinkItem;
+        private const string Evocation = "Evocation";
+        private readonly WoWItem foodItem;
+        private readonly WoWItem drinkItem;
         public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
         {
         }
@@ -59,10 +58,10 @@ namespace MageArcane.Tasks
                 drinkItem.Use();
         }
 
-        bool HealthOk => ObjectManager.Player.HealthPercent > 90;
+        private bool HealthOk => ObjectManager.Player.HealthPercent > 90;
 
-        bool ManaOk => (ObjectManager.Player.Level < 6 && ObjectManager.Player.ManaPercent > 60) || ObjectManager.Player.ManaPercent >= 90 || (ObjectManager.Player.ManaPercent >= 75 && !ObjectManager.Player.IsDrinking);
+        private bool ManaOk => (ObjectManager.Player.Level < 6 && ObjectManager.Player.ManaPercent > 60) || ObjectManager.Player.ManaPercent >= 90 || (ObjectManager.Player.ManaPercent >= 75 && !ObjectManager.Player.IsDrinking);
 
-        bool InCombat => ObjectManager.Player.IsInCombat || ObjectManager.Units.Any(u => u.TargetGuid == ObjectManager.Player.Guid);
+        private bool InCombat => ObjectManager.Player.IsInCombat || ObjectManager.Units.Any(u => u.TargetGuid == ObjectManager.Player.Guid);
     }
 }

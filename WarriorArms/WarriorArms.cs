@@ -6,7 +6,7 @@ using WarriorArms.Tasks;
 namespace WarriorArms
 {
     [Export(typeof(IBot))]
-    class WarriorArms : IBot
+    internal class WarriorArms : IBot
     {
         public string Name => "Arms Warrior";
 

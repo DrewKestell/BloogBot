@@ -3,7 +3,7 @@ using WoWActivityMember.Tasks.SharedStates;
 
 namespace RogueSubtlety.Tasks
 {
-    class PvERotationTask : CombatRotationTask, IBotTask
+    internal class PvERotationTask : CombatRotationTask, IBotTask
     {
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 

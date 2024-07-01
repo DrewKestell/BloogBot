@@ -6,7 +6,7 @@ using HunterSurvival.Tasks;
 namespace HunterSurvival
 {
     [Export(typeof(IBot))]
-    class HunterSurvival : IBot
+    internal class HunterSurvival : IBot
     {
         public string Name => "Survival Hunter";
 

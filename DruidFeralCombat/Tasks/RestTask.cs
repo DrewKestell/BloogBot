@@ -6,17 +6,15 @@ using WoWActivityMember.Objects;
 
 namespace DruidFeral.Tasks
 {
-    class RestTask : BotTask, IBotTask
+    internal class RestTask : BotTask, IBotTask
     {
-        const int stackCount = 5;
-
-        const string HumanForm = "Human Form";
-        const string BearForm = "Bear Form";
-        const string CatForm = "Cat Form";
-        const string Regrowth = "Regrowth";
-        const string Rejuvenation = "Rejuvenation";
-
-        readonly WoWItem drinkItem;
+        private const int stackCount = 5;
+        private const string HumanForm = "Human Form";
+        private const string BearForm = "Bear Form";
+        private const string CatForm = "Cat Form";
+        private const string Regrowth = "Regrowth";
+        private const string Rejuvenation = "Rejuvenation";
+        private readonly WoWItem drinkItem;
         public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
         {
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
@@ -98,19 +96,19 @@ namespace DruidFeral.Tasks
                 drinkItem.Use();
         }
 
-        bool HealthOk => ObjectManager.Player.HealthPercent >= 81;
+        private bool HealthOk => ObjectManager.Player.HealthPercent >= 81;
 
-        bool ManaOk => (ObjectManager.Player.Level <= 8 && ObjectManager.Player.ManaPercent > 50) || ObjectManager.Player.ManaPercent >= 90 || (ObjectManager.Player.ManaPercent >= 65 && !ObjectManager.Player.IsDrinking);
+        private bool ManaOk => (ObjectManager.Player.Level <= 8 && ObjectManager.Player.ManaPercent > 50) || ObjectManager.Player.ManaPercent >= 90 || (ObjectManager.Player.ManaPercent >= 65 && !ObjectManager.Player.IsDrinking);
 
-        bool InCombat => ObjectManager.Aggressors.Count() > 0;
+        private bool InCombat => ObjectManager.Aggressors.Count() > 0;
 
-        void CastSpell(string name)
+        private void CastSpell(string name)
         {
             if (ObjectManager.Player.IsSpellReady(name) && !ObjectManager.Player.IsDrinking)
                 Functions.LuaCall($"CastSpellByName('{name}')");
         }
 
-        void TryCastSpell(string name)
+        private void TryCastSpell(string name)
         {
             if (ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.IsCasting && ObjectManager.Player.Mana > ObjectManager.Player.GetManaCost(name) && !ObjectManager.Player.IsDrinking)
                 Functions.LuaCall($"CastSpellByName('{name}',1)");

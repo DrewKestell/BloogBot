@@ -8,13 +8,11 @@ using WoWActivityMember.Tasks;
 
 namespace RogueAssassin.Tasks
 {
-    class RestTask : BotTask, IBotTask
+    internal class RestTask : BotTask, IBotTask
     {
-        const int stackCount = 5;
-
-        const string Cannibalize = "Cannibalize";
-
-        readonly WoWItem foodItem;
+        private const int stackCount = 5;
+        private const string Cannibalize = "Cannibalize";
+        private readonly WoWItem foodItem;
 
         public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
         {
@@ -79,6 +77,6 @@ namespace RogueAssassin.Tasks
                 foodItem.Use();
         }
 
-        bool InCombat => ObjectManager.Aggressors.Count() > 0;
+        private bool InCombat => ObjectManager.Aggressors.Count() > 0;
     }
 }

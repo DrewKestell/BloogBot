@@ -5,28 +5,27 @@ using WoWActivityMember.Tasks.SharedStates;
 
 namespace ShamanElemental.Tasks
 {
-    class PvERotationTask : CombatRotationTask, IBotTask
+    internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        const string Clearcasting = "Clearcasting";
-        const string EarthShock = "Earth Shock";
-        const string ElementalMastery = "Elemental Mastery";
-        const string FlameShock = "Flame Shock";
-        const string FlametongueWeapon = "Flametongue Weapon";
-        const string FocusedCasting = "Focused Casting";
-        const string GroundingTotem = "Grounding Totem";
-        const string ManaSpringTotem = "Mana Spring Totem";
-        const string HealingWave = "Healing Wave";
-        const string LightningBolt = "Lightning Bolt";
-        const string LightningShield = "Lightning Shield";
-        const string RockbiterWeapon = "Rockbiter Weapon";
-        const string SearingTotem = "Searing Totem";
-        const string StoneclawTotem = "Stoneclaw Totem";
-        const string StoneskinTotem = "Stoneskin Totem";
-        const string TremorTotem = "Tremor Totem";
-
-        readonly string[] fearingCreatures = new[] { "Scorpid Terror" };
-        readonly string[] fireImmuneCreatures = new[] { "Rogue Flame Spirit", "Burning Destroyer" };
-        readonly string[] natureImmuneCreatures = new[] { "Swirling Vortex", "Gusting Vortex", "Dust Stormer" };
+        private const string Clearcasting = "Clearcasting";
+        private const string EarthShock = "Earth Shock";
+        private const string ElementalMastery = "Elemental Mastery";
+        private const string FlameShock = "Flame Shock";
+        private const string FlametongueWeapon = "Flametongue Weapon";
+        private const string FocusedCasting = "Focused Casting";
+        private const string GroundingTotem = "Grounding Totem";
+        private const string ManaSpringTotem = "Mana Spring Totem";
+        private const string HealingWave = "Healing Wave";
+        private const string LightningBolt = "Lightning Bolt";
+        private const string LightningShield = "Lightning Shield";
+        private const string RockbiterWeapon = "Rockbiter Weapon";
+        private const string SearingTotem = "Searing Totem";
+        private const string StoneclawTotem = "Stoneclaw Totem";
+        private const string StoneskinTotem = "Stoneskin Totem";
+        private const string TremorTotem = "Tremor Totem";
+        private readonly string[] fearingCreatures = new[] { "Scorpid Terror" };
+        private readonly string[] fireImmuneCreatures = new[] { "Rogue Flame Spirit", "Burning Destroyer" };
+        private readonly string[] natureImmuneCreatures = new[] { "Swirling Vortex", "Gusting Vortex", "Dust Stormer" };
 
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 

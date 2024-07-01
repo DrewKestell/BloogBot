@@ -17,25 +17,23 @@ namespace WoWActivityMember.Objects
             RefreshSpells();
         }
 
-        readonly Random random = new();
+        private readonly Random random = new();
 
         // WARRIOR
-        const string BattleStance = "Battle Stance";
-        const string BerserkerStance = "Berserker Stance";
-        const string DefensiveStance = "Defensive Stance";
+        private const string BattleStance = "Battle Stance";
+        private const string BerserkerStance = "Berserker Stance";
+        private const string DefensiveStance = "Defensive Stance";
 
         // DRUID
-        const string BearForm = "Bear Form";
-        const string CatForm = "Cat Form";
-
-        const string WandLuaScript = "if IsCurrentAction(72) == nil then CastSpellByName('Shoot') end";
-        const string TurnOffWandLuaScript = "if IsCurrentAction(72) ~= nil then CastSpellByName('Shoot') end";
-
-        const string AutoAttackLuaScript = "if IsCurrentAction(72) == nil then CastSpellByName('Attack') end";
-        const string TurnOffAutoAttackLuaScript = "if IsCurrentAction(72) ~= nil then CastSpellByName('Attack') end";
+        private const string BearForm = "Bear Form";
+        private const string CatForm = "Cat Form";
+        private const string WandLuaScript = "if IsCurrentAction(72) == nil then CastSpellByName('Shoot') end";
+        private const string TurnOffWandLuaScript = "if IsCurrentAction(72) ~= nil then CastSpellByName('Shoot') end";
+        private const string AutoAttackLuaScript = "if IsCurrentAction(72) == nil then CastSpellByName('Attack') end";
+        private const string TurnOffAutoAttackLuaScript = "if IsCurrentAction(72) ~= nil then CastSpellByName('Attack') end";
 
         // OPCODES
-        const int SET_FACING_OPCODE = 0xDA; // TBC
+        private const int SET_FACING_OPCODE = 0xDA; // TBC
 
         public readonly IDictionary<string, int[]> PlayerSpells = new Dictionary<string, int[]>();
         public readonly List<int> PlayerSkills = [];
@@ -237,7 +235,7 @@ namespace WoWActivityMember.Objects
             Functions.SetTarget(guid);
         }
 
-        ulong ComboPointGuid { get; set; }
+        private ulong ComboPointGuid { get; set; }
 
         public byte ComboPoints
         {

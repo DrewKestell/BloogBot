@@ -8,13 +8,13 @@ namespace WoWActivityMember.Tasks.SharedStates
 {
     public class QueueForBattlegroundTask(IClassContainer container, Stack<IBotTask> botTasks, WoWUnit woWUnit) : BotTask(container, botTasks, TaskType.Ordinary), IBotTask
     {
-        readonly WoWUnit npc = woWUnit;
-        DialogFrame dialogFrame;
-        bool hasInteracted;
-        bool hasDialogFrame;
-        bool hasSelectedGossipOption;
-        bool hasQueued;
-        readonly bool readyToPop;
+        private readonly WoWUnit npc = woWUnit;
+        private DialogFrame dialogFrame;
+        private bool hasInteracted;
+        private bool hasDialogFrame;
+        private bool hasSelectedGossipOption;
+        private bool hasQueued;
+        private readonly bool readyToPop;
 
         public void Update()
         {

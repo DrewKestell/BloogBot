@@ -6,7 +6,7 @@ using PaladinHoly.Tasks;
 namespace PaladinHoly
 {
     [Export(typeof(IBot))]
-    class PaladinHoly : IBot
+    internal class PaladinHoly : IBot
     {
         public string Name => "Holy Paladin";
 

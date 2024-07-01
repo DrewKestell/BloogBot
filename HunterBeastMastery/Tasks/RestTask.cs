@@ -9,16 +9,14 @@ using WoWActivityMember.Tasks;
 namespace HunterBeastMastery.Tasks
 {
     // TODO: add in ammo buying/management
-    class RestTask : BotTask, IBotTask
+    internal class RestTask : BotTask, IBotTask
     {
-        const int stackCount = 5;
-
-        const string noPetErrorMessage = "You do not have a pet";
-
-        readonly LocalPet pet;
-        readonly WoWItem foodItem;
-        readonly WoWItem drinkItem;
-        readonly WoWItem petFood;
+        private const int stackCount = 5;
+        private const string noPetErrorMessage = "You do not have a pet";
+        private readonly LocalPet pet;
+        private readonly WoWItem foodItem;
+        private readonly WoWItem drinkItem;
+        private readonly WoWItem petFood;
         public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
         {
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
@@ -82,9 +80,12 @@ namespace HunterBeastMastery.Tasks
                 foodItem.Use();
         }
 
-        bool InCombat => ObjectManager.Aggressors.Count() > 0;
-        bool PetHealthOk => ObjectManager.Pet == null || ObjectManager.Pet.HealthPercent >= 80;
-        bool PetHappy => pet.IsHappy();
-        bool PetBeingFed => pet.HasBuff("Feed Pet Effect");
+        private bool InCombat => ObjectManager.Aggressors.Count() > 0;
+
+        private bool PetHealthOk => ObjectManager.Pet == null || ObjectManager.Pet.HealthPercent >= 80;
+
+        private bool PetHappy => pet.IsHappy();
+
+        private bool PetBeingFed => pet.HasBuff("Feed Pet Effect");
     }
 }

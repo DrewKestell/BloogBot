@@ -6,7 +6,7 @@ using MageArcane.Tasks;
 namespace MageArcane
 {
     [Export(typeof(IBot))]
-    class MageArcane : IBot
+    internal class MageArcane : IBot
     {
         public string Name => "Arcane Mage";
 

@@ -6,7 +6,7 @@ using PaladinRetribution.Tasks;
 namespace PaladinRetribution
 {
     [Export(typeof(IBot))]
-    class PaladinRetribution : IBot
+    internal class PaladinRetribution : IBot
     {
         public string Name => "Retribution Paladin";
 

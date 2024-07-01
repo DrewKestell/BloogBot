@@ -7,28 +7,25 @@ using static WoWActivityMember.Constants.Enums;
 
 namespace DruidBalance.Tasks
 {
-    class PvERotationTask : CombatRotationTask, IBotTask
+    internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        static readonly string[] ImmuneToNatureDamage = { "Vortex", "Whirlwind", "Whirling", "Dust", "Cyclone" };
+        private static readonly string[] ImmuneToNatureDamage = { "Vortex", "Whirlwind", "Whirling", "Dust", "Cyclone" };
+        private const string AbolishPoison = "Abolish Poison";
+        private const string EntanglingRoots = "Entangling Roots";
+        private const string HealingTouch = "Healing Touch";
+        private const string Moonfire = "Moonfire";
+        private const string Rejuvenation = "Rejuvenation";
+        private const string RemoveCurse = "Remove Curse";
+        private const string Wrath = "Wrath";
+        private const string InsectSwarm = "Insect Swarm";
+        private const string Innervate = "Innervate";
+        private const string MoonkinForm = "Moonkin Form";
+        private WoWUnit secondaryTarget;
+        private bool castingEntanglingRoots;
+        private bool backpedaling;
+        private int backpedalStartTime;
 
-        const string AbolishPoison = "Abolish Poison";
-        const string EntanglingRoots = "Entangling Roots";
-        const string HealingTouch = "Healing Touch";
-        const string Moonfire = "Moonfire";
-        const string Rejuvenation = "Rejuvenation";
-        const string RemoveCurse = "Remove Curse";
-        const string Wrath = "Wrath";
-        const string InsectSwarm = "Insect Swarm";
-        const string Innervate = "Innervate";
-        const string MoonkinForm = "Moonkin Form";
-
-        WoWUnit secondaryTarget;
-
-        bool castingEntanglingRoots;
-        bool backpedaling;
-        int backpedalStartTime;
-
-        Action EntanglingRootsCallback => () =>
+        private Action EntanglingRootsCallback => () =>
         {
             castingEntanglingRoots = true;
         };

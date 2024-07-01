@@ -13,9 +13,9 @@ namespace WoWActivityMember.Objects
 
         // used for interacting in vanilla
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        delegate void RightClickObjectDelegate(IntPtr unitPtr, int autoLoot);
+        private delegate void RightClickObjectDelegate(IntPtr unitPtr, int autoLoot);
 
-        readonly RightClickObjectDelegate rightClickObjectFunction;
+        private readonly RightClickObjectDelegate rightClickObjectFunction;
 
         public WoWObject() { }
 
@@ -32,7 +32,7 @@ namespace WoWActivityMember.Objects
         public virtual Position Position => GetPosition();
 
         [HandleProcessCorruptedStateExceptions]
-        Position GetPosition()
+        private Position GetPosition()
         {
             try
             {
@@ -108,7 +108,7 @@ namespace WoWActivityMember.Objects
         public float Facing => GetFacing();
 
         [HandleProcessCorruptedStateExceptions]
-        float GetFacing()
+        private float GetFacing()
         {
             try
             {
@@ -137,7 +137,7 @@ namespace WoWActivityMember.Objects
         public string Name => GetName();
 
         [HandleProcessCorruptedStateExceptions]
-        string GetName()
+        private string GetName()
         {
             try
             {

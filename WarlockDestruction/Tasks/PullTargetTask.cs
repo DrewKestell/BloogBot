@@ -7,15 +7,14 @@ using static WoWActivityMember.Constants.Enums;
 
 namespace WarlockDestruction.Tasks
 {
-    class PullTargetTask : BotTask, IBotTask
+    internal class PullTargetTask : BotTask, IBotTask
     {
-        const string SummonImp = "Summon Imp";
-        const string SummonVoidwalker = "Summon Voidwalker";
-        const string CurseOfAgony = "Curse of Agony";
-        const string ShadowBolt = "Shadow Bolt";
-
-        readonly string pullingSpell;
-        Position currentWaypoint;
+        private const string SummonImp = "Summon Imp";
+        private const string SummonVoidwalker = "Summon Voidwalker";
+        private const string CurseOfAgony = "Curse of Agony";
+        private const string ShadowBolt = "Shadow Bolt";
+        private readonly string pullingSpell;
+        private Position currentWaypoint;
 
         internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull)
         {

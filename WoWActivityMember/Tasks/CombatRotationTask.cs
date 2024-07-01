@@ -8,10 +8,9 @@ namespace WoWActivityMember.Tasks.SharedStates
 {
     public abstract class CombatRotationTask : BotTask
     {
-        Position hostileTargetLastPosition;
-
-        bool backpedaling;
-        readonly int backpedalStartTime;
+        private Position hostileTargetLastPosition;
+        private bool backpedaling;
+        private readonly int backpedalStartTime;
 
         public WoWUnit raidLeader;
         public CombatRotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Combat)
@@ -178,7 +177,7 @@ namespace WoWActivityMember.Tasks.SharedStates
         public void TryCastSpell(string name, bool condition = true, Action callback = null, bool castOnSelf = false) =>
             TryCastSpellInternal(name, 0, int.MaxValue, condition, callback, castOnSelf);
 
-        void TryCastSpellInternal(string name, int minRange, int maxRange, bool condition = true, Action callback = null, bool castOnSelf = false)
+        private void TryCastSpellInternal(string name, int minRange, int maxRange, bool condition = true, Action callback = null, bool castOnSelf = false)
         {
             if (ObjectManager.Player.Target == null) return;
 

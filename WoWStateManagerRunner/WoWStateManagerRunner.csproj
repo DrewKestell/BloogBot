@@ -7,4 +7,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BaseSocketServer\BaseSocketMessanger.csproj" />
+    <ProjectReference Include="..\WoWStateManager\WoWStateManager.csproj" />
+  </ItemGroup>
+
 </Project>

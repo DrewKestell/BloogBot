@@ -5,12 +5,11 @@ namespace WoWActivityMember.Tasks.SharedStates
 {
     public class TurnInQuestFromNpcTask(IClassContainer container, Stack<IBotTask> botTasks, string npcName, string questName) : BotTask(container, botTasks, TaskType.Ordinary), IBotTask
     {
-        readonly LocalPlayer player = ObjectManager.Player;
-        readonly int startTime = Environment.TickCount;
-        readonly string questName = questName;
-        readonly int rewardSelection;
-
-        readonly WoWUnit npc = ObjectManager
+        private readonly LocalPlayer player = ObjectManager.Player;
+        private readonly int startTime = Environment.TickCount;
+        private readonly string questName = questName;
+        private readonly int rewardSelection;
+        private readonly WoWUnit npc = ObjectManager
                 .Units
 .First(x => x.Name == npcName);
 

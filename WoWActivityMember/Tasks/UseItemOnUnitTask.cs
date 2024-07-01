@@ -6,9 +6,8 @@ namespace WoWActivityMember.Tasks.SharedStates
 {
     public class UseItemOnUnitTask(IClassContainer container, Stack<IBotTask> botTasks, WoWItem wowItem) : BotTask(container, botTasks, TaskType.Ordinary), IBotTask
     {
-        readonly WoWItem usableItem = wowItem;
-
-        bool itemUsed = false;
+        private readonly WoWItem usableItem = wowItem;
+        private bool itemUsed = false;
 
         public void Update()
         {

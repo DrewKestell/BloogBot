@@ -6,13 +6,12 @@ using WoWActivityMember.Tasks;
 
 namespace MageArcane.Tasks
 {
-    class ConjureItemsTask : BotTask, IBotTask
+    internal class ConjureItemsTask : BotTask, IBotTask
     {
-        const string ConjureFood = "Conjure Food";
-        const string ConjureWater = "Conjure Water";
-
-        WoWItem foodItem;
-        WoWItem drinkItem;
+        private const string ConjureFood = "Conjure Food";
+        private const string ConjureWater = "Conjure Water";
+        private WoWItem foodItem;
+        private WoWItem drinkItem;
 
         public ConjureItemsTask(Stack<IBotTask> botTasks, IClassContainer container) : base(container, botTasks, TaskType.Ordinary) { }
 
@@ -53,7 +52,7 @@ namespace MageArcane.Tasks
                 TryCastSpell(ConjureWater);
         }
 
-        void TryCastSpell(string name)
+        private void TryCastSpell(string name)
         {
             if (ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.IsCasting)
                 Functions.LuaCall($"CastSpellByName('{name}')");

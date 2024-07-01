@@ -12,21 +12,19 @@ namespace WoWActivityMember.Tasks
 {
     public class BotRunner
     {
-        readonly Stack<IBotTask> botTasks = new();
-        readonly BotLoader botLoader = new();
-        readonly ActivityMemberState currentActivityMemberState;
-        readonly ActivityMemberState desiredActivityMemberState;
-        readonly ActivityCommandClient activityCommandClient;
-        readonly MaNGOSDBClient maNGOSDBClient;
-
-        IClassContainer classContainer;
-        readonly ObservableCollection<IBot> Bots = [];
-
-        readonly Task _asyncBotTaskRunnerTask;
-        readonly Task _asyncServerFeedbackTask;
+        private readonly Stack<IBotTask> botTasks = new();
+        private readonly BotLoader botLoader = new();
+        private readonly ActivityMemberState currentActivityMemberState;
+        private readonly ActivityMemberState desiredActivityMemberState;
+        private readonly ActivityCommandClient activityCommandClient;
+        private readonly MaNGOSDBClient maNGOSDBClient;
+        private IClassContainer classContainer;
+        private readonly ObservableCollection<IBot> Bots = [];
+        private readonly Task _asyncBotTaskRunnerTask;
+        private readonly Task _asyncServerFeedbackTask;
 
         // General
-        IBot currentBot;
+        private IBot currentBot;
 
         public BotRunner()
         {

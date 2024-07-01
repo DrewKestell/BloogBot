@@ -2,7 +2,7 @@
 
 namespace WoWActivityMember.Game
 {
-    class Hack
+    internal class Hack
     {
         internal Hack(string name, IntPtr address, byte[] newBytes)
         {

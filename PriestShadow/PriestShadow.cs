@@ -6,7 +6,7 @@ using PriestShadow.Tasks;
 namespace PriestShadow
 {
     [Export(typeof(IBot))]
-    class PriestShadow : IBot
+    internal class PriestShadow : IBot
     {
         public string Name => "Shadow Priest";
 

@@ -3,7 +3,7 @@ using WoWActivityMember.Tasks;
 
 namespace HunterBeastMastery.Tasks
 {
-    class PvPRotationTask : CombatRotationTask, IBotTask
+    internal class PvPRotationTask : CombatRotationTask, IBotTask
     {
         internal PvPRotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 

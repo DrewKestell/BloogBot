@@ -6,7 +6,7 @@ using ShamanElemental.Tasks;
 namespace ShamanElemental
 {
     [Export(typeof(IBot))]
-    class ShamanElemental : IBot
+    internal class ShamanElemental : IBot
     {
         public string Name => "Elemental Shaman";
 

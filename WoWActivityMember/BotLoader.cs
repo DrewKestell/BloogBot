@@ -5,17 +5,17 @@ using System.Reflection;
 
 namespace WoWActivityMember
 {
-    class BotLoader
+    internal class BotLoader
     {
         private readonly IDictionary<string, string> assemblies = new Dictionary<string, string>();
 
 #pragma warning disable 0649
         [ImportMany(typeof(IBot), AllowRecomposition = true)]
-        readonly List<IBot> bots;
+        private readonly List<IBot> bots;
 #pragma warning restore 0649
 
-        readonly AggregateCatalog catalog = new();
-        CompositionContainer container;
+        private readonly AggregateCatalog catalog = new();
+        private CompositionContainer container;
 
         public BotLoader()
         {

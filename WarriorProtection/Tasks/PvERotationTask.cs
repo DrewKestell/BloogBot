@@ -9,34 +9,31 @@ using static WoWActivityMember.Constants.Enums;
 
 namespace WarriorProtection.Tasks
 {
-    class PvERotationTask : CombatRotationTask, IBotTask
+    internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        const string BattleStance = "Battle Stance";
-        const string DefensiveStance = "Defensive Stance";
-        const string BerserkerStance = "Berserker Stance";
-
-        const string BattleShout = "Battle Shout";
-        const string Berserking = "Berserking";
-        const string Bloodrage = "Bloodrage";
-        const string ConcussionBlow = "Concussion Blow";
-        const string DemoralizingShout = "Demoralizing Shout";
-        const string Execute = "Execute";
-        const string HeroicStrike = "Heroic Strike";
-        const string LastStand = "Last Stand";
-        const string Overpower = "Overpower";
-        const string Rend = "Rend";
-        const string Retaliation = "Retaliation";
-        const string Revenge = "Revenge";
-        const string ShieldBash = "Shield Bash";
-        const string ShieldSlam = "Shield Slam";
-        const string SunderArmor = "Sunder Armor";
-        const string Taunt = "Taunt";
-        const string ThunderClap = "Thunder Clap";
-
-        readonly Stopwatch overpowerStopwatch = new();
-
-        readonly Position tankSpot;
-        WoWUnit currentDPSTarget;
+        private const string BattleStance = "Battle Stance";
+        private const string DefensiveStance = "Defensive Stance";
+        private const string BerserkerStance = "Berserker Stance";
+        private const string BattleShout = "Battle Shout";
+        private const string Berserking = "Berserking";
+        private const string Bloodrage = "Bloodrage";
+        private const string ConcussionBlow = "Concussion Blow";
+        private const string DemoralizingShout = "Demoralizing Shout";
+        private const string Execute = "Execute";
+        private const string HeroicStrike = "Heroic Strike";
+        private const string LastStand = "Last Stand";
+        private const string Overpower = "Overpower";
+        private const string Rend = "Rend";
+        private const string Retaliation = "Retaliation";
+        private const string Revenge = "Revenge";
+        private const string ShieldBash = "Shield Bash";
+        private const string ShieldSlam = "Shield Slam";
+        private const string SunderArmor = "Sunder Armor";
+        private const string Taunt = "Taunt";
+        private const string ThunderClap = "Thunder Clap";
+        private readonly Stopwatch overpowerStopwatch = new();
+        private readonly Position tankSpot;
+        private WoWUnit currentDPSTarget;
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
         {
             WoWEventHandler.Instance.OnBlockParryDodge += Instance_OnBlockParryDodge;

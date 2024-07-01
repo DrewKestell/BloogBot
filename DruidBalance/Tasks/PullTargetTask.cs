@@ -6,14 +6,13 @@ using WoWActivityMember.Objects;
 
 namespace DruidBalance.Tasks
 {
-    class PullTargetTask : BotTask, IBotTask
+    internal class PullTargetTask : BotTask, IBotTask
     {
-        const string Wrath = "Wrath";
-        const string Starfire = "Starfire";
-        const string MoonkinForm = "Moonkin Form";
-
-        readonly int range;
-        readonly string pullingSpell;
+        private const string Wrath = "Wrath";
+        private const string Starfire = "Starfire";
+        private const string MoonkinForm = "Moonkin Form";
+        private readonly int range;
+        private readonly string pullingSpell;
 
         internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull)
         {

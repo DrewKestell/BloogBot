@@ -6,7 +6,7 @@ using System.ComponentModel.Composition;
 namespace DruidFeral
 {
     [Export(typeof(IBot))]
-    class DruidFeral : IBot
+    internal class DruidFeral : IBot
     {
         public string Name => "Feral Druid";
 

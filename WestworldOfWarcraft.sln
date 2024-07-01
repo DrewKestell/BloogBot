@@ -34,7 +34,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaseSocketMessanger", "Base
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinProcessImports", "WinImports\WinProcessImports.csproj", "{5D05B147-35A8-4A10-906E-58C96E2504E4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaNGOSDBDomainApp", "MaNGOSDBDomainApp\MaNGOSDBDomainApp.csproj", "{6A4F4121-083E-4313-A50C-0BB17D4C09F8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaNGOSDBDomainRunner", "MaNGOSDBDomainRunner\MaNGOSDBDomainRunner.csproj", "{6A4F4121-083E-4313-A50C-0BB17D4C09F8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWActivityMember", "WoWActivityMember\WoWActivityMember.csproj", "{AF4BA739-45FB-44CD-886C-B0125261FE5B}"
 EndProject
@@ -96,6 +96,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWStateManagerRunner", "Wo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarlockDestruction", "WarlockDestruction\WarlockDestruction.csproj", "{3FA755A4-A27F-4FC3-A3A1-D441B83291B2}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWActivityManager", "WoWActivityManager\WoWActivityManager.csproj", "{74DF3AD4-6A78-40CF-A13A-81E8507EF277}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "StateProfiles", "StateProfiles", "{A2FE953C-B58B-462B-9CDE-C2BBFBF87602}"
 	ProjectSection(SolutionItems) = preProject
 		StateProfiles\War19ArmsPvP.json = StateProfiles\War19ArmsPvP.json
@@ -119,8 +121,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProgressionProfiles", "Prog
 		ProgressionProfiles\WarlockBase.json = ProgressionProfiles\WarlockBase.json
 		ProgressionProfiles\WarriorBase.json = ProgressionProfiles\WarriorBase.json
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WoWActivityManager", "WoWActivityManager\WoWActivityManager.csproj", "{74DF3AD4-6A78-40CF-A13A-81E8507EF277}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

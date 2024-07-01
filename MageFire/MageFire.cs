@@ -6,7 +6,7 @@ using MageFire.Tasks;
 namespace MageFire
 {
     [Export(typeof(IBot))]
-    class MageArcane : IBot
+    internal class MageArcane : IBot
     {
         public string Name => "Fire Mage";
 

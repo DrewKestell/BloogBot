@@ -9,7 +9,7 @@ namespace WoWStateManagerUI
     /// </summary>
     public partial class MainWindow : Window
     {
-        readonly WoWStateManagerViewModel _worldStatePresetViewModel;
+        private readonly WoWStateManagerViewModel _worldStatePresetViewModel;
         public MainWindow()
         {
             _worldStatePresetViewModel = new WoWStateManagerViewModel();

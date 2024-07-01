@@ -5,21 +5,21 @@ using static WoWActivityMember.Constants.Enums;
 
 namespace PaladinRetribution.Tasks
 {
-    class PvERotationTask : CombatRotationTask, IBotTask
+    internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        const string DevotionAura = "Devotion Aura";
-        const string Exorcism = "Exorcism";
-        const string HammerOfJustice = "Hammer of Justice";
-        const string HolyLight = "Holy Light";
-        const string HolyShield = "Holy Shield";
-        const string Judgement = "Judgement";
-        const string JudgementOfTheCrusader = "Judgement of the Crusader";
-        const string Purify = "Purify";
-        const string RetributionAura = "Retribution Aura";
-        const string SanctityAura = "Sanctity Aura";
-        const string SealOfCommand = "Seal of Command";
-        const string SealOfRighteousness = "Seal of Righteousness";
-        const string SealOfTheCrusader = "Seal of the Crusader";
+        private const string DevotionAura = "Devotion Aura";
+        private const string Exorcism = "Exorcism";
+        private const string HammerOfJustice = "Hammer of Justice";
+        private const string HolyLight = "Holy Light";
+        private const string HolyShield = "Holy Shield";
+        private const string Judgement = "Judgement";
+        private const string JudgementOfTheCrusader = "Judgement of the Crusader";
+        private const string Purify = "Purify";
+        private const string RetributionAura = "Retribution Aura";
+        private const string SanctityAura = "Sanctity Aura";
+        private const string SealOfCommand = "Seal of Command";
+        private const string SealOfRighteousness = "Seal of Righteousness";
+        private const string SealOfTheCrusader = "Seal of the Crusader";
 
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 

@@ -50,6 +50,8 @@ namespace WoWStateManagerUI.Views
         private void ApplyWorldState()
         {
             UserActivityCommand.ActivityAction = ActivityAction.ApplyDesiredState;
+            UserActivityCommand.CommandParam1 = SelectedActivityIndex.ToString();
+            UserActivityCommand.CommandParam2 = SelectedActivityMemberIndex.ToString();
         }
 
         private void AddActivity()
@@ -92,11 +94,18 @@ namespace WoWStateManagerUI.Views
 
         public void EditActivityMember(string propertyName, string propertyValue)
         {
-            UserActivityCommand.ActivityAction = ActivityAction.EditActivityMember;
-            UserActivityCommand.CommandParam1 = SelectedActivityIndex.ToString();
-            UserActivityCommand.CommandParam2 = SelectedActivityMemberIndex.ToString();
-            UserActivityCommand.CommandParam3 = propertyName;
-            UserActivityCommand.CommandParam4 = propertyValue;
+            if (("BehaviorProfile" == propertyName && propertyValue != SelectedActivityMember.BehaviorProfile)
+                || ("Account" == propertyName && propertyValue != SelectedActivityMember.Account)
+                || ("ProgressionConfig" == propertyName && propertyValue != SelectedActivityMember.ProgressionConfig)
+                || ("InitialStateConfig" == propertyName && propertyValue != SelectedActivityMember.InitialStateConfig)
+                || ("EndStateConfig" == propertyName && propertyValue != SelectedActivityMember.EndStateConfig))
+            {
+                UserActivityCommand.ActivityAction = ActivityAction.EditActivityMember;
+                UserActivityCommand.CommandParam1 = SelectedActivityIndex.ToString();
+                UserActivityCommand.CommandParam2 = SelectedActivityMemberIndex.ToString();
+                UserActivityCommand.CommandParam3 = propertyName;
+                UserActivityCommand.CommandParam4 = propertyValue;
+            }
         }
 
         private void SetMaxRaidSize()
@@ -189,40 +198,42 @@ namespace WoWStateManagerUI.Views
 
                     ServerActivityStates.Clear();
 
-                    foreach (var item in activityStates)
-                        ServerActivityStates.Add(item);
+                    for(int i = 0; i < activityStates.Count; i++)
+                    {
+                        ServerActivityStates.Add(activityStates[i]);
+                    }
 
                     try
                     {
-                        foreach (var item in ServerActivityStates)
+                        for (int i = 0; i < ServerActivityStates.Count; i++)
                         {
-                            if (ActivityViewModels.Any(x => x.ActivityState.ProcessId == item.ProcessId))
+                            if (i < ActivityViewModels.Count)
                             {
-                                ActivityViewModel activityViewModel = ActivityViewModels.First(x => x.ActivityState.ProcessId == item.ProcessId);
-                                activityViewModel.ActivityState.ActivityType = item.ActivityType;
+                                ActivityViewModel activityViewModel = ActivityViewModels[i];
+                                activityViewModel.ActivityState.ActivityType = ServerActivityStates[i].ActivityType;
 
-                                while (activityViewModel.ActivityState.ActivityMemberStates.Count < item.ActivityMemberStates.Count)
+                                while (activityViewModel.ActivityState.ActivityMemberStates.Count < ServerActivityStates[i].ActivityMemberStates.Count)
                                 {
                                     LogMessage($"{DateTime.Now}| Adding new activity member Activity: {activityViewModel.ActivityState.ProcessId}");
                                     activityViewModel.AddNewActivityMember();
                                 }
 
-                                while (activityViewModel.ActivityState.ActivityMemberStates.Count > item.ActivityMemberStates.Count)
+                                while (activityViewModel.ActivityState.ActivityMemberStates.Count > ServerActivityStates[i].ActivityMemberStates.Count)
                                 {
                                     LogMessage($"{DateTime.Now}| Removing activity member Activity: {activityViewModel.ActivityState.ProcessId} {SelectedActivityMember.BehaviorProfile}");
                                     activityViewModel.RemoveActivityMember();
                                 }
 
-                                for (int i = 0; i < activityViewModel.ActivityState.ActivityMemberStates.Count; i++)
+                                for (int ii = 0; ii < activityViewModel.ActivityState.ActivityMemberStates.Count; ii++)
                                 {
-                                    activityViewModel.ActivityState.ActivityMemberStates[i].Account = item.ActivityMemberStates[i].Account;
-                                    activityViewModel.ActivityState.ActivityMemberStates[i].BehaviorProfile = item.ActivityMemberStates[i].BehaviorProfile;
-                                    activityViewModel.ActivityState.ActivityMemberStates[i].InitialStateConfig = item.ActivityMemberStates[i].InitialStateConfig;
-                                    activityViewModel.ActivityState.ActivityMemberStates[i].EndStateConfig = item.ActivityMemberStates[i].EndStateConfig;
+                                    activityViewModel.ActivityState.ActivityMemberStates[ii].Account = ServerActivityStates[i].ActivityMemberStates[ii].Account;
+                                    activityViewModel.ActivityState.ActivityMemberStates[ii].BehaviorProfile = ServerActivityStates[i].ActivityMemberStates[ii].BehaviorProfile;
+                                    activityViewModel.ActivityState.ActivityMemberStates[ii].InitialStateConfig = ServerActivityStates[i].ActivityMemberStates[ii].InitialStateConfig;
+                                    activityViewModel.ActivityState.ActivityMemberStates[ii].EndStateConfig = ServerActivityStates[i].ActivityMemberStates[ii].EndStateConfig;
                                 }
                             }
                             else
-                                ActivityViewModels.Add(new ActivityViewModel(item));
+                                ActivityViewModels.Add(new ActivityViewModel(ServerActivityStates[i]));
                         }
 
                         if (ServerActivityStates.Count > 0 && SelectedActivityIndex < 0)
@@ -248,11 +259,11 @@ namespace WoWStateManagerUI.Views
                     }
                     catch (Exception ex)
                     {
-                        LogMessage(ex.Message);
+                        LogMessage(ex.InnerException.Message + " " + ex.Message);
                     }
                 });
 
-                await Task.Delay(1000);
+                await Task.Delay(10000);
             }
         }
         private void LogMessage(string message)

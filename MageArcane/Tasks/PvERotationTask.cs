@@ -7,22 +7,20 @@ using static WoWActivityMember.Constants.Enums;
 
 namespace MageArcane.Tasks
 {
-    class PvERotationTask : CombatRotationTask, IBotTask
+    internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        const string WandLuaScript = "if IsAutoRepeatAction(11) == nil then CastSpellByName('Shoot') end";
-
-        const string ArcaneMissiles = "Arcane Missiles";
-        const string ArcanePower = "Arcane Power";
-        const string Clearcasting = "Clearcasting";
-        const string Counterspell = "Counterspell";
-        const string FrostNova = "Frost Nova";
-        const string Fireball = "Fireball";
-        const string FireBlast = "Fire Blast";
-        const string ManaShield = "Mana Shield";
-        const string PresenceOfMind = "Presence of Mind";
-
-        bool frostNovaBackpedaling;
-        int frostNovaBackpedalStartTime;
+        private const string WandLuaScript = "if IsAutoRepeatAction(11) == nil then CastSpellByName('Shoot') end";
+        private const string ArcaneMissiles = "Arcane Missiles";
+        private const string ArcanePower = "Arcane Power";
+        private const string Clearcasting = "Clearcasting";
+        private const string Counterspell = "Counterspell";
+        private const string FrostNova = "Frost Nova";
+        private const string Fireball = "Fireball";
+        private const string FireBlast = "Fire Blast";
+        private const string ManaShield = "Mana Shield";
+        private const string PresenceOfMind = "Presence of Mind";
+        private bool frostNovaBackpedaling;
+        private int frostNovaBackpedalStartTime;
 
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 
@@ -78,7 +76,7 @@ namespace MageArcane.Tasks
             throw new NotImplementedException();
         }
 
-        Action FrostNovaCallback => () =>
+        private Action FrostNovaCallback => () =>
         {
             frostNovaBackpedaling = true;
             frostNovaBackpedalStartTime = Environment.TickCount;

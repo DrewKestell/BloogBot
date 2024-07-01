@@ -10,7 +10,7 @@ namespace WoWActivityMember.Mem
     public static unsafe class MemoryManager
     {
         [Flags]
-        enum ProcessAccessFlags
+        private enum ProcessAccessFlags
         {
             DELETE = 0x00010000,
             READ_CONTROL = 0x00020000,
@@ -33,13 +33,13 @@ namespace WoWActivityMember.Mem
         }
 
         [DllImport("kernel32.dll")]
-        static extern bool VirtualProtect(IntPtr address, int size, uint newProtect, out uint oldProtect);
+        private static extern bool VirtualProtect(IntPtr address, int size, uint newProtect, out uint oldProtect);
 
         [DllImport("kernel32.dll")]
-        static extern IntPtr OpenProcess(ProcessAccessFlags desiredAccess, bool inheritHandle, int processId);
+        private static extern IntPtr OpenProcess(ProcessAccessFlags desiredAccess, bool inheritHandle, int processId);
 
         [DllImport("kernel32.dll")]
-        static extern bool WriteProcessMemory(
+        private static extern bool WriteProcessMemory(
             IntPtr hProcess,
             IntPtr lpBaseAddress,
             byte[] lpBuffer,
@@ -63,11 +63,11 @@ namespace WoWActivityMember.Mem
         }
 
         [DllImport("kernel32.dll")]
-        static extern bool VirtualProtect(IntPtr lpAddress, UIntPtr dwSize, uint flNewProtect, out uint lpflOldProtect);
+        private static extern bool VirtualProtect(IntPtr lpAddress, UIntPtr dwSize, uint flNewProtect, out uint lpflOldProtect);
 
-        static readonly IntPtr wowProcessHandle = Process.GetCurrentProcess().Handle;
+        private static readonly IntPtr wowProcessHandle = Process.GetCurrentProcess().Handle;
         public static readonly IntPtr imageBase = Process.GetCurrentProcess().MainModule.BaseAddress;
-        static readonly FasmNet fasm = new();
+        private static readonly FasmNet fasm = new();
 
         [HandleProcessCorruptedStateExceptions]
         static internal byte ReadByte(IntPtr address, bool isRelative = false)

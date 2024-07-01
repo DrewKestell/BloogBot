@@ -7,13 +7,8 @@ using System.Net.Sockets;
 
 namespace MaNGOSDBDomain
 {
-    public class MaNGOSDBSocketServer : AbstractSocketServer
+    public class MaNGOSDBSocketServer() : AbstractSocketServer(8080, IPAddress.Parse("127.0.0.1"))
     {
-        public MaNGOSDBSocketServer(int port, IPAddress ipAddress) : base(port, ipAddress)
-        {
-            Console.WriteLine($"[DATABASE SERVER : {port}] Started");
-        }
-
         public override int HandleRequest(string payload, Socket clientSocket)
         {
             DatabaseRequest request = JsonConvert.DeserializeObject<DatabaseRequest>(payload);

@@ -81,7 +81,7 @@ namespace WinProcessImports
         internal static extern int SetWindowText(IntPtr hWnd, string text);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+        private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
         internal enum MemoryAllocationType
         {
@@ -134,7 +134,7 @@ namespace WinProcessImports
         }
 
         [Flags]
-        enum ProcessAccessFlags
+        private enum ProcessAccessFlags
         {
             DELETE = 0x00010000,
             READ_CONTROL = 0x00020000,

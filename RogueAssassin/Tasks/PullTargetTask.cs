@@ -9,18 +9,17 @@ using static WoWActivityMember.Constants.Enums;
 
 namespace RogueAssassin.Tasks
 {
-    class PullTargetTask : BotTask, IBotTask
+    internal class PullTargetTask : BotTask, IBotTask
     {
-        const string Distract = "Distract";
-        const string Garrote = "Garrote";
-        const string Stealth = "Stealth";
-        const string CheapShot = "Cheap Shot";
-        const string Ambush = "Ambush";
-
-        bool SwapDaggerReady;
-        bool DaggerEquipped;
-        bool SwapMaceOrSwordReady;
-        bool MaceOrSwordEquipped;
+        private const string Distract = "Distract";
+        private const string Garrote = "Garrote";
+        private const string Stealth = "Stealth";
+        private const string CheapShot = "Cheap Shot";
+        private const string Ambush = "Ambush";
+        private bool SwapDaggerReady;
+        private bool DaggerEquipped;
+        private bool SwapMaceOrSwordReady;
+        private bool MaceOrSwordEquipped;
 
         internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull) { }
 

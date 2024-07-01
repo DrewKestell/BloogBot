@@ -8,11 +8,11 @@ namespace WoWActivityMember.Mem
 {
     static public class Functions
     {
-        static readonly object locker = new();
-        static readonly Random random = new();
+        private static readonly object locker = new();
+        private static readonly Random random = new();
 
         [DllImport("FastCall.dll", EntryPoint = "BuyVendorItem")]
-        static extern void BuyVendorItemFunction(int itemId, int quantity, ulong vendorGuid, IntPtr ptr);
+        private static extern void BuyVendorItemFunction(int itemId, int quantity, ulong vendorGuid, IntPtr ptr);
 
         static public void BuyVendorItem(ulong vendorGuid, int itemId, int quantity)
         {
@@ -22,7 +22,7 @@ namespace WoWActivityMember.Mem
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         private delegate int CastAtPositionDelegate(ref XYZ parPos);
 
-        static readonly CastAtPositionDelegate CastAtPositionFunction =
+        private static readonly CastAtPositionDelegate CastAtPositionFunction =
             Marshal.GetDelegateForFunctionPointer<CastAtPositionDelegate>(MemoryAddresses.CastAtPositionFunPtr);
 
         static public void CastAtPosition(string spellName, Position position)
@@ -34,7 +34,7 @@ namespace WoWActivityMember.Mem
         }
 
         [DllImport("FastCall.dll", EntryPoint = "EnumerateVisibleObjects")]
-        static extern void EnumerateVisibleObjectsFunction(IntPtr callback, int filter, IntPtr ptr);
+        private static extern void EnumerateVisibleObjectsFunction(IntPtr callback, int filter, IntPtr ptr);
 
         // what does this do? [HandleProcessCorruptedStateExceptions]
         static public void EnumerateVisibleObjects(IntPtr callback, int filter)
@@ -43,10 +43,10 @@ namespace WoWActivityMember.Mem
         }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        delegate int GetCreatureRankDelegate
+        private delegate int GetCreatureRankDelegate
             (IntPtr unitPtr);
 
-        static readonly GetCreatureRankDelegate GetCreatureRankFunction =
+        private static readonly GetCreatureRankDelegate GetCreatureRankFunction =
             Marshal.GetDelegateForFunctionPointer<GetCreatureRankDelegate>(MemoryAddresses.GetCreatureRankFunPtr);
 
         static public int GetCreatureRank(IntPtr unitPtr)
@@ -55,9 +55,9 @@ namespace WoWActivityMember.Mem
         }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        delegate int GetCreatureTypeDelegate(IntPtr unitPtr);
+        private delegate int GetCreatureTypeDelegate(IntPtr unitPtr);
 
-        static readonly GetCreatureTypeDelegate GetCreatureTypeFunction =
+        private static readonly GetCreatureTypeDelegate GetCreatureTypeFunction =
             Marshal.GetDelegateForFunctionPointer<GetCreatureTypeDelegate>(MemoryAddresses.GetCreatureTypeFunPtr);
 
         static public CreatureType GetCreatureType(IntPtr unitPtr)
@@ -66,7 +66,7 @@ namespace WoWActivityMember.Mem
         }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        delegate IntPtr ItemCacheGetRowDelegate(
+        private delegate IntPtr ItemCacheGetRowDelegate(
             IntPtr ptr,
             int itemId,
             IntPtr unknown,
@@ -74,7 +74,7 @@ namespace WoWActivityMember.Mem
             int unused2,
             char unused3);
 
-        static readonly ItemCacheGetRowDelegate GetItemCacheEntryFunction =
+        private static readonly ItemCacheGetRowDelegate GetItemCacheEntryFunction =
             Marshal.GetDelegateForFunctionPointer<ItemCacheGetRowDelegate>(MemoryAddresses.GetItemCacheEntryFunPtr);
 
         static public IntPtr GetItemCacheEntry(int itemId)
@@ -83,9 +83,9 @@ namespace WoWActivityMember.Mem
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        delegate IntPtr GetObjectPtrDelegate(ulong guid);
+        private delegate IntPtr GetObjectPtrDelegate(ulong guid);
 
-        static readonly GetObjectPtrDelegate GetObjectPtrFunction =
+        private static readonly GetObjectPtrDelegate GetObjectPtrFunction =
             Marshal.GetDelegateForFunctionPointer<GetObjectPtrDelegate>(MemoryAddresses.GetObjectPtrFunPtr);
 
         static public IntPtr GetObjectPtr(ulong guid)
@@ -94,9 +94,9 @@ namespace WoWActivityMember.Mem
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        delegate ulong GetPlayerGuidDelegate();
+        private delegate ulong GetPlayerGuidDelegate();
 
-        static readonly GetPlayerGuidDelegate GetPlayerGuidFunction =
+        private static readonly GetPlayerGuidDelegate GetPlayerGuidFunction =
             Marshal.GetDelegateForFunctionPointer<GetPlayerGuidDelegate>(MemoryAddresses.GetPlayerGuidFunPtr);
 
         static public ulong GetPlayerGuid()
@@ -105,7 +105,7 @@ namespace WoWActivityMember.Mem
         }
 
         [DllImport("FastCall.dll", EntryPoint = "GetText")]
-        static extern IntPtr GetTextFunction(string varName, IntPtr ptr);
+        private static extern IntPtr GetTextFunction(string varName, IntPtr ptr);
 
         static public IntPtr GetText(string varName)
         {
@@ -113,9 +113,9 @@ namespace WoWActivityMember.Mem
         }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        delegate int GetUnitReactionDelegate(IntPtr unitPtr1, IntPtr unitPtr2);
+        private delegate int GetUnitReactionDelegate(IntPtr unitPtr1, IntPtr unitPtr2);
 
-        static readonly GetUnitReactionDelegate GetUnitReactionFunction =
+        private static readonly GetUnitReactionDelegate GetUnitReactionFunction =
             Marshal.GetDelegateForFunctionPointer<GetUnitReactionDelegate>(MemoryAddresses.GetUnitReactionFunPtr);
 
         static public UnitReaction GetUnitReaction(IntPtr unitPtr1, IntPtr unitPtr2)
@@ -124,7 +124,7 @@ namespace WoWActivityMember.Mem
         }
 
         [DllImport("FastCall.dll", EntryPoint = "Intersect2")]
-        static extern bool IntersectFunction(ref XYZ p1, ref XYZ p2, ref XYZ intersection, ref float distance, uint flags, IntPtr Ptr);
+        private static extern bool IntersectFunction(ref XYZ p1, ref XYZ p2, ref XYZ intersection, ref float distance, uint flags, IntPtr Ptr);
 
         /// <summary>
         /// Returns { 1, 1, 1 } if there is a collission when casting a ray between start and end params.
@@ -148,7 +148,7 @@ namespace WoWActivityMember.Mem
         }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        delegate void IsSpellOnCooldownDelegate(
+        private delegate void IsSpellOnCooldownDelegate(
             IntPtr spellCooldownPtr,
             int spellId,
             int unused1,
@@ -156,7 +156,7 @@ namespace WoWActivityMember.Mem
             int unused2,
             bool unused3);
 
-        static readonly IsSpellOnCooldownDelegate IsSpellOnCooldownFunction =
+        private static readonly IsSpellOnCooldownDelegate IsSpellOnCooldownFunction =
             Marshal.GetDelegateForFunctionPointer<IsSpellOnCooldownDelegate>(MemoryAddresses.IsSpellOnCooldownFunPtr);
 
         static public bool IsSpellOnCooldown(int spellId)
@@ -174,7 +174,7 @@ namespace WoWActivityMember.Mem
         }
 
         [DllImport("FastCall.dll", EntryPoint = "LootSlot")]
-        static extern byte LootSlotFunction(int slot, IntPtr ptr);
+        private static extern byte LootSlotFunction(int slot, IntPtr ptr);
 
         static public void LootSlot(int slot)
         {
@@ -182,7 +182,7 @@ namespace WoWActivityMember.Mem
         }
 
         [DllImport("FastCall.dll", EntryPoint = "LuaCall")]
-        static extern void LuaCallFunction(string code, int ptr);
+        private static extern void LuaCallFunction(string code, int ptr);
 
         static public void LuaCall(string code)
         {
@@ -219,9 +219,9 @@ namespace WoWActivityMember.Mem
         }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        delegate int ReleaseCorpseDelegate(IntPtr ptr);
+        private delegate int ReleaseCorpseDelegate(IntPtr ptr);
 
-        static readonly ReleaseCorpseDelegate ReleaseCorpseFunction =
+        private static readonly ReleaseCorpseDelegate ReleaseCorpseFunction =
             Marshal.GetDelegateForFunctionPointer<ReleaseCorpseDelegate>(MemoryAddresses.ReleaseCorpseFunPtr);
 
         [HandleProcessCorruptedStateExceptions]
@@ -237,9 +237,9 @@ namespace WoWActivityMember.Mem
             }
         }
 
-        delegate int RetrieveCorpseDelegate();
+        private delegate int RetrieveCorpseDelegate();
 
-        static readonly RetrieveCorpseDelegate RetrieveCorpseFunction =
+        private static readonly RetrieveCorpseDelegate RetrieveCorpseFunction =
             Marshal.GetDelegateForFunctionPointer<RetrieveCorpseDelegate>(MemoryAddresses.RetrieveCorpseFunPtr);
 
         static public void RetrieveCorpse()
@@ -248,9 +248,9 @@ namespace WoWActivityMember.Mem
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        delegate void SetTargetDelegate(ulong guid);
+        private delegate void SetTargetDelegate(ulong guid);
 
-        static readonly SetTargetDelegate SetTargetFunction =
+        private static readonly SetTargetDelegate SetTargetFunction =
             Marshal.GetDelegateForFunctionPointer<SetTargetDelegate>(MemoryAddresses.SetTargetFunPtr);
 
         static public void SetTarget(ulong guid)
@@ -259,7 +259,7 @@ namespace WoWActivityMember.Mem
         }
 
         [DllImport("FastCall.dll", EntryPoint = "SellItemByGuid")]
-        static extern void SellItemByGuidFunction(uint itemCount, ulong npcGuid, ulong itemGuid, IntPtr sellItemFunPtr);
+        private static extern void SellItemByGuidFunction(uint itemCount, ulong npcGuid, ulong itemGuid, IntPtr sellItemFunPtr);
 
         static public void SellItemByGuid(uint itemCount, ulong vendorGuid, ulong itemGuid)
         {
@@ -267,14 +267,14 @@ namespace WoWActivityMember.Mem
         }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        delegate void SendMovementUpdateDelegate(
+        private delegate void SendMovementUpdateDelegate(
             IntPtr playerPtr,
             IntPtr unknown,
             int OpCode,
             int unknown2,
             int unknown3);
 
-        static readonly SendMovementUpdateDelegate SendMovementUpdateFunction =
+        private static readonly SendMovementUpdateDelegate SendMovementUpdateFunction =
             Marshal.GetDelegateForFunctionPointer<SendMovementUpdateDelegate>(MemoryAddresses.SendMovementUpdateFunPtr);
 
         static public void SendMovementUpdate(IntPtr playerPtr, int opcode)
@@ -283,9 +283,9 @@ namespace WoWActivityMember.Mem
         }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        delegate void SetControlBitDelegate(IntPtr device, int bit, int state, int tickCount);
+        private delegate void SetControlBitDelegate(IntPtr device, int bit, int state, int tickCount);
 
-        static readonly SetControlBitDelegate SetControlBitFunction =
+        private static readonly SetControlBitDelegate SetControlBitFunction =
             Marshal.GetDelegateForFunctionPointer<SetControlBitDelegate>(MemoryAddresses.SetControlBitFunPtr);
 
         static public void SetControlBit(int bit, int state, int tickCount)
@@ -295,9 +295,9 @@ namespace WoWActivityMember.Mem
         }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        delegate void SetFacingDelegate(IntPtr playerSetFacingPtr, float facing);
+        private delegate void SetFacingDelegate(IntPtr playerSetFacingPtr, float facing);
 
-        static readonly SetFacingDelegate SetFacingFunction =
+        private static readonly SetFacingDelegate SetFacingFunction =
             Marshal.GetDelegateForFunctionPointer<SetFacingDelegate>(MemoryAddresses.SetFacingFunPtr);
 
         static public void SetFacing(IntPtr playerSetFacingPtr, float facing)
@@ -306,9 +306,9 @@ namespace WoWActivityMember.Mem
         }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        delegate void UseItemDelegate(IntPtr itemPtr, ref ulong unused1, int unused2);
+        private delegate void UseItemDelegate(IntPtr itemPtr, ref ulong unused1, int unused2);
 
-        static readonly UseItemDelegate UseItemFunction =
+        private static readonly UseItemDelegate UseItemFunction =
             Marshal.GetDelegateForFunctionPointer<UseItemDelegate>(MemoryAddresses.UseItemFunPtr);
 
         static public void UseItem(IntPtr itemPtr)
@@ -316,7 +316,8 @@ namespace WoWActivityMember.Mem
             ulong unused1 = 0;
             UseItemFunction(itemPtr, ref unused1, 0);
         }
-        static string GetRandomLuaVarName()
+
+        private static string GetRandomLuaVarName()
         {
             const string chars = "abcdefghijklmnopqrstuvwxyz";
             return new string(chars.Select(c => chars[random.Next(chars.Length)]).Take(8).ToArray());

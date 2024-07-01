@@ -22,9 +22,12 @@ namespace WoWStateManager
 
             WorldStateManagerSocketListener.InstanceUpdateObservable.Subscribe(OnWorldStateUpdate);
             WorldStateActivitySocketListener.InstanceUpdateObservable.Subscribe(OnActivityManagerUpdate);
+        }
 
-            WorldStateManagerSocketListener.Start();
-            WorldStateActivitySocketListener.Start();
+        public void Start()
+        {
+            WorldStateManagerSocketListener?.Start();
+            WorldStateActivitySocketListener?.Start();
         }
 
         private void OnActivityManagerUpdate(ActivityState state)
@@ -53,7 +56,7 @@ namespace WoWStateManager
         {
             if (worldStateUpdate.ActivityAction != ActivityAction.None)
             {
-                Console.WriteLine($"{DateTime.Now}|[WOW STATE MANAGER RUNNER]Processing Activity - {worldStateUpdate.ActivityAction} {worldStateUpdate.CommandParam1} {worldStateUpdate.CommandParam2} {worldStateUpdate.CommandParam3} {worldStateUpdate.CommandParam4}");
+                Console.WriteLine($"{DateTime.Now}|[WOW STATE MANAGER RUNNER]Processing {worldStateUpdate.ActivityAction} {worldStateUpdate.CommandParam1} {worldStateUpdate.CommandParam2} {worldStateUpdate.CommandParam3} {worldStateUpdate.CommandParam4}");
 
                 int activityIndex = int.Parse(worldStateUpdate.CommandParam1);
                 int activityMemberIndex = int.Parse(worldStateUpdate.CommandParam2);

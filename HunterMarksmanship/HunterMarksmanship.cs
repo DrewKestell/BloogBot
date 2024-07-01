@@ -7,7 +7,7 @@ using WarlockAffliction.Tasks;
 namespace HunterMarksmanship
 {
     [Export(typeof(IBot))]
-    class DruidBalance : IBot
+    internal class DruidBalance : IBot
     {
         public string Name => "Marksmanship Hunter";
 

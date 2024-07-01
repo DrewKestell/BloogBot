@@ -6,12 +6,11 @@ using WoWActivityMember.Tasks;
 
 namespace MageFrost.Tasks
 {
-    class RestTask : BotTask, IBotTask
+    internal class RestTask : BotTask, IBotTask
     {
-        const string Evocation = "Evocation";
-
-        readonly WoWItem foodItem;
-        readonly WoWItem drinkItem;
+        private const string Evocation = "Evocation";
+        private readonly WoWItem foodItem;
+        private readonly WoWItem drinkItem;
         public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
         {
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
@@ -59,10 +58,10 @@ namespace MageFrost.Tasks
                 drinkItem.Use();
         }
 
-        bool HealthOk => foodItem == null || ObjectManager.Player.HealthPercent >= 90 || (ObjectManager.Player.HealthPercent >= 80 && !ObjectManager.Player.IsEating);
+        private bool HealthOk => foodItem == null || ObjectManager.Player.HealthPercent >= 90 || (ObjectManager.Player.HealthPercent >= 80 && !ObjectManager.Player.IsEating);
 
-        bool ManaOk => drinkItem == null || ObjectManager.Player.ManaPercent >= 90 || (ObjectManager.Player.ManaPercent >= 80 && !ObjectManager.Player.IsDrinking);
+        private bool ManaOk => drinkItem == null || ObjectManager.Player.ManaPercent >= 90 || (ObjectManager.Player.ManaPercent >= 80 && !ObjectManager.Player.IsDrinking);
 
-        bool InCombat => ObjectManager.Player.IsInCombat || ObjectManager.Units.Any(u => u.TargetGuid == ObjectManager.Player.Guid);
+        private bool InCombat => ObjectManager.Player.IsInCombat || ObjectManager.Units.Any(u => u.TargetGuid == ObjectManager.Player.Guid);
     }
 }

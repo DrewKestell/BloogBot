@@ -11,32 +11,29 @@ using static WoWActivityMember.Constants.Enums;
 
 namespace RogueAssassin.Tasks
 {
-    class PvERotationTask : CombatRotationTask, IBotTask
+    internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        const string AdrenalineRush = "Adrenaline Rush";
-        const string BladeFlurry = "Blade Flurry";
-        const string Evasion = "Evasion";
-        const string Eviscerate = "Eviscerate";
-        const string Gouge = "Gouge";
-        const string BloodFury = "Blood Fury";
-        const string Kick = "Kick";
-        const string Riposte = "Riposte";
-        const string SinisterStrike = "Sinister Strike";
-        const string SliceAndDice = "Slice and Dice";
-        const string GhostlyStrike = "Ghostly Strike";
-        const string Blind = "Blind";
-        const string KidneyShot = "Kidney Shot";
-        const string ExposeArmor = "Expose Armor";
-
-        WoWUnit secondaryTarget;
-        
-        bool SwapDaggerReady;
-        bool DaggerEquipped;
-        bool SwapMaceOrSwordReady;
-        bool MaceOrSwordEquipped;
-
-        bool readyToRiposte;
-        int riposteStartTime;
+        private const string AdrenalineRush = "Adrenaline Rush";
+        private const string BladeFlurry = "Blade Flurry";
+        private const string Evasion = "Evasion";
+        private const string Eviscerate = "Eviscerate";
+        private const string Gouge = "Gouge";
+        private const string BloodFury = "Blood Fury";
+        private const string Kick = "Kick";
+        private const string Riposte = "Riposte";
+        private const string SinisterStrike = "Sinister Strike";
+        private const string SliceAndDice = "Slice and Dice";
+        private const string GhostlyStrike = "Ghostly Strike";
+        private const string Blind = "Blind";
+        private const string KidneyShot = "Kidney Shot";
+        private const string ExposeArmor = "Expose Armor";
+        private WoWUnit secondaryTarget;
+        private bool SwapDaggerReady;
+        private bool DaggerEquipped;
+        private bool SwapMaceOrSwordReady;
+        private bool MaceOrSwordEquipped;
+        private bool readyToRiposte;
+        private int riposteStartTime;
 
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
         {
@@ -173,20 +170,20 @@ namespace RogueAssassin.Tasks
             TryUseAbility(Gouge, 45, ReadyToInterrupt() && !ObjectManager.Player.IsSpellReady(Kick));
         }
 
-        void OnParryCallback(object sender, EventArgs e)
+        private void OnParryCallback(object sender, EventArgs e)
         {
             readyToRiposte = true;
             riposteStartTime = Environment.TickCount;
         }
 
-        bool ReadyToInterrupt() => ObjectManager.Player.Target.Mana > 0 && (ObjectManager.Player.Target.IsCasting || ObjectManager.Player.Target.IsChanneling);
+        private bool ReadyToInterrupt() => ObjectManager.Player.Target.Mana > 0 && (ObjectManager.Player.Target.IsCasting || ObjectManager.Player.Target.IsChanneling);
 
         public override void PerformCombatRotation()
         {
             throw new NotImplementedException();
         }
 
-        Action RiposteCallback => () => readyToRiposte = false;
+        private Action RiposteCallback => () => readyToRiposte = false;
 
         public object ItemSubclass { get; private set; }
     }

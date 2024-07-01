@@ -4,8 +4,9 @@ namespace WoWActivityMember.Mem.Hooks
 {
     public class SignalEventManager
     {
-        delegate void SignalEventDelegate(string eventName, string format, uint firstArgPtr);
-        delegate void SignalEventNoArgsDelegate(string eventName);
+        private delegate void SignalEventDelegate(string eventName, string format, uint firstArgPtr);
+
+        private delegate void SignalEventNoArgsDelegate(string eventName);
 
         static SignalEventManager()
         {
@@ -14,9 +15,9 @@ namespace WoWActivityMember.Mem.Hooks
         }
 
         #region InitializeSignalEventHook
-        static SignalEventDelegate signalEventDelegate;
+        private static SignalEventDelegate signalEventDelegate;
 
-        static void InitializeSignalEventHook()
+        private static void InitializeSignalEventHook()
         {
             signalEventDelegate = new SignalEventDelegate(SignalEventHook);
             var addrToDetour = Marshal.GetFunctionPointerForDelegate(signalEventDelegate);
@@ -44,7 +45,7 @@ namespace WoWActivityMember.Mem.Hooks
             MemoryManager.InjectAssembly("SignalEventHook", (uint)MemoryAddresses.SignalEventFunPtr, "jmp " + signalEventDetour);
         }
 
-        static void SignalEventHook(string eventName, string typesArg, uint firstArgPtr)
+        private static void SignalEventHook(string eventName, string typesArg, uint firstArgPtr)
         {
             var types = typesArg.TrimStart('%').Split('%');
             var list = new object[types.Length];
@@ -91,9 +92,9 @@ namespace WoWActivityMember.Mem.Hooks
         #endregion
 
         #region InitializeSignalEventHookNoArgs
-        static SignalEventNoArgsDelegate signalEventNoArgsDelegate;
+        private static SignalEventNoArgsDelegate signalEventNoArgsDelegate;
 
-        static void InitializeSignalEventHookNoArgs()
+        private static void InitializeSignalEventHookNoArgs()
         {
             signalEventNoArgsDelegate = new SignalEventNoArgsDelegate(SignalEventNoArgsHook);
             var addrToDetour = Marshal.GetFunctionPointerForDelegate(signalEventNoArgsDelegate);
@@ -115,7 +116,7 @@ namespace WoWActivityMember.Mem.Hooks
             MemoryManager.InjectAssembly("SignalEventNoArgsHook", (uint)MemoryAddresses.SignalEventNoParamsFunPtr, "jmp " + signalEventNoArgsDetour);
         }
 
-        static void SignalEventNoArgsHook(string eventName)
+        private static void SignalEventNoArgsHook(string eventName)
         {
             OnNewSignalEventNoArgs?.Invoke(eventName);
         }
