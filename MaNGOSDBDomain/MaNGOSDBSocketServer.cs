@@ -4,14 +4,16 @@ using MaNGOSDBDomain.Repository;
 using Newtonsoft.Json;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 namespace MaNGOSDBDomain
 {
     public class MaNGOSDBSocketServer() : AbstractSocketServer(8080, IPAddress.Parse("127.0.0.1"))
     {
-        public override int HandleRequest(string payload, Socket clientSocket)
+        public override int HandleRequest(byte[] payload, Socket clientSocket)
         {
-            DatabaseRequest request = JsonConvert.DeserializeObject<DatabaseRequest>(payload);
+            string parsedPayload = Encoding.UTF8.GetString(payload);
+            DatabaseRequest request = JsonConvert.DeserializeObject<DatabaseRequest>(parsedPayload);
             string response = "{}";
 
             switch (request.QueryType)

@@ -14,24 +14,28 @@ namespace WoWStateManager.Listeners
 
         public IObservable<WorldStateUpdate> InstanceUpdateObservable => _instanceUpdateSubject;
 
-        public override int HandleRequest(string payload, Socket clientSocket)
+        public override int HandleRequest(byte[] payload, Socket clientSocket)
         {
-            if (string.IsNullOrEmpty(payload))
-                return 0;
-
-            WorldStateUpdate instanceUpdate = JsonConvert.DeserializeObject<WorldStateUpdate>(payload);
-            int processId = instanceUpdate.ProcessId;
-
-            if (processId != 0)
+            if (payload.Length == 0)
             {
-                if (!_processIds.ContainsKey(processId))
-                {
-                    Console.WriteLine($"{DateTime.Now}|[WORLD STATE MANAGER SERVER : {_port}] Process connected {processId}");
-                    _processIds.Add(processId, clientSocket);
-                }
-
-                _instanceUpdateSubject.OnNext(instanceUpdate);
+                // TODO: Log error
+                return 0;
             }
+
+            //WorldStateUpdate instanceUpdate = JsonConvert.DeserializeObject<WorldStateUpdate>(payload);
+            //int processId = instanceUpdate.ProcessId;
+            int processId = 0; //TODO: implement communication protocol new
+
+            //if (processId != 0)
+            //{
+            //    if (!_processIds.ContainsKey(processId))
+            //    {
+            //        Console.WriteLine($"{DateTime.Now}|[WORLD STATE MANAGER SERVER : {_port}] Process connected {processId}");
+            //        _processIds.Add(processId, clientSocket);
+            //    }
+
+            //    _instanceUpdateSubject.OnNext(instanceUpdate);
+            //}
             return processId;
         }
 

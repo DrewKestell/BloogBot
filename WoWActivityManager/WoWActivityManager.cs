@@ -1,4 +1,5 @@
 using System.Net;
+using Communication;
 using WoWActivityManager.Clients;
 using WoWActivityManager.Listeners;
 using WoWActivityMember.Models;
@@ -20,13 +21,7 @@ namespace WoWActivityManager
 
         public async Task UpdateCurrentState(CancellationToken cancellationToken)
         {
-            var disposable = _woWActivityMemberListener.InstanceUpdateObservable.Subscribe(x =>
-            {
-                foreach (var objActivityMemberState in x.ActivityMemberStates)
-                {
-                    //OnInstanceUpdate(objActivityMemberState);
-                }
-            });
+            var disposable = _woWActivityMemberListener.InstanceUpdateObservable.Subscribe(OnInstanceUpdate);
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -40,7 +35,7 @@ namespace WoWActivityManager
             disposable.Dispose();
         }
 
-        protected void OnInstanceUpdate(ActivityMemberState state)
+        protected void OnInstanceUpdate(DataMessage state)
         {
             //do stuff?
         }

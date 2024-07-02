@@ -4,23 +4,28 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reactive.Subjects;
 using System.Text;
+using Communication;
 using WoWActivityMember.Models;
 
 namespace WoWStateManager.Listeners
 {
     public class WorldStateActivitySocketListener() : AbstractSocketServer(8088, IPAddress.Parse("127.0.0.1"))
     {
-        private readonly Subject<ActivityState> _instanceUpdateSubject = new();
+        private readonly Subject<DataMessage> _instanceUpdateSubject = new();
 
-        public IObservable<ActivityState> InstanceUpdateObservable => _instanceUpdateSubject;
+        public IObservable<DataMessage> InstanceUpdateObservable => _instanceUpdateSubject;
 
-        public override int HandleRequest(string payload, Socket clientSocket)
+        public override int HandleRequest(byte[] payload, Socket clientSocket)
         {
-            if (string.IsNullOrEmpty(payload))
+            if (payload.Length == 0)
+            {
+                // TODO: Log error
                 return 0;
+            }
 
-            ActivityState instanceUpdate = JsonConvert.DeserializeObject<ActivityState>(payload);
-            int processId = instanceUpdate.ProcessId;
+            var dataMessage = DataMessage.Parser.ParseFrom(payload);
+            //int processId = instanceUpdate.ProcessId;
+            int processId = 0; //TODO: implement communication protocol new
 
             if (processId != 0)
             {
@@ -30,7 +35,7 @@ namespace WoWStateManager.Listeners
                     _processIds.Add(processId, clientSocket);
                 }
 
-                _instanceUpdateSubject.OnNext(instanceUpdate);
+                _instanceUpdateSubject.OnNext(dataMessage);
             }
             return processId;
         }

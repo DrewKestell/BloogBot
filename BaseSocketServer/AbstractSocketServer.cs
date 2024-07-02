@@ -33,7 +33,7 @@ namespace BaseSocketServer
             _connectionSocket?.Close();
         }
 
-        public abstract int HandleRequest(string payload, Socket clientSocket);
+        public abstract int HandleRequest(byte[] payload, Socket clientSocket);
 
         private async Task StartAsync()
         {
@@ -53,7 +53,7 @@ namespace BaseSocketServer
             {
                 try
                 {
-                    processId = HandleRequest(Encoding.UTF8.GetString(ReceiveMessage(clientSocket)), clientSocket);
+                    processId = HandleRequest(ReceiveMessage(clientSocket), clientSocket);
                 }
                 catch (SocketException e)
                 {

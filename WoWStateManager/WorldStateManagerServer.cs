@@ -1,4 +1,5 @@
-﻿using WoWActivityMember.Models;
+﻿using Communication;
+using WoWActivityMember.Models;
 using WoWStateManager.Listeners;
 using WoWStateManager.Models;
 
@@ -30,26 +31,27 @@ namespace WoWStateManager
             WorldStateActivitySocketListener?.Start();
         }
 
-        private void OnActivityManagerUpdate(ActivityState state)
+        private void OnActivityManagerUpdate(DataMessage state)
         {
-            if (CurrentActivityList.Any(x => x.ProcessId == state.ProcessId))
-            {
-                WorldStateActivitySocketListener.SendCommandToProcess(state.ProcessId,
-                    CurrentActivityList.First(x => x.ProcessId == state.ProcessId));
-            }
-            else if (CurrentActivityList.Any(x => x.ProcessId == 0))
-            {
-                ActivityState activityState = CurrentActivityList.First(x => x.ProcessId == 0);
-                activityState.ProcessId = state.ProcessId;
+            //TODO: Implement processId
+            //if (CurrentActivityList.Any(x => x.ProcessId == state.ProcessId))
+            //{
+            //    WorldStateActivitySocketListener.SendCommandToProcess(state.ProcessId,
+            //        CurrentActivityList.First(x => x.ProcessId == state.ProcessId));
+            //}
+            //else if (CurrentActivityList.Any(x => x.ProcessId == 0))
+            //{
+            //    ActivityState activityState = CurrentActivityList.First(x => x.ProcessId == 0);
+            //    activityState.ProcessId = state.ProcessId;
 
-                WorldStateActivitySocketListener.SendCommandToProcess(state.ProcessId,
-                    activityState);
-            }
-            else
-            {
-                WorldStateActivitySocketListener.SendCommandToProcess(state.ProcessId,
-                    new ActivityState() { ActivityType = ActivityType.Idle });
-            }
+            //    WorldStateActivitySocketListener.SendCommandToProcess(state.ProcessId,
+            //        activityState);
+            //}
+            //else
+            //{
+            //    WorldStateActivitySocketListener.SendCommandToProcess(state.ProcessId,
+            //        new ActivityState() { ActivityType = ActivityType.Idle });
+            //}
         }
 
         private void OnWorldStateUpdate(WorldStateUpdate worldStateUpdate)
