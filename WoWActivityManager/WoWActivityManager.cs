@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using WoWActivityManager.Clients;
 using WoWActivityManager.Listeners;
 using WoWActivityMember.Models;
@@ -7,31 +7,27 @@ namespace WoWActivityManager
 {
     public class WoWActivityManager
     {
-        private Task _updateCurrentStateTask;
         private WoWActivityMemberListener _woWActivityMemberListener;
-        private WoWStateManagerClient _stateManagerClient;
-
-        private ActivityState ActivityState { get; set; }
+        private readonly WoWStateManagerClient _stateManagerClient;
+        ActivityState ActivityState { get; set; }
         protected ActivityState CurrentActivity { get; }
 
-        public WoWActivityManager()
+        public WoWActivityManager(IPAddress listenAddress, int listenPort, IPAddress stateManagerAddress, int stateManagerPort)
         {
-            _woWActivityMemberListener = new WoWActivityMemberListener();
-            _stateManagerClient = new WoWStateManagerClient(8089, IPAddress.Parse("127.0.0.1"));
-
-            _updateCurrentStateTask = Task.Factory.StartNew(() => UpdateCurrentState());
+            _woWActivityMemberListener = new WoWActivityMemberListener(listenAddress, listenPort);
+            _stateManagerClient = new WoWStateManagerClient(stateManagerPort, stateManagerAddress);
         }
 
-        public async Task UpdateCurrentState()
+        public async Task UpdateCurrentState(CancellationToken cancellationToken)
         {
 
-            while (true)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 ActivityState desiredActivityState = _stateManagerClient.SendCurrentActivityState(ActivityState);
 
 
 
-                await Task.Delay(500);
+                await Task.Delay(500, cancellationToken);
             }
         }
 

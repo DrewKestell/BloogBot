@@ -1,0 +1,20 @@
+﻿syntax = "proto3";
+
+package state;
+
+import "character.proto";
+
+message world_state {
+	
+}
+
+message character_state {
+	character.character desired_state = 1;
+	character.character current_state = 2;
+}
+
+message state {
+	world_state desired_world_state = 1;
+	world_state current_world_state = 2;
+	repeated character_state characters = 3;
+}

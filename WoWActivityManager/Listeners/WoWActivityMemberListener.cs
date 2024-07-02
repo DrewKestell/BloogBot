@@ -8,7 +8,7 @@ using WoWActivityMember.Models;
 
 namespace WoWActivityManager.Listeners
 {
-    public class WoWActivityMemberListener() : AbstractSocketServer(8089, IPAddress.Parse("127.0.0.1"))
+    public class WoWActivityMemberListener(IPAddress address, int port) : AbstractSocketServer(port, address)
     {
         private readonly Subject<ActivityState> _instanceUpdateSubject = new();
 
