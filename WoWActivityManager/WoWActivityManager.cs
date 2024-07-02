@@ -20,6 +20,13 @@ namespace WoWActivityManager
 
         public async Task UpdateCurrentState(CancellationToken cancellationToken)
         {
+            var disposable = _woWActivityMemberListener.InstanceUpdateObservable.Subscribe(x =>
+            {
+                foreach (var objActivityMemberState in x.ActivityMemberStates)
+                {
+                    //OnInstanceUpdate(objActivityMemberState);
+                }
+            });
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -29,11 +36,13 @@ namespace WoWActivityManager
 
                 await Task.Delay(500, cancellationToken);
             }
+
+            disposable.Dispose();
         }
 
         protected void OnInstanceUpdate(ActivityMemberState state)
         {
-
+            //do stuff?
         }
     }
 }
