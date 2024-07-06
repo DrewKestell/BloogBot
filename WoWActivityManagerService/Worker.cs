@@ -27,9 +27,22 @@ namespace WoWActivityManagerService
             _stateManagerPort = configuration.GetIntFromConfigOrEnv("STATE_MANAGER_PORT", "AppSettings:StateManagerPort");
         }
 
+        public Worker (IPAddress listenAddress, int listenPort, IPAddress stateManagerAddress, int stateManagerPort)
+        {
+            _listenAddress = listenAddress;
+            _listenPort = listenPort;
+            _stateManagerAddress = stateManagerAddress;
+            _stateManagerPort = stateManagerPort;
+        }
+
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+            await Execute(cancellationToken);
+        }
+
+        public async Task Execute(CancellationToken cancellationToken)
+        {
+            _logger?.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
             // Use the configuration values in your WoWActivityManager
             WoWActivityManager.WoWActivityManager manager = new WoWActivityManager.WoWActivityManager(
