@@ -23,9 +23,9 @@ namespace ShamanElemental.Tasks
         private const string StoneclawTotem = "Stoneclaw Totem";
         private const string StoneskinTotem = "Stoneskin Totem";
         private const string TremorTotem = "Tremor Totem";
-        private readonly string[] fearingCreatures = new[] { "Scorpid Terror" };
-        private readonly string[] fireImmuneCreatures = new[] { "Rogue Flame Spirit", "Burning Destroyer" };
-        private readonly string[] natureImmuneCreatures = new[] { "Swirling Vortex", "Gusting Vortex", "Dust Stormer" };
+        private readonly string[] fearingCreatures = ["Scorpid Terror"];
+        private readonly string[] fireImmuneCreatures = ["Rogue Flame Spirit", "Burning Destroyer"];
+        private readonly string[] natureImmuneCreatures = ["Swirling Vortex", "Gusting Vortex", "Dust Stormer"];
 
         internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 

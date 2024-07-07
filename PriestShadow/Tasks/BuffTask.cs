@@ -6,12 +6,12 @@ using WoWActivityMember.Tasks;
 
 namespace PriestShadow.Tasks
 {
-    internal class BuffTask : BotTask, IBotTask
+    internal class BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Buff), IBotTask
     {
         private const string PowerWordFortitude = "Power Word: Fortitude";
         private const string ShadowProtection = "Shadow Protection";
         private const string LesserHeal = "Lesser Heal";
-        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
+
         public void Update()
         {
             if (ObjectManager.PartyMembers.Any(x => x.HealthPercent < 70) && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(LesserHeal))

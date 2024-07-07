@@ -8,22 +8,22 @@ namespace BaseSocketServer
     {
         protected readonly int _port = port;
         protected readonly IPAddress _ipAddress = ipAddress;
-        protected readonly Dictionary<int, Socket> _processIds = [];
+        protected readonly Dictionary<Guid, Socket> serviceIds = [];
         protected Socket _connectionSocket;
         private Task _backgroundTask;
         private bool _listen;
         private readonly int BufferSize = 1024;
 
-        public List<int> ConnectedProcessIds { get { return [.. _processIds.Keys]; } }
-        public void Start()
+        public List<Guid> ConnectedServiceIds { get { return [.. serviceIds.Keys]; } }
+        public Task Start()
         {
             _connectionSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             _connectionSocket.Bind(new IPEndPoint(_ipAddress, _port));
-            _connectionSocket.Listen(10);
+            _connectionSocket.Listen(40);
             _listen = true;
-            _processIds.Clear();
-            _backgroundTask = Task.Run(StartAsync);
+            serviceIds.Clear();
+            return Task.Run(StartAsync);
         }
 
         public void Stop()
@@ -33,11 +33,10 @@ namespace BaseSocketServer
             _connectionSocket?.Close();
         }
 
-        public abstract int HandleRequest(byte[] payload, Socket clientSocket);
+        public abstract Guid HandleRequest(byte[] payload, Socket clientSocket);
 
         private async Task StartAsync()
         {
-            Console.WriteLine($"{DateTime.Now}|[SOCKET SERVER : {_port}]Starting listener on port {_port}");
             while (_listen)
             {
                 Socket clientSocket = _connectionSocket.Accept();
@@ -48,25 +47,25 @@ namespace BaseSocketServer
 
         private void HandleClient(Socket clientSocket)
         {
-            int processId = 0;
+            Guid servicedId = Guid.Empty;
             while (_listen)
             {
                 try
                 {
-                    processId = HandleRequest(ReceiveMessage(clientSocket), clientSocket);
+                    servicedId = HandleRequest(ReceiveMessage(clientSocket), clientSocket);
                 }
                 catch (SocketException e)
                 {
-                    Console.WriteLine($"{DateTime.Now}|[SOCKET SERVER : {_port}]Process {processId} disconnected due to {e.SocketErrorCode}");
-                    _processIds.Remove(processId);
+                    Console.WriteLine($"{DateTime.Now}|[SOCKET SERVER:{_port}]Service Id {servicedId} disconnected due to {e.SocketErrorCode}");
+                    serviceIds.Remove(servicedId);
                     clientSocket.Close();
                     return;
                 }
             }
-            _processIds.Remove(processId);
+            serviceIds.Remove(servicedId);
             clientSocket.Close();
         }
-        protected static int SendMessage(string message, Socket clientSocket)
+        protected static int SendReply(string message, Socket clientSocket)
         {
             byte[] bytes = Encoding.ASCII.GetBytes(message);
             while (bytes.Length > 1024)

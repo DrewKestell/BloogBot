@@ -6,10 +6,8 @@ using WoWActivityMember.Objects;
 
 namespace WarriorProtection.Tasks
 {
-    internal class RestTask : BotTask, IBotTask
+    internal class RestTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Rest), IBotTask
     {
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) { }
-
         public void Update()
         {
             if (ObjectManager.Player.HealthPercent >= 95 ||

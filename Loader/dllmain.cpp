@@ -25,8 +25,8 @@
 // No rough configuration needed. :)
 #pragma comment( lib, "mscoree" )
 
-#define LOAD_DLL_FILE_NAME L"WoWClientBot.exe"
-#define NAMESPACE_AND_CLASS L"WoWClientBot.Loader"
+#define LOAD_DLL_FILE_NAME L"WoWActivityMember.exe"
+#define NAMESPACE_AND_CLASS L"WoWActivityMember.Loader"
 #define MAIN_METHOD L"Load"
 #define MAIN_METHOD_ARGS L"NONE"
 
@@ -47,10 +47,26 @@ wchar_t* dllLocation = NULL;
 
 #define MB(s) MessageBoxW(NULL, s, NULL, MB_OK);
 
-unsigned __stdcall ThreadMain(void* pParam)
+extern "C" __declspec(dllexport) int ThreadMain(void* pParam)
 {
 	AllocConsole();
 	freopen("CONOUT$", "w", stdout);
+
+	wchar_t buffer[255];
+	if (!GetModuleFileNameW(g_myDllModule, buffer, 255))
+		return 1;
+
+	std::wstring modulePath(buffer);
+
+	// Get just the directory path.
+	modulePath = modulePath.substr(0, modulePath.find_last_of('\\') + 1);
+	modulePath = modulePath.append(LOAD_DLL_FILE_NAME);
+
+	// Copy the string, or we end up with junk data by the time we send it off
+	// to our thread routine.
+	dllLocation = new wchar_t[modulePath.length() + 1];
+	wcscpy(dllLocation, modulePath.c_str());
+	dllLocation[modulePath.length()] = '\0';
 
 	#if _DEBUG
 		std::cout << std::string("Attach a debugger now to WoW.exe if you want to debug Loader.dll. Waiting 10 seconds...") << std::endl;
@@ -77,7 +93,7 @@ unsigned __stdcall ThreadMain(void* pParam)
 	if (FAILED(hr))
 	{
 		MB(L"Could not create instance of ICLRMetaHost");
-		return 1;
+		return 2;
 	}
 
 	DWORD pcchVersion = 0;
@@ -108,7 +124,7 @@ unsigned __stdcall ThreadMain(void* pParam)
 			MB(buff);
 		}
 
-		return 1;
+		return 3;
 	}
 
 	// We need this if we have old .NET 3.5 mixed-mode DLLs
@@ -117,7 +133,7 @@ unsigned __stdcall ThreadMain(void* pParam)
 	if (FAILED(hr))
 	{
 		MB(L"Failed to bind as legacy v2 runtime! (.NET 3.5 Mixed-Mode Support)");
-		return 1;
+		return 4;
 	}
 
 	hr = g_pRuntimeInfo->GetInterface(CLSID_CLRRuntimeHost, IID_ICLRRuntimeHost, (LPVOID*)&g_clrHost);
@@ -125,7 +141,7 @@ unsigned __stdcall ThreadMain(void* pParam)
 	if (FAILED(hr))
 	{
 		MB(L"Could not get an instance of ICLRRuntimeHost!");
-		return 1;
+		return 5;
 	}
 
 	if (FAILED(hr))
@@ -161,7 +177,7 @@ unsigned __stdcall ThreadMain(void* pParam)
 			break;
 		}
 
-		return 1;
+		return 6;
 	}
 	hr = g_clrHost->Start();
 
@@ -210,34 +226,15 @@ unsigned __stdcall ThreadMain(void* pParam)
 	return 0;
 }
 
-void LoadClr()
+
+BOOL APIENTRY DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
 {
-	wchar_t buffer[255];
-	if (!GetModuleFileNameW(g_myDllModule, buffer, 255))
-		return;
-
-	std::wstring modulePath(buffer);
-
-	// Get just the directory path.
-	modulePath = modulePath.substr(0, modulePath.find_last_of('\\') + 1);
-	modulePath = modulePath.append(LOAD_DLL_FILE_NAME);
-
-	// Copy the string, or we end up with junk data by the time we send it off
-	// to our thread routine.
-	dllLocation = new wchar_t[modulePath.length() + 1];
-	wcscpy(dllLocation, modulePath.c_str());
-	dllLocation[modulePath.length()] = '\0';
-
-	g_hThread = (HANDLE)_beginthreadex(NULL, 0, ThreadMain, NULL, 0, NULL);
-}
-
-BOOL WINAPI DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
-{
+	MB(L"Starting DllMain");
 	g_myDllModule = hDll;
 
 	if (dwReason == DLL_PROCESS_ATTACH)
 	{
-		LoadClr();
+		ThreadMain(NULL);
 	}
 	else if (dwReason == DLL_PROCESS_DETACH)
 	{

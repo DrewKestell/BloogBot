@@ -4,47 +4,43 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reactive.Subjects;
 using System.Text;
-using Communication;
 using WoWActivityMember.Models;
 
 namespace WoWStateManager.Listeners
 {
-    public class WorldStateActivitySocketListener() : AbstractSocketServer(8088, IPAddress.Parse("127.0.0.1"))
+    public class WorldStateActivitySocketListener() : AbstractSocketServer(8089, IPAddress.Loopback)
     {
-        private readonly Subject<DataMessage> _instanceUpdateSubject = new();
+        private readonly Subject<ActivityState> _instanceUpdateSubject = new();
 
-        public IObservable<DataMessage> InstanceUpdateObservable => _instanceUpdateSubject;
+        public IObservable<ActivityState> InstanceUpdateObservable => _instanceUpdateSubject;
 
-        public override int HandleRequest(byte[] payload, Socket clientSocket)
+        public override Guid HandleRequest(byte[] payload, Socket clientSocket)
         {
             if (payload.Length == 0)
             {
                 // TODO: Log error
-                return 0;
+                return Guid.Empty;
             }
 
-            var dataMessage = DataMessage.Parser.ParseFrom(payload);
-            //int processId = instanceUpdate.ProcessId;
-            int processId = 0; //TODO: implement communication protocol new
+            var activityState = JsonConvert.DeserializeObject<ActivityState>(Encoding.UTF8.GetString(payload));
 
-            if (processId != 0)
+            if (activityState.ServiceId != Guid.Empty)
             {
-                if (!_processIds.ContainsKey(processId))
+                if (serviceIds.TryAdd(activityState.ServiceId, clientSocket))
                 {
-                    Console.WriteLine($"{DateTime.Now}|[ACTIVITY MANAGER SERVER {_port}]Process connected {processId}");
-                    _processIds.Add(processId, clientSocket);
+                    Console.WriteLine($"{DateTime.Now}|[WorldStateActivitySocketListener:{_port}]:HandleRequest WoWActivityManager connected {activityState.ServiceId}");
                 }
 
-                _instanceUpdateSubject.OnNext(dataMessage);
+                _instanceUpdateSubject.OnNext(activityState);
             }
-            return processId;
+            return activityState.ServiceId;
         }
 
-        public bool SendCommandToProcess(int processId, ActivityState activityState)
+        public bool SendCommandToProcess(Guid serviceId, ActivityState activityState)
         {
-            if (_processIds.ContainsKey(processId))
+            if (serviceIds.ContainsKey(serviceId))
             {
-                _processIds.TryGetValue(processId, out Socket clientSocket);
+                serviceIds.TryGetValue(serviceId, out Socket clientSocket);
                 try
                 {
                     if (clientSocket != null && clientSocket.Connected)
@@ -55,7 +51,7 @@ namespace WoWStateManager.Listeners
                 }
                 catch (SocketException e)
                 {
-                    Console.WriteLine($"{DateTime.Now}|[ACTIVITY MANAGER SERVER {_port}]{e.Message} {e.ErrorCode} {e.NativeErrorCode} {e.SocketErrorCode}");
+                    Console.WriteLine($"{DateTime.Now}|[WorldStateActivitySocketListener:{_port}]:SendCommandToProcess {e.Message} {e.ErrorCode} {e.NativeErrorCode} {e.SocketErrorCode}");
                 }
             }
             return false;

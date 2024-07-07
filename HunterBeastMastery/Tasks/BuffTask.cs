@@ -6,13 +6,12 @@ using WoWActivityMember.Mem;
 
 namespace HunterBeastMastery.Tasks
 {
-    internal class BuffTask : BotTask, IBotTask
+    internal class BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Buff), IBotTask
     {
         private const string AspectOfTheMonkey = "Aspect of the Monkey";
         private const string AspectOfTheCheetah = "Aspect of the Cheetah";
         private const string AspectOfTheHawk = "Aspect of the Hawk";
 
-        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
         {
             if (!ObjectManager.Player.IsSpellReady(AspectOfTheHawk) || ObjectManager.Player.HasBuff(AspectOfTheHawk))

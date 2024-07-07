@@ -11,8 +11,8 @@ namespace MageFrost.Tasks
     internal class PvERotationTask : CombatRotationTask, IBotTask
     {
         private const string WandLuaScript = "if IsAutoRepeatAction(11) == nil then CastSpellByName('Shoot') end";
-        private readonly string[] FireWardTargets = new[] { "Fire", "Flame", "Infernal", "Searing", "Hellcaller", "Dragon", "Whelp" };
-        private readonly string[] FrostWardTargets = new[] { "Ice", "Frost" };
+        private readonly string[] FireWardTargets = ["Fire", "Flame", "Infernal", "Searing", "Hellcaller", "Dragon", "Whelp"];
+        private readonly string[] FrostWardTargets = ["Ice", "Frost"];
         private const string ColdSnap = "Cold Snap";
         private const string ConeOfCold = "Cone of Cold";
         private const string Counterspell = "Counterspell";
@@ -87,7 +87,7 @@ namespace MageFrost.Tasks
                 ObjectManager.Player.SetTarget(ObjectManager.Aggressors.First().Guid);
             }
 
-            if (base.Update(29 + (ObjectManager.GetTalentRank(3, 11) * 3)))
+            if (Update(29 + (ObjectManager.GetTalentRank(3, 11) * 3)))
                 return;
 
             TryCastSpell(Evocation, 0, int.MaxValue, (ObjectManager.Player.HealthPercent > 50 || ObjectManager.Player.HasBuff(IceBarrier)) && ObjectManager.Player.ManaPercent < 8 && ObjectManager.Player.Target.HealthPercent > 15);

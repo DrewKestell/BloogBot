@@ -5,20 +5,27 @@ package communication;
 import "state.proto";
 
 // Message that can carry a variety of payload types
-message data_message {
-    oneof {
-        world_state state = 1;
+message DataMessage {
+    string service_id = 1;
+    oneof world_state {
+        state.WorldState wstate = 2;
+    }
+    oneof activity_state {
+        state.ActivityState astate = 3;
+    }
+    oneof character_state {
+        state.CharacterState cstate = 4;
     }
 }
 
 // Message used for controlling communication and reporting errors
-message control_message {
+message ControlMessage {
     int32 error_code = 1;         // Error code
     string error_description = 2; // Human-readable description of the error
 }
 
 // Universal message format that encapsulates various types of messages
-message universal_message {
+message UniversalMessage {
     oneof message_content {
         DataMessage data = 1;
         ControlMessage control = 2;

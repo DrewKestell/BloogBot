@@ -9,7 +9,7 @@ namespace DruidBalance.Tasks
 {
     internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        private static readonly string[] ImmuneToNatureDamage = { "Vortex", "Whirlwind", "Whirling", "Dust", "Cyclone" };
+        private static readonly string[] ImmuneToNatureDamage = ["Vortex", "Whirlwind", "Whirling", "Dust", "Cyclone"];
         private const string AbolishPoison = "Abolish Poison";
         private const string EntanglingRoots = "Entangling Roots";
         private const string HealingTouch = "Healing Touch";

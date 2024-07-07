@@ -2,7 +2,6 @@
 
 package character;
 
-
 message character_action {
   int32 guid = 1;
   int32 button = 2;
@@ -190,27 +189,6 @@ message character_stats {
   double rangedcritpct = 26;
   int32 attackpower = 27;
   int32 rangedattackpower = 28;
-}
-
-message character_ticket {
-  int32 ticket_id = 1;
-  int32 guid = 2;
-  string ticket_text = 3;
-  string response_text = 4;
-  string ticket_lastchange = 5;
-  int32 resolved = 6;
-}
-
-message character_tutorial {
-  int32 account = 1;
-  int32 tut0 = 2;
-  int32 tut1 = 3;
-  int32 tut2 = 4;
-  int32 tut3 = 5;
-  int32 tut4 = 6;
-  int32 tut5 = 7;
-  int32 tut6 = 8;
-  int32 tut7 = 9;
 }
 
 message character_whispers {

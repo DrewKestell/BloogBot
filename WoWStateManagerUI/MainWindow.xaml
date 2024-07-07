@@ -20,15 +20,15 @@
         <Canvas Grid.ColumnSpan="2">
             <Canvas>
                 <TextBox Text="{Binding WoWStateManagerIP}" HorizontalAlignment="Center" VerticalAlignment="Top" Width="140" Canvas.Left="5" Canvas.Top="7" Height="21"></TextBox>
-                <TextBox Text="{Binding WoWStateManagerPort}" Width="40" Canvas.Left="105" Canvas.Top="32" HorizontalAlignment="Center" VerticalAlignment="Top" Height="24"/>
-                <Button Command="{Binding AddActivityCommand}"  Content="Add Activity" Height="22" Width="95" Canvas.Left="220" Canvas.Top="34" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                <Button Command="{Binding RemoveActivityCommand}" Content="Remove Activity" Height="22" Width="95" Canvas.Left="220" Canvas.Top="7" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                <Button Command="{Binding ConnectToCommand}" Content="Connect" Height="23" Width="95" Canvas.Left="5" Canvas.Top="33" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-                <Button Command="{Binding AddActivityMemberCommand}" IsEnabled="{Binding CanAddActivityMember}"  Content="Add Member" Height="23" Width="95" Canvas.Left="495" Canvas.Top="33" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                <Button Command="{Binding SetMaxRaidSizeCommand}" IsEnabled="{Binding CanAddActivityMember}" Width="50" Content="Max" HorizontalAlignment="Left" Canvas.Left="595" Canvas.Top="33" Height="23" VerticalAlignment="Center"/>
-                <Button Command="{Binding RemoveActivityMemberCommand}" IsEnabled="{Binding CanRemoveActivityMember}" Content="Remove Member" Height="22" Width="95" Canvas.Left="495" Canvas.Top="6" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                <Button Command="{Binding SetMinRaidSizeCommand}" IsEnabled="{Binding CanRemoveActivityMember}" Content="Min" Width="50" Canvas.Left="595" Canvas.Top="7" Height="21" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                <Button Command="{Binding ApplyWorldStateCommand}" Content="Apply" Height="22" Width="65" Canvas.Left="150" Canvas.Top="7" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <TextBox Text="{Binding WoWStateManagerPort}" Width="40" Canvas.Left="105" Canvas.Top="33" HorizontalAlignment="Center" VerticalAlignment="Center" Height="23"/>
+                <Button Command="{Binding AddActivityCommand}"  Content="Add Activity" Height="21" Width="95" Canvas.Left="220" Canvas.Top="7" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Button Command="{Binding RemoveActivityCommand}" Content="Remove Activity" Height="23" Width="95" Canvas.Left="220" Canvas.Top="33" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Button Command="{Binding ConnectToCommand}" Content="Connect" Height="23" Width="95" Canvas.Left="5" Canvas.Top="33" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Button Command="{Binding AddActivityMemberCommand}" IsEnabled="{Binding CanAddActivityMember}"  Content="Add Member" Height="21" Width="95" Canvas.Left="495" Canvas.Top="7" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Button Command="{Binding SetMaxRaidSizeCommand}" IsEnabled="{Binding CanAddActivityMember}" Width="50" Content="Max" HorizontalAlignment="Center" Canvas.Left="595" Canvas.Top="7" Height="21" VerticalAlignment="Top"/>
+                <Button Command="{Binding RemoveActivityMemberCommand}" IsEnabled="{Binding CanRemoveActivityMember}" Content="Remove Member" Height="23" Width="95" Canvas.Left="495" Canvas.Top="33" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Button Command="{Binding SetMinRaidSizeCommand}" IsEnabled="{Binding CanRemoveActivityMember}" Content="Min" Width="50" Canvas.Left="595" Canvas.Top="33" Height="23" HorizontalAlignment="Center" VerticalAlignment="Top" />
+                <Button Command="{Binding ApplyWorldStateCommand}" Content="Apply" Height="20" Width="65" Canvas.Left="150" Canvas.Top="7" HorizontalAlignment="Center" VerticalAlignment="Top"/>
             </Canvas>
             <ScrollViewer Height="280" HorizontalAlignment="Center" Canvas.Top="64" VerticalAlignment="Top">
                 <StackPanel>

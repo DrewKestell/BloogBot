@@ -6,7 +6,7 @@ using WoWActivityMember.Tasks;
 
 namespace MageFrost.Tasks
 {
-    internal class ConjureItemsTask : BotTask, IBotTask
+    internal class ConjureItemsTask(Stack<IBotTask> botTasks, IClassContainer container) : BotTask(container, botTasks, TaskType.Ordinary), IBotTask
     {
         private const string ConjureFood = "Conjure Food";
         private const string ConjureWater = "Conjure Water";
@@ -15,8 +15,6 @@ namespace MageFrost.Tasks
         private readonly LocalPlayer player;
         private WoWItem foodItem;
         private WoWItem drinkItem;
-
-        public ConjureItemsTask(Stack<IBotTask> botTasks, IClassContainer container) : base(container, botTasks, TaskType.Ordinary) { }
 
         public void Update()
         {

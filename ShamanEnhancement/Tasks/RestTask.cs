@@ -6,10 +6,9 @@ using WoWActivityMember.Tasks;
 
 namespace ShamanEnhancement.Tasks
 {
-    internal class RestTask : BotTask, IBotTask
+    internal class RestTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Rest), IBotTask
     {
         private const string HealingWave = "Healing Wave";
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) { }
 
         public void Update()
         {

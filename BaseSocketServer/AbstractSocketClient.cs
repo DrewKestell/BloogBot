@@ -4,18 +4,13 @@ using System.Text;
 
 namespace BaseSocketServer
 {
-    public abstract class AbstractSocketClient : IDisposable
+    public abstract class AbstractSocketClient(int port, IPAddress iPAddress) : IDisposable
     {
 
-        protected readonly int _port;
-        protected readonly IPAddress _ipAddress;
+        protected readonly int _port = port;
+        protected readonly IPAddress _ipAddress = iPAddress;
         protected readonly int BufferSize = 1024;
         protected Socket _socket;
-        protected AbstractSocketClient(int port, IPAddress iPAddress)
-        {
-            _port = port;
-            _ipAddress = iPAddress;
-        }
 
         protected string SendMessage(string message)
         {
@@ -31,7 +26,7 @@ namespace BaseSocketServer
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine($"SocketClient: {e.Message}");
+                        Console.WriteLine($"AbstractSocketClient:Connect {e}");
                     }
                 }
                 if (_socket.Connected)
@@ -45,14 +40,14 @@ namespace BaseSocketServer
             }
             catch (Exception e)
             {
-                Console.WriteLine($"SocketClient: {e.Message}");
+                Console.WriteLine($"AbstractSocketClient: {e.Message}");
                 try
                 {
                     _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 }
                 catch
                 {
-                    _socket.Close();
+                    _socket?.Dispose();
                 }
             }
 
@@ -98,9 +93,8 @@ namespace BaseSocketServer
                 objectEndTokens += s.Count(x => x == '}');
 
                 if (arrayBeginTokens == arrayEndTokens && objectBeginTokens == objectEndTokens)
-                {
                     break;
-                }
+                
             } while (bytesReceived == BufferSize);
 
             Array.Resize(ref messageBuffer, totalBytesReceived);

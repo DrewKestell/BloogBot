@@ -2,7 +2,7 @@
 {
     public class ActivityMemberPreset
     {
-        public int ProcessId { get; set; }
+        public int ServiceId { get; set; }
         public string BehaviorProfile { get; set; } = "Protection Warrior";
         public string Account { get; set; } = "HuWr1";
         public string ProgressionConfig { get; set; } = "WarArms1";

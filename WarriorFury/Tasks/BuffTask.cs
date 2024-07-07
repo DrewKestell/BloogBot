@@ -2,9 +2,8 @@
 
 namespace WarriorFury.Tasks
 {
-    internal class BuffTask : BotTask, IBotTask
+    internal class BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Buff), IBotTask
     {
-        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
         {
             BotTasks.Pop();

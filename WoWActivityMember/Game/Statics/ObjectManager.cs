@@ -275,10 +275,10 @@ namespace WoWActivityMember.Game.Statics
                             Pet = new LocalPet(unit.Pointer, unit.Guid, unit.ObjectType);
                             petFound = true;
                         }
-
-                        if (!petFound)
-                            Pet = null;
                     }
+
+                    if (!petFound)
+                        Pet = null;
 
                     Player.RefreshSpells();
                     Player.RefreshSkills();

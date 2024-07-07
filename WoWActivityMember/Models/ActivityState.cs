@@ -5,9 +5,10 @@ namespace WoWActivityMember.Models
 {
     public class ActivityState
     {
-        public int ProcessId { get; set; }
+        public Guid ServiceId { get; set; }
         public ActivityType ActivityType { get; set; }
         public List<ActivityMemberPreset> ActivityMemberStates { get; set; } = [];
+        public int MaxAllowedClients { get; set; }
         [JsonIgnore]
         public int MaxActivitySize
         {

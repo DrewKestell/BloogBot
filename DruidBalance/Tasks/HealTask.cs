@@ -5,15 +5,13 @@ using WoWActivityMember.Mem;
 
 namespace DruidBalance.Tasks
 {
-    internal class HealTask : BotTask, IBotTask
+    internal class HealTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Heal), IBotTask
     {
         private const string WarStomp = "War Stomp";
         private const string HealingTouch = "Healing Touch";
         private const string Rejuvenation = "Rejuvenation";
         private const string Barkskin = "Barkskin";
         private const string MoonkinForm = "Moonkin Form";
-
-        public HealTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Heal) { }
 
         public void Update()
         {

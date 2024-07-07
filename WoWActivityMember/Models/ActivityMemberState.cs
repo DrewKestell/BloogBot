@@ -2,7 +2,7 @@
 {
     public class ActivityMemberState
     {
-        public int ProcessId { get; set; }
+        public Guid ServiceId { get; set; } = Guid.Empty;
         public string AccountName { get; set; } = string.Empty;
         public string BehaviorProfileName { get; set; } = string.Empty;
         public string InitialGearProfileName { get; set; } = string.Empty;

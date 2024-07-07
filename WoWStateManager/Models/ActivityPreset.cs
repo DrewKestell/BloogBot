@@ -119,7 +119,7 @@ namespace WoWStateManager.Models
                     case ActivityType.PvPWarsongGulch49:
                     case ActivityType.PvPWarsongGulch59:
                     case ActivityType.PvPWarsongGulch60:
-                        return 8;
+                        return 2;
                     case ActivityType.PvPArathiBasin29:
                     case ActivityType.PvPArathiBasin39:
                     case ActivityType.PvPArathiBasin49:

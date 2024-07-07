@@ -2,6 +2,7 @@
 {
     public class DatabaseRequest
     {
+        public Guid ServiceId { get; set; }
         public QueryType QueryType { get; set; }
         public string QueryParam1 { get; set; } = string.Empty;
         public string QueryParam2 { get; set; } = string.Empty; 

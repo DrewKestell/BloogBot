@@ -32,7 +32,7 @@ namespace WoWActivityMember.Tasks
 
             currentActivityMemberState = new ActivityMemberState()
             {
-                ProcessId = Environment.ProcessId
+                ServiceId = Guid.NewGuid()
             };
 
             ObjectManager.Initialize(currentActivityMemberState);
@@ -104,28 +104,6 @@ namespace WoWActivityMember.Tasks
                         {
                             ObjectManager.AntiAfk();
                         }
-                        //case CharacterAction.BeginDungeon:
-                        //    Console.WriteLine($"[BOT RUNNER : {Environment.ProcessId}] Begin Dungeon {ObjectManager.ZoneText}");
-                        //    botTasks.Push(new DungeoneeringTask(classContainer, botTasks));
-                        //    break;
-                        //case CharacterAction.BeginBattleGrounds:
-                        //    Console.WriteLine($"[BOT RUNNER : {Environment.ProcessId}] Begin Battleground {desiredActivityMemberState.CommandParam1}");
-                        //    switch (desiredActivityMemberState.CommandParam1)
-                        //    {
-                        //        case "WSG":
-                        //            botTasks.Push(new WarsongGultchTask(classContainer, botTasks));
-                        //            break;
-                        //    }
-                        //    break;
-                        //case CharacterAction.QueuePvP:
-                        //    Console.WriteLine($"[BOT RUNNER : {Environment.ProcessId}] Begin QueuePvP {desiredActivityMemberState.CommandParam1}");
-                        //    botTasks.Push(new QueueForBattlegroundTask(classContainer, botTasks, ObjectManager.Units.First(x => x.Name.StartsWith(desiredActivityMemberState.CommandParam2))));
-                        //    break;
-                        //case CharacterAction.AddEquipment:
-                        //    currentActivityMemberState.Action = "Adding equipment";
-                        //    Console.WriteLine($"[BOT RUNNER : {Environment.ProcessId}] AddEquipment {desiredActivityMemberState.CommandParam1} {desiredActivityMemberState.CommandParam2}");
-                        //    botTasks.Push(new AddEquipmentTask(classContainer, botTasks, int.Parse(desiredActivityMemberState.CommandParam1), int.Parse(desiredActivityMemberState.CommandParam2)));
-                        //    break;
 
                         foreach (var activityMember in desiredActivityMemberState.ActivityMembers)
                             if (!currentActivityMemberState.ActivityMembers.Contains(activityMember))

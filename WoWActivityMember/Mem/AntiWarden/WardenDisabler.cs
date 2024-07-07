@@ -7,8 +7,8 @@ namespace WoWActivityMember.Mem.AntiWarden
 {
     internal static class WardenDisabler
     {
-        private static readonly byte[] pageScanOriginalBytes = { 0x8B, 0x45, 0x08, 0x8A, 0x04 }; // first 5 bytes of Warden's PageScan function
-        private static readonly byte[] memScanOriginalBytes = { 0x56, 0x57, 0xFC, 0x8B, 0x54 }; // first 5 bytes of Warden's MemScan function
+        private static readonly byte[] pageScanOriginalBytes = [0x8B, 0x45, 0x08, 0x8A, 0x04]; // first 5 bytes of Warden's PageScan function
+        private static readonly byte[] memScanOriginalBytes = [0x56, 0x57, 0xFC, 0x8B, 0x54]; // first 5 bytes of Warden's MemScan function
 
         // different client versions have different function signatures for this hook. the game crashes with an access violation unless you
         // use the right signature here (likely due to stack or register corruption)
@@ -162,8 +162,8 @@ namespace WoWActivityMember.Mem.AntiWarden
             disableWardenVanillaDelegate = DisableWardenInternal;
             var addrToDetour = Marshal.GetFunctionPointerForDelegate(disableWardenVanillaDelegate);
 
-            string[] instructions = new[]
-                {
+            string[] instructions =
+                [
                     "MOV[0xCE8978], EAX",
                     "PUSHFD",
                     "PUSHAD",
@@ -172,7 +172,7 @@ namespace WoWActivityMember.Mem.AntiWarden
                     "POPAD",
                     "POPFD",
                     "JMP 0x006CA233"
-                };
+                ];
 
             var wardenLoadDetour = MemoryManager.InjectAssembly("WardenLoadDetour", instructions);
             MemoryManager.InjectAssembly("WardenLoadHook", 0x006CA22E, "JMP " + wardenLoadDetour);

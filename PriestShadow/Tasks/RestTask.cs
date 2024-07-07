@@ -6,14 +6,13 @@ using WoWActivityMember.Tasks;
 
 namespace PriestShadow.Tasks
 {
-    internal class RestTask : BotTask, IBotTask
+    internal class RestTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Rest), IBotTask
     {
         private const string AbolishDisease = "Abolish Disease";
         private const string CureDisease = "Cure Disease";
         private const string LesserHeal = "Lesser Heal";
         private const string Heal = "Heal";
         private const string ShadowForm = "Shadowform";
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest) { }
 
         public void Update()
         {

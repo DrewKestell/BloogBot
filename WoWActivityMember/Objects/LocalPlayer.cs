@@ -297,7 +297,7 @@ namespace WoWActivityMember.Objects
                         currentSpellId
                     }.ToArray();
                 else
-                    PlayerSpells.Add(name, new[] { currentSpellId });
+                    PlayerSpells.Add(name, [currentSpellId]);
             }
         }
 

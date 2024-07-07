@@ -8,12 +8,12 @@ namespace WarriorArms.Tasks
 {
     internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        private static readonly string[] SunderTargets = { "Snapjaw", "Snapper", "Tortoise", "Spikeshell", "Burrower", "Borer", // turtles
+        private static readonly string[] SunderTargets = [ "Snapjaw", "Snapper", "Tortoise", "Spikeshell", "Burrower", "Borer", // turtles
             "Bear", "Grizzly", "Ashclaw", "Mauler", "Shardtooth", "Plaguebear", "Bristlefur", "Thistlefur", // bears
             "Scorpid", "Flayer", "Stinger", "Lasher", "Pincer", // scorpids
             "Crocolisk", "Vicejaw", "Deadmire", "Snapper", "Daggermaw", // crocs
             "Crawler", "Crustacean", // crabs
-            "Stag" }; // other
+            "Stag" ]; // other
 
         private const string SunderArmorIcon = "Interface\\Icons\\Ability_Warrior_Sunder";
         private const string BattleShout = "Battle Shout";

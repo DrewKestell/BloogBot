@@ -4,12 +4,12 @@ using WoWActivityMember.Tasks;
 
 namespace PaladinRetribution.Tasks
 {
-    internal class BuffTask : BotTask, IBotTask
+    internal class BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Buff), IBotTask
     {
         private const string BlessingOfKings = "Blessing of Kings";
         private const string BlessingOfMight = "Blessing of Might";
         private const string BlessingOfSanctuary = "Blessing of Sanctuary";
-        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
+
         public void Update()
         {
             if (!ObjectManager.Player.IsSpellReady(BlessingOfMight) || ObjectManager.Player.HasBuff(BlessingOfMight) || ObjectManager.Player.HasBuff(BlessingOfKings) || ObjectManager.Player.HasBuff(BlessingOfSanctuary))

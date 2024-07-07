@@ -5,7 +5,7 @@ using WoWActivityMember.Tasks;
 
 namespace MageArcane.Tasks
 {
-    internal class BuffTask : BotTask, IBotTask
+    internal class BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Buff), IBotTask
     {
         private const string ArcaneIntellect = "Arcane Intellect";
         private const string FrostArmor = "Frost Armor";
@@ -15,7 +15,6 @@ namespace MageArcane.Tasks
         private readonly IClassContainer container;
         private readonly LocalPlayer player;
 
-        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
         {
             if ((!ObjectManager.Player.IsSpellReady(ArcaneIntellect) || ObjectManager.Player.HasBuff(ArcaneIntellect)) && (ObjectManager.Player.HasBuff(FrostArmor) || ObjectManager.Player.HasBuff(IceArmor)) && (!ObjectManager.Player.IsSpellReady(DampenMagic) || ObjectManager.Player.HasBuff(DampenMagic)))

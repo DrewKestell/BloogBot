@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <BaseOutputPath>..\Bot</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +17,7 @@
   <ItemGroup>
     <PackageReference Include="Fasm.NET" Version="1.70.3.2" />
     <PackageReference Include="System.Memory" Version="4.5.5" />
+    <PackageReference Include="Vcpkg.Nuget" Version="1.5.0" />
   </ItemGroup>
 
   <ItemGroup>

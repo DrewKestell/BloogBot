@@ -24,17 +24,21 @@ namespace Communication {
     static CommunicationReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "ChNjb21tdW5pY2F0aW9uLnByb3RvEg1jb21tdW5pY2F0aW9uIh4KC0RhdGFN",
-            "ZXNzYWdlEg8KB3BheWxvYWQYASABKAwiPwoOQ29udHJvbE1lc3NhZ2USEgoK",
-            "ZXJyb3JfY29kZRgBIAEoBRIZChFlcnJvcl9kZXNjcmlwdGlvbhgCIAEoCSKD",
-            "AQoQVW5pdmVyc2FsTWVzc2FnZRIqCgRkYXRhGAEgASgLMhouY29tbXVuaWNh",
-            "dGlvbi5EYXRhTWVzc2FnZUgAEjAKB2NvbnRyb2wYAiABKAsyHS5jb21tdW5p",
-            "Y2F0aW9uLkNvbnRyb2xNZXNzYWdlSABCEQoPbWVzc2FnZV9jb250ZW50YgZw",
-            "cm90bzM="));
+            "ChNjb21tdW5pY2F0aW9uLnByb3RvEg1jb21tdW5pY2F0aW9uGgtzdGF0ZS5w",
+            "cm90byLLAQoLRGF0YU1lc3NhZ2USEgoKc2VydmljZV9pZBgBIAEoCRIjCgZ3",
+            "c3RhdGUYAiABKAsyES5zdGF0ZS5Xb3JsZFN0YXRlSAASJgoGYXN0YXRlGAMg",
+            "ASgLMhQuc3RhdGUuQWN0aXZpdHlTdGF0ZUgBEicKBmNzdGF0ZRgEIAEoCzIV",
+            "LnN0YXRlLkNoYXJhY3RlclN0YXRlSAJCDQoLd29ybGRfc3RhdGVCEAoOYWN0",
+            "aXZpdHlfc3RhdGVCEQoPY2hhcmFjdGVyX3N0YXRlIj8KDkNvbnRyb2xNZXNz",
+            "YWdlEhIKCmVycm9yX2NvZGUYASABKAUSGQoRZXJyb3JfZGVzY3JpcHRpb24Y",
+            "AiABKAkigwEKEFVuaXZlcnNhbE1lc3NhZ2USKgoEZGF0YRgBIAEoCzIaLmNv",
+            "bW11bmljYXRpb24uRGF0YU1lc3NhZ2VIABIwCgdjb250cm9sGAIgASgLMh0u",
+            "Y29tbXVuaWNhdGlvbi5Db250cm9sTWVzc2FnZUgAQhEKD21lc3NhZ2VfY29u",
+            "dGVudGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { },
+          new pbr::FileDescriptor[] { global::State.StateReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Communication.DataMessage), global::Communication.DataMessage.Parser, new[]{ "Payload" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Communication.DataMessage), global::Communication.DataMessage.Parser, new[]{ "ServiceId", "Wstate", "Astate", "Cstate" }, new[]{ "WorldState", "ActivityState", "CharacterState" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Communication.ControlMessage), global::Communication.ControlMessage.Parser, new[]{ "ErrorCode", "ErrorDescription" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Communication.UniversalMessage), global::Communication.UniversalMessage.Parser, new[]{ "Data", "Control" }, new[]{ "MessageContent" }, null, null, null)
           }));
@@ -80,7 +84,25 @@ namespace Communication {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public DataMessage(DataMessage other) : this() {
-      payload_ = other.payload_;
+      serviceId_ = other.serviceId_;
+      switch (other.WorldStateCase) {
+        case WorldStateOneofCase.Wstate:
+          Wstate = other.Wstate.Clone();
+          break;
+      }
+
+      switch (other.ActivityStateCase) {
+        case ActivityStateOneofCase.Astate:
+          Astate = other.Astate.Clone();
+          break;
+      }
+
+      switch (other.CharacterStateCase) {
+        case CharacterStateOneofCase.Cstate:
+          Cstate = other.Cstate.Clone();
+          break;
+      }
+
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -90,19 +112,112 @@ namespace Communication {
       return new DataMessage(this);
     }
 
-    /// <summary>Field number for the "payload" field.</summary>
-    public const int PayloadFieldNumber = 1;
-    private pb::ByteString payload_ = pb::ByteString.Empty;
-    /// <summary>
-    /// bytes payload using the Any type
-    /// </summary>
+    /// <summary>Field number for the "service_id" field.</summary>
+    public const int ServiceIdFieldNumber = 1;
+    private string serviceId_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pb::ByteString Payload {
-      get { return payload_; }
+    public string ServiceId {
+      get { return serviceId_; }
       set {
-        payload_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        serviceId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
+    }
+
+    /// <summary>Field number for the "wstate" field.</summary>
+    public const int WstateFieldNumber = 2;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::State.WorldState Wstate {
+      get { return worldStateCase_ == WorldStateOneofCase.Wstate ? (global::State.WorldState) worldState_ : null; }
+      set {
+        worldState_ = value;
+        worldStateCase_ = value == null ? WorldStateOneofCase.None : WorldStateOneofCase.Wstate;
+      }
+    }
+
+    /// <summary>Field number for the "astate" field.</summary>
+    public const int AstateFieldNumber = 3;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::State.ActivityState Astate {
+      get { return activityStateCase_ == ActivityStateOneofCase.Astate ? (global::State.ActivityState) activityState_ : null; }
+      set {
+        activityState_ = value;
+        activityStateCase_ = value == null ? ActivityStateOneofCase.None : ActivityStateOneofCase.Astate;
+      }
+    }
+
+    /// <summary>Field number for the "cstate" field.</summary>
+    public const int CstateFieldNumber = 4;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::State.CharacterState Cstate {
+      get { return characterStateCase_ == CharacterStateOneofCase.Cstate ? (global::State.CharacterState) characterState_ : null; }
+      set {
+        characterState_ = value;
+        characterStateCase_ = value == null ? CharacterStateOneofCase.None : CharacterStateOneofCase.Cstate;
+      }
+    }
+
+    private object worldState_;
+    /// <summary>Enum of possible cases for the "world_state" oneof.</summary>
+    public enum WorldStateOneofCase {
+      None = 0,
+      Wstate = 2,
+    }
+    private WorldStateOneofCase worldStateCase_ = WorldStateOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public WorldStateOneofCase WorldStateCase {
+      get { return worldStateCase_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearWorldState() {
+      worldStateCase_ = WorldStateOneofCase.None;
+      worldState_ = null;
+    }
+
+    private object activityState_;
+    /// <summary>Enum of possible cases for the "activity_state" oneof.</summary>
+    public enum ActivityStateOneofCase {
+      None = 0,
+      Astate = 3,
+    }
+    private ActivityStateOneofCase activityStateCase_ = ActivityStateOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ActivityStateOneofCase ActivityStateCase {
+      get { return activityStateCase_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearActivityState() {
+      activityStateCase_ = ActivityStateOneofCase.None;
+      activityState_ = null;
+    }
+
+    private object characterState_;
+    /// <summary>Enum of possible cases for the "character_state" oneof.</summary>
+    public enum CharacterStateOneofCase {
+      None = 0,
+      Cstate = 4,
+    }
+    private CharacterStateOneofCase characterStateCase_ = CharacterStateOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public CharacterStateOneofCase CharacterStateCase {
+      get { return characterStateCase_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearCharacterState() {
+      characterStateCase_ = CharacterStateOneofCase.None;
+      characterState_ = null;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -120,7 +235,13 @@ namespace Communication {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (Payload != other.Payload) return false;
+      if (ServiceId != other.ServiceId) return false;
+      if (!object.Equals(Wstate, other.Wstate)) return false;
+      if (!object.Equals(Astate, other.Astate)) return false;
+      if (!object.Equals(Cstate, other.Cstate)) return false;
+      if (WorldStateCase != other.WorldStateCase) return false;
+      if (ActivityStateCase != other.ActivityStateCase) return false;
+      if (CharacterStateCase != other.CharacterStateCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -128,7 +249,13 @@ namespace Communication {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (Payload.Length != 0) hash ^= Payload.GetHashCode();
+      if (ServiceId.Length != 0) hash ^= ServiceId.GetHashCode();
+      if (worldStateCase_ == WorldStateOneofCase.Wstate) hash ^= Wstate.GetHashCode();
+      if (activityStateCase_ == ActivityStateOneofCase.Astate) hash ^= Astate.GetHashCode();
+      if (characterStateCase_ == CharacterStateOneofCase.Cstate) hash ^= Cstate.GetHashCode();
+      hash ^= (int) worldStateCase_;
+      hash ^= (int) activityStateCase_;
+      hash ^= (int) characterStateCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -147,9 +274,21 @@ namespace Communication {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (Payload.Length != 0) {
+      if (ServiceId.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteBytes(Payload);
+        output.WriteString(ServiceId);
+      }
+      if (worldStateCase_ == WorldStateOneofCase.Wstate) {
+        output.WriteRawTag(18);
+        output.WriteMessage(Wstate);
+      }
+      if (activityStateCase_ == ActivityStateOneofCase.Astate) {
+        output.WriteRawTag(26);
+        output.WriteMessage(Astate);
+      }
+      if (characterStateCase_ == CharacterStateOneofCase.Cstate) {
+        output.WriteRawTag(34);
+        output.WriteMessage(Cstate);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -161,9 +300,21 @@ namespace Communication {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Payload.Length != 0) {
+      if (ServiceId.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteBytes(Payload);
+        output.WriteString(ServiceId);
+      }
+      if (worldStateCase_ == WorldStateOneofCase.Wstate) {
+        output.WriteRawTag(18);
+        output.WriteMessage(Wstate);
+      }
+      if (activityStateCase_ == ActivityStateOneofCase.Astate) {
+        output.WriteRawTag(26);
+        output.WriteMessage(Astate);
+      }
+      if (characterStateCase_ == CharacterStateOneofCase.Cstate) {
+        output.WriteRawTag(34);
+        output.WriteMessage(Cstate);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -175,8 +326,17 @@ namespace Communication {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (Payload.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Payload);
+      if (ServiceId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(ServiceId);
+      }
+      if (worldStateCase_ == WorldStateOneofCase.Wstate) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Wstate);
+      }
+      if (activityStateCase_ == ActivityStateOneofCase.Astate) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Astate);
+      }
+      if (characterStateCase_ == CharacterStateOneofCase.Cstate) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Cstate);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -190,9 +350,36 @@ namespace Communication {
       if (other == null) {
         return;
       }
-      if (other.Payload.Length != 0) {
-        Payload = other.Payload;
+      if (other.ServiceId.Length != 0) {
+        ServiceId = other.ServiceId;
       }
+      switch (other.WorldStateCase) {
+        case WorldStateOneofCase.Wstate:
+          if (Wstate == null) {
+            Wstate = new global::State.WorldState();
+          }
+          Wstate.MergeFrom(other.Wstate);
+          break;
+      }
+
+      switch (other.ActivityStateCase) {
+        case ActivityStateOneofCase.Astate:
+          if (Astate == null) {
+            Astate = new global::State.ActivityState();
+          }
+          Astate.MergeFrom(other.Astate);
+          break;
+      }
+
+      switch (other.CharacterStateCase) {
+        case CharacterStateOneofCase.Cstate:
+          if (Cstate == null) {
+            Cstate = new global::State.CharacterState();
+          }
+          Cstate.MergeFrom(other.Cstate);
+          break;
+      }
+
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -209,7 +396,34 @@ namespace Communication {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            Payload = input.ReadBytes();
+            ServiceId = input.ReadString();
+            break;
+          }
+          case 18: {
+            global::State.WorldState subBuilder = new global::State.WorldState();
+            if (worldStateCase_ == WorldStateOneofCase.Wstate) {
+              subBuilder.MergeFrom(Wstate);
+            }
+            input.ReadMessage(subBuilder);
+            Wstate = subBuilder;
+            break;
+          }
+          case 26: {
+            global::State.ActivityState subBuilder = new global::State.ActivityState();
+            if (activityStateCase_ == ActivityStateOneofCase.Astate) {
+              subBuilder.MergeFrom(Astate);
+            }
+            input.ReadMessage(subBuilder);
+            Astate = subBuilder;
+            break;
+          }
+          case 34: {
+            global::State.CharacterState subBuilder = new global::State.CharacterState();
+            if (characterStateCase_ == CharacterStateOneofCase.Cstate) {
+              subBuilder.MergeFrom(Cstate);
+            }
+            input.ReadMessage(subBuilder);
+            Cstate = subBuilder;
             break;
           }
         }
@@ -228,7 +442,34 @@ namespace Communication {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 10: {
-            Payload = input.ReadBytes();
+            ServiceId = input.ReadString();
+            break;
+          }
+          case 18: {
+            global::State.WorldState subBuilder = new global::State.WorldState();
+            if (worldStateCase_ == WorldStateOneofCase.Wstate) {
+              subBuilder.MergeFrom(Wstate);
+            }
+            input.ReadMessage(subBuilder);
+            Wstate = subBuilder;
+            break;
+          }
+          case 26: {
+            global::State.ActivityState subBuilder = new global::State.ActivityState();
+            if (activityStateCase_ == ActivityStateOneofCase.Astate) {
+              subBuilder.MergeFrom(Astate);
+            }
+            input.ReadMessage(subBuilder);
+            Astate = subBuilder;
+            break;
+          }
+          case 34: {
+            global::State.CharacterState subBuilder = new global::State.CharacterState();
+            if (characterStateCase_ == CharacterStateOneofCase.Cstate) {
+              subBuilder.MergeFrom(Cstate);
+            }
+            input.ReadMessage(subBuilder);
+            Cstate = subBuilder;
             break;
           }
         }

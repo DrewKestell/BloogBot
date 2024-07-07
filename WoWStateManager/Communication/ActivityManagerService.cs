@@ -4,20 +4,13 @@ using Google.Protobuf;
 
 namespace WoWStateManager.Communication
 {
-    public class ActivityManagerService : IDisposable
+    public class ActivityManagerService(string server, int port) : IDisposable
     {
-        private readonly string _server;
-        private readonly int _port;
-        private TcpClient _client;
+        private readonly string _server = server;
+        private readonly int _port = port;
+        private TcpClient _client = new();
         private NetworkStream _stream;
         private bool _disposed;
-
-        public ActivityManagerService(string server, int port)
-        {
-            _server = server;
-            _port = port;
-            _client = new TcpClient();
-        }
 
         public async Task ConnectAsync()
         {

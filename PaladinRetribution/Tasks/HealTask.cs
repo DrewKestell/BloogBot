@@ -4,11 +4,10 @@ using WoWActivityMember.Tasks;
 
 namespace PaladinRetribution.Tasks
 {
-    internal class HealTask : BotTask, IBotTask
+    internal class HealTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Heal), IBotTask
     {
         private const string DivineProtection = "Divine Protection";
         private const string HolyLight = "Holy Light";
-        public HealTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Heal) { }
 
         public void Update()
         {

@@ -8,54 +8,53 @@ using WoWActivityMember.Models;
 
 namespace WoWStateManager.Listeners
 {
-    public class WorldStateManagerSocketListener() : AbstractSocketServer(8089, IPAddress.Parse("127.0.0.1"))
+    public class WorldStateManagerSocketListener() : AbstractSocketServer(8088, IPAddress.Loopback)
     {
         private readonly Subject<WorldStateUpdate> _instanceUpdateSubject = new();
+        private readonly Dictionary<int, Socket> serviceIds = [];
 
         public IObservable<WorldStateUpdate> InstanceUpdateObservable => _instanceUpdateSubject;
 
-        public override int HandleRequest(byte[] payload, Socket clientSocket)
+        public override Guid HandleRequest(byte[] payload, Socket clientSocket)
         {
             if (payload.Length == 0)
             {
                 // TODO: Log error
-                return 0;
+                return Guid.Empty;
             }
 
-            //WorldStateUpdate instanceUpdate = JsonConvert.DeserializeObject<WorldStateUpdate>(payload);
-            //int processId = instanceUpdate.ProcessId;
-            int processId = 0; //TODO: implement communication protocol new
+            WorldStateUpdate instanceUpdate = JsonConvert.DeserializeObject<WorldStateUpdate>(Encoding.ASCII.GetString(payload));
 
-            //if (processId != 0)
-            //{
-            //    if (!_processIds.ContainsKey(processId))
-            //    {
-            //        Console.WriteLine($"{DateTime.Now}|[WORLD STATE MANAGER SERVER : {_port}] Process connected {processId}");
-            //        _processIds.Add(processId, clientSocket);
-            //    }
+            int processId = instanceUpdate.ProcessId;
 
-            //    _instanceUpdateSubject.OnNext(instanceUpdate);
-            //}
-            return processId;
+            if (processId != 0)
+            {
+                if (serviceIds.TryAdd(processId, clientSocket))
+                {
+                    Console.WriteLine($"{DateTime.Now}|[WorldStateManagerSocketListener:{_port}]:HandleRequest Process connected {processId}");
+                }
+
+                _instanceUpdateSubject.OnNext(instanceUpdate);
+            }
+            return Guid.Empty;
         }
 
         public bool SendCommandToProcess(int processId, List<ActivityState> activityStates)
         {
-            if (_processIds.ContainsKey(processId))
+            if (serviceIds.ContainsKey(processId))
             {
-                _processIds.TryGetValue(processId, out Socket clientSocket);
+                serviceIds.TryGetValue(processId, out Socket clientSocket);
                 try
                 {
                     if (clientSocket != null && clientSocket.Connected)
                     {
-                        string payload = JsonConvert.SerializeObject(activityStates);
-                        clientSocket.Send(Encoding.ASCII.GetBytes(payload));
+                        clientSocket.Send(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(activityStates)));
                         return true;
                     }
                 }
                 catch (SocketException e)
                 {
-                    Console.WriteLine($"{DateTime.Now}|[WORLD STATE MANAGER SERVER : {_port}] {e.Message} {e.ErrorCode} {e.NativeErrorCode} {e.SocketErrorCode}");
+                    Console.WriteLine($"{DateTime.Now}|[WorldStateManagerSocketListener:{_port}]:SendCommandToProcess {e.Message} {e.ErrorCode} {e.NativeErrorCode} {e.SocketErrorCode}");
                 }
             }
             return false;

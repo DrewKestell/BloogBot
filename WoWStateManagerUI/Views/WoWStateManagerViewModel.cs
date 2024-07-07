@@ -174,10 +174,9 @@ namespace WoWStateManagerUI.Views
         public bool CanRemoveActivityMember => SelectedActivity != null && SelectedActivityMemberViewModels.Count > SelectedActivity.ActivityState.MinActivitySize;
         private async Task WoWStateHeartbeatTask()
         {
-            WorldStateCommandClient = new WorldStateCommandClient(8089, IPAddress.Parse("127.0.0.1"));
+            LogMessage($"{DateTime.Now}| Connecting to WoW State Manager at 127.0.0.1:8088");
 
-            LogMessage($"{DateTime.Now}| Connecting to WoW State Manager at 127.0.0.1:8089");
-
+            WorldStateCommandClient = new WorldStateCommandClient(8088, IPAddress.Loopback);
             while (true)
             {
                 Application.Current.Dispatcher.Invoke(() =>
@@ -198,10 +197,8 @@ namespace WoWStateManagerUI.Views
 
                     ServerActivityStates.Clear();
 
-                    for(int i = 0; i < activityStates.Count; i++)
-                    {
+                    for (int i = 0; i < activityStates.Count; i++)
                         ServerActivityStates.Add(activityStates[i]);
-                    }
 
                     try
                     {
@@ -214,13 +211,13 @@ namespace WoWStateManagerUI.Views
 
                                 while (activityViewModel.ActivityState.ActivityMemberStates.Count < ServerActivityStates[i].ActivityMemberStates.Count)
                                 {
-                                    LogMessage($"{DateTime.Now}| Adding new activity member Activity: {activityViewModel.ActivityState.ProcessId}");
+                                    LogMessage($"Adding new activity member Activity: {i}");
                                     activityViewModel.AddNewActivityMember();
                                 }
 
                                 while (activityViewModel.ActivityState.ActivityMemberStates.Count > ServerActivityStates[i].ActivityMemberStates.Count)
                                 {
-                                    LogMessage($"{DateTime.Now}| Removing activity member Activity: {activityViewModel.ActivityState.ProcessId} {SelectedActivityMember.BehaviorProfile}");
+                                    LogMessage($"Removing activity member Activity: {SelectedActivityMember.BehaviorProfile}");
                                     activityViewModel.RemoveActivityMember();
                                 }
 
@@ -236,34 +233,39 @@ namespace WoWStateManagerUI.Views
                                 ActivityViewModels.Add(new ActivityViewModel(ServerActivityStates[i]));
                         }
 
+                        while (ActivityViewModels.Count > ServerActivityStates.Count)
+                        {
+                            ActivityViewModels.RemoveAt(ActivityViewModels.Count - 1);
+                        }
+
                         if (ServerActivityStates.Count > 0 && SelectedActivityIndex < 0)
                         {
                             SelectedActivityIndex = 0;
                             SelectedActivity.IsFocused = true;
-                            OnPropertyChanged(nameof(SelectedActivityIndex));
-                            OnPropertyChanged(nameof(SelectedActivity));
 
                             if (SelectedActivityMemberIndex < 0)
                             {
                                 SelectedActivityMemberIndex = 0;
                                 SelectedActivityMember.IsFocused = true;
-                                OnPropertyChanged(nameof(SelectedActivityMemberIndex));
-                                OnPropertyChanged(nameof(SelectedActivityMember));
                             }
                         }
 
+                        OnPropertyChanged(nameof(ActivityViewModels));
+                        OnPropertyChanged(nameof(SelectedActivityIndex));
+                        OnPropertyChanged(nameof(SelectedActivity));
+                        OnPropertyChanged(nameof(SelectedActivityMemberViewModels));
+                        OnPropertyChanged(nameof(SelectedActivityMemberIndex));
+                        OnPropertyChanged(nameof(SelectedActivityMember));
                         OnPropertyChanged(nameof(CanAddActivityMember));
                         OnPropertyChanged(nameof(CanRemoveActivityMember));
-                        OnPropertyChanged(nameof(ActivityViewModels));
-                        OnPropertyChanged(nameof(SelectedActivityMemberViewModels));
                     }
                     catch (Exception ex)
                     {
-                        LogMessage(ex.InnerException.Message + " " + ex.Message);
+                        LogMessage($"{ex}");
                     }
                 });
 
-                await Task.Delay(10000);
+                await Task.Delay(100);
             }
         }
         private void LogMessage(string message)
@@ -274,7 +276,7 @@ namespace WoWStateManagerUI.Views
 
         }
         private string _wowStateManagerIP = "127.0.0.1";
-        private int _wowStateManagerPort = 8089;
+        private int _wowStateManagerPort = 8088;
         public string WoWStateManagerIP { get { return _wowStateManagerIP; } set { _wowStateManagerIP = value; } }
         public int WoWStateManagerPort { get { return _wowStateManagerPort; } set { _wowStateManagerPort = value; } }
 

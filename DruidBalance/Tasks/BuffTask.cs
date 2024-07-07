@@ -4,14 +4,13 @@ using WoWActivityMember.Mem;
 
 namespace DruidBalance.Tasks
 {
-    internal class BuffTask : BotTask, IBotTask
+    internal class BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Buff), IBotTask
     {
         private const string MarkOfTheWild = "Mark of the Wild";
         private const string Thorns = "Thorns";
         private const string OmenOfClarity = "Omen of Clarity";
         private const string MoonkinForm = "Moonkin Form";
 
-        public BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Buff) { }
         public void Update()
         {
             if ((ObjectManager.Player.HasBuff(MarkOfTheWild) || !ObjectManager.Player.IsSpellReady(MarkOfTheWild)) &&

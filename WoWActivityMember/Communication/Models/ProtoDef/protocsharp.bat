@@ -17,8 +17,8 @@ if "%~2"=="" (
 )
 
 if "%~3"=="" (
-    echo No protoc path provided. Using default ../../../../ActivityManager/vcpkg_installed/x64-windows/tools/protobuf/protoc
-    set "PROTOC_PATH=../../../../ActivityManager/vcpkg_installed/x64-windows/tools/protobuf/protoc"
+    echo No protoc path provided. Using default ../../../../WoWActivityMember/vcpkg_installed/x64-windows/tools/protobuf/protoc
+    set "PROTOC_PATH=../../../../WoWActivityMember/vcpkg_installed/x64-windows/tools/protobuf/protoc"
 ) else (
     set "PROTOC_PATH=%~3"
 )

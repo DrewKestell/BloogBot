@@ -1,4 +1,7 @@
-﻿using System.Windows;
+﻿using System.ComponentModel;
+using System.Configuration;
+using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 using WoWStateManagerUI.Views;
 
@@ -35,7 +38,6 @@ namespace WoWStateManagerUI
 
         private void InstanceComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ComboBox? comboBox = sender as ComboBox;
             _worldStatePresetViewModel.EditActivity();
         }
     }

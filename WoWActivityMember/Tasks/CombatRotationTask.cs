@@ -6,17 +6,13 @@ using static WoWActivityMember.Constants.Enums;
 
 namespace WoWActivityMember.Tasks.SharedStates
 {
-    public abstract class CombatRotationTask : BotTask
+    public abstract class CombatRotationTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Combat)
     {
         private Position hostileTargetLastPosition;
         private bool backpedaling;
         private readonly int backpedalStartTime;
 
-        public WoWUnit raidLeader;
-        public CombatRotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Combat)
-        {
-            raidLeader = ObjectManager.PartyMembers.First(x => x.Guid == ObjectManager.PartyLeaderGuid);
-        }
+        public WoWUnit raidLeader = ObjectManager.PartyMembers.First(x => x.Guid == ObjectManager.PartyLeaderGuid);
 
         public abstract void PerformCombatRotation();
 

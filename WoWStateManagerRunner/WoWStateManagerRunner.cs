@@ -1,6 +1,6 @@
-﻿using MaNGOSDBDomain.Client;
-using System.Net;
+﻿using System.Diagnostics;
 using WoWStateManager;
+using static WinProcessImports.WinImports;
 
 public class WoWStateManagerRunner
 {
@@ -9,7 +9,7 @@ public class WoWStateManagerRunner
         WorldStateManagerServer woWStateManager = new();
         woWStateManager.Start();
 
-        //MaNGOSCommandClient maNGOS = new(IPAddress.Parse("127.0.0.1"));
+        //MaNGOSCommandClient maNGOS = new(IPAddress.Loopback);
         //string response = maNGOS.SendCommand("account create lrhodes404 Rockydog11!!..");
         //Console.WriteLine(response);
 

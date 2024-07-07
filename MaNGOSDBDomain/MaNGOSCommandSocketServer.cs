@@ -8,9 +8,9 @@ using System.Text;
 
 namespace MaNGOSDBDomain
 {
-    public class MaNGOSCommandSocketServer() : AbstractSocketServer(8081, IPAddress.Parse("127.0.0.1"))
+    public class MaNGOSCommandSocketServer() : AbstractSocketServer(8081, IPAddress.Loopback)
     {
-        public override int HandleRequest(byte[] payload, Socket clientSocket)
+        public override Guid HandleRequest(byte[] payload, Socket clientSocket)
         {
             string parsedPayload = Encoding.UTF8.GetString(payload);
             DatabaseRequest request = JsonConvert.DeserializeObject<DatabaseRequest>(parsedPayload);
@@ -40,7 +40,10 @@ namespace MaNGOSDBDomain
                     response = JsonConvert.SerializeObject(MangosRepository.GetCreatureEquipTemplateById(int.Parse(request.QueryParam1)));
                     break;
             }
-            return SendMessage(response, clientSocket);
+
+            SendReply(response, clientSocket);
+
+            return request.ServiceId;
         }
     }
 }

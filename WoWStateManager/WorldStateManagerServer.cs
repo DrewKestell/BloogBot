@@ -1,4 +1,7 @@
-﻿using Communication;
+﻿using Microsoft.Extensions.Hosting;
+using System.Net;
+using System.Net.Sockets;
+using WoWActivityManagerService;
 using WoWActivityMember.Models;
 using WoWStateManager.Listeners;
 using WoWStateManager.Models;
@@ -10,16 +13,19 @@ namespace WoWStateManager
         private readonly WorldStateManagerSocketListener WorldStateManagerSocketListener;
         private readonly WorldStateActivitySocketListener WorldStateActivitySocketListener;
         private readonly List<ActivityState> CurrentActivityList;
+        private readonly List<Worker> ActivityManagerWorkers;
+        private readonly List<Task> WorkerTasks;
+        private readonly CancellationTokenSource CancellationTokenSource = new();
+        private int MaxAllowedClients => CurrentActivityList.SelectMany(x => x.ActivityMemberStates).Count();
+
         public WorldStateManagerServer()
         {
             WorldStateManagerSocketListener = new WorldStateManagerSocketListener();
             WorldStateActivitySocketListener = new WorldStateActivitySocketListener();
 
-            CurrentActivityList = WoWStateManagerSettings.Instance.ActivityPresets.Select(x => new ActivityState()
-            {
-                ActivityType = x.ActivityType,
-                ActivityMemberStates = x.ActivityMemberPresets,
-            }).ToList();
+            CurrentActivityList = [];
+            ActivityManagerWorkers = [];
+            WorkerTasks = [];
 
             WorldStateManagerSocketListener.InstanceUpdateObservable.Subscribe(OnWorldStateUpdate);
             WorldStateActivitySocketListener.InstanceUpdateObservable.Subscribe(OnActivityManagerUpdate);
@@ -27,38 +33,52 @@ namespace WoWStateManager
 
         public void Start()
         {
+            var host = Host.CreateDefaultBuilder()
+                .UseWindowsService(options =>
+                {
+                    options.ServiceName = "WoW Activity Manager";
+                })
+                .ConfigureServices((hostContext, services) =>
+                {
+
+                })
+                .Build();
+
             WorldStateManagerSocketListener?.Start();
             WorldStateActivitySocketListener?.Start();
         }
 
-        private void OnActivityManagerUpdate(DataMessage state)
+        private void OnActivityManagerUpdate(ActivityState state)
         {
-            //TODO: Implement processId
-            //if (CurrentActivityList.Any(x => x.ProcessId == state.ProcessId))
-            //{
-            //    WorldStateActivitySocketListener.SendCommandToProcess(state.ProcessId,
-            //        CurrentActivityList.First(x => x.ProcessId == state.ProcessId));
-            //}
-            //else if (CurrentActivityList.Any(x => x.ProcessId == 0))
-            //{
-            //    ActivityState activityState = CurrentActivityList.First(x => x.ProcessId == 0);
-            //    activityState.ProcessId = state.ProcessId;
+            if (CurrentActivityList.Any(x => x.ServiceId == state.ServiceId))
+            {
+                WorldStateActivitySocketListener.SendCommandToProcess(state.ServiceId,
+                    CurrentActivityList.First(x => x.ServiceId == state.ServiceId));
+            }
+            else if (CurrentActivityList.Any(x => x.ServiceId == Guid.Empty))
+            {
+                ActivityState activityState = CurrentActivityList.First(x => x.ServiceId == Guid.Empty);
+                activityState.ServiceId = state.ServiceId;
 
-            //    WorldStateActivitySocketListener.SendCommandToProcess(state.ProcessId,
-            //        activityState);
-            //}
-            //else
-            //{
-            //    WorldStateActivitySocketListener.SendCommandToProcess(state.ProcessId,
-            //        new ActivityState() { ActivityType = ActivityType.Idle });
-            //}
+                WorldStateActivitySocketListener.SendCommandToProcess(state.ServiceId,
+                    activityState);
+            }
+            else
+            {
+                WorldStateActivitySocketListener.SendCommandToProcess(state.ServiceId,
+                    new ActivityState()
+                    {
+                        ActivityType = ActivityType.Idle,
+                        MaxAllowedClients = 0
+                    });
+            }
         }
 
         private void OnWorldStateUpdate(WorldStateUpdate worldStateUpdate)
         {
             if (worldStateUpdate.ActivityAction != ActivityAction.None)
             {
-                Console.WriteLine($"{DateTime.Now}|[WOW STATE MANAGER RUNNER]Processing {worldStateUpdate.ActivityAction} {worldStateUpdate.CommandParam1} {worldStateUpdate.CommandParam2} {worldStateUpdate.CommandParam3} {worldStateUpdate.CommandParam4}");
+                Console.WriteLine($"{DateTime.Now}|[WorldStateManagerServer]Processing {worldStateUpdate.ActivityAction} {worldStateUpdate.CommandParam1} {worldStateUpdate.CommandParam2} {worldStateUpdate.CommandParam3} {worldStateUpdate.CommandParam4}");
 
                 int activityIndex = int.Parse(worldStateUpdate.CommandParam1);
                 int activityMemberIndex = int.Parse(worldStateUpdate.CommandParam2);
@@ -120,22 +140,7 @@ namespace WoWStateManager
                         break;
                     case ActivityAction.ApplyDesiredState:
                         WoWStateManagerSettings.Instance.SaveConfig();
-
-                        for (int i = 0; i < WoWStateManagerSettings.Instance.ActivityPresets.Count; i++)
-                            if (CurrentActivityList.Count < i)
-                                CurrentActivityList.Add(new ActivityState()
-                                {
-                                    ActivityType = WoWStateManagerSettings.Instance.ActivityPresets[i].ActivityType,
-                                    ActivityMemberStates = WoWStateManagerSettings.Instance.ActivityPresets[i].ActivityMemberPresets
-                                });
-                            else
-                            {
-                                CurrentActivityList[i].ActivityType = WoWStateManagerSettings.Instance.ActivityPresets[i].ActivityType;
-                                CurrentActivityList[i].ActivityMemberStates = WoWStateManagerSettings.Instance.ActivityPresets[i].ActivityMemberPresets;
-                            }
-
-                        if (CurrentActivityList.Count > WoWStateManagerSettings.Instance.ActivityPresets.Count)
-                            CurrentActivityList.RemoveRange(WoWStateManagerSettings.Instance.ActivityPresets.Count, CurrentActivityList.Count - WoWStateManagerSettings.Instance.ActivityPresets.Count);
+                        Task.Run(ApplyDesiredState);
 
                         break;
                 }
@@ -143,10 +148,72 @@ namespace WoWStateManager
             WorldStateManagerSocketListener.SendCommandToProcess(worldStateUpdate.ProcessId,
                 WoWStateManagerSettings.Instance.ActivityPresets.Select(x => new ActivityState()
                 {
-                    ProcessId = WoWStateManagerSettings.Instance.ActivityPresets.IndexOf(x) + 1 > CurrentActivityList.Count ? 0 : CurrentActivityList[WoWStateManagerSettings.Instance.ActivityPresets.IndexOf(x)].ProcessId,
                     ActivityType = x.ActivityType,
                     ActivityMemberStates = x.ActivityMemberPresets
                 }).ToList());
+        }
+
+        private async Task ApplyDesiredState()
+        {
+            for (int i = 0; i < WoWStateManagerSettings.Instance.ActivityPresets.Count; i++)
+            {
+                if (CurrentActivityList.Count < WoWStateManagerSettings.Instance.ActivityPresets.Count)
+                {
+                    CurrentActivityList.Add(new()
+                    {
+                        ActivityType = WoWStateManagerSettings.Instance.ActivityPresets[i].ActivityType,
+                        ActivityMemberStates = WoWStateManagerSettings.Instance.ActivityPresets[i].ActivityMemberPresets
+                    });
+
+                    #if DEBUG
+                    ActivityManagerWorkers.Add(new Worker(IPAddress.Loopback, FreeTcpPort(), IPAddress.Loopback, 8089));
+                    WorkerTasks.Add(Task.Run(async () => await ActivityManagerWorkers.Last().Execute(CancellationTokenSource.Token)));
+#else
+                    //host.Run();
+#endif
+
+                    await Task.Delay(500);
+                }
+                else
+                {
+                    CurrentActivityList[i].ActivityType = WoWStateManagerSettings.Instance.ActivityPresets[i].ActivityType;
+                    CurrentActivityList[i].ActivityMemberStates = WoWStateManagerSettings.Instance.ActivityPresets[i].ActivityMemberPresets;
+                }
+            }
+
+            while (CurrentActivityList.Count > WoWStateManagerSettings.Instance.ActivityPresets.Count)
+            {
+#if DEBUG
+                ActivityManagerWorkers[CurrentActivityList.Count - 1].Dispose();
+                ActivityManagerWorkers.RemoveAt(CurrentActivityList.Count - 1);
+#else
+
+#endif
+                CurrentActivityList.RemoveAt(CurrentActivityList.Count - 1);
+            }
+
+            CurrentActivityList.ForEach(x => x.MaxAllowedClients = MaxAllowedClients);
+        }
+        static int FreeTcpPort()
+        {
+            Socket testSocket;
+
+            for (int i = 8090; i < 8190; i++)
+            {
+                try
+                {
+                    testSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+                    testSocket.Bind(new IPEndPoint(IPAddress.Loopback, i));
+                    testSocket.Close();
+                    return i;
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            return 0;
         }
     }
 }

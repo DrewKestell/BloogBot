@@ -1,12 +1,26 @@
 ﻿using System.Runtime.InteropServices;
-using System.Text;
 
 namespace WinProcessImports
 {
     public static class WinImports
     {
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern IntPtr OpenProcess(int processAccess, bool bInheritHandle, int processId);
+
+        [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
+        public static extern IntPtr VirtualAllocEx(IntPtr hProcess, IntPtr lpAddress,
+           uint dwSize, uint flAllocationType, uint flProtect);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress,
+           byte[] lpBuffer, uint nSize, out IntPtr lpNumberOfBytesWritten);
+
         [DllImport("kernel32.dll")]
-        internal static extern bool CreateProcess(
+        public static extern IntPtr CreateRemoteThread(IntPtr hProcess, IntPtr lpThreadAttributes,
+           uint dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, out IntPtr lpThreadId);
+
+        [DllImport("kernel32.dll")]
+        public static extern bool CreateProcess(
             string lpApplicationName,
             string lpCommandLine,
             IntPtr lpProcessAttributes,
@@ -39,10 +53,10 @@ namespace WinProcessImports
         public static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
 
         [DllImport("kernel32.dll")]
-        internal static extern IntPtr GetModuleHandle(string lpModuleName);
+        public static extern IntPtr GetModuleHandle(string lpModuleName);
 
         [DllImport("kernel32.dll")]
-        internal static extern IntPtr VirtualAllocEx(
+        public static extern IntPtr VirtualAllocEx(
             IntPtr hProcess,
             IntPtr dwAddress,
             int nSize,
@@ -50,7 +64,7 @@ namespace WinProcessImports
             MemoryProtectionType dwProtect);
 
         [DllImport("kernel32.dll")]
-        internal static extern bool WriteProcessMemory(
+        public static extern bool WriteProcessMemory(
             IntPtr hProcess,
             IntPtr lpBaseAddress,
             byte[] lpBuffer,
@@ -58,7 +72,7 @@ namespace WinProcessImports
             ref int lpNumberOfBytesWritten);
 
         [DllImport("kernel32.dll")]
-        internal static extern IntPtr CreateRemoteThread(
+        public static extern IntPtr CreateRemoteThread(
             IntPtr hProcess,
             IntPtr lpThreadAttribute,
             IntPtr dwStackSize,
@@ -68,7 +82,7 @@ namespace WinProcessImports
             IntPtr lpThreadId);
 
         [DllImport("kernel32.dll")]
-        internal static extern bool VirtualFreeEx(
+        public static extern bool VirtualFreeEx(
             IntPtr hProcess,
             IntPtr dwAddress,
             int nSize,
@@ -77,33 +91,27 @@ namespace WinProcessImports
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr LoadLibrary(string lpFileName);
 
-        [DllImport("user32.dll")]
-        internal static extern int SetWindowText(IntPtr hWnd, string text);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
-
-        internal enum MemoryAllocationType
+        public enum MemoryAllocationType
         {
             MEM_COMMIT = 0x1000
         }
 
-        internal enum MemoryProtectionType
+        public enum MemoryProtectionType
         {
             PAGE_EXECUTE_READWRITE = 0x40
         }
 
-        internal enum MemoryFreeType
+        public enum MemoryFreeType
         {
             MEM_RELEASE = 0x8000
         }
 
-        internal enum ProcessCreationFlag
+        public enum ProcessCreationFlag
         {
             CREATE_DEFAULT_ERROR_MODE = 0x04000000
         }
 
-        internal struct STARTUPINFO
+        public struct STARTUPINFO
         {
             public uint cb;
             public string lpReserved;
@@ -125,35 +133,12 @@ namespace WinProcessImports
             public IntPtr hStdError;
         }
 
-        internal struct PROCESS_INFORMATION
+        public struct PROCESS_INFORMATION
         {
             public IntPtr hProcess;
             public IntPtr hThread;
             public uint dwProcessId;
             public uint dwThreadId;
-        }
-
-        [Flags]
-        private enum ProcessAccessFlags
-        {
-            DELETE = 0x00010000,
-            READ_CONTROL = 0x00020000,
-            SYNCHRONIZE = 0x00100000,
-            WRITE_DAC = 0x00040000,
-            WRITE_OWNER = 0x00080000,
-            PROCESS_ALL_ACCESS = 0x001F0FFF,
-            PROCESS_CREATE_PROCESS = 0x0080,
-            PROCESS_CREATE_THREAD = 0x0002,
-            PROCESS_DUP_HANDLE = 0x0040,
-            PROCESS_QUERY_INFORMATION = 0x0400,
-            PROCESS_QUERY_LIMITED_INFORMATION = 0x1000,
-            PROCESS_SET_INFORMATION = 0x0200,
-            PROCESS_SET_QUOTA = 0x0100,
-            PROCESS_SUSPEND_RESUME = 0x0800,
-            PROCESS_TERMINATE = 0x0001,
-            PROCESS_VM_OPERATION = 0x0008,
-            PROCESS_VM_READ = 0x0010,
-            PROCESS_VM_WRITE = 0x0020
         }
     }
 }

@@ -1,10 +1,4 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using BaseSocketMessanger;
 
 namespace WoWActivityManagerService
@@ -16,6 +10,7 @@ namespace WoWActivityManagerService
         private readonly int _listenPort;
         private readonly IPAddress _stateManagerAddress;
         private readonly int _stateManagerPort;
+        private readonly WoWActivityManager.WoWActivityManager _manager;
 
         public Worker(ILogger<Worker> logger, IConfiguration configuration)
         {
@@ -25,6 +20,13 @@ namespace WoWActivityManagerService
             _listenPort = configuration.GetIntFromConfigOrEnv("LISTEN_PORT", "AppSettings:ListenPort");
             _stateManagerAddress = configuration.GetIPAddressFromConfigOrEnv("STATE_MANAGER_ADDRESS", "AppSettings:StateManagerAddress");
             _stateManagerPort = configuration.GetIntFromConfigOrEnv("STATE_MANAGER_PORT", "AppSettings:StateManagerPort");
+
+            _logger?.LogInformation($"Worker created at: {DateTimeOffset.Now}");
+            _logger?.LogInformation($"Activity Member Listener {_listenAddress}:{_listenPort}");
+            _logger?.LogInformation($"World State Manager {_stateManagerAddress}:{_stateManagerPort}");
+
+            // Use the configuration values in your WoWActivityManager
+            _manager = new(_listenAddress, _listenPort, _stateManagerAddress, _stateManagerPort);
         }
 
         public Worker (IPAddress listenAddress, int listenPort, IPAddress stateManagerAddress, int stateManagerPort)
@@ -33,6 +35,8 @@ namespace WoWActivityManagerService
             _listenPort = listenPort;
             _stateManagerAddress = stateManagerAddress;
             _stateManagerPort = stateManagerPort;
+
+            _manager = new(_listenAddress, _listenPort, _stateManagerAddress, _stateManagerPort);
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -42,15 +46,11 @@ namespace WoWActivityManagerService
 
         public async Task Execute(CancellationToken cancellationToken)
         {
-            _logger?.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-
-            // Use the configuration values in your WoWActivityManager
-            WoWActivityManager.WoWActivityManager manager = new WoWActivityManager.WoWActivityManager(
-                _listenAddress, _listenPort, _stateManagerAddress, _stateManagerPort);
+            Console.WriteLine($"{DateTime.Now}|[WoWActivityManagerWorker]Executing update loop to WorldStateManager {_stateManagerAddress}:{_stateManagerPort}");
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                await manager.UpdateCurrentState(cancellationToken);
+                await _manager.UpdateCurrentState(cancellationToken);
 
                 // Your worker logic here
                 await Task.Delay(500, cancellationToken);

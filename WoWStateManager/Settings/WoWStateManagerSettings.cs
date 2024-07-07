@@ -37,7 +37,7 @@ namespace WoWStateManager
 
                 File.WriteAllText(botSettingsFilePath, json);
 
-                Console.WriteLine("WoWStateManagerSettings: Saved");
+                Console.WriteLine($"{DateTime.Now}|[WoWStateManagerSettings]|Configuration saved");
             }
             catch (Exception ex)
             {

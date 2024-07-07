@@ -8,9 +8,15 @@ using System.Text;
 
 namespace MaNGOSDBDomain
 {
-    public class MaNGOSDBSocketServer() : AbstractSocketServer(8080, IPAddress.Parse("127.0.0.1"))
+    public class MaNGOSDBSocketServer : AbstractSocketServer
     {
-        public override int HandleRequest(byte[] payload, Socket clientSocket)
+        private readonly Guid _guid;
+        public MaNGOSDBSocketServer() : base(8080, IPAddress.Loopback)
+        {
+            _guid = Guid.NewGuid();
+        }
+
+        public override Guid HandleRequest(byte[] payload, Socket clientSocket)
         {
             string parsedPayload = Encoding.UTF8.GetString(payload);
             DatabaseRequest request = JsonConvert.DeserializeObject<DatabaseRequest>(parsedPayload);
@@ -40,7 +46,10 @@ namespace MaNGOSDBDomain
                     response = JsonConvert.SerializeObject(MangosRepository.GetCreatureEquipTemplateById(int.Parse(request.QueryParam1)));
                     break;
             }
-            return SendMessage(response, clientSocket);
+
+            SendReply(response, clientSocket);
+
+            return _guid;
         }
     }
 }

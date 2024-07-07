@@ -1,47 +1,7 @@
 {
   //"PathToWoW": "E:\\repos\\Elysium Project Game Client\\WoW.exe",
   "ListenAddress": "0.0.0.0",
-  "ActivityPresets": [
-    {
-      "ActivityType": 13,
-      "ActivityMemberPresets": [
-        {
-          "BehaviorProfile": "Protection Warrior",
-          "Account": "OrWr1",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "War8",
-          "EndStateConfig": "War8"
-        },
-        {
-          "BehaviorProfile": "Enhancement Shaman",
-          "Account": "OrSh1",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "PvE14",
-          "EndStateConfig": "PvE14"
-        },
-        {
-          "BehaviorProfile": "Affliction Warlock",
-          "Account": "OrWl1",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "PvE14",
-          "EndStateConfig": "PvE14"
-        },
-        {
-          "BehaviorProfile": "Combat Rogue",
-          "Account": "UnRo1",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "PvE14",
-          "EndStateConfig": "PvE14"
-        },
-        {
-          "BehaviorProfile": "Holy Priest",
-          "Account": "TrPr1",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "PvE14",
-          "EndStateConfig": "PvE14"
-        }
-      ]
-    },
+  "ActivityPresets": [    
     {
       "ActivityType": 1,
       "ActivityMemberPresets": [
@@ -55,62 +15,6 @@
         {
           "BehaviorProfile": "Enhancement Shaman",
           "Account": "OrSh2",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "PvE14",
-          "EndStateConfig": "PvE14"
-        },
-        {
-          "BehaviorProfile": "Affliction Warlock",
-          "Account": "OrWl2",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "PvE14",
-          "EndStateConfig": "PvE14"
-        },
-        {
-          "BehaviorProfile": "Combat Rogue",
-          "Account": "UnRo2",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "PvE14",
-          "EndStateConfig": "PvE14"
-        },
-        {
-          "BehaviorProfile": "Holy Priest",
-          "Account": "TrPr2",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "PvE14",
-          "EndStateConfig": "PvE14"
-        },
-        {
-          "BehaviorProfile": "Protection Warrior",
-          "Account": "OrWr3",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "PvE14",
-          "EndStateConfig": "PvE14"
-        },
-        {
-          "BehaviorProfile": "Enhancement Shaman",
-          "Account": "OrSh2",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "PvE14",
-          "EndStateConfig": "PvE14"
-        },
-        {
-          "BehaviorProfile": "Affliction Warlock",
-          "Account": "OrWl3",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "PvE14",
-          "EndStateConfig": "PvE14"
-        },
-        {
-          "BehaviorProfile": "Combat Rogue",
-          "Account": "UnRo3",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "PvE14",
-          "EndStateConfig": "PvE14"
-        },
-        {
-          "BehaviorProfile": "Holy Priest",
-          "Account": "TrPr3",
           "ProgressionConfig": "WarriorBase",
           "InitialStateConfig": "PvE14",
           "EndStateConfig": "PvE14"
@@ -130,62 +34,6 @@
         {
           "BehaviorProfile": "Combat Rogue",
           "Account": "HuRo1",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "PvE14",
-          "EndStateConfig": "PvE14"
-        },
-        {
-          "BehaviorProfile": "Affliction Warlock",
-          "Account": "HuWl1",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "PvE14",
-          "EndStateConfig": "PvE14"
-        },
-        {
-          "BehaviorProfile": "Frost Mage",
-          "Account": "HuMa1",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "PvE14",
-          "EndStateConfig": "PvE14"
-        },
-        {
-          "BehaviorProfile": "Beast Master Hunter",
-          "Account": "DwHu1",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "PvE14",
-          "EndStateConfig": "PvE14"
-        },
-        {
-          "BehaviorProfile": "Arms Warrior",
-          "Account": "DwWr1",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "PvE14",
-          "EndStateConfig": "PvE14"
-        },
-        {
-          "BehaviorProfile": "Holy Priest",
-          "Account": "HuPr1",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "PvE14",
-          "EndStateConfig": "PvE14"
-        },
-        {
-          "BehaviorProfile": "Holy Paladin",
-          "Account": "DwPa1",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "PvE14",
-          "EndStateConfig": "PvE14"
-        },
-        {
-          "BehaviorProfile": "Restoration Druid",
-          "Account": "NeDr1",
-          "ProgressionConfig": "WarriorBase",
-          "InitialStateConfig": "PvE14",
-          "EndStateConfig": "PvE14"
-        },
-        {
-          "BehaviorProfile": "Holy Priest",
-          "Account": "TrPr3",
           "ProgressionConfig": "WarriorBase",
           "InitialStateConfig": "PvE14",
           "EndStateConfig": "PvE14"
