@@ -1,18 +1,20 @@
 using System.Net;
 using BaseSocketMessanger;
+using WoWActivityManager;
 
 namespace WoWActivityManagerService
 {
-    public class Worker : BackgroundService
+    public class WoWActivityManagerBackgroundService : BackgroundService
     {
-        private readonly ILogger<Worker> _logger;
+        private readonly ILogger<WoWActivityManagerBackgroundService> _logger;
         private readonly IPAddress _listenAddress;
         private readonly int _listenPort;
         private readonly IPAddress _stateManagerAddress;
         private readonly int _stateManagerPort;
-        private readonly WoWActivityManager.WoWActivityManager _manager;
+        private readonly WoWActivityManagerServer _manager;
+        private Task _backgroundTask;
 
-        public Worker(ILogger<Worker> logger, IConfiguration configuration)
+        public WoWActivityManagerBackgroundService(ILogger<WoWActivityManagerBackgroundService> logger, IConfiguration configuration)
         {
             _logger = logger;
 
@@ -29,7 +31,7 @@ namespace WoWActivityManagerService
             _manager = new(_listenAddress, _listenPort, _stateManagerAddress, _stateManagerPort);
         }
 
-        public Worker (IPAddress listenAddress, int listenPort, IPAddress stateManagerAddress, int stateManagerPort)
+        public WoWActivityManagerBackgroundService (IPAddress listenAddress, int listenPort, IPAddress stateManagerAddress, int stateManagerPort)
         {
             _listenAddress = listenAddress;
             _listenPort = listenPort;
@@ -38,19 +40,17 @@ namespace WoWActivityManagerService
 
             _manager = new(_listenAddress, _listenPort, _stateManagerAddress, _stateManagerPort);
         }
-
-        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+        public void Execute(CancellationToken cancellationToken)
         {
-            await Execute(cancellationToken);
+            _backgroundTask = Task.Run(async () => await ExecuteAsync(cancellationToken), cancellationToken);
         }
-
-        public async Task Execute(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             Console.WriteLine($"{DateTime.Now}|[WoWActivityManagerWorker]Executing update loop to WorldStateManager {_stateManagerAddress}:{_stateManagerPort}");
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                await _manager.UpdateCurrentState(cancellationToken);
+                _manager.UpdateCurrentState(cancellationToken);
 
                 // Your worker logic here
                 await Task.Delay(500, cancellationToken);

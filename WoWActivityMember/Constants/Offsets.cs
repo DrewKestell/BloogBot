@@ -442,7 +442,7 @@
             SMSG_TRAINER_LIST = 0x1B1,
             CMSG_TRAINER_BUY_SPELL = 0x1B2,
             SMSG_TRAINER_BUY_SUCCEEDED = 0x1B3,
-            SMSG_TRAINER_BUY_FAILED = 0x1B4, // uint64, uint32, uint32 (0...2)
+            SMSG_TRAINER_BUY_FAILED = 0x1B4,
             CMSG_BINDER_ACTIVATE = 0x1B5,
             SMSG_PLAYERBINDERROR = 0x1B6,
             CMSG_BANKER_ACTIVATE = 0x1B7,
@@ -833,13 +833,11 @@
             SMSG_CHARACTER_PROFILE_REALM_CONNECTED = 0x339,
             SMSG_DEFENSE_MESSAGE = 0x33A,
             MSG_GM_RESETINSTANCELIMIT = 0x33C,
-            //SMSG_MOTD                                       = 0x33D,
             SMSG_MOVE_SET_FLIGHT = 0x33E,
             SMSG_MOVE_UNSET_FLIGHT = 0x33F,
             CMSG_MOVE_FLIGHT_ACK = 0x340,
             MSG_MOVE_START_SWIM_CHEAT = 0x341,
             MSG_MOVE_STOP_SWIM_CHEAT = 0x342,
-            // [-ZERO] Last existed in 1.12.1 opcode, maybe some renumbering from other side
             CMSG_CANCEL_MOUNT_AURA = 0x375,
             CMSG_CANCEL_TEMP_ENCHANTMENT = 0x379,
             CMSG_MAELSTROM_INVALIDATE_CACHE = 0x387,

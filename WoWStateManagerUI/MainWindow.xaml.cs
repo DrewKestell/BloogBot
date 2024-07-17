@@ -1,7 +1,4 @@
-﻿using System.ComponentModel;
-using System.Configuration;
-using System.Diagnostics;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using WoWStateManagerUI.Views;
 

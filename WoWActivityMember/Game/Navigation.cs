@@ -42,8 +42,7 @@ namespace WoWActivityMember.Game
         {
             lock (_lock)
             {
-                int length;
-                XYZ* ret = _calculatePath(mapId, start.ToXYZ(), end.ToXYZ(), parSmooth, out length);
+                XYZ* ret = _calculatePath(mapId, start.ToXYZ(), end.ToXYZ(), parSmooth, out int length);
                 Position[] list = new Position[length];
                 for (int i = 0; i < length; i++)
                 {

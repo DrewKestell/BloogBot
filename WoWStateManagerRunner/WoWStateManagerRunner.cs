@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using WoWStateManager;
-using static WinProcessImports.WinImports;
+﻿using WoWStateManager;
 
 public class WoWStateManagerRunner
 {

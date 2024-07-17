@@ -5,7 +5,7 @@ namespace WinProcessImports
     public static class WinImports
     {
         [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern IntPtr OpenProcess(int processAccess, bool bInheritHandle, int processId);
+        public static extern IntPtr OpenProcess(uint processAccess, bool bInheritHandle, int processId);
 
         [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
         public static extern IntPtr VirtualAllocEx(IntPtr hProcess, IntPtr lpAddress,
@@ -34,7 +34,7 @@ namespace WinProcessImports
 
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool CloseHandle(IntPtr hObject);
+        public static extern bool CloseHandle(IntPtr hObject);
 
         public static void CloseProcess(IntPtr processHandle)
         {
@@ -91,9 +91,13 @@ namespace WinProcessImports
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr LoadLibrary(string lpFileName);
 
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern uint WaitForSingleObject(IntPtr hHandle, uint dwMilliseconds);
+
         public enum MemoryAllocationType
         {
-            MEM_COMMIT = 0x1000
+            MEM_COMMIT = 0x1000,
+            MEM_RESERVE = 0x2000
         }
 
         public enum MemoryProtectionType

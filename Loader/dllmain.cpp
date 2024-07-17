@@ -47,53 +47,37 @@ wchar_t* dllLocation = NULL;
 
 #define MB(s) MessageBoxW(NULL, s, NULL, MB_OK);
 
-extern "C" __declspec(dllexport) int ThreadMain(void* pParam)
+unsigned __stdcall ThreadMain(void* pParam)
 {
 	AllocConsole();
 	freopen("CONOUT$", "w", stdout);
 
-	wchar_t buffer[255];
-	if (!GetModuleFileNameW(g_myDllModule, buffer, 255))
-		return 1;
+#if _DEBUG
+	std::cout << std::string("Attach a debugger now to WoW.exe if you want to debug Loader.dll. Waiting 10 seconds...") << std::endl;
 
-	std::wstring modulePath(buffer);
+	HANDLE hEvent = CreateEvent(nullptr, TRUE, FALSE, L"MyDebugEvent");
+	WaitForSingleObject(hEvent, 10000);  // Wait for 10 seconds
+	bool isDebuggerAttached = IsDebuggerPresent() != FALSE;
 
-	// Get just the directory path.
-	modulePath = modulePath.substr(0, modulePath.find_last_of('\\') + 1);
-	modulePath = modulePath.append(LOAD_DLL_FILE_NAME);
+	if (isDebuggerAttached)
+	{
+		std::cout << std::string("Debugger found.") << std::endl;
+	}
+	else
+	{
+		std::cout << std::string("Debugger not found.") << std::endl;
+	}
 
-	// Copy the string, or we end up with junk data by the time we send it off
-	// to our thread routine.
-	dllLocation = new wchar_t[modulePath.length() + 1];
-	wcscpy(dllLocation, modulePath.c_str());
-	dllLocation[modulePath.length()] = '\0';
-
-	#if _DEBUG
-		std::cout << std::string("Attach a debugger now to WoW.exe if you want to debug Loader.dll. Waiting 10 seconds...") << std::endl;
-
-		HANDLE hEvent = CreateEvent(nullptr, TRUE, FALSE, L"MyDebugEvent");
-		WaitForSingleObject(hEvent, 10000);  // Wait for 10 seconds
-		bool isDebuggerAttached = IsDebuggerPresent() != FALSE;
-
-		if (isDebuggerAttached)
-		{
-			std::cout << std::string("Debugger found.") << std::endl;
-		}
-		else
-		{
-			std::cout << std::string("Debugger not found.") << std::endl;
-		}
-
-		SetEvent(hEvent);
-		CloseHandle(hEvent);
-	#endif
+	SetEvent(hEvent);
+	CloseHandle(hEvent);
+#endif
 
 	HRESULT hr = CLRCreateInstance(CLSID_CLRMetaHostPolicy, IID_ICLRMetaHostPolicy, (LPVOID*)&g_pMetaHost);
 
 	if (FAILED(hr))
 	{
 		MB(L"Could not create instance of ICLRMetaHost");
-		return 2;
+		return 1;
 	}
 
 	DWORD pcchVersion = 0;
@@ -124,7 +108,7 @@ extern "C" __declspec(dllexport) int ThreadMain(void* pParam)
 			MB(buff);
 		}
 
-		return 3;
+		return 1;
 	}
 
 	// We need this if we have old .NET 3.5 mixed-mode DLLs
@@ -133,7 +117,7 @@ extern "C" __declspec(dllexport) int ThreadMain(void* pParam)
 	if (FAILED(hr))
 	{
 		MB(L"Failed to bind as legacy v2 runtime! (.NET 3.5 Mixed-Mode Support)");
-		return 4;
+		return 1;
 	}
 
 	hr = g_pRuntimeInfo->GetInterface(CLSID_CLRRuntimeHost, IID_ICLRRuntimeHost, (LPVOID*)&g_clrHost);
@@ -141,7 +125,7 @@ extern "C" __declspec(dllexport) int ThreadMain(void* pParam)
 	if (FAILED(hr))
 	{
 		MB(L"Could not get an instance of ICLRRuntimeHost!");
-		return 5;
+		return 1;
 	}
 
 	if (FAILED(hr))
@@ -177,7 +161,7 @@ extern "C" __declspec(dllexport) int ThreadMain(void* pParam)
 			break;
 		}
 
-		return 6;
+		return 1;
 	}
 	hr = g_clrHost->Start();
 
@@ -226,15 +210,34 @@ extern "C" __declspec(dllexport) int ThreadMain(void* pParam)
 	return 0;
 }
 
-
-BOOL APIENTRY DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
+void LoadClr()
 {
-	MB(L"Starting DllMain");
+	wchar_t buffer[255];
+	if (!GetModuleFileNameW(g_myDllModule, buffer, 255))
+		return;
+
+	std::wstring modulePath(buffer);
+
+	// Get just the directory path.
+	modulePath = modulePath.substr(0, modulePath.find_last_of('\\') + 1);
+	modulePath = modulePath.append(LOAD_DLL_FILE_NAME);
+
+	// Copy the string, or we end up with junk data by the time we send it off
+	// to our thread routine.
+	dllLocation = new wchar_t[modulePath.length() + 1];
+	wcscpy(dllLocation, modulePath.c_str());
+	dllLocation[modulePath.length()] = '\0';
+
+	g_hThread = (HANDLE)_beginthreadex(NULL, 0, ThreadMain, NULL, 0, NULL);
+}
+
+BOOL WINAPI DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
+{
 	g_myDllModule = hDll;
 
 	if (dwReason == DLL_PROCESS_ATTACH)
 	{
-		ThreadMain(NULL);
+		LoadClr();
 	}
 	else if (dwReason == DLL_PROCESS_DETACH)
 	{

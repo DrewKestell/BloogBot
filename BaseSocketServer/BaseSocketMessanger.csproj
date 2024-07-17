@@ -5,6 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <BaseOutputPath>..\Bot</BaseOutputPath>
+    <PackageOutputPath />
+    <PackAsTool>False</PackAsTool>
   </PropertyGroup>
 
   <ItemGroup>

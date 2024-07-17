@@ -1,7 +1,6 @@
-﻿using Microsoft.Extensions.Hosting;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
-using WoWActivityManagerService;
+using WoWActivityManager;
 using WoWActivityMember.Models;
 using WoWStateManager.Listeners;
 using WoWStateManager.Models;
@@ -13,8 +12,7 @@ namespace WoWStateManager
         private readonly WorldStateManagerSocketListener WorldStateManagerSocketListener;
         private readonly WorldStateActivitySocketListener WorldStateActivitySocketListener;
         private readonly List<ActivityState> CurrentActivityList;
-        private readonly List<Worker> ActivityManagerWorkers;
-        private readonly List<Task> WorkerTasks;
+        private readonly List<WoWActivityManagerServer> ActivityManagers;
         private readonly CancellationTokenSource CancellationTokenSource = new();
         private int MaxAllowedClients => CurrentActivityList.SelectMany(x => x.ActivityMemberStates).Count();
 
@@ -24,8 +22,7 @@ namespace WoWStateManager
             WorldStateActivitySocketListener = new WorldStateActivitySocketListener();
 
             CurrentActivityList = [];
-            ActivityManagerWorkers = [];
-            WorkerTasks = [];
+            ActivityManagers = [];
 
             WorldStateManagerSocketListener.InstanceUpdateObservable.Subscribe(OnWorldStateUpdate);
             WorldStateActivitySocketListener.InstanceUpdateObservable.Subscribe(OnActivityManagerUpdate);
@@ -33,16 +30,16 @@ namespace WoWStateManager
 
         public void Start()
         {
-            var host = Host.CreateDefaultBuilder()
-                .UseWindowsService(options =>
-                {
-                    options.ServiceName = "WoW Activity Manager";
-                })
-                .ConfigureServices((hostContext, services) =>
-                {
+            //Host.CreateDefaultBuilder()
+            //    .UseWindowsService(options =>
+            //    {
+            //        options.ServiceName = "WoW Activity Manager";
+            //    })
+            //    .ConfigureServices((hostContext, services) =>
+            //    {
 
-                })
-                .Build();
+            //    })
+            //    .Build();
 
             WorldStateManagerSocketListener?.Start();
             WorldStateActivitySocketListener?.Start();
@@ -76,6 +73,7 @@ namespace WoWStateManager
 
         private void OnWorldStateUpdate(WorldStateUpdate worldStateUpdate)
         {
+            
             if (worldStateUpdate.ActivityAction != ActivityAction.None)
             {
                 Console.WriteLine($"{DateTime.Now}|[WorldStateManagerServer]Processing {worldStateUpdate.ActivityAction} {worldStateUpdate.CommandParam1} {worldStateUpdate.CommandParam2} {worldStateUpdate.CommandParam3} {worldStateUpdate.CommandParam4}");
@@ -140,11 +138,15 @@ namespace WoWStateManager
                         break;
                     case ActivityAction.ApplyDesiredState:
                         WoWStateManagerSettings.Instance.SaveConfig();
-                        Task.Run(ApplyDesiredState);
 
+                        ApplyDesiredState();
                         break;
                 }
             }
+
+            foreach (WoWActivityManagerServer woWActivityManagerServer in ActivityManagers)
+                woWActivityManagerServer.UpdateCurrentState(CancellationTokenSource.Token);
+
             WorldStateManagerSocketListener.SendCommandToProcess(worldStateUpdate.ProcessId,
                 WoWStateManagerSettings.Instance.ActivityPresets.Select(x => new ActivityState()
                 {
@@ -153,7 +155,7 @@ namespace WoWStateManager
                 }).ToList());
         }
 
-        private async Task ApplyDesiredState()
+        private void ApplyDesiredState()
         {
             for (int i = 0; i < WoWStateManagerSettings.Instance.ActivityPresets.Count; i++)
             {
@@ -165,14 +167,12 @@ namespace WoWStateManager
                         ActivityMemberStates = WoWStateManagerSettings.Instance.ActivityPresets[i].ActivityMemberPresets
                     });
 
-                    #if DEBUG
-                    ActivityManagerWorkers.Add(new Worker(IPAddress.Loopback, FreeTcpPort(), IPAddress.Loopback, 8089));
-                    WorkerTasks.Add(Task.Run(async () => await ActivityManagerWorkers.Last().Execute(CancellationTokenSource.Token)));
+#if DEBUG
+                    ActivityManagers.Add(new WoWActivityManagerServer(IPAddress.Loopback, FreeTcpPort(), IPAddress.Loopback, 8089));
 #else
                     //host.Run();
 #endif
 
-                    await Task.Delay(500);
                 }
                 else
                 {
@@ -184,8 +184,7 @@ namespace WoWStateManager
             while (CurrentActivityList.Count > WoWStateManagerSettings.Instance.ActivityPresets.Count)
             {
 #if DEBUG
-                ActivityManagerWorkers[CurrentActivityList.Count - 1].Dispose();
-                ActivityManagerWorkers.RemoveAt(CurrentActivityList.Count - 1);
+                ActivityManagers.RemoveAt(CurrentActivityList.Count - 1);
 #else
 
 #endif
