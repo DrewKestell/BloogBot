@@ -14,6 +14,7 @@
   <ItemGroup>
     <PackageReference Include="BouncyCastle" Version="1.8.9" />
     <PackageReference Include="DotNetZip" Version="1.16.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="WowSrp" Version="0.3.0" />
   </ItemGroup>
 

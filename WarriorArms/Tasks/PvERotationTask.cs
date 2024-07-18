@@ -105,7 +105,7 @@ namespace WarriorArms.Tasks
 
         public override void PerformCombatRotation()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

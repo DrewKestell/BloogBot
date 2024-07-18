@@ -36,7 +36,7 @@ namespace ShamanElemental.Tasks
 
         public override void PerformCombatRotation()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void Update()
