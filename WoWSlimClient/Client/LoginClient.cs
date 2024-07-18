@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
-using Org.BouncyCastle.Crypto.Digests;
+﻿using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
+using WoWSlimClient.Manager;
 using WoWSlimClient.Models;
 using WowSrp.Client;
 
@@ -24,8 +24,6 @@ namespace WoWSlimClient.Client
         private NetworkStream _stream = null;
 
         private byte[] _serverProof = [];
-        private bool _isConnected;
-        private bool _isLoggedIn;
 
         private static readonly BigInteger N = new("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7", 16);
         private static readonly BigInteger g = BigInteger.ValueOf(7);
@@ -36,8 +34,6 @@ namespace WoWSlimClient.Client
         public int Port => _port;
         public byte[] ServerProof => _serverProof;
         public byte[] SessionKey => _srpClient.SessionKey;
-        public bool IsConnected => _isConnected;
-        public bool IsLoggedIn => _isLoggedIn;
 
         public void Connect()
         {
@@ -48,12 +44,11 @@ namespace WoWSlimClient.Client
                 _client.Connect(_ipAddress, _port);
                 _stream = _client.GetStream();
 
-                _isConnected = true;
+                ObjectManager.Instance.IsLoginConnected = true;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[LoginClient] {ex}");
-                _isConnected = false;
             }
         }
 
@@ -157,8 +152,6 @@ namespace WoWSlimClient.Client
                 byte[] packetData = memoryStream.ToArray();
                 _stream.Write(packetData, 0, packetData.Length);
 
-                Console.WriteLine("[LoginClient] Sent logon proof packet");
-
                 ReceiveAuthProofLogonResponse();
             }
             catch (Exception ex)
@@ -201,19 +194,19 @@ namespace WoWSlimClient.Client
                     {
                         Console.WriteLine("[LoginClient] Authentication successful!");
                         _srpClient = verificationResult.Value;
-                        _isLoggedIn = true;
+                        ObjectManager.Instance.IsLoggedIn = true;
                     }
                 }
                 else
                 {
                     Console.WriteLine("[LoginClient] Authentication failed with result code: " + result);
-                    _isLoggedIn = false;
+                    ObjectManager.Instance.IsLoggedIn = false;
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[LoginClient] An error occurred while receiving AUTH_PROOF response: {ex}");
-                _isLoggedIn = false;
+                ObjectManager.Instance.IsLoggedIn = false;
             }
         }
 
@@ -265,8 +258,8 @@ namespace WoWSlimClient.Client
                         {
                             RealmType = bodyReader.ReadUInt32(),
                             Flags = bodyReader.ReadByte(),
-                            RealmName = ReadCString(bodyReader),
-                            AddressPort = int.Parse(ReadCString(bodyReader).Split(":")[1]),
+                            RealmName = PacketManager.ReadCString(bodyReader),
+                            AddressPort = int.Parse(PacketManager.ReadCString(bodyReader).Split(":")[1]),
 
                             Population = bodyReader.ReadSingle(),
                             NumChars = bodyReader.ReadByte(),
@@ -295,17 +288,6 @@ namespace WoWSlimClient.Client
             sha1.BlockUpdate(hashInput, 0, hashInput.Length);
             sha1.DoFinal(hash, 0);
             return new BigInteger(1, hash);
-        }
-
-        private static string ReadCString(BinaryReader reader)
-        {
-            StringBuilder sb = new();
-            char c;
-            while ((c = reader.ReadChar()) != '\0')
-            {
-                sb.Append(c);
-            }
-            return sb.ToString();
         }
 
         public void Dispose()

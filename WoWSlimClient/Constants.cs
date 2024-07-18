@@ -1007,10 +1007,4 @@
         UPDATETYPE_OUT_OF_RANGE_OBJECTS = 4,
         UPDATETYPE_NEAR_OBJECTS = 5
     }
-
-    // Define ObjectTypes enum
-    public enum ObjectTypes
-    {
-        OBJECT_TYPE_PLAYER = 4
-    }
 }

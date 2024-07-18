@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using WoWSlimClient.Manager;
 using WoWSlimClient.Models;
 
 namespace WoWSlimClient.Client
@@ -10,11 +11,6 @@ namespace WoWSlimClient.Client
 
         private IPAddress _ipAddress;
 
-        private Realm _currentRealm;
-
-        public bool IsLoggedIn => _loginClient.IsLoggedIn;
-        public bool HasRealmSelected => _currentRealm != null;
-        public bool HasEnteredWorld => _worldClient.HasEnteredWorld;
 
         public WoWClient(string ipAddress, int port = 3724)
         {
@@ -28,7 +24,7 @@ namespace WoWSlimClient.Client
             {
                 _loginClient.Connect();
 
-                if (!_loginClient.IsConnected)
+                if (!ObjectManager.Instance.IsLoginConnected)
                 {
                     throw new Exception("Unable to login to WoW server");
                 }
@@ -49,18 +45,18 @@ namespace WoWSlimClient.Client
         public void SelectRealm(Realm realm)
         {
             _worldClient = new WorldClient();
-            _currentRealm = realm;
+            ObjectManager.Instance.CurrentRealm = realm;
 
             _worldClient.Connect(_loginClient.Username, _ipAddress, _loginClient.SessionKey, realm.AddressPort);
         }
 
-        public List<CharacterSelect> GetCharacterListFromRealm()
+        public void RefreshCharacterSelects()
         {
-            return _worldClient.GetCharactersOnRealm();
+            _worldClient.SendCMSGCharEnum();
         }
         public void EnterWorld(ulong guid)
         {
-            _worldClient.EnterWorld(guid);
+            _worldClient.SendCMSGPlayerLogin(guid);
         }
     }
 }

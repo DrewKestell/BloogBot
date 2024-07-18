@@ -1,4 +1,5 @@
 ﻿using WoWSlimClient.Client;
+using WoWSlimClient.Manager;
 using WoWSlimClient.Models;
 
 class Program
@@ -6,6 +7,9 @@ class Program
     static WoWClient WoWClient;
     static void Main(string[] args)
     {
+        OpCodeDispatcher.Instance.OnCharacterListLoaded += Instance_OnCharacterListLoaded;
+        OpCodeDispatcher.Instance.OnWorldSessionStart   += Instance_OnWorldSessionStart;
+
         try
         {
             string accountName = "ORWR1";
@@ -21,7 +25,7 @@ class Program
             WoWClient = new WoWClient(ipAddress, port);
             WoWClient.Login(accountName, password);
 
-            if (WoWClient.IsLoggedIn)
+            if (ObjectManager.Instance.IsLoggedIn)
             {
                 List<Realm> realms = WoWClient.GetRealmList();
 
@@ -29,14 +33,21 @@ class Program
                 {
                     WoWClient.SelectRealm(realms[0]);
 
-                    if (WoWClient.HasRealmSelected)
+                    if (ObjectManager.Instance.HasRealmSelected)
                     {
-                        List<CharacterSelect> characterSelects = WoWClient.GetCharacterListFromRealm();
-
-                        if (characterSelects.Count > 0)
-                            WoWClient.EnterWorld(characterSelects[0].Guid);
+                        WoWClient.RefreshCharacterSelects();
+                    } else
+                    {
+                        Console.WriteLine("No realm selected");
                     }
                 }
+                else
+                {
+                    Console.WriteLine("No realms listed");
+                }
+            } else
+            {
+                Console.WriteLine("Failed to login to WoW server");
             }
         }
         catch (Exception ex)
@@ -45,5 +56,18 @@ class Program
         }
 
         Console.ReadKey();
+    }
+
+    private static void Instance_OnWorldSessionStart(object? sender, EventArgs e)
+    {
+        
+    }
+
+    private static async void Instance_OnCharacterListLoaded(object? sender, EventArgs e)
+    {
+        await Task.Delay(100);
+
+        if (ObjectManager.Instance.CharacterSelects.Count > 0)
+            WoWClient.EnterWorld(ObjectManager.Instance.CharacterSelects[0].Guid);
     }
 }
