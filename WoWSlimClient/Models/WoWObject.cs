@@ -6,10 +6,10 @@ using static WoWSlimClient.Models.Enums;
 
 namespace WoWSlimClient.Models
 {
-    public abstract class WoWObject
+    public class WoWObject
     {
-        public virtual ulong Guid { get; set; }
-        public virtual WoWObjectTypes ObjectType { get; set; }
+        public ulong Guid { get; set; }
+        public WoWObjectTypes ObjectType { get; set; }
         public float ScaleX { get; set; }
         public float Facing { get; set; }
         public Position Position { get; set; }

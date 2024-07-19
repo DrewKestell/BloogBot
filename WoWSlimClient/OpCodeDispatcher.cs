@@ -10,10 +10,54 @@ namespace WoWSlimClient.Client
     internal class OpCodeDispatcher
     {
         public static OpCodeDispatcher Instance { get; } = new OpCodeDispatcher();
-        private readonly Dictionary<uint, Action<byte[]>> _handlers = new();
+        private readonly Dictionary<uint, Action<byte[]>> _handlers = [];
 
         private OpCodeDispatcher()
         {
+            _handlers[(uint)Opcodes.MSG_MOVE_FALL_LAND] = HandleMoveFallLand;
+            _handlers[(uint)Opcodes.MSG_MOVE_FEATHER_FALL] = HandleMoveFeatherFall;
+            _handlers[(uint)Opcodes.MSG_MOVE_HEARTBEAT] = HandleMoveHeartbeat;
+            _handlers[(uint)Opcodes.MSG_MOVE_JUMP] = HandleMoveJump;
+            _handlers[(uint)Opcodes.MSG_MOVE_KNOCK_BACK] = HandleMoveKnockBack;
+            _handlers[(uint)Opcodes.MSG_MOVE_ROOT] = HandleMoveRoot;
+            _handlers[(uint)Opcodes.MSG_MOVE_SET_ALL_SPEED_CHEAT] = HandleMoveSetAllSpeedCheat;
+            _handlers[(uint)Opcodes.MSG_MOVE_SET_FACING] = HandleMoveSetFacing;
+            _handlers[(uint)Opcodes.MSG_MOVE_SET_PITCH] = HandleMoveSetPitch;
+            _handlers[(uint)Opcodes.MSG_MOVE_SET_RUN_BACK_SPEED] = HandleMoveSetRunBackSpeed;
+            _handlers[(uint)Opcodes.MSG_MOVE_SET_RUN_BACK_SPEED_CHEAT] = HandleMoveSetRunBackSpeedCheat;
+            _handlers[(uint)Opcodes.MSG_MOVE_SET_RUN_MODE] = HandleMoveSetRunMode;
+            _handlers[(uint)Opcodes.MSG_MOVE_SET_RUN_SPEED] = HandleMoveSetRunSpeed;
+            _handlers[(uint)Opcodes.MSG_MOVE_SET_RUN_SPEED_CHEAT] = HandleMoveSetRunSpeedCheat;
+            _handlers[(uint)Opcodes.MSG_MOVE_SET_SWIM_BACK_SPEED] = HandleMoveSetSwimBackSpeed;
+            _handlers[(uint)Opcodes.MSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT] = HandleMoveSetSwimBackSpeedCheat;
+            _handlers[(uint)Opcodes.MSG_MOVE_SET_SWIM_SPEED] = HandleMoveSetSwimSpeed;
+            _handlers[(uint)Opcodes.MSG_MOVE_SET_SWIM_SPEED_CHEAT] = HandleMoveSetSwimSpeedCheat;
+            _handlers[(uint)Opcodes.MSG_MOVE_SET_TURN_RATE] = HandleMoveSetTurnRate;
+            _handlers[(uint)Opcodes.MSG_MOVE_SET_TURN_RATE_CHEAT] = HandleMoveSetTurnRateCheat;
+            _handlers[(uint)Opcodes.MSG_MOVE_SET_WALK_MODE] = HandleMoveSetWalkMode;
+            _handlers[(uint)Opcodes.MSG_MOVE_SET_WALK_SPEED] = HandleMoveSetWalkSpeed;
+            _handlers[(uint)Opcodes.MSG_MOVE_SET_WALK_SPEED_CHEAT] = HandleMoveSetWalkSpeedCheat;
+            _handlers[(uint)Opcodes.MSG_MOVE_START_BACKWARD] = HandleMoveStartBackward;
+            _handlers[(uint)Opcodes.MSG_MOVE_START_FORWARD] = HandleMoveStartForward;
+            _handlers[(uint)Opcodes.MSG_MOVE_START_PITCH_DOWN] = HandleMoveStartPitchDown;
+            _handlers[(uint)Opcodes.MSG_MOVE_START_PITCH_UP] = HandleMoveStartPitchUp;
+            _handlers[(uint)Opcodes.MSG_MOVE_START_STRAFE_LEFT] = HandleMoveStartStrafeLeft;
+            _handlers[(uint)Opcodes.MSG_MOVE_START_STRAFE_RIGHT] = HandleMoveStartStrafeRight;
+            _handlers[(uint)Opcodes.MSG_MOVE_START_SWIM] = HandleMoveStartSwim;
+            _handlers[(uint)Opcodes.MSG_MOVE_START_TURN_LEFT] = HandleMoveStartTurnLeft;
+            _handlers[(uint)Opcodes.MSG_MOVE_START_TURN_RIGHT] = HandleMoveStartTurnRight;
+            _handlers[(uint)Opcodes.MSG_MOVE_STOP] = HandleMoveStop;
+            _handlers[(uint)Opcodes.MSG_MOVE_STOP_PITCH] = HandleMoveStopPitch;
+            _handlers[(uint)Opcodes.MSG_MOVE_STOP_STRAFE] = HandleMoveStopStrafe;
+            _handlers[(uint)Opcodes.MSG_MOVE_STOP_SWIM] = HandleMoveStopSwim;
+            _handlers[(uint)Opcodes.MSG_MOVE_STOP_TURN] = HandleMoveStopTurn;
+            _handlers[(uint)Opcodes.MSG_MOVE_TELEPORT] = HandleMoveTeleport;
+            _handlers[(uint)Opcodes.MSG_MOVE_TELEPORT_ACK] = HandleMoveTeleportAck;
+            _handlers[(uint)Opcodes.MSG_MOVE_TELEPORT_CHEAT] = HandleMoveTeleportCheat;
+            _handlers[(uint)Opcodes.MSG_MOVE_TOGGLE_COLLISION_CHEAT] = HandleMoveToggleCollisionCheat;
+            _handlers[(uint)Opcodes.MSG_MOVE_TOGGLE_FALL_LOGGING] = HandleMoveToggleFallLogging;
+            _handlers[(uint)Opcodes.MSG_MOVE_TOGGLE_LOGGING] = HandleMoveToggleLogging;
+            _handlers[(uint)Opcodes.MSG_MOVE_WORLDPORT_ACK] = HandleMoveWorldportAck;
             _handlers[(uint)Opcodes.SMSG_ACCOUNT_DATA_TIMES] = HandleAccountDataTimes;
             _handlers[(uint)Opcodes.SMSG_ACTION_BUTTONS] = HandleActionButtons;
             _handlers[(uint)Opcodes.SMSG_ADDON_INFO] = HandleAddonInfo;
@@ -45,7 +89,10 @@ namespace WoWSlimClient.Client
             _handlers[(uint)Opcodes.SMSG_COMPRESSED_UPDATE_OBJECT] = HandleCompressedUpdateObject;
             _handlers[(uint)Opcodes.SMSG_COOLDOWN_EVENT] = HandleCooldownEvent;
             _handlers[(uint)Opcodes.SMSG_CREATURE_QUERY_RESPONSE] = HandleCreatureQueryResponse;
+            _handlers[(uint)Opcodes.SMSG_DBLOOKUP] = HandleDBLookup;
             _handlers[(uint)Opcodes.SMSG_DEBUG_AISTATE] = HandleDebugAIState;
+            _handlers[(uint)Opcodes.SMSG_DEBUGINFOSPELLMISS_OBSOLETE] = HandleDebugInfoSpellMissObsolete;
+            _handlers[(uint)Opcodes.SMSG_DESTROY_OBJECT] = HandleDestroyObject;
             _handlers[(uint)Opcodes.SMSG_DISMOUNTRESULT] = HandleDismountResult;
             _handlers[(uint)Opcodes.SMSG_DUEL_COMPLETE] = HandleDuelComplete;
             _handlers[(uint)Opcodes.SMSG_DUEL_COUNTDOWN] = HandleDuelCountdown;
@@ -81,6 +128,7 @@ namespace WoWSlimClient.Client
             _handlers[(uint)Opcodes.SMSG_GOSSIP_MESSAGE] = HandleGossipMessage;
             _handlers[(uint)Opcodes.SMSG_GROUP_DESTROYED] = HandleGroupDestroyed;
             _handlers[(uint)Opcodes.SMSG_GROUP_INVITE] = HandleGroupInvite;
+            _handlers[(uint)Opcodes.SMSG_GROUP_LIST] = HandleGroupList;
             _handlers[(uint)Opcodes.SMSG_GROUP_SET_LEADER] = HandleGroupSetLeader;
             _handlers[(uint)Opcodes.SMSG_GROUP_UNINVITE] = HandleGroupUninvite;
             _handlers[(uint)Opcodes.SMSG_GUILD_COMMAND_RESULT] = HandleGuildCommandResult;
@@ -89,6 +137,7 @@ namespace WoWSlimClient.Client
             _handlers[(uint)Opcodes.SMSG_GUILD_QUERY_RESPONSE] = HandleGuildQueryResponse;
             _handlers[(uint)Opcodes.SMSG_GUILD_ROSTER] = HandleGuildRoster;
             _handlers[(uint)Opcodes.SMSG_IGNORE_LIST] = HandleIgnoreList;
+            _handlers[(uint)Opcodes.SMSG_INIT_WORLD_STATES] = HandleInitWorldStates;
             _handlers[(uint)Opcodes.SMSG_INITIAL_SPELLS] = HandleInitialSpells;
             _handlers[(uint)Opcodes.SMSG_INITIALIZE_FACTIONS] = HandleInitializeFactions;
             _handlers[(uint)Opcodes.SMSG_INSPECT] = HandleInspect;
@@ -149,7 +198,9 @@ namespace WoWSlimClient.Client
             _handlers[(uint)Opcodes.SMSG_PLAY_TIME_WARNING] = HandlePlayTimeWarning;
             _handlers[(uint)Opcodes.SMSG_PLAYERBOUND] = HandlePlayerBound;
             _handlers[(uint)Opcodes.SMSG_PLAYER_COMBAT_XP_GAIN_OBSOLETE] = HandlePlayerCombatXpGainObsolete;
-            _handlers[(uint)Opcodes.SMSG_PONG] = Handle_Pong;
+            _handlers[(uint)Opcodes.SMSG_PONG] = HandlePong;
+            _handlers[(uint)Opcodes.SMSG_QUERY_OBJECT_POSITION] = HandleQueryObjectPosition;
+            _handlers[(uint)Opcodes.SMSG_QUERY_OBJECT_ROTATION] = HandleQueryObjectRotation;
             _handlers[(uint)Opcodes.SMSG_QUERY_TIME_RESPONSE] = HandleQueryTimeResponse;
             _handlers[(uint)Opcodes.SMSG_QUEST_CONFIRM_ACCEPT] = HandleQuestConfirmAccept;
             _handlers[(uint)Opcodes.SMSG_QUEST_QUERY_RESPONSE] = HandleQuestQueryResponse;
@@ -175,13 +226,14 @@ namespace WoWSlimClient.Client
             _handlers[(uint)Opcodes.SMSG_RESISTLOG] = HandleResistLog;
             _handlers[(uint)Opcodes.SMSG_RESURRECT_REQUEST] = HandleResurrectRequest;
             _handlers[(uint)Opcodes.SMSG_SCRIPT_MESSAGE] = HandleScriptMessage;
-            _handlers[(uint)Opcodes.SMSG_SERVER_MESSAGE] = HandleServerTime;
+            _handlers[(uint)Opcodes.SMSG_SERVER_MESSAGE] = HandleServerMessage;
             _handlers[(uint)Opcodes.SMSG_SET_EXTRA_AURA_INFO] = HandleSetExtraAuraInfo;
             _handlers[(uint)Opcodes.SMSG_SET_EXTRA_AURA_INFO_NEED_UPDATE] = HandleSetExtraAuraInfoNeedUpdate;
             _handlers[(uint)Opcodes.SMSG_SET_FACTION_ATWAR] = HandleSetFactionAtWar;
             _handlers[(uint)Opcodes.SMSG_SET_FACTION_STANDING] = HandleSetFactionStanding;
             _handlers[(uint)Opcodes.SMSG_SET_FACTION_VISIBLE] = HandleSetFactionVisible;
             _handlers[(uint)Opcodes.SMSG_SET_PROFICIENCY] = HandleSetProficiency;
+            _handlers[(uint)Opcodes.SMSG_SET_REST_START] = HandleSetRestStart;
             _handlers[(uint)Opcodes.SMSG_SHOW_BANK] = HandleShowBank;
             _handlers[(uint)Opcodes.SMSG_SPLINE_MOVE_FEATHER_FALL] = HandleSplineMoveFeatherFall;
             _handlers[(uint)Opcodes.SMSG_SPLINE_MOVE_LAND_WALK] = HandleSplineMoveLandWalk;
@@ -206,8 +258,9 @@ namespace WoWSlimClient.Client
             _handlers[(uint)Opcodes.SMSG_SPELL_START] = HandleSpellStart;
             _handlers[(uint)Opcodes.SMSG_SPELLENERGIZELOG] = HandleSpellEnergizeLog;
             _handlers[(uint)Opcodes.SMSG_SPELLHEALLOG] = HandleSpellHealLog;
-            _handlers[(uint)Opcodes.SMSG_SPELLLOGMISS] = HandleSpellLogMissed;
+            _handlers[(uint)Opcodes.SMSG_SPELLLOGMISS] = HandleSpellLogMiss;
             _handlers[(uint)Opcodes.SMSG_START_MIRROR_TIMER] = HandleStartMirrorTimer;
+            _handlers[(uint)Opcodes.SMSG_STANDSTATE_UPDATE] = HandleStandStateUpdate;
             _handlers[(uint)Opcodes.SMSG_STOP_MIRROR_TIMER] = HandleStopMirrorTimer;
             _handlers[(uint)Opcodes.SMSG_SUPERCEDED_SPELL] = HandleSupersededSpell;
             _handlers[(uint)Opcodes.SMSG_TOTEM_CREATED] = HandleTotemCreated;
@@ -225,451 +278,712 @@ namespace WoWSlimClient.Client
             _handlers[(uint)Opcodes.SMSG_WHO] = HandleWho;
             _handlers[(uint)Opcodes.SMSG_WHOIS] = HandleWhois;
             _handlers[(uint)Opcodes.SMSG_ZONE_UNDER_ATTACK] = HandleZoneUnderAttack;
+
+        }
+
+        private void HandleStandStateUpdate(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSetRestStart(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveToggleFallLogging(byte[] obj)
+        {
+
+        }
+
+        private void HandleDBLookup(byte[] obj)
+        {
+
+        }
+
+        private void HandleDebugInfoSpellMissObsolete(byte[] obj)
+        {
+
+        }
+
+        private void HandleQueryObjectRotation(byte[] obj)
+        {
+
+        }
+
+        private void HandleQueryObjectPosition(byte[] obj)
+        {
+
+        }
+
+        private void HandlePong(byte[] obj)
+        {
+
+        }
+
+        private void HandleServerMessage(byte[] obj)
+        {
+
+        }
+
+        private void HandleSpellLogMiss(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveRoot(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveHeartbeat(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveWorldportAck(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveToggleLogging(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveToggleCollisionCheat(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveTeleportCheat(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveTeleportAck(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveStopTurn(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveStopSwim(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveStopStrafe(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveStopPitch(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveStop(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveStartTurnRight(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveStartTurnLeft(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveStartSwim(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveStartStrafeRight(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveStartStrafeLeft(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveStartPitchUp(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveStartPitchDown(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveStartBackward(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveSetWalkSpeedCheat(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveSetWalkSpeed(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveSetWalkMode(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveSetTurnRateCheat(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveSetTurnRate(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveSetSwimSpeedCheat(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveSetSwimSpeed(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveSetSwimBackSpeedCheat(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveSetSwimBackSpeed(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveSetRunSpeedCheat(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveSetRunSpeed(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveSetRunMode(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveSetRunBackSpeedCheat(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveSetRunBackSpeed(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveSetPitch(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveSetFacing(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveSetAllSpeedCheat(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveJump(byte[] obj)
+        {
+
+        }
+
+        private void HandleMoveStartForward(byte[] obj)
+        {
+
+        }
+
+        private void HandleDestroyObject(byte[] obj)
+        {
+
+        }
+
+        private void HandleInitWorldStates(byte[] obj)
+        {
+
+        }
+
+        private void HandleGroupList(byte[] obj)
+        {
+
         }
 
         private void HandleWho(byte[] obj)
         {
-            
+
         }
 
         private void HandleWeather(byte[] obj)
         {
-            
+
         }
 
         private void HandleUpdateWorldState(byte[] obj)
         {
-            
+
         }
 
         private void HandleTradeStatusExtended(byte[] obj)
         {
-            
+
         }
 
         private void HandleTotemCreated(byte[] obj)
         {
-            
+
         }
 
         private void HandleSplineSetWalkSpeed(byte[] obj)
         {
-            
+
         }
 
         private void HandleSplineSetTurnRate(byte[] obj)
         {
-            
+
         }
 
         private void HandleSplineSetSwimSpeed(byte[] obj)
         {
-            
+
         }
 
         private void HandleSplineSetSwimBackSpeed(byte[] obj)
         {
-            
+
         }
 
         private void HandleSplineSetRunSpeed(byte[] obj)
         {
-            
+
         }
 
         private void HandleSplineSetRunBackSpeed(byte[] obj)
         {
-            
+
         }
 
         private void HandleSplineMoveWaterWalk(byte[] obj)
         {
-            
+
         }
 
         private void HandleSplineMoveUnsetHover(byte[] obj)
         {
-            
+
         }
 
         private void HandleSplineMoveUnroot(byte[] obj)
         {
-            
+
         }
 
         private void HandleSplineMoveStopSwim(byte[] obj)
         {
-            
+
         }
 
         private void HandleSplineMoveStartSwim(byte[] obj)
         {
-            
+
         }
 
         private void HandleSplineMoveSetWalkMode(byte[] obj)
         {
-            
+
         }
 
         private void HandleSplineMoveSetRunMode(byte[] obj)
         {
-            
+
         }
 
         private void HandleSplineMoveSetHover(byte[] obj)
         {
-            
+
         }
 
         private void HandleSplineMoveNormalFall(byte[] obj)
         {
-            
+
         }
 
         private void HandleSplineMoveLandWalk(byte[] obj)
         {
-            
+
         }
 
         private void HandleSplineMoveFeatherFall(byte[] obj)
         {
-            
+
         }
 
         private void HandleSetFactionVisible(byte[] obj)
         {
-            
+
         }
 
         private void HandleSetFactionStanding(byte[] obj)
         {
-            
+
         }
 
         private void HandleSetFactionAtWar(byte[] obj)
         {
-            
+
         }
 
         private void HandleSetExtraAuraInfoNeedUpdate(byte[] obj)
         {
-            
+
         }
 
         private void HandleSetExtraAuraInfo(byte[] obj)
         {
-            
+
         }
 
         private void HandleServerTime(byte[] obj)
         {
-            
+
         }
 
         private void HandleScriptMessage(byte[] obj)
         {
-            
+
         }
 
         private void HandleReadItemOk(byte[] obj)
         {
-            
+
         }
 
         private void HandleReadItemFailed(byte[] obj)
         {
-            
+
         }
 
         private void HandleRaidInstanceMessage(byte[] obj)
         {
-            
+
         }
 
         private void HandleRaidInstanceInfo(byte[] obj)
         {
-            
+
         }
 
         private void HandleRaidGroupOnly(byte[] obj)
         {
-            
+
         }
 
         private void HandlePlayerCombatXpGainObsolete(byte[] obj)
         {
-            
+
         }
 
         private void HandlePlayTimeWarning(byte[] obj)
         {
-            
+
         }
 
         private void HandlePlaySound(byte[] obj)
         {
-            
+
         }
 
         private void HandlePlayObjectSound(byte[] obj)
         {
-            
+
         }
 
         private void HandlePlayMusic(byte[] obj)
         {
-            
+
         }
 
         private void HandlePetNameQueryResponse(byte[] obj)
         {
-            
+
         }
 
         private void HandlePetActionFeedback(byte[] obj)
         {
-            
+
         }
 
         private void HandlePartyKillLog(byte[] obj)
         {
-            
+
         }
 
         private void HandleOverrideLight(byte[] obj)
         {
-            
+
         }
 
         private void HandleOpenContainer(byte[] obj)
         {
-            
+
         }
 
         private void HandleMoveUnsetHover(byte[] obj)
         {
-            
+
         }
 
         private void HandleMoveUnsetFlight(byte[] obj)
         {
-            
+
         }
 
         private void HandleMoveSetHover(byte[] obj)
         {
-            
+
         }
 
         private void HandleMoveSetFlight(byte[] obj)
         {
-            
+
         }
 
         private void HandleMoveNormalFall(byte[] obj)
         {
-            
+
         }
 
         private void HandleMoveKnockBack(byte[] obj)
         {
-            
+
         }
 
         private void HandleMoveFeatherFall(byte[] obj)
         {
-            
+
         }
 
         private void HandleMinigameState(byte[] obj)
         {
-            
+
         }
 
         private void HandleMinigameSetup(byte[] obj)
         {
-            
+
         }
 
         private void HandleMinigameMoveFailed(byte[] obj)
         {
-            
+
         }
 
         private void HandleLogoutCancelAck(byte[] obj)
         {
-            
+
         }
 
         private void HandleLoginSetTimeSpeed(byte[] obj)
         {
-            
+
         }
 
         private void HandleItemQueryMultipleResponse(byte[] obj)
         {
-            
+
         }
 
         private void HandleItemNameQueryResponse(byte[] obj)
         {
-            
+
         }
 
         private void HandleItemCooldown(byte[] obj)
         {
-            
+
         }
 
         private void HandleInstanceSaveCreated(byte[] obj)
         {
-            
+
         }
 
         private void HandleInspect(byte[] obj)
         {
-            
+
         }
 
         private void HandleInitializeFactions(byte[] obj)
         {
-            
+
         }
 
         private void HandleGuildRoster(byte[] obj)
         {
-            
+
         }
 
         private void HandleGuildInfo(byte[] obj)
         {
-            
+
         }
 
         private void HandleGameTimeUpdate(byte[] obj)
         {
-            
+
         }
 
         private void HandleGameTimeSet(byte[] obj)
         {
-            
+
         }
 
         private void HandleGameSpeedSet(byte[] obj)
         {
-            
+
         }
 
         private void HandleForceActionShow(byte[] obj)
         {
-            
+
         }
 
         private void HandleForceMoveUnroot(byte[] obj)
         {
-            
+
         }
 
         private void HandleForceMoveRoot(byte[] obj)
         {
-            
+
         }
 
         private void HandleForceWalkSpeedChange(byte[] obj)
         {
-            
+
         }
 
         private void HandleForceTurnRateChange(byte[] obj)
         {
-            
+
         }
 
         private void HandleForceSwimSpeedChange(byte[] obj)
         {
-            
+
         }
 
         private void HandleForceSwimBackSpeedChange(byte[] obj)
         {
-            
+
         }
 
         private void HandleForceRunSpeedChange(byte[] obj)
         {
-            
+
         }
 
         private void HandleForceRunBackSpeedChange(byte[] obj)
         {
-            
+
         }
 
         private void HandleFeignDeathResisted(byte[] obj)
         {
-            
+
         }
 
         private void HandleExplorationExperience(byte[] obj)
         {
-            
+
         }
 
         private void HandleExpectedSpamRecords(byte[] obj)
         {
-            
+
         }
 
         private void HandleEnvironmentalDamageLog(byte[] obj)
         {
-            
+
         }
 
         private void HandleEmote(byte[] obj)
         {
-            
+
         }
 
         private void HandleDuelCountdown(byte[] obj)
         {
-            
+
         }
 
         private void HandleDebugAIState(byte[] obj)
         {
-            
+
         }
 
         private void HandleClientControlUpdate(byte[] obj)
         {
-            
+
         }
 
         private void HandleCheckForBots(byte[] obj)
         {
-            
+
         }
 
         private void HandleChatRestricted(byte[] obj)
         {
-            
+
         }
 
         private void HandleBinderConfirm(byte[] obj)
         {
-            
+
         }
 
         private void HandleMessageChat(byte[] obj)
         {
-            
+
         }
 
         private void HandleSpellLogMissed(byte[] obj)
         {
-            
+
         }
 
         public void Dispatch(uint opcode, byte[] body)
@@ -745,19 +1059,6 @@ namespace WoWSlimClient.Client
                 Console.WriteLine(ex);
             }
         }
-        private ulong ReadPackedGuid(BinaryReader reader)
-        {
-            ulong guid = 0;
-            byte mask = reader.ReadByte();
-            for (int i = 0; i < 8; i++)
-            {
-                if ((mask & (1 << i)) != 0)
-                {
-                    guid |= (ulong)reader.ReadByte() << (i * 8);
-                }
-            }
-            return guid;
-        }
 
         private void HandleCompressedUpdateObject(byte[] body)
         {
@@ -769,7 +1070,7 @@ namespace WoWSlimClient.Client
                 uint compressSize = reader.ReadUInt32();
 
                 byte[] compressedData = reader.ReadBytes((int)(memoryStream.Length - 4));
-                byte[] decompressedData = DecompressData(compressedData, compressSize);
+                byte[] decompressedData = DecompressData(compressedData);
 
                 if (decompressedData.Length != compressSize)
                 {
@@ -781,14 +1082,14 @@ namespace WoWSlimClient.Client
                     // Handle the decompressed data as a new packet
                     HandleUpdateObject(decompressedData);
                 }
-                else
+                else if (compressSize > 0)
                 {
                     Console.WriteLine("[WorldClient][HandleCompressedUpdateObject] Decompressed data is empty.");
                 }
             }
         }
 
-        private byte[] DecompressData(byte[] data, uint expectedSize)
+        private byte[] DecompressData(byte[] data)
         {
             try
             {
@@ -816,47 +1117,35 @@ namespace WoWSlimClient.Client
                 using (var memoryStream = new MemoryStream(data))
                 using (var reader = new BinaryReader(memoryStream))
                 {
-                    uint amountOfObjects = reader.ReadUInt32();
-                    //Console.WriteLine($"[WorldClient][HandleUpdateObject] Amount of objects: {amountOfObjects}");
-
-                    for (uint i = 0; i < amountOfObjects; i++)
+                    uint count = reader.ReadUInt32();
+                    for (uint i = 0; i < count; i++)
                     {
-                        byte opTypeValue = reader.ReadByte();
-                        if (!Enum.IsDefined(typeof(OpType), opTypeValue))
+                        byte updateType = reader.ReadByte();
+                        if (!Enum.IsDefined(typeof(OpType), updateType))
                         {
-                            Console.WriteLine($"[WorldClient][HandleUpdateObject] Unknown operation type: {opTypeValue}");
+                            Console.WriteLine($"[WorldClient][HandleUpdateObject] Unknown update type: {updateType:X}");
                             continue;
                         }
 
-                        Operation operation = new Operation
-                        {
-                            OType = (OpType)opTypeValue
-                        };
-
-                        switch (operation.OType)
+                        switch ((OpType)updateType)
                         {
                             case OpType.UPDATE_PARTIAL:
-                                operation.FobjGUID = ReadPackedGuid(reader);
-                                ExtractUpdateBlock(reader, operation);
+                                HandlePartialUpdate(reader);
                                 break;
                             case OpType.UPDATE_MOVEMENT:
-                                operation.FobjGUID = ReadPackedGuid(reader);
-                                ExtractMovementBlock(reader, operation);
+                                HandleMovementUpdate(reader);
                                 break;
                             case OpType.UPDATE_FULL:
-                                operation.FobjGUID = ReadPackedGuid(reader);
-                                UpdateFull(reader, operation);
+                                HandleCreateObject(reader);
                                 break;
                             case OpType.UPDATE_OUT_OF_RANGE:
-                                operation.NumGUIDs = reader.ReadUInt32();
-                                UpdateOutOfRange(reader, operation);
+                                HandleFarObjects(reader);
                                 break;
                             case OpType.UPDATE_IN_RANGE:
-                                operation.NumGUIDs = reader.ReadUInt32();
-                                UpdateInRange(reader, operation);
+                                HandleNearObjects(reader);
                                 break;
                             default:
-                                //Console.WriteLine($"[WorldClient][HandleUpdateObject] Unknown operation type: {operation.OType}");
+                                Console.WriteLine($"[WorldClient][HandleUpdateObject] Unhandled update type: {(OpType)updateType}");
                                 break;
                         }
                     }
@@ -864,301 +1153,213 @@ namespace WoWSlimClient.Client
             }
             catch (EndOfStreamException e)
             {
-                Console.WriteLine($"[WorldClient][HandleUpdateObject] EndOfStreamException: {e.Message}");
+                Console.WriteLine($"[WorldClient][HandleUpdateObject] EndOfStreamException: {e}");
             }
             catch (Exception e)
             {
-                Console.WriteLine($"[WorldClient][HandleUpdateObject] Exception: {e.Message}");
+                Console.WriteLine($"[WorldClient][HandleUpdateObject] Exception: {e}");
             }
         }
 
-        private void ExtractUpdateBlock(BinaryReader reader, Operation operation)
-        {
-            operation.NumUpdateMaskBlocks = reader.ReadByte();
-            if (operation.NumUpdateMaskBlocks > 64)
-            {
-                Console.WriteLine($"[ExtractUpdateBlock] NumUpdateMaskBlocks is unusually high: {operation.NumUpdateMaskBlocks}. Aborting.");
-                return;
-            }
-
-            operation.MaskBlocks = new uint[operation.NumUpdateMaskBlocks];
-            for (int i = 0; i < operation.NumUpdateMaskBlocks; i++)
-            {
-                if (reader.BaseStream.Position + 4 > reader.BaseStream.Length)
-                {
-                    Console.WriteLine("[ExtractUpdateBlock] Not enough data to read MaskBlocks.");
-                    return;
-                }
-                operation.MaskBlocks[i] = reader.ReadUInt32();
-                Console.WriteLine($"[ExtractUpdateBlock] MaskBlock[{i}]: {operation.MaskBlocks[i]:X8}");
-            }
-
-            operation.Masks = new uint[operation.NumUpdateMaskBlocks][];
-            for (int i = 0; i < operation.NumUpdateMaskBlocks; i++)
-            {
-                uint bit = 1;
-                int numBitsSet = 0;
-                for (int j = 0; j < 32; j++)
-                {
-                    if ((operation.MaskBlocks[i] & bit) != 0)
-                        numBitsSet++;
-                    bit <<= 1;
-                }
-                operation.Masks[i] = new uint[numBitsSet];
-                for (int j = 0; j < numBitsSet; j++)
-                {
-                    if (reader.BaseStream.Position + 4 > reader.BaseStream.Length)
-                    {
-                        Console.WriteLine("[ExtractUpdateBlock] Not enough data to read Masks.");
-                        return;
-                    }
-                    operation.Masks[i][j] = reader.ReadUInt32();
-                    Console.WriteLine($"[ExtractUpdateBlock] Mask[{i}][{j}]: {operation.Masks[i][j]:X8}");
-                }
-            }
-        }
-
-        private void ExtractMovementBlock(BinaryReader reader, Operation operation)
-        {
-            if (reader.BaseStream.Length - reader.BaseStream.Position < sizeof(ulong))
-            {
-                Console.WriteLine("[ExtractMovementBlock] Not enough data to read MoveGUID.");
-                return;
-            }
-
-            operation.MoveGUID = ReadPackedGuid(reader);
-            if (reader.BaseStream.Length - reader.BaseStream.Position < sizeof(uint))
-            {
-                Console.WriteLine("[ExtractMovementBlock] Not enough data to read UfFlags.");
-                return;
-            }
-
-            operation.UfFlags = (UpdateFlags)reader.ReadUInt32();
-
-            if (reader.BaseStream.Length - reader.BaseStream.Position < sizeof(uint))
-            {
-                Console.WriteLine("[ExtractMovementBlock] Not enough data to read Uf2Flags.");
-                return;
-            }
-
-            operation.Uf2Flags = reader.ReadUInt32();
-            // Further parsing logic based on flags
-        }
-
-        private void UpdateFull(BinaryReader reader, Operation operation)
-        {
-            if (reader.BaseStream.Length - reader.BaseStream.Position < sizeof(byte))
-            {
-                Console.WriteLine("[UpdateFull] Not enough data to read ObjType.");
-                return;
-            }
-
-            operation.ObjType = reader.ReadByte();
-            ExtractMovementBlock(reader, operation);
-            ExtractUpdateBlock(reader, operation);
-        }
-
-        private void UpdateOutOfRange(BinaryReader reader, Operation operation)
-        {
-            if (reader.BaseStream.Length - reader.BaseStream.Position < sizeof(uint))
-            {
-                Console.WriteLine("[UpdateOutOfRange] Not enough data to read NumGUIDs.");
-                return;
-            }
-
-            operation.NumGUIDs = reader.ReadUInt32();
-            operation.GUIDs = new ulong[operation.NumGUIDs];
-            for (int i = 0; i < operation.NumGUIDs; i++)
-            {
-                if (reader.BaseStream.Length - reader.BaseStream.Position < sizeof(ulong))
-                {
-                    Console.WriteLine("[UpdateOutOfRange] Not enough data to read GUID.");
-                    return;
-                }
-
-                operation.GUIDs[i] = ReadPackedGuid(reader);
-            }
-            // Further processing if needed
-        }
-
-        private void UpdateInRange(BinaryReader reader, Operation operation)
-        {
-            if (reader.BaseStream.Length - reader.BaseStream.Position < sizeof(uint))
-            {
-                Console.WriteLine("[UpdateInRange] Not enough data to read NumGUIDs.");
-                return;
-            }
-
-            operation.NumGUIDs = reader.ReadUInt32();
-            operation.GUIDs = new ulong[operation.NumGUIDs];
-            for (int i = 0; i < operation.NumGUIDs; i++)
-            {
-                if (reader.BaseStream.Length - reader.BaseStream.Position < sizeof(ulong))
-                {
-                    Console.WriteLine("[UpdateInRange] Not enough data to read GUID.");
-                    return;
-                }
-
-                operation.GUIDs[i] = ReadPackedGuid(reader);
-            }
-            // Further processing if needed
-        }
-
-        private void ParseObject(BinaryReader reader, byte hasTransport)
+        private void HandlePartialUpdate(BinaryReader reader)
         {
             ulong guid = ReadPackedGuid(reader);
-            Console.WriteLine($"[WorldClient][ParseObject] GUID: {guid}");
-
-            // Additional parsing logic for the object
-            // Example: Read movement, values, create objects, etc.
-            ParseMovement(reader);
-            ParseValues(reader);
-            ParseCreateObjects(reader);
+            ExtractUpdateBlock(reader, guid);
         }
 
-        private byte[] DecompressData(byte[] data)
+        private void HandleMovementUpdate(BinaryReader reader)
+        {
+            ulong guid = ReadPackedGuid(reader);
+            ExtractMovementBlock(reader, guid);
+        }
+
+        private void HandleCreateObject(BinaryReader reader)
+        {
+            ulong guid = ReadPackedGuid(reader);
+            byte objectType = reader.ReadByte();
+            ExtractMovementBlock(reader, guid);
+            ExtractUpdateBlock(reader, guid);
+        }
+
+        private void HandleFarObjects(BinaryReader reader)
         {
             try
             {
-                using (var ms = new MemoryStream(data))
-                using (var zlibStream = new ZlibStream(ms, CompressionMode.Decompress))
-                using (var outputStream = new MemoryStream())
+                uint numGuids = reader.ReadUInt32();
+                for (uint i = 0; i < numGuids; i++)
                 {
-                    zlibStream.CopyTo(outputStream);
-                    return outputStream.ToArray();
+                    ulong guid = ReadPackedGuid(reader);
+                    ObjectManager.Instance.RemoveObject(guid);
                 }
             }
-            catch (Exception ex)
+            catch (EndOfStreamException e)
             {
-                Console.WriteLine($"[WorldClient][DecompressData] Unexpected error: {ex}");
-                return Array.Empty<byte>();
+                Console.WriteLine($"[WorldClient][HandleFarObjects] EndOfStreamException: {e}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[WorldClient][HandleFarObjects] Exception: {e}");
             }
         }
 
-        private void ParseUpdateObject(BinaryReader reader)
+        private void HandleNearObjects(BinaryReader reader)
         {
-            int objectsCount = reader.ReadInt32();
-            Console.WriteLine($"[WorldClient][HandleCompressedUpdateObject] Objects count: {objectsCount}");
-
-            for (int i = 0; i < objectsCount; i++)
+            try
             {
-                var updateType = (UpdateTypes)reader.ReadByte();
-                switch (updateType)
+                uint numGuids = reader.ReadUInt32();
+                for (uint i = 0; i < numGuids; i++)
                 {
-                    case UpdateTypes.UPDATETYPE_VALUES:
-                        ParseValues(reader);
-                        break;
-                    case UpdateTypes.UPDATETYPE_MOVEMENT:
-                        ParseMovement(reader);
-                        break;
-                    case UpdateTypes.UPDATETYPE_CREATE_OBJECT:
-                    case UpdateTypes.UPDATETYPE_CREATE_OBJECT2:
-                        ParseCreateObjects(reader);
-                        break;
-                    case UpdateTypes.UPDATETYPE_OUT_OF_RANGE_OBJECTS:
-                        ParseOutOfRangeObjects(reader);
-                        break;
-                    case UpdateTypes.UPDATETYPE_NEAR_OBJECTS:
-                        ParseNearObjects(reader);
-                        break;
-                    default:
-                        Console.WriteLine($"Unknown update type: {updateType}");
-                        break;
+                    ulong guid = ReadPackedGuid(reader);
+                    // Add in-range object handling if necessary
                 }
             }
-        }
-
-        private void ParseValues(BinaryReader reader)
-        {
-            ulong guid = ReadPackedGuid(reader);
-            Console.WriteLine($"Parsing values for GUID: {guid}");
-
-            int numFields = reader.ReadInt32();
-            for (int i = 0; i < numFields; i++)
+            catch (EndOfStreamException e)
             {
-                int fieldIndex = reader.ReadInt32();
-                uint fieldValue = reader.ReadUInt32();
-                Console.WriteLine($"Field Index: {fieldIndex}, Field Value: {fieldValue}");
+                Console.WriteLine($"[WorldClient][HandleNearObjects] EndOfStreamException: {e}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[WorldClient][HandleNearObjects] Exception: {e}");
             }
         }
 
-        private void ParseMovement(BinaryReader reader)
+        private void ExtractUpdateBlock(BinaryReader reader, ulong guid)
         {
-            ulong guid = ReadPackedGuid(reader);
-            //Console.WriteLine($"Parsing movement for GUID: {guid}");
-
-            byte movementFlags = reader.ReadByte();
-            byte movementFlags2 = reader.ReadByte();
-            uint time = reader.ReadUInt32();
-
-            float x = reader.ReadSingle();
-            float y = reader.ReadSingle();
-            float z = reader.ReadSingle();
-            float orientation = reader.ReadSingle();
-
-            Console.WriteLine($"Movement: Flags: {movementFlags}, Flags2: {movementFlags2}, Time: {time}, Position: ({x}, {y}, {z}), Orientation: {orientation}");
-
-            if ((movementFlags & 0x20) != 0) // Check if there's transport data
+            try
             {
-                ulong transportGuid = ReadPackedGuid(reader);
-                float transX = reader.ReadSingle();
-                float transY = reader.ReadSingle();
-                float transZ = reader.ReadSingle();
-                float transO = reader.ReadSingle();
-                uint transTime = reader.ReadUInt32();
-                byte transSeat = reader.ReadByte();
-                //Console.WriteLine($"Transport: GUID: {transportGuid}, Position: ({transX}, {transY}, {transZ}), Orientation: {transO}, Time: {transTime}, Seat: {transSeat}");
+                byte numMaskBlocks = reader.ReadByte();
+                if (numMaskBlocks > 0x1C) // Adjust this limit based on your knowledge of valid ranges
+                {
+                    Console.WriteLine($"[ExtractUpdateBlock] NumMaskBlocks is unusually high: {numMaskBlocks}. Aborting.");
+                    return;
+                }
+
+                uint[] maskBlocks = new uint[numMaskBlocks];
+                for (int i = 0; i < numMaskBlocks; i++)
+                {
+                    maskBlocks[i] = reader.ReadUInt32();
+                }
+
+                uint[] updateBlocks = new uint[maskBlocks.Sum(mask => CountSetBits(mask))];
+                for (int i = 0; i < updateBlocks.Length; i++)
+                {
+                    updateBlocks[i] = reader.ReadUInt32();
+                }
+
+                // Process update blocks according to object type and fields
+                // This is where you would handle specific fields for different object types
+                WoWObject obj = new WoWObject
+                {
+                    Guid = guid,
+                    // Populate additional fields as needed
+                };
+                ObjectManager.Instance.AddOrUpdateObject(obj);
             }
-
-            if ((movementFlags & 0x200000) != 0) // Check if there's spline data
+            catch (EndOfStreamException e)
             {
-                // Handle spline data
+                Console.WriteLine($"[ExtractUpdateBlock] EndOfStreamException: {e}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[ExtractUpdateBlock] Exception: {e}");
             }
         }
 
-        private void ParseCreateObjects(BinaryReader reader)
+        private void ExtractMovementBlock(BinaryReader reader, ulong guid)
         {
-            ulong guid = ReadPackedGuid(reader);
-            //Console.WriteLine($"Creating object with GUID: {guid}");
-
-            byte objectType = reader.ReadByte();
-            uint mapId = reader.ReadUInt32();
-            float x = reader.ReadSingle();
-            float y = reader.ReadSingle();
-            float z = reader.ReadSingle();
-            float orientation = reader.ReadSingle();
-            //Console.WriteLine($"Object Type: {objectType}, Map ID: {mapId}, Position: ({x}, {y}, {z}), Orientation: {orientation}");
-
-            // Parse movement data if applicable
-            if (objectType == 0x1) // If the object is a unit
+            try
             {
-                ParseMovement(reader);
-            }
+                uint flags = reader.ReadUInt32();
+                int unk = reader.ReadInt32();
+                float[] position = new float[4];
+                for (int i = 0; i < 4; i++)
+                {
+                    position[i] = reader.ReadSingle();
+                }
 
-            // Parse values
-            ParseValues(reader);
+                // Additional movement fields based on flags
+                if ((flags & (uint)MovementFlags.MOVEFLAG_ONTRANSPORT) != 0)
+                {
+                    ulong transportGuid = ReadPackedGuid(reader);
+                    float[] transportPosition = new float[4];
+                    for (int i = 0; i < 4; i++)
+                    {
+                        transportPosition[i] = reader.ReadSingle();
+                    }
+                }
+                if ((flags & (uint)MovementFlags.MOVEFLAG_SWIMMING) != 0)
+                {
+                    uint swimPitch = reader.ReadUInt32();
+                }
+                if ((flags & (uint)MovementFlags.MOVEFLAG_FALLING) != 0)
+                {
+                    uint time = reader.ReadUInt32();
+                    float velocity = reader.ReadSingle();
+                    float sin = reader.ReadSingle();
+                    float cos = reader.ReadSingle();
+                    float xySpeed = reader.ReadSingle();
+                }
+                if ((flags & (uint)MovementFlags.MOVEFLAG_SPLINE_ELEVATION) != 0)
+                {
+                    float unkFloat = reader.ReadSingle();
+                }
+
+                float[] speeds = new float[6];
+                for (int i = 0; i < 6; i++)
+                {
+                    speeds[i] = reader.ReadSingle();
+                }
+
+                // Update movement fields for the object
+                var obj = ObjectManager.Instance.Objects.FirstOrDefault(x => x.Guid == guid);
+                if (obj != null)
+                {
+                    obj.Position = new Position(position[0], position[1], position[2]);
+                    //obj.Speeds = speeds;
+                    ObjectManager.Instance.AddOrUpdateObject(obj);
+                }
+                else
+                {
+                    Console.WriteLine($"[ExtractMovementBlock] Object with GUID {guid} not found.");
+                }
+            }
+            catch (InvalidOperationException e)
+            {
+                Console.WriteLine($"[ExtractMovementBlock] InvalidOperationException: {e}");
+            }
+            catch (EndOfStreamException e)
+            {
+                Console.WriteLine($"[ExtractMovementBlock] EndOfStreamException: {e}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[ExtractMovementBlock] Exception: {e}");
+            }
         }
 
-        private void ParseOutOfRangeObjects(BinaryReader reader)
+        private ulong ReadPackedGuid(BinaryReader reader)
         {
-            int count = reader.ReadInt32();
-            //Console.WriteLine($"Number of out-of-range objects: {count}");
-            for (int i = 0; i < count; i++)
+            ulong guid = 0;
+            byte mask = reader.ReadByte();
+            for (int i = 0; i < 8; i++)
             {
-                ulong guid = ReadPackedGuid(reader);
-                //Console.WriteLine($"Out-of-range object GUID: {guid}");
+                if ((mask & (1 << i)) != 0)
+                {
+                    guid |= (ulong)reader.ReadByte() << (i * 8);
+                }
             }
+            return guid;
         }
 
-        private void ParseNearObjects(BinaryReader reader)
+        private int CountSetBits(uint mask)
         {
-            int count = reader.ReadInt32();
-            //Console.WriteLine($"Number of near objects: {count}");
-            for (int i = 0; i < count; i++)
+            int count = 0;
+            while (mask != 0)
             {
-                ulong guid = ReadPackedGuid(reader);
-                //Console.WriteLine($"Near object GUID: {guid}");
+                mask &= (mask - 1);
+                count++;
             }
+            return count;
         }
 
         private void HandleLoginVerifyWorld(byte[] body)
@@ -1170,6 +1371,8 @@ namespace WoWSlimClient.Client
                 float y = reader.ReadSingle();
                 float z = reader.ReadSingle();
                 float orientation = reader.ReadSingle();
+
+                OnPlayerInit.Invoke(this, new EventArgs());
 
                 Console.WriteLine($"[WorldClient][LoginVerifyWorld]Map ID: {mapId}, Position: ({x}, {y}, {z}), Orientation: {orientation}");
             }
@@ -1540,67 +1743,13 @@ namespace WoWSlimClient.Client
                 ushort innerPacketLength = reader.ReadUInt16();
                 byte[] innerPacketData = reader.ReadBytes(innerPacketLength);
 
-                // Handle specific movement opcodes
-                switch (innerOpcode)
-                {
-                    case 0x0B5: // MSG_MOVE_START_FORWARD
-                    case 0x0B6: // MSG_MOVE_START_BACKWARD
-                    case 0x0B7: // MSG_MOVE_STOP
-                    case 0x0B8: // MSG_MOVE_START_STRAFE_LEFT
-                    case 0x0B9: // MSG_MOVE_START_STRAFE_RIGHT
-                    case 0x0BA: // MSG_MOVE_STOP_STRAFE
-                    case 0x0BB: // MSG_MOVE_JUMP
-                    case 0x0BC: // MSG_MOVE_START_TURN_LEFT
-                    case 0x0BD: // MSG_MOVE_START_TURN_RIGHT
-                    case 0x0BE: // MSG_MOVE_STOP_TURN
-                    case 0x0BF: // MSG_MOVE_START_PITCH_UP
-                    case 0x0C0: // MSG_MOVE_START_PITCH_DOWN
-                    case 0x0C1: // MSG_MOVE_STOP_PITCH
-                    case 0x0C2: // MSG_MOVE_SET_RUN_MODE
-                    case 0x0C3: // MSG_MOVE_SET_WALK_MODE
-                    case 0x0C4: // MSG_MOVE_TOGGLE_LOGGING
-                    case 0x0C5: // MSG_MOVE_TELEPORT
-                        HandleMoveTeleport(innerPacketData);
-                        break;
-                    case 0x0C6: // MSG_MOVE_TELEPORT_CHEAT
-                    case 0x0C7: // MSG_MOVE_TELEPORT_ACK
-                    case 0x0C8: // MSG_MOVE_TOGGLE_FALL_LOGGING
-                    case 0x0C9: // MSG_MOVE_FALL_LAND
-                        HandleMoveFallLand(innerPacketData);
-                        break;
-                    case 0x0CA: // MSG_MOVE_START_SWIM
-                    case 0x0CB: // MSG_MOVE_STOP_SWIM
-                    case 0x0CC: // MSG_MOVE_SET_RUN_SPEED_CHEAT
-                    case 0x0CD: // MSG_MOVE_SET_RUN_SPEED
-                    case 0x0CE: // MSG_MOVE_SET_RUN_BACK_SPEED_CHEAT
-                    case 0x0CF: // MSG_MOVE_SET_RUN_BACK_SPEED
-                    case 0x0D0: // MSG_MOVE_SET_WALK_SPEED_CHEAT
-                    case 0x0D1: // MSG_MOVE_SET_WALK_SPEED
-                    case 0x0D2: // MSG_MOVE_SET_SWIM_SPEED_CHEAT
-                    case 0x0D3: // MSG_MOVE_SET_SWIM_SPEED
-                    case 0x0D4: // MSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT
-                    case 0x0D5: // MSG_MOVE_SET_SWIM_BACK_SPEED
-                    case 0x0D6: // MSG_MOVE_SET_ALL_SPEED_CHEAT
-                    case 0x0D7: // MSG_MOVE_SET_TURN_RATE_CHEAT
-                    case 0x0D8: // MSG_MOVE_SET_TURN_RATE
-                    case 0x0D9: // MSG_MOVE_TOGGLE_COLLISION_CHEAT
-                    case 0x0DA: // MSG_MOVE_SET_FACING
-                    case 0x0DB: // MSG_MOVE_SET_PITCH
-                    case 0x0DC: // MSG_MOVE_WORLDPORT_ACK
-                        HandleMoveAck(innerPacketData);
-                        break;
-                    default:
-                        Console.WriteLine($"[WorldClient][HandleNetworkMessages] Unhandled inner opcode: {innerOpcode:X}");
-                        break;
-                }
+                Instance.Dispatch(innerOpcode, innerPacketData);
             }
         }
 
         private static void HandleMoveTeleport(byte[] data) => Console.WriteLine("[WorldClient][HandleNetworkMessages] Handling MSG_MOVE_TELEPORT...");// Add logic to handle MSG_MOVE_TELEPORT
 
         private static void HandleMoveFallLand(byte[] data) => Console.WriteLine("[WorldClient][HandleNetworkMessages] Handling MSG_MOVE_FALL_LAND...");// Add logic to handle MSG_MOVE_FALL_LAND
-
-        private static void HandleMoveAck(byte[] data) => Console.WriteLine("[WorldClient][HandleNetworkMessages] Handling MSG_MOVE_ACK...");// Add logic to handle various MSG_MOVE_ACK related opcodes
 
         private static void HandleUnknownOpcode(uint opcode, byte[] body)
         {
