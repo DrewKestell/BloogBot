@@ -3,6 +3,38 @@ using System.Reflection;
 
 namespace WoWSlimClient.Models
 {
+    enum OpType : byte
+    {
+        UPDATE_PARTIAL = 0,
+        UPDATE_MOVEMENT = 1,
+        UPDATE_FULL = 2,
+        UPDATE_OUT_OF_RANGE = 3,
+        UPDATE_IN_RANGE = 4
+    }
+
+    [Flags]
+    enum UpdateFlags
+    {
+        UPDATEFLAGS_TRANSPORT = 0x2000000,
+        UPDATEFLAGS_4000000 = 0x4000000,
+        UPDATEFLAGS_400000 = 0x400000,
+        UPDATEFLAGS_200000 = 0x200000,
+        UPDATEFLAGS_2000 = 0x2000,
+    }
+
+    enum ObjectTypeMask
+    {
+        TYPE_OBJECT = 0x1,
+        TYPE_ITEM = 0x2,
+        TYPE_CONTAINER = 0x4,
+        TYPE_UNIT = 0x8,
+        TYPE_PLAYER = 0x10,
+        TYPE_GAMEOBJECT = 0x20,
+        TYPE_DYNAMICOBJECT = 0x40,
+        TYPE_CORPSE = 0x80,
+        TYPE_AIGROUP = 0x100,
+        TYPE_AREATRIGGER = 0x200,
+    }
     /// <summary>
     ///     Enums for all kind of things
     /// </summary>

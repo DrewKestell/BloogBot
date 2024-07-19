@@ -8,7 +8,7 @@ class Program
     static void Main(string[] args)
     {
         OpCodeDispatcher.Instance.OnCharacterListLoaded += Instance_OnCharacterListLoaded;
-        OpCodeDispatcher.Instance.OnWorldSessionStart   += Instance_OnWorldSessionStart;
+        OpCodeDispatcher.Instance.OnPlayerInit   += Instance_OnPlayerInit;
 
         try
         {
@@ -58,9 +58,9 @@ class Program
         Console.ReadKey();
     }
 
-    private static void Instance_OnWorldSessionStart(object? sender, EventArgs e)
+    private static void Instance_OnPlayerInit(object? sender, EventArgs e)
     {
-        
+        WoWClient.StartServerPing();
     }
 
     private static async void Instance_OnCharacterListLoaded(object? sender, EventArgs e)

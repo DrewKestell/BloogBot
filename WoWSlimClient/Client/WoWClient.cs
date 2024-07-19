@@ -11,7 +11,6 @@ namespace WoWSlimClient.Client
 
         private IPAddress _ipAddress;
 
-
         public WoWClient(string ipAddress, int port = 3724)
         {
             _ipAddress = IPAddress.Parse(ipAddress);
@@ -57,6 +56,11 @@ namespace WoWSlimClient.Client
         public void EnterWorld(ulong guid)
         {
             _worldClient.SendCMSGPlayerLogin(guid);
+        }
+
+        public void StartServerPing()
+        {
+            _worldClient.StartServerPing();
         }
     }
 }

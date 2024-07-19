@@ -1,13 +1,14 @@
-﻿using WoWActivityMember.Mem;
-using static WoWActivityMember.Constants.Enums;
+﻿using static WoWSlimClient.Models.Enums;
 
-namespace WoWActivityMember.Game
+namespace WoWSlimClient.Models
 {
     public class ItemCacheInfo
     {
-        private static readonly IList<ItemSubclass[]> ItemSubclasses =
-        [
-            [
+        private static readonly IList<ItemSubclass[]> ItemSubclasses = new List<ItemSubclass[]>
+        {
+            // these are untested for Vanilla
+            new []
+            {
                 ItemSubclass.Consumable,
                 ItemSubclass.Potion,
                 ItemSubclass.Elixir,
@@ -17,8 +18,9 @@ namespace WoWActivityMember.Game
                 ItemSubclass.ItemEnhancement,
                 ItemSubclass.Bandage,
                 ItemSubclass.Other
-            ],
-            [
+            },
+            new []
+            {
                 ItemSubclass.Container,
                 ItemSubclass.SoulBag,
                 ItemSubclass.HerbBag,
@@ -28,8 +30,9 @@ namespace WoWActivityMember.Game
                 ItemSubclass.MiningBag,
                 ItemSubclass.LeatherworkingBag,
                 ItemSubclass.InscriptionBag
-            ],
-            [
+            },
+            new []
+            {
                 ItemSubclass.OneHandedAxe,
                 ItemSubclass.TwoHandedAxe,
                 ItemSubclass.Bow,
@@ -51,8 +54,9 @@ namespace WoWActivityMember.Game
                 ItemSubclass.Crossbow,
                 ItemSubclass.Wand,
                 ItemSubclass.FishingPole
-            ],
-            [
+            },
+            new []
+            {
                 ItemSubclass.RedJewel,
                 ItemSubclass.BlueJewel,
                 ItemSubclass.YellowJewel,
@@ -62,8 +66,9 @@ namespace WoWActivityMember.Game
                 ItemSubclass.MetaJewel,
                 ItemSubclass.SimpleJewel,
                 ItemSubclass.PrismaticJewel
-            ],
-            [
+            },
+            new []
+            {
                 ItemSubclass.MiscellaneousArmor,
                 ItemSubclass.Cloth,
                 ItemSubclass.Leather,
@@ -75,18 +80,21 @@ namespace WoWActivityMember.Game
                 ItemSubclass.Idol,
                 ItemSubclass.Totem,
                 ItemSubclass.Sigil
-            ],
-            [
+            },
+            new []
+            {
                 ItemSubclass.Reagent
-            ],
-            [
+            },
+            new []
+            {
                 ItemSubclass.WandOBSOLETE,
                 ItemSubclass.BoltOBSOLETE,
                 ItemSubclass.Arrow,
                 ItemSubclass.Bullet,
                 ItemSubclass.ThrownOBSOLETE
-            ],
-            [
+            },
+            new []
+            {
                 ItemSubclass.TradeGood,
                 ItemSubclass.Parts,
                 ItemSubclass.Explosives,
@@ -103,11 +111,13 @@ namespace WoWActivityMember.Game
                 ItemSubclass.CraftingMaterials,
                 ItemSubclass.CraftingArmorEnchantment,
                 ItemSubclass.CraftingWeaponEnchantment
-            ],
-            [
+            },
+            new []
+            {
                 ItemSubclass.GenericOBSOLETE
-            ],
-            [
+            },
+            new []
+            {
                 ItemSubclass.RecipeBook,
                 ItemSubclass.RecipeLeatherworking,
                 ItemSubclass.RecipeTailoring,
@@ -119,35 +129,41 @@ namespace WoWActivityMember.Game
                 ItemSubclass.RecipeEnchanting,
                 ItemSubclass.RecipeFishing,
                 ItemSubclass.RecipeJewelcrafting
-            ],
-            [
+            },
+            new []
+            {
                 ItemSubclass.MoneyOBSOLETE
-            ],
-            [
+            },
+            new []
+            {
                 ItemSubclass.Quiver1OBSOLETE,
                 ItemSubclass.Quiver2OBSOLETE,
                 ItemSubclass.Quiver,
                 ItemSubclass.AmmoPouch
-            ],
-            [
+            },
+            new []
+            {
                 ItemSubclass.Quest
-            ],
-            [
+            },
+            new []
+            {
                 ItemSubclass.Key,
                 ItemSubclass.Lockpick
-            ],
-            [
+            },
+            new []
+            {
                 ItemSubclass.Permanent
-            ],
-            [
+            },
+            new []
+            {
                 ItemSubclass.MiscJunk,
                 ItemSubclass.MiscReagent,
                 ItemSubclass.MiscPet,
                 ItemSubclass.MiscHoliday,
                 ItemSubclass.MiscOther,
                 ItemSubclass.MiscMount
-            ]
-        ];
+            }
+        };
         private readonly ItemCacheEntry itemCacheEntry;
 
         internal ItemCacheInfo(ItemCacheEntry itemCacheEntry)
@@ -167,7 +183,7 @@ namespace WoWActivityMember.Game
 
         public int MaxDurability => itemCacheEntry.MaxDurability;
 
-        public string Name => MemoryManager.ReadString(itemCacheEntry.NamePtr);
+        public string Name;
     }
 
     public class ItemCacheEntry
@@ -179,18 +195,18 @@ namespace WoWActivityMember.Game
             this.baseAddress = baseAddress;
         }
 
-        internal ItemClass ItemClass => (ItemClass)MemoryManager.ReadByte(baseAddress + 0x0);
+        internal ItemClass ItemClass;
 
-        internal int ItemSubclassID => MemoryManager.ReadInt(baseAddress + 0x4);
+        internal int ItemSubclassID;
 
-        internal ItemQuality ItemQuality => (ItemQuality)MemoryManager.ReadByte(baseAddress + 0x1C);
+        internal ItemQuality ItemQuality;
 
-        internal EquipSlot EquipSlot => (EquipSlot)MemoryManager.ReadByte(baseAddress + 0x2C);
+        internal EquipSlot EquipSlot;
 
-        internal int RequiredLevel => MemoryManager.ReadInt(baseAddress + 0x3C);
+        internal int RequiredLevel;
 
-        internal int MaxDurability => MemoryManager.ReadInt(baseAddress + 0x1C4);
+        internal int MaxDurability;
 
-        internal IntPtr NamePtr => MemoryManager.ReadIntPtr(baseAddress + 0x8);
+        internal IntPtr NamePtr;
     }
 }

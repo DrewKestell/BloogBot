@@ -14,131 +14,662 @@ namespace WoWSlimClient.Client
 
         private OpCodeDispatcher()
         {
-            _handlers[(uint)Opcodes.SMSG_AUTH_RESPONSE] = HandleAuthResponse;
-            _handlers[(uint)Opcodes.SMSG_CHAR_ENUM] = HandleCharEnum;
-            _handlers[(uint)Opcodes.SMSG_COMPRESSED_MOVES] = HandleSMSGCompressedMoves;
-            _handlers[(uint)Opcodes.SMSG_UPDATE_OBJECT] = HandleUpdateObject;
+            _handlers[(uint)Opcodes.SMSG_ACCOUNT_DATA_TIMES] = HandleAccountDataTimes;
+            _handlers[(uint)Opcodes.SMSG_ACTION_BUTTONS] = HandleActionButtons;
             _handlers[(uint)Opcodes.SMSG_ADDON_INFO] = HandleAddonInfo;
-            _handlers[(uint)Opcodes.SMSG_LOGIN_VERIFY_WORLD] = HandleLoginVerifyWorld;
-            _handlers[(uint)Opcodes.SMSG_QUESTGIVER_QUEST_LIST] = HandleSMSGQuestGiverQuestList;
-            _handlers[(uint)Opcodes.SMSG_QUESTGIVER_QUEST_LIST] = HandleSMSGQuestGiverQuestList;
-            _handlers[(uint)Opcodes.SMSG_QUESTGIVER_QUEST_DETAILS] = HandleSMSGQuestGiverQuestDetails;
-            _handlers[(uint)Opcodes.SMSG_QUESTGIVER_REQUEST_ITEMS] = HandleSMSGQuestGiverRequestItems;
-            _handlers[(uint)Opcodes.SMSG_QUESTGIVER_OFFER_REWARD] = HandleSMSGQuestGiverOfferReward;
-            _handlers[(uint)Opcodes.SMSG_QUESTGIVER_QUEST_INVALID] = HandleSMSGQuestGiverQuestInvalid;
-            _handlers[(uint)Opcodes.SMSG_QUESTGIVER_QUEST_COMPLETE] = HandleSMSGQuestGiverQuestComplete;
-            _handlers[(uint)Opcodes.SMSG_QUESTGIVER_QUEST_FAILED] = HandleSMSGQuestGiverQuestFailed;
-            _handlers[(uint)Opcodes.SMSG_QUESTLOG_FULL] = HandleSMSGQuestLogFull;
-            _handlers[(uint)Opcodes.SMSG_QUESTUPDATE_FAILED] = HandleSMSGQuestUpdateFailed;
-            _handlers[(uint)Opcodes.SMSG_QUESTUPDATE_FAILEDTIMER] = HandleSMSGQuestUpdateFailedTimer;
-            _handlers[(uint)Opcodes.SMSG_QUESTUPDATE_COMPLETE] = HandleSMSGQuestUpdateComplete;
-            _handlers[(uint)Opcodes.SMSG_QUESTUPDATE_ADD_KILL] = HandleSMSGQuestUpdateAddKill;
-            _handlers[(uint)Opcodes.SMSG_QUESTUPDATE_ADD_ITEM] = HandleSMSGQuestUpdateAddItem;
-            _handlers[(uint)Opcodes.SMSG_QUEST_CONFIRM_ACCEPT] = HandleSMSGQuestConfirmAccept;
-            _handlers[(uint)Opcodes.SMSG_NEW_TAXI_PATH] = HandleSMSGNewTaxiPath;
-            _handlers[(uint)Opcodes.SMSG_TRAINER_LIST] = HandleSMSGTrainerList;
-            _handlers[(uint)Opcodes.SMSG_TRAINER_BUY_SUCCEEDED] = HandleSMSGTrainerBuySucceeded;
-            _handlers[(uint)Opcodes.SMSG_TRAINER_BUY_FAILED] = HandleSMSGTrainerBuyFailed;
-            _handlers[(uint)Opcodes.SMSG_SHOW_BANK] = HandleSMSGShowBank;
-            _handlers[(uint)Opcodes.SMSG_BUY_BANK_SLOT_RESULT] = HandleSMSGBuyBankSlotResult;
-            _handlers[(uint)Opcodes.SMSG_PETITION_SIGN_RESULTS] = HandleSMSGPetitionSignResults;
-            _handlers[(uint)Opcodes.SMSG_TURN_IN_PETITION_RESULTS] = HandleSMSGTurnInPetitionResults;
-            _handlers[(uint)Opcodes.SMSG_PETITION_QUERY_RESPONSE] = HandleSMSGPetitionQueryResponse;
-            _handlers[(uint)Opcodes.SMSG_FISH_NOT_HOOKED] = HandleSMSGFishNotHooked;
-            _handlers[(uint)Opcodes.SMSG_FISH_ESCAPED] = HandleSMSGFishEscaped;
-            _handlers[(uint)Opcodes.SMSG_NOTIFICATION] = HandleSMSGNotification;
-            _handlers[(uint)Opcodes.SMSG_QUERY_TIME_RESPONSE] = HandleSMSGQueryTimeResponse;
-            _handlers[(uint)Opcodes.SMSG_LOG_XPGAIN] = HandleSMSGLogXpGain;
-            _handlers[(uint)Opcodes.SMSG_LEVELUP_INFO] = HandleSMSGLevelUpInfo;
-            _handlers[(uint)Opcodes.SMSG_RESISTLOG] = HandleSMSGResistLog;
-            _handlers[(uint)Opcodes.SMSG_ENCHANTMENTLOG] = HandleSMSGEnchantmentLog;
-            _handlers[(uint)Opcodes.SMSG_START_MIRROR_TIMER] = HandleSMSGStartMirrorTimer;
-            _handlers[(uint)Opcodes.SMSG_PAUSE_MIRROR_TIMER] = HandleSMSGPauseMirrorTimer;
-            _handlers[(uint)Opcodes.SMSG_STOP_MIRROR_TIMER] = HandleSMSGStopMirrorTimer;
-            _handlers[(uint)Opcodes.SMSG_CLEAR_COOLDOWN] = HandleSMSGClearCooldown;
-            _handlers[(uint)Opcodes.SMSG_GAMEOBJECT_CUSTOM_ANIM] = HandleSMSGGameObjectCustomAnim;
-            _handlers[(uint)Opcodes.SMSG_QUESTGIVER_STATUS] = HandleSMSGQuestGiverStatus;
-            _handlers[(uint)Opcodes.SMSG_NPC_TEXT_UPDATE] = HandleSMSGNpcTextUpdate;
-            _handlers[(uint)Opcodes.SMSG_GOSSIP_COMPLETE] = HandleSMSGGossipComplete;
-            _handlers[(uint)Opcodes.SMSG_GOSSIP_MESSAGE] = HandleSMSGGossipMessage;
-            _handlers[(uint)Opcodes.SMSG_PET_MODE] = HandleSMSGPetMode;
-            _handlers[(uint)Opcodes.SMSG_PET_SPELLS] = HandleSMSGPetSpells;
-            _handlers[(uint)Opcodes.SMSG_PET_NAME_INVALID] = HandleSMSGPetNameInvalid;
-            _handlers[(uint)Opcodes.SMSG_PET_TAME_FAILURE] = HandleSMSGPetTameFailure;
-            _handlers[(uint)Opcodes.SMSG_MOUNTSPECIAL_ANIM] = HandleSMSGMountSpecialAnim;
-            _handlers[(uint)Opcodes.SMSG_DISMOUNTRESULT] = HandleSMSGDismountResult;
-            _handlers[(uint)Opcodes.SMSG_MOUNTRESULT] = HandleSMSGMountResult;
-            _handlers[(uint)Opcodes.SMSG_DUEL_WINNER] = HandleSMSGDuelWinner;
-            _handlers[(uint)Opcodes.SMSG_DUEL_COMPLETE] = HandleSMSGDuelComplete;
-            _handlers[(uint)Opcodes.SMSG_DUEL_INBOUNDS] = HandleSMSGDuelInBounds;
-            _handlers[(uint)Opcodes.SMSG_DUEL_OUTOFBOUNDS] = HandleSMSGDuelOutOfBounds;
-            _handlers[(uint)Opcodes.SMSG_DUEL_REQUESTED] = HandleSMSGDuelRequested;
-            _handlers[(uint)Opcodes.SMSG_ITEM_PUSH_RESULT] = HandleSMSGItemPushResult;
-            _handlers[(uint)Opcodes.SMSG_LOOT_CLEAR_MONEY] = HandleSMSGLootClearMoney;
-            _handlers[(uint)Opcodes.SMSG_LOOT_MONEY_NOTIFY] = HandleSMSGLootMoneyNotify;
-            _handlers[(uint)Opcodes.SMSG_LOOT_REMOVED] = HandleSMSGLootRemoved;
-            _handlers[(uint)Opcodes.SMSG_LOOT_RELEASE_RESPONSE] = HandleSMSGLootReleaseResponse;
-            _handlers[(uint)Opcodes.SMSG_LOOT_RESPONSE] = HandleSMSGLootResponse;
-            _handlers[(uint)Opcodes.SMSG_RESURRECT_REQUEST] = HandleSMSGResurrectRequest;
-            _handlers[(uint)Opcodes.SMSG_PLAYERBOUND] = HandleSMSGPlayerBound;
-            _handlers[(uint)Opcodes.SMSG_BINDPOINTUPDATE] = HandleSMSGBindPointUpdate;
-            _handlers[(uint)Opcodes.SMSG_SPELLENERGIZELOG] = HandleSMSGSpellEnergizeLog;
-            _handlers[(uint)Opcodes.SMSG_SPELLHEALLOG] = HandleSMSGSpellHealLog;
-            _handlers[(uint)Opcodes.SMSG_CANCEL_COMBAT] = HandleSMSGCancelCombat;
-            _handlers[(uint)Opcodes.SMSG_ATTACKSWING_CANT_ATTACK] = HandleSMSGAttackSwingCantAttack;
-            _handlers[(uint)Opcodes.SMSG_ATTACKSWING_DEADTARGET] = HandleSMSGAttackSwingDeadTarget;
-            _handlers[(uint)Opcodes.SMSG_ATTACKSWING_NOTSTANDING] = HandleSMSGAttackSwingNotStanding;
-            _handlers[(uint)Opcodes.SMSG_ATTACKSWING_BADFACING] = HandleSMSGAttackSwingBadFacing;
-            _handlers[(uint)Opcodes.SMSG_ATTACKSWING_NOTINRANGE] = HandleSMSGAttackSwingNotInRange;
-            _handlers[(uint)Opcodes.SMSG_ATTACKSTOP] = HandleSMSGAttackStop;
-            _handlers[(uint)Opcodes.SMSG_ATTACKSTART] = HandleSMSGAttackStart;
-            _handlers[(uint)Opcodes.SMSG_AI_REACTION] = HandleSMSGAIReaction;
-            _handlers[(uint)Opcodes.SMSG_PET_CAST_FAILED] = HandleSMSGPetCastFailed;
-            _handlers[(uint)Opcodes.SMSG_UPDATE_AURA_DURATION] = HandleSMSGUpdateAuraDuration;
-            _handlers[(uint)Opcodes.SMSG_COOLDOWN_EVENT] = HandleSMSGCooldownEvent;
-            _handlers[(uint)Opcodes.SMSG_SPELL_COOLDOWN] = HandleSMSGSpellCooldown;
-            _handlers[(uint)Opcodes.SMSG_SPELL_FAILURE] = HandleSMSGSpellFailure;
-            _handlers[(uint)Opcodes.SMSG_SPELL_GO] = HandleSMSGSpellGo;
-            _handlers[(uint)Opcodes.SMSG_SPELL_START] = HandleSMSGSpellStart;
-            _handlers[(uint)Opcodes.SMSG_SUPERCEDED_SPELL] = HandleSMSGSupersededSpell;
-            _handlers[(uint)Opcodes.SMSG_LEARNED_SPELL] = HandleSMSGLearnedSpell;
-            _handlers[(uint)Opcodes.SMSG_INITIAL_SPELLS] = HandleSMSGInitialSpells;
-            _handlers[(uint)Opcodes.SMSG_ACTION_BUTTONS] = HandleSMSGActionButtons;
-            _handlers[(uint)Opcodes.SMSG_SET_PROFICIENCY] = HandleSMSGSetProficiency;
-            _handlers[(uint)Opcodes.SMSG_CHANNEL_LIST] = HandleSMSGChannelList;
-            _handlers[(uint)Opcodes.SMSG_GUILD_COMMAND_RESULT] = HandleSMSGGuildCommandResult;
-            _handlers[(uint)Opcodes.SMSG_GUILD_EVENT] = HandleSMSGGuildEvent;
-            _handlers[(uint)Opcodes.SMSG_FRIEND_STATUS] = HandleSMSGFriendStatus;
-            _handlers[(uint)Opcodes.SMSG_PLAYED_TIME] = HandleSMSGPlayedTime;
-            _handlers[(uint)Opcodes.SMSG_TRADE_STATUS] = HandleSMSGTradeStatus;
-            _handlers[(uint)Opcodes.SMSG_PETITION_SHOW_SIGNATURES] = HandleSMSGPetitionShowSignatures;
-            _handlers[(uint)Opcodes.SMSG_LOGOUT_COMPLETE] = HandleSMSGLogoutComplete;
-            _handlers[(uint)Opcodes.SMSG_LOGOUT_RESPONSE] = HandleSMSGLogoutResponse;
-            _handlers[(uint)Opcodes.SMSG_GROUP_UNINVITE] = HandleSMSGGroupUninvite;
-            _handlers[(uint)Opcodes.SMSG_GROUP_DESTROYED] = HandleSMSGGroupDestroyed;
-            _handlers[(uint)Opcodes.SMSG_CHAT_WRONG_FACTION] = HandleSMSGChatWrongFaction;
-            _handlers[(uint)Opcodes.SMSG_CHAT_PLAYER_NOT_FOUND] = HandleSMSGChatPlayerNotFound;
-            _handlers[(uint)Opcodes.SMSG_ACCOUNT_DATA_TIMES] = HandleSMSGAccountDataTimes;
-            _handlers[(uint)Opcodes.SMSG_CHANNEL_NOTIFY] = HandleSMSGChannelNotify;
-            _handlers[(uint)Opcodes.SMSG_PONG] = HandleSMSG_Pong;
-            _handlers[(uint)Opcodes.SMSG_CHAR_RENAME] = HandleSMSGCharRename;
-            _handlers[(uint)Opcodes.SMSG_CHAR_DELETE] = HandleSMSGCharDelete;
-            _handlers[(uint)Opcodes.SMSG_CHAR_CREATE] = HandleSMSGCharCreate;
-            _handlers[(uint)Opcodes.SMSG_ZONE_UNDER_ATTACK] = HandleZoneUnderAttack;
-            _handlers[(uint)Opcodes.SMSG_PARTY_MEMBER_STATS] = HandlePartyMemberStats;
-            _handlers[(uint)Opcodes.SMSG_GROUP_SET_LEADER] = HandleGroupSetLeader;
-            _handlers[(uint)Opcodes.SMSG_GROUP_INVITE] = HandleGroupInvite;
-            _handlers[(uint)Opcodes.SMSG_IGNORE_LIST] = HandleIgnoreList;
-            _handlers[(uint)Opcodes.SMSG_FRIEND_LIST] = HandleFriendList;
-            _handlers[(uint)Opcodes.SMSG_WHOIS] = HandleWhois;
-            _handlers[(uint)Opcodes.SMSG_CREATURE_QUERY_RESPONSE] = HandleCreatureQueryResponse;
-            _handlers[(uint)Opcodes.SMSG_GAMEOBJECT_QUERY_RESPONSE] = HandleGameObjectQueryResponse;
-            _handlers[(uint)Opcodes.SMSG_QUEST_QUERY_RESPONSE] = HandleQuestQueryResponse;
-            _handlers[(uint)Opcodes.SMSG_PAGE_TEXT_QUERY_RESPONSE] = HandlePageTextQueryResponse;
-            _handlers[(uint)Opcodes.SMSG_ITEM_QUERY_SINGLE_RESPONSE] = HandleItemQuerySingleResponse;
-            _handlers[(uint)Opcodes.SMSG_GUILD_QUERY_RESPONSE] = HandleGuildQueryResponse;
-            _handlers[(uint)Opcodes.SMSG_NAME_QUERY_RESPONSE] = HandleNameQueryResponse;
+            _handlers[(uint)Opcodes.SMSG_AI_REACTION] = HandleAIReaction;
+            _handlers[(uint)Opcodes.SMSG_ATTACKSTART] = HandleAttackStart;
+            _handlers[(uint)Opcodes.SMSG_ATTACKSTOP] = HandleAttackStop;
+            _handlers[(uint)Opcodes.SMSG_ATTACKSWING_BADFACING] = HandleAttackSwingBadFacing;
+            _handlers[(uint)Opcodes.SMSG_ATTACKSWING_CANT_ATTACK] = HandleAttackSwingCantAttack;
+            _handlers[(uint)Opcodes.SMSG_ATTACKSWING_DEADTARGET] = HandleAttackSwingDeadTarget;
+            _handlers[(uint)Opcodes.SMSG_ATTACKSWING_NOTINRANGE] = HandleAttackSwingNotInRange;
+            _handlers[(uint)Opcodes.SMSG_ATTACKSWING_NOTSTANDING] = HandleAttackSwingNotStanding;
+            _handlers[(uint)Opcodes.SMSG_AUTH_RESPONSE] = HandleAuthResponse;
+            _handlers[(uint)Opcodes.SMSG_BINDER_CONFIRM] = HandleBinderConfirm;
+            _handlers[(uint)Opcodes.SMSG_BINDPOINTUPDATE] = HandleBindPointUpdate;
+            _handlers[(uint)Opcodes.SMSG_BUY_BANK_SLOT_RESULT] = HandleBuyBankSlotResult;
+            _handlers[(uint)Opcodes.SMSG_CANCEL_COMBAT] = HandleCancelCombat;
+            _handlers[(uint)Opcodes.SMSG_CHAR_CREATE] = HandleCharCreate;
+            _handlers[(uint)Opcodes.SMSG_CHAR_DELETE] = HandleCharDelete;
+            _handlers[(uint)Opcodes.SMSG_CHAR_ENUM] = HandleCharEnum;
+            _handlers[(uint)Opcodes.SMSG_CHAR_RENAME] = HandleCharRename;
             _handlers[(uint)Opcodes.SMSG_CHARACTER_LOGIN_FAILED] = HandleCharacterLoginFailed;
+            _handlers[(uint)Opcodes.SMSG_CHAT_PLAYER_NOT_FOUND] = HandleChatPlayerNotFound;
+            _handlers[(uint)Opcodes.SMSG_CHAT_RESTRICTED] = HandleChatRestricted;
+            _handlers[(uint)Opcodes.SMSG_CHAT_WRONG_FACTION] = HandleChatWrongFaction;
+            _handlers[(uint)Opcodes.SMSG_CHECK_FOR_BOTS] = HandleCheckForBots;
+            _handlers[(uint)Opcodes.SMSG_CLIENT_CONTROL_UPDATE] = HandleClientControlUpdate;
+            _handlers[(uint)Opcodes.SMSG_CLEAR_COOLDOWN] = HandleClearCooldown;
+            _handlers[(uint)Opcodes.SMSG_COMPRESSED_MOVES] = HandleCompressedMoves;
+            _handlers[(uint)Opcodes.SMSG_COMPRESSED_UPDATE_OBJECT] = HandleCompressedUpdateObject;
+            _handlers[(uint)Opcodes.SMSG_COOLDOWN_EVENT] = HandleCooldownEvent;
+            _handlers[(uint)Opcodes.SMSG_CREATURE_QUERY_RESPONSE] = HandleCreatureQueryResponse;
+            _handlers[(uint)Opcodes.SMSG_DEBUG_AISTATE] = HandleDebugAIState;
+            _handlers[(uint)Opcodes.SMSG_DISMOUNTRESULT] = HandleDismountResult;
+            _handlers[(uint)Opcodes.SMSG_DUEL_COMPLETE] = HandleDuelComplete;
+            _handlers[(uint)Opcodes.SMSG_DUEL_COUNTDOWN] = HandleDuelCountdown;
+            _handlers[(uint)Opcodes.SMSG_DUEL_INBOUNDS] = HandleDuelInBounds;
+            _handlers[(uint)Opcodes.SMSG_DUEL_OUTOFBOUNDS] = HandleDuelOutOfBounds;
+            _handlers[(uint)Opcodes.SMSG_DUEL_REQUESTED] = HandleDuelRequested;
+            _handlers[(uint)Opcodes.SMSG_DUEL_WINNER] = HandleDuelWinner;
+            _handlers[(uint)Opcodes.SMSG_EMOTE] = HandleEmote;
+            _handlers[(uint)Opcodes.SMSG_ENCHANTMENTLOG] = HandleEnchantmentLog;
+            _handlers[(uint)Opcodes.SMSG_ENVIRONMENTALDAMAGELOG] = HandleEnvironmentalDamageLog;
+            _handlers[(uint)Opcodes.SMSG_EXPECTED_SPAM_RECORDS] = HandleExpectedSpamRecords;
+            _handlers[(uint)Opcodes.SMSG_EXPLORATION_EXPERIENCE] = HandleExplorationExperience;
+            _handlers[(uint)Opcodes.SMSG_FEIGN_DEATH_RESISTED] = HandleFeignDeathResisted;
+            _handlers[(uint)Opcodes.SMSG_FISH_ESCAPED] = HandleFishEscaped;
+            _handlers[(uint)Opcodes.SMSG_FISH_NOT_HOOKED] = HandleFishNotHooked;
+            _handlers[(uint)Opcodes.SMSG_FORCE_RUN_BACK_SPEED_CHANGE] = HandleForceRunBackSpeedChange;
+            _handlers[(uint)Opcodes.SMSG_FORCE_RUN_SPEED_CHANGE] = HandleForceRunSpeedChange;
+            _handlers[(uint)Opcodes.SMSG_FORCE_SWIM_BACK_SPEED_CHANGE] = HandleForceSwimBackSpeedChange;
+            _handlers[(uint)Opcodes.SMSG_FORCE_SWIM_SPEED_CHANGE] = HandleForceSwimSpeedChange;
+            _handlers[(uint)Opcodes.SMSG_FORCE_TURN_RATE_CHANGE] = HandleForceTurnRateChange;
+            _handlers[(uint)Opcodes.SMSG_FORCE_WALK_SPEED_CHANGE] = HandleForceWalkSpeedChange;
+            _handlers[(uint)Opcodes.SMSG_FORCE_MOVE_ROOT] = HandleForceMoveRoot;
+            _handlers[(uint)Opcodes.SMSG_FORCE_MOVE_UNROOT] = HandleForceMoveUnroot;
+            _handlers[(uint)Opcodes.SMSG_FORCEACTIONSHOW] = HandleForceActionShow;
+            _handlers[(uint)Opcodes.SMSG_FRIEND_LIST] = HandleFriendList;
+            _handlers[(uint)Opcodes.SMSG_FRIEND_STATUS] = HandleFriendStatus;
+            _handlers[(uint)Opcodes.SMSG_GAMEOBJECT_CUSTOM_ANIM] = HandleGameObjectCustomAnim;
+            _handlers[(uint)Opcodes.SMSG_GAMEOBJECT_QUERY_RESPONSE] = HandleGameObjectQueryResponse;
+            _handlers[(uint)Opcodes.SMSG_GAMESPEED_SET] = HandleGameSpeedSet;
+            _handlers[(uint)Opcodes.SMSG_GAMETIME_SET] = HandleGameTimeSet;
+            _handlers[(uint)Opcodes.SMSG_GAMETIME_UPDATE] = HandleGameTimeUpdate;
+            _handlers[(uint)Opcodes.SMSG_GOSSIP_COMPLETE] = HandleGossipComplete;
+            _handlers[(uint)Opcodes.SMSG_GOSSIP_MESSAGE] = HandleGossipMessage;
+            _handlers[(uint)Opcodes.SMSG_GROUP_DESTROYED] = HandleGroupDestroyed;
+            _handlers[(uint)Opcodes.SMSG_GROUP_INVITE] = HandleGroupInvite;
+            _handlers[(uint)Opcodes.SMSG_GROUP_SET_LEADER] = HandleGroupSetLeader;
+            _handlers[(uint)Opcodes.SMSG_GROUP_UNINVITE] = HandleGroupUninvite;
+            _handlers[(uint)Opcodes.SMSG_GUILD_COMMAND_RESULT] = HandleGuildCommandResult;
+            _handlers[(uint)Opcodes.SMSG_GUILD_EVENT] = HandleGuildEvent;
+            _handlers[(uint)Opcodes.SMSG_GUILD_INFO] = HandleGuildInfo;
+            _handlers[(uint)Opcodes.SMSG_GUILD_QUERY_RESPONSE] = HandleGuildQueryResponse;
+            _handlers[(uint)Opcodes.SMSG_GUILD_ROSTER] = HandleGuildRoster;
+            _handlers[(uint)Opcodes.SMSG_IGNORE_LIST] = HandleIgnoreList;
+            _handlers[(uint)Opcodes.SMSG_INITIAL_SPELLS] = HandleInitialSpells;
+            _handlers[(uint)Opcodes.SMSG_INITIALIZE_FACTIONS] = HandleInitializeFactions;
+            _handlers[(uint)Opcodes.SMSG_INSPECT] = HandleInspect;
+            _handlers[(uint)Opcodes.SMSG_INSTANCE_SAVE_CREATED] = HandleInstanceSaveCreated;
+            _handlers[(uint)Opcodes.SMSG_ITEM_COOLDOWN] = HandleItemCooldown;
+            _handlers[(uint)Opcodes.SMSG_ITEM_NAME_QUERY_RESPONSE] = HandleItemNameQueryResponse;
+            _handlers[(uint)Opcodes.SMSG_ITEM_PUSH_RESULT] = HandleItemPushResult;
+            _handlers[(uint)Opcodes.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE] = HandleItemQueryMultipleResponse;
+            _handlers[(uint)Opcodes.SMSG_ITEM_QUERY_SINGLE_RESPONSE] = HandleItemQuerySingleResponse;
+            _handlers[(uint)Opcodes.SMSG_LEARNED_SPELL] = HandleLearnedSpell;
+            _handlers[(uint)Opcodes.SMSG_LEVELUP_INFO] = HandleLevelUpInfo;
+            _handlers[(uint)Opcodes.SMSG_LOGIN_SETTIMESPEED] = HandleLoginSetTimeSpeed;
+            _handlers[(uint)Opcodes.SMSG_LOGIN_VERIFY_WORLD] = HandleLoginVerifyWorld;
+            _handlers[(uint)Opcodes.SMSG_LOGOUT_CANCEL_ACK] = HandleLogoutCancelAck;
+            _handlers[(uint)Opcodes.SMSG_LOGOUT_COMPLETE] = HandleLogoutComplete;
+            _handlers[(uint)Opcodes.SMSG_LOGOUT_RESPONSE] = HandleLogoutResponse;
+            _handlers[(uint)Opcodes.SMSG_LOG_XPGAIN] = HandleLogXpGain;
+            _handlers[(uint)Opcodes.SMSG_LOOT_CLEAR_MONEY] = HandleLootClearMoney;
+            _handlers[(uint)Opcodes.SMSG_LOOT_MONEY_NOTIFY] = HandleLootMoneyNotify;
+            _handlers[(uint)Opcodes.SMSG_LOOT_RELEASE_RESPONSE] = HandleLootReleaseResponse;
+            _handlers[(uint)Opcodes.SMSG_LOOT_REMOVED] = HandleLootRemoved;
+            _handlers[(uint)Opcodes.SMSG_LOOT_RESPONSE] = HandleLootResponse;
+            _handlers[(uint)Opcodes.SMSG_MESSAGECHAT] = HandleMessageChat;
+            _handlers[(uint)Opcodes.SMSG_MINIGAME_MOVE_FAILED] = HandleMinigameMoveFailed;
+            _handlers[(uint)Opcodes.SMSG_MINIGAME_SETUP] = HandleMinigameSetup;
+            _handlers[(uint)Opcodes.SMSG_MINIGAME_STATE] = HandleMinigameState;
+            _handlers[(uint)Opcodes.SMSG_MOUNTRESULT] = HandleMountResult;
+            _handlers[(uint)Opcodes.SMSG_MOUNTSPECIAL_ANIM] = HandleMountSpecialAnim;
+            _handlers[(uint)Opcodes.SMSG_MOVE_FEATHER_FALL] = HandleMoveFeatherFall;
+            _handlers[(uint)Opcodes.SMSG_MOVE_KNOCK_BACK] = HandleMoveKnockBack;
+            _handlers[(uint)Opcodes.SMSG_MOVE_NORMAL_FALL] = HandleMoveNormalFall;
+            _handlers[(uint)Opcodes.SMSG_MOVE_SET_FLIGHT] = HandleMoveSetFlight;
+            _handlers[(uint)Opcodes.SMSG_MOVE_SET_HOVER] = HandleMoveSetHover;
+            _handlers[(uint)Opcodes.SMSG_MOVE_UNSET_FLIGHT] = HandleMoveUnsetFlight;
+            _handlers[(uint)Opcodes.SMSG_MOVE_UNSET_HOVER] = HandleMoveUnsetHover;
+            _handlers[(uint)Opcodes.SMSG_NAME_QUERY_RESPONSE] = HandleNameQueryResponse;
+            _handlers[(uint)Opcodes.SMSG_NEW_TAXI_PATH] = HandleNewTaxiPath;
+            _handlers[(uint)Opcodes.SMSG_NOTIFICATION] = HandleNotification;
+            _handlers[(uint)Opcodes.SMSG_NPC_TEXT_UPDATE] = HandleNpcTextUpdate;
+            _handlers[(uint)Opcodes.SMSG_OPEN_CONTAINER] = HandleOpenContainer;
+            _handlers[(uint)Opcodes.SMSG_OVERRIDE_LIGHT] = HandleOverrideLight;
+            _handlers[(uint)Opcodes.SMSG_PAGE_TEXT_QUERY_RESPONSE] = HandlePageTextQueryResponse;
+            _handlers[(uint)Opcodes.SMSG_PARTY_MEMBER_STATS] = HandlePartyMemberStats;
+            _handlers[(uint)Opcodes.SMSG_PARTYKILLLOG] = HandlePartyKillLog;
+            _handlers[(uint)Opcodes.SMSG_PET_ACTION_FEEDBACK] = HandlePetActionFeedback;
+            _handlers[(uint)Opcodes.SMSG_PET_CAST_FAILED] = HandlePetCastFailed;
+            _handlers[(uint)Opcodes.SMSG_PET_MODE] = HandlePetMode;
+            _handlers[(uint)Opcodes.SMSG_PET_NAME_INVALID] = HandlePetNameInvalid;
+            _handlers[(uint)Opcodes.SMSG_PET_NAME_QUERY_RESPONSE] = HandlePetNameQueryResponse;
+            _handlers[(uint)Opcodes.SMSG_PET_SPELLS] = HandlePetSpells;
+            _handlers[(uint)Opcodes.SMSG_PET_TAME_FAILURE] = HandlePetTameFailure;
+            _handlers[(uint)Opcodes.SMSG_PETITION_QUERY_RESPONSE] = HandlePetitionQueryResponse;
+            _handlers[(uint)Opcodes.SMSG_PETITION_SHOW_SIGNATURES] = HandlePetitionShowSignatures;
+            _handlers[(uint)Opcodes.SMSG_PETITION_SIGN_RESULTS] = HandlePetitionSignResults;
+            _handlers[(uint)Opcodes.SMSG_PLAY_MUSIC] = HandlePlayMusic;
+            _handlers[(uint)Opcodes.SMSG_PLAY_OBJECT_SOUND] = HandlePlayObjectSound;
+            _handlers[(uint)Opcodes.SMSG_PLAY_SOUND] = HandlePlaySound;
+            _handlers[(uint)Opcodes.SMSG_PLAY_TIME_WARNING] = HandlePlayTimeWarning;
+            _handlers[(uint)Opcodes.SMSG_PLAYERBOUND] = HandlePlayerBound;
+            _handlers[(uint)Opcodes.SMSG_PLAYER_COMBAT_XP_GAIN_OBSOLETE] = HandlePlayerCombatXpGainObsolete;
+            _handlers[(uint)Opcodes.SMSG_PONG] = Handle_Pong;
+            _handlers[(uint)Opcodes.SMSG_QUERY_TIME_RESPONSE] = HandleQueryTimeResponse;
+            _handlers[(uint)Opcodes.SMSG_QUEST_CONFIRM_ACCEPT] = HandleQuestConfirmAccept;
+            _handlers[(uint)Opcodes.SMSG_QUEST_QUERY_RESPONSE] = HandleQuestQueryResponse;
+            _handlers[(uint)Opcodes.SMSG_QUESTGIVER_OFFER_REWARD] = HandleQuestGiverOfferReward;
+            _handlers[(uint)Opcodes.SMSG_QUESTGIVER_QUEST_COMPLETE] = HandleQuestGiverQuestComplete;
+            _handlers[(uint)Opcodes.SMSG_QUESTGIVER_QUEST_DETAILS] = HandleQuestGiverQuestDetails;
+            _handlers[(uint)Opcodes.SMSG_QUESTGIVER_QUEST_FAILED] = HandleQuestGiverQuestFailed;
+            _handlers[(uint)Opcodes.SMSG_QUESTGIVER_QUEST_INVALID] = HandleQuestGiverQuestInvalid;
+            _handlers[(uint)Opcodes.SMSG_QUESTGIVER_QUEST_LIST] = HandleQuestGiverQuestList;
+            _handlers[(uint)Opcodes.SMSG_QUESTGIVER_REQUEST_ITEMS] = HandleQuestGiverRequestItems;
+            _handlers[(uint)Opcodes.SMSG_QUESTGIVER_STATUS] = HandleQuestGiverStatus;
+            _handlers[(uint)Opcodes.SMSG_QUESTLOG_FULL] = HandleQuestLogFull;
+            _handlers[(uint)Opcodes.SMSG_QUESTUPDATE_ADD_ITEM] = HandleQuestUpdateAddItem;
+            _handlers[(uint)Opcodes.SMSG_QUESTUPDATE_ADD_KILL] = HandleQuestUpdateAddKill;
+            _handlers[(uint)Opcodes.SMSG_QUESTUPDATE_COMPLETE] = HandleQuestUpdateComplete;
+            _handlers[(uint)Opcodes.SMSG_QUESTUPDATE_FAILED] = HandleQuestUpdateFailed;
+            _handlers[(uint)Opcodes.SMSG_QUESTUPDATE_FAILEDTIMER] = HandleQuestUpdateFailedTimer;
+            _handlers[(uint)Opcodes.SMSG_RAID_GROUP_ONLY] = HandleRaidGroupOnly;
+            _handlers[(uint)Opcodes.SMSG_RAID_INSTANCE_INFO] = HandleRaidInstanceInfo;
+            _handlers[(uint)Opcodes.SMSG_RAID_INSTANCE_MESSAGE] = HandleRaidInstanceMessage;
+            _handlers[(uint)Opcodes.SMSG_READ_ITEM_FAILED] = HandleReadItemFailed;
+            _handlers[(uint)Opcodes.SMSG_READ_ITEM_OK] = HandleReadItemOk;
+            _handlers[(uint)Opcodes.SMSG_RESISTLOG] = HandleResistLog;
+            _handlers[(uint)Opcodes.SMSG_RESURRECT_REQUEST] = HandleResurrectRequest;
+            _handlers[(uint)Opcodes.SMSG_SCRIPT_MESSAGE] = HandleScriptMessage;
+            _handlers[(uint)Opcodes.SMSG_SERVER_MESSAGE] = HandleServerTime;
+            _handlers[(uint)Opcodes.SMSG_SET_EXTRA_AURA_INFO] = HandleSetExtraAuraInfo;
+            _handlers[(uint)Opcodes.SMSG_SET_EXTRA_AURA_INFO_NEED_UPDATE] = HandleSetExtraAuraInfoNeedUpdate;
+            _handlers[(uint)Opcodes.SMSG_SET_FACTION_ATWAR] = HandleSetFactionAtWar;
+            _handlers[(uint)Opcodes.SMSG_SET_FACTION_STANDING] = HandleSetFactionStanding;
+            _handlers[(uint)Opcodes.SMSG_SET_FACTION_VISIBLE] = HandleSetFactionVisible;
+            _handlers[(uint)Opcodes.SMSG_SET_PROFICIENCY] = HandleSetProficiency;
+            _handlers[(uint)Opcodes.SMSG_SHOW_BANK] = HandleShowBank;
+            _handlers[(uint)Opcodes.SMSG_SPLINE_MOVE_FEATHER_FALL] = HandleSplineMoveFeatherFall;
+            _handlers[(uint)Opcodes.SMSG_SPLINE_MOVE_LAND_WALK] = HandleSplineMoveLandWalk;
+            _handlers[(uint)Opcodes.SMSG_SPLINE_MOVE_NORMAL_FALL] = HandleSplineMoveNormalFall;
+            _handlers[(uint)Opcodes.SMSG_SPLINE_MOVE_SET_HOVER] = HandleSplineMoveSetHover;
+            _handlers[(uint)Opcodes.SMSG_SPLINE_MOVE_SET_RUN_MODE] = HandleSplineMoveSetRunMode;
+            _handlers[(uint)Opcodes.SMSG_SPLINE_MOVE_SET_WALK_MODE] = HandleSplineMoveSetWalkMode;
+            _handlers[(uint)Opcodes.SMSG_SPLINE_MOVE_START_SWIM] = HandleSplineMoveStartSwim;
+            _handlers[(uint)Opcodes.SMSG_SPLINE_MOVE_STOP_SWIM] = HandleSplineMoveStopSwim;
+            _handlers[(uint)Opcodes.SMSG_SPLINE_MOVE_UNROOT] = HandleSplineMoveUnroot;
+            _handlers[(uint)Opcodes.SMSG_SPLINE_MOVE_UNSET_HOVER] = HandleSplineMoveUnsetHover;
+            _handlers[(uint)Opcodes.SMSG_SPLINE_MOVE_WATER_WALK] = HandleSplineMoveWaterWalk;
+            _handlers[(uint)Opcodes.SMSG_SPLINE_SET_RUN_BACK_SPEED] = HandleSplineSetRunBackSpeed;
+            _handlers[(uint)Opcodes.SMSG_SPLINE_SET_RUN_SPEED] = HandleSplineSetRunSpeed;
+            _handlers[(uint)Opcodes.SMSG_SPLINE_SET_SWIM_BACK_SPEED] = HandleSplineSetSwimBackSpeed;
+            _handlers[(uint)Opcodes.SMSG_SPLINE_SET_SWIM_SPEED] = HandleSplineSetSwimSpeed;
+            _handlers[(uint)Opcodes.SMSG_SPLINE_SET_TURN_RATE] = HandleSplineSetTurnRate;
+            _handlers[(uint)Opcodes.SMSG_SPLINE_SET_WALK_SPEED] = HandleSplineSetWalkSpeed;
+            _handlers[(uint)Opcodes.SMSG_SPELL_COOLDOWN] = HandleSpellCooldown;
+            _handlers[(uint)Opcodes.SMSG_SPELL_FAILURE] = HandleSpellFailure;
+            _handlers[(uint)Opcodes.SMSG_SPELL_GO] = HandleSpellGo;
+            _handlers[(uint)Opcodes.SMSG_SPELL_START] = HandleSpellStart;
+            _handlers[(uint)Opcodes.SMSG_SPELLENERGIZELOG] = HandleSpellEnergizeLog;
+            _handlers[(uint)Opcodes.SMSG_SPELLHEALLOG] = HandleSpellHealLog;
+            _handlers[(uint)Opcodes.SMSG_SPELLLOGMISS] = HandleSpellLogMissed;
+            _handlers[(uint)Opcodes.SMSG_START_MIRROR_TIMER] = HandleStartMirrorTimer;
+            _handlers[(uint)Opcodes.SMSG_STOP_MIRROR_TIMER] = HandleStopMirrorTimer;
+            _handlers[(uint)Opcodes.SMSG_SUPERCEDED_SPELL] = HandleSupersededSpell;
+            _handlers[(uint)Opcodes.SMSG_TOTEM_CREATED] = HandleTotemCreated;
+            _handlers[(uint)Opcodes.SMSG_TRADE_STATUS] = HandleTradeStatus;
+            _handlers[(uint)Opcodes.SMSG_TRADE_STATUS_EXTENDED] = HandleTradeStatusExtended;
+            _handlers[(uint)Opcodes.SMSG_TRAINER_BUY_FAILED] = HandleTrainerBuyFailed;
+            _handlers[(uint)Opcodes.SMSG_TRAINER_BUY_SUCCEEDED] = HandleTrainerBuySucceeded;
+            _handlers[(uint)Opcodes.SMSG_TRAINER_LIST] = HandleTrainerList;
+            _handlers[(uint)Opcodes.SMSG_TUTORIAL_FLAGS] = HandleTutorialFlags;
+            _handlers[(uint)Opcodes.SMSG_TURN_IN_PETITION_RESULTS] = HandleTurnInPetitionResults;
+            _handlers[(uint)Opcodes.SMSG_UPDATE_AURA_DURATION] = HandleUpdateAuraDuration;
+            _handlers[(uint)Opcodes.SMSG_UPDATE_OBJECT] = HandleUpdateObject;
+            _handlers[(uint)Opcodes.SMSG_UPDATE_WORLD_STATE] = HandleUpdateWorldState;
+            _handlers[(uint)Opcodes.SMSG_WEATHER] = HandleWeather;
+            _handlers[(uint)Opcodes.SMSG_WHO] = HandleWho;
+            _handlers[(uint)Opcodes.SMSG_WHOIS] = HandleWhois;
+            _handlers[(uint)Opcodes.SMSG_ZONE_UNDER_ATTACK] = HandleZoneUnderAttack;
+        }
+
+        private void HandleWho(byte[] obj)
+        {
+            
+        }
+
+        private void HandleWeather(byte[] obj)
+        {
+            
+        }
+
+        private void HandleUpdateWorldState(byte[] obj)
+        {
+            
+        }
+
+        private void HandleTradeStatusExtended(byte[] obj)
+        {
+            
+        }
+
+        private void HandleTotemCreated(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSplineSetWalkSpeed(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSplineSetTurnRate(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSplineSetSwimSpeed(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSplineSetSwimBackSpeed(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSplineSetRunSpeed(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSplineSetRunBackSpeed(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSplineMoveWaterWalk(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSplineMoveUnsetHover(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSplineMoveUnroot(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSplineMoveStopSwim(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSplineMoveStartSwim(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSplineMoveSetWalkMode(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSplineMoveSetRunMode(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSplineMoveSetHover(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSplineMoveNormalFall(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSplineMoveLandWalk(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSplineMoveFeatherFall(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSetFactionVisible(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSetFactionStanding(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSetFactionAtWar(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSetExtraAuraInfoNeedUpdate(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSetExtraAuraInfo(byte[] obj)
+        {
+            
+        }
+
+        private void HandleServerTime(byte[] obj)
+        {
+            
+        }
+
+        private void HandleScriptMessage(byte[] obj)
+        {
+            
+        }
+
+        private void HandleReadItemOk(byte[] obj)
+        {
+            
+        }
+
+        private void HandleReadItemFailed(byte[] obj)
+        {
+            
+        }
+
+        private void HandleRaidInstanceMessage(byte[] obj)
+        {
+            
+        }
+
+        private void HandleRaidInstanceInfo(byte[] obj)
+        {
+            
+        }
+
+        private void HandleRaidGroupOnly(byte[] obj)
+        {
+            
+        }
+
+        private void HandlePlayerCombatXpGainObsolete(byte[] obj)
+        {
+            
+        }
+
+        private void HandlePlayTimeWarning(byte[] obj)
+        {
+            
+        }
+
+        private void HandlePlaySound(byte[] obj)
+        {
+            
+        }
+
+        private void HandlePlayObjectSound(byte[] obj)
+        {
+            
+        }
+
+        private void HandlePlayMusic(byte[] obj)
+        {
+            
+        }
+
+        private void HandlePetNameQueryResponse(byte[] obj)
+        {
+            
+        }
+
+        private void HandlePetActionFeedback(byte[] obj)
+        {
+            
+        }
+
+        private void HandlePartyKillLog(byte[] obj)
+        {
+            
+        }
+
+        private void HandleOverrideLight(byte[] obj)
+        {
+            
+        }
+
+        private void HandleOpenContainer(byte[] obj)
+        {
+            
+        }
+
+        private void HandleMoveUnsetHover(byte[] obj)
+        {
+            
+        }
+
+        private void HandleMoveUnsetFlight(byte[] obj)
+        {
+            
+        }
+
+        private void HandleMoveSetHover(byte[] obj)
+        {
+            
+        }
+
+        private void HandleMoveSetFlight(byte[] obj)
+        {
+            
+        }
+
+        private void HandleMoveNormalFall(byte[] obj)
+        {
+            
+        }
+
+        private void HandleMoveKnockBack(byte[] obj)
+        {
+            
+        }
+
+        private void HandleMoveFeatherFall(byte[] obj)
+        {
+            
+        }
+
+        private void HandleMinigameState(byte[] obj)
+        {
+            
+        }
+
+        private void HandleMinigameSetup(byte[] obj)
+        {
+            
+        }
+
+        private void HandleMinigameMoveFailed(byte[] obj)
+        {
+            
+        }
+
+        private void HandleLogoutCancelAck(byte[] obj)
+        {
+            
+        }
+
+        private void HandleLoginSetTimeSpeed(byte[] obj)
+        {
+            
+        }
+
+        private void HandleItemQueryMultipleResponse(byte[] obj)
+        {
+            
+        }
+
+        private void HandleItemNameQueryResponse(byte[] obj)
+        {
+            
+        }
+
+        private void HandleItemCooldown(byte[] obj)
+        {
+            
+        }
+
+        private void HandleInstanceSaveCreated(byte[] obj)
+        {
+            
+        }
+
+        private void HandleInspect(byte[] obj)
+        {
+            
+        }
+
+        private void HandleInitializeFactions(byte[] obj)
+        {
+            
+        }
+
+        private void HandleGuildRoster(byte[] obj)
+        {
+            
+        }
+
+        private void HandleGuildInfo(byte[] obj)
+        {
+            
+        }
+
+        private void HandleGameTimeUpdate(byte[] obj)
+        {
+            
+        }
+
+        private void HandleGameTimeSet(byte[] obj)
+        {
+            
+        }
+
+        private void HandleGameSpeedSet(byte[] obj)
+        {
+            
+        }
+
+        private void HandleForceActionShow(byte[] obj)
+        {
+            
+        }
+
+        private void HandleForceMoveUnroot(byte[] obj)
+        {
+            
+        }
+
+        private void HandleForceMoveRoot(byte[] obj)
+        {
+            
+        }
+
+        private void HandleForceWalkSpeedChange(byte[] obj)
+        {
+            
+        }
+
+        private void HandleForceTurnRateChange(byte[] obj)
+        {
+            
+        }
+
+        private void HandleForceSwimSpeedChange(byte[] obj)
+        {
+            
+        }
+
+        private void HandleForceSwimBackSpeedChange(byte[] obj)
+        {
+            
+        }
+
+        private void HandleForceRunSpeedChange(byte[] obj)
+        {
+            
+        }
+
+        private void HandleForceRunBackSpeedChange(byte[] obj)
+        {
+            
+        }
+
+        private void HandleFeignDeathResisted(byte[] obj)
+        {
+            
+        }
+
+        private void HandleExplorationExperience(byte[] obj)
+        {
+            
+        }
+
+        private void HandleExpectedSpamRecords(byte[] obj)
+        {
+            
+        }
+
+        private void HandleEnvironmentalDamageLog(byte[] obj)
+        {
+            
+        }
+
+        private void HandleEmote(byte[] obj)
+        {
+            
+        }
+
+        private void HandleDuelCountdown(byte[] obj)
+        {
+            
+        }
+
+        private void HandleDebugAIState(byte[] obj)
+        {
+            
+        }
+
+        private void HandleClientControlUpdate(byte[] obj)
+        {
+            
+        }
+
+        private void HandleCheckForBots(byte[] obj)
+        {
+            
+        }
+
+        private void HandleChatRestricted(byte[] obj)
+        {
+            
+        }
+
+        private void HandleBinderConfirm(byte[] obj)
+        {
+            
+        }
+
+        private void HandleMessageChat(byte[] obj)
+        {
+            
+        }
+
+        private void HandleSpellLogMissed(byte[] obj)
+        {
+            
         }
 
         public void Dispatch(uint opcode, byte[] body)
@@ -655,211 +1186,211 @@ namespace WoWSlimClient.Client
             }
         }
 
-        private void HandleSMSGQuestGiverQuestList(byte[] body) { }
+        private void HandleQuestGiverQuestList(byte[] body) { }
 
-        private void HandleSMSGQuestGiverQuestDetails(byte[] body) { }
+        private void HandleQuestGiverQuestDetails(byte[] body) { }
 
-        private void HandleSMSGQuestGiverRequestItems(byte[] body) { }
+        private void HandleQuestGiverRequestItems(byte[] body) { }
 
-        private void HandleSMSGQuestGiverOfferReward(byte[] body) { }
+        private void HandleQuestGiverOfferReward(byte[] body) { }
 
-        private void HandleSMSGQuestGiverQuestInvalid(byte[] body) { }
+        private void HandleQuestGiverQuestInvalid(byte[] body) { }
 
-        private void HandleSMSGQuestGiverQuestComplete(byte[] body) { }
+        private void HandleQuestGiverQuestComplete(byte[] body) { }
 
-        private void HandleSMSGQuestGiverQuestFailed(byte[] body) { }
+        private void HandleQuestGiverQuestFailed(byte[] body) { }
 
-        private void HandleSMSGQuestLogFull(byte[] body) { }
+        private void HandleQuestLogFull(byte[] body) { }
 
-        private void HandleSMSGQuestUpdateFailed(byte[] body) { }
+        private void HandleQuestUpdateFailed(byte[] body) { }
 
-        private void HandleSMSGQuestUpdateFailedTimer(byte[] body) { }
+        private void HandleQuestUpdateFailedTimer(byte[] body) { }
 
-        private void HandleSMSGQuestUpdateComplete(byte[] body) { }
+        private void HandleQuestUpdateComplete(byte[] body) { }
 
-        private void HandleSMSGQuestUpdateAddKill(byte[] body) { }
+        private void HandleQuestUpdateAddKill(byte[] body) { }
 
-        private void HandleSMSGQuestUpdateAddItem(byte[] body) { }
+        private void HandleQuestUpdateAddItem(byte[] body) { }
 
-        private void HandleSMSGQuestConfirmAccept(byte[] body) { }
+        private void HandleQuestConfirmAccept(byte[] body) { }
 
-        private void HandleSMSGNewTaxiPath(byte[] body) { }
+        private void HandleNewTaxiPath(byte[] body) { }
 
-        private void HandleSMSGTrainerList(byte[] body) { }
+        private void HandleTrainerList(byte[] body) { }
 
-        private void HandleSMSGTrainerBuySucceeded(byte[] body) { }
+        private void HandleTrainerBuySucceeded(byte[] body) { }
 
-        private void HandleSMSGTrainerBuyFailed(byte[] body) { }
+        private void HandleTrainerBuyFailed(byte[] body) { }
 
-        private void HandleSMSGShowBank(byte[] body) { }
+        private void HandleShowBank(byte[] body) { }
 
-        private void HandleSMSGBuyBankSlotResult(byte[] body) { }
+        private void HandleBuyBankSlotResult(byte[] body) { }
 
-        private void HandleSMSGPetitionSignResults(byte[] body) { }
+        private void HandlePetitionSignResults(byte[] body) { }
 
-        private void HandleSMSGTurnInPetitionResults(byte[] body) { }
+        private void HandleTurnInPetitionResults(byte[] body) { }
 
-        private void HandleSMSGPetitionQueryResponse(byte[] body) { }
+        private void HandlePetitionQueryResponse(byte[] body) { }
 
-        private void HandleSMSGFishNotHooked(byte[] body) { }
+        private void HandleFishNotHooked(byte[] body) { }
 
-        private void HandleSMSGFishEscaped(byte[] body) { }
+        private void HandleFishEscaped(byte[] body) { }
 
-        private void HandleSMSGNotification(byte[] body) { }
+        private void HandleNotification(byte[] body) { }
 
-        private void HandleSMSGQueryTimeResponse(byte[] body) { }
+        private void HandleQueryTimeResponse(byte[] body) { }
 
-        private void HandleSMSGLogXpGain(byte[] body) { }
+        private void HandleLogXpGain(byte[] body) { }
 
-        private void HandleSMSGLevelUpInfo(byte[] body) { }
+        private void HandleLevelUpInfo(byte[] body) { }
 
-        private void HandleSMSGResistLog(byte[] body) { }
+        private void HandleResistLog(byte[] body) { }
 
-        private void HandleSMSGEnchantmentLog(byte[] body) { }
+        private void HandleEnchantmentLog(byte[] body) { }
 
-        private void HandleSMSGStartMirrorTimer(byte[] body) { }
+        private void HandleStartMirrorTimer(byte[] body) { }
 
-        private void HandleSMSGPauseMirrorTimer(byte[] body) { }
+        private void HandlePauseMirrorTimer(byte[] body) { }
 
-        private void HandleSMSGStopMirrorTimer(byte[] body) { }
+        private void HandleStopMirrorTimer(byte[] body) { }
 
-        private void HandleSMSGClearCooldown(byte[] body) { }
+        private void HandleClearCooldown(byte[] body) { }
 
-        private void HandleSMSGGameObjectCustomAnim(byte[] body) { }
+        private void HandleGameObjectCustomAnim(byte[] body) { }
 
-        private void HandleSMSGQuestGiverStatus(byte[] body) { }
+        private void HandleQuestGiverStatus(byte[] body) { }
 
-        private void HandleSMSGNpcTextUpdate(byte[] body) { }
+        private void HandleNpcTextUpdate(byte[] body) { }
 
-        private void HandleSMSGGossipComplete(byte[] body) { }
+        private void HandleGossipComplete(byte[] body) { }
 
-        private void HandleSMSGGossipMessage(byte[] body) { }
+        private void HandleGossipMessage(byte[] body) { }
 
-        private void HandleSMSGPetMode(byte[] body) { }
+        private void HandlePetMode(byte[] body) { }
 
-        private void HandleSMSGPetSpells(byte[] body) { }
+        private void HandlePetSpells(byte[] body) { }
 
-        private void HandleSMSGPetNameInvalid(byte[] body) { }
+        private void HandlePetNameInvalid(byte[] body) { }
 
-        private void HandleSMSGPetTameFailure(byte[] body) { }
+        private void HandlePetTameFailure(byte[] body) { }
 
-        private void HandleSMSGMountSpecialAnim(byte[] body) { }
+        private void HandleMountSpecialAnim(byte[] body) { }
 
-        private void HandleSMSGDismountResult(byte[] body) { }
+        private void HandleDismountResult(byte[] body) { }
 
-        private void HandleSMSGMountResult(byte[] body) { }
+        private void HandleMountResult(byte[] body) { }
 
-        private void HandleSMSGDuelWinner(byte[] body) { }
+        private void HandleDuelWinner(byte[] body) { }
 
-        private void HandleSMSGDuelComplete(byte[] body) { }
+        private void HandleDuelComplete(byte[] body) { }
 
-        private void HandleSMSGDuelInBounds(byte[] body) { }
+        private void HandleDuelInBounds(byte[] body) { }
 
-        private void HandleSMSGDuelOutOfBounds(byte[] body) { }
+        private void HandleDuelOutOfBounds(byte[] body) { }
 
-        private void HandleSMSGDuelRequested(byte[] body) { }
+        private void HandleDuelRequested(byte[] body) { }
 
-        private void HandleSMSGItemPushResult(byte[] body) { }
+        private void HandleItemPushResult(byte[] body) { }
 
-        private void HandleSMSGLootClearMoney(byte[] body) { }
+        private void HandleLootClearMoney(byte[] body) { }
 
-        private void HandleSMSGLootMoneyNotify(byte[] body) { }
+        private void HandleLootMoneyNotify(byte[] body) { }
 
-        private void HandleSMSGLootRemoved(byte[] body) { }
+        private void HandleLootRemoved(byte[] body) { }
 
-        private void HandleSMSGLootReleaseResponse(byte[] body) { }
+        private void HandleLootReleaseResponse(byte[] body) { }
 
-        private void HandleSMSGLootResponse(byte[] body) { }
+        private void HandleLootResponse(byte[] body) { }
 
-        private void HandleSMSGResurrectRequest(byte[] body) { }
+        private void HandleResurrectRequest(byte[] body) { }
 
-        private void HandleSMSGPlayerBound(byte[] body) { }
+        private void HandlePlayerBound(byte[] body) { }
 
-        private void HandleSMSGBindPointUpdate(byte[] body) { }
+        private void HandleBindPointUpdate(byte[] body) { }
 
-        private void HandleSMSGSpellEnergizeLog(byte[] body) { }
+        private void HandleSpellEnergizeLog(byte[] body) { }
 
-        private void HandleSMSGSpellHealLog(byte[] body) { }
+        private void HandleSpellHealLog(byte[] body) { }
 
-        private void HandleSMSGCancelCombat(byte[] body) { }
+        private void HandleCancelCombat(byte[] body) { }
 
-        private void HandleSMSGAttackSwingCantAttack(byte[] body) { }
+        private void HandleAttackSwingCantAttack(byte[] body) { }
 
-        private void HandleSMSGAttackSwingDeadTarget(byte[] body) { }
+        private void HandleAttackSwingDeadTarget(byte[] body) { }
 
-        private void HandleSMSGAttackSwingNotStanding(byte[] body) { }
+        private void HandleAttackSwingNotStanding(byte[] body) { }
 
-        private void HandleSMSGAttackSwingBadFacing(byte[] body) { }
+        private void HandleAttackSwingBadFacing(byte[] body) { }
 
-        private void HandleSMSGAttackSwingNotInRange(byte[] body) { }
+        private void HandleAttackSwingNotInRange(byte[] body) { }
 
-        private void HandleSMSGAttackStop(byte[] body) { }
+        private void HandleAttackStop(byte[] body) { }
 
-        private void HandleSMSGAttackStart(byte[] body) { }
+        private void HandleAttackStart(byte[] body) { }
 
-        private void HandleSMSGAIReaction(byte[] body) { }
+        private void HandleAIReaction(byte[] body) { }
 
-        private void HandleSMSGPetCastFailed(byte[] body) { }
+        private void HandlePetCastFailed(byte[] body) { }
 
-        private void HandleSMSGUpdateAuraDuration(byte[] body) { }
+        private void HandleUpdateAuraDuration(byte[] body) { }
 
-        private void HandleSMSGCooldownEvent(byte[] body) { }
+        private void HandleCooldownEvent(byte[] body) { }
 
-        private void HandleSMSGSpellCooldown(byte[] body) { }
+        private void HandleSpellCooldown(byte[] body) { }
 
-        private void HandleSMSGSpellFailure(byte[] body) { }
+        private void HandleSpellFailure(byte[] body) { }
 
-        private void HandleSMSGSpellGo(byte[] body) { }
+        private void HandleSpellGo(byte[] body) { }
 
-        private void HandleSMSGSpellStart(byte[] body) { }
+        private void HandleSpellStart(byte[] body) { }
 
-        private void HandleSMSGSupersededSpell(byte[] body) { }
+        private void HandleSupersededSpell(byte[] body) { }
 
-        private void HandleSMSGLearnedSpell(byte[] body) { }
+        private void HandleLearnedSpell(byte[] body) { }
 
-        private void HandleSMSGInitialSpells(byte[] body) { }
+        private void HandleInitialSpells(byte[] body) { }
 
-        private void HandleSMSGActionButtons(byte[] body) { }
+        private void HandleActionButtons(byte[] body) { }
 
-        private void HandleSMSGSetProficiency(byte[] body) { }
+        private void HandleSetProficiency(byte[] body) { }
 
-        private void HandleSMSGChannelList(byte[] body) { }
+        private void HandleChannelList(byte[] body) { }
 
-        private void HandleSMSGGuildCommandResult(byte[] body) { }
+        private void HandleGuildCommandResult(byte[] body) { }
 
-        private void HandleSMSGGuildEvent(byte[] body) { }
+        private void HandleGuildEvent(byte[] body) { }
 
-        private void HandleSMSGFriendStatus(byte[] body) { }
+        private void HandleFriendStatus(byte[] body) { }
 
-        private void HandleSMSGPlayedTime(byte[] body) { }
+        private void HandlePlayedTime(byte[] body) { }
 
-        private void HandleSMSGTradeStatus(byte[] body) { }
+        private void HandleTradeStatus(byte[] body) { }
 
-        private void HandleSMSGPetitionShowSignatures(byte[] body) { }
+        private void HandlePetitionShowSignatures(byte[] body) { }
 
-        private void HandleSMSGLogoutComplete(byte[] body) { }
+        private void HandleLogoutComplete(byte[] body) { }
 
-        private void HandleSMSGLogoutResponse(byte[] body) { }
+        private void HandleLogoutResponse(byte[] body) { }
 
-        private void HandleSMSGGroupUninvite(byte[] body) { }
+        private void HandleGroupUninvite(byte[] body) { }
 
-        private void HandleSMSGGroupDestroyed(byte[] body) { }
+        private void HandleGroupDestroyed(byte[] body) { }
 
-        private void HandleSMSGChatWrongFaction(byte[] body) { }
+        private void HandleChatWrongFaction(byte[] body) { }
 
-        private void HandleSMSGChatPlayerNotFound(byte[] body) { }
+        private void HandleChatPlayerNotFound(byte[] body) { }
 
-        private void HandleSMSGAccountDataTimes(byte[] body) { }
+        private void HandleAccountDataTimes(byte[] body) { }
 
-        private void HandleSMSGChannelNotify(byte[] body) { }
+        private void HandleChannelNotify(byte[] body) { }
 
-        private void HandleSMSG_Pong(byte[] body) { }
+        private void Handle_Pong(byte[] body) { }
 
-        private void HandleSMSGCharRename(byte[] body) { }
+        private void HandleCharRename(byte[] body) { }
 
-        private void HandleSMSGCharDelete(byte[] body) { }
+        private void HandleCharDelete(byte[] body) { }
 
-        private void HandleSMSGCharCreate(byte[] body) { }
+        private void HandleCharCreate(byte[] body) { }
 
         private void HandleZoneUnderAttack(byte[] body) { }
 
@@ -968,7 +1499,7 @@ namespace WoWSlimClient.Client
             return buffer;
         }
 
-        private static void HandleSMSGCompressedMoves(byte[] body)
+        private static void HandleCompressedMoves(byte[] body)
         {
             // Read the length of the compressed data
             int compressedLength = BitConverter.ToInt32(body, 0);
@@ -1073,7 +1604,7 @@ namespace WoWSlimClient.Client
 
         private static void HandleUnknownOpcode(uint opcode, byte[] body)
         {
-            //Console.WriteLine($"[OpCodeDispatcher] Unhandled opcode: {opcode:X}");
+            Console.WriteLine($"[OpCodeDispatcher] Unhandled opcode: {opcode:X}");
             //Console.WriteLine($"[OpCodeDispatcher] Body: {BitConverter.ToString(body)}");
         }
         /// <summary>

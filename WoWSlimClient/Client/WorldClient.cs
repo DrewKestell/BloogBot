@@ -150,7 +150,7 @@ namespace WoWSlimClient.Client
         }
         private async Task SendCMSGPing()
         {
-            uint sequenceId = 0;
+            uint sequenceId = 1;
             while (true)
             {
                 _lastPingTime = (uint)Environment.TickCount;
