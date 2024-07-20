@@ -1,5 +1,4 @@
-﻿using System.Text;
-using static WoWSlimClient.Models.Enums;
+﻿using static WoWSlimClient.Models.Enums;
 
 namespace WoWSlimClient.Models
 {
@@ -16,6 +15,14 @@ namespace WoWSlimClient.Models
         public string Tooltip { get; } = tooltip;
     }
     public class SpellEffect(string icon, int stackCount, EffectType type)
+    {
+        public string Icon { get; } = icon;
+
+        public int StackCount { get; } = stackCount;
+
+        public EffectType Type { get; } = type;
+    }
+    public class Cooldown(string icon, int stackCount, EffectType type)
     {
         public string Icon { get; } = icon;
 

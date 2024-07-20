@@ -1,8 +1,4 @@
-﻿
-using System.Runtime.ExceptionServices;
-using System.Runtime.InteropServices;
-using WoWSlimClient.Models;
-using static WoWSlimClient.Models.Enums;
+﻿using static WoWSlimClient.Models.Enums;
 
 namespace WoWSlimClient.Models
 {

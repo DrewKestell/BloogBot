@@ -1,9 +1,8 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using System.Reflection.Emit;
 using System.Text;
-using WoWSlimClient.Constants;
 using WoWSlimClient.Manager;
+using WoWSlimClient.Models;
 using WowSrp.Header;
 
 namespace WoWSlimClient.Client
@@ -42,8 +41,6 @@ namespace WoWSlimClient.Client
                 _client?.Close();
                 _client = new TcpClient(AddressFamily.InterNetwork);
                 _client.Connect(_ipAddress, _port);
-
-                ObjectManager.Instance.IsWorldConnected = true;
 
                 _stream = _client.GetStream();
 
@@ -198,6 +195,8 @@ namespace WoWSlimClient.Client
         {
             try
             {
+                WoWEventHandler.Instance.FireOnWorldSessionStart();
+
                 using var reader = new BinaryReader(_stream, Encoding.UTF8, true);
                 while (true) // Loop to continuously read messages
                 {
@@ -206,8 +205,7 @@ namespace WoWSlimClient.Client
                     if (header.Length == 0)
                     {
 
-                        ObjectManager.Instance.IsWorldConnected = false;
-                        ObjectManager.Instance.HasEnteredWorld = false;
+                        WoWEventHandler.Instance.FireOnWorldSessionEnd();
                         break; // Exit if we cannot read a full header
                     }
 
@@ -217,7 +215,7 @@ namespace WoWSlimClient.Client
                     byte[] body = await PacketManager.ReadAsync(reader, (int)(headerData.Size - sizeof(ushort))); // Adjust based on actual header size
 
                     // Dispatch the packet to the appropriate handler
-                    OpCodeDispatcher.Instance.Dispatch(headerData.Opcode, body);
+                    OpCodeDispatcher.Instance.Dispatch((Opcodes)headerData.Opcode, body);
                 }
             }
             catch (Exception ex)

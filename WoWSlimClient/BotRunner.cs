@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using WoWSlimClient.Client;
 using WoWSlimClient.Tasks;
 using MaNGOSDBDomain.Client;
-using WoWSlimClient.Manager;
 
 namespace WoWSlimClient
 {
@@ -33,11 +32,11 @@ namespace WoWSlimClient
                 ServiceId = Guid.NewGuid()
             };
 
-            OpCodeDispatcher.Instance.OnPartyInvite += (sender, args) =>
-            {
-                //Functions.LuaCall($"StaticPopup1Button1:Click()");
-                //Functions.LuaCall($"AcceptGroup()");
-            };
+            //OpCodeDispatcher.Instance.OnPartyInvite += (sender, args) =>
+            //{
+            //    //Functions.LuaCall($"StaticPopup1Button1:Click()");
+            //    //Functions.LuaCall($"AcceptGroup()");
+            //};
 
             _asyncBotTaskRunnerTask = StartBotTaskRunnerAsync();
             _asyncServerFeedbackTask = StartServerFeedbackAsync();

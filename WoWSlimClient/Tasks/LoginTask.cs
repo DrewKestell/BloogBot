@@ -12,14 +12,14 @@ namespace WoWSlimClient.Tasks.SharedStates
 
         public LoginTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Ordinary)
         {
-            OpCodeDispatcher.Instance.OnWrongLogin += Instance_OnWrongLogin;
-            OpCodeDispatcher.Instance.OnHandshakeBegin += Instance_OnHandshakeBegin;
+            WoWEventHandler.Instance.OnLoginFailure += Instance_OnWrongLogin;
+            WoWEventHandler.Instance.OnHandshakeBegin += Instance_OnHandshakeBegin;
         }
 
         ~LoginTask()
         {
-            OpCodeDispatcher.Instance.OnWrongLogin -= Instance_OnWrongLogin;
-            OpCodeDispatcher.Instance.OnHandshakeBegin -= Instance_OnHandshakeBegin;
+            WoWEventHandler.Instance.OnLoginFailure -= Instance_OnWrongLogin;
+            WoWEventHandler.Instance.OnHandshakeBegin -= Instance_OnHandshakeBegin;
         }
 
         private void Instance_OnHandshakeBegin(object sender, EventArgs e)

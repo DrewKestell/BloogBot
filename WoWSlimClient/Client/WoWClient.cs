@@ -13,15 +13,29 @@ namespace WoWSlimClient.Client
 
         public WoWClient(string ipAddress, int port = 3724)
         {
-            _ipAddress = IPAddress.Parse(ipAddress);
-            _loginClient = new LoginClient(ipAddress, port);
+            try
+            {
+                _ipAddress = IPAddress.Parse(ipAddress);
+                _loginClient = new LoginClient(ipAddress, port);
+                _loginClient.Connect();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception occured during login: {ex}");
+                WoWEventHandler.Instance.FireOnLoginFailure();
+            }
+        }
+
+        public void ConnectToLogin()
+        {
+            _loginClient.Connect();
+            WoWEventHandler.Instance.FireOnLoginConnect();
         }
 
         public void Login(string username, string password)
         {
             try
             {
-                _loginClient.Connect();
 
                 if (!ObjectManager.Instance.IsLoginConnected)
                 {
@@ -33,7 +47,13 @@ namespace WoWSlimClient.Client
             catch (Exception ex)
             {
                 Console.WriteLine($"Exception occured during login: {ex}");
+                WoWEventHandler.Instance.FireOnLoginFailure();
             }
+        }
+
+        private void Instance_OnPlayerInit(object? sender, EventArgs e)
+        {
+            StartServerPing();
         }
 
         public List<Realm> GetRealmList()
@@ -58,7 +78,7 @@ namespace WoWSlimClient.Client
             _worldClient.SendCMSGPlayerLogin(guid);
         }
 
-        public void StartServerPing()
+        private void StartServerPing()
         {
             _worldClient.StartServerPing();
         }

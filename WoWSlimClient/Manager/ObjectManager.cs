@@ -1,4 +1,4 @@
-﻿using WoWSlimClient.Client;
+﻿using WoWSlimClient.Handlers;
 using WoWSlimClient.Models;
 
 namespace WoWSlimClient.Manager
@@ -7,10 +7,15 @@ namespace WoWSlimClient.Manager
     {
         public static ObjectManager Instance { get; } = new ObjectManager();
 
-        public bool IsLoginConnected { get; set; }
-        public bool IsWorldConnected { get; set; }
-        public bool IsLoggedIn { get; set; }
-        public bool HasEnteredWorld { get; set; }
+        private bool _isLoginConnected;
+        private bool _isWorldConnected;
+        private bool _isLoggedIn;
+        private bool _hasEnteredWorld;
+
+        public bool IsLoginConnected => _isLoginConnected;
+        public bool IsWorldConnected => _isWorldConnected;
+        public bool IsLoggedIn => _isLoggedIn;
+        public bool HasEnteredWorld => _hasEnteredWorld;
         public Realm CurrentRealm { get; set; }
         public bool HasRealmSelected => CurrentRealm != null;
 
@@ -26,6 +31,8 @@ namespace WoWSlimClient.Manager
         public IEnumerable<WoWItem> Items { get; internal set; } = new List<WoWItem>();
         public IEnumerable<WoWUnit> Hostiles { get; internal set; } = new List<WoWUnit>();
         public WoWUnit PartyLeader { get; internal set; }
+        public List<Spell> Spells { get; internal set; }
+        public List<Cooldown> Cooldowns { get; internal set; }
 
         public readonly List<CharacterSelect> CharacterSelects = new List<CharacterSelect>();
 
@@ -59,6 +66,25 @@ namespace WoWSlimClient.Manager
             {
                 Objects.Remove(obj);
             }
+        }
+
+        public void Initialize()
+        {
+            WoWEventHandler.Instance.OnLoginConnect += Instance_OnLoginConnect;
+            WoWEventHandler.Instance.OnLoginSuccess += Instance_OnLoginSuccess;
+            WoWEventHandler.Instance.OnLoginFailure += Instance_OnLoginFail;
+            WoWEventHandler.Instance.OnWorldSessionStart += Instance_OnWorldSessionStart;
+            WoWEventHandler.Instance.OnWorldSessionEnd += Instance_OnWorldSessionEnd;
+        }
+
+        private void Instance_OnLoginConnect(object? sender, EventArgs e) => _isLoginConnected = true;
+        private void Instance_OnLoginFail(object? sender, EventArgs e) => _isLoggedIn = false;
+        private void Instance_OnLoginSuccess(object? sender, EventArgs e) => _isLoggedIn = true;
+        private void Instance_OnWorldSessionStart(object? sender, EventArgs e) => _isWorldConnected = true;
+        private void Instance_OnWorldSessionEnd(object? sender, EventArgs e)
+        {
+            _hasEnteredWorld = false;
+            _isWorldConnected = false;
         }
     }
 }

@@ -21,5 +21,9 @@
         public float Z;
 
         public byte[] Equipment = [];
+
+        public uint GuildId { get; internal set; }
+        public uint Flags { get; internal set; }
+        public byte FirstLogin { get; internal set; }
     }
 }

@@ -26,7 +26,7 @@ namespace WoWSlimClient.Tasks.SharedStates
             }
             currentWaypoint = ObjectManager.Instance.Player.Position;
 
-            OpCodeDispatcher.Instance.OnUnitKilled += Instance_OnUnitKilled;
+            WoWEventHandler.Instance.OnUnitKilled += Instance_OnUnitKilled;
             Console.WriteLine($"[DUNGEONEERING TASK] Sorting encounter data");
         }
 

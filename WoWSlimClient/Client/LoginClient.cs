@@ -43,8 +43,6 @@ namespace WoWSlimClient.Client
                 _client = new TcpClient(AddressFamily.InterNetwork);
                 _client.Connect(_ipAddress, _port);
                 _stream = _client.GetStream();
-
-                ObjectManager.Instance.IsLoginConnected = true;
             }
             catch (Exception ex)
             {
@@ -56,6 +54,8 @@ namespace WoWSlimClient.Client
         {
             _username = username;
             _password = password;
+
+            WoWEventHandler.Instance.FireOnHandshakeBegin();
 
             using var memoryStream = new MemoryStream();
             using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
@@ -188,25 +188,24 @@ namespace WoWSlimClient.Client
                     var verificationResult = _srpClientChallenge.VerifyServerProof(serverProof);
                     if (!verificationResult.HasValue)
                     {
-                        Console.WriteLine("[LoginClient] Server proof verification failed.");
+                        WoWEventHandler.Instance.FireOnLoginFailure();
                     }
                     else
                     {
-                        Console.WriteLine("[LoginClient] Authentication successful!");
                         _srpClient = verificationResult.Value;
-                        ObjectManager.Instance.IsLoggedIn = true;
+                        WoWEventHandler.Instance.FireOnLoginSuccess();
                     }
                 }
                 else
                 {
                     Console.WriteLine("[LoginClient] Authentication failed with result code: " + result);
-                    ObjectManager.Instance.IsLoggedIn = false;
+                    WoWEventHandler.Instance.FireOnLoginFailure();
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[LoginClient] An error occurred while receiving AUTH_PROOF response: {ex}");
-                ObjectManager.Instance.IsLoggedIn = false;
+                WoWEventHandler.Instance.FireOnLoginFailure();
             }
         }
 

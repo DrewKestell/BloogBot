@@ -6,6 +6,9 @@ namespace WoWSlimClient.Models
     {
         public int Level { get; set; }
         public int CreatureId { get; set; }
+        public Race Race { get; set; }
+        public Class Class { get; set; }
+        public byte Gender { get; set; }
 
         public ulong TargetGuid { get; set; }
 
@@ -150,7 +153,7 @@ namespace WoWSlimClient.Models
         public CreatureRank CreatureRank { get; set; }
 
         public Spell GetSpellById(int spellId)
-        {            
+        {
             return null;
         }
 
@@ -159,7 +162,7 @@ namespace WoWSlimClient.Models
             get
             {
                 var buffs = new List<Spell>();
-                
+
                 return buffs;
             }
         }
@@ -169,14 +172,14 @@ namespace WoWSlimClient.Models
             get
             {
                 var debuffs = new List<Spell>();
-                
+
                 return debuffs;
             }
         }
 
         public IEnumerable<SpellEffect> GetDebuffs(LuaTarget target)
         {
-            return new List<SpellEffect>(); 
+            return new List<SpellEffect>();
         }
 
         public bool HasBuff(string name) => Buffs.Any(a => a.Name == name);
