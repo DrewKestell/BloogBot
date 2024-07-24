@@ -1,6 +1,4 @@
-﻿using static WoWSlimClient.Models.Enums;
-
-namespace WoWSlimClient.Models
+﻿namespace WoWSlimClient.Models
 {
     public class ItemCacheInfo
     {

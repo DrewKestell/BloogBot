@@ -32,7 +32,7 @@ namespace WoWSlimClient.Tasks.SharedStates
             }
             else if (!hasSelectedGossipOption && Wait.For("PrepBattleMasterDialogFrameDelay", 1000))
             {
-                dialogFrame.SelectFirstGossipOfType(Enums.DialogType.battlemaster);
+                dialogFrame.SelectFirstGossipOfType(DialogType.battlemaster);
                 hasSelectedGossipOption = true;
             }
             else if (!hasQueued && ObjectManager.Instance.PartyMembers.All(x => x.Position.DistanceTo(ObjectManager.Instance.Player.Position) < 5) && Wait.For("DialogFrameDelay", 1000))

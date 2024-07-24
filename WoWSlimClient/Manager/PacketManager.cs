@@ -39,14 +39,35 @@ namespace WoWSlimClient.Manager
             return Encoding.UTF8.GetBytes(addonData);
         }
 
-        public static byte[] CompressAddonInfo(byte[] addonInfo)
+        public static byte[] Compress(byte[] addonInfo)
         {
-            using var outputStream = new MemoryStream();
+            using (var outputStream = new MemoryStream())
             using (var compressionStream = new ZlibStream(outputStream, CompressionMode.Compress, CompressionLevel.Default))
             {
                 compressionStream.Write(addonInfo, 0, addonInfo.Length);
+                return outputStream.ToArray();
             }
-            return outputStream.ToArray();
+        }
+        public static Stream Decompress(Stream data)
+        {
+            using (var zlibStream = new ZlibStream(data, CompressionMode.Decompress))
+            {
+                return zlibStream;
+            }
+        }
+
+        public static byte[] Decompress(byte[] data)
+        {
+            using (var compressedStream = new MemoryStream(data))
+            using (var decompressedStream = new MemoryStream())
+            {
+                using (var zlibStream = new ZlibStream(compressedStream, CompressionMode.Decompress))
+                {
+                    zlibStream.CopyTo(decompressedStream);
+
+                    return decompressedStream.ToArray();
+                }
+            }
         }
 
         public static async Task<byte[]> ReadAsync(BinaryReader reader, int count)

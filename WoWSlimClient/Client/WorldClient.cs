@@ -12,7 +12,7 @@ namespace WoWSlimClient.Client
         private IPAddress _ipAddress = IPAddress.Loopback;
         private int _port = 0;
 
-       
+
         private bool _hasReceivedCharListReply;
 
         private TcpClient? _client = null;
@@ -25,7 +25,7 @@ namespace WoWSlimClient.Client
 
         public WorldClient()
         {
-            
+
         }
 
         public void Connect(string username, IPAddress ipAddress, byte[] sessionKey, int port = 8085)
@@ -97,7 +97,7 @@ namespace WoWSlimClient.Client
 
                 byte[] decompressedAddonInfo = PacketManager.GenerateAddonInfo(); // Generate addon info
 
-                byte[] compressedAddonInfo = PacketManager.CompressAddonInfo(decompressedAddonInfo); // Compress the addon info
+                byte[] compressedAddonInfo = PacketManager.Compress(decompressedAddonInfo); // Compress the addon info
 
                 uint decompressedAddonInfoSize = (uint)decompressedAddonInfo.Length;
 
@@ -125,7 +125,7 @@ namespace WoWSlimClient.Client
                 Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_AUTH_SESSION: {ex}");
             }
         }
-        
+
         public void SendCMSGCharEnum()
         {
             try
@@ -193,12 +193,11 @@ namespace WoWSlimClient.Client
         }
         private async Task HandleNetworkMessagesAsync()
         {
-            try
+            WoWEventHandler.Instance.FireOnWorldSessionStart();
+            using var reader = new BinaryReader(_stream, Encoding.UTF8, true);
+            while (true) // Loop to continuously read messages
             {
-                WoWEventHandler.Instance.FireOnWorldSessionStart();
-
-                using var reader = new BinaryReader(_stream, Encoding.UTF8, true);
-                while (true) // Loop to continuously read messages
+                try
                 {
                     // Read the header first to determine the size and opcode
                     byte[] header = await PacketManager.ReadAsync(reader, 4); // Adjust size if header structure is different
@@ -217,11 +216,11 @@ namespace WoWSlimClient.Client
                     // Dispatch the packet to the appropriate handler
                     OpCodeDispatcher.Instance.Dispatch((Opcodes)headerData.Opcode, body);
                 }
+                catch (Exception ex)
+                {
+                    //Console.WriteLine($"[WorldClient][HandleNetworkMessages] An error occurred while handling network messages: {ex}");
+                }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[WorldClient][HandleNetworkMessages] An error occurred while handling network messages: {ex}");
-            }
-        }        
+        }
     }
 }

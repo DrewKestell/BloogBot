@@ -1,8 +1,6 @@
-﻿using static WoWSlimClient.Models.Enums;
-
-namespace WoWSlimClient.Models
+﻿namespace WoWSlimClient.Models
 {
-    public class WoWUnit : WoWObject
+    public class WoWUnit(byte[] lowGuid, byte[] highGuid, WoWObjectType objectType = WoWObjectType.Unit) : WoWGameObject(lowGuid, highGuid, objectType)
     {
         public int Level { get; set; }
         public int CreatureId { get; set; }
@@ -176,6 +174,27 @@ namespace WoWSlimClient.Models
                 return debuffs;
             }
         }
+
+        public ulong Charm { get; internal set; }
+        public ulong Summon { get; internal set; }
+        public ulong CharmedBy { get; internal set; }
+        public ulong ChannelObject { get; internal set; }
+        public ulong PersuadedGuid { get; internal set; }
+        public ulong CreatedBy { get; internal set; }
+        public ulong CharmedByGuid { get; internal set; }
+        public ulong SummonGuid { get; internal set; }
+        public ulong CharmGuid { get; internal set; }
+        public int Happiness { get; internal set; }
+        public int Focus { get; internal set; }
+        public int MaxRage { get; internal set; }
+        public int MaxEnergy { get; internal set; }
+        public int MaxFocus { get; internal set; }
+        public int MaxHappiness { get; internal set; }
+        public byte[] Bytes0 { get; internal set; }
+        public Dictionary<object, object> VirtualItemSlotDisplay { get; internal set; }
+        public Dictionary<object, object> VirtualItemInfo { get; internal set; }
+        public uint Flags { get; internal set; }
+        public Dictionary<object, object> AuraFields { get; internal set; }
 
         public IEnumerable<SpellEffect> GetDebuffs(LuaTarget target)
         {

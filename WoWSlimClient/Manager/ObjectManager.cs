@@ -1,4 +1,4 @@
-﻿using WoWSlimClient.Handlers;
+﻿using System.Collections.Concurrent;
 using WoWSlimClient.Models;
 
 namespace WoWSlimClient.Manager
@@ -19,54 +19,49 @@ namespace WoWSlimClient.Manager
         public Realm CurrentRealm { get; set; }
         public bool HasRealmSelected => CurrentRealm != null;
 
-        public List<WoWObject> Objects { get; internal set; } = new List<WoWObject>();
         public WoWLocalPlayer Player { get; internal set; }
         public uint MapId { get; internal set; }
-        public IEnumerable<WoWUnit> Units => Objects.OfType<WoWUnit>();
 
-        public IEnumerable<WoWUnit> PartyMembers { get; internal set; } = new List<WoWUnit>();
-        public IEnumerable<WoWUnit> Aggressors { get; internal set; } = new List<WoWUnit>();
         public ulong PartyLeaderGuid { get; internal set; }
         public ulong SkullTargetGuid { get; internal set; }
-        public IEnumerable<WoWItem> Items { get; internal set; } = new List<WoWItem>();
-        public IEnumerable<WoWUnit> Hostiles { get; internal set; } = new List<WoWUnit>();
         public WoWUnit PartyLeader { get; internal set; }
+
+        public IList<WoWObject> Objects = new List<WoWObject>();
+        public IList<WoWObject> ObjectsBuffer = new List<WoWObject>();
+        public IEnumerable<WoWUnit> Units => Objects.OfType<WoWUnit>();
+        public IEnumerable<WoWUnit> PartyMembers => Objects.OfType<WoWUnit>();
+        public IEnumerable<WoWUnit> Aggressors => Objects.OfType<WoWUnit>();
+        public IEnumerable<WoWUnit> Hostiles => Objects.OfType<WoWUnit>();
+        public IEnumerable<WoWItem> Items => Objects.OfType<WoWItem>();
         public List<Spell> Spells { get; internal set; }
         public List<Cooldown> Cooldowns { get; internal set; }
 
-        public readonly List<CharacterSelect> CharacterSelects = new List<CharacterSelect>();
+        public readonly List<CharacterSelect> CharacterSelects = [];
 
         private ObjectManager()
         {
         }
 
-        public void AddOrUpdateObject(WoWObject obj)
-        {
-            if (obj == null)
-                throw new ArgumentNullException(nameof(obj));
+        //public void AddOrUpdateObject(WoWObject obj)
+        //{
+        //    if (obj == null || obj.Guid == 0)
+        //        throw new ArgumentNullException(nameof(obj));
 
-            var existingObj = Objects.FirstOrDefault(o => o.Guid == obj.Guid);
-            if (existingObj != null)
-            {
-                // Update existing object
-                int index = Objects.IndexOf(existingObj);
-                Objects[index] = obj;
-            }
-            else
-            {
-                // Add new object
-                Objects.Add(obj);
-            }
-        }
+        //    Objects.AddOrUpdate(obj.Guid, obj, (key, oldValue) => obj);
+        //}
+        //public WoWObject GetObject(ulong guid)
+        //{
+        //    if (guid == 0)
+        //        throw new ArgumentNullException(nameof(guid));
 
-        public void RemoveObject(ulong guid)
-        {
-            var obj = Objects.FirstOrDefault(o => o.Guid == guid);
-            if (obj != null)
-            {
-                Objects.Remove(obj);
-            }
-        }
+        //    Objects.TryGetValue(guid, out var obj);
+        //    return obj;
+        //}
+
+        //public void RemoveObject(ulong guid)
+        //{
+        //    Objects.TryRemove(guid, out var obj);
+        //}
 
         public void Initialize()
         {

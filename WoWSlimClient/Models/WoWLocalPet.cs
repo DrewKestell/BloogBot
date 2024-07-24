@@ -1,13 +1,15 @@
 ﻿namespace WoWSlimClient.Models
 {
-    public class WoWLocalPet : WoWUnit
+    public class WoWLocalPet(byte[] lowGuid, byte[] highGuid) : WoWUnit(lowGuid, highGuid)
     {
         public void Attack()
         {
+
         }
 
         public void FollowPlayer()
         {
+
         }
 
         public bool IsHappy()

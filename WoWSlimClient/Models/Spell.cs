@@ -1,4 +1,4 @@
-﻿using static WoWSlimClient.Models.Enums;
+﻿
 
 namespace WoWSlimClient.Models
 {

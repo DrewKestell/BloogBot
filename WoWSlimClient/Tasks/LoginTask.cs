@@ -1,5 +1,4 @@
-﻿using WoWSlimClient.Client;
-using WoWSlimClient.Models;
+﻿using WoWSlimClient.Models;
 
 namespace WoWSlimClient.Tasks.SharedStates
 {
@@ -36,12 +35,12 @@ namespace WoWSlimClient.Tasks.SharedStates
 
         public void Update()
         {
-            if (LoginState == Enums.LoginStates.charselect)
+            if (LoginState == LoginStates.charselect)
             {
                 EnterWorld();
                 BotTasks.Pop();
             }
-            else if (LoginState == Enums.LoginStates.login)
+            else if (LoginState == LoginStates.login)
             {
                 if (handshakeReset)
                 {
@@ -69,7 +68,7 @@ namespace WoWSlimClient.Tasks.SharedStates
             lastTickTime = Environment.TickCount;
         }
 
-        private Enums.LoginStates LoginState;
+        private LoginStates LoginState;
 
         private int MaxCharacterCount { get; set; }
         public void ResetLogin()

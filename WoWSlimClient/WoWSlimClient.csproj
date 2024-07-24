@@ -12,6 +12,7 @@
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.4.0" />
     <PackageReference Include="DotNetZip" Version="1.16.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="SharpZipLib" Version="1.4.2" />
     <PackageReference Include="WowSrp" Version="0.3.0" />
   </ItemGroup>
 

@@ -1,26 +1,25 @@
 ﻿
-using static WoWSlimClient.Models.Enums;
+
 
 namespace WoWSlimClient.Models
 {
-    public class WoWItem : WoWObject
+    public class WoWItem(byte[] lowGuid, byte[] highGuid, WoWObjectType objectType = WoWObjectType.Item) : WoWGameObject(lowGuid, highGuid, objectType)
     {
-
         public int ItemId { get; set; }
 
         public int StackCount { get; set; }
-
-        public ItemCacheInfo Info { get; }
+        public int MaxDurability { get; set; }
+        public int RequiredLevel { get; set; }
 
         public void Use()
         {
 
         }
 
-        public ItemQuality Quality => Info.Quality;
+        public ItemQuality Quality { get; set; } = ItemQuality.Poor;
 
         public int Durability  { get; set; }
 
-        public int DurabilityPercentage => (int)((double)Durability / Info.MaxDurability * 100);
+        public int DurabilityPercentage => (int)((double)Durability / MaxDurability * 100);
     }
 }

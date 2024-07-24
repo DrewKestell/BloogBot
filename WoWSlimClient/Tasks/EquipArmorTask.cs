@@ -1,6 +1,6 @@
 ﻿using WoWSlimClient.Manager;
 using WoWSlimClient.Models;
-using static WoWSlimClient.Models.Enums;
+
 
 namespace WoWSlimClient.Tasks.SharedStates
 {
@@ -62,7 +62,7 @@ namespace WoWSlimClient.Tasks.SharedStates
                         .FirstOrDefault(i =>
                             //(i.Info.ItemSubclass == desiredArmorTypes[ObjectManager.Instance.Player.Class] || i.Info.ItemClass == ItemClass.Cloth && i.Info.EquipSlot == EquipSlot.Back) &&
                             //i.Info.EquipSlot.ToString() == emptySlot.ToString() &&
-                            i.Info.RequiredLevel <= ObjectManager.Instance.Player.Level
+                            i.RequiredLevel <= ObjectManager.Instance.Player.Level
                         );
 
                     if (itemToEquip == null)

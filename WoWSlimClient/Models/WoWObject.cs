@@ -1,27 +1,17 @@
-﻿using static WoWSlimClient.Models.Enums;
-
-namespace WoWSlimClient.Models
+﻿namespace WoWSlimClient.Models
 {
-    public class WoWObject
+    public class WoWObject(byte[] lowGuid, byte[] highGuid, WoWObjectType objectType = WoWObjectType.None)
     {
-        public ulong Guid { get; set; }
-        public WoWObjectTypes ObjectType { get; set; }
+        private readonly WoWObjectType _objectType = objectType;
+        private readonly byte[] _lowGuid = lowGuid;
+        private readonly byte[] _highGuid = highGuid;
+        public uint LastUpated { get; set; }
+        public ulong Guid => BitConverter.ToUInt64(_lowGuid.Concat(_highGuid).ToArray(), 0);
+        public WoWObjectType ObjectType => _objectType;
+        public uint Padding { get; set; }
         public float ScaleX { get; set; }
         public float Facing { get; set; }
-        public Position Position { get; set; }
-        public string Name { get; set; }
-
-        public Position GetPointBehindUnit(float parDistanceToMove)
-        {
-            var newX = Position.X + parDistanceToMove * (float)-Math.Cos(Facing);
-            var newY = Position.Y + parDistanceToMove * (float)-Math.Sin(Facing);
-            var end = new Position(newX, newY, Position.Z);
-            return end;
-        }
-
-        public void Interact()
-        {
-            
-        }
+        public Position Position { get; set; } = new Position(0, 0, 0);
+        public uint Entry { get; internal set; }
     }
 }

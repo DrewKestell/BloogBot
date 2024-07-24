@@ -24,7 +24,7 @@ namespace WoWSlimClient.Tasks.SharedStates
 
             ObjectManager.Instance.Items
                 .Where(i =>
-                    (i.Info.Name != "Hearthstone")
+                    (i.Name != "Hearthstone")
                 //&&
                 //(i.Info.ItemClass != ItemClass.Quest) &&
                 //(i.Info.ItemClass != ItemClass.Bag)
@@ -80,7 +80,7 @@ namespace WoWSlimClient.Tasks.SharedStates
             }
             if (state == State.Dialog && Wait.For("DialogFrameDelay", 500))
             {
-                dialogFrame.SelectFirstGossipOfType(Enums.DialogType.vendor);
+                dialogFrame.SelectFirstGossipOfType(DialogType.vendor);
                 state = State.PrepMerchantFrame;
             }
             if (state == State.CloseMerchantFrame && Wait.For("BuyItemsCloseMerchantFrameStateDelay", 2000))

@@ -1,6 +1,4 @@
-﻿using static WoWSlimClient.Models.Enums;
-
-namespace WoWSlimClient.Models
+﻿namespace WoWSlimClient.Models
 {
     static public class Inventory
     {
@@ -25,7 +23,7 @@ namespace WoWSlimClient.Models
                 for (var k = 0; k <= slots; k++)
                 {
                     var item = GetItem(i, k);
-                    if (item?.Info.Name == parItemName) totalCount += item.StackCount;
+                    if (item?.Name == parItemName) totalCount += item.StackCount;
                 }
             }
             return totalCount;

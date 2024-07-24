@@ -1,5 +1,4 @@
-﻿using Ionic.Zlib;
-using WoWSlimClient.Handlers;
+﻿using WoWSlimClient.Handlers;
 using WoWSlimClient.Models;
 
 namespace WoWSlimClient.Client
@@ -7,7 +6,7 @@ namespace WoWSlimClient.Client
     internal class OpCodeDispatcher
     {
         public static OpCodeDispatcher Instance { get; } = new OpCodeDispatcher();
-        private readonly Dictionary<Opcodes, Action<Opcodes, byte[]>> _handlers = new Dictionary<Opcodes, Action<Opcodes, byte[]>>();
+        private readonly Dictionary<Opcodes, Action<Opcodes, byte[]>> _handlers = [];
 
         private OpCodeDispatcher()
         {
@@ -17,14 +16,27 @@ namespace WoWSlimClient.Client
         private void RegisterHandlers()
         {
             _handlers[Opcodes.SMSG_AUTH_RESPONSE] = HandleAuthResponse;
+            _handlers[Opcodes.SMSG_UPDATE_OBJECT] = ObjectUpdateHandler.HandleUpdateObject;
+            _handlers[Opcodes.SMSG_COMPRESSED_UPDATE_OBJECT] = ObjectUpdateHandler.HandleUpdateObject;
+
             _handlers[Opcodes.SMSG_ACCOUNT_DATA_TIMES] = AccountDataHandler.HandleAccountData;
             _handlers[Opcodes.SMSG_UPDATE_ACCOUNT_DATA] = AccountDataHandler.HandleAccountData;
-            _handlers[Opcodes.SMSG_UPDATE_OBJECT] = HandleUpdateObject;
-            _handlers[Opcodes.SMSG_COMPRESSED_UPDATE_OBJECT] = HandleCompressedUpdateObject;
+
+            _handlers[Opcodes.SMSG_MESSAGECHAT] = ChatHandler.HandleServerChatMessage;
+
             _handlers[Opcodes.SMSG_CHAR_ENUM] = CharacterHandler.HandleCharEnum;
             _handlers[Opcodes.SMSG_ADDON_INFO] = CharacterHandler.HandleAddonInfo;
+
+            _handlers[Opcodes.SMSG_LOGIN_VERIFY_WORLD] = LoginHandler.HandleLoginVerifyWorld;
+
             _handlers[Opcodes.SMSG_INITIAL_SPELLS] = SpellHandler.HandleInitialSpells;
-            _handlers[Opcodes.SMSG_MESSAGECHAT] = ChatHandler.HandleServerChatMessage;
+            _handlers[Opcodes.SMSG_SPELLLOGMISS] = SpellHandler.HandleSpellLogMiss;
+            _handlers[Opcodes.SMSG_SPELL_GO] = SpellHandler.HandleSpellGo;
+
+            _handlers[Opcodes.SMSG_STANDSTATE_UPDATE] = StandStateHandler.HandleStandStateUpdate;
+
+            _handlers[Opcodes.SMSG_INIT_WORLD_STATES] = WorldStateHandler.HandleInitWorldStates;
+            _handlers[Opcodes.SMSG_SET_REST_START] = WorldStateHandler.HandleInitWorldStates;
             // Add more handlers as needed
         }
 
@@ -36,6 +48,7 @@ namespace WoWSlimClient.Client
             }
             else
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 //Console.WriteLine($"Unhandled opcode: {opcode} {BitConverter.ToString(data)}");
             }
         }
@@ -44,6 +57,7 @@ namespace WoWSlimClient.Client
         {
             if (body.Length < 4)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("[WorldClient] Incomplete SMSG_AUTH_RESPONSE packet.");
                 return;
             }
@@ -57,18 +71,6 @@ namespace WoWSlimClient.Client
             {
                 WoWEventHandler.Instance.FireOnWorldSessionEnd();
             }
-        }
-
-        private void HandleUpdateObject(Opcodes opcode, byte[] data)
-        {
-            // Implement the handler logic here
-        }
-
-        private void HandleCompressedUpdateObject(Opcodes opcode, byte[] data)
-        {
-            // Decompress and then call HandleUpdateObject
-            byte[] decompressedData = ZlibStream.UncompressBuffer(data);
-            HandleUpdateObject(opcode, decompressedData);
         }
     }
 }

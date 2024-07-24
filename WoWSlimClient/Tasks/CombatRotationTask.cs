@@ -1,6 +1,6 @@
 ﻿using WoWSlimClient.Manager;
 using WoWSlimClient.Models;
-using static WoWSlimClient.Models.Enums;
+
 
 namespace WoWSlimClient.Tasks.SharedStates
 {
@@ -47,7 +47,7 @@ namespace WoWSlimClient.Tasks.SharedStates
                 }
                 else
                 {
-                    Position[] locations = Navigation.Instance.CalculatePath(ObjectManager.Instance.MapId, ObjectManager.Instance.Player.Position, ObjectManager.Instance.Player.Target.GetPointBehindUnit(3), true);
+                    Position[] locations = Navigation.Instance.CalculatePath(ObjectManager.Instance.MapId, ObjectManager.Instance.Player.Position, ObjectManager.Instance.Player.Target.GetPointBehindObject(3), true);
 
                     ObjectManager.Instance.Player.MoveToward(locations[1]);
                     return true;
@@ -96,7 +96,7 @@ namespace WoWSlimClient.Tasks.SharedStates
                 return false;
             }
 
-            Position[] locations = Navigation.Instance.CalculatePath(ObjectManager.Instance.MapId, ObjectManager.Instance.Player.Position, ObjectManager.Instance.Player.Target.GetPointBehindUnit(distance), true);
+            Position[] locations = Navigation.Instance.CalculatePath(ObjectManager.Instance.MapId, ObjectManager.Instance.Player.Position, ObjectManager.Instance.Player.Target.GetPointBehindObject(distance), true);
 
             ObjectManager.Instance.Player.MoveToward(locations[1]);
             return true;

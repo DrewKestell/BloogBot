@@ -1,5 +1,4 @@
 ﻿using MaNGOSDBDomain.Models;
-using WoWSlimClient.Client;
 using WoWSlimClient.Manager;
 using WoWSlimClient.Models;
 

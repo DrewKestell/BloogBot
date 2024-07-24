@@ -1,6 +1,6 @@
 ﻿namespace WoWSlimClient.Models
 {
-    public class WoWPlayer : WoWUnit
+    public class WoWPlayer(byte[] lowGuid, byte[] highGuid) : WoWUnit(lowGuid, highGuid, WoWObjectType.Player)
     {
         public bool IsEating => HasBuff("Food");
 

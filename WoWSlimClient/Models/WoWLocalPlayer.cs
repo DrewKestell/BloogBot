@@ -1,11 +1,11 @@
-﻿using WoWSlimClient.Manager;
-using static WoWSlimClient.Models.Enums;
+﻿using System;
+using WoWSlimClient.Manager;
+
 
 namespace WoWSlimClient.Models
 {
-    public class WoWLocalPlayer : WoWPlayer
+    public class WoWLocalPlayer(byte[] lowGuid, byte[] highGuid) : WoWPlayer(lowGuid, highGuid)
     {
-
         private readonly Random random = new();
 
         // WARRIOR
@@ -33,7 +33,7 @@ namespace WoWSlimClient.Models
         public Class Class { get; set; }
         public string Race { get; set; }
 
-        public Position CorpsePosition => new(0,0,0);
+        public Position CorpsePosition => new(0, 0, 0);
 
         public void Face(Position pos)
         {
@@ -54,7 +54,7 @@ namespace WoWSlimClient.Models
 
         public void SetFacing(float facing)
         {
-            
+
         }
 
         public void MoveToward(Position pos)
@@ -105,7 +105,7 @@ namespace WoWSlimClient.Models
         }
 
         // use this to determine whether you can use cannibalize
-        
+
         public void Stand()
         {
 
@@ -138,7 +138,7 @@ namespace WoWSlimClient.Models
 
         public void SetTarget(ulong guid)
         {
-            
+
         }
 
         private ulong ComboPointGuid { get; set; }
@@ -173,7 +173,7 @@ namespace WoWSlimClient.Models
 
         public bool HasMagicDebuff => GetDebuffs(LuaTarget.Player).Any(t => t.Type == EffectType.Magic);
 
-        public void ReleaseCorpse() {}
+        public void ReleaseCorpse() { }
 
         public void RetrieveCorpse() { }
 
@@ -184,7 +184,7 @@ namespace WoWSlimClient.Models
 
         public void RefreshSkills()
         {
-            
+
         }
 
         public int GetSpellId(string spellName, int rank = -1)
@@ -223,14 +223,14 @@ namespace WoWSlimClient.Models
         public bool CanRiposte
         {
             get
-            {                
+            {
                 return false;
             }
         }
 
         public void StartAttack()
         {
-            
+
         }
     }
 }

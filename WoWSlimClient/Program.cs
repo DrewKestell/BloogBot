@@ -1,4 +1,6 @@
-﻿using WoWSlimClient;
+﻿using Newtonsoft.Json;
+using System;
+using WoWSlimClient;
 using WoWSlimClient.Client;
 using WoWSlimClient.Manager;
 using WoWSlimClient.Models;
@@ -6,29 +8,46 @@ using WoWSlimClient.Models;
 class Program
 {
     static WoWClient WoWClient;
-    static string accountName;
-    static string password;
-    static string ipAddress;
-    static int port;
+    static string accountName = string.Empty;
+    static string password = "password";
+    static string ipAddress = "127.0.0.1";
+    static int port = 3724;
     static void Main(string[] args)
     {
         ObjectManager.Instance.Initialize();
 
         WoWEventHandler.Instance.OnLoginConnect += Instance_OnLoginConnect;
         WoWEventHandler.Instance.OnLoginSuccess += Instance_OnLoginSuccess;
-        WoWEventHandler.Instance.OnLoginFailure += Instance_OnLoginFailure; 
+        WoWEventHandler.Instance.OnLoginFailure += Instance_OnLoginFailure;
         WoWEventHandler.Instance.OnCharacterListLoaded += Instance_OnCharacterListLoaded;
 
         try
         {
-            accountName = "ORWR1";
-            password = "password";
-            ipAddress = "127.0.0.1";
-            port = 3724;
-
             for (int i = 0; i < args.Length; i++)
             {
-                // Handle args for the above variables
+                if (i % 2 == 0)
+                {
+                    switch (args[i])
+                    {
+                        case "-a":
+                            accountName = args[i + 1];
+                            break;
+                        case "-p":
+                            password = args[i + 1];
+                            break;
+                        case "-ip":
+                            ipAddress = args[i + 1];
+                            break;
+                        case "-port":
+                            port = int.Parse(args[i + 1]);
+                            break;
+                    }
+                }
+            }
+
+            if (string.IsNullOrEmpty(accountName))
+            {
+                throw new Exception("No Username provided");
             }
 
             WoWClient = new WoWClient(ipAddress, port);
@@ -39,6 +58,15 @@ class Program
             Console.WriteLine($"An error occurred: {ex}");
         }
 
+        Console.ReadKey();
+        try
+        {
+            Console.WriteLine(JsonConvert.SerializeObject(ObjectManager.Instance.Objects));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex}");
+        }
         Console.ReadKey();
     }
 
@@ -61,18 +89,21 @@ class Program
             }
             else
             {
-                Console.WriteLine("No realm selected");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("[Main]No realm selected");
             }
         }
         else
         {
-            Console.WriteLine("No realms listed");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("[Main]No realms listed");
         }
     }
 
     private static void Instance_OnLoginFailure(object? sender, EventArgs e)
     {
-        Console.WriteLine("Failed to login to WoW server");
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("[Main]Failed to login to WoW server");
     }
 
     private static async void Instance_OnCharacterListLoaded(object? sender, EventArgs e)

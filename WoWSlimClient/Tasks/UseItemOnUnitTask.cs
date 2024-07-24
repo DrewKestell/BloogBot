@@ -1,6 +1,6 @@
 ﻿using WoWSlimClient.Manager;
 using WoWSlimClient.Models;
-using static WoWSlimClient.Models.Enums;
+
 
 namespace WoWSlimClient.Tasks.SharedStates
 {

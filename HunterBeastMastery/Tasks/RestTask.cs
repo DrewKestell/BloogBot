@@ -54,7 +54,7 @@ namespace HunterBeastMastery.Tasks
                     int foodToBuy = 12 - (foodCount / stackCount);
                     int drinkToBuy = 28 - (drinkCount / stackCount);
 
-                    Dictionary<string, int> itemsToBuy = new();
+                    Dictionary<string, int> itemsToBuy = [];
                     //if (foodToBuy > 0)
                     //    itemsToBuy.Add(container.BotSettings.Food, foodToBuy);
                     //if (drinkToBuy > 0)

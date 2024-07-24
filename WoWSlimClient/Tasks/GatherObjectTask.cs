@@ -6,11 +6,11 @@ namespace WoWSlimClient.Tasks.SharedStates
 {
     internal class GatherObjectTask : BotTask, IBotTask
     {
-        private readonly WoWObject target;
+        private readonly WoWGameObject target;
         private readonly int initialCount = 0;
         private readonly int startTime = Environment.TickCount;
         private readonly LootFrame lootFrame;
-        internal GatherObjectTask(IClassContainer container, Stack<IBotTask> botTasks, WoWObject target) : base(container, botTasks, TaskType.Ordinary)
+        internal GatherObjectTask(IClassContainer container, Stack<IBotTask> botTasks, WoWGameObject target) : base(container, botTasks, TaskType.Ordinary)
         {
             this.target = target;
         }
