@@ -6,11 +6,15 @@ namespace WoWSlimClient.Client
     internal class OpCodeDispatcher
     {
         public static OpCodeDispatcher Instance { get; } = new OpCodeDispatcher();
-        private readonly Dictionary<Opcodes, Action<Opcodes, byte[]>> _handlers = [];
+        private readonly Dictionary<Opcodes, Action<Opcodes, byte[]>> _handlers = []; 
+        private Queue<Action> _queue;
+        private Task _runnerTask;
 
         private OpCodeDispatcher()
         {
             RegisterHandlers();
+            _queue = new Queue<Action>();
+            _runnerTask = Runner();
         }
 
         private void RegisterHandlers()
@@ -44,12 +48,28 @@ namespace WoWSlimClient.Client
         {
             if (_handlers.TryGetValue(opcode, out var handler))
             {
-                handler(opcode, data);
+                _queue.Enqueue(() => handler(opcode, data));
             }
             else
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 //Console.WriteLine($"Unhandled opcode: {opcode} {BitConverter.ToString(data)}");
+            }
+        }
+
+        private async Task Runner()
+        {
+            while (true)
+            {
+                if (_queue.Count > 0)
+                {
+                    var action = _queue.Dequeue();
+                    action();
+                }
+                else
+                {
+                    await Task.Delay(1);
+                }
             }
         }
 

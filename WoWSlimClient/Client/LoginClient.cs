@@ -1,4 +1,5 @@
-﻿using Org.BouncyCastle.Crypto.Digests;
+﻿using Google.Protobuf;
+using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities;
 using System.Net;
@@ -56,7 +57,6 @@ namespace WoWSlimClient.Client
             _password = password;
 
             WoWEventHandler.Instance.FireOnHandshakeBegin();
-
             using var memoryStream = new MemoryStream();
             using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
             int packetSize = 30 + _username.Length;
@@ -81,8 +81,10 @@ namespace WoWSlimClient.Client
             writer.Write((byte)_username.Length); // Username length
             writer.Write(Encoding.UTF8.GetBytes(_username)); // Username
 
-            writer.Flush();
+            writer.Flush(); 
             byte[] packetData = memoryStream.ToArray();
+
+            // Send the packet
             _stream.Write(packetData, 0, packetData.Length);
 
             ReceiveAuthLogonChallengeServer();

@@ -913,7 +913,6 @@ namespace WoWSlimClient.Models
         SMSG_REFER_A_FRIEND_FAILURE = 0x420,
         SMSG_SUMMON_CANCEL = 0x423
     }
-
     public enum ResponseCodes
     {
         RESPONSE_SUCCESS = 0x00,
@@ -1000,7 +999,7 @@ namespace WoWSlimClient.Models
         CHAR_NAME_FAILURE = 0x51,
         CHAR_NAME_SUCCESS = 0x52,
     }
-    // Define UpdateTypes enum
+
     enum ObjectUpdateType
     {
         PARTIAL = 0,
@@ -1023,8 +1022,6 @@ namespace WoWSlimClient.Models
         UPDATEFLAG_LIVING = 0x0020,
         UPDATEFLAG_HAS_POSITION = 0x0040
     }
-
-
     public enum DialogType
     {
         gossip = 0,
@@ -1039,9 +1036,7 @@ namespace WoWSlimClient.Models
         battlemaster = 9,
         auctioneer = 10
     }
-    /// <summary>
-    ///     Type of units that can send chat messages
-    /// </summary>
+
     public enum ChatSenderType
     {
         Player = 1,
@@ -1082,7 +1077,6 @@ namespace WoWSlimClient.Models
         WhisperInformForeign = 0x1E,
         MonsterParty = 0x1F // Verify if this actually exists in 1.12.1
     }
-
     public enum Language : int
     {
         Universal = 0,
@@ -1100,7 +1094,6 @@ namespace WoWSlimClient.Models
         Troll = 14,
         Gutterspeak = 33
     }
-
     public enum ChatTag : byte
     {
         None = 0x00,
@@ -1345,86 +1338,6 @@ namespace WoWSlimClient.Models
         CLOSE = 2
     }
 
-    [Flags]
-    public enum DynamicFlags
-    {
-        None = 0x0,
-        CanBeLooted = 0x1,
-        IsMarked = 0x2,
-        Tapped = 0x4, // Makes creature name tag appear grey
-        TappedByMe = 0x8
-    }
-
-    /// <summary>
-    /// UnitFlags
-    /// </summary>
-    [Flags]
-    public enum UnitFlags : uint
-    {
-        UNIT_FLAG_UNK_0 = 0x00000001, // Movement checks disabled, likely paired with loss of client control packet. We use it to add custom cliffwalking to GM mode until actual usecases will be known.
-        UNIT_FLAG_NON_ATTACKABLE = 0x00000002, // not attackable
-        UNIT_FLAG_CLIENT_CONTROL_LOST = 0x00000004, // Generic unspecified loss of control initiated by server script, movement checks disabled, paired with loss of client control packet.
-        UNIT_FLAG_PLAYER_CONTROLLED = 0x00000008, // players, pets, totems, guardians, companions, charms, any units associated with players
-        UNIT_FLAG_RENAME = 0x00000010, // ??
-        UNIT_FLAG_PREPARATION = 0x00000020, // don't take reagents for spells with SPELL_ATTR_EX5_NO_REAGENT_WHILE_PREP
-        UNIT_FLAG_UNK_6 = 0x00000040, // ??
-        UNIT_FLAG_NOT_ATTACKABLE_1 = 0x00000080, // ?? (UNIT_FLAG_PVP_ATTACKABLE | UNIT_FLAG_NOT_ATTACKABLE_1) is NON_PVP_ATTACKABLE
-        UNIT_FLAG_IMMUNE_TO_PLAYER = 0x00000100, // Target is immune to players
-        UNIT_FLAG_IMMUNE_TO_NPC = 0x00000200, // Target is immune to Non-Player Characters
-        UNIT_FLAG_LOOTING = 0x00000400, // loot animation
-        UNIT_FLAG_PET_IN_COMBAT = 0x00000800, // in combat?, 2.0.8
-        UNIT_FLAG_PVP = 0x00001000, // is flagged for pvp
-        UNIT_FLAG_SILENCED = 0x00002000, // silenced, 2.1.1
-        UNIT_FLAG_PERSUADED = 0x00004000, // persuaded, 2.0.8
-        UNIT_FLAG_SWIMMING = 0x00008000, // controls water swimming animation - TODO: confirm whether dynamic or static
-        UNIT_FLAG_NON_ATTACKABLE_2 = 0x00010000, // removes attackable icon, if on yourself, cannot assist self but can cast TARGET_UNIT_CASTER spells - added by SPELL_AURA_MOD_UNATTACKABLE
-        UNIT_FLAG_PACIFIED = 0x00020000, // probably like the paladin's Repentance spell
-        UNIT_FLAG_STUNNED = 0x00040000, // Unit is a subject to stun, turn and strafe movement disabled
-        UNIT_FLAG_IN_COMBAT = 0x00080000,
-        UNIT_FLAG_TAXI_FLIGHT = 0x00100000, // Unit is on taxi, paired with a duplicate loss of client control packet (likely a legacy serverside hack). Disables any spellcasts not allowed in taxi flight client-side.
-        UNIT_FLAG_DISARMED = 0x00200000, // disable melee spells casting..., "Required melee weapon" added to melee spells tooltip.
-        UNIT_FLAG_CONFUSED = 0x00400000, // Unit is a subject to confused movement, movement checks disabled, paired with loss of client control packet.
-        UNIT_FLAG_FLEEING = 0x00800000, // Unit is a subject to fleeing movement, movement checks disabled, paired with loss of client control packet.
-        UNIT_FLAG_POSSESSED = 0x01000000, // Unit is under remote control by another unit, movement checks disabled, paired with loss of client control packet. New master is allowed to use melee attack and can't select this unit via mouse in the world (as if it was own character).
-        UNIT_FLAG_NOT_SELECTABLE = 0x02000000,
-        UNIT_FLAG_SKINNABLE = 0x04000000,
-        UNIT_FLAG_MOUNT = 0x08000000, // is mounted?
-        UNIT_FLAG_UNK_28 = 0x10000000, // ??
-        UNIT_FLAG_UNK_29 = 0x20000000, // used in Feing Death spell
-        UNIT_FLAG_SHEATHE = 0x40000000, // ??
-        UNIT_FLAG_IMMUNE = 0x80000000
-    }
-
-    [Flags]
-    public enum MovementFlags
-    {
-        MOVEFLAG_NONE = 0x00000000,
-        MOVEFLAG_FORWARD = 0x00000001,
-        MOVEFLAG_BACKWARD = 0x00000002,
-        MOVEFLAG_STRAFE_LEFT = 0x00000004,
-        MOVEFLAG_STRAFE_RIGHT = 0x00000008,
-        MOVEFLAG_TURN_LEFT = 0x00000010,
-        MOVEFLAG_TURN_RIGHT = 0x00000020,
-        MOVEFLAG_PITCH_UP = 0x00000040, // ??
-        MOVEFLAG_PITCH_DOWN = 0x00000080, // ??
-        MOVEFLAG_WALK_MODE = 0x00000100, // Walking
-        MOVEFLAG_ONTRANSPORT = 0x00000200, // Used for flying on some creatures
-        MOVEFLAG_LEVITATING = 0x00000400,
-        MOVEFLAG_ROOT = 0x00000800,
-        MOVEFLAG_FALLING = 0x00001000,
-        MOVEFLAG_FALLINGFAR = 0x00004000, // ??
-        MOVEFLAG_SWIMMING = 0x00200000, // appears with fly flag also
-        MOVEFLAG_ASCENDING = 0x00400000, // swim up also
-        MOVEFLAG_CAN_FLY = 0x00800000, // ??
-        MOVEFLAG_FLYING = 0x01000000, // ??
-        MOVEFLAG_FLYING2 = 0x02000000, // Actual flying mode
-        MOVEFLAG_SPLINE_ELEVATION = 0x04000000, // used for flight paths
-        MOVEFLAG_SPLINE_ENABLED = 0x08000000, // used for flight paths
-        MOVEFLAG_WATERWALKING = 0x10000000, // prevent unit from falling through water
-        MOVEFLAG_SAFE_FALL = 0x20000000, // active rogue safe fall spell (passive)
-        MOVEFLAG_HOVER = 0x40000000
-    };
-
     /// <summary>
     ///     Classes of WoW
     /// </summary>
@@ -1662,31 +1575,6 @@ namespace WoWSlimClient.Models
     }
 
     /// <summary>
-    /// NpcFlags - taken straight from mangos (some might be incorrect in conclusion)
-    /// </summary>
-    [Flags]
-    public enum NpcFlags
-    {
-        UNIT_NPC_FLAG_NONE = 0x00000000,
-        UNIT_NPC_FLAG_GOSSIP = 0x00000001,       // 100%
-        UNIT_NPC_FLAG_QUESTGIVER = 0x00000002,       // guessed, probably ok
-        UNIT_NPC_FLAG_VENDOR = 0x00000004,       // 100%
-        UNIT_NPC_FLAG_FLIGHTMASTER = 0x00000008,       // 100%
-        UNIT_NPC_FLAG_TRAINER = 0x00000010,       // 100%
-        UNIT_NPC_FLAG_SPIRITHEALER = 0x00000020,       // guessed
-        UNIT_NPC_FLAG_SPIRITGUIDE = 0x00000040,       // guessed
-        UNIT_NPC_FLAG_INNKEEPER = 0x00000080,       // 100%
-        UNIT_NPC_FLAG_BANKER = 0x00000100,       // 100%
-        UNIT_NPC_FLAG_PETITIONER = 0x00000200,       // 100% 0xC0000 = guild petitions
-        UNIT_NPC_FLAG_TABARDDESIGNER = 0x00000400,       // 100%
-        UNIT_NPC_FLAG_BATTLEMASTER = 0x00000800,       // 100%
-        UNIT_NPC_FLAG_AUCTIONEER = 0x00001000,       // 100%
-        UNIT_NPC_FLAG_STABLEMASTER = 0x00002000,       // 100%
-        UNIT_NPC_FLAG_REPAIR = 0x00004000,       // 100%
-        UNIT_NPC_FLAG_OUTDOORPVP = 0x20000000, // custom flag for outdoor pvp creatures || Custom flag
-    }
-
-    /// <summary>
     ///     The different ranks of creatures
     /// </summary>
     public enum CreatureRank
@@ -1830,29 +1718,6 @@ namespace WoWSlimClient.Models
         Exalted
     }
 
-    /// <summary>
-    ///     Different types of WoW objects
-    /// </summary>
-    
-    public enum WoWObjectType : byte
-    {
-        [Description("None")]
-        None = 0,
-        [Description("Item")]
-        Item = 1,
-        [Description("Container")]
-        Container = 2,
-        [Description("Unit")]
-        Unit = 3,
-        [Description("Player")]
-        Player = 4,
-        [Description("GameObj")]
-        GameObj = 5,
-        [Description("DynamicObj")]
-        DynamicObj = 6,
-        [Description("Corpse")]
-        Corpse = 7
-    }
     [Flags]
     enum TypeMask
     {
