@@ -1,27 +1,19 @@
-﻿// Nat owns this file!
-
-using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
-using static WoWActivityMember.Constants.Enums;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using PathfindingService.Models;
+using static BotRunner.Constants.Spellbook;
 
 namespace RogueAssassin.Tasks
 {
     internal class PullTargetTask : BotTask, IBotTask
     {
-        private const string Distract = "Distract";
-        private const string Garrote = "Garrote";
-        private const string Stealth = "Stealth";
-        private const string CheapShot = "Cheap Shot";
-        private const string Ambush = "Ambush";
         private bool SwapDaggerReady;
         private bool DaggerEquipped;
         private bool SwapMaceOrSwordReady;
         private bool MaceOrSwordEquipped;
 
-        internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull) { }
+        internal PullTargetTask(IBotContext botContext) : base(botContext) { }
 
         public void Update()
         {
@@ -34,13 +26,13 @@ namespace RogueAssassin.Tasks
 
             float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position);
             if (distanceToTarget < 30 && !ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(Garrote) && !ObjectManager.Player.IsInCombat)
-                Functions.LuaCall($"CastSpellByName('{Stealth}')");
+                ObjectManager.Player.CastSpell(Stealth);
 
             // Weapon Swap Logic                                       
 
-            WoWItem MainHand = Inventory.GetEquippedItem(EquipSlot.MainHand);
-            WoWItem OffHand = Inventory.GetEquippedItem(EquipSlot.OffHand);
-            WoWItem SwapSlotWeap = Inventory.GetItem(4, 1);
+            IWoWItem MainHand = ObjectManager.GetEquippedItem(EquipSlot.MainHand);
+            IWoWItem OffHand = ObjectManager.GetEquippedItem(EquipSlot.OffHand);
+            IWoWItem SwapSlotWeap = ObjectManager.GetItem(4, 1);
 
             //Console.WriteLineVerbose("Mainhand Item Type:  " + MainHand.Info.ItemSubclass);
             //Console.WriteLineVerbose("Offhand Item Type:  " + OffHand.Info.ItemSubclass);
@@ -94,7 +86,7 @@ namespace RogueAssassin.Tasks
 
             if (SwapDaggerReady == true && !ObjectManager.Player.IsInCombat && !ObjectManager.Player.HasBuff(Stealth))
             {
-                Functions.LuaCall($"UseContainerItem({4}, {2})");
+                ObjectManager.UseContainerItem(4, 2);
                 Console.WriteLine(MainHand.Info.Name + " swapped Into Mainhand!");
             }
 
@@ -111,19 +103,19 @@ namespace RogueAssassin.Tasks
 
             if (distanceToTarget < 5 && ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(Ambush) && DaggerEquipped && !ObjectManager.Player.IsInCombat && ObjectManager.Player.IsBehind(ObjectManager.Player.Target))
             {
-                Functions.LuaCall($"CastSpellByName('{Ambush}')");
+                ObjectManager.Player.CastSpell(Ambush);
                 return;
             }
 
             if (distanceToTarget < 5 && ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(Garrote) && !DaggerEquipped && !ObjectManager.Player.IsInCombat && ObjectManager.Player.IsBehind(ObjectManager.Player.Target))
             {
-                Functions.LuaCall($"CastSpellByName('{Garrote}')");
+                ObjectManager.Player.CastSpell(Garrote);
                 return;
             }
 
             if (distanceToTarget < 5 && ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(CheapShot) && !ObjectManager.Player.IsInCombat && !ObjectManager.Player.IsBehind(ObjectManager.Player.Target))
             {
-                Functions.LuaCall($"CastSpellByName('{CheapShot}')");
+                ObjectManager.Player.CastSpell(CheapShot);
                 return;
             }
 
@@ -131,11 +123,11 @@ namespace RogueAssassin.Tasks
             {
                 ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
-                BotTasks.Push(new PvERotationTask(Container, BotTasks));
+                BotTasks.Push(new PvERotationTask(BotContext));
                 return;
             }
 
-            Position[] nextWaypoint = Navigation.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+            Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
             ObjectManager.Player.MoveToward(nextWaypoint[0]);
         }
     }

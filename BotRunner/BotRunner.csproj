@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ActivityManager\ActivityManager.csproj" />
+    <ProjectReference Include="..\BotCommLayer\BotCommLayer.csproj" />
+    <ProjectReference Include="..\DatabaseDomain\DatabaseDomain.csproj" />
+    <ProjectReference Include="..\PathfindingService\PathfindingService.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.ComponentModel.Composition">
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8.1\System.ComponentModel.Composition.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

@@ -1,11 +1,11 @@
-﻿using WoWActivityMember.Tasks.SharedStates;
-using WoWActivityMember.Tasks;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
 
 namespace DruidRestoration.Tasks
 {
     internal class PvPRotationTask : CombatRotationTask, IBotTask
     {
-        internal PvPRotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
+        internal PvPRotationTask(IBotContext botContext) : base(botContext) { }
 
         public void Update()
         {

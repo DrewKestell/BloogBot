@@ -1,53 +1,24 @@
-﻿using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
-using WoWActivityMember.Tasks.SharedStates;
-using static WoWActivityMember.Constants.Enums;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using PathfindingService.Models;
+using static BotRunner.Constants.Spellbook;
 
 namespace PriestShadow.Tasks
 {
-    internal class PvERotationTask : CombatRotationTask, IBotTask
+    internal class PvERotationTask(IBotContext botContext) : CombatRotationTask(botContext), IBotTask
     {
-        private const string WandLuaScript = "if IsAutoRepeatAction(72) == nil then CastSpellByName('Shoot') end";
-        private const string TurnOffWandLuaScript = "if IsAutoRepeatAction(72) ~= nil then CastSpellByName('Shoot') end";
-        private const string AbolishDisease = "Abolish Disease";
-        private const string CureDisease = "Cure Disease";
-        private const string DispelMagic = "Dispel Magic";
-        private const string Fade = "Fade";
-        private const string InnerFire = "Inner Fire";
-        private const string LesserHeal = "Lesser Heal";
-        private const string MindBlast = "Mind Blast";
-        private const string MindFlay = "Mind Flay";
-        private const string PowerWordShield = "Power Word: Shield";
-        private const string PsychicScream = "Psychic Scream";
-        private const string ShadowForm = "Shadowform";
-        private const string ShadowWordPain = "Shadow Word: Pain";
-        private const string Smite = "Smite";
-        private const string VampiricEmbrace = "Vampiric Embrace";
-        private const string WeakenedSoul = "Weakened Soul";
-        private const string Heal = "Heal";
-        private const string Renew = "Renew";
-        private readonly bool hasWand;
-
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
-        {
-            hasWand = Inventory.GetEquippedItem(EquipSlot.Ranged) != null;
-        }
-
         public void Update()
         {
-            if (ObjectManager.Aggressors.Count == 0)
+            if (!ObjectManager.Aggressors.Any())
             {
                 BotTasks.Pop();
                 return;
             }
 
-            WoWUnit woWUnit = ObjectManager.Aggressors.FirstOrDefault(x => x.TargetGuid == ObjectManager.Player.Guid);
+            IWoWUnit woWUnit = ObjectManager.Aggressors.FirstOrDefault(x => x.TargetGuid == ObjectManager.Player.Guid);
             if (ObjectManager.PartyMembers.Any(x => x.HealthPercent < 70) && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(LesserHeal))
             {
-                List<WoWPlayer> unhealthyMembers = ObjectManager.PartyMembers.Where(x => x.HealthPercent < 70).OrderBy(x => x.Health).ToList();
+                List<IWoWPlayer> unhealthyMembers = ObjectManager.PartyMembers.Where(x => x.HealthPercent < 70).OrderBy(x => x.Health).ToList();
 
                 if (unhealthyMembers.Count > 0 && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(LesserHeal))
                 {
@@ -64,20 +35,20 @@ namespace PriestShadow.Tasks
                 if (ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) < 40 && ObjectManager.Player.InLosWith(ObjectManager.Player.Target))
                 {
                     ObjectManager.Player.StopAllMovement();
-                    Functions.LuaCall(TurnOffWandLuaScript);
+                    ObjectManager.Player.StopWand();
 
                     ObjectManager.Player.StopAllMovement();
 
                     if (!ObjectManager.Player.Target.HasBuff(Renew))
-                        Functions.LuaCall($"CastSpellByName('{Renew}')");
+                        ObjectManager.Player.CastSpell(Renew);
                     if (ObjectManager.Player.IsSpellReady(LesserHeal))
-                        Functions.LuaCall($"CastSpellByName('{LesserHeal}')");
+                        ObjectManager.Player.CastSpell(LesserHeal);
 
                     return;
                 }
                 else
                 {
-                    Position[] nextWaypoint = Navigation.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+                    Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
 
                     if (nextWaypoint.Length > 1)
                     {
@@ -129,8 +100,8 @@ namespace PriestShadow.Tasks
             ObjectManager.Player.StopAllMovement();
             ObjectManager.Player.Face(ObjectManager.Player.Target.Position);
 
-            if (hasWand && (ObjectManager.Player.Target.HasDebuff(ShadowWordPain) || ObjectManager.Player.ManaPercent < 50))
-                Functions.LuaCall(WandLuaScript);
+            if (ObjectManager.Player.Target.HasDebuff(ShadowWordPain) || ObjectManager.Player.ManaPercent < 50)
+                ObjectManager.Player.StartWand();
             else
             {
                 //TryCastSpell(ShadowForm, 0, int.MaxValue, !ObjectManager.Player.HasBuff(ShadowForm));

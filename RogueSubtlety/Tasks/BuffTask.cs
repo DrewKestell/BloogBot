@@ -1,8 +1,9 @@
-﻿using WoWActivityMember.Tasks;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
 
 namespace RogueSubtlety.Tasks
 {
-    internal class BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Buff), IBotTask
+    internal class BuffTask(IBotContext botContext) : BotTask(botContext), IBotTask
     {
         public void Update()
         {

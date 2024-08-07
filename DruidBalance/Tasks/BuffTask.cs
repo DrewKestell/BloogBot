@@ -1,16 +1,11 @@
-﻿using WoWActivityMember.Tasks;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace DruidBalance.Tasks
 {
-    internal class BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Buff), IBotTask
+    internal class BuffTask(IBotContext botContext) : BotTask(botContext), IBotTask
     {
-        private const string MarkOfTheWild = "Mark of the Wild";
-        private const string Thorns = "Thorns";
-        private const string OmenOfClarity = "Omen of Clarity";
-        private const string MoonkinForm = "Moonkin Form";
-
         public void Update()
         {
             if ((ObjectManager.Player.HasBuff(MarkOfTheWild) || !ObjectManager.Player.IsSpellReady(MarkOfTheWild)) &&
@@ -25,20 +20,14 @@ namespace DruidBalance.Tasks
             {
                 if (ObjectManager.Player.HasBuff(MoonkinForm))
                 {
-                    Functions.LuaCall($"CastSpellByName('{MoonkinForm}')");
+                    ObjectManager.Player.CastSpell(MoonkinForm);
                 }
 
-                TryCastSpell(MarkOfTheWild);
+                ObjectManager.Player.CastSpell(MarkOfTheWild);
             }
 
-            TryCastSpell(Thorns);
-            TryCastSpell(OmenOfClarity);
-        }
-
-        private void TryCastSpell(string name)
-        {
-            if (!ObjectManager.Player.HasBuff(name) && ObjectManager.Player.IsSpellReady(name))
-                Functions.LuaCall($"CastSpellByName('{name}',1)");
+            ObjectManager.Player.CastSpell(Thorns);
+            ObjectManager.Player.CastSpell(OmenOfClarity);
         }
     }
 }

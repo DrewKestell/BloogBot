@@ -1,14 +1,10 @@
-﻿using WoWActivityMember.Tasks;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
 
 namespace ShamanRestoration.Tasks
 {
-    internal class PullTargetTask : BotTask, IBotTask
+    public class PullTargetTask(IBotContext botContext) : BotTask(botContext), IBotTask
     {
-        internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull)
-        {
-
-        }
-
         public void Update()
         {
             BotTasks.Pop();

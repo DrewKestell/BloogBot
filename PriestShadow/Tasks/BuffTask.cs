@@ -1,22 +1,17 @@
-﻿using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using PathfindingService.Models;
+using static BotRunner.Constants.Spellbook;
 
 namespace PriestShadow.Tasks
 {
-    internal class BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Buff), IBotTask
+    public class BuffTask(IBotContext botContext) : BotTask(botContext), IBotTask
     {
-        private const string PowerWordFortitude = "Power Word: Fortitude";
-        private const string ShadowProtection = "Shadow Protection";
-        private const string LesserHeal = "Lesser Heal";
-
         public void Update()
         {
             if (ObjectManager.PartyMembers.Any(x => x.HealthPercent < 70) && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(LesserHeal))
             {
-                BotTasks.Push(new HealTask(Container, BotTasks));
+                BotTasks.Push(new HealTask(BotContext));
                 return;
             }
 
@@ -27,11 +22,11 @@ namespace PriestShadow.Tasks
             }
 
 
-            WoWUnit woWUnit = ObjectManager.PartyMembers.First(x => !x.HasBuff(PowerWordFortitude));
+            IWoWUnit woWUnit = ObjectManager.PartyMembers.First(x => !x.HasBuff(PowerWordFortitude));
 
             if (woWUnit.Position.DistanceTo(ObjectManager.Player.Position) > 15 || !ObjectManager.Player.InLosWith(woWUnit))
             {
-                Position[] locations = Navigation.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, woWUnit.Position, true);
+                Position[] locations = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, woWUnit.Position, true);
 
                 if (locations.Length > 1)
                 {
@@ -46,8 +41,9 @@ namespace PriestShadow.Tasks
             }
 
             ObjectManager.Player.SetTarget(woWUnit.Guid);
+
             if (!woWUnit.HasBuff(PowerWordFortitude) && ObjectManager.Player.IsSpellReady(PowerWordFortitude))
-                Functions.LuaCall($"CastSpellByName('{PowerWordFortitude}')");
+                ObjectManager.Player.CastSpell(PowerWordFortitude);
         }
     }
 }

@@ -1,24 +1,13 @@
-﻿using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
-using WoWActivityMember.Tasks.SharedStates;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace RogueCombat.Tasks
 {
     internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        private const string AdrenalineRush = "Adrenaline Rush";
-        private const string BladeFlurry = "Blade Flurry";
-        private const string Evasion = "Evasion";
-        private const string Eviscerate = "Eviscerate";
-        private const string Gouge = "Gouge";
-        private const string BloodFury = "Blood Fury";
-        private const string Kick = "Kick";
-        private const string Riposte = "Riposte";
-        private const string SinisterStrike = "Sinister Strike";
-        private const string SliceAndDice = "Slice and Dice";
 
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
+        internal PvERotationTask(IBotContext botContext) : base(botContext) { }
 
         public override void PerformCombatRotation()
         {
@@ -26,7 +15,7 @@ namespace RogueCombat.Tasks
 
         public void Update()
         {
-            if (ObjectManager.Aggressors.Count == 0)
+            if (!ObjectManager.Aggressors.Any())
             {
                 BotTasks.Pop();
                 return;
@@ -46,7 +35,7 @@ namespace RogueCombat.Tasks
 
             AssignDPSTarget();
 
-            if (!raidLeader.IsMoving && ObjectManager.Player.Target != null && ObjectManager.Player.Target.Position.DistanceTo(raidLeader.Position) <= 5)
+            if (!ObjectManager.PartyLeader.IsMoving && ObjectManager.Player.Target != null && ObjectManager.Player.Target.Position.DistanceTo(ObjectManager.PartyLeader.Position) <= 5)
             {
                 if (MoveBehindTarget(3))
                     return;
@@ -54,7 +43,7 @@ namespace RogueCombat.Tasks
                 {
                     ObjectManager.Player.StopAllMovement();
                     ObjectManager.Player.Face(ObjectManager.Player.Target.Position);
-                    ObjectManager.Player.StartAttack();
+                    ObjectManager.Player.StartMeleeAttack();
 
                     TryUseAbility(AdrenalineRush, 0, ObjectManager.Aggressors.Count() == 3 && ObjectManager.Player.HealthPercent > 80);
 
@@ -86,6 +75,6 @@ namespace RogueCombat.Tasks
                 ObjectManager.Player.StopAllMovement();
         }
 
-        private bool ReadyToInterrupt(WoWUnit target) => ObjectManager.Player.Target.Mana > 0 && (target.IsCasting || ObjectManager.Player.Target.IsChanneling);
+        private bool ReadyToInterrupt(IWoWUnit target) => ObjectManager.Player.Target.Mana > 0 && (target.IsCasting || ObjectManager.Player.Target.IsChanneling);
     }
 }

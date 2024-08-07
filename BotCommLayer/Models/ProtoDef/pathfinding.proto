@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package pathfinding;
+
+message PathfindingRequest {
+  uint32 mapId = 1;
+  PositionDTO start = 2;
+  PositionDTO end = 3;
+  bool smoothPath = 4;
+}
+
+message PathfindingResponse {
+  repeated PositionDTO path = 1;
+}
+
+message PositionDTO {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}

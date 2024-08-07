@@ -1,8 +1,6 @@
-﻿using WoWActivityMember.Tasks;
-using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using PathfindingService.Models;
 
 namespace DruidBalance.Tasks
 {
@@ -14,7 +12,7 @@ namespace DruidBalance.Tasks
         private readonly int range;
         private readonly string pullingSpell;
 
-        internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull)
+        internal PullTargetTask(IBotContext botContext) : base(botContext)
         {
             if (ObjectManager.Player.Level <= 19)
                 range = 28;
@@ -31,7 +29,7 @@ namespace DruidBalance.Tasks
 
         public void Update()
         {
-            if (ObjectManager.Player.Target.TappedByOther || (ObjectManager.Aggressors.Count() > 0 && !ObjectManager.Aggressors.Any(a => a.Guid == ObjectManager.Player.TargetGuid)))
+            if (ObjectManager.Player.Target.TappedByOther || (ObjectManager.Aggressors.Any() && !ObjectManager.Aggressors.Any(a => a.Guid == ObjectManager.Player.TargetGuid)))
             {
                 Wait.RemoveAll();
                 BotTasks.Pop();
@@ -43,7 +41,7 @@ namespace DruidBalance.Tasks
 
             if (ObjectManager.Player.IsSpellReady(MoonkinForm) && !ObjectManager.Player.HasBuff(MoonkinForm))
             {
-                Functions.LuaCall($"CastSpellByName('{MoonkinForm}')");
+                ObjectManager.Player.CastSpell(MoonkinForm);
             }
 
             if (ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) < range && ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady(pullingSpell) && ObjectManager.Player.InLosWith(ObjectManager.Player.Target))
@@ -54,20 +52,20 @@ namespace DruidBalance.Tasks
                 if (Wait.For("BalanceDruidPullDelay", 100))
                 {
                     if (!ObjectManager.Player.IsInCombat)
-                        Functions.LuaCall($"CastSpellByName('{pullingSpell}')");
+                        ObjectManager.Player.CastSpell(pullingSpell);
 
                     if (ObjectManager.Player.IsCasting || ObjectManager.Player.IsInCombat)
                     {
                         ObjectManager.Player.StopAllMovement();
                         Wait.RemoveAll();
                         BotTasks.Pop();
-                        BotTasks.Push(new PvERotationTask(Container, BotTasks));
+                        BotTasks.Push(new PvERotationTask(BotContext));
                     }
                 }
                 return;
             }
 
-            Position[] nextWaypoint = Navigation.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+            Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
             ObjectManager.Player.MoveToward(nextWaypoint[0]);
         }
     }

@@ -1,15 +1,11 @@
-﻿using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Tasks;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace PaladinRetribution.Tasks
 {
-    internal class BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Buff), IBotTask
+    internal class BuffTask(IBotContext botContext) : BotTask(botContext), IBotTask
     {
-        private const string BlessingOfKings = "Blessing of Kings";
-        private const string BlessingOfMight = "Blessing of Might";
-        private const string BlessingOfSanctuary = "Blessing of Sanctuary";
-
         public void Update()
         {
             if (!ObjectManager.Player.IsSpellReady(BlessingOfMight) || ObjectManager.Player.HasBuff(BlessingOfMight) || ObjectManager.Player.HasBuff(BlessingOfKings) || ObjectManager.Player.HasBuff(BlessingOfSanctuary))
@@ -31,7 +27,7 @@ namespace PaladinRetribution.Tasks
         private void TryCastSpell(string name)
         {
             if (!ObjectManager.Player.HasBuff(name) && ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.Mana > ObjectManager.Player.GetManaCost(name))
-                Functions.LuaCall($"CastSpellByName('{name}',1)");
+                ObjectManager.Player.CastSpell(name, castOnSelf: true);
         }
     }
 }

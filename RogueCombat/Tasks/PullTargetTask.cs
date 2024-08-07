@@ -1,20 +1,15 @@
-﻿using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
-using static WoWActivityMember.Constants.Enums;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using PathfindingService.Models;
+using static BotRunner.Constants.Spellbook;
 
 namespace RogueCombat.Tasks
 {
     internal class PullTargetTask : BotTask, IBotTask
     {
-        private const string Distract = "Distract";
-        private const string Garrote = "Garrote";
-        private const string Stealth = "Stealth";
-        private const string CheapShot = "Cheap Shot";
 
-        internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull) { }
+        internal PullTargetTask(IBotContext botContext) : base(botContext) { }
 
         public void Update()
         {
@@ -28,7 +23,7 @@ namespace RogueCombat.Tasks
             float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position);
             if (distanceToTarget < 25 && !ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(Garrote) && !ObjectManager.Player.IsInCombat)
             {
-                Functions.LuaCall($"CastSpellByName('{Stealth}')");
+                ObjectManager.Player.CastSpell(Stealth);
             }
 
             if (distanceToTarget < 15 && ObjectManager.Player.IsSpellReady(Distract) && ObjectManager.Player.IsSpellReady(Distract) && ObjectManager.Player.Target.CreatureType != CreatureType.Totem)
@@ -45,12 +40,12 @@ namespace RogueCombat.Tasks
             {
                 if (ObjectManager.Player.IsSpellReady(Garrote) && ObjectManager.Player.Target.CreatureType != CreatureType.Elemental && ObjectManager.Player.IsBehind(ObjectManager.Player.Target))
                 {
-                    Functions.LuaCall($"CastSpellByName('{Garrote}')");
+                    ObjectManager.Player.CastSpell(Garrote);
                     return;
                 }
                 else if (ObjectManager.Player.IsSpellReady(CheapShot) && ObjectManager.Player.IsBehind(ObjectManager.Player.Target))
                 {
-                    Functions.LuaCall($"CastSpellByName('{CheapShot}')");
+                    ObjectManager.Player.CastSpell(CheapShot);
                     return;
                 }
             } 
@@ -59,11 +54,11 @@ namespace RogueCombat.Tasks
             {
                 ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
-                BotTasks.Push(new PvERotationTask(Container, BotTasks));
+                BotTasks.Push(new PvERotationTask(BotContext));
                 return;
             }
 
-            Position[] nextWaypoint = Navigation.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+            Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
             ObjectManager.Player.MoveToward(nextWaypoint[0]);
         }
     }

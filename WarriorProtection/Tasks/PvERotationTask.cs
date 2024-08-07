@@ -1,46 +1,21 @@
-﻿using System.Diagnostics;
-using WoWActivityMember.Tasks;
-using WoWActivityMember.Tasks.SharedStates;
-using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using static WoWActivityMember.Constants.Enums;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using PathfindingService.Models;
+using System.Diagnostics;
+using static BotRunner.Constants.Spellbook;
 
 namespace WarriorProtection.Tasks
 {
     internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        private const string BattleStance = "Battle Stance";
-        private const string DefensiveStance = "Defensive Stance";
-        private const string BerserkerStance = "Berserker Stance";
-        private const string BattleShout = "Battle Shout";
-        private const string Berserking = "Berserking";
-        private const string Bloodrage = "Bloodrage";
-        private const string ConcussionBlow = "Concussion Blow";
-        private const string DemoralizingShout = "Demoralizing Shout";
-        private const string Execute = "Execute";
-        private const string HeroicStrike = "Heroic Strike";
-        private const string LastStand = "Last Stand";
-        private const string Overpower = "Overpower";
-        private const string Rend = "Rend";
-        private const string Retaliation = "Retaliation";
-        private const string Revenge = "Revenge";
-        private const string ShieldBash = "Shield Bash";
-        private const string ShieldSlam = "Shield Slam";
-        private const string SunderArmor = "Sunder Armor";
-        private const string Taunt = "Taunt";
-        private const string ThunderClap = "Thunder Clap";
         private readonly Stopwatch overpowerStopwatch = new();
         private readonly Position tankSpot;
-        private WoWUnit currentDPSTarget;
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
-        {
-            WoWEventHandler.Instance.OnBlockParryDodge += Instance_OnBlockParryDodge;
-        }
+        private IWoWUnit currentDPSTarget;
+        internal PvERotationTask(IBotContext botContext) : base(botContext) => EventHandler.OnBlockParryDodge += Instance_OnBlockParryDodge;
         ~PvERotationTask()
         {
-            WoWEventHandler.Instance.OnBlockParryDodge -= Instance_OnBlockParryDodge;
+            EventHandler.OnBlockParryDodge -= Instance_OnBlockParryDodge;
         }
 
         private void Instance_OnBlockParryDodge(object sender, EventArgs e)
@@ -50,20 +25,20 @@ namespace WarriorProtection.Tasks
 
         public void Update()
         {
-            if (ObjectManager.Aggressors.Count == 0)
+            if (!ObjectManager.Aggressors.Any())
             {
                 BotTasks.Pop();
                 return;
             }
 
-            ObjectManager.Player.StartAttack();
+            ObjectManager.Player.StartMeleeAttack();
 
-            List<WoWUnit> looseUnits = ObjectManager.Aggressors.Where(x => x.TargetGuid != ObjectManager.Player.Guid).OrderBy(x => x.Position.DistanceTo(ObjectManager.Player.Position)).ToList();
-            WoWUnit nearestHostile = ObjectManager.Hostiles.Where(x => !x.IsInCombat).OrderBy(x => x.Position.DistanceTo(ObjectManager.Player.Position)).First();
+            List<IWoWUnit> looseUnits = ObjectManager.Aggressors.Where(x => x.TargetGuid != ObjectManager.Player.Guid).OrderBy(x => x.Position.DistanceTo(ObjectManager.Player.Position)).ToList();
+            IWoWUnit nearestHostile = ObjectManager.Hostiles.Where(x => !x.IsInCombat).OrderBy(x => x.Position.DistanceTo(ObjectManager.Player.Position)).First();
 
             if (looseUnits.Count > 0)
             {
-                WoWUnit looseUnit = looseUnits.First();
+                IWoWUnit looseUnit = looseUnits.First();
 
                 ObjectManager.Player.SetTarget(looseUnit.Guid);
 
@@ -90,7 +65,7 @@ namespace WarriorProtection.Tasks
                     currentDPSTarget = ObjectManager.Aggressors.OrderBy(x => x.Health).Last();
                     ObjectManager.Player.SetTarget(currentDPSTarget.Guid);
 
-                    Functions.LuaCall("SetRaidTarget('target', 8)");
+                    ObjectManager.SetRaidTarget(currentDPSTarget, TargetMarker.Skull);
                 }
                 else
                 {
@@ -99,7 +74,7 @@ namespace WarriorProtection.Tasks
 
                 if (tankSpot.DistanceTo(ObjectManager.Player.Position) > 5)
                 {
-                    Position[] locations = Navigation.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, tankSpot, true);
+                    Position[] locations = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, tankSpot, true);
 
                     if (locations.Length > 1)
                         ObjectManager.Player.MoveToward(locations[1]);

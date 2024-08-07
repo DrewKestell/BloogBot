@@ -1,18 +1,13 @@
-﻿
-
-using WoWActivityMember.Tasks;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
 using HunterBeastMastery.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace HunterBeastMastery
 {
-    internal class PetManagerState(Stack<IBotTask> botTasks, IClassContainer container) : BotTask(container, botTasks, TaskType.Buff), IBotTask
+    internal class PetManagerState(IBotContext botContext) : BotTask(botContext), IBotTask
     {
-        private const string CallPet = "Call Pet";
-        private const string RevivePet = "Revive Pet";
-        private const string FeedPet = "Feed Pet";
-
         public void Update()
         {
             if (ObjectManager.Player.IsCasting)
@@ -20,32 +15,13 @@ namespace HunterBeastMastery
 
             if (!ObjectManager.Player.IsSpellReady(CallPet) || ObjectManager.Pet != null)
             {
-                ObjectManager.Player.Stand();
+                ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
                 BotTasks.Pop();
-                BotTasks.Push(new BuffTask(Container, BotTasks));
+                BotTasks.Push(new BuffTask(BotContext));
                 return;
             }
 
-            Functions.LuaCall($"CastSpellByName('{CallPet}')");
-        }
-
-        public void Feed(string parFoodName)
-        {
-            if (true /*Inventory.GetItemCount(parFoodName) != 0*/)
-            {
-                const string checkFeedPet = "{0} = 0; if CursorHasSpell() then CanFeedMyPet = 1 end;";
-                string[] result = Functions.LuaCallWithResult(checkFeedPet);
-                if (result[0].Trim().Contains("0"))
-                {
-                    const string feedPet = "CastSpellByName('Feed Pet'); TargetUnit('Pet');";
-                    Functions.LuaCall(feedPet);
-                }
-                const string usePetFood1 =
-                    "for bag = 0,4 do for slot = 1,GetContainerNumSlots(bag) do local item = GetContainerItemLink(bag,slot) if item then if string.find(item, '";
-                const string usePetFood2 = "') then PickupContainerItem(bag,slot) break end end end end";
-                Functions.LuaCall(usePetFood1 + parFoodName.Replace("'", "\\'") + usePetFood2);
-            }
-            Functions.LuaCall("ClearCursor()");
+            ObjectManager.Player.CastSpell(CallPet);
         }
     }
 }

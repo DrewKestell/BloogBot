@@ -1,33 +1,13 @@
-﻿// Nat owns this file!
-
-using WoWActivityMember;
-using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
-using WoWActivityMember.Tasks.SharedStates;
-using static WoWActivityMember.Constants.Enums;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace RogueAssassin.Tasks
 {
     internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        private const string AdrenalineRush = "Adrenaline Rush";
-        private const string BladeFlurry = "Blade Flurry";
-        private const string Evasion = "Evasion";
-        private const string Eviscerate = "Eviscerate";
-        private const string Gouge = "Gouge";
-        private const string BloodFury = "Blood Fury";
-        private const string Kick = "Kick";
-        private const string Riposte = "Riposte";
-        private const string SinisterStrike = "Sinister Strike";
-        private const string SliceAndDice = "Slice and Dice";
-        private const string GhostlyStrike = "Ghostly Strike";
-        private const string Blind = "Blind";
-        private const string KidneyShot = "Kidney Shot";
-        private const string ExposeArmor = "Expose Armor";
-        private WoWUnit secondaryTarget;
+        private IWoWUnit secondaryTarget;
         private bool SwapDaggerReady;
         private bool DaggerEquipped;
         private bool SwapMaceOrSwordReady;
@@ -35,14 +15,11 @@ namespace RogueAssassin.Tasks
         private bool readyToRiposte;
         private int riposteStartTime;
 
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
-        {
-            WoWEventHandler.Instance.OnParry += OnParryCallback;
-        }
+        internal PvERotationTask(IBotContext botContext) : base(botContext) => EventHandler.OnParry += OnParryCallback;
 
         ~PvERotationTask()
         {
-            WoWEventHandler.Instance.OnParry -= OnParryCallback;
+            EventHandler.OnParry -= OnParryCallback;
         }
 
         public void Update()
@@ -51,7 +28,7 @@ namespace RogueAssassin.Tasks
                 readyToRiposte = false;
 
             
-            if (ObjectManager.Aggressors.Count == 0)
+            if (!ObjectManager.Aggressors.Any())
             {
                 BotTasks.Pop();
                 return;
@@ -67,12 +44,9 @@ namespace RogueAssassin.Tasks
 
             // Ensure Sword/Mace/1H is equipped (not dagger)
             
-            ThreadSynchronizer.RunOnMainThread(() =>
-            {
-
-                WoWItem MainHand = Inventory.GetEquippedItem(EquipSlot.MainHand);
-                WoWItem OffHand = Inventory.GetEquippedItem(EquipSlot.OffHand);
-                WoWItem SwapSlotWeap = Inventory.GetItem(4, 1);
+                IWoWItem MainHand = ObjectManager.GetEquippedItem(EquipSlot.MainHand);
+                IWoWItem OffHand = ObjectManager.GetEquippedItem(EquipSlot.OffHand);
+                IWoWItem SwapSlotWeap = ObjectManager.GetItem(4, 1);
 
                 //Console.WriteLineVerbose("Mainhand Item Type:  " + MainHand.Info.ItemSubclass);
                 //Console.WriteLineVerbose("Offhand Item Type:  " + OffHand.Info.ItemSubclass);
@@ -118,10 +92,9 @@ namespace RogueAssassin.Tasks
 
                 if (SwapMaceOrSwordReady == true)
                 {
-                    Functions.LuaCall($"UseContainerItem({4}, {2})");
+                    ObjectManager.UseContainerItem(4, 21);
                     Console.WriteLine(MainHand.Info.Name + "Swapped Into Mainhand!");
                 }
-            });
 
             // set secondaryTarget
             // if (ObjectManager.Aggressors.Count() == 2 && secondaryTarget == null)

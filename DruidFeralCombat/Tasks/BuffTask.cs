@@ -1,10 +1,9 @@
-﻿using WoWActivityMember.Tasks;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
 
 namespace DruidFeral.Tasks
 {
-    internal class BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Buff), IBotTask
+    internal class BuffTask(IBotContext botContext) : BotTask(botContext), IBotTask
     {
         private const string MarkOfTheWild = "Mark of the Wild";
         private const string Thorns = "Thorns";
@@ -17,14 +16,8 @@ namespace DruidFeral.Tasks
                 return;
             }
             
-            TryCastSpell(MarkOfTheWild);
-            TryCastSpell(Thorns);
-        }
-
-        private void TryCastSpell(string name)
-        {
-            if (!ObjectManager.Player.HasBuff(name) && ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.IsSpellReady(name))
-                Functions.LuaCall($"CastSpellByName('{name}',1)");
+            ObjectManager.Player.CastSpell(MarkOfTheWild);
+            ObjectManager.Player.CastSpell(Thorns);
         }
     }
 }

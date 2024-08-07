@@ -1,18 +1,12 @@
-﻿using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
-using static WoWActivityMember.Constants.Enums;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace WarlockDemonology.Tasks
 {
-    internal class RestTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Rest), IBotTask
+    public class RestTask(IBotContext botContext) : BotTask(botContext), IBotTask
     {
-        private const string ConsumeShadows = "Consume Shadows";
-        private const string HealthFunnel = "Health Funnel";
-        private const string LifeTap = "Life Tap";
-
         public void Update()
         {
             if (ObjectManager.Pet != null && ObjectManager.Pet.HealthPercent < 60 && ObjectManager.Pet.CanUse(ConsumeShadows) && ObjectManager.Pet.IsCasting && ObjectManager.Pet.ChannelingId == 0)
@@ -21,19 +15,19 @@ namespace WarlockDemonology.Tasks
             if (InCombat || (HealthOk && ManaOk))
             {
                 if (ObjectManager.Player.IsCasting && ObjectManager.Player.ChannelingId == 0)
-                    ObjectManager.Player.Stand();
+                    ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
 
                 if (InCombat || PetHealthOk)
                 {
                     ObjectManager.Pet?.FollowPlayer();
                     BotTasks.Pop();
 
-                    BotTasks.Push(new SummonPetTask(Container, BotTasks));
+                    BotTasks.Push(new SummonPetTask(BotContext));
                 }
                 else
                 {
                     if (ObjectManager.Player.ChannelingId == 0 && ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady(HealthFunnel) && ObjectManager.Player.HealthPercent > 30)
-                        Functions.LuaCall($"CastSpellByName('{HealthFunnel}')");
+                        ObjectManager.Player.CastSpell(HealthFunnel);
                 }
 
                 return;
@@ -47,27 +41,25 @@ namespace WarlockDemonology.Tasks
 
             if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
             {
-                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                if (ObjectManager.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
                 {
-                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                    ObjectManager.SendChatMessage("SendChatMessage('.repairitems')");
                 }
 
-                List<WoWItem> foodItems = ObjectManager.Items.Where(x => x.ItemId == 5479).ToList();
-                int foodItemsCount = foodItems.Sum(x => x.StackCount);
+                List<IWoWItem> foodItems = ObjectManager.Items.Where(x => x.ItemId == 5479).ToList();
+                uint foodItemsCount = (uint)foodItems.Sum(x => x.StackCount);
                 if (foodItemsCount < 20)
-                {
-                    Functions.LuaCall($"SendChatMessage('.additem 5479 {20 - foodItemsCount}')");
-                }
+                    ObjectManager.SendChatMessage($".additem 5479 {20 - foodItemsCount}");
 
-                WoWItem foodItem = ObjectManager.Items.First(x => x.ItemId == 5479);
+                IWoWItem foodItem = ObjectManager.Items.First(x => x.ItemId == 5479);
 
-                List<WoWItem> drinkItems = ObjectManager.Items.Where(x => x.ItemId == 1179).ToList();
-                int drinkItemsCount = drinkItems.Sum(x => x.StackCount);
+                List<IWoWItem> drinkItems = ObjectManager.Items.Where(x => x.ItemId == 1179).ToList();
+                uint drinkItemsCount = (uint)drinkItems.Sum(x => x.StackCount);
 
                 if (drinkItemsCount < 20)
-                    Functions.LuaCall($"SendChatMessage('.additem 1179 {20 - drinkItemsCount}')");
+                    ObjectManager.SendChatMessage($".additem 1179 {20 - drinkItemsCount}");
 
-                WoWItem drinkItem = ObjectManager.Items.First(x => x.ItemId == 1179);
+                IWoWItem drinkItem = ObjectManager.Items.First(x => x.ItemId == 1179);
 
                 if (foodItem != null && !ObjectManager.Player.IsEating && ObjectManager.Player.HealthPercent < 80 && Wait.For("EatDelay", 500, true))
                     foodItem.Use();
@@ -95,7 +87,7 @@ namespace WarlockDemonology.Tasks
         {
             if (ObjectManager.Player.IsSpellReady(name) && condition && !ObjectManager.Player.IsStunned && ((!ObjectManager.Player.IsCasting && ObjectManager.Player.ChannelingId == 0) || ObjectManager.Player.Class == Class.Warrior))
             {
-                Functions.LuaCall($"CastSpellByName('{name}')");
+                ObjectManager.Player.CastSpell(name, castOnSelf: castOnSelf);
                 callback?.Invoke();
             }
         }

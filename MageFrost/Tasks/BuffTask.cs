@@ -1,23 +1,17 @@
-﻿using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Tasks;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace MageFrost.Tasks
 {
-    internal class BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Buff), IBotTask
+    internal class BuffTask(IBotContext botContext) : BotTask(botContext), IBotTask
     {
-        private const string ArcaneIntellect = "Arcane Intellect";
-        private const string DampenMagic = "Dampen Magic";
-        private const string FrostArmor = "Frost Armor";
-        private const string IceArmor = "Ice Armor";
-        private const string MageArmor = "Mage Armor";
-
         public void Update()
         {
             if ((!ObjectManager.Player.IsSpellReady(ArcaneIntellect) || ObjectManager.Player.HasBuff(ArcaneIntellect)) && (ObjectManager.Player.HasBuff(FrostArmor) || ObjectManager.Player.HasBuff(IceArmor) || ObjectManager.Player.HasBuff(MageArmor)) && (!ObjectManager.Player.IsSpellReady(DampenMagic) || ObjectManager.Player.HasBuff(DampenMagic)))
             {
                 BotTasks.Pop();
-                BotTasks.Push(new ConjureItemsTask(BotTasks, Container));
+                BotTasks.Push(new ConjureItemsTask(BotContext));
                 return;
             }
 
@@ -37,12 +31,12 @@ namespace MageFrost.Tasks
         {
             if (!ObjectManager.Player.HasBuff(name) && ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.IsSpellReady(name))
             {
-                if (castOnSelf)
-                {
-                    Functions.LuaCall($"CastSpellByName(\"{name}\",1)");
-                }
-                else
-                    Functions.LuaCall($"CastSpellByName('{name}')");
+                //if (castOnSelf)
+                //{
+                //    Functions.LuaCall($"CastSpellByName(\"{name}\",1)");
+                //}
+                //else
+                //    Functions.LuaCall($"CastSpellByName('{name}')");
             }
         }
     }

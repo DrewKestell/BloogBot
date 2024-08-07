@@ -1,14 +1,11 @@
-﻿using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Tasks;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace PaladinRetribution.Tasks
 {
-    internal class HealTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Heal), IBotTask
+    internal class HealTask(IBotContext botContext) : BotTask(botContext), IBotTask
     {
-        private const string DivineProtection = "Divine Protection";
-        private const string HolyLight = "Holy Light";
-
         public void Update()
         {
             if (ObjectManager.Player.IsCasting) return;
@@ -20,10 +17,10 @@ namespace PaladinRetribution.Tasks
             }
 
             if (ObjectManager.Player.Mana > ObjectManager.Player.GetManaCost(DivineProtection) && ObjectManager.Player.IsSpellReady(DivineProtection))
-                Functions.LuaCall($"CastSpellByName('{DivineProtection}')");
+                ObjectManager.Player.CastSpell(DivineProtection);
 
             if (ObjectManager.Player.Mana > ObjectManager.Player.GetManaCost(HolyLight) && ObjectManager.Player.IsSpellReady(HolyLight))
-                Functions.LuaCall($"CastSpellByName('{HolyLight}',1)");
+                ObjectManager.Player.CastSpell(HolyLight, castOnSelf: true);
         }
     }
 }

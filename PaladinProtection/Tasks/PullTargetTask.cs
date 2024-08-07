@@ -1,10 +1,11 @@
-﻿using WoWActivityMember.Tasks;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
 
 namespace PaladinProtection.Tasks
 {
     internal class PullTargetTask : BotTask, IBotTask
     {
-        internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull) { }
+        internal PullTargetTask(IBotContext botContext) : base(botContext) { }
 
         public void Update()
         {

@@ -1,6 +1,7 @@
-﻿using WoWActivityMember.Tasks;
-using WoWActivityMember.Models;
-using System.ComponentModel.Composition;
+﻿using System.ComponentModel.Composition;
+using BotRunner;
+using BotRunner.Interfaces;
+using Communication;
 using PriestDiscipline.Tasks;
 
 namespace PriestDiscipline
@@ -22,19 +23,19 @@ namespace PriestDiscipline
                 CreatePvPRotationTask,
                 probe);
 
-        public IBotTask CreateRestTask(IClassContainer container, Stack<IBotTask> botTasks) =>
-            new RestTask(container, botTasks);
+        public IBotTask CreateRestTask(IBotContext botContext) =>
+            new RestTask(botContext);
 
-        public IBotTask CreateMoveToTargetTask(IClassContainer container, Stack<IBotTask> botTasks) =>
-            new PullTargetTask(container, botTasks);
+        public IBotTask CreateMoveToTargetTask(IBotContext botContext) =>
+            new PullTargetTask(botContext);
 
-        public IBotTask CreateBuffTask(IClassContainer container, Stack<IBotTask> botTasks) =>
-            new BuffTask(container, botTasks);
+        public IBotTask CreateBuffTask(IBotContext botContext) =>
+            new BuffTask(botContext);
 
-        public IBotTask CreatePvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) =>
-            new PvERotationTask(container, botTasks);
+        public IBotTask CreatePvERotationTask(IBotContext botContext) =>
+            new PvERotationTask(botContext);
 
-        public IBotTask CreatePvPRotationTask(IClassContainer container, Stack<IBotTask> botTasks) =>
-            new PvERotationTask(container, botTasks);
+        public IBotTask CreatePvPRotationTask(IBotContext botContext) =>
+            new PvERotationTask(botContext);
     }
 }

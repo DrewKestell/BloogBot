@@ -1,19 +1,15 @@
-﻿using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using PathfindingService.Models;
+using static BotRunner.Constants.Spellbook;
 
 namespace ShamanEnhancement.Tasks
 {
-    internal class PullTargetTask : BotTask, IBotTask
+    public class PullTargetTask(IBotContext botContext) : BotTask(botContext), IBotTask
     {
-        private const string LightningBolt = "Lightning Bolt";
-        internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull) { }
-
         public void Update()
         {
-            if (ObjectManager.Player.Target.TappedByOther || (ObjectManager.Aggressors.Count() > 0 && !ObjectManager.Aggressors.Any(a => a.Guid == ObjectManager.Player.TargetGuid)))
+            if (ObjectManager.Player.Target.TappedByOther || (ObjectManager.Aggressors.Any() && !ObjectManager.Aggressors.Any(a => a.Guid == ObjectManager.Player.TargetGuid)))
             {
                 Wait.RemoveAll();
                 BotTasks.Pop();
@@ -28,20 +24,20 @@ namespace ShamanEnhancement.Tasks
                 if (Wait.For("PullWithLightningBoltDelay", 100))
                 {
                     if (!ObjectManager.Player.IsInCombat)
-                        Functions.LuaCall($"CastSpellByName('{LightningBolt}')");
+                        ObjectManager.Player.CastSpell(LightningBolt);
 
                     if (ObjectManager.Player.IsCasting || ObjectManager.Player.IsInCombat)
                     {
                         ObjectManager.Player.StopAllMovement();
                         Wait.RemoveAll();
                         BotTasks.Pop();
-                        BotTasks.Push(new PvERotationTask(Container, BotTasks));
+                        BotTasks.Push(new PvERotationTask(BotContext));
                     }
                 }
                 return;
             }
 
-            Position[] nextWaypoint = Navigation.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+            Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
             ObjectManager.Player.MoveToward(nextWaypoint[1]);
         }
     }

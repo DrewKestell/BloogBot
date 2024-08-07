@@ -1,56 +1,54 @@
-﻿using WoWActivityMember.Tasks;
-using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using static WoWActivityMember.Constants.Enums;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using PathfindingService.Models;
 
 namespace WarriorProtection.Tasks
 {
     internal class PullTargetTask : BotTask, IBotTask
     {
-        internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull)
+        internal PullTargetTask(IBotContext botContext) : base(botContext)
         {
-            WoWItem rangedWeapon = Inventory.GetEquippedItem(EquipSlot.Ranged);
+            IWoWItem rangedWeapon = ObjectManager.GetEquippedItem(EquipSlot.Ranged);
             if (rangedWeapon == null)
             {
-                List<WoWItem> knives = ObjectManager.Items.Where(x => x.ItemId == 2947).ToList();
-                int knivesCount = knives.Sum(x => x.StackCount);
+                List<IWoWItem> knives = ObjectManager.Items.Where(x => x.ItemId == 2947).ToList();
+                uint knivesCount = (uint)knives.Sum(x => x.StackCount);
 
                 if (knivesCount < 200)
                 {
-                    Functions.LuaCall($"SendChatMessage('.additem 2947 {200 - knivesCount}')");
+                    ObjectManager.SendChatMessage(".additem 2947 " + (200 - knivesCount));
                 }
             }
             else if (rangedWeapon.Info.ItemSubclass == ItemSubclass.Bow)
             {
-                List<WoWItem> arrows = ObjectManager.Items.Where(x => x.ItemId == 2512).ToList();
-                int arrowsCount = arrows.Sum(x => x.StackCount);
+                List<IWoWItem> arrows = ObjectManager.Items.Where(x => x.ItemId == 2512).ToList();
+                uint arrowsCount = (uint)arrows.Sum(x => x.StackCount);
 
                 if (arrowsCount < 200)
                 {
-                    Functions.LuaCall($"SendChatMessage('.additem 2512 {200 - arrowsCount}')");
+                    ObjectManager.SendChatMessage(".additem 2512 " + (200 - arrowsCount));
                 }
             }
             else if (rangedWeapon.Info.ItemSubclass == ItemSubclass.Gun)
             {
-                List<WoWItem> shots = ObjectManager.Items.Where(x => x.ItemId == 2516).ToList();
-                int shotsCount = shots.Sum(x => x.StackCount);
+                List<IWoWItem> shots = ObjectManager.Items.Where(x => x.ItemId == 2516).ToList();
+                uint shotsCount = (uint)shots.Sum(x => x.StackCount);
 
                 if (shotsCount < 200)
                 {
-                    Functions.LuaCall($"SendChatMessage('.additem 2516 {200 - shotsCount}')");
+                    ObjectManager.SendChatMessage(".additem 2516 " + (200 - shotsCount));
                 }
             }
             
-            WoWUnit nearestHostile = ObjectManager.Hostiles.Where(x => !x.IsInCombat).OrderBy(x => x.Position.DistanceTo(ObjectManager.Player.Position)).First();
+            IWoWUnit nearestHostile = ObjectManager.Hostiles.Where(x => !x.IsInCombat).OrderBy(x => x.Position.DistanceTo(ObjectManager.Player.Position)).First();
             float distance = nearestHostile.Position.DistanceTo(ObjectManager.Player.Position) < 15 ? 30 : 15;
 
             Position tankSpot;
 
-            //if (Container.State.VisitedWaypoints.Count(x => Navigation.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true) > distance) > 0)
-            //    tankSpot = Container.State.VisitedWaypoints.Where(x => Navigation.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true) > 15)
-            //        .OrderBy(x => Navigation.Instance.CalculatePathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true))
+            //if (Container.State.VisitedWaypoints.Count(x => Container.PathfindingClient.GetPathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true) > distance) > 0)
+            //    tankSpot = Container.State.VisitedWaypoints.Where(x => Container.PathfindingClient.GetPathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true) > 15)
+            //        .OrderBy(x => Container.PathfindingClient.GetPathingDistance(ObjectManager.MapId, ObjectManager.Player.Position, x, true))
             //        .First();
             //else
             //    tankSpot = ObjectManager.Player.Position;
@@ -64,10 +62,10 @@ namespace WarriorProtection.Tasks
                 return;
             }
 
-            if (ObjectManager.Aggressors.Count > 0)
+            if (ObjectManager.Aggressors.Any())
             {
                 BotTasks.Pop();
-                BotTasks.Push(Container.CreatePvERotationTask(Container, BotTasks));
+                BotTasks.Push(Container.CreatePvERotationTask(BotContext));
                 return;
             }
 
@@ -86,14 +84,14 @@ namespace WarriorProtection.Tasks
                 ObjectManager.Player.StopAllMovement();
 
                 if (!ObjectManager.Player.IsCasting)
-                    Functions.LuaCall("CastSpellByName('Shoot Bow')");
+                    ObjectManager.Player.CastSpell("Shoot Bow");
 
             }
             else
             {
-                Position[] locations = Navigation.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+                Position[] locations = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
 
-                if (locations.Where(loc => loc.DistanceTo(ObjectManager.Player.Position) > 3).Count() > 0)
+                if (locations.Where(loc => loc.DistanceTo(ObjectManager.Player.Position) > 3).Any())
                 {
                     Position position = locations.Where(loc => loc.DistanceTo(ObjectManager.Player.Position) > 3).ToArray()[0];
                     ObjectManager.Player.MoveToward(position);

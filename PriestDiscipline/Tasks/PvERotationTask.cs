@@ -1,14 +1,11 @@
-﻿using WoWActivityMember.Tasks;
-using WoWActivityMember.Tasks.SharedStates;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
 
 namespace PriestDiscipline.Tasks
 {
     internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        private const string WandLuaScript = "if IsAutoRepeatAction(11) == nil then CastSpellByName('Shoot') end";
-        private const string TurnOffWandLuaScript = "if IsAutoRepeatAction(11) ~= nil then CastSpellByName('Shoot') end";
-
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
+        internal PvERotationTask(IBotContext botContext) : base(botContext) { }
 
 
         public void Update()

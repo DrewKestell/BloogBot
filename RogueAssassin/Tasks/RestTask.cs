@@ -1,28 +1,24 @@
-﻿// Nat owns this file!
-
-using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace RogueAssassin.Tasks
 {
     internal class RestTask : BotTask, IBotTask
     {
         private const int stackCount = 5;
-        private const string Cannibalize = "Cannibalize";
-        private readonly WoWItem foodItem;
+        private readonly IWoWItem foodItem;
 
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
+        public RestTask(IBotContext botContext) : base(botContext)
         {
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
 
             if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
             {
-                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                if (ObjectManager.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
                 {
-                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                    ObjectManager.SendChatMessage("SendChatMessage('.repairitems')");
                 }
             }
         }
@@ -38,14 +34,14 @@ namespace RogueAssassin.Tasks
                 ObjectManager.Units.Any(u => u.TargetGuid == ObjectManager.Player.Guid))
             {
                 Wait.RemoveAll();
-                ObjectManager.Player.Stand();
+                ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
                 BotTasks.Pop();
 
-                int foodCount = foodItem == null ? 0 : Inventory.GetItemCount(foodItem.ItemId);
+                uint foodCount = foodItem == null ? 0 : ObjectManager.GetItemCount(foodItem.ItemId);
 
                 if (!InCombat && foodCount == 0)
                 {
-                    int foodToBuy = 24 - (foodCount / stackCount);
+                    uint foodToBuy = 24 - (foodCount / stackCount);
                     //var itemsToBuy = new Dictionary<string, int>
                     //{
                     //    { container.BotSettings.Food, foodToBuy }
@@ -69,7 +65,7 @@ namespace RogueAssassin.Tasks
 
             if (ObjectManager.Player.IsSpellReady(Cannibalize) && ObjectManager.Player.TastyCorpsesNearby)
             {
-                Functions.LuaCall($"CastSpellByName('{Cannibalize}')");
+                ObjectManager.Player.CastSpell(Cannibalize);
                 return;
             }
 
@@ -77,6 +73,6 @@ namespace RogueAssassin.Tasks
                 foodItem.Use();
         }
 
-        private bool InCombat => ObjectManager.Aggressors.Count() > 0;
+        private bool InCombat => ObjectManager.Aggressors.Any();
     }
 }

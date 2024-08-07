@@ -1,8 +1,7 @@
-﻿using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Tasks;
-using WoWActivityMember.Tasks.SharedStates;
-using static WoWActivityMember.Constants.Enums;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace WarriorArms.Tasks
 {
@@ -16,27 +15,12 @@ namespace WarriorArms.Tasks
             "Stag" ]; // other
 
         private const string SunderArmorIcon = "Interface\\Icons\\Ability_Warrior_Sunder";
-        private const string BattleShout = "Battle Shout";
-        private const string Bloodrage = "Bloodrage";
-        private const string BloodFury = "Blood Fury";
-        private const string DemoralizingShout = "Demoralizing Shout";
-        private const string Execute = "Execute";
-        private const string Hamstring = "Hamstring";
-        private const string HeroicStrike = "Heroic Strike";
-        private const string MortalStrike = "Mortal Strike";
-        private const string Overpower = "Overpower";
-        private const string Rend = "Rend";
-        private const string Retaliation = "Retaliation";
-        private const string SunderArmor = "Sunder Armor";
-        private const string SweepingStrikes = "Sweeping Strikes";
-        private const string ThunderClap = "Thunder Clap";
-        private const string IntimidatingShout = "Intimidating Shout";
 
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
+        internal PvERotationTask(IBotContext botContext) : base(botContext) { }
 
         public void Update()
         {
-            if (ObjectManager.Aggressors.Count == 0)
+            if (ObjectManager.Aggressors.Count() == 0)
             {
                 BotTasks.Pop();
                 return;
@@ -68,7 +52,7 @@ namespace WarriorArms.Tasks
 
                 TryUseAbility(Rend, 10, ObjectManager.Player.Target.HealthPercent > 50 && !ObjectManager.Player.Target.HasDebuff(Rend) && ObjectManager.Player.Target.CreatureType != CreatureType.Elemental && ObjectManager.Player.Target.CreatureType != CreatureType.Undead);
 
-                SpellEffect sunderDebuff = ObjectManager.Player.Target.GetDebuffs(LuaTarget.Target).FirstOrDefault(f => f.Icon == SunderArmorIcon);
+                ISpellEffect sunderDebuff = ObjectManager.Player.Target.GetDebuffs().FirstOrDefault(f => f.Icon == SunderArmorIcon);
                 TryUseAbility(SunderArmor, 15, (sunderDebuff == null || sunderDebuff.StackCount < 5) && ObjectManager.Player.Target.Level >= ObjectManager.Player.Level - 2 && ObjectManager.Player.Target.Health > 40 && SunderTargets.Any(s => ObjectManager.Player.Target.Name.Contains(s)));
 
                 TryUseAbility(MortalStrike, 30);

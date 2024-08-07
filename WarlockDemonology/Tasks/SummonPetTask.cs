@@ -1,32 +1,30 @@
-﻿using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Tasks;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace WarlockDemonology.Tasks
 {
-    internal class SummonPetTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Buff), IBotTask
+    public class SummonPetTask(IBotContext botContext) : BotTask(botContext), IBotTask
     {
-        private const string SummonImp = "Summon Imp";
-        private const string SummonVoidwalker = "Summon Voidwalker";
-
         public void Update()
         {
             if (ObjectManager.Player.IsCasting)
                 return;
 
-            ObjectManager.Player.Stand();
+            ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
 
             if ((!ObjectManager.Player.IsSpellReady(SummonImp) && !ObjectManager.Player.IsSpellReady(SummonVoidwalker)) || ObjectManager.Pet != null)
             {
                 BotTasks.Pop();
-                BotTasks.Push(new BuffTask(Container, BotTasks));
+                BotTasks.Push(new BuffTask(BotContext));
                 return;
             }
 
             if (ObjectManager.Player.IsSpellReady(SummonImp))
-                Functions.LuaCall($"CastSpellByName('{SummonImp}')");
+                ObjectManager.Player.CastSpell(SummonImp);
             else
-                Functions.LuaCall($"CastSpellByName('{SummonVoidwalker}')");
+                ObjectManager.Player.CastSpell(SummonVoidwalker);
         }
     }
 }

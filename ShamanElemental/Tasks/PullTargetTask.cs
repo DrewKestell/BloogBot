@@ -1,7 +1,6 @@
-﻿using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using PathfindingService.Models;
 
 namespace ShamanElemental.Tasks
 {
@@ -10,23 +9,23 @@ namespace ShamanElemental.Tasks
         private const string LightningBolt = "Lightning Bolt";
         private readonly int stuckCount;
         private Position currentWaypoint;
-        private WoWUnit target;
+        private IWoWUnit target;
 
-        internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull) { }
+        internal PullTargetTask(IBotContext botContext) : base(botContext) { }
 
         public void Update()
         {
-            if (ObjectManager.Aggressors.Count > 0)
+            if (ObjectManager.Aggressors.Any())
             {
                 ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
-                BotTasks.Push(Container.CreatePvERotationTask(Container, BotTasks));
+                BotTasks.Push(Container.CreatePvERotationTask(BotContext));
                 return;
             }
 
-            if (ObjectManager.Hostiles.Count() > 0)
+            if (ObjectManager.Hostiles.Any())
             {
-                WoWUnit potentialNewTarget = ObjectManager.Hostiles.First();
+                IWoWUnit potentialNewTarget = ObjectManager.Hostiles.First();
 
                 if (potentialNewTarget != null && potentialNewTarget.Guid != ObjectManager.Player.TargetGuid)
                 {
@@ -40,11 +39,11 @@ namespace ShamanElemental.Tasks
                 ObjectManager.Player.StopAllMovement();
 
                 BotTasks.Pop();
-                BotTasks.Push(new PvERotationTask(Container, BotTasks));
+                BotTasks.Push(new PvERotationTask(BotContext));
                 return;
             }
 
-            Position[] locations = Navigation.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+            Position[] locations = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
 
             if (locations.Length > 1)
             {

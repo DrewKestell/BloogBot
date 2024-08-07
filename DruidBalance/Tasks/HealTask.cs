@@ -1,17 +1,11 @@
-﻿using WoWActivityMember.Tasks;
-using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace DruidBalance.Tasks
 {
-    internal class HealTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Heal), IBotTask
+    internal class HealTask(IBotContext botContext) : BotTask(botContext), IBotTask
     {
-        private const string WarStomp = "War Stomp";
-        private const string HealingTouch = "Healing Touch";
-        private const string Rejuvenation = "Rejuvenation";
-        private const string Barkskin = "Barkskin";
-        private const string MoonkinForm = "Moonkin Form";
 
         public void Update()
         {
@@ -25,7 +19,7 @@ namespace DruidBalance.Tasks
             }
 
             if (ObjectManager.Player.IsSpellReady(WarStomp) && ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) <= 8)
-                Functions.LuaCall($"CastSpellByName('{WarStomp}')");
+                ObjectManager.Player.CastSpell(WarStomp);
 
             TryCastSpell(MoonkinForm, ObjectManager.Player.HasBuff(MoonkinForm));
 
@@ -39,7 +33,7 @@ namespace DruidBalance.Tasks
         private void TryCastSpell(string name, bool condition = true)
         {
             if (ObjectManager.Player.IsSpellReady(name) && condition)
-                Functions.LuaCall($"CastSpellByName('{name}',1)");
+                ObjectManager.Player.CastSpell(name);
         }
     }
 }

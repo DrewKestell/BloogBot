@@ -1,18 +1,15 @@
-﻿using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using PathfindingService.Models;
+using static BotRunner.Constants.Spellbook;
 
 namespace MageArcane.Tasks
 {
     internal class PullTargetTask : BotTask, IBotTask
     {
-        private const string Fireball = "Fireball";
-        private const string Frostbolt = "Frostbolt";
         private readonly string pullingSpell;
 
-        internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull)
+        internal PullTargetTask(IBotContext botContext) : base(botContext)
         {
             if (ObjectManager.Player.IsSpellReady(Frostbolt))
                 pullingSpell = Frostbolt;
@@ -39,15 +36,15 @@ namespace MageArcane.Tasks
                 {
                     ObjectManager.Player.StopAllMovement();
                     Wait.RemoveAll();
-                    Functions.LuaCall($"CastSpellByName('{pullingSpell}')");
+                    ObjectManager.Player.CastSpell(pullingSpell);
                     BotTasks.Pop();
-                    BotTasks.Push(new PvERotationTask(Container, BotTasks));
+                    BotTasks.Push(new PvERotationTask(BotContext));
                     return;
                 }
             }
             else
             {
-                Position[] nextWaypoint = Navigation.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+                Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
                 ObjectManager.Player.MoveToward(nextWaypoint[0]);
             }
         }

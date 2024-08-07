@@ -1,29 +1,18 @@
-﻿using WoWActivityMember.Tasks.SharedStates;
-using WoWActivityMember.Tasks;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace DruidRestoration.Tasks
 {
     internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        private const string WandLuaScript = "if IsAutoRepeatAction(11) == nil then CastSpellByName('Shoot') end";
-        private const string TurnOffWandLuaScript = "if IsAutoRepeatAction(11) ~= nil then CastSpellByName('Shoot') end";
-        private const string Corruption = "Corruption";
-        private const string CurseOfAgony = "Curse of Agony";
-        private const string DeathCoil = "Death Coil";
-        private const string DrainSoul = "Drain Soul";
-        private const string Immolate = "Immolate";
-        private const string LifeTap = "Life Tap";
-        private const string ShadowBolt = "Shadow Bolt";
-        private const string SiphonLife = "Siphon Life";
 
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
+        internal PvERotationTask(IBotContext botContext) : base(botContext) { }
 
 
         public void Update()
         {
-            if (ObjectManager.Aggressors.Count() == 0)
+            if (!ObjectManager.Aggressors.Any())
             {
                 BotTasks.Pop();
                 return;
@@ -56,7 +45,7 @@ namespace DruidRestoration.Tasks
             // if target is low on health, turn off wand and cast drain soul
             if (ObjectManager.Player.Target.HealthPercent <= 20)
             {
-                Functions.LuaCall(TurnOffWandLuaScript);
+                ObjectManager.Player.StopWand();
                 TryCastSpell(DrainSoul, 0, 29);
             }
             else

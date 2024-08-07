@@ -1,8 +1,6 @@
-﻿using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
 
 namespace PaladinRetribution.Tasks
 {
@@ -10,16 +8,16 @@ namespace PaladinRetribution.Tasks
     {
         private const int stackCount = 5;
         private const string HolyLight = "Holy Light";
-        private readonly WoWItem drinkItem;
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
+        private readonly IWoWItem drinkItem;
+        public RestTask(IBotContext botContext) : base(botContext)
         {
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
 
             if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
             {
-                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                if (ObjectManager.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
                 {
-                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                    ObjectManager.SendChatMessage("SendChatMessage('.repairitems')");
                 }
             }
         }
@@ -31,13 +29,13 @@ namespace PaladinRetribution.Tasks
             if (InCombat || (HealthOk && ManaOk))
             {
                 Wait.RemoveAll();
-                ObjectManager.Player.Stand();
+                ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
                 BotTasks.Pop();
 
-                int drinkCount = drinkItem == null ? 0 : Inventory.GetItemCount(drinkItem.ItemId);
+                uint drinkCount = drinkItem == null ? 0 : ObjectManager.GetItemCount(drinkItem.ItemId);
                 if (!InCombat && drinkCount == 0)
                 {
-                    int drinkToBuy = 28 - (drinkCount / stackCount);
+                    uint drinkToBuy = 28 - (drinkCount / stackCount);
                     //var itemsToBuy = new Dictionary<string, int>
                     //{
                     //    { container.BotSettings.Drink, drinkToBuy }
@@ -56,17 +54,17 @@ namespace PaladinRetribution.Tasks
                     //container.CheckForTravelPath(botTasks, true, false);
                 }
                 else
-                    BotTasks.Push(new BuffTask(Container, BotTasks));
+                    BotTasks.Push(new BuffTask(BotContext));
 
             }
             
             if (!ObjectManager.Player.IsDrinking && Wait.For("HealSelfDelay", 3500, true))
             {
-                ObjectManager.Player.Stand();
+                ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
                 if (ObjectManager.Player.HealthPercent < 70)
-                    Functions.LuaCall($"CastSpellByName('{HolyLight}')");
+                    ObjectManager.Player.CastSpell(HolyLight);
                 if (ObjectManager.Player.HealthPercent > 70 && ObjectManager.Player.HealthPercent < 90)
-                    Functions.LuaCall($"CastSpellByName('{HolyLight}(Rank 1)')");
+                    ObjectManager.Player.CastSpell(HolyLight, 1);
             }
 
             if (ObjectManager.Player.Level > 10 && drinkItem != null && !ObjectManager.Player.IsDrinking && ObjectManager.Player.ManaPercent < 60 && Wait.For("UseDrinkDelay", 1000, true))

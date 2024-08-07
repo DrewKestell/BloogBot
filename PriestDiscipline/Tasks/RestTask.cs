@@ -1,8 +1,9 @@
-﻿using WoWActivityMember.Tasks;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
 
 namespace PriestDiscipline.Tasks
 {
-    internal class RestTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Rest), IBotTask
+    internal class RestTask(IBotContext botContext) : BotTask(botContext), IBotTask
     {
         public void Update()
         {

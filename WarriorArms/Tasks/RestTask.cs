@@ -1,24 +1,22 @@
-﻿using WoWActivityMember.Tasks;
-using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
 
 namespace WarriorArms.Tasks
 {
     internal class RestTask : BotTask, IBotTask
     {
         private const int stackCount = 5;
-        private readonly WoWItem foodItem;
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
+        private readonly IWoWItem foodItem;
+        public RestTask(IBotContext botContext) : base(botContext)
         {
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
 
             if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
             {
-                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                if (ObjectManager.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
                 {
-                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                    ObjectManager.SendChatMessage(".repairitems");
                 }
             }
         }
@@ -31,13 +29,13 @@ namespace WarriorArms.Tasks
                 ObjectManager.Units.Any(u => u.TargetGuid == ObjectManager.Player.Guid))
             {
                 Wait.RemoveAll();
-                ObjectManager.Player.Stand();
+                ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
                 BotTasks.Pop();
 
-                int foodCount = foodItem == null ? 0 : Inventory.GetItemCount(foodItem.ItemId);
+                uint foodCount = foodItem == null ? 0 : ObjectManager.GetItemCount(foodItem.ItemId);
                 if (!InCombat && foodCount == 0)
                 {
-                    int foodToBuy = 28 - (foodCount / stackCount);
+                    uint foodToBuy = 28 - (foodCount / stackCount);
                     //var itemsToBuy = new Dictionary<string, int>
                     //{
                     //    { container.BotSettings.Food, foodToBuy }
@@ -63,6 +61,6 @@ namespace WarriorArms.Tasks
                 foodItem.Use();
         }
 
-        private bool InCombat => ObjectManager.Aggressors.Count() > 0;
+        private bool InCombat => ObjectManager.Aggressors.Any();
     }
 }

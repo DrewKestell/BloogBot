@@ -1,31 +1,29 @@
-﻿using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
 
 namespace MageArcane.Tasks
 {
-    internal class RestTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Rest), IBotTask
+    internal class RestTask(IBotContext botContext) : BotTask(botContext), IBotTask
     {
         private const string Evocation = "Evocation";
-        private readonly WoWItem foodItem;
-        private readonly WoWItem drinkItem;
+        private readonly IWoWItem foodItem;
+        private readonly IWoWItem drinkItem;
 
         public void Update()
         {
             if (InCombat)
             {
-                ObjectManager.Player.Stand();
+                ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
                 BotTasks.Pop();
                 return;
             }
 
             if (HealthOk && ManaOk)
             {
-                ObjectManager.Player.Stand();
+                ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
                 BotTasks.Pop();
-                BotTasks.Push(new BuffTask(Container, BotTasks));
+                BotTasks.Push(new BuffTask(BotContext));
                 return;
             }
 
@@ -34,7 +32,7 @@ namespace MageArcane.Tasks
 
             if (ObjectManager.Player.ManaPercent < 20 && ObjectManager.Player.IsSpellReady(Evocation))
             {
-                Functions.LuaCall($"CastSpellByName('{Evocation}')");
+                ObjectManager.Player.CastSpell(Evocation);
                 return;
             }
 
@@ -42,9 +40,9 @@ namespace MageArcane.Tasks
 
             if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
             {
-                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                if (ObjectManager.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
                 {
-                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                    ObjectManager.SendChatMessage("SendChatMessage('.repairitems')");
                 }
             }
 

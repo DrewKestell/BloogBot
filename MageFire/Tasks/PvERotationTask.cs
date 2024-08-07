@@ -1,16 +1,10 @@
-﻿using WoWActivityMember.Tasks;
-using WoWActivityMember.Tasks.SharedStates;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
 
 namespace MageFire.Tasks
 {
-    internal class PvERotationTask : CombatRotationTask, IBotTask
+    internal class PvERotationTask(IBotContext botContext) : CombatRotationTask(botContext), IBotTask
     {
-        private const string WandLuaScript = "if IsAutoRepeatAction(11) == nil then CastSpellByName('Shoot') end";
-        private const string TurnOffWandLuaScript = "if IsAutoRepeatAction(11) ~= nil then CastSpellByName('Shoot') end";
-
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
-
-
         public void Update()
         {
             BotTasks.Pop();

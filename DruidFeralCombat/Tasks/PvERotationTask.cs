@@ -1,43 +1,19 @@
-﻿using WoWActivityMember.Tasks;
-using WoWActivityMember.Tasks.SharedStates;
-using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using PathfindingService.Models;
+using static BotRunner.Constants.Spellbook;
 
 namespace DruidFeral.Tasks
 {
-    internal class PvERotationTask : CombatRotationTask, IBotTask
+    internal class PvERotationTask(IBotContext botContext) : CombatRotationTask(botContext), IBotTask
     {
         private const string AutoAttackLuaScript = "if IsCurrentAction('12') == nil then CastSpellByName('Attack') end";
 
-        // Shapeshifting
-        private const string BearForm = "Bear Form";
-        private const string CatForm = "Cat Form";
-        private const string HumanForm = "Human Form";
-
-        // Bear
-        private const string Maul = "Maul";
-        private const string Enrage = "Enrage";
-        private const string DemoralizingRoar = "Demoralizing Roar";
-
-        // Cat
-        private const string Claw = "Claw";
-        private const string Rake = "Rake";
-        private const string Rip = "Rip";
-        private const string TigersFury = "Tiger's Fury";
-
-        // Human
-        private const string HealingTouch = "Healing Touch";
-        private const string Moonfire = "Moonfire";
-        private const string Wrath = "Wrath";
         private Position targetLastPosition;
-
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
 
         public void Update()
         {
-            if (ObjectManager.Aggressors.Count == 0)
+            if (!ObjectManager.Aggressors.Any())
             {
                 BotTasks.Pop();
                 return;
@@ -60,7 +36,7 @@ namespace DruidFeral.Tasks
                     CastSpell(CatForm);
 
                 Wait.RemoveAll();
-                BotTasks.Push(new HealTask(Container, BotTasks));
+                BotTasks.Push(new HealTask(BotContext));
                 return;
             }
 
@@ -80,7 +56,7 @@ namespace DruidFeral.Tasks
                 {
                     ObjectManager.Player.StopAllMovement();
                     BotTasks.Pop();
-                    BotTasks.Push(new LootTask(Container, BotTasks));
+                    BotTasks.Push(new LootTask(BotContext));
                     Wait.Remove(waitKey);
                 }
 
@@ -94,7 +70,7 @@ namespace DruidFeral.Tasks
             if (!ObjectManager.Player.IsFacing(ObjectManager.Player.Target.Position)) ObjectManager.Player.Face(ObjectManager.Player.Target.Position);
 
             // ensure auto-attack is turned on
-            Functions.LuaCall(AutoAttackLuaScript);
+            ObjectManager.Player.StartMeleeAttack();
 
             // if less than level 13, use spellcasting
             if (ObjectManager.Player.Level <= 12)
@@ -117,7 +93,7 @@ namespace DruidFeral.Tasks
                 // ensure we're in melee range
                 if ((ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) > 3 && ObjectManager.Player.CurrentShapeshiftForm == BearForm && ObjectManager.Player.Target.IsInCombat && !TargetMovingTowardPlayer) || (!ObjectManager.Player.Target.IsInCombat && ObjectManager.Player.IsCasting))
                 {
-                    Position[] nextWaypoint = Navigation.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+                    Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
                     ObjectManager.Player.MoveToward(nextWaypoint[0]);
                 }
                 else
@@ -132,7 +108,7 @@ namespace DruidFeral.Tasks
 
                 TryUseBearAbility(Enrage, condition: ObjectManager.Player.CurrentShapeshiftForm == BearForm);
 
-                TryUseBearAbility(Maul, Math.Max(15 - (ObjectManager.Player.Level - 9), 10), ObjectManager.Player.CurrentShapeshiftForm == BearForm);
+                TryUseBearAbility(Maul, (int)Math.Max(15 - (ObjectManager.Player.Level - 9), 10), ObjectManager.Player.CurrentShapeshiftForm == BearForm);
             }
             // cat form
             else if (ObjectManager.Player.Level >= 20)
@@ -140,7 +116,7 @@ namespace DruidFeral.Tasks
                 // ensure we're in melee range
                 if ((ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) > 3 && ObjectManager.Player.CurrentShapeshiftForm == CatForm && ObjectManager.Player.Target.IsInCombat && !TargetMovingTowardPlayer) || (!ObjectManager.Player.Target.IsInCombat && ObjectManager.Player.IsCasting))
                 {
-                    Position[] nextWaypoint = Navigation.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+                    Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
                     ObjectManager.Player.MoveToward(nextWaypoint[0]);
                 }
                 else
@@ -164,7 +140,7 @@ namespace DruidFeral.Tasks
         {
             if (ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.Rage >= requiredRage && !ObjectManager.Player.IsStunned && ObjectManager.Player.CurrentShapeshiftForm == BearForm && condition)
             {
-                Functions.LuaCall($"CastSpellByName(\"{name}\")");
+                ObjectManager.Player.CastSpell(name);
                 callback?.Invoke();
             }
         }
@@ -173,7 +149,7 @@ namespace DruidFeral.Tasks
         {
             if (ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.Energy >= requiredEnergy && (!requiresComboPoints || ObjectManager.Player.ComboPoints > 0) && !ObjectManager.Player.IsStunned && ObjectManager.Player.CurrentShapeshiftForm == CatForm && condition)
             {
-                Functions.LuaCall($"CastSpellByName(\"{name}\")");
+                ObjectManager.Player.CastSpell(name);
                 callback?.Invoke();
             }
         }
@@ -181,7 +157,7 @@ namespace DruidFeral.Tasks
         private void CastSpell(string name)
         {
             if (ObjectManager.Player.IsSpellReady(name) && !ObjectManager.Player.IsCasting)
-                Functions.LuaCall($"CastSpellByName(\"{name}\")");
+                ObjectManager.Player.CastSpell(name);
         }
 
         private void TryCastSpell(string name, int minRange, int maxRange, bool condition = true, Action callback = null)
@@ -190,14 +166,14 @@ namespace DruidFeral.Tasks
 
             if (ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(name) && distanceToTarget >= minRange && distanceToTarget <= maxRange && condition && !ObjectManager.Player.IsStunned && ObjectManager.Player.IsCasting && ObjectManager.Player.ChannelingId == 0)
             {
-                Functions.LuaCall($"CastSpellByName(\"{name}\")");
+                ObjectManager.Player.CastSpell(name);
                 callback?.Invoke();
             }
         }
 
         public override void PerformCombatRotation()
         {
-            throw new NotImplementedException();
+
         }
     }
 }

@@ -1,42 +1,24 @@
-﻿using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Tasks;
-using WoWActivityMember.Tasks.SharedStates;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace ShamanEnhancement.Tasks
 {
     internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        private const string Clearcasting = "Clearcasting";
-        private const string EarthShock = "Earth Shock";
-        private const string FlameShock = "Flame Shock";
-        private const string FlametongueWeapon = "Flametongue Weapon";
-        private const string GroundingTotem = "Grounding Totem";
-        private const string HealingWave = "Healing Wave";
-        private const string ManaSpringTotem = "Mana Spring Totem";
-        private const string LightningShield = "Lightning Shield";
-        private const string RockbiterWeapon = "Rockbiter Weapon";
-        private const string SearingTotem = "Searing Totem";
-        private const string StoneclawTotem = "Stoneclaw Totem";
-        private const string StoneskinTotem = "Stoneskin Totem";
-        private const string Stormstrike = "Stormstrike";
-        private const string TremorTotem = "Tremor Totem";
-        private const string WindfuryWeapon = "Windfury Weapon";
-        private readonly string[] fearingCreatures = ["Scorpid Terror"];
-        private readonly string[] fireImmuneCreatures = ["Rogue Flame Spirit", "Burning Destroyer"];
-        private readonly string[] natureImmuneCreatures = ["Swirling Vortex", "Gusting Vortex", "Dust Stormer"];
 
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
+        internal PvERotationTask(IBotContext botContext) : base(botContext) { }
 
         public void Update()
         {
             if (ObjectManager.Player.HealthPercent < 30
                 && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(HealingWave))
             {
-                BotTasks.Push(new HealTask(Container, BotTasks));
+                BotTasks.Push(new HealTask(BotContext));
                 return;
             }
 
-            if (ObjectManager.Aggressors.Count == 0)
+            if (!ObjectManager.Aggressors.Any())
             {
                 BotTasks.Pop();
                 return;
@@ -107,11 +89,11 @@ namespace ShamanEnhancement.Tasks
         {
             ObjectManager.Player.StopAllMovement();
             ObjectManager.Player.Face(ObjectManager.Player.Target.Position);
-            ObjectManager.Player.StartAttack();
+            ObjectManager.Player.StartMeleeAttack();
 
             TryCastSpell(GroundingTotem, 0, int.MaxValue, ObjectManager.Aggressors.Any(a => a.IsCasting && ObjectManager.Player.Target.Mana > 0));
 
-            TryCastSpell(TremorTotem, 0, int.MaxValue, fearingCreatures.Contains(ObjectManager.Player.Target.Name) && !ObjectManager.Units.Any(u => u.Position.DistanceTo(ObjectManager.Player.Position) < 29 && u.HealthPercent > 0 && u.Name.Contains(TremorTotem)));
+            TryCastSpell(TremorTotem, 0, int.MaxValue, FearingCreatures.Contains(ObjectManager.Player.Target.Name) && !ObjectManager.Units.Any(u => u.Position.DistanceTo(ObjectManager.Player.Position) < 29 && u.HealthPercent > 0 && u.Name.Contains(TremorTotem)));
 
             TryCastSpell(WindfuryWeapon, 0, int.MaxValue, !ObjectManager.Player.MainhandIsEnchanted && ObjectManager.Player.IsSpellReady(WindfuryWeapon));
 
@@ -121,15 +103,15 @@ namespace ShamanEnhancement.Tasks
 
             TryCastSpell(StoneskinTotem, 0, int.MaxValue, ObjectManager.Player.Target.Mana == 0 && !ObjectManager.Units.Any(u => u.Position.DistanceTo(ObjectManager.Player.Position) < 19 && u.HealthPercent > 0 && (u.Name.Contains(StoneclawTotem) || u.Name.Contains(StoneskinTotem) || u.Name.Contains(TremorTotem))));
 
-            TryCastSpell(SearingTotem, 0, int.MaxValue, ObjectManager.Player.Target.HealthPercent > 70 && !fireImmuneCreatures.Contains(ObjectManager.Player.Target.Name) && ObjectManager.Player.Target.Position.DistanceTo(ObjectManager.Player.Position) < 20 && !ObjectManager.Units.Any(u => u.Position.DistanceTo(ObjectManager.Player.Position) < 19 && u.HealthPercent > 0 && u.Name.Contains(SearingTotem)));
+            TryCastSpell(SearingTotem, 0, int.MaxValue, ObjectManager.Player.Target.HealthPercent > 70 && !FireImmuneCreatures.Contains(ObjectManager.Player.Target.Name) && ObjectManager.Player.Target.Position.DistanceTo(ObjectManager.Player.Position) < 20 && !ObjectManager.Units.Any(u => u.Position.DistanceTo(ObjectManager.Player.Position) < 19 && u.HealthPercent > 0 && u.Name.Contains(SearingTotem)));
 
             TryCastSpell(Stormstrike, 0, 5);
 
-            TryCastSpell(FlameShock, 0, 20, !ObjectManager.Player.Target.HasDebuff(FlameShock) && ObjectManager.Player.Target.HealthPercent > 70 || natureImmuneCreatures.Contains(ObjectManager.Player.Target.Name) && !fireImmuneCreatures.Contains(ObjectManager.Player.Target.Name));
+            TryCastSpell(FlameShock, 0, 20, !ObjectManager.Player.Target.HasDebuff(FlameShock) && ObjectManager.Player.Target.HealthPercent > 70 || NatureImmuneCreatures.Contains(ObjectManager.Player.Target.Name) && !FireImmuneCreatures.Contains(ObjectManager.Player.Target.Name));
 
             //TryCastSpell(EarthShock, 0, 20, !natureImmuneCreatures.Contains(target.Name) && !ObjectManager.Player.IsSpellReady(Stormstrike) && ObjectManager.Player.Target.HealthPercent < 70 || ObjectManager.Player.Target.HasDebuff(Stormstrike) || ObjectManager.Player.Target.IsCasting || ObjectManager.Player.Target.IsChanneling || ObjectManager.Player.HasBuff(Clearcasting));
 
-            TryCastSpell(LightningShield, 0, int.MaxValue, !natureImmuneCreatures.Contains(ObjectManager.Player.Target.Name) && !ObjectManager.Player.HasBuff(LightningShield));
+            TryCastSpell(LightningShield, 0, int.MaxValue, !NatureImmuneCreatures.Contains(ObjectManager.Player.Target.Name) && !ObjectManager.Player.HasBuff(LightningShield));
 
             TryCastSpell(RockbiterWeapon, 0, int.MaxValue, !ObjectManager.Player.MainhandIsEnchanted && ObjectManager.Player.IsSpellReady(RockbiterWeapon) && !ObjectManager.Player.IsSpellReady(FlametongueWeapon) && !ObjectManager.Player.IsSpellReady(WindfuryWeapon));
 

@@ -1,25 +1,23 @@
-﻿using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace ShamanElemental.Tasks
 {
     internal class RestTask : BotTask, IBotTask
     {
         private const int stackCount = 5;
-        private const string HealingWave = "Healing Wave";
-        private readonly WoWItem drinkItem;
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
+        private readonly IWoWItem drinkItem;
+        public RestTask(IBotContext botContext) : base(botContext)
         {
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
 
             if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
             {
-                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                if (ObjectManager.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
                 {
-                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                    ObjectManager.SendChatMessage("SendChatMessage('.repairitems')");
                 }
             }
         }
@@ -31,14 +29,14 @@ namespace ShamanElemental.Tasks
             if (InCombat || (HealthOk && ManaOk))
             {
                 Wait.RemoveAll();
-                ObjectManager.Player.Stand();
+                ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
                 BotTasks.Pop();
 
-                int drinkCount = drinkItem == null ? 0 : Inventory.GetItemCount(drinkItem.ItemId);
+                uint drinkCount = drinkItem == null ? 0 : ObjectManager.GetItemCount(drinkItem.ItemId);
 
                 if (!InCombat && drinkCount == 0)
                 {
-                    int drinkToBuy = 28 - (drinkCount / stackCount);
+                    uint drinkToBuy = 28 - (drinkCount / stackCount);
                     //var itemsToBuy = new Dictionary<string, int>
                     //{
                     //    { container.BotSettings.Drink, drinkToBuy }
@@ -62,15 +60,17 @@ namespace ShamanElemental.Tasks
 
             if (!ObjectManager.Player.IsDrinking && Wait.For("HealSelfDelay", 3500, true))
             {
-                ObjectManager.Player.Stand();
+                ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
+
                 if (ObjectManager.Player.HealthPercent < 70)
-                    Functions.LuaCall($"CastSpellByName('{HealingWave}')");
+                    ObjectManager.Player.CastSpell(HealingWave);
+
                 if (ObjectManager.Player.HealthPercent > 70 && ObjectManager.Player.HealthPercent < 85)
                 {
                     if (ObjectManager.Player.Level >= 40)
-                        Functions.LuaCall($"CastSpellByName('{HealingWave}(Rank 3)')");
+                        ObjectManager.Player.CastSpell(HealingWave, 3);
                     else
-                        Functions.LuaCall($"CastSpellByName('{HealingWave}(Rank 1)')");
+                        ObjectManager.Player.CastSpell(HealingWave, 1);
                 }
             }
 

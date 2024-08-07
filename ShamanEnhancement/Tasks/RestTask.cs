@@ -1,15 +1,12 @@
-﻿using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace ShamanEnhancement.Tasks
 {
-    internal class RestTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Rest), IBotTask
+    internal class RestTask(IBotContext botContext) : BotTask(botContext), IBotTask
     {
-        private const string HealingWave = "Healing Wave";
-
         public void Update()
         {
             if (ObjectManager.Player.IsCasting) return;
@@ -17,7 +14,7 @@ namespace ShamanEnhancement.Tasks
             if (InCombat || (HealthOk && ManaOk))
             {
                 Wait.RemoveAll();
-                ObjectManager.Player.Stand();
+                ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
                 BotTasks.Pop();
                 return;
             }
@@ -25,15 +22,15 @@ namespace ShamanEnhancement.Tasks
             if (!ObjectManager.Player.IsDrinking && Wait.For("HealSelfDelay", 3500, true))
             {
                 ObjectManager.Player.StopAllMovement();
-                ObjectManager.Player.Stand();
+                ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
                 if (ObjectManager.Player.HealthPercent < 70)
-                    Functions.LuaCall($"CastSpellByName('{HealingWave}')");
+                    ObjectManager.Player.CastSpell(HealingWave);
                 if (ObjectManager.Player.HealthPercent > 70 && ObjectManager.Player.HealthPercent < 85)
                 {
                     if (ObjectManager.Player.Level >= 40)
-                        Functions.LuaCall($"CastSpellByName('{HealingWave}(Rank 3)')");
+                        ObjectManager.Player.CastSpell(HealingWave, 3);
                     else
-                        Functions.LuaCall($"CastSpellByName('{HealingWave}(Rank 1)')");
+                        ObjectManager.Player.CastSpell(HealingWave, 1);
                 }
             }
 
@@ -41,21 +38,21 @@ namespace ShamanEnhancement.Tasks
 
             if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
             {
-                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                if (ObjectManager.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
                 {
-                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                    ObjectManager.SendChatMessage(".repairitems");
                 }
 
-                List<WoWItem> drinkItems = ObjectManager.Items.Where(x => x.ItemId == 1179).ToList();
-                int drinkItemsCount = drinkItems.Sum(x => x.StackCount);
+                List<IWoWItem> drinkItems = ObjectManager.Items.Where(x => x.ItemId == 1179).ToList();
+                uint drinkItemsCount = (uint)drinkItems.Sum(x => x.StackCount);
 
                 if (drinkItemsCount < 20)
                 {
-                    Functions.LuaCall($"SendChatMessage('.additem 1179 {20 - drinkItemsCount}')");
+                    ObjectManager.SendChatMessage($".additem 1179 {20 - drinkItemsCount}");
                 }
             }
 
-            WoWItem drinkItem = ObjectManager.Items.First(x => x.ItemId == 1179);
+            IWoWItem drinkItem = ObjectManager.Items.First(x => x.ItemId == 1179);
 
             if (ObjectManager.Player.Level > 10 && drinkItem != null && !ObjectManager.Player.IsDrinking && ObjectManager.Player.ManaPercent < 60)
                 drinkItem.Use();

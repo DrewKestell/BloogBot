@@ -1,14 +1,12 @@
-﻿using WoWActivityMember.Tasks;
-using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using PathfindingService.Models;
 
 namespace WarriorArms.Tasks
 {
     internal class PullTargetTask : BotTask, IBotTask
     {
-        internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull) { }
+        internal PullTargetTask(IBotContext botContext) : base(botContext) { }
 
         public void Update()
         {
@@ -23,28 +21,23 @@ namespace WarriorArms.Tasks
             {
                 ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
-                BotTasks.Push(new PvERotationTask(Container, BotTasks));
+                BotTasks.Push(new PvERotationTask(BotContext));
                 return;
             }
 
             float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position);
-            if (distanceToTarget < 25 && distanceToTarget > 8 && ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady("Charge") && ObjectManager.Player.InLosWith(ObjectManager.Player.Target))
-            {
-                if (ObjectManager.Player.IsCasting)
-                {
-                    Functions.LuaCall($"CastSpellByName('Charge')");
-                }
-            }
+            if (distanceToTarget < 25 && distanceToTarget > 8 && ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady("Charge") && ObjectManager.Player.InLosWith(ObjectManager.Player.Target) && !ObjectManager.Player.IsCasting)
+                ObjectManager.Player.CastSpell("Charge");
 
             if (distanceToTarget < 3)
             {
                 ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
-                BotTasks.Push(new PvERotationTask(Container, BotTasks));
+                BotTasks.Push(new PvERotationTask(BotContext));
                 return;
             }
 
-            Position[] nextWaypoint = Navigation.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+            Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
             ObjectManager.Player.MoveToward(nextWaypoint[0]);
         }
     }

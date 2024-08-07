@@ -1,37 +1,13 @@
-﻿using System.Diagnostics;
-using WoWActivityMember.Tasks;
-using WoWActivityMember.Tasks.SharedStates;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Objects;
-using static WoWActivityMember.Constants.Enums;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using System.Diagnostics;
+using static BotRunner.Constants.Spellbook;
 
 namespace WarriorFury.Tasks
 {
     internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        private const string BattleStance = "Battle Stance";
-        private const string BerserkerStance = "Berserker Stance";
-        private const string BattleShout = "Battle Shout";
-        private const string BerserkerRage = "Berserker Rage";
-        private const string Berserking = "Berserking";
-        private const string BloodFury = "Blood Fury";
-        private const string Bloodrage = "Bloodrage";
-        private const string Bloodthirst = "Bloodthirst";
-        private const string Cleave = "Cleave";
-        private const string DeathWish = "Death Wish";
-        private const string DemoralizingShout = "Demoralizing Shout";
-        private const string Execute = "Execute";
-        private const string HeroicStrike = "Heroic Strike";
-        private const string Overpower = "Overpower";
-        private const string Pummel = "Pummel";
-        private const string Rend = "Rend";
-        private const string Retaliation = "Retaliation";
-        private const string Slam = "Slam";
-        private const string SunderArmor = "Sunder Armor";
-        private const string ThunderClap = "Thunder Clap";
-        private const string Hamstring = "Ham String";
-        private const string IntimidatingShout = "Intimidating Shout";
-        private const string Whirlwind = "Whirlwind";
         private bool slamReady;
         private int slamReadyStartTime;
         private bool backpedaling;
@@ -39,15 +15,15 @@ namespace WarriorFury.Tasks
         private int backpedalDuration;
         private readonly Stopwatch overpowerStopwatch = new();
 
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
+        internal PvERotationTask(IBotContext botContext) : base(botContext)
         {
-            WoWEventHandler.Instance.OnSlamReady += OnSlamReadyCallback;
-            WoWEventHandler.Instance.OnBlockParryDodge += Instance_OnBlockParryDodge;
+            EventHandler.OnSlamReady += OnSlamReadyCallback;
+            EventHandler.OnBlockParryDodge += Instance_OnBlockParryDodge;
         }
 
         ~PvERotationTask()
         {
-            WoWEventHandler.Instance.OnSlamReady -= OnSlamReadyCallback;
+            EventHandler.OnSlamReady -= OnSlamReadyCallback;
         }
 
         private void Instance_OnBlockParryDodge(object sender, EventArgs e)
@@ -79,7 +55,7 @@ namespace WarriorFury.Tasks
             //    return;
             //}
 
-            if (ObjectManager.Aggressors.Count == 0)
+            if (!ObjectManager.Aggressors.Any())
             {
                 BotTasks.Pop();
                 return;
@@ -94,7 +70,7 @@ namespace WarriorFury.Tasks
                 return;
 
             string currentStance = ObjectManager.Player.CurrentStance;
-            IEnumerable<WoWUnit> spellcastingAggressors = ObjectManager.Aggressors
+            IEnumerable<IWoWUnit> spellcastingAggressors = ObjectManager.Aggressors
                 .Where(a => a.Mana > 0);
             // Use these abilities when fighting any number of mobs.   
             TryUseAbility(BerserkerStance, condition: ObjectManager.Player.Level >= 30 && currentStance == BattleStance && (ObjectManager.Player.Target.HasDebuff(Rend) || ObjectManager.Player.Target.HealthPercent < 80 || ObjectManager.Player.Target.CreatureType == CreatureType.Elemental || ObjectManager.Player.Target.CreatureType == CreatureType.Undead));
@@ -129,11 +105,11 @@ namespace WarriorFury.Tasks
                 TryUseAbility(Whirlwind, 25, ObjectManager.Player.Target.HealthPercent > 20 && currentStance == BerserkerStance && !ObjectManager.Player.Target.HasDebuff(IntimidatingShout) && AggressorsInMelee);
 
                 // if our ObjectManager.Player.Target uses melee, but there's a caster attacking us, do not use retaliation
-                TryUseAbility(Retaliation, 0, ObjectManager.Player.IsSpellReady(Retaliation) && spellcastingAggressors.Count() == 0 && currentStance == BattleStance && FacingAllTargets && !ObjectManager.Aggressors.Any(a => a.HasDebuff(IntimidatingShout)));
+                TryUseAbility(Retaliation, 0, ObjectManager.Player.IsSpellReady(Retaliation) && !spellcastingAggressors.Any() && currentStance == BattleStance && FacingAllTargets && !ObjectManager.Aggressors.Any(a => a.HasDebuff(IntimidatingShout)));
             }
 
             // Use these abilities if you are fighting only one mob at a time, or multiple and one or more are not in melee range.
-            if (ObjectManager.Aggressors.Count() >= 1 || (ObjectManager.Aggressors.Count() > 1 && !AggressorsInMelee))
+            if (ObjectManager.Aggressors.Any() || (ObjectManager.Aggressors.Count() > 1 && !AggressorsInMelee))
             {
                 TryUseAbility(Slam, 15, ObjectManager.Player.Target.HealthPercent > 20 && slamReady, SlamCallback);
                 

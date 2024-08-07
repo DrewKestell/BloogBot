@@ -1,14 +1,11 @@
-﻿using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Tasks;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace ShamanEnhancement.Tasks
 {
-    internal class HealTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Heal), IBotTask
+    internal class HealTask(IBotContext botContext) : BotTask(botContext), IBotTask
     {
-        private const string WarStomp = "War Stomp";
-        private const string HealingWave = "Healing Wave";
-
         public void Update()
         {
             if (ObjectManager.Player.IsCasting) return;
@@ -23,9 +20,9 @@ namespace ShamanEnhancement.Tasks
                 ObjectManager.Player.StopAllMovement();
 
             if (ObjectManager.Player.IsSpellReady(WarStomp))
-                Functions.LuaCall($"CastSpellByName('{WarStomp}')");
+                ObjectManager.Player.CastSpell(WarStomp);
 
-            Functions.LuaCall($"CastSpellByName('{HealingWave}',1)");
+            ObjectManager.Player.CastSpell(HealingWave);
         }
     }
 }

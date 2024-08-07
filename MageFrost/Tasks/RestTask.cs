@@ -1,25 +1,23 @@
-﻿using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
 
 namespace MageFrost.Tasks
 {
     internal class RestTask : BotTask, IBotTask
     {
         private const string Evocation = "Evocation";
-        private readonly WoWItem foodItem;
-        private readonly WoWItem drinkItem;
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
+        private readonly IWoWItem foodItem;
+        private readonly IWoWItem drinkItem;
+        public RestTask(IBotContext botContext) : base(botContext)
         {
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
 
             if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
             {
-                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                if (ObjectManager.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
                 {
-                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                    ObjectManager.SendChatMessage("SendChatMessage('.repairitems')");
                 }
             }
         }
@@ -31,22 +29,22 @@ namespace MageFrost.Tasks
 
             if (InCombat)
             {
-                ObjectManager.Player.Stand();
+                ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
                 BotTasks.Pop();
                 return;
             }
 
             if (HealthOk && ManaOk)
             {
-                ObjectManager.Player.Stand();
+                ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
                 BotTasks.Pop();
-                BotTasks.Push(new BuffTask(Container, BotTasks));
+                BotTasks.Push(new BuffTask(BotContext));
                 return;
             }
 
             if (ObjectManager.Player.ManaPercent < 20 && ObjectManager.Player.IsSpellReady(Evocation))
             {
-                Functions.LuaCall($"CastSpellByName('{Evocation}')");
+                ObjectManager.Player.CastSpell(Evocation);
                 Thread.Sleep(200);
                 return;
             }

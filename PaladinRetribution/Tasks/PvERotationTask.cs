@@ -1,27 +1,14 @@
-﻿using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Tasks;
-using WoWActivityMember.Tasks.SharedStates;
-using static WoWActivityMember.Constants.Enums;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace PaladinRetribution.Tasks
 {
     internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        private const string DevotionAura = "Devotion Aura";
-        private const string Exorcism = "Exorcism";
-        private const string HammerOfJustice = "Hammer of Justice";
-        private const string HolyLight = "Holy Light";
-        private const string HolyShield = "Holy Shield";
-        private const string Judgement = "Judgement";
-        private const string JudgementOfTheCrusader = "Judgement of the Crusader";
-        private const string Purify = "Purify";
-        private const string RetributionAura = "Retribution Aura";
-        private const string SanctityAura = "Sanctity Aura";
-        private const string SealOfCommand = "Seal of Command";
-        private const string SealOfRighteousness = "Seal of Righteousness";
-        private const string SealOfTheCrusader = "Seal of the Crusader";
 
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
+        internal PvERotationTask(IBotContext botContext) : base(botContext) { }
 
         public override void PerformCombatRotation()
         {
@@ -32,11 +19,11 @@ namespace PaladinRetribution.Tasks
         {
             if (ObjectManager.Player.HealthPercent < 30 && ObjectManager.Player.Target.HealthPercent > 50 && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(HolyLight))
             {
-                BotTasks.Push(new HealTask(Container, BotTasks));
+                BotTasks.Push(new HealTask(BotContext));
                 return;
             }
 
-            if (ObjectManager.Aggressors.Count == 0)
+            if (!ObjectManager.Aggressors.Any())
             {
                 BotTasks.Pop();
                 return;
@@ -44,7 +31,7 @@ namespace PaladinRetribution.Tasks
 
             if (ObjectManager.Player.Target == null || ObjectManager.Player.Target.HealthPercent <= 0)
             {
-                ObjectManager.Player.SetTarget(ObjectManager.Aggressors[0].Guid);
+                ObjectManager.Player.SetTarget(ObjectManager.Aggressors.First().Guid);
             }
 
             if (Update(3))

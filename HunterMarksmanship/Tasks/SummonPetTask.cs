@@ -1,8 +1,9 @@
-﻿using WoWActivityMember.Tasks;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
 
 namespace HunterMarksmanship.Tasks
 {
-    internal class SummonPetTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Buff), IBotTask
+    internal class SummonPetTask(IBotContext botContext) : BotTask(botContext), IBotTask
     {
         public void Update()
         {

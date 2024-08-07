@@ -1,27 +1,23 @@
-﻿using WoWActivityMember.Tasks;
-using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace DruidBalance.Tasks
 {
     internal class RestTask : BotTask, IBotTask
     {
         private const int stackCount = 5;
-        private const string Regrowth = "Regrowth";
-        private const string Rejuvenation = "Rejuvenation";
-        private const string MoonkinForm = "Moonkin Form";
-        private WoWItem drinkItem;
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
+        private readonly IWoWItem drinkItem;
+        public RestTask(IBotContext botContext) : base(botContext)
         {
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
 
             if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
             {
-                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                if (ObjectManager.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
                 {
-                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                    ObjectManager.SendChatMessage(".repairitems");
                 }
             }
         }
@@ -30,25 +26,25 @@ namespace DruidBalance.Tasks
         {
             if (ObjectManager.Player.IsCasting)
                 return;
-            
-            if (InCombat)
+
+            if (ObjectManager.Player.IsInCombat)
             {
                 Wait.RemoveAll();
-                ObjectManager.Player.Stand();
+                ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
                 BotTasks.Pop();
                 return;
             }
             if (HealthOk && ManaOk)
             {
                 Wait.RemoveAll();
-                ObjectManager.Player.Stand();
+                ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
                 BotTasks.Pop();
 
-                int drinkCount = drinkItem == null ? 0 : Inventory.GetItemCount(drinkItem.ItemId);
+                uint drinkCount = drinkItem == null ? 0 : ObjectManager.GetItemCount(drinkItem.ItemId);
 
-                if (!InCombat && drinkCount == 0)
+                if (!ObjectManager.Player.IsInCombat && drinkCount == 0)
                 {
-                    int drinkToBuy = 28 - (drinkCount / stackCount);
+                    uint drinkToBuy = 28 - (drinkCount / stackCount);
                     //var itemsToBuy = new Dictionary<string, int>
                     //    {
                     //        { container.BotSettings.Drink, drinkToBuy }
@@ -68,19 +64,23 @@ namespace DruidBalance.Tasks
                     //container.CheckForTravelPath(botTasks, true, false);
                 }
                 else
-                    BotTasks.Push(new BuffTask(Container, BotTasks));
+                    BotTasks.Push(new BuffTask(BotContext));
             }
 
             if (ObjectManager.Player.HealthPercent < 60 && !ObjectManager.Player.HasBuff(Regrowth) && Wait.For("SelfHealDelay", 5000, true))
             {
-                TryCastSpell(MoonkinForm, ObjectManager.Player.HasBuff(MoonkinForm));
-                TryCastSpell(Regrowth);
+                if (!ObjectManager.Player.HasBuff(MoonkinForm) && ObjectManager.Player.IsSpellReady(MoonkinForm))
+                    ObjectManager.Player.CastSpell(MoonkinForm);
+
+                ObjectManager.Player.CastSpell(Regrowth);
             }
-                
+
             if (ObjectManager.Player.HealthPercent < 80 && !ObjectManager.Player.HasBuff(Rejuvenation) && !ObjectManager.Player.HasBuff(Regrowth) && Wait.For("SelfHealDelay", 5000, true))
             {
-                TryCastSpell(MoonkinForm, ObjectManager.Player.HasBuff(MoonkinForm));
-                TryCastSpell(Rejuvenation);
+                if (!ObjectManager.Player.HasBuff(MoonkinForm) && ObjectManager.Player.IsSpellReady(MoonkinForm))
+                    ObjectManager.Player.CastSpell(MoonkinForm);
+
+                ObjectManager.Player.CastSpell(Rejuvenation);
             }
 
             if (ObjectManager.Player.Level >= 6 && drinkItem != null && !ObjectManager.Player.IsDrinking && ObjectManager.Player.ManaPercent < 60)
@@ -90,16 +90,5 @@ namespace DruidBalance.Tasks
         private bool HealthOk => ObjectManager.Player.HealthPercent >= 81;
 
         private bool ManaOk => (ObjectManager.Player.Level < 6 && ObjectManager.Player.ManaPercent > 50) || ObjectManager.Player.ManaPercent >= 90 || (ObjectManager.Player.ManaPercent >= 65 && !ObjectManager.Player.IsDrinking);
-
-        private bool InCombat => ObjectManager.Aggressors.Count() > 0;
-
-        private void TryCastSpell(string name, bool condition = true)
-        {
-            if (ObjectManager.Player.IsSpellReady(name) && ObjectManager.Player.IsCasting && ObjectManager.Player.Mana > ObjectManager.Player.GetManaCost(name) && !ObjectManager.Player.IsDrinking && condition)
-            {
-                ObjectManager.Player.Stand();
-                Functions.LuaCall($"CastSpellByName('{name}',1)");
-            }
-        }
     }
 }

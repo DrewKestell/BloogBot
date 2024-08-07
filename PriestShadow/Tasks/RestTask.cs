@@ -1,18 +1,12 @@
-﻿using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace PriestShadow.Tasks
 {
-    internal class RestTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Rest), IBotTask
+    internal class RestTask(IBotContext botContext) : BotTask(botContext), IBotTask
     {
-        private const string AbolishDisease = "Abolish Disease";
-        private const string CureDisease = "Cure Disease";
-        private const string LesserHeal = "Lesser Heal";
-        private const string Heal = "Heal";
-        private const string ShadowForm = "Shadowform";
 
         public void Update()
         {
@@ -23,20 +17,20 @@ namespace PriestShadow.Tasks
                 if (ObjectManager.Player.IsSpellReady(ShadowForm) && !ObjectManager.Player.HasBuff(ShadowForm) && ObjectManager.Player.IsDiseased)
                 {
                     if (ObjectManager.Player.IsSpellReady(AbolishDisease))
-                        Functions.LuaCall($"CastSpellByName('{AbolishDisease}',1)");
+                        ObjectManager.Player.CastSpell(AbolishDisease);
                     else if (ObjectManager.Player.IsSpellReady(CureDisease))
-                        Functions.LuaCall($"CastSpellByName('{CureDisease}',2)");
+                        ObjectManager.Player.CastSpell(CureDisease);
 
                     return;
                 }
 
                 if (ObjectManager.Player.IsSpellReady(ShadowForm) && !ObjectManager.Player.HasBuff(ShadowForm))
-                    Functions.LuaCall($"CastSpellByName('{ShadowForm}')");
+                    ObjectManager.Player.CastSpell(ShadowForm);
 
                 Wait.RemoveAll();
-                ObjectManager.Player.Stand();
+                ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
                 BotTasks.Pop();
-                    BotTasks.Push(new BuffTask(Container, BotTasks));
+                    BotTasks.Push(new BuffTask(BotContext));
 
                 return;
             }
@@ -49,20 +43,20 @@ namespace PriestShadow.Tasks
 
             if (ObjectManager.Player.Target.Guid == ObjectManager.Player.Guid)
             {
-                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                if (ObjectManager.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
                 {
-                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                    ObjectManager.SendChatMessage("SendChatMessage('.repairitems')");
                 }
 
-                List<WoWItem> drinkItems = ObjectManager.Items.Where(x => x.ItemId == 1179).ToList();
-                int drinkItemsCount = drinkItems.Sum(x => x.StackCount);
+                List<IWoWItem> drinkItems = ObjectManager.Items.Where(x => x.ItemId == 1179).ToList();
+                uint drinkItemsCount = (uint)drinkItems.Sum(x => x.StackCount);
 
                 if (drinkItemsCount < 20)
                 {
-                    Functions.LuaCall($"SendChatMessage('.additem 1179 {20 - drinkItemsCount}')");
+                    ObjectManager.SendChatMessage($".additem 1179 {20 - drinkItemsCount}");
                 }
 
-                WoWItem drinkItem = ObjectManager.Items.First(x => x.ItemId == 1179);
+                IWoWItem drinkItem = ObjectManager.Items.First(x => x.ItemId == 1179);
 
                 if (ObjectManager.Player.Level >= 5 && drinkItem != null && !ObjectManager.Player.IsDrinking && ObjectManager.Player.ManaPercent < 60)
                 {
@@ -72,24 +66,24 @@ namespace PriestShadow.Tasks
 
             if (!ObjectManager.Player.IsDrinking && Wait.For("HealSelfDelay", 3500, true))
             {
-                ObjectManager.Player.Stand();
+                ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
 
                 if (ObjectManager.Player.HealthPercent < 70)
                 {
                     if (ObjectManager.Player.HasBuff(ShadowForm))
-                        Functions.LuaCall($"CastSpellByName('{ShadowForm}')");
+                        ObjectManager.Player.CastSpell(ShadowForm);
                 }
 
                 if (ObjectManager.Player.HealthPercent < 50)
                 {
                     if (ObjectManager.Player.IsSpellReady(Heal))
-                        Functions.LuaCall($"CastSpellByName('{Heal}',1)");
+                        ObjectManager.Player.CastSpell(Heal);
                     else
-                        Functions.LuaCall($"CastSpellByName('{LesserHeal}',1)");
+                        ObjectManager.Player.CastSpell(LesserHeal);
                 }
 
                 if (ObjectManager.Player.HealthPercent < 70)
-                    Functions.LuaCall($"CastSpellByName('{LesserHeal}',1)");
+                    ObjectManager.Player.CastSpell(LesserHeal, castOnSelf: true);
             }
         }
 

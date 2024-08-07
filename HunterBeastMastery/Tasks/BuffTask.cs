@@ -1,16 +1,11 @@
-﻿
-
-using WoWActivityMember.Tasks;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace HunterBeastMastery.Tasks
 {
-    internal class BuffTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Buff), IBotTask
+    internal class BuffTask(IBotContext botContext) : BotTask(botContext), IBotTask
     {
-        private const string AspectOfTheMonkey = "Aspect of the Monkey";
-        private const string AspectOfTheCheetah = "Aspect of the Cheetah";
-        private const string AspectOfTheHawk = "Aspect of the Hawk";
 
         public void Update()
         {
@@ -20,13 +15,7 @@ namespace HunterBeastMastery.Tasks
                 return;
             }
 
-            TryCastSpell(AspectOfTheHawk);
-        }
-
-        private void TryCastSpell(string name, int requiredLevel = 1)
-        {
-            if (!ObjectManager.Player.HasBuff(name) && ObjectManager.Player.Level >= requiredLevel && ObjectManager.Player.IsSpellReady(name))
-                Functions.LuaCall($"CastSpellByName('{name}')");
+            ObjectManager.Player.CastSpell(AspectOfTheHawk);
         }
     }
 }

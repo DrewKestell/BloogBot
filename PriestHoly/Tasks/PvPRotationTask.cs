@@ -1,12 +1,10 @@
-﻿using WoWActivityMember.Tasks;
-using WoWActivityMember.Tasks.SharedStates;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
 
 namespace PriestHoly.Tasks
 {
-    internal class PvPRotationTask : CombatRotationTask, IBotTask
+    public class PvPRotationTask(IBotContext botContext) : CombatRotationTask(botContext), IBotTask
     {
-        internal PvPRotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
-
         public void Update()
         {
             BotTasks.Pop();

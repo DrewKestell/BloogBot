@@ -8,7 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WoWActivityMember\WoWActivityMember.csproj" />
+    <ProjectReference Include="..\BotCommLayer\BotCommLayer.csproj" />
+    <ProjectReference Include="..\BotRunner\BotRunner.csproj" />
   </ItemGroup>
 
   <ItemGroup>

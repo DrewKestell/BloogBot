@@ -1,26 +1,14 @@
-﻿using WoWActivityMember.Tasks;
-using WoWActivityMember.Tasks.SharedStates;
-using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Objects;
-using static WoWActivityMember.Constants.Enums;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace DruidBalance.Tasks
 {
     internal class PvERotationTask : CombatRotationTask, IBotTask
     {
         private static readonly string[] ImmuneToNatureDamage = ["Vortex", "Whirlwind", "Whirling", "Dust", "Cyclone"];
-        private const string AbolishPoison = "Abolish Poison";
-        private const string EntanglingRoots = "Entangling Roots";
-        private const string HealingTouch = "Healing Touch";
-        private const string Moonfire = "Moonfire";
-        private const string Rejuvenation = "Rejuvenation";
-        private const string RemoveCurse = "Remove Curse";
-        private const string Wrath = "Wrath";
-        private const string InsectSwarm = "Insect Swarm";
-        private const string Innervate = "Innervate";
-        private const string MoonkinForm = "Moonkin Form";
-        private WoWUnit secondaryTarget;
+        private IWoWUnit secondaryTarget;
         private bool castingEntanglingRoots;
         private bool backpedaling;
         private int backpedalStartTime;
@@ -30,7 +18,7 @@ namespace DruidBalance.Tasks
             castingEntanglingRoots = true;
         };
 
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
+        internal PvERotationTask(IBotContext botContext) : base(botContext) { }
 
         public void Update()
         {
@@ -60,11 +48,11 @@ namespace DruidBalance.Tasks
             if (ObjectManager.Player.HealthPercent < 30 && (ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(HealingTouch) || ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(Rejuvenation)))
             {
                 Wait.RemoveAll();
-                BotTasks.Push(new HealTask(Container, BotTasks));
+                BotTasks.Push(new HealTask(BotContext));
                 return;
             }
 
-            if (ObjectManager.Aggressors.Count == 0)
+            if (!ObjectManager.Aggressors.Any())
             {
                 BotTasks.Pop();
                 return;
@@ -72,7 +60,7 @@ namespace DruidBalance.Tasks
 
             if (ObjectManager.Player.Target == null || ObjectManager.Player.Target.HealthPercent <= 0)
             {
-                ObjectManager.Player.SetTarget(ObjectManager.Aggressors[0].Guid);
+                ObjectManager.Player.SetTarget(ObjectManager.Aggressors.First().Guid);
             }
 
             if (Update(30))
@@ -105,7 +93,7 @@ namespace DruidBalance.Tasks
 
         public override void PerformCombatRotation()
         {
-            throw new NotImplementedException();
+            
         }
     }
 }

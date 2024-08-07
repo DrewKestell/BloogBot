@@ -1,11 +1,11 @@
-﻿using WoWActivityMember.Tasks;
-using WoWActivityMember.Tasks.SharedStates;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
 
 namespace HunterSurvival.Tasks
 {
     internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
+        internal PvERotationTask(IBotContext botContext) : base(botContext) { }
 
         public void Update()
         {

@@ -1,23 +1,21 @@
-﻿using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace RogueCombat.Tasks
 {
     internal class RestTask : BotTask, IBotTask
     {
-        private const string Cannibalize = "Cannibalize";
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
+        public RestTask(IBotContext botContext) : base(botContext)
         {
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
 
             if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
             {
-                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                if (ObjectManager.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
                 {
-                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                    ObjectManager.SendChatMessage(".repairitems");
                 }
             }
         }
@@ -32,7 +30,7 @@ namespace RogueCombat.Tasks
             if (readyToPop)
             {
                 Wait.RemoveAll();
-                ObjectManager.Player.Stand();
+                ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
                 BotTasks.Pop();
                 return;
             }
@@ -42,7 +40,7 @@ namespace RogueCombat.Tasks
 
             if (ObjectManager.Player.IsSpellReady(Cannibalize) && ObjectManager.Player.TastyCorpsesNearby)
             {
-                Functions.LuaCall($"CastSpellByName('{Cannibalize}')");
+                ObjectManager.Player.CastSpell(Cannibalize);
                 return;
             }
 
@@ -51,21 +49,21 @@ namespace RogueCombat.Tasks
 
             if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
             {
-                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                if (ObjectManager.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
                 {
-                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                    ObjectManager.SendChatMessage(".repairitems");
                 }
 
-                List<WoWItem> foodItems = ObjectManager.Items.Where(x => x.ItemId == 5479).ToList();
-                int foodItemsCount = foodItems.Sum(x => x.StackCount);
+                List<IWoWItem> foodItems = ObjectManager.Items.Where(x => x.ItemId == 5479).ToList();
+                uint foodItemsCount = (uint)foodItems.Sum(x => x.StackCount);
 
                 if (foodItemsCount < 20)
                 {
-                    Functions.LuaCall($"SendChatMessage('.additem 5479 {20 - foodItemsCount}')");
+                    ObjectManager.SendChatMessage($".additem 5479 {20 - foodItemsCount}");
                 }
             }
 
-            WoWItem foodItem = ObjectManager.Items.First(x => x.ItemId == 5479);
+            IWoWItem foodItem = ObjectManager.Items.First(x => x.ItemId == 5479);
 
             if (foodItem != null && !ObjectManager.Player.IsEating && Wait.For("EatDelay", 500, true))
                 foodItem.Use();

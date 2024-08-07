@@ -1,0 +1,112 @@
+﻿syntax = "proto3";
+
+package game;
+
+// Definition for WoWObject
+message WoWObject {
+  uint64 guid = 1;
+  uint32 objectType = 2;
+  uint32 lastUpdated = 3;
+  uint32 entry = 4;
+  float scaleX = 5;
+  float height = 6;
+  float facing = 7;
+  Position position = 8;
+  uint32 padding = 9;
+  bool inWorld = 10;
+}
+
+// Definition for WoWGameObject, extending WoWObject
+message WoWGameObject {
+  WoWObject base = 1; // Composition for inheritance
+  string name = 2;
+  uint32 displayId = 3;
+  uint32 goState = 4;
+  uint32 artKit = 5;
+  uint32 animProgress = 6;
+  uint32 level = 7;
+  uint32 factionTemplate = 8;
+  uint32 typeId = 9;
+}
+
+// Definition for WoWUnit, extending WoWGameObject
+message WoWUnit {
+  WoWGameObject base = 1; // Composition for inheritance
+  string name = 2;
+  uint64 targetGuid = 3;
+  uint32 health = 4;
+  uint32 maxHealth = 5;
+  map<uint32, uint32> power = 6;
+  map<uint32, uint32> maxPower = 7;
+  uint64 summonedByGuid = 8;
+  uint32 mountDisplayId = 9;
+  uint32 unitReaction = 10;
+  uint32 dynamicFlags = 11;
+  uint32 unitFlags = 12;
+  uint32 movementFlags = 13;
+  int32 level = 14;
+}
+
+// Definition for Equipment
+message Equipment {
+  Item head = 1;
+  Item neck = 2;
+  Item shoulder = 3;
+  Item back = 4;
+  Item chest = 5;
+  Item wrist = 6;
+  Item hands = 7;
+  Item waist = 8;
+  Item legs = 9;
+  Item feet = 10;
+  Item finger1 = 11;
+  Item finger2 = 12;
+  Item trinket1 = 13;
+  Item trinket2 = 14;
+  Item mainHand = 15;
+  Item offHand = 16;
+  Item ranged = 17;
+}
+
+// Definition for Skill
+message Skill {
+  string name = 1;
+  uint32 level = 2;
+}
+
+// Reusable message for Resistances
+message Resistances {
+  uint32 holy = 1;
+  uint32 fire = 2;
+  uint32 nature = 3;
+  uint32 frost = 4;
+  uint32 shadow = 5;
+  uint32 arcane = 6;
+}
+
+// Reusable message for Faction Reputation
+message FactionReputation {
+  string factionName = 1;
+  int32 reputation = 2; // -42000 to 42000 (Hated to Exalted)
+}
+
+// Reusable message for Item
+message Item {
+  uint64 id = 1;
+  string name = 2;
+  string slot = 3;
+  uint32 quantity = 4;
+  repeated Stat stats = 5;
+}
+
+// Reusable message for Stat
+message Stat {
+  string type = 1;
+  int32 value = 2;
+}
+
+message Position {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}

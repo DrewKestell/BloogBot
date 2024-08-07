@@ -1,19 +1,16 @@
-﻿using WoWActivityMember.Tasks;
-using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using PathfindingService.Models;
+using static BotRunner.Constants.Spellbook;
 
 namespace DruidFeral.Tasks
 {
     internal class PullTargetTask : BotTask, IBotTask
     {
-        private const string Wrath = "Wrath";
-
-        internal PullTargetTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Pull) { }
+        internal PullTargetTask(IBotContext botContext) : base(botContext) { }
         public void Update()
         {
-            if (ObjectManager.Player.Target.TappedByOther || (ObjectManager.Aggressors.Count() > 0 && !ObjectManager.Aggressors.Any(a => a.Guid == ObjectManager.Player.TargetGuid)))
+            if (ObjectManager.Player.Target.TappedByOther || (ObjectManager.Aggressors.Any() && !ObjectManager.Aggressors.Any(a => a.Guid == ObjectManager.Player.TargetGuid)))
             {
                 ObjectManager.Player.StopAllMovement();
                 Wait.RemoveAll();
@@ -29,20 +26,20 @@ namespace DruidFeral.Tasks
                 if (Wait.For("PullWithWrathDelay", 100))
                 {
                     if (!ObjectManager.Player.IsInCombat)
-                        Functions.LuaCall($"CastSpellByName('{Wrath}')");
+                        ObjectManager.Player.CastSpell(Wrath);
 
                     if (ObjectManager.Player.IsCasting || ObjectManager.Player.CurrentShapeshiftForm != "Human Form" || ObjectManager.Player.IsInCombat)
                     {
                         ObjectManager.Player.StopAllMovement();
                         Wait.RemoveAll();
                         BotTasks.Pop();
-                        BotTasks.Push(new PvERotationTask(Container, BotTasks));
+                        BotTasks.Push(new PvERotationTask(BotContext));
                     }
                 }
                 return;
             }
 
-            Position[] nextWaypoint = Navigation.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+            Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
             ObjectManager.Player.MoveToward(nextWaypoint[0]);
         }
     }

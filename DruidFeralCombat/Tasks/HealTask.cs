@@ -1,11 +1,9 @@
-﻿using WoWActivityMember.Tasks;
-using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
 
 namespace DruidFeral.Tasks
 {
-    internal class HealTask(IClassContainer container, Stack<IBotTask> botTasks) : BotTask(container, botTasks, TaskType.Heal), IBotTask
+    internal class HealTask(IBotContext botContext) : BotTask(botContext), IBotTask
     {
         private const string BearForm = "Bear Form";
         private const string CatForm = "Cat Form";
@@ -30,7 +28,7 @@ namespace DruidFeral.Tasks
             }
 
             if (ObjectManager.Player.IsSpellReady(WarStomp) && ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) <= 8)
-                Functions.LuaCall($"CastSpellByName('{WarStomp}')");
+                ObjectManager.Player.CastSpell(WarStomp);
 
             CastSpell(HealingTouch, castOnSelf: true);
         }
@@ -39,8 +37,7 @@ namespace DruidFeral.Tasks
         {
             if (ObjectManager.Player.IsSpellReady(name))
             {
-                string castOnSelfString = castOnSelf ? ",1" : "";
-                Functions.LuaCall($"CastSpellByName('{name}'{castOnSelfString})");
+                ObjectManager.Player.CastSpell(name, castOnSelf: castOnSelf);
             }
         }
     }

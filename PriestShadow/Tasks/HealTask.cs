@@ -1,19 +1,15 @@
-﻿using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using PathfindingService.Models;
+using static BotRunner.Constants.Spellbook;
 
 namespace PriestShadow.Tasks
 {
     internal class HealTask : BotTask, IBotTask
     {
-        private const string LesserHeal = "Lesser Heal";
-        private const string Heal = "Heal";
-        private const string Renew = "Renew";
         private readonly string healingSpell;
 
-        public HealTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Heal)
+        public HealTask(IBotContext botContext) : base(botContext)
         {
             if (ObjectManager.Player.IsSpellReady(Heal))
                 healingSpell = Heal;
@@ -23,7 +19,7 @@ namespace PriestShadow.Tasks
 
         public void Update()
         {
-            List<WoWPlayer> unhealthyMembers = ObjectManager.PartyMembers.Where(x => x.HealthPercent < 70).OrderBy(x => x.Health).ToList();
+            List<IWoWPlayer> unhealthyMembers = ObjectManager.PartyMembers.Where(x => x.HealthPercent < 70).OrderBy(x => x.Health).ToList();
 
             if (unhealthyMembers.Count > 0 && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(healingSpell))
             {
@@ -47,13 +43,13 @@ namespace PriestShadow.Tasks
                 ObjectManager.Player.StopAllMovement();
 
                 if (!ObjectManager.Player.Target.HasBuff(Renew))
-                    Functions.LuaCall($"CastSpellByName('{Renew}')");
+                    ObjectManager.Player.CastSpell(Renew);
                 if (ObjectManager.Player.IsSpellReady(healingSpell))
-                    Functions.LuaCall($"CastSpellByName('{healingSpell}')");
+                    ObjectManager.Player.CastSpell(healingSpell);
             }
             else
             {
-                Position[] nextWaypoint = Navigation.Instance.CalculatePath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+                Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
 
                 if (nextWaypoint.Length > 1)
                 {

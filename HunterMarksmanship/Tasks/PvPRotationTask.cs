@@ -1,16 +1,16 @@
-﻿using WoWActivityMember.Tasks;
-using WoWActivityMember.Tasks.SharedStates;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
 
-namespace WarlockAffliction.Tasks
+namespace HunterMarksmanship.Tasks
 {
     internal class PvPRotationTask : CombatRotationTask, IBotTask
     {
-        internal PvPRotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
+        internal PvPRotationTask(IBotContext botContext) : base(botContext) { }
 
 
         public void Update()
         {
-                BotTasks.Pop();
+            BotTasks.Pop();
 
         }
         public override void PerformCombatRotation()

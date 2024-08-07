@@ -1,32 +1,12 @@
-﻿using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
-using WoWActivityMember.Tasks.SharedStates;
-using static WoWActivityMember.Constants.Enums;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace MageFrost.Tasks
 {
     internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        private const string WandLuaScript = "if IsAutoRepeatAction(11) == nil then CastSpellByName('Shoot') end";
-        private readonly string[] FireWardTargets = ["Fire", "Flame", "Infernal", "Searing", "Hellcaller", "Dragon", "Whelp"];
-        private readonly string[] FrostWardTargets = ["Ice", "Frost"];
-        private const string ColdSnap = "Cold Snap";
-        private const string ConeOfCold = "Cone of Cold";
-        private const string Counterspell = "Counterspell";
-        private const string Evocation = "Evocation";
-        private const string Fireball = "Fireball";
-        private const string FireBlast = "Fire Blast";
-        private const string FireWard = "Fire Ward";
-        private const string FrostNova = "Frost Nova";
-        private const string FrostWard = "Frost Ward";
-        private const string Frostbite = "Frostbite";
-        private const string Frostbolt = "Frostbolt";
-        private const string IceBarrier = "Ice Barrier";
-        private const string IcyVeins = "Icy Veins";
-        private const string SummonWaterElemental = "Summon Water Elemental";
         private readonly string nuke;
         private readonly int range;
         private bool frostNovaBackpedaling;
@@ -34,7 +14,7 @@ namespace MageFrost.Tasks
         private bool frostNovaJumped;
         private bool frostNovaStartedMoving;
 
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks)
+        internal PvERotationTask(IBotContext botContext) : base(botContext)
         {
             if (!ObjectManager.Player.IsSpellReady(Frostbolt))
                 nuke = Fireball;
@@ -76,7 +56,7 @@ namespace MageFrost.Tasks
                 return;
             }
 
-            if (ObjectManager.Aggressors.Count == 0)
+            if (!ObjectManager.Aggressors.Any())
             {
                 BotTasks.Pop();
                 return;
@@ -92,9 +72,9 @@ namespace MageFrost.Tasks
 
             TryCastSpell(Evocation, 0, int.MaxValue, (ObjectManager.Player.HealthPercent > 50 || ObjectManager.Player.HasBuff(IceBarrier)) && ObjectManager.Player.ManaPercent < 8 && ObjectManager.Player.Target.HealthPercent > 15);
 
-            WoWItem wand = Inventory.GetEquippedItem(EquipSlot.Ranged);
+            IWoWItem wand = ObjectManager.GetEquippedItem(EquipSlot.Ranged);
             if (wand != null && ObjectManager.Player.ManaPercent <= 10 && ObjectManager.Player.IsCasting && ObjectManager.Player.ChannelingId == 0)
-                Functions.LuaCall(WandLuaScript);
+                ObjectManager.Player.StartWand();
             else
             {
                 TryCastSpell(SummonWaterElemental, !ObjectManager.Units.Any(u => u.Name == "Water Elemental" && u.SummonedByGuid == ObjectManager.Player.Guid));

@@ -1,11 +1,11 @@
-﻿using WoWActivityMember.Tasks;
-using WoWActivityMember.Tasks.SharedStates;
+﻿using BotRunner.Interfaces;
+using BotRunner.Tasks;
 
 namespace RogueSubtlety.Tasks
 {
     internal class PvPRotationTask : CombatRotationTask, IBotTask
     {
-        internal PvPRotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
+        internal PvPRotationTask(IBotContext botContext) : base(botContext) { }
         
         public void Update()
         {

@@ -1,28 +1,16 @@
-﻿using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Tasks;
-using WoWActivityMember.Tasks.SharedStates;
-using static WoWActivityMember.Constants.Enums;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
+using static BotRunner.Constants.Spellbook;
 
 namespace MageArcane.Tasks
 {
     internal class PvERotationTask : CombatRotationTask, IBotTask
     {
-        private const string WandLuaScript = "if IsAutoRepeatAction(11) == nil then CastSpellByName('Shoot') end";
-        private const string ArcaneMissiles = "Arcane Missiles";
-        private const string ArcanePower = "Arcane Power";
-        private const string Clearcasting = "Clearcasting";
-        private const string Counterspell = "Counterspell";
-        private const string FrostNova = "Frost Nova";
-        private const string Fireball = "Fireball";
-        private const string FireBlast = "Fire Blast";
-        private const string ManaShield = "Mana Shield";
-        private const string PresenceOfMind = "Presence of Mind";
         private bool frostNovaBackpedaling;
         private int frostNovaBackpedalStartTime;
 
-        internal PvERotationTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks) { }
+        internal PvERotationTask(IBotContext botContext) : base(botContext) { }
 
         public void Update()
         {
@@ -35,7 +23,7 @@ namespace MageArcane.Tasks
                 return;
 
 
-            if (ObjectManager.Aggressors.Count == 0)
+            if (!ObjectManager.Aggressors.Any())
             {
                 BotTasks.Pop();
                 return;
@@ -43,16 +31,16 @@ namespace MageArcane.Tasks
 
             if (ObjectManager.Player.Target == null || ObjectManager.Player.Target.HealthPercent <= 0)
             {
-                ObjectManager.Player.SetTarget(ObjectManager.Aggressors[0].Guid);
+                ObjectManager.Player.SetTarget(ObjectManager.Aggressors.First().Guid);
             }
 
             if (Update(30))
                 return;
 
-            bool hasWand = Inventory.GetEquippedItem(EquipSlot.Ranged) != null;
+            bool hasWand = ObjectManager.GetEquippedItem(EquipSlot.Ranged) != null;
             bool useWand = hasWand && ObjectManager.Player.ManaPercent <= 10 && ObjectManager.Player.IsCasting && ObjectManager.Player.ChannelingId == 0;
             if (useWand)
-                Functions.LuaCall(WandLuaScript);
+                ObjectManager.Player.StartWand();
 
             TryCastSpell(PresenceOfMind, 0, 50, ObjectManager.Player.Target.HealthPercent > 80);
 

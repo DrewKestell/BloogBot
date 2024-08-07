@@ -1,10 +1,6 @@
-﻿
-
-using WoWActivityMember.Game;
-using WoWActivityMember.Game.Statics;
-using WoWActivityMember.Mem;
-using WoWActivityMember.Objects;
-using WoWActivityMember.Tasks;
+﻿using BotRunner.Constants;
+using BotRunner.Interfaces;
+using BotRunner.Tasks;
 
 namespace HunterBeastMastery.Tasks
 {
@@ -13,19 +9,19 @@ namespace HunterBeastMastery.Tasks
     {
         private const int stackCount = 5;
         private const string noPetErrorMessage = "You do not have a pet";
-        private readonly LocalPet pet;
-        private readonly WoWItem foodItem;
-        private readonly WoWItem drinkItem;
-        private readonly WoWItem petFood;
-        public RestTask(IClassContainer container, Stack<IBotTask> botTasks) : base(container, botTasks, TaskType.Rest)
+        private readonly ILocalPet pet;
+        private readonly IWoWItem foodItem;
+        private readonly IWoWItem drinkItem;
+        private readonly IWoWItem petFood;
+        public RestTask(IBotContext botContext) : base(botContext)
         {
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
 
             if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
             {
-                if (Inventory.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
+                if (ObjectManager.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
                 {
-                    Functions.LuaCall($"SendChatMessage('.repairitems')");
+                    ObjectManager.SendChatMessage("SendChatMessage('.repairitems')");
                 }
             }
         }
@@ -43,18 +39,18 @@ namespace HunterBeastMastery.Tasks
                 ObjectManager.Units.Any(u => u.TargetGuid == ObjectManager.Player.Guid))
             {
                 Wait.RemoveAll();
-                ObjectManager.Player.Stand();
+                ObjectManager.Player.DoEmote(Emote.EMOTE_STATE_STAND);
                 BotTasks.Pop();
 
-                int foodCount = foodItem == null ? 0 : Inventory.GetItemCount(foodItem.ItemId);
-                int drinkCount = drinkItem == null ? 0 : Inventory.GetItemCount(drinkItem.ItemId);
+                uint foodCount = foodItem == null ? 0 : ObjectManager.GetItemCount(foodItem.ItemId);
+                uint drinkCount = drinkItem == null ? 0 : ObjectManager.GetItemCount(drinkItem.ItemId);
 
                 if (!InCombat && (foodCount == 0 || drinkCount == 0))
                 {
-                    int foodToBuy = 12 - (foodCount / stackCount);
-                    int drinkToBuy = 28 - (drinkCount / stackCount);
+                    uint foodToBuy = 12 - (foodCount / stackCount);
+                    uint drinkToBuy = 28 - (drinkCount / stackCount);
 
-                    Dictionary<string, int> itemsToBuy = [];
+                    Dictionary<string, uint> itemsToBuy = [];
                     //if (foodToBuy > 0)
                     //    itemsToBuy.Add(container.BotSettings.Food, foodToBuy);
                     //if (drinkToBuy > 0)
@@ -80,7 +76,7 @@ namespace HunterBeastMastery.Tasks
                 foodItem.Use();
         }
 
-        private bool InCombat => ObjectManager.Aggressors.Count() > 0;
+        private bool InCombat => ObjectManager.Aggressors.Any();
 
         private bool PetHealthOk => ObjectManager.Pet == null || ObjectManager.Pet.HealthPercent >= 80;
 
