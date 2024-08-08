@@ -47,7 +47,7 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\..\Bot\$(Configuration)\net8.0</OutDir>
     <TargetExt>.dll</TargetExt>
-    <IntDir>..\$(Configuration)\</IntDir>
+    <IntDir>..\..\Bot\$(Configuration)\</IntDir>
     <TargetName>Navigation</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -55,7 +55,7 @@
     <OutDir>..\..\Bot\$(Configuration)\net8.0</OutDir>
     <TargetExt>.dll</TargetExt>
     <TargetName>Navigation</TargetName>
-    <IntDir>..\$(Configuration)\</IntDir>
+    <IntDir>..\..\Bot\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -73,6 +73,7 @@
       <PrecompiledHeaderFile />
       <DebugInformationFormat>None</DebugInformationFormat>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions> /Zm500 /FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -103,6 +104,7 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalOptions> /Zm500 /FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

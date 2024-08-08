@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-DatabaseDomainService-182fcc36-7878-4a4b-9cde-b8d0e9e143d1</UserSecretsId>
+    <OutputType>Library</OutputType>
+    <BaseOutputPath>..\Bot</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,13 +16,5 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BotCommLayer\BotCommLayer.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Update="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
   </ItemGroup>
 </Project>

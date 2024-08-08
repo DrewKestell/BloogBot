@@ -13,11 +13,11 @@ namespace StateManagerUI.Views
         {
             _activityMemberPreset = activityMemberPreset;
 
-            OnPropertyChanged(nameof(Account));
+            OnPropertyChanged(nameof(AccountName));
             OnPropertyChanged(nameof(BehaviorProfile));
-            OnPropertyChanged(nameof(ProgressionConfig));
-            OnPropertyChanged(nameof(InitialStateConfig));
-            OnPropertyChanged(nameof(EndStateConfig));
+            OnPropertyChanged(nameof(ProgressionProfile));
+            OnPropertyChanged(nameof(InitialProfile));
+            OnPropertyChanged(nameof(EndStateProfile));
             OnPropertyChanged(nameof(IsFocused));
         }
         private bool _isFocused;
@@ -30,13 +30,13 @@ namespace StateManagerUI.Views
                 OnPropertyChanged(nameof(IsFocused));
             }
         }
-        public string Account
+        public string AccountName
         {
             get => _activityMemberPreset.AccountName;
             set
             {
                 _activityMemberPreset.AccountName = value;
-                OnPropertyChanged(nameof(Account));
+                OnPropertyChanged(nameof(AccountName));
             }
         }
         public string BehaviorProfile
@@ -49,32 +49,32 @@ namespace StateManagerUI.Views
                 OnPropertyChanged(nameof(BehaviorProfile));
             }
         }
-        public string ProgressionConfig
+        public string ProgressionProfile
         {
             get => _activityMemberPreset.ProgressionProfile;
             set
             {
                 _activityMemberPreset.ProgressionProfile = value;
 
-                OnPropertyChanged(nameof(ProgressionConfig));
+                OnPropertyChanged(nameof(ProgressionProfile));
             }
         }
-        public string InitialStateConfig
+        public string InitialProfile
         {
             get => _activityMemberPreset.InitialProfile;
             set
             {
                 _activityMemberPreset.InitialProfile = value;
-                OnPropertyChanged(nameof(InitialStateConfig));
+                OnPropertyChanged(nameof(InitialProfile));
             }
         }
-        public string EndStateConfig
+        public string EndStateProfile
         {
             get => _activityMemberPreset.EndStateProfile;
             set
             {
                 _activityMemberPreset.EndStateProfile = value;
-                OnPropertyChanged(nameof(EndStateConfig));
+                OnPropertyChanged(nameof(EndStateProfile));
             }
         }
 

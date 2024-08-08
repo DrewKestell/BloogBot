@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using Google.Protobuf;
+using Microsoft.Extensions.Logging;
 
 namespace BotCommLayer
 {
@@ -10,8 +11,9 @@ namespace BotCommLayer
     {
         private readonly TcpListener _server;
         private bool _isRunning;
+        private readonly ILogger _logger;
 
-        public ProtobufSocketServer(string ipAddress, int port)
+        public ProtobufSocketServer(string ipAddress, int port, ILogger logger)
         {
             _server = new TcpListener(IPAddress.Parse(ipAddress), port);
             _server.Start();
@@ -33,7 +35,7 @@ namespace BotCommLayer
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error: {ex.Message}");
+                    Console.WriteLine($"Error: {ex}");
                 }
             }
         }
@@ -68,7 +70,6 @@ namespace BotCommLayer
                     // Deserialize the request
                     TRequest request = new();
                     request.MergeFrom(buffer);
-                    Console.WriteLine($"Received: {request}");
 
                     // Process
                     TResponse response = HandleRequest(request);
@@ -82,11 +83,10 @@ namespace BotCommLayer
 
                     // Send the response message
                     stream.Write(responseBytes, 0, responseBytes.Length);
-                    Console.WriteLine($"Sent: {response}");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Client Error: {ex.Message}");
+                    Console.WriteLine($"Client Error: {ex}");
                     break;
                 }
             }

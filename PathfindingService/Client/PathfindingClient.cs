@@ -4,7 +4,7 @@ using PathfindingService.Models;
 
 namespace PathfindingService.Client
 {
-    public class PathfindingClient(string ipAddress, int port) : ProtobufSocketClient<PathfindingRequest,  PathfindingResponse>(ipAddress, port)
+    public class PathfindingClient(string ipAddress, int port, ILogger logger) : ProtobufSocketClient<PathfindingRequest,  PathfindingResponse>(ipAddress, port, logger)
     {
         public Position[] GetPath(uint mapId, Position startPosition, Position endPosition, bool smoothPath)
         {

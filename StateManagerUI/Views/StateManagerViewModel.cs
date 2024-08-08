@@ -1,4 +1,5 @@
 ﻿using Communication;
+using Microsoft.Extensions.Logging;
 using StateManager.Clients;
 using StateManagerUI.Handlers;
 using System.Collections.ObjectModel;
@@ -96,10 +97,10 @@ namespace StateManagerUI.Views
         public void EditActivityMember(string propertyName, string propertyValue)
         {
             if ("BehaviorProfile" == propertyName && propertyValue != SelectedActivityMember.BehaviorProfile
-                || "Account" == propertyName && propertyValue != SelectedActivityMember.Account
-                || "ProgressionConfig" == propertyName && propertyValue != SelectedActivityMember.ProgressionConfig
-                || "InitialStateConfig" == propertyName && propertyValue != SelectedActivityMember.InitialStateConfig
-                || "EndStateConfig" == propertyName && propertyValue != SelectedActivityMember.EndStateConfig)
+                || "AccountName" == propertyName && propertyValue != SelectedActivityMember.AccountName
+                || "ProgressionProfile" == propertyName && propertyValue != SelectedActivityMember.ProgressionProfile
+                || "InitialProfile" == propertyName && propertyValue != SelectedActivityMember.InitialProfile
+                || "EndStateProfile" == propertyName && propertyValue != SelectedActivityMember.EndStateProfile)
             {
                 WorldStateUpdate.Action = ActivityAction.EditActivityMember;
                 WorldStateUpdate.Param1 = SelectedActivityIndex.ToString();
@@ -175,9 +176,10 @@ namespace StateManagerUI.Views
         public bool CanRemoveActivityMember => SelectedActivity != null;
         private async Task WoWStateHeartbeatTask()
         {
-            LogMessage($"{DateTime.Now}| Connecting to WoW State Manager at 127.0.0.1:8088");
+            var logger = new BasicLogger(LogMessage, nameof(StateManagerUpdateClient));
+            logger.LogInformation($"Connecting to WoW State Manager at 127.0.0.1:8088");
+            StateManagerUpdateClient = new StateManagerUpdateClient(IPAddress.Loopback.ToString(), 8088, logger);
 
-            StateManagerUpdateClient = new StateManagerUpdateClient(IPAddress.Loopback.ToString(), 8088);
             while (true)
             {
                 Application.Current.Dispatcher.Invoke(() =>
@@ -185,7 +187,7 @@ namespace StateManagerUI.Views
                     List<Activity> activityStates = [];
                     if (WorldStateUpdate.Action != ActivityAction.None)
                     {
-                        activityStates = [.. StateManagerUpdateClient.SendWorldStateUpdate(WorldStateUpdate).Activities];
+                        activityStates = new List<Activity>(StateManagerUpdateClient.SendWorldStateUpdate(WorldStateUpdate).Activities);
 
                         WorldStateUpdate.Action = ActivityAction.None;
                         WorldStateUpdate.Param1 = string.Empty;
@@ -194,7 +196,7 @@ namespace StateManagerUI.Views
                         WorldStateUpdate.Param4 = string.Empty;
                     }
                     else
-                        activityStates = [.. StateManagerUpdateClient.SendWorldStateUpdate(DefaultWorldStateUpdate).Activities];
+                        activityStates = new List<Activity>(StateManagerUpdateClient.SendWorldStateUpdate(DefaultWorldStateUpdate).Activities);
 
                     ServerActivityStates.Clear();
 
@@ -226,6 +228,7 @@ namespace StateManagerUI.Views
                                 {
                                     activityViewModel.ActivityState.Members[ii].AccountName = ServerActivityStates[i].Members[ii].AccountName;
                                     activityViewModel.ActivityState.Members[ii].BehaviorProfile = ServerActivityStates[i].Members[ii].BehaviorProfile;
+                                    activityViewModel.ActivityState.Members[ii].ProgressionProfile = ServerActivityStates[i].Members[ii].ProgressionProfile;
                                     activityViewModel.ActivityState.Members[ii].InitialProfile = ServerActivityStates[i].Members[ii].InitialProfile;
                                     activityViewModel.ActivityState.Members[ii].EndStateProfile = ServerActivityStates[i].Members[ii].EndStateProfile;
                                 }

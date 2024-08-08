@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Reactive.Subjects;
 using Communication;
 using Google.Protobuf;
+using Microsoft.Extensions.Logging;
 
 namespace BotCommLayer
 {
@@ -10,14 +11,20 @@ namespace BotCommLayer
     {
         private readonly TcpListener _server;
         private bool _isRunning;
+        private readonly ILogger _logger;
         private Dictionary<ulong, TcpClient> _clients;
         protected Subject<DataMessage> _instanceObservable;
 
-        public ProtobufAsyncSocketServer(string ipAddress, int port)
+        public ProtobufAsyncSocketServer(string ipAddress, int port, ILogger logger)
         {
+            _logger = logger;
             _server = new TcpListener(IPAddress.Parse(ipAddress), port);
             _server.Start();
+
             _isRunning = true;
+
+            _instanceObservable = new();
+            _clients = [];
 
             Thread serverThread = new(Run);
             serverThread.Start();
@@ -35,7 +42,7 @@ namespace BotCommLayer
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error: {ex.Message}");
+                    _logger.LogError($"Error: {ex.Message}");
                 }
             }
         }
@@ -54,12 +61,12 @@ namespace BotCommLayer
 
                 // Send the response message
                 stream.Write(responseBytes, 0, responseBytes.Length);
-                Console.WriteLine($"Sent: {ouboundMessage}");
             }
         }
 
         private void HandleClient(TcpClient client)
         {
+            _logger.LogInformation($"Handling connection");
             NetworkStream stream = client.GetStream();
             while (true)
             {
@@ -80,7 +87,6 @@ namespace BotCommLayer
                     // Deserialize the request
                     DataMessage request = new();
                     request.MergeFrom(buffer);
-                    Console.WriteLine($"Received: {request}");
 
                     _clients.TryAdd(request.Id, client);
 
@@ -89,7 +95,7 @@ namespace BotCommLayer
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Client Error: {ex.Message}");
+                    _logger.LogError($"Client Error: {ex}");
                     break;
                 }
             }

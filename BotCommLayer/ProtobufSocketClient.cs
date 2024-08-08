@@ -1,5 +1,6 @@
 ﻿using System.Net.Sockets;
 using Google.Protobuf;
+using Microsoft.Extensions.Logging;
 
 namespace BotCommLayer
 {
@@ -9,11 +10,13 @@ namespace BotCommLayer
     {
         private readonly TcpClient _client;
         private readonly NetworkStream _stream;
+        private readonly ILogger _logger;
 
-        public ProtobufSocketClient(string ipAddress, int port)
+        public ProtobufSocketClient(string ipAddress, int port, ILogger logger)
         {
             _client = new TcpClient(ipAddress, port);
             _stream = _client.GetStream();
+            _logger = logger;
         }
 
         protected TResponse SendMessage(TRequest request)

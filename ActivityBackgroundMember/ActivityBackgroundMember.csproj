@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-ActivityMemberBackgroundService-b849569f-debc-4381-b2c1-b1d346f953a3</UserSecretsId>
+    <BaseOutputPath>..\Bot</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>

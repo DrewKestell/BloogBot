@@ -132,10 +132,10 @@
                                         <Label Content="Begin State Config" Height="26" Margin="0,88,166,29"/>
                                         <Label Content="End State Config" Height="26" Margin="0,114,166,3"/>
                                         <TextBox Name="BehaviorProfileTextBox" Height="26" Text="{Binding BehaviorProfile}" TextChanged="TextBox_TextChanged" Margin="127,10,10,107"/>
-                                        <TextBox Name="AccountTextBox" Height="26" Text="{Binding Account}" TextChanged="TextBox_TextChanged" Margin="127,36,10,81"/>
-                                        <TextBox Name="ProgressionConfigTextBox" Height="26" Text="{Binding ProgressionConfig}" TextChanged="TextBox_TextChanged" Margin="127,62,10,55"/>
-                                        <TextBox Name="InitialStateConfigTextBox" Height="26" Text="{Binding InitialStateConfig}" TextChanged="TextBox_TextChanged" Margin="127,88,10,29"/>
-                                        <TextBox Name="EndStateConfigTextBox" Height="26" Text="{Binding EndStateConfig}" TextChanged="TextBox_TextChanged" Margin="127,114,10,3"/>
+                                        <TextBox Name="AccountTextBox" Height="26" Text="{Binding AccountName}" TextChanged="TextBox_TextChanged" Margin="127,36,10,81"/>
+                                        <TextBox Name="ProgressionConfigTextBox" Height="26" Text="{Binding ProgressionProfile}" TextChanged="TextBox_TextChanged" Margin="127,62,10,55"/>
+                                        <TextBox Name="InitialStateConfigTextBox" Height="26" Text="{Binding InitialProfile}" TextChanged="TextBox_TextChanged" Margin="127,88,10,29"/>
+                                        <TextBox Name="EndStateConfigTextBox" Height="26" Text="{Binding EndStateProfile}" TextChanged="TextBox_TextChanged" Margin="127,114,10,3"/>
                                     </Grid>
                                 </GroupBox>
                             </DataTemplate>

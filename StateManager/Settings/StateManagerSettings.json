@@ -1,0 +1,44 @@
+{
+  "ActivityPresets": [
+    {
+      "Type": 1,
+      "Port": 8088,
+      "Members": [
+        {
+          "BehaviorProfile": "Protection Warrior",
+          "AccountName": "OrWr2",
+          "ProgressionProfile": "WarriorBase",
+          "InitialProfile": "PvE14",
+          "EndStateProfile": "PvE14"
+        },
+        {
+          "BehaviorProfile": "Enhancement Shaman",
+          "AccountName": "OrSh2",
+          "ProgressionProfile": "WarriorBase",
+          "InitialProfile": "PvE14",
+          "EndStateProfile": "PvE14"
+        }
+      ]
+    },
+    {
+      "Type": 1,
+      "Port": 8089,
+      "Members": [
+        {
+          "BehaviorProfile": "Protection Warrior",
+          "AccountName": "HuWr1",
+          "ProgressionProfile": "WarriorBase",
+          "InitialProfile": "PvE14",
+          "EndStateProfile": "PvE14"
+        },
+        {
+          "BehaviorProfile": "Combat Rogue",
+          "AccountName": "HuRo1",
+          "ProgressionConfig": "WarriorBase",
+          "InitialProfile": "PvE14",
+          "EndStateProfile": "PvE14"
+        }
+      ]
+    }
+  ]
+}

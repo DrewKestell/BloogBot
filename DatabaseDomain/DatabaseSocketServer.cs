@@ -4,7 +4,7 @@ using DatabaseDomain.Repository;
 
 namespace DatabaseDomain
 {
-    public class DatabaseSocketServer(string ipAddress, int port) : ProtobufSocketServer<DatabaseRequest, DatabaseResponse>(ipAddress, port)
+    public class DatabaseSocketServer(string ipAddress, int port, ILogger logger) : ProtobufSocketServer<DatabaseRequest, DatabaseResponse>(ipAddress, port, logger)
     {
         protected override DatabaseResponse HandleRequest(DatabaseRequest payload)
         {

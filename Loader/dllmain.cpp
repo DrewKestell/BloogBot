@@ -1,5 +1,3 @@
-// credit to Zzuk: https://github.com/Zz9uk3/ZzukBot_V3/blob/master/Loader/Main.cpp
-
 #define WIN32_LEAN_AND_MEAN
 
 // Pick which CLR runtime we'll be using. 4.0 has different hosting APIs

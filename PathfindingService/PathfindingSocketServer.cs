@@ -4,7 +4,7 @@ using PathfindingService.Repository;
 
 namespace PathfindingService
 {
-    public class PathfindingSocketServer(string ipAddress, int port) : ProtobufSocketServer<PathfindingRequest, PathfindingResponse>(ipAddress, port)
+    public class PathfindingSocketServer(string ipAddress, int port, ILogger logger) : ProtobufSocketServer<PathfindingRequest, PathfindingResponse>(ipAddress, port, logger)
     {
         protected override PathfindingResponse HandleRequest(PathfindingRequest payload)
         {

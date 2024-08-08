@@ -3,11 +3,11 @@ using Communication;
 
 namespace StateManager.Clients
 {
-    public class StateManagerUpdateClient(string ipAddress, int port) : ProtobufSocketClient<WorldStateUpdate, WorldState>(ipAddress, port)
+    public class StateManagerUpdateClient(string ipAddress, int port, ILogger logger) : ProtobufSocketClient<DataMessage, WorldState>(ipAddress, port, logger)
     {
         public WorldState SendWorldStateUpdate(WorldStateUpdate update)
-        {
-            return SendMessage(update);
+        {            
+            return SendMessage(new DataMessage() { Id = 101, WorldStateUpdate = update });
         }
     }
 }

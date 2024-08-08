@@ -1,18 +1,36 @@
 using ActivityManager;
-using StateManager;
+using BotCommLayer;
+using DatabaseDomain;
+using PathfindingService;
 
-public class Program
+namespace StateManager
 {
-    public static void Main(string[] args)
+    public class Program
     {
-        CreateHostBuilder(args).Build().Run();
-    }
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args)
+                .Build()
+                .Run();
+        }
 
-    public static IHostBuilder CreateHostBuilder(string[] args) =>
-        Host.CreateDefaultBuilder(args)
-            .ConfigureServices((hostContext, services) =>
-            {
-                services.AddSingleton<StateManagerServiceWorker>();
-                services.AddHostedService(provider => provider.GetRequiredService<ActivityManagerServiceWorker>());
-            });
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((context, builder) =>
+                {
+                    builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+                    builder.AddEnvironmentVariables();
+
+                    if (args != null)
+                        builder.AddCommandLine(args);
+                })
+                .ConfigureServices((hostContext, services) =>
+                {
+                    services.Configure<AppSettings>(hostContext.Configuration);
+                    services.AddHostedService<StateManagerWorker>();
+                    services.AddHostedService<DatabaseDomainWorker>();
+                    services.AddHostedService<PathfindingServiceWorker>();
+                    services.AddTransient<ActivityManagerWorker>();
+                });
+    }
 }

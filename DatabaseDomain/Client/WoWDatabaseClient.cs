@@ -3,7 +3,7 @@ using Database;
 
 namespace DatabaseDomain.Client
 {
-    public class WoWDatabaseClient(string ipAddress) : ProtobufSocketClient<DatabaseRequest, DatabaseResponse>(ipAddress, 8080)
+    public class WoWDatabaseClient(string ipAddress, ILogger logger) : ProtobufSocketClient<DatabaseRequest, DatabaseResponse>(ipAddress, 8080, logger)
     {
         public List<CreatureMovement> GetCreatureMovementByGuid(int guid)
         {

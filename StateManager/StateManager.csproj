@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-StateManagerService-7f14e0e4-8dd1-4062-9c6f-3bf08fcf4e1d</UserSecretsId>
+    <BaseOutputPath>..\Bot</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,5 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ActivityManager\ActivityManager.csproj" />
     <ProjectReference Include="..\BotCommLayer\BotCommLayer.csproj" />
+    <ProjectReference Include="..\DatabaseDomain\DatabaseDomain.csproj" />
+    <ProjectReference Include="..\PathfindingService\PathfindingService.csproj" />
   </ItemGroup>
 </Project>

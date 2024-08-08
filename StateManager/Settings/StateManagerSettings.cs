@@ -36,8 +36,6 @@ namespace StateManager.Settings
                 string json = JsonConvert.SerializeObject(_instance, Formatting.Indented);
 
                 File.WriteAllText(botSettingsFilePath, json);
-
-                Console.WriteLine($"{DateTime.Now}|[StateManagerSettings]|Configuration saved");
             }
             catch (Exception ex)
             {
