@@ -6,8 +6,6 @@ namespace WoWSharpClient
 {
     public class WoWSharpEventEmitter : IWoWEventHandler
     {
-        private static WoWSharpEventEmitter _instance;
-
         public event EventHandler OnLoginConnect;
         public event EventHandler OnHandshakeBegin;
         public event EventHandler OnLoginSuccess;
@@ -78,9 +76,7 @@ namespace WoWSharpClient
         public event EventHandler<CharCreateResponse> OnCharacterCreateResponse;
         public event EventHandler<CharDeleteResponse> OnCharacterDeleteResponse;
 
-        private WoWSharpEventEmitter() { }
-
-        public static WoWSharpEventEmitter Instance => _instance ??= new WoWSharpEventEmitter();
+        public WoWSharpEventEmitter() { }
         
         private void FireEvent(EventHandler handler) => handler?.Invoke(this, EventArgs.Empty);
         private void FireEvent<T>(EventHandler<T> handler, T args) where T : EventArgs => handler?.Invoke(this, args);

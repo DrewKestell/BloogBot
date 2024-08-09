@@ -1,7 +1,7 @@
-﻿using BotCommLayer;
-using Database;
+﻿using Database;
+using Microsoft.Extensions.Logging;
 
-namespace DatabaseDomain.Client
+namespace BotCommLayer.Clients
 {
     public class WoWDatabaseClient(string ipAddress, ILogger logger) : ProtobufSocketClient<DatabaseRequest, DatabaseResponse>(ipAddress, 8080, logger)
     {

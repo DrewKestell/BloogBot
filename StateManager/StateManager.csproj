@@ -9,11 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ActivityManager\ActivityManager.csproj" />
+    <ProjectReference Include="..\ActivityBackgroundMember\ActivityBackgroundMember.csproj" />
     <ProjectReference Include="..\BotCommLayer\BotCommLayer.csproj" />
     <ProjectReference Include="..\DatabaseDomain\DatabaseDomain.csproj" />
     <ProjectReference Include="..\PathfindingService\PathfindingService.csproj" />

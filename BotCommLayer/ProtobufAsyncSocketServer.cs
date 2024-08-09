@@ -66,7 +66,6 @@ namespace BotCommLayer
 
         private void HandleClient(TcpClient client)
         {
-            _logger.LogInformation($"Handling connection");
             NetworkStream stream = client.GetStream();
             while (true)
             {

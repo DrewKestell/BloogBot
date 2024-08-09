@@ -999,6 +999,7 @@ namespace BotRunner.Constants
         CHAR_NAME_FAILURE = 0x51,
         CHAR_NAME_SUCCESS = 0x52,
     }
+
     public enum ObjectUpdateType
     {
         PARTIAL = 0,

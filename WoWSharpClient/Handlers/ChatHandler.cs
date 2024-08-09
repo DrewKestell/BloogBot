@@ -1,11 +1,14 @@
 ﻿using BotRunner.Constants;
 using System.Text;
+using WoWSharpClient.Manager;
 
 namespace WoWSharpClient.Handlers
 {
-    public static class ChatHandler
+    public class ChatHandler(WoWSharpEventEmitter woWSharpEventEmitter, ObjectManager objectManager)
     {
-        public static void HandleServerChatMessage(Opcodes opcode, byte[] data)
+        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpEventEmitter;
+        private readonly ObjectManager _objectManager = objectManager;
+        public void HandleServerChatMessage(Opcodes opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
             try
@@ -30,7 +33,7 @@ namespace WoWSharpClient.Handlers
                 LogChatMessage(senderType, messageType, senderGUID, text);
 #endif
 
-                WoWSharpEventEmitter.Instance.FireOnChatMessage(senderType, metadata.ToString(), senderGUID.ToString(), messageType.ToString(), text);
+                _woWSharpEventEmitter.FireOnChatMessage(senderType, metadata.ToString(), senderGUID.ToString(), messageType.ToString(), text);
             }
             catch (EndOfStreamException e)
             {
@@ -38,7 +41,7 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        private static ChatSenderType MapMessageTypeToSenderType(ChatMessageType messageType)
+        private ChatSenderType MapMessageTypeToSenderType(ChatMessageType messageType)
         {
             return messageType switch
             {
@@ -59,7 +62,7 @@ namespace WoWSharpClient.Handlers
             };
         }
 
-        private static string ReadCString(BinaryReader reader)
+        private string ReadCString(BinaryReader reader)
         {
             List<byte> bytes = [];
             byte b;
@@ -71,7 +74,7 @@ namespace WoWSharpClient.Handlers
         }
 
 #if DEBUG
-        private static void LogChatMessage(ChatSenderType senderType, ChatMessageType messageType, ulong senderGuid, string text)
+        private void LogChatMessage(ChatSenderType senderType, ChatMessageType messageType, ulong senderGuid, string text)
         {
             StringBuilder sb = new();
             switch (messageType)

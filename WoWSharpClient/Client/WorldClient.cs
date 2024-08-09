@@ -7,13 +7,15 @@ using WowSrp.Header;
 
 namespace WoWSharpClient.Client
 {
-    internal class WorldClient
+    internal class WorldClient(WoWSharpEventEmitter woWSharpEventEmitter, ObjectManager objectManager) : IDisposable
     {
+        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpEventEmitter;
+        private readonly ObjectManager _objectManager = objectManager;
+        private readonly OpCodeDispatcher _opCodeDispatcher = new (woWSharpEventEmitter, objectManager);
+        private readonly bool _hasReceivedCharListReply;
+
         private IPAddress _ipAddress = IPAddress.Loopback;
         private int _port = 0;
-
-
-        private readonly bool _hasReceivedCharListReply;
 
         private TcpClient? _client = null;
         private VanillaDecryption _vanillaDecryption;
@@ -23,9 +25,9 @@ namespace WoWSharpClient.Client
         private Task _serverPinger;
         private uint _lastPingTime;
 
-        public WorldClient()
+        public void Dispose()
         {
-
+            _client?.Close();
         }
 
         public void Connect(string username, IPAddress ipAddress, byte[] sessionKey, int port = 8085)
@@ -193,7 +195,7 @@ namespace WoWSharpClient.Client
         }
         private async Task HandleNetworkMessagesAsync()
         {
-            WoWSharpEventEmitter.Instance.FireOnWorldSessionStart();
+            _woWSharpEventEmitter.FireOnWorldSessionStart();
             using var reader = new BinaryReader(_stream, Encoding.UTF8, true);
             while (true) // Loop to continuously read messages
             {
@@ -204,7 +206,7 @@ namespace WoWSharpClient.Client
                     if (header.Length == 0)
                     {
 
-                        WoWSharpEventEmitter.Instance.FireOnWorldSessionEnd();
+                        _woWSharpEventEmitter.FireOnWorldSessionEnd();
                         break; // Exit if we cannot read a full header
                     }
 
@@ -214,7 +216,7 @@ namespace WoWSharpClient.Client
                     byte[] body = await PacketManager.ReadAsync(reader, (int)(headerData.Size - sizeof(ushort))); // Adjust based on actual header size
 
                     // Dispatch the packet to the appropriate handler
-                    OpCodeDispatcher.Instance.Dispatch((Opcodes)headerData.Opcode, body);
+                    _opCodeDispatcher.Dispatch((Opcodes)headerData.Opcode, body);
                 }
                 catch (Exception ex)
                 {

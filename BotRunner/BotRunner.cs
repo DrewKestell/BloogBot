@@ -1,8 +1,7 @@
 ﻿using System.Collections.ObjectModel;
-using ActivityManager.Clients;
+using BotCommLayer.Clients;
 using BotRunner.Interfaces;
 using Communication;
-using DatabaseDomain.Client;
 
 namespace BotRunner
 {
@@ -16,7 +15,7 @@ namespace BotRunner
         private readonly ActivityMemberState _currentActivityMemberState;
         private readonly ActivityMember _desiredActivityMemberState;
 
-        private readonly ActivityManagerClient _activityCommandClient;
+        private readonly ActivityMemberUpdateClient _activityCommandClient;
         private readonly WoWDatabaseClient _wowDatabaseClient;
 
         private readonly IObjectManager _objectManager;
@@ -55,7 +54,7 @@ namespace BotRunner
             {
                 try
                 {
-                    ActivityMember incomingActivityMemberState = _activityCommandClient.SendCurrentStateToActivityManager(_currentActivityMemberState);
+                    ActivityMember incomingActivityMemberState = _activityCommandClient.SendMemberStateUpdate(_currentActivityMemberState);
                     _desiredActivityMemberState.AccountName = incomingActivityMemberState.AccountName;
                     _desiredActivityMemberState.BehaviorProfile = incomingActivityMemberState.BehaviorProfile;
                     _desiredActivityMemberState.ProgressionProfile = incomingActivityMemberState.ProgressionProfile;

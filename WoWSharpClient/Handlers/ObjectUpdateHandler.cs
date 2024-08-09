@@ -7,9 +7,11 @@ using static WoWSharpClient.Models.UpdateFields;
 
 namespace WoWSharpClient.Handlers
 {
-    internal class ObjectUpdateHandler
+    internal class ObjectUpdateHandler(WoWSharpEventEmitter woWSharpEventEmitter, ObjectManager objectManager)
     {
-        public static void HandleUpdateObject(Opcodes opcode, byte[] data)
+        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpEventEmitter;
+        private readonly ObjectManager _objectManager = objectManager;
+        public void HandleUpdateObject(Opcodes opcode, byte[] data)
         {
             if (opcode == Opcodes.SMSG_COMPRESSED_UPDATE_OBJECT)
             {
@@ -61,32 +63,32 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        private static void ParseMovementUpdate(BinaryReader reader)
+        private void ParseMovementUpdate(BinaryReader reader)
         {
             var guid = ReadPackedGuid(reader);
             Console.WriteLine($"Movement Update for Guid: {guid}");
             ParseUnitMovementInfo(reader, guid);
         }
 
-        private static void ParsePartialUpdate(BinaryReader reader)
+        private void ParsePartialUpdate(BinaryReader reader)
         {
             var guid = ReadPackedGuid(reader);
             Console.WriteLine($"Partial Update for Guid: {guid}");
             ProcessUpdateMasks(reader, guid);
         }
 
-        private static void ParseOutOfRangeObjects(BinaryReader reader)
+        private void ParseOutOfRangeObjects(BinaryReader reader)
         {
             uint count = reader.ReadUInt32();
             for (int j = 0; j < count; j++)
             {
                 var outOfRangeGuid = ReadPackedGuid(reader);
-                ObjectManager.Instance.Objects.Remove(ObjectManager.Instance.Objects.First(x => x.Guid == outOfRangeGuid));
+                _objectManager.Objects.Remove(_objectManager.Objects.First(x => x.Guid == outOfRangeGuid));
                 Console.WriteLine($"Out of Range Object: {outOfRangeGuid}");
             }
         }
 
-        private static Models.Object CreateWoWObject(WoWObjectType objectType, byte[] guidBytes)
+        private Models.Object CreateWoWObject(WoWObjectType objectType, byte[] guidBytes)
         {
             Models.Object wowObject = objectType switch
             {
@@ -104,7 +106,7 @@ namespace WoWSharpClient.Handlers
             return wowObject;
         }
 
-        private static void ParseCreateObject(BinaryReader reader, ulong guid)
+        private void ParseCreateObject(BinaryReader reader, ulong guid)
         {
             byte[] guidBytes = BitConverter.GetBytes(guid);
             var objectType = (WoWObjectType)reader.ReadByte();
@@ -117,7 +119,7 @@ namespace WoWSharpClient.Handlers
 
             if (woWObject != null)
             {
-                ObjectManager.Instance.Objects.Add(woWObject);
+                _objectManager.Objects.Add(woWObject);
             }
 
             if ((updateFlags & ObjectUpdateFlags.UPDATEFLAG_LIVING) != 0)
@@ -156,9 +158,9 @@ namespace WoWSharpClient.Handlers
             ProcessUpdateMasks(reader, guid);
         }
 
-        private static void ParseObjectPositionInfo(BinaryReader reader, ulong guid)
+        private void ParseObjectPositionInfo(BinaryReader reader, ulong guid)
         {
-            Models.Object currentObject = ObjectManager.Instance.Objects.FirstOrDefault(x => x.Guid == guid);
+            Models.Object currentObject = _objectManager.Objects.FirstOrDefault(x => x.Guid == guid);
 
             if (currentObject != null)
             {
@@ -173,9 +175,9 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        private static void ParseUnitMovementInfo(BinaryReader reader, ulong guid)
+        private void ParseUnitMovementInfo(BinaryReader reader, ulong guid)
         {
-            Unit currentUnit = (Unit)ObjectManager.Instance.Units.FirstOrDefault(x => x.Guid == guid);
+            Unit currentUnit = (Unit)_objectManager.Units.FirstOrDefault(x => x.Guid == guid);
 
             if (currentUnit != null)
             {
@@ -210,7 +212,7 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        private static void ProcessUpdateMasks(BinaryReader reader, ulong guid)
+        private void ProcessUpdateMasks(BinaryReader reader, ulong guid)
         {
             byte maskBlocksCount = reader.ReadByte();
 
@@ -257,7 +259,7 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        private static TypeMask ParseObjectUpdateFields(BinaryReader reader, ulong guid, uint[] maskBlocks)
+        private TypeMask ParseObjectUpdateFields(BinaryReader reader, ulong guid, uint[] maskBlocks)
         {
             TypeMask objectTypeMask = TypeMask.TYPEMASK_OBJECT;
 
@@ -283,12 +285,12 @@ namespace WoWSharpClient.Handlers
                         case EObjectFields.OBJECT_FIELD_ENTRY:
                             var objectFieldEntry = reader.ReadUInt32();
                             Console.WriteLine($"--[{(EObjectFields)i}]{objectFieldEntry}");
-                            ObjectManager.Instance.Objects.FirstOrDefault(x => x.Guid == guid).Entry = objectFieldEntry;
+                            _objectManager.Objects.FirstOrDefault(x => x.Guid == guid).Entry = objectFieldEntry;
                             break;
                         case EObjectFields.OBJECT_FIELD_SCALE_X:
                             var objectFieldScale = reader.ReadSingle();
                             Console.WriteLine($"--[{(EObjectFields)i}]{objectFieldScale:0.000}");
-                            ObjectManager.Instance.Objects.FirstOrDefault(x => x.Guid == guid).ScaleX = objectFieldScale;
+                            _objectManager.Objects.FirstOrDefault(x => x.Guid == guid).ScaleX = objectFieldScale;
                             break;
                         case EObjectFields.OBJECT_FIELD_PADDING:
                             var objectFieldPadding = reader.ReadBytes(4);
@@ -300,7 +302,7 @@ namespace WoWSharpClient.Handlers
             return objectTypeMask;
         }
 
-        private static void ParseItemFields(BinaryReader reader, uint[] maskBlocks)
+        private void ParseItemFields(BinaryReader reader, uint[] maskBlocks)
         {
             for (int i = (int)EItemFields.ITEM_FIELD_OWNER; i < (int)EItemFields.ITEM_END; i++)
             {
@@ -364,7 +366,7 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        private static void ParseContainerFields(BinaryReader reader, ulong guid, uint[] maskBlocks)
+        private void ParseContainerFields(BinaryReader reader, ulong guid, uint[] maskBlocks)
         {
             for (int i = (int)EContainerFields.CONTAINER_FIELD_NUM_SLOTS; i < (int)EContainerFields.CONTAINER_END; i++)
             {
@@ -400,9 +402,9 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        private static void ParseUnitFields(BinaryReader reader, ulong guid, uint[] maskBlocks)
+        private void ParseUnitFields(BinaryReader reader, ulong guid, uint[] maskBlocks)
         {
-            Unit wowUnit = (Unit)ObjectManager.Instance.Units.FirstOrDefault(x => x.Guid == guid);
+            Unit wowUnit = (Unit)_objectManager.Units.FirstOrDefault(x => x.Guid == guid);
 
             if (wowUnit == null)
             {
@@ -421,7 +423,7 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        private static void ReadUnitField(BinaryReader reader, Unit wowUnit, EUnitFields field)
+        private void ReadUnitField(BinaryReader reader, Unit wowUnit, EUnitFields field)
         {
             switch (field)
             {
@@ -546,7 +548,7 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        private static void ParsePlayerFields(BinaryReader reader, ulong guid, uint[] maskBlocks)
+        private void ParsePlayerFields(BinaryReader reader, ulong guid, uint[] maskBlocks)
         {
             for (int i = (int)EUnitFields.UNIT_END; i < (int)EUnitFields.PLAYER_END; i++)
             {
@@ -735,7 +737,7 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        private static void ParseGameObjectFields(BinaryReader reader, ulong guid, uint[] maskBlocks)
+        private void ParseGameObjectFields(BinaryReader reader, ulong guid, uint[] maskBlocks)
         {
             for (int i = (int)EGameObjectFields.OBJECT_FIELD_CREATED_BY; i < (int)EGameObjectFields.GAMEOBJECT_END; i++)
             {
@@ -814,7 +816,7 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        private static void ParseDynamicObjectFields(BinaryReader reader, ulong guid, uint[] maskBlocks)
+        private void ParseDynamicObjectFields(BinaryReader reader, ulong guid, uint[] maskBlocks)
         {
             for (int i = (int)EDynamicObjectFields.DYNAMICOBJECT_CASTER; i < (int)EDynamicObjectFields.DYNAMICOBJECT_PAD; i++)
             {
@@ -865,7 +867,7 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        private static void ParseCorpseFields(BinaryReader reader, ulong guid, uint[] maskBlocks)
+        private void ParseCorpseFields(BinaryReader reader, ulong guid, uint[] maskBlocks)
         {
             for (int i = (int)ECorpseFields.CORPSE_FIELD_OWNER; i < (int)ECorpseFields.CORPSE_END; i++)
             {
@@ -908,7 +910,7 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        private static ulong ReadPackedGuid(BinaryReader reader)
+        private ulong ReadPackedGuid(BinaryReader reader)
         {
             ulong guid = 0;
             byte mask = reader.ReadByte();

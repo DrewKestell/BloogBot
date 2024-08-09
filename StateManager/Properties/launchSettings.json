@@ -1,12 +1,13 @@
-﻿{
-  "$schema": "http://json.schemastore.org/launchsettings.json",
+{
   "profiles": {
     "StateManagerService": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
+      "workingDirectory": "E:\\repos\\BloogBot\\Bot\\Debug\\net8.0",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
-      }
+      },
+      "dotnetRunMessages": true
     }
-  }
+  },
+  "$schema": "http://json.schemastore.org/launchsettings.json"
 }

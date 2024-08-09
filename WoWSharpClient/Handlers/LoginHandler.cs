@@ -1,11 +1,14 @@
 ﻿using BotRunner.Constants;
 using BotRunner.Interfaces;
+using WoWSharpClient.Manager;
 
 namespace WoWSharpClient.Handlers
 {
-    public static class LoginHandler
+    public class LoginHandler(WoWSharpEventEmitter woWSharpEventEmitter, ObjectManager objectManager)
     {
-        public static void HandleLoginVerifyWorld(Opcodes opcode, byte[] data)
+        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpEventEmitter;
+        private readonly ObjectManager _objectManager = objectManager;
+        public void HandleLoginVerifyWorld(Opcodes opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
             try
@@ -32,7 +35,7 @@ namespace WoWSharpClient.Handlers
                 float facing = reader.ReadSingle();
 
                 // Process the login verification as needed
-                WoWSharpEventEmitter.Instance.FireOnLoginVerifyWorld(new WorldInfo
+                _woWSharpEventEmitter.FireOnLoginVerifyWorld(new WorldInfo
                 {
                     MapId = mapId,
                     PositionX = positionX,

@@ -1,5 +1,4 @@
-﻿using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Math;
+﻿using BotRunner.Constants;
 using Org.BouncyCastle.Utilities;
 using System.Net;
 using System.Net.Sockets;
@@ -11,12 +10,14 @@ using WowSrp.Client;
 
 namespace WoWSharpClient.Client
 {
-    internal class LoginClient(string ipAddress, int port) : IDisposable
+    internal class LoginClient(string ipAddress, int port, WoWSharpEventEmitter woWSharpEventEmitter, ObjectManager objectManager) : IDisposable
     {
         private string _username = string.Empty;
         private string _password = string.Empty;
         private readonly IPAddress _ipAddress = IPAddress.Parse(ipAddress);
         private readonly int _port = port;
+        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpEventEmitter;
+        private readonly ObjectManager _objectManager = objectManager;
 
         private TcpClient? _client = null;
         private SrpClient _srpClient;
@@ -24,10 +25,6 @@ namespace WoWSharpClient.Client
         private NetworkStream _stream = null;
 
         private byte[] _serverProof = [];
-
-        private static readonly BigInteger N = new("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7", 16);
-        private static readonly BigInteger g = BigInteger.ValueOf(7);
-        private static readonly BigInteger k = CalculateK(N, g);
 
         public string Username => _username;
         public IPAddress IPAddress => _ipAddress;
@@ -55,7 +52,6 @@ namespace WoWSharpClient.Client
             _username = username;
             _password = password;
 
-            WoWSharpEventEmitter.Instance.FireOnHandshakeBegin();
             using var memoryStream = new MemoryStream();
             using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
             int packetSize = 30 + _username.Length;
@@ -78,11 +74,12 @@ namespace WoWSharpClient.Client
             writer.Write((uint)0x0100007F); // Client IP: 127.0.0.1 (little-endian)
 
             writer.Write((byte)_username.Length); // Username length
-            writer.Write(Encoding.UTF8.GetBytes(_username)); // Username
+            writer.Write(Encoding.UTF8.GetBytes(_username.ToUpper())); // Username
 
             writer.Flush(); 
             byte[] packetData = memoryStream.ToArray();
 
+            _woWSharpEventEmitter.FireOnHandshakeBegin();
             // Send the packet
             _stream.Write(packetData, 0, packetData.Length);
 
@@ -97,7 +94,7 @@ namespace WoWSharpClient.Client
                 byte[] packet = reader.ReadBytes(119); // Adjust length if necessary
 
                 byte opcode = packet[0];
-                byte result = packet[2];
+                ResponseCodes result = (ResponseCodes)packet[2];
 
                 if (opcode == 0x00 && result == 0x00) // CMD_AUTH_LOGON_CHALLENGE and SUCCESS
                 {
@@ -119,7 +116,7 @@ namespace WoWSharpClient.Client
                 }
                 else
                 {
-                    Console.WriteLine($"[LoginClient] Unexpected opcode or result received in AUTH_CHALLENGE response. [OpCode:{opcode:X}] [Result:{result:X}]");
+                    Console.WriteLine($"[LoginClient] Unexpected opcode or result received in AUTH_CHALLENGE response. [OpCode:{opcode:X}] [Result:{result}]");
                 }
             }
             catch (Exception ex)
@@ -133,9 +130,7 @@ namespace WoWSharpClient.Client
             try
             {
                 _srpClientChallenge = new SrpClientChallenge(_username, _password, generator, largeSafePrime, serverPublicKey, salt);
-
-                using SHA1 sha1 = SHA1.Create();
-                byte[] crcHash = sha1.ComputeHash(Arrays.Concatenate(crcSalt, _srpClientChallenge.ClientProof));
+                byte[] crcHash = SHA1.HashData(Arrays.Concatenate(crcSalt, _srpClientChallenge.ClientProof));
 
                 using var memoryStream = new MemoryStream();
                 using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
@@ -153,6 +148,7 @@ namespace WoWSharpClient.Client
                 byte[] packetData = memoryStream.ToArray();
                 _stream.Write(packetData, 0, packetData.Length);
 
+                Console.WriteLine($"[LoginClient] Sending logon proof to server for username {_username}");
                 ReceiveAuthProofLogonResponse();
             }
             catch (Exception ex)
@@ -174,10 +170,11 @@ namespace WoWSharpClient.Client
                 }
 
                 byte opcode = header[0];
-                byte result = header[1];
+                ResponseCodes result = (ResponseCodes) header[1];
 
                 if (opcode == 0x01 && result == 0x00) // CMD_AUTH_LOGON_PROOF and SUCCESS
                 {
+                    Console.WriteLine($"[LoginClient] Authentication succeeded with opcode {opcode:X} and result code {result}");
                     byte[] body = reader.ReadBytes(24);
                     if (body.Length < 24)
                     {
@@ -189,24 +186,24 @@ namespace WoWSharpClient.Client
                     var verificationResult = _srpClientChallenge.VerifyServerProof(serverProof);
                     if (!verificationResult.HasValue)
                     {
-                        WoWSharpEventEmitter.Instance.FireOnLoginFailure();
+                        _woWSharpEventEmitter.FireOnLoginFailure();
                     }
                     else
                     {
                         _srpClient = verificationResult.Value;
-                        WoWSharpEventEmitter.Instance.FireOnLoginSuccess();
+                        _woWSharpEventEmitter.FireOnLoginSuccess();
                     }
                 }
                 else
                 {
-                    Console.WriteLine("[LoginClient] Authentication failed with result code: " + result);
-                    WoWSharpEventEmitter.Instance.FireOnLoginFailure();
+                    Console.WriteLine($"[LoginClient] Authentication failed with opcode {opcode:X} and result code {result}");
+                    _woWSharpEventEmitter.FireOnLoginFailure();
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[LoginClient] An error occurred while receiving AUTH_PROOF response: {ex}");
-                WoWSharpEventEmitter.Instance.FireOnLoginFailure();
+                _woWSharpEventEmitter.FireOnLoginFailure();
             }
         }
 
@@ -279,15 +276,6 @@ namespace WoWSharpClient.Client
             }
 
             return list;
-        }
-        private static BigInteger CalculateK(BigInteger N, BigInteger g)
-        {
-            Sha1Digest sha1 = new();
-            byte[] hashInput = Arrays.Concatenate(N.ToByteArrayUnsigned(), g.ToByteArrayUnsigned());
-            byte[] hash = new byte[sha1.GetDigestSize()];
-            sha1.BlockUpdate(hashInput, 0, hashInput.Length);
-            sha1.DoFinal(hash, 0);
-            return new BigInteger(1, hash);
         }
 
         public void Dispose()

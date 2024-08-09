@@ -1,17 +1,8 @@
-using ActivityManager;
+using ActivityBackgroundMember;
 using Communication;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using StateManager.Listeners;
 using StateManager.Settings;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
-using BotCommLayer;
 
 namespace StateManager
 {
@@ -22,12 +13,12 @@ namespace StateManager
         private readonly IConfiguration _configuration;
         private readonly IServiceProvider _serviceProvider;
 
-        private readonly Dictionary<uint, IHostedService> _managedServices = [];
+        private readonly Dictionary<string, (IHostedService Service, CancellationTokenSource TokenSource, Task asyncTask)> _managedServices = [];
 
-        private readonly ActivityManagerSocketListener _activityManagerSocketListener;
+        private readonly ActivityMemberSocketListener _activityMemberSocketListener;
         private readonly StateManagerSocketListener _worldStateManagerSocketListener;
 
-        public List<Activity> CurrentActivityList { get; private set; } = [];
+        public IEnumerable<ActivityMember> CurrentActivityMemberList { get; private set; } = [];
 
         public StateManagerWorker(
             ILogger<StateManagerWorker> logger,
@@ -40,13 +31,13 @@ namespace StateManager
             _serviceProvider = serviceProvider;
             _configuration = configuration;
 
-            _activityManagerSocketListener = new ActivityManagerSocketListener(
-                configuration["ActivityManagerListener:IpAddress"],
-                int.Parse(configuration["ActivityManagerListener:Port"]),
-                _loggerFactory.CreateLogger<ActivityManagerSocketListener>()
+            _activityMemberSocketListener = new ActivityMemberSocketListener(
+                configuration["ActivityMemberListener:IpAddress"],
+                int.Parse(configuration["ActivityMemberListener:Port"]),
+                _loggerFactory.CreateLogger<ActivityMemberSocketListener>()
             );
 
-            _logger.LogInformation($"Started ActivityManagerListener| {configuration["ActivityManagerListener:IpAddress"]}:{configuration["ActivityManagerListener:Port"]}");
+            _logger.LogInformation($"Started ActivityMemberListener| {configuration["ActivityMemberListener:IpAddress"]}:{configuration["ActivityMemberListener:Port"]}");
 
             _worldStateManagerSocketListener = new StateManagerSocketListener(
                 configuration["StateManagerListener:IpAddress"],
@@ -56,30 +47,33 @@ namespace StateManager
 
             _logger.LogInformation($"Started StateManagerListener| {configuration["StateManagerListener:IpAddress"]}:{configuration["StateManagerListener:Port"]}");
 
-            _activityManagerSocketListener.DataMessageSubject.Subscribe(OnActivityManagerUpdate);
+            _activityMemberSocketListener.DataMessageSubject.Subscribe(OnActivityManagerUpdate);
             _worldStateManagerSocketListener.DataMessageSubject.Subscribe(OnWorldStateUpdate);
         }
 
-        public void StartManagedService(uint port)
+        public void StartManagedService(string accountName)
         {
             var scope = _serviceProvider.CreateScope();
-            var service = ActivatorUtilities.CreateInstance<ActivityManagerWorker>(
+            var tokenSource = new CancellationTokenSource();
+            var service = ActivatorUtilities.CreateInstance<ActivityBackgroundMemberWorker>(
                 scope.ServiceProvider,
-                _loggerFactory.CreateLogger<ActivityManagerWorker>(),
-                Options.Create(new AppSettings() { ListenPort = port })
+                _loggerFactory.CreateLogger<ActivityBackgroundMemberWorker>(),
+                _configuration,
+                Options.Create(new ActivityMember() { AccountName = accountName })
             );
-            _managedServices.Add(port, service);
-            ((IHostedService)service).StartAsync(CancellationToken.None).GetAwaiter().GetResult();
-            _logger.LogInformation($"Started ActivityManagerService on port: {port}");
+
+            _managedServices.Add(accountName, (service, tokenSource, Task.Run(async () => await service.StartAsync(tokenSource.Token))));
+            _logger.LogInformation($"Started ActivityManagerService for account {accountName}");
         }
 
-        public void StopManagedService(uint port)
+        public void StopManagedService(string accountName)
         {
-            if (_managedServices.TryGetValue(port, out IHostedService? value))
+            if (_managedServices.TryGetValue(accountName, out var serviceTuple))
             {
-                value.StopAsync(CancellationToken.None).GetAwaiter().GetResult();
-                _managedServices.Remove(port);
-                _logger.LogInformation($"Stopped ActivityManagerService on port: {port}");
+                serviceTuple.TokenSource.Cancel();
+                Task.Factory.StartNew(async () => await serviceTuple.Service.StopAsync(CancellationToken.None));
+                _managedServices.Remove(accountName);
+                _logger.LogInformation($"Stopped ActivityManagerService for account {accountName}");
             }
         }
 
@@ -96,46 +90,43 @@ namespace StateManager
                 await Task.Delay(10000, stoppingToken);
             }
 
-            foreach (var service in _managedServices)
-            {
-                await service.Value.StopAsync(stoppingToken);
-            }
+            foreach (var (Service, TokenSource, Task) in _managedServices.Values)
+                await Service.StopAsync(stoppingToken);
 
             _logger.LogInformation($"StateManagerServiceWorker has stopped.");
         }
 
         private void OnActivityManagerUpdate(DataMessage dataMessage)
         {
-            // Handle ActivityManager updates
+            ActivityMemberState activityMemberState = dataMessage.ActivityMemberState;
+            ActivityMember? activityMember = CurrentActivityMemberList.FirstOrDefault(x => x.AccountName != activityMemberState.Member.AccountName);
+
+            if (activityMember != null)
+            {
+
+            }
+
+            _activityMemberSocketListener.SendMessageToClient(dataMessage.Id, CurrentActivityMemberList.First(x => x.AccountName == activityMemberState.Member.AccountName));
         }
 
         private void OnWorldStateUpdate(DataMessage dataMessage)
         {
             WorldStateUpdate worldStateUpdate = dataMessage.WorldStateUpdate;
+
             if (worldStateUpdate.Action != ActivityAction.None)
             {
                 _logger.LogInformation($"[OnWorldStateUpdate]Processing {worldStateUpdate.Action} {worldStateUpdate.Param1} {worldStateUpdate.Param2} {worldStateUpdate.Param3} {worldStateUpdate.Param4}");
 
                 int activityIndex = int.Parse(worldStateUpdate.Param1);
                 int activityMemberIndex = int.Parse(worldStateUpdate.Param2);
+
                 switch (worldStateUpdate.Action)
                 {
-                    case ActivityAction.AddActivity:
-                        StateManagerSettings.Instance.ActivityPresets.Add(new Activity());
-                        break;
-                    case ActivityAction.EditActivity:
-                        if (worldStateUpdate.Param3 == "Remove")
-                            StateManagerSettings.Instance.ActivityPresets.RemoveAt(activityIndex);
-                        else
-                            StateManagerSettings.Instance.ActivityPresets[activityIndex].Type = (ActivityType)Enum.Parse(typeof(ActivityType), worldStateUpdate.Param3);
-
-                        break;
                     case ActivityAction.AddActivityMember:
-                        StateManagerSettings.Instance.ActivityPresets[activityIndex].Members.Add(new ActivityMember());
+                        StateManagerSettings.Instance.ActivityMemberPresets.Add(new ActivityMember());
                         break;
                     case ActivityAction.EditActivityMember:
-                        Activity activityPreset = StateManagerSettings.Instance.ActivityPresets[activityIndex];
-                        ActivityMember activityMemberPreset = activityPreset.Members[activityMemberIndex];
+                        ActivityMember activityMemberPreset = StateManagerSettings.Instance.ActivityMemberPresets[activityMemberIndex];
 
                         switch (worldStateUpdate.Param3)
                         {
@@ -155,7 +146,7 @@ namespace StateManager
                                 activityMemberPreset.EndStateProfile = worldStateUpdate.Param4;
                                 break;
                             case "Remove":
-                                activityPreset.Members.RemoveAt(activityMemberIndex);
+                                StateManagerSettings.Instance.ActivityMemberPresets.RemoveAt(activityMemberIndex);
                                 break;
                         }
                         break;
@@ -166,45 +157,20 @@ namespace StateManager
                         break;
                 }
             }
-            List<Activity> activities = StateManagerSettings.Instance.ActivityPresets.Select(x => new Activity() { Type = x.Type }).ToList();
 
-            activities.ForEach(activity => activity.Members.AddRange(StateManagerSettings.Instance.ActivityPresets[activities.IndexOf(activity)].Members));
+            List<ActivityMember> activities = StateManagerSettings.Instance.ActivityMemberPresets.Select(x => new ActivityMember() { Type = x.Type }).ToList();
 
             WorldState responseMessage = new();
-            responseMessage.Activities.AddRange(activities);
+            responseMessage.ActivityMembers.AddRange(StateManagerSettings.Instance.ActivityMemberPresets.Select(x => new ActivityMemberState() { Member = x }));
 
             _worldStateManagerSocketListener.SendMessageToClient(dataMessage.Id, responseMessage);
         }
 
         private void ApplyDesiredState()
         {
-            for (int i = 0; i < StateManagerSettings.Instance.ActivityPresets.Count; i++)
-            {
-                if (CurrentActivityList.Count < StateManagerSettings.Instance.ActivityPresets.Count)
-                {
-                    StartManagedService(StateManagerSettings.Instance.ActivityPresets[i].Port);
-                }
-                else
-                {
-                    CurrentActivityList[i].Type = StateManagerSettings.Instance.ActivityPresets[i].Type;
-                    for (int ii = 0; ii < CurrentActivityList[i].Members.Count; ii++)
-                    {
-                        if (ii < StateManagerSettings.Instance.ActivityPresets[i].Members.Count)
-                        {
-                            CurrentActivityList[i].Members[ii] = StateManagerSettings.Instance.ActivityPresets[i].Members[ii];
-                        }
-                        else
-                        {
-                            CurrentActivityList[i].Members.Add(StateManagerSettings.Instance.ActivityPresets[i].Members[ii]);
-                        }
-                    }
-
-                    while (CurrentActivityList[i].Members.Count > StateManagerSettings.Instance.ActivityPresets[i].Members.Count)
-                    {
-                        CurrentActivityList[i].Members.RemoveAt(CurrentActivityList[i].Members.Count - 1);
-                    }
-                }
-            }
+            for (int i = 0; i < StateManagerSettings.Instance.ActivityMemberPresets.Count; i++)
+                if (!CurrentActivityMemberList.Any(x => x.AccountName == StateManagerSettings.Instance.ActivityMemberPresets[i].AccountName))
+                    StartManagedService(StateManagerSettings.Instance.ActivityMemberPresets[i].AccountName);
         }
     }
 }

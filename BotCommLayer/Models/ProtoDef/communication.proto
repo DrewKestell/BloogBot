@@ -2,28 +2,19 @@
 
 package communication;
 
-message DataMessage {	
-  uint64 id = 1;
-  optional WorldStateUpdate worldStateUpdate = 2;
-  optional Activity activity = 4;
-}
-
-message WorldState {
-  repeated Activity activities = 1;
-}
-
-message Activity {
-  ActivityType type = 1;
-  uint32 port = 2;
-  repeated ActivityMember members = 3;
+message DataMessage {
+    uint32 id = 1;
+    WorldStateUpdate worldStateUpdate = 2;
+    ActivityMemberState activityMemberState = 3;
 }
 
 message ActivityMember {
-  string behaviorProfile = 1;
-  string accountName = 2;
-  string progressionProfile = 3;
-  string initialProfile = 4;
-  string endStateProfile = 5;
+  string accountName = 1;
+  ActivityType type = 2;
+  string behaviorProfile = 3;
+  string progressionProfile = 4;
+  string initialProfile = 5;
+  string endStateProfile = 6;
 }
 
 message ActivityMemberState {
@@ -42,20 +33,20 @@ message WorldStateUpdate {
   string param4 = 5;
 }
 
+message WorldState {
+  repeated ActivityMemberState activityMembers = 1;
+}
+
 enum ActivityAction {
   None = 0;
-  AddActivity = 1;
-  EditActivity = 2;
-  AddActivityMember = 3;
-  EditActivityMember = 4;
-  SetMinMemberSize = 5;
-  SetMaxMemberSize = 6;
-  ApplyDesiredState = 7;
+  AddActivityMember = 1;
+  EditActivityMember = 2;
+  ApplyDesiredState = 3;
 }
 
 enum ActivityType
 {
-    Idle = 0;
+    Questing = 0;
     PvPWarsongGulch19 = 1;
     PvPWarsongGulch29 = 2;
     PvPWarsongGulch39 = 3;

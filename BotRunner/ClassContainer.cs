@@ -1,6 +1,6 @@
-﻿using BotRunner.Interfaces;
+﻿using BotCommLayer.Clients;
+using BotRunner.Interfaces;
 using Communication;
-using DatabaseDomain.Client;
 using PathfindingService.Client;
 
 namespace BotRunner

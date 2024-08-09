@@ -8,8 +8,6 @@ namespace WoWSharpClient.Manager
 {
     public class ObjectManager : IObjectManager
     {
-        public static ObjectManager Instance { get; } = new ObjectManager();
-
         private bool _isLoginConnected;
         private bool _isWorldConnected;
         private bool _isLoggedIn;
@@ -78,16 +76,13 @@ namespace WoWSharpClient.Manager
 
         public readonly List<CharacterSelect> CharacterSelects = [];
 
-        private ObjectManager()
+        public ObjectManager(WoWSharpEventEmitter woWSharpEventEmitter, ActivityMemberState parProbe)
         {
-        }
-        public void Initialize(ActivityMemberState parProbe)
-        {
-            WoWSharpEventEmitter.Instance.OnLoginConnect += Instance_OnLoginConnect;
-            WoWSharpEventEmitter.Instance.OnLoginSuccess += Instance_OnLoginSuccess;
-            WoWSharpEventEmitter.Instance.OnLoginFailure += Instance_OnLoginFail;
-            WoWSharpEventEmitter.Instance.OnWorldSessionStart += Instance_OnWorldSessionStart;
-            WoWSharpEventEmitter.Instance.OnWorldSessionEnd += Instance_OnWorldSessionEnd;
+            woWSharpEventEmitter.OnLoginConnect += Instance_OnLoginConnect;
+            woWSharpEventEmitter.OnLoginSuccess += Instance_OnLoginSuccess;
+            woWSharpEventEmitter.OnLoginFailure += Instance_OnLoginFail;
+            woWSharpEventEmitter.OnWorldSessionStart += Instance_OnWorldSessionStart;
+            woWSharpEventEmitter.OnWorldSessionEnd += Instance_OnWorldSessionEnd;
         }
 
         private void Instance_OnLoginConnect(object? sender, EventArgs e) => _isLoginConnected = true;

@@ -6,14 +6,17 @@ using BotRunner.Constants;
 
 namespace WoWSharpClient.Handlers
 {
-    public static class CharacterHandler
+    public class CharacterHandler(WoWSharpEventEmitter woWSharpEventEmitter, ObjectManager objectManager)
     {
-        public static void HandleCharEnum(Opcodes opcode, byte[] data)
+        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpEventEmitter;
+        private readonly ObjectManager _objectManager = objectManager;
+
+        public void HandleCharEnum(Opcodes opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
             byte numChars = reader.ReadByte();
 
-            ObjectManager.Instance.CharacterSelects.Clear();
+            _objectManager.CharacterSelects.Clear();
 
             for (int i = 0; i < numChars; i++)
             {
@@ -45,13 +48,13 @@ namespace WoWSharpClient.Handlers
                     character.Equipment[j] = reader.ReadByte();
                 }
 
-                ObjectManager.Instance.CharacterSelects.Add(character);
+                _objectManager.CharacterSelects.Add(character);
             }
 
-            WoWSharpEventEmitter.Instance.FireOnCharacterListLoaded();
+            _woWSharpEventEmitter.FireOnCharacterListLoaded();
         }
 
-        private static string ReadString(BinaryReader reader)
+        private string ReadString(BinaryReader reader)
         {
             var stringBuilder = new StringBuilder();
             char ch;
@@ -62,24 +65,24 @@ namespace WoWSharpClient.Handlers
             return stringBuilder.ToString();
         }
 
-        public static void HandleSetRestStart(Opcodes opcode, byte[] data)
+        public void HandleSetRestStart(Opcodes opcode, byte[] data)
         {
-            WoWSharpEventEmitter.Instance.FireOnSetRestStart();
+            _woWSharpEventEmitter.FireOnSetRestStart();
         }
 
-        public static void HandleCharCreate(Opcodes opcode, byte[] data)
+        public void HandleCharCreate(Opcodes opcode, byte[] data)
         {
             var result = (CreateCharacterResult)data[0];
-            WoWSharpEventEmitter.Instance.FireOnCharacterCreateResponse(new CharCreateResponse(result));
+            _woWSharpEventEmitter.FireOnCharacterCreateResponse(new CharCreateResponse(result));
         }
 
-        public static void HandleCharDelete(Opcodes opcode, byte[] data)
+        public void HandleCharDelete(Opcodes opcode, byte[] data)
         {
             var result = (DeleteCharacterResult)data[0];
-            WoWSharpEventEmitter.Instance.FireOnCharacterDeleteResponse(new CharDeleteResponse(result));
+            _woWSharpEventEmitter.FireOnCharacterDeleteResponse(new CharDeleteResponse(result));
         }
 
-        public static void HandleAddonInfo(Opcodes opcode, byte[] data)
+        public void HandleAddonInfo(Opcodes opcode, byte[] data)
         {
             int index = 0;
             while (index < data.Length)

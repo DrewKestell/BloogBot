@@ -1,11 +1,14 @@
 ﻿using BotRunner.Constants;
 using BotRunner.Interfaces;
+using WoWSharpClient.Manager;
 
 namespace WoWSharpClient.Handlers
 {
-    public static class WorldStateHandler
+    public class WorldStateHandler(WoWSharpEventEmitter woWSharpEventEmitter, ObjectManager objectManager)
     {
-        public static void HandleInitWorldStates(Opcodes opcode, byte[] data)
+        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpEventEmitter;
+        private readonly ObjectManager _objectManager = objectManager;
+        public void HandleInitWorldStates(Opcodes opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
             try
@@ -61,7 +64,7 @@ namespace WoWSharpClient.Handlers
                 }
 
                 // Process the world states as needed
-                WoWSharpEventEmitter.Instance.FireOnWorldStatesInit(worldStates);
+                _woWSharpEventEmitter.FireOnWorldStatesInit(worldStates);
             }
             catch (EndOfStreamException e)
             {

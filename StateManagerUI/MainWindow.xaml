@@ -24,10 +24,8 @@
                 <Button Command="{Binding AddActivityCommand}"  Content="Add Activity" Height="21" Width="95" Canvas.Left="220" Canvas.Top="7" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 <Button Command="{Binding RemoveActivityCommand}" Content="Remove Activity" Height="23" Width="95" Canvas.Left="220" Canvas.Top="33" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 <Button Command="{Binding ConnectToCommand}" Content="Connect" Height="23" Width="95" Canvas.Left="5" Canvas.Top="33" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <Button Command="{Binding AddActivityMemberCommand}" IsEnabled="{Binding CanAddActivityMember}"  Content="Add Member" Height="21" Width="95" Canvas.Left="495" Canvas.Top="7" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <Button Command="{Binding SetMaxRaidSizeCommand}" IsEnabled="{Binding CanAddActivityMember}" Width="50" Content="Max" HorizontalAlignment="Center" Canvas.Left="595" Canvas.Top="7" Height="21" VerticalAlignment="Top"/>
-                <Button Command="{Binding RemoveActivityMemberCommand}" IsEnabled="{Binding CanRemoveActivityMember}" Content="Remove Member" Height="23" Width="95" Canvas.Left="495" Canvas.Top="33" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <Button Command="{Binding SetMinRaidSizeCommand}" IsEnabled="{Binding CanRemoveActivityMember}" Content="Min" Width="50" Canvas.Left="595" Canvas.Top="33" Height="23" HorizontalAlignment="Center" VerticalAlignment="Top" />
+                <Button Command="{Binding AddActivityMemberCommand}" Content="Add Member" Height="21" Width="95" Canvas.Left="495" Canvas.Top="7" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Button Command="{Binding RemoveActivityMemberCommand}" Content="Remove Member" Height="23" Width="95" Canvas.Left="495" Canvas.Top="33" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 <Button Command="{Binding ApplyWorldStateCommand}" Content="Apply" Height="20" Width="65" Canvas.Left="150" Canvas.Top="7" HorizontalAlignment="Center" VerticalAlignment="Top"/>
             </Canvas>
             <ScrollViewer Height="280" HorizontalAlignment="Center" Canvas.Top="64" VerticalAlignment="Top">
@@ -36,31 +34,16 @@
                         <d:ItemsControl.ItemsSource>
                             <x:Array Type="{x:Type views:ActivityViewModel}">
                                 <views:ActivityViewModel 
-                                    CurrentActivity="PvPWarsongGulch19" 
+                                    CurrentActivity="PvPwarsongGulch19" 
                                     IsFocused="True" />
                                 <views:ActivityViewModel 
-                                    CurrentActivity="PvENaxxramas" 
-                                    IsFocused="False"  />
-                                <views:ActivityViewModel 
-                                    CurrentActivity="PvPWarsongGulch19" 
-                                    IsFocused="False"  />
-                                <views:ActivityViewModel 
-                                    CurrentActivity="PvPWarsongGulch19" 
-                                    IsFocused="False"  />
-                                <views:ActivityViewModel 
-                                    CurrentActivity="PvPWarsongGulch19" 
-                                    IsFocused="False"  />
-                                <views:ActivityViewModel 
-                                    CurrentActivity="PvPWarsongGulch19" 
-                                    IsFocused="False"  />
-                                <views:ActivityViewModel 
-                                    CurrentActivity="PvPWarsongGulch19" 
+                                    CurrentActivity="PvEnaxxramas" 
                                     IsFocused="False"  />
                             </x:Array>
                         </d:ItemsControl.ItemsSource>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type views:ActivityViewModel}">
-                                <GroupBox Header="{Binding ActivityState.Type}" Height="69" Width="300"  MouseDown="Activity_MouseDown">
+                                <GroupBox Header="{Binding CurrentActivity}" Height="69" Width="300"  MouseDown="Activity_MouseDown">
                                     <GroupBox.Style>
                                         <Style TargetType="GroupBox">
                                             <Style.Triggers>
@@ -84,7 +67,7 @@
                                               VerticalContentAlignment="Center" 
                                               HorizontalContentAlignment="Left" 
                                               ItemsSource="{Binding Path=EnumActivityTypes}"
-                                              SelectedValue="{Binding ActivityState.Type}"
+                                              SelectedValue="{Binding CurrentActivity}"
                                               SelectionChanged="InstanceComboBox_SelectionChanged">
                                             <ComboBox.ItemTemplate>
                                                 <DataTemplate>

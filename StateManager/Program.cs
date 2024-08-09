@@ -1,4 +1,4 @@
-using ActivityManager;
+using ActivityBackgroundMember;
 using BotCommLayer;
 using DatabaseDomain;
 using PathfindingService;
@@ -26,11 +26,10 @@ namespace StateManager
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.Configure<AppSettings>(hostContext.Configuration);
                     services.AddHostedService<StateManagerWorker>();
                     services.AddHostedService<DatabaseDomainWorker>();
                     services.AddHostedService<PathfindingServiceWorker>();
-                    services.AddTransient<ActivityManagerWorker>();
+                    services.AddTransient<ActivityBackgroundMemberWorker>();
                 });
     }
 }

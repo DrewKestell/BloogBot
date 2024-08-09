@@ -4,40 +4,25 @@ using WoWSharpClient.Models;
 
 namespace WoWSharpClient.Client
 {
-    public class WoWClient
+    public class WoWClient(string ipAddress, int port, WoWSharpEventEmitter woWSharpEventEmitter, ObjectManager objectManager) : IDisposable
     {
         private WorldClient _worldClient;
-        private readonly LoginClient _loginClient;
-
-        private readonly IPAddress _ipAddress;
-
-        public WoWClient(string ipAddress, int port = 3724)
-        {
-            try
-            {
-                _ipAddress = IPAddress.Parse(ipAddress);
-                _loginClient = new LoginClient(ipAddress, port);
-                _loginClient.Connect();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Exception occured during login: {ex}");
-                WoWSharpEventEmitter.Instance.FireOnLoginFailure();
-            }
-        }
+        private readonly LoginClient _loginClient = new(ipAddress, port, woWSharpEventEmitter, objectManager);
+        private readonly IPAddress _ipAddress = IPAddress.Parse(ipAddress);
+        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpEventEmitter;
+        private readonly ObjectManager _objectManager = objectManager;
 
         public void ConnectToLogin()
         {
             _loginClient.Connect();
-            WoWSharpEventEmitter.Instance.FireOnLoginConnect();
+            _woWSharpEventEmitter.FireOnLoginConnect();
         }
 
         public void Login(string username, string password)
         {
             try
             {
-
-                if (!ObjectManager.Instance.IsLoginConnected)
+                if (!_objectManager.IsLoginConnected)
                 {
                     throw new Exception("Unable to login to WoW server");
                 }
@@ -47,7 +32,6 @@ namespace WoWSharpClient.Client
             catch (Exception ex)
             {
                 Console.WriteLine($"Exception occured during login: {ex}");
-                WoWSharpEventEmitter.Instance.FireOnLoginFailure();
             }
         }
 
@@ -63,8 +47,8 @@ namespace WoWSharpClient.Client
 
         public void SelectRealm(Realm realm)
         {
-            _worldClient = new WorldClient();
-            ObjectManager.Instance.CurrentRealm = realm;
+            _worldClient = new WorldClient(_woWSharpEventEmitter, _objectManager);
+            _objectManager.CurrentRealm = realm;
 
             _worldClient.Connect(_loginClient.Username, _ipAddress, _loginClient.SessionKey, realm.AddressPort);
         }
@@ -81,6 +65,12 @@ namespace WoWSharpClient.Client
         private void StartServerPing()
         {
             _worldClient.StartServerPing();
+        }
+
+        public void Dispose()
+        {
+            _loginClient?.Dispose();
+            _worldClient?.Dispose();
         }
     }
 }

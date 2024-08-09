@@ -21,7 +21,7 @@ namespace WoWSharpClient.Models
 
         public readonly IDictionary<string, int[]> PlayerSpells = new Dictionary<string, int[]>();
         public readonly List<int> PlayerSkills = [];
-        public Unit Target => (Unit)ObjectManager.Instance.Objects.FirstOrDefault(x => x.Guid == TargetGuid);
+        public Unit Target => null;
 
         public bool TargetInMeleeRange { get; set; }
 

@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <PackageReference Include="Fasm.NET" Version="1.70.3.2" />
-    <PackageReference Include="Google.Protobuf" Version="3.27.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Memory" Version="4.5.5" />
     <PackageReference Include="Vcpkg.Nuget" Version="1.5.0" />

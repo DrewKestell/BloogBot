@@ -35,7 +35,7 @@ namespace StateManagerUI
 
         private void InstanceComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _worldStatePresetViewModel.EditActivity();
+
         }
     }
 }

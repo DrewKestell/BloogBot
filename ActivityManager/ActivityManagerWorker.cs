@@ -1,4 +1,6 @@
+using ActivityManager.Clients;
 using BotCommLayer;
+using Communication;
 using Microsoft.Extensions.Options;
 
 namespace ActivityManager
@@ -6,30 +8,36 @@ namespace ActivityManager
     public class ActivityManagerWorker : BackgroundService
     {
         private readonly ILogger<ActivityManagerWorker> _logger;
-        private Task _backgroundTask;
+        private readonly StateManagerActivityClient _stateManagerActivityClient;
+        private readonly Activity _activity;
         public int Port { get; }
 
-        public ActivityManagerWorker(ILogger<ActivityManagerWorker> logger, IOptions<AppSettings> settings)
+        public ActivityManagerWorker(ILogger<ActivityManagerWorker> logger, ILoggerFactory loggerFactory, IOptions<AppSettings> settings, IConfiguration configuration)
         {
             _logger = logger;
             Port = (int)settings.Value.ListenPort;
 
-            _logger?.LogInformation($"Worker created at: {DateTimeOffset.Now}");
-        }
+            var stateManagerLogger = loggerFactory.CreateLogger<StateManagerActivityClient>();
+            _stateManagerActivityClient = new StateManagerActivityClient(
+                settings.Value.StateManagerAddress,
+                (int)settings.Value.StateManagerPort,
+                stateManagerLogger
+            );
 
-        public void Execute(CancellationToken cancellationToken)
-        {
-            _backgroundTask = Task.Run(async () => await ExecuteAsync(cancellationToken), cancellationToken);
+            _activity = new Activity()
+            {
+                Port = (uint)Port,
+            };
+
+            _logger?.LogInformation($"Worker {Port} created at: {DateTimeOffset.Now}");
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"[WoWActivityManagerWorker]Executing update loop to WorldStateManager");
-
             while (!cancellationToken.IsCancellationRequested)
             {
-                // Your worker logic here
-                await Task.Delay(500, cancellationToken);
+                Activity activity = _stateManagerActivityClient.UpdateCurrentActivityState(_activity);
+                await Task.Delay(100, cancellationToken);
             }
         }
     }

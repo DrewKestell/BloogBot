@@ -1,6 +1,6 @@
-﻿using Communication;
+﻿using BotCommLayer.Clients;
+using Communication;
 using Microsoft.Extensions.Logging;
-using StateManager.Clients;
 using StateManagerUI.Handlers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -14,7 +14,7 @@ namespace StateManagerUI.Views
 {
     public sealed class StateManagerViewModel : INotifyPropertyChanged
     {
-        public ObservableCollection<Activity> ServerActivityStates { get; set; } = [];
+        public ObservableCollection<ActivityMemberState> ActivityMemberStates { get; set; } = [];
         public ObservableCollection<ActivityViewModel> ActivityViewModels { get; set; } = [];
         public ObservableCollection<ActivityMemberViewModel> SelectedActivityMemberViewModels => SelectedActivity != null ? SelectedActivity.ActivityMemberViewModels : [];
         public ActivityViewModel? SelectedActivity => ActivityViewModels.Count > 0 && SelectedActivityIndex > -1 ? ActivityViewModels[SelectedActivityIndex] : null;
@@ -29,20 +29,16 @@ namespace StateManagerUI.Views
 
         private ICommand _connectToStateManagerCommand;
         private ICommand _applyWorldStateCommand;
-        private ICommand _addActivityCommand;
-        private ICommand _removeActivityCommand;
         private ICommand _addActivityMemberCommand;
         private ICommand _removeActivityMemberCommand;
-        private ICommand _setMaxRaidSizeCommand;
-        private ICommand _setMinRaidSizeCommand;
+        private ICommand _addActivityCommand;
+        private ICommand _removeActivityCommand;
         public ICommand ConnectToCommand => _connectToStateManagerCommand ??= new CommandHandler(ConnectTo, true);
         public ICommand ApplyWorldStateCommand => _applyWorldStateCommand ??= new CommandHandler(ApplyWorldState, true);
-        public ICommand AddActivityCommand => _addActivityCommand ??= new CommandHandler(AddActivity, true);
-        public ICommand RemoveActivityCommand => _removeActivityCommand ??= new CommandHandler(RemoveActivity, true);
         public ICommand AddActivityMemberCommand => _addActivityMemberCommand ??= new CommandHandler(AddActivityMember, true);
         public ICommand RemoveActivityMemberCommand => _removeActivityMemberCommand ??= new CommandHandler(RemoveActivityMember, true);
-        public ICommand SetMaxRaidSizeCommand => _setMaxRaidSizeCommand ??= new CommandHandler(SetMaxRaidSize, true);
-        public ICommand SetMinRaidSizeCommand => _setMinRaidSizeCommand ??= new CommandHandler(SetMinRaidSize, true);
+        public ICommand AddActivityCommand => _addActivityCommand ??= new CommandHandler(AddActivity, true);
+        public ICommand RemoveActivityCommand => _removeActivityCommand ??= new CommandHandler(RemoveActivity, true);
 
         private void ConnectTo()
         {
@@ -55,30 +51,20 @@ namespace StateManagerUI.Views
             WorldStateUpdate.Param1 = SelectedActivityIndex.ToString();
             WorldStateUpdate.Param2 = SelectedActivityMemberIndex.ToString();
         }
-
         private void AddActivity()
         {
-            WorldStateUpdate.Action = ActivityAction.AddActivity;
+            WorldStateUpdate.Action = ActivityAction.AddActivityMember;
             WorldStateUpdate.Param1 = SelectedActivityIndex.ToString();
             WorldStateUpdate.Param2 = SelectedActivityMemberIndex.ToString();
         }
 
         private void RemoveActivity()
         {
-            WorldStateUpdate.Action = ActivityAction.EditActivity;
+            WorldStateUpdate.Action = ActivityAction.EditActivityMember;
             WorldStateUpdate.Param1 = SelectedActivityIndex.ToString();
             WorldStateUpdate.Param2 = SelectedActivityMemberIndex.ToString();
             WorldStateUpdate.Param3 = "Remove";
         }
-
-        public void EditActivity()
-        {
-            WorldStateUpdate.Action = ActivityAction.EditActivity;
-            WorldStateUpdate.Param1 = SelectedActivityIndex.ToString();
-            WorldStateUpdate.Param2 = SelectedActivityMemberIndex.ToString();
-            WorldStateUpdate.Param3 = SelectedActivity.ActivityState.Type.ToString();
-        }
-
         private void AddActivityMember()
         {
             WorldStateUpdate.Action = ActivityAction.AddActivityMember;
@@ -108,20 +94,6 @@ namespace StateManagerUI.Views
                 WorldStateUpdate.Param3 = propertyName;
                 WorldStateUpdate.Param4 = propertyValue;
             }
-        }
-
-        private void SetMaxRaidSize()
-        {
-            WorldStateUpdate.Action = ActivityAction.SetMaxMemberSize;
-            WorldStateUpdate.Param1 = SelectedActivityIndex.ToString();
-            WorldStateUpdate.Param2 = SelectedActivityMemberIndex.ToString();
-        }
-
-        private void SetMinRaidSize()
-        {
-            WorldStateUpdate.Action = ActivityAction.SetMinMemberSize;
-            WorldStateUpdate.Param1 = SelectedActivityIndex.ToString();
-            WorldStateUpdate.Param2 = SelectedActivityMemberIndex.ToString();
         }
 
         private int _selectedActivityIndex = -1;
@@ -184,10 +156,10 @@ namespace StateManagerUI.Views
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    List<Activity> activityStates = [];
+                    List<ActivityMemberState> activityStates = [];
                     if (WorldStateUpdate.Action != ActivityAction.None)
                     {
-                        activityStates = new List<Activity>(StateManagerUpdateClient.SendWorldStateUpdate(WorldStateUpdate).Activities);
+                        activityStates = new List<ActivityMemberState>(StateManagerUpdateClient.SendWorldStateUpdate(new DataMessage() { Id = 1, WorldStateUpdate = WorldStateUpdate }).ActivityMembers);
 
                         WorldStateUpdate.Action = ActivityAction.None;
                         WorldStateUpdate.Param1 = string.Empty;
@@ -196,63 +168,16 @@ namespace StateManagerUI.Views
                         WorldStateUpdate.Param4 = string.Empty;
                     }
                     else
-                        activityStates = new List<Activity>(StateManagerUpdateClient.SendWorldStateUpdate(DefaultWorldStateUpdate).Activities);
+                        activityStates = new List<ActivityMemberState>(StateManagerUpdateClient.SendWorldStateUpdate(new DataMessage() { Id = 1, WorldStateUpdate = DefaultWorldStateUpdate }).ActivityMembers);
 
-                    ServerActivityStates.Clear();
+                    ActivityMemberStates.Clear();
 
                     for (int i = 0; i < activityStates.Count; i++)
-                        ServerActivityStates.Add(activityStates[i]);
+                        ActivityMemberStates.Add(activityStates[i]);
 
                     try
                     {
-                        for (int i = 0; i < ServerActivityStates.Count; i++)
-                        {
-                            if (i < ActivityViewModels.Count)
-                            {
-                                ActivityViewModel activityViewModel = ActivityViewModels[i];
-                                activityViewModel.ActivityState.Type = ServerActivityStates[i].Type;
-
-                                while (activityViewModel.ActivityState.Members.Count < ServerActivityStates[i].Members.Count)
-                                {
-                                    LogMessage($"Adding new activity member Activity: {i}");
-                                    activityViewModel.AddNewActivityMember();
-                                }
-
-                                while (activityViewModel.ActivityState.Members.Count > ServerActivityStates[i].Members.Count)
-                                {
-                                    LogMessage($"Removing activity member Activity: {SelectedActivityMember.BehaviorProfile}");
-                                    activityViewModel.RemoveActivityMember();
-                                }
-
-                                for (int ii = 0; ii < activityViewModel.ActivityState.Members.Count; ii++)
-                                {
-                                    activityViewModel.ActivityState.Members[ii].AccountName = ServerActivityStates[i].Members[ii].AccountName;
-                                    activityViewModel.ActivityState.Members[ii].BehaviorProfile = ServerActivityStates[i].Members[ii].BehaviorProfile;
-                                    activityViewModel.ActivityState.Members[ii].ProgressionProfile = ServerActivityStates[i].Members[ii].ProgressionProfile;
-                                    activityViewModel.ActivityState.Members[ii].InitialProfile = ServerActivityStates[i].Members[ii].InitialProfile;
-                                    activityViewModel.ActivityState.Members[ii].EndStateProfile = ServerActivityStates[i].Members[ii].EndStateProfile;
-                                }
-                            }
-                            else
-                                ActivityViewModels.Add(new ActivityViewModel(ServerActivityStates[i]));
-                        }
-
-                        while (ActivityViewModels.Count > ServerActivityStates.Count)
-                        {
-                            ActivityViewModels.RemoveAt(ActivityViewModels.Count - 1);
-                        }
-
-                        if (ServerActivityStates.Count > 0 && SelectedActivityIndex < 0)
-                        {
-                            SelectedActivityIndex = 0;
-                            SelectedActivity.IsFocused = true;
-
-                            if (SelectedActivityMemberIndex < 0)
-                            {
-                                SelectedActivityMemberIndex = 0;
-                                SelectedActivityMember.IsFocused = true;
-                            }
-                        }
+                        
 
                         OnPropertyChanged(nameof(ActivityViewModels));
                         OnPropertyChanged(nameof(SelectedActivityIndex));
