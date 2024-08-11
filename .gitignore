@@ -285,3 +285,6 @@ main.min.css
 Bot
 raidLeaderBotSettings.json
 raidMemberBotSettings.json
+
+# vcpkg
+*/vcpkg_installed/

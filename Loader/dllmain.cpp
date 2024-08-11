@@ -1,5 +1,3 @@
-// credit to Zzuk: https://github.com/Zz9uk3/ZzukBot_V3/blob/master/Loader/Main.cpp
-
 #define WIN32_LEAN_AND_MEAN
 
 // Pick which CLR runtime we'll be using. 4.0 has different hosting APIs
@@ -25,8 +23,8 @@
 // No rough configuration needed. :)
 #pragma comment( lib, "mscoree" )
 
-#define LOAD_DLL_FILE_NAME L"RaidMemberBot.exe"
-#define NAMESPACE_AND_CLASS L"RaidMemberBot.Loader"
+#define LOAD_DLL_FILE_NAME L"WoWActivityMember.exe"
+#define NAMESPACE_AND_CLASS L"WoWActivityMember.Loader"
 #define MAIN_METHOD L"Load"
 #define MAIN_METHOD_ARGS L"NONE"
 
@@ -52,25 +50,25 @@ unsigned __stdcall ThreadMain(void* pParam)
 	AllocConsole();
 	freopen("CONOUT$", "w", stdout);
 
-	#if _DEBUG
-		std::cout << std::string("Attach a debugger now to WoW.exe if you want to debug Loader.dll. Waiting 10 seconds...") << std::endl;
+#if _DEBUG
+	std::cout << std::string("Attach a debugger now to WoW.exe if you want to debug Loader.dll. Waiting 10 seconds...") << std::endl;
 
-		HANDLE hEvent = CreateEvent(nullptr, TRUE, FALSE, L"MyDebugEvent");
-		WaitForSingleObject(hEvent, 10000);  // Wait for 10 seconds
-		bool isDebuggerAttached = IsDebuggerPresent() != FALSE;
+	HANDLE hEvent = CreateEvent(nullptr, TRUE, FALSE, L"MyDebugEvent");
+	WaitForSingleObject(hEvent, 10000);  // Wait for 10 seconds
+	bool isDebuggerAttached = IsDebuggerPresent() != FALSE;
 
-		if (isDebuggerAttached)
-		{
-			std::cout << std::string("Debugger found.") << std::endl;
-		}
-		else
-		{
-			std::cout << std::string("Debugger not found.") << std::endl;
-		}
+	if (isDebuggerAttached)
+	{
+		std::cout << std::string("Debugger found.") << std::endl;
+	}
+	else
+	{
+		std::cout << std::string("Debugger not found.") << std::endl;
+	}
 
-		SetEvent(hEvent);
-		CloseHandle(hEvent);
-	#endif
+	SetEvent(hEvent);
+	CloseHandle(hEvent);
+#endif
 
 	HRESULT hr = CLRCreateInstance(CLSID_CLRMetaHostPolicy, IID_ICLRMetaHostPolicy, (LPVOID*)&g_pMetaHost);
 

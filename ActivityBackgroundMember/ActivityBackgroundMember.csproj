@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-ActivityMemberBackgroundService-b849569f-debc-4381-b2c1-b1d346f953a3</UserSecretsId>
+    <BaseOutputPath>..\Bot</BaseOutputPath>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WoWSharpClient\WoWSharpClient.csproj" />
+  </ItemGroup>
+</Project>

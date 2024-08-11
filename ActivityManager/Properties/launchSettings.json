@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "WoWActivityManagerService": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development",
+        "LISTEN_ADDRESS": "127.0.0.1",
+        "LISTEN_PORT": "8089",
+        "STATE_MANAGER_ADDRESS": "127.0.0.1",
+        "STATE_MANAGER_PORT": "8089"
+      },
+      "dotnetRunMessages": true
+    }
+  },
+  "$schema": "http://json.schemastore.org/launchsettings.json"
+}

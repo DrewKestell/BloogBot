@@ -1,0 +1,96 @@
+﻿syntax = "proto3";
+
+package communication;
+
+message DataMessage {
+    uint32 id = 1;
+    WorldStateUpdate worldStateUpdate = 2;
+    ActivityMemberState activityMemberState = 3;
+}
+
+message ActivityMember {
+  string accountName = 1;
+  ActivityType type = 2;
+  string behaviorProfile = 3;
+  string progressionProfile = 4;
+  string initialProfile = 5;
+  string endStateProfile = 6;
+}
+
+message ActivityMemberState {
+    ActivityMember member = 1;
+    uint64 guid = 2;
+    bool InRaid = 3;
+    repeated uint32 PetSpells = 4;
+    repeated uint32 Talents = 5;
+}
+
+message WorldStateUpdate {
+  ActivityAction action = 1;
+  string param1 = 2;
+  string param2 = 3;
+  string param3 = 4;
+  string param4 = 5;
+}
+
+message WorldState {
+  repeated ActivityMemberState activityMembers = 1;
+}
+
+enum ActivityAction {
+  None = 0;
+  AddActivityMember = 1;
+  EditActivityMember = 2;
+  ApplyDesiredState = 3;
+}
+
+enum ActivityType
+{
+    Questing = 0;
+    PvPWarsongGulch19 = 1;
+    PvPWarsongGulch29 = 2;
+    PvPWarsongGulch39 = 3;
+    PvPWarsongGulch49 = 4;
+    PvPWarsongGulch59 = 5;
+    PvPWarsongGulch60 = 6;
+    PvPArathiBasin29 = 7;
+    PvPArathiBasin39 = 8;
+    PvPArathiBasin49 = 9;
+    PvPArathiBasin59 = 10;
+    PvPArathiBasin60 = 11;
+    PvPAlteracValley = 12;
+    PvERagefireChasm = 13;
+    PvEWailingCaverns = 14;
+    PvETheDeadmines = 15;
+    PvEShadowfangKeep = 16;
+    PvETheStockade = 17;
+    PvERazorfenKraul = 18;
+    PvEBlackfathomDeeps = 19;
+    PvEGnomeregan = 20;
+    PvESMGraveyard = 21;
+    PvESMLibrary = 22;
+    PvESMArmory = 23;
+    PvESMCathedral = 24;
+    PvERazorfenDowns = 25;
+    PvEUldaman = 26;
+    PvEZulFarrak = 27;
+    PvEMaraudonWickedGrotto = 28;
+    PvEMaraudonFoulsporeCavern = 29;
+    PvEMaraudonEarthSongFalls = 30;
+    PvETempleOfAtalHakkar = 31;
+    PvEBlackrockDepths = 32;
+    PvELowerBlackrockSpire = 33;
+    PvEUpperBlackrockSpire = 34;
+    PvEDireMaul = 35;
+    PvEStratholmeAlive = 36;
+    PvEStratholmeUndead = 37;
+    PvEScholomance = 38;
+    PvEOnyxiasLair = 39;
+    PvEZulGurub = 40;
+    PvEMoltenCore = 41;
+    PvEBlackwingLair = 42;
+    PvERuinsOfAhnQiraj = 43;
+    PvETempleOfAhnQiraj = 44;
+    PvENaxxramas = 45;
+    PvEHoggerRaid = 46;
+}
