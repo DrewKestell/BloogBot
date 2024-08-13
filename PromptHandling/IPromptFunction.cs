@@ -8,7 +8,7 @@ namespace PromptHandling
 {
     public interface IPromptFunction
     {
-        Task<T> RunAsync<T>(CancellationToken cancellationToken);
+        Task CompleteAsync(CancellationToken cancellationToken);
 
         void ResetChat();
 

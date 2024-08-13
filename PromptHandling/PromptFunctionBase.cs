@@ -65,7 +65,7 @@ namespace PromptHandling
         }
 
         protected abstract string SystemPrompt { get; }
-        public abstract Task<T> RunAsync<T>(CancellationToken cancellationToken);
+        public abstract Task CompleteAsync(CancellationToken cancellationToken);
 
         public async Task SaveChat(string directoryPath, string filePath = "chat.txt", CancellationToken cancellationToken = default)
         {
