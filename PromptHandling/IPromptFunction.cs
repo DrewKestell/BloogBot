@@ -12,7 +12,7 @@ namespace PromptHandling
 
         void ResetChat();
 
-        void SetParameter<T>(T  parameter, string name);
+        void SetParameter<T>(string? name = null, T? value = default);
 
         T GetParameter<T>(string name);
 
