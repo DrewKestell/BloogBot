@@ -1,0 +1,20 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using SQLite;
+
+namespace PromptHandling.Cache.Models
+{
+    internal class PreviousPrompts
+    {
+        [PrimaryKey, AutoIncrement]
+        public int PreviousPromptId { get; set; }
+        [Indexed]
+        public int PromptHash { get; set; }
+        public string TotalPrompt { get; set; }
+        public string Response { get; set; }
+        public DateTime SaveDate { get; set; } = DateTime.Now;
+    }
+}
