@@ -11,11 +11,11 @@ namespace BotRunner.Tasks
 
         public void Update()
         {
-            if (ObjectManager.Player.Position.DistanceTo(ObjectManager.Units.FirstOrDefault(x => x.Guid == ObjectManager.Player.TargetGuid).Position) < 3)
+            if (ObjectManager.Player.Position.DistanceTo(ObjectManager.Units.FirstOrDefault(x => x.Guid == ObjectManager.GetTarget(ObjectManager.Player).Guid).Position) < 3)
             {
                 if (!itemUsed)
                 {
-                    ObjectManager.Player.SetTarget(ObjectManager.Player.TargetGuid);
+                    ObjectManager.Player.SetTarget(ObjectManager.GetTarget(ObjectManager.Player).Guid);
                     ObjectManager.Player.StopMovement(ControlBits.Nothing);
                     usableItem.Use();
 
@@ -29,7 +29,7 @@ namespace BotRunner.Tasks
             }
             else
             {
-                Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Units.FirstOrDefault(x => x.Guid == ObjectManager.Player.TargetGuid).Position, true);
+                Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Units.FirstOrDefault(x => x.Guid == ObjectManager.GetTarget(ObjectManager.Player).Guid).Position, true);
                 ObjectManager.Player.MoveToward(nextWaypoint[0]);
             }
         }

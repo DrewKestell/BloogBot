@@ -34,7 +34,7 @@ namespace RogueAssassin.Tasks
                 return;
             }
 
-            if (ObjectManager.Player.Target == null || ObjectManager.Player.Target.HealthPercent <= 0)
+            if (ObjectManager.GetTarget(ObjectManager.Player) == null || ObjectManager.GetTarget(ObjectManager.Player).HealthPercent <= 0)
             {
                 ObjectManager.Player.SetTarget(ObjectManager.Aggressors.First().Guid);
             }
@@ -98,7 +98,7 @@ namespace RogueAssassin.Tasks
 
             // set secondaryTarget
             // if (ObjectManager.Aggressors.Count() == 2 && secondaryTarget == null)
-            //    secondaryTarget = ObjectManager.Aggressors.Single(u => u.Guid != ObjectManager.Player.TargetGuid);
+            //    secondaryTarget = ObjectManager.Aggressors.Single(u => u.Guid != ObjectManager.GetTarget(ObjectManager.Player).Guid);
 
             //if (secondaryTarget != null && !secondaryTarget.HasDebuff(Blind))
             // {
@@ -109,22 +109,22 @@ namespace RogueAssassin.Tasks
             // ----- COMBAT ROTATION -----
 
             bool readyToEviscerate =
-                ObjectManager.Player.Target.HealthPercent <= 20 && ObjectManager.Player.ComboPoints >= 2
-                || ObjectManager.Player.Target.HealthPercent <= 30 && ObjectManager.Player.ComboPoints >= 3
-                || ObjectManager.Player.Target.HealthPercent <= 40 && ObjectManager.Player.ComboPoints >= 4
+                ObjectManager.GetTarget(ObjectManager.Player).HealthPercent <= 20 && ObjectManager.Player.ComboPoints >= 2
+                || ObjectManager.GetTarget(ObjectManager.Player).HealthPercent <= 30 && ObjectManager.Player.ComboPoints >= 3
+                || ObjectManager.GetTarget(ObjectManager.Player).HealthPercent <= 40 && ObjectManager.Player.ComboPoints >= 4
                 || ObjectManager.Player.ComboPoints == 5;
             
             TryUseAbility(Eviscerate, 35, readyToEviscerate);
 
-            TryUseAbility(SliceAndDice, 25, !ObjectManager.Player.HasBuff(SliceAndDice) && ObjectManager.Player.Target.HealthPercent > 40 && ObjectManager.Player.ComboPoints <= 3 && ObjectManager.Player.ComboPoints >= 2);
+            TryUseAbility(SliceAndDice, 25, !ObjectManager.Player.HasBuff(SliceAndDice) && ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 40 && ObjectManager.Player.ComboPoints <= 3 && ObjectManager.Player.ComboPoints >= 2);
 
-            // TryUseAbility(ExposeArmor, 25, ObjectManager.Player.HasBuff(SliceAndDice) && ObjectManager.Player.Target.HealthPercent > 50 && ObjectManager.Player.ComboPoints <= 2 && ObjectManager.Player.ComboPoints >= 1);
+            // TryUseAbility(ExposeArmor, 25, ObjectManager.Player.HasBuff(SliceAndDice) && ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 50 && ObjectManager.Player.ComboPoints <= 2 && ObjectManager.Player.ComboPoints >= 1);
 
             TryUseAbility(SinisterStrike, 45, !ObjectManager.Player.IsSpellReady(GhostlyStrike) && !ReadyToInterrupt() && ObjectManager.Player.ComboPoints < 5 && !readyToEviscerate);
         
             TryUseAbility(GhostlyStrike, 40, ObjectManager.Player.IsSpellReady(GhostlyStrike) && ObjectManager.Player.IsSpellReady(GhostlyStrike) && !ReadyToInterrupt() && ObjectManager.Player.ComboPoints < 5 && !readyToEviscerate);
 
-            TryUseAbilityById(BloodFury, 3, 0, ObjectManager.Player.IsSpellReady(BloodFury) && ObjectManager.Player.Target.HealthPercent > 80);
+            TryUseAbilityById(BloodFury, 3, 0, ObjectManager.Player.IsSpellReady(BloodFury) && ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 80);
 
             TryUseAbility(Evasion, 0, ObjectManager.Aggressors.Count() > 1);
 
@@ -149,7 +149,7 @@ namespace RogueAssassin.Tasks
             riposteStartTime = Environment.TickCount;
         }
 
-        private bool ReadyToInterrupt() => ObjectManager.Player.Target.Mana > 0 && (ObjectManager.Player.Target.IsCasting || ObjectManager.Player.Target.IsChanneling);
+        private bool ReadyToInterrupt() => ObjectManager.GetTarget(ObjectManager.Player).Mana > 0 && (ObjectManager.GetTarget(ObjectManager.Player).IsCasting || ObjectManager.GetTarget(ObjectManager.Player).IsChanneling);
 
         public override void PerformCombatRotation()
         {

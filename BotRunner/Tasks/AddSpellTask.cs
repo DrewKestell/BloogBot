@@ -13,7 +13,7 @@ namespace BotRunner.Tasks
                 ObjectManager.Player.StopAllMovement();
             }
 
-            if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
+            if (ObjectManager.GetTarget(ObjectManager.Player).Guid == ObjectManager.Player.Guid)
             {
                 ObjectManager.SendChatMessage($".learn {spellId}");
                 BotTasks.Pop();

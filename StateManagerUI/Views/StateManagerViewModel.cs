@@ -177,8 +177,6 @@ namespace StateManagerUI.Views
 
                     try
                     {
-                        
-
                         OnPropertyChanged(nameof(ActivityViewModels));
                         OnPropertyChanged(nameof(SelectedActivityIndex));
                         OnPropertyChanged(nameof(SelectedActivity));

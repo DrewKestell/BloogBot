@@ -3,27 +3,25 @@ using static BotRunner.Constants.Spellbook;
 
 namespace BotRunner.Interfaces
 {
-    public interface IWoWUnit : IWoWObject
+    public interface IWoWUnit : IWoWGameObject
     {
-        string Name { get; }
         ulong TargetGuid { get; }
-        IWoWUnit Target { get; }
         uint Health { get; }
         uint MaxHealth { get; }
         uint HealthPercent => (uint)(Health / (float)MaxHealth * 100);
-        Dictionary<Powers, uint> Power { get; }
-        Dictionary<Powers, uint> MaxPower { get; }
-        uint Mana => Power.TryGetValue(Powers.MANA, out uint value) ? value : 0;
-        uint MaxMana => MaxPower.TryGetValue(Powers.MANA, out uint value) ? value : 0;
+        Dictionary<Powers, uint> Powers { get; }
+        Dictionary<Powers, uint> MaxPowers { get; }
+        uint Mana => Powers.TryGetValue(Interfaces.Powers.MANA, out uint value) ? value : 0;
+        uint MaxMana => MaxPowers.TryGetValue(Interfaces.Powers.MANA, out uint value) ? value : 0;
         uint ManaPercent => (uint)(Mana / (float)MaxMana * 100);
-        uint Rage => Power.TryGetValue(Powers.RAGE, out uint value) ? value : 0;
-        uint MaxRage => MaxPower.TryGetValue(Powers.RAGE, out uint value) ? value : 0;
+        uint Rage => Powers.TryGetValue(Interfaces.Powers.RAGE, out uint value) ? value : 0;
+        uint MaxRage => MaxPowers.TryGetValue(Interfaces.Powers.RAGE, out uint value) ? value : 0;
         uint RagePercent => (uint)(Rage / (float)MaxRage * 100);
-        uint Energy => Power.TryGetValue(Powers.ENERGY, out uint value) ? value : 0;
-        uint MaxEnergy => MaxPower.TryGetValue(Powers.ENERGY, out uint value) ? value : 0;
+        uint Energy => Powers.TryGetValue(Interfaces.Powers.ENERGY, out uint value) ? value : 0;
+        uint MaxEnergy => MaxPowers.TryGetValue(Interfaces.Powers.ENERGY, out uint value) ? value : 0;
         uint EnergyPercent => (uint)(Energy / (float)MaxEnergy * 100);
-        uint Focus => Power.TryGetValue(Powers.FOCUS, out uint value) ? value : 0;
-        uint MaxFocus => MaxPower.TryGetValue(Powers.FOCUS, out uint value) ? value : 0;
+        uint Focus => Powers.TryGetValue(Interfaces.Powers.FOCUS, out uint value) ? value : 0;
+        uint MaxFocus => MaxPowers.TryGetValue(Interfaces.Powers.FOCUS, out uint value) ? value : 0;
         uint FocusPercent => (uint)(Focus / (float)MaxFocus * 100);
         bool IsPet => SummonedByGuid > 0;
         ulong SummonedByGuid { get; }
@@ -45,8 +43,6 @@ namespace BotRunner.Interfaces
         bool IsMoving => MovementFlags != MovementFlags.MOVEFLAG_NONE;
         bool IsSwimming => MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SWIMMING);
         
-        uint Level { get; }
-
         bool HasBuff(string buffName);
         bool HasDebuff(string debuffName);
         IEnumerable<ISpellEffect> GetDebuffs();
@@ -87,7 +83,28 @@ namespace BotRunner.Interfaces
         ENERGY,
         HAPPINESS
     }
-
+    [Flags]
+    public enum NPCFlags
+    {
+        UNIT_NPC_FLAG_NONE = 0x00000000,
+        UNIT_NPC_FLAG_GOSSIP = 0x00000001,       ///< 100%
+        UNIT_NPC_FLAG_QUESTGIVER = 0x00000002,       ///< 100%
+        UNIT_NPC_FLAG_VENDOR = 0x00000004,       ///< 100%
+        UNIT_NPC_FLAG_FLIGHTMASTER = 0x00000008,       ///< 100%
+        UNIT_NPC_FLAG_TRAINER = 0x00000010,       ///< 100%
+        UNIT_NPC_FLAG_SPIRITHEALER = 0x00000020,       ///< guessed
+        UNIT_NPC_FLAG_SPIRITGUIDE = 0x00000040,       ///< guessed
+        UNIT_NPC_FLAG_INNKEEPER = 0x00000080,       ///< 100%
+        UNIT_NPC_FLAG_BANKER = 0x00000100,       ///< 100%
+        UNIT_NPC_FLAG_PETITIONER = 0x00000200,       ///< 100% 0xC0000 = guild petitions
+        UNIT_NPC_FLAG_TABARDDESIGNER = 0x00000400,       ///< 100%
+        UNIT_NPC_FLAG_BATTLEMASTER = 0x00000800,       ///< 100%
+        UNIT_NPC_FLAG_AUCTIONEER = 0x00001000,       ///< 100%
+        UNIT_NPC_FLAG_STABLEMASTER = 0x00002000,       ///< 100%
+        UNIT_NPC_FLAG_REPAIR = 0x00004000,       ///< 100%
+        UNIT_NPC_FLAG_SPELLCLICK = 0x01000000,       // cause client to send 1015 opcode (spell click), dynamic, set at loading and don't must be set in DB
+        UNIT_NPC_FLAG_OUTDOORPVP = 0x20000000        ///< custom flag for outdoor pvp creatures || Custom flag
+    }
     [Flags]
     public enum DynamicFlags
     {
@@ -536,28 +553,6 @@ namespace BotRunner.Interfaces
         UNIT_FLAG_POSSESSED = 0x01000000,           ///< used in spell Eyes of the Beast for pet... let attack by controlled creature |// Unit is under remote control by another unit, movement checks disabled, paired with loss of client control packet. New master is allowed to use melee attack and can't select this unit via mouse in the world (as if it was own character).
         UNIT_FLAG_UNK_28 = 0x10000000,
         UNIT_FLAG_UNK_29 = 0x20000000            ///< used in Feign Death spell
-    }
-    [Flags]
-    public enum NPCFlags
-    {
-        UNIT_NPC_FLAG_NONE = 0x00000000,
-        UNIT_NPC_FLAG_GOSSIP = 0x00000001,       ///< 100%
-        UNIT_NPC_FLAG_QUESTGIVER = 0x00000002,       ///< 100%
-        UNIT_NPC_FLAG_VENDOR = 0x00000004,       ///< 100%
-        UNIT_NPC_FLAG_FLIGHTMASTER = 0x00000008,       ///< 100%
-        UNIT_NPC_FLAG_TRAINER = 0x00000010,       ///< 100%
-        UNIT_NPC_FLAG_SPIRITHEALER = 0x00000020,       ///< guessed
-        UNIT_NPC_FLAG_SPIRITGUIDE = 0x00000040,       ///< guessed
-        UNIT_NPC_FLAG_INNKEEPER = 0x00000080,       ///< 100%
-        UNIT_NPC_FLAG_BANKER = 0x00000100,       ///< 100%
-        UNIT_NPC_FLAG_PETITIONER = 0x00000200,       ///< 100% 0xC0000 = guild petitions
-        UNIT_NPC_FLAG_TABARDDESIGNER = 0x00000400,       ///< 100%
-        UNIT_NPC_FLAG_BATTLEMASTER = 0x00000800,       ///< 100%
-        UNIT_NPC_FLAG_AUCTIONEER = 0x00001000,       ///< 100%
-        UNIT_NPC_FLAG_STABLEMASTER = 0x00002000,       ///< 100%
-        UNIT_NPC_FLAG_REPAIR = 0x00004000,       ///< 100%
-        UNIT_NPC_FLAG_SPELLCLICK = 0x01000000,       // cause client to send 1015 opcode (spell click), dynamic, set at loading and don't must be set in DB
-        UNIT_NPC_FLAG_OUTDOORPVP = 0x20000000        ///< custom flag for outdoor pvp creatures || Custom flag
     }
     public enum DiminishingLevels
     {

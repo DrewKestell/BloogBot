@@ -28,7 +28,7 @@ namespace WarlockAffliction.Tasks
                 return;
             }
 
-            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position);
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.GetTarget(ObjectManager.Player).Position);
             if (distanceToTarget < 27 && ObjectManager.Player.IsCasting && ObjectManager.Player.IsSpellReady(pullingSpell))
             {
                 if (ObjectManager.Player.MovementFlags != MovementFlags.MOVEFLAG_NONE)
@@ -46,7 +46,7 @@ namespace WarlockAffliction.Tasks
                 return;
             }
 
-            Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+            Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.GetTarget(ObjectManager.Player).Position, true);
             if (nextWaypoint.Length > 1)
             {
                 currentWaypoint = nextWaypoint[1];

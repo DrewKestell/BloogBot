@@ -1,5 +1,7 @@
 ﻿using ActivityForegroundMember.Mem;
+using BotRunner.Base;
 using BotRunner.Interfaces;
+using BotRunner.Models;
 
 namespace ActivityForegroundMember.Objects
 {
@@ -9,7 +11,7 @@ namespace ActivityForegroundMember.Objects
 
         internal LocalPet(
             nint pointer,
-            ulong guid,
+            HighGuid guid,
             WoWObjectType objectType)
             : base(pointer, guid, objectType)
         {

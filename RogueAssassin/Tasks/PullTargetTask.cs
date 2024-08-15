@@ -17,14 +17,14 @@ namespace RogueAssassin.Tasks
 
         public void Update()
         {
-            if (ObjectManager.Player.Target.TappedByOther)
+            if (ObjectManager.GetTarget(ObjectManager.Player).TappedByOther)
             {
                 ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
                 return;
             }
 
-            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position);
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.GetTarget(ObjectManager.Player).Position);
             if (distanceToTarget < 30 && !ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(Garrote) && !ObjectManager.Player.IsInCombat)
                 ObjectManager.Player.CastSpell(Stealth);
 
@@ -93,27 +93,27 @@ namespace RogueAssassin.Tasks
 
             if (distanceToTarget < 25 && ObjectManager.Player.IsSpellReady(Distract) && ObjectManager.Player.IsSpellReady(Distract) && ObjectManager.Player.HasBuff(Stealth))
             {
-                //var delta = ObjectManager.Player.Target.Position - ObjectManager.Player.Position;
+                //var delta = ObjectManager.GetTarget(ObjectManager.Player).Position - ObjectManager.Player.Position;
                 //var normalizedVector = delta.GetNormalizedVector();
                 //var scaledVector = normalizedVector * 5;
-                //var targetPosition = ObjectManager.Player.Target.Position + scaledVector;
+                //var targetPosition = ObjectManager.GetTarget(ObjectManager.Player).Position + scaledVector;
 
                 //Functions.CastSpellAtPosition(Distract, targe.Position);
             }
 
-            if (distanceToTarget < 5 && ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(Ambush) && DaggerEquipped && !ObjectManager.Player.IsInCombat && ObjectManager.Player.IsBehind(ObjectManager.Player.Target))
+            if (distanceToTarget < 5 && ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(Ambush) && DaggerEquipped && !ObjectManager.Player.IsInCombat && ObjectManager.Player.IsBehind(ObjectManager.GetTarget(ObjectManager.Player)))
             {
                 ObjectManager.Player.CastSpell(Ambush);
                 return;
             }
 
-            if (distanceToTarget < 5 && ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(Garrote) && !DaggerEquipped && !ObjectManager.Player.IsInCombat && ObjectManager.Player.IsBehind(ObjectManager.Player.Target))
+            if (distanceToTarget < 5 && ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(Garrote) && !DaggerEquipped && !ObjectManager.Player.IsInCombat && ObjectManager.Player.IsBehind(ObjectManager.GetTarget(ObjectManager.Player)))
             {
                 ObjectManager.Player.CastSpell(Garrote);
                 return;
             }
 
-            if (distanceToTarget < 5 && ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(CheapShot) && !ObjectManager.Player.IsInCombat && !ObjectManager.Player.IsBehind(ObjectManager.Player.Target))
+            if (distanceToTarget < 5 && ObjectManager.Player.HasBuff(Stealth) && ObjectManager.Player.IsSpellReady(CheapShot) && !ObjectManager.Player.IsInCombat && !ObjectManager.Player.IsBehind(ObjectManager.GetTarget(ObjectManager.Player)))
             {
                 ObjectManager.Player.CastSpell(CheapShot);
                 return;
@@ -127,7 +127,7 @@ namespace RogueAssassin.Tasks
                 return;
             }
 
-            Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+            Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.GetTarget(ObjectManager.Player).Position, true);
             ObjectManager.Player.MoveToward(nextWaypoint[0]);
         }
     }

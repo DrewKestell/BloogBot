@@ -14,7 +14,7 @@ namespace BotRunner.Tasks
 
         public bool Update(int desiredRange)
         {
-            if (ObjectManager.Player.TargetGuid != 0) return true;
+            if (ObjectManager.GetTarget(ObjectManager.Player) != null) return true;
 
             if (ObjectManager.Aggressors.Any(x => x.TargetGuid == ObjectManager.Player.Guid))
             {
@@ -22,7 +22,7 @@ namespace BotRunner.Tasks
                 return true;
             }
 
-            hostileTargetLastPosition = ObjectManager.Player.Target.Position;
+            hostileTargetLastPosition = ObjectManager.GetTarget(ObjectManager.Player).Position;
             // melee classes occasionally end up in a weird state where they are too close to hit the mob,
             // so we backpedal a bit to correct the position
             if (backpedaling && Environment.TickCount - backpedalStartTime > 500)
@@ -35,17 +35,17 @@ namespace BotRunner.Tasks
 
             // the server-side los check is broken on Kronos, so we have to rely on an error message on the client.
             // when we see it, move toward the unit a bit to correct the position.
-            if (!ObjectManager.Player.InLosWith(ObjectManager.Player.Target) || ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) > desiredRange)
+            if (!ObjectManager.Player.InLosWith(ObjectManager.GetTarget(ObjectManager.Player)) || ObjectManager.Player.Position.DistanceTo(ObjectManager.GetTarget(ObjectManager.Player).Position) > desiredRange)
             {
-                if (ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) <= desiredRange)
+                if (ObjectManager.Player.Position.DistanceTo(ObjectManager.GetTarget(ObjectManager.Player).Position) <= desiredRange)
                 {
                     ObjectManager.Player.StopAllMovement();
 
-                    ObjectManager.Player.Face(ObjectManager.Player.Target.Position);
+                    ObjectManager.Player.Face(ObjectManager.GetTarget(ObjectManager.Player).Position);
                 }
                 else
                 {
-                    Position[] locations = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.GetPointBehindUnit(3), true);
+                    Position[] locations = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.GetTarget(ObjectManager.Player).GetPointBehindUnit(3), true);
 
                     ObjectManager.Player.MoveToward(locations[1]);
                     return true;
@@ -56,8 +56,8 @@ namespace BotRunner.Tasks
                 ObjectManager.Player.StopAllMovement();
 
                 // ensure we're facing the target
-                if (!ObjectManager.Player.IsFacing(ObjectManager.Player.Target.Position))
-                    ObjectManager.Player.Face(ObjectManager.Player.Target.Position);
+                if (!ObjectManager.Player.IsFacing(ObjectManager.GetTarget(ObjectManager.Player).Position))
+                    ObjectManager.Player.Face(ObjectManager.GetTarget(ObjectManager.Player).Position);
 
                 // make sure casters don't move or anything while they're casting by returning here
                 if ((ObjectManager.Player.IsCasting || ObjectManager.Player.IsChanneling) && ObjectManager.Player.Class != Class.Warrior && ObjectManager.Player.Class != Class.Rogue)
@@ -85,16 +85,16 @@ namespace BotRunner.Tasks
 
         public bool MoveBehindTarget(float distance)
         {
-            if (ObjectManager.Player.Target == null) return true;
+            if (ObjectManager.GetTarget(ObjectManager.Player) == null) return true;
 
-            if (ObjectManager.Player.IsBehind(ObjectManager.Player.Target)
-                && ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) < distance + 1
-                && ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) > distance - 1)
+            if (ObjectManager.Player.IsBehind(ObjectManager.GetTarget(ObjectManager.Player))
+                && ObjectManager.Player.Position.DistanceTo(ObjectManager.GetTarget(ObjectManager.Player).Position) < distance + 1
+                && ObjectManager.Player.Position.DistanceTo(ObjectManager.GetTarget(ObjectManager.Player).Position) > distance - 1)
             {
                 return false;
             }
 
-            Position[] locations = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.GetPointBehindUnit(distance), true);
+            Position[] locations = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.GetTarget(ObjectManager.Player).GetPointBehindUnit(distance), true);
 
             ObjectManager.Player.MoveToward(locations[1]);
             return true;
@@ -141,9 +141,9 @@ namespace BotRunner.Tasks
 
         public bool MoveTowardsTarget()
         {
-            if (!ObjectManager.Player.InLosWith(ObjectManager.Player.Target))
+            if (!ObjectManager.Player.InLosWith(ObjectManager.GetTarget(ObjectManager.Player)))
             {
-                Position[] locations = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+                Position[] locations = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.GetTarget(ObjectManager.Player).Position, true);
 
                 ObjectManager.Player.MoveToward(locations[1]);
                 return true;
@@ -157,11 +157,11 @@ namespace BotRunner.Tasks
 
         public bool TargetMovingTowardPlayer =>
             hostileTargetLastPosition != null &&
-            hostileTargetLastPosition.DistanceTo(ObjectManager.Player.Position) > ObjectManager.Player.Target.Position.DistanceTo(ObjectManager.Player.Position);
+            hostileTargetLastPosition.DistanceTo(ObjectManager.Player.Position) > ObjectManager.GetTarget(ObjectManager.Player).Position.DistanceTo(ObjectManager.Player.Position);
 
         public bool TargetIsFleeing =>
             hostileTargetLastPosition != null &&
-            hostileTargetLastPosition.DistanceTo(ObjectManager.Player.Position) < ObjectManager.Player.Target.Position.DistanceTo(ObjectManager.Player.Position);
+            hostileTargetLastPosition.DistanceTo(ObjectManager.Player.Position) < ObjectManager.GetTarget(ObjectManager.Player).Position.DistanceTo(ObjectManager.Player.Position);
 
         public void TryCastSpell(string name, int minRange, int maxRange, bool condition = true, Action callback = null, bool castOnSelf = false) =>
             TryCastSpellInternal(name, minRange, maxRange, condition, callback, castOnSelf);
@@ -171,9 +171,9 @@ namespace BotRunner.Tasks
 
         private void TryCastSpellInternal(string name, int minRange, int maxRange, bool condition = true, Action callback = null, bool castOnSelf = false)
         {
-            if (ObjectManager.Player.Target == null) return;
+            if (ObjectManager.GetTarget(ObjectManager.Player) == null) return;
 
-            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position);
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.GetTarget(ObjectManager.Player).Position);
 
             if (ObjectManager.Player.IsSpellReady(name)
                 && distanceToTarget >= minRange
@@ -219,9 +219,9 @@ namespace BotRunner.Tasks
 
         public bool TargetIsHostile()
         {
-            if (ObjectManager.Player.TargetGuid == 0)
+            if (ObjectManager.GetTarget(ObjectManager.Player) == null)
                 return false;
-            return ObjectManager.Aggressors.Any(x => x.Guid == ObjectManager.Player.TargetGuid);
+            return ObjectManager.Aggressors.Any(x => x.Guid == ObjectManager.GetTarget(ObjectManager.Player).Guid);
         }
 
         public void AssignDPSTarget()

@@ -1,23 +1,27 @@
 ﻿using BotRunner.Constants;
-using Communication;
+using BotRunner.Models;
 
 namespace BotRunner.Interfaces
 {
     public interface IObjectManager
     {
-        ulong PlayerGuid { get; }
+        HighGuid PlayerGuid { get; }
         uint MapId { get; }
         string ZoneText { get; }
         string MinimapZoneText { get; }
         string ServerName { get; }
         ILocalPlayer Player { get; }
         ILocalPet Pet { get; }
-        void Initialize(ActivityMemberState parProbe, IWoWEventHandler eventHandler);
+        IList<IWoWObject> Objects { get; }
         IEnumerable<IWoWGameObject> GameObjects { get; }
         IEnumerable<IWoWUnit> Units { get; }
         IEnumerable<IWoWPlayer> Players { get; }
         IEnumerable<IWoWItem> Items { get; }
         IEnumerable<IWoWContainer> Containers { get; }
+        IEnumerable<IWoWUnit> CasterAggressors { get; }
+        IEnumerable<IWoWUnit> MeleeAggressors { get; }
+        IEnumerable<IWoWUnit> Aggressors { get; }
+        IEnumerable<IWoWUnit> Hostiles { get; }
         IEnumerable<IWoWPlayer> PartyMembers { get; }
         IWoWPlayer PartyLeader { get; }
         ulong PartyLeaderGuid { get; }
@@ -34,13 +38,9 @@ namespace BotRunner.Interfaces
         ulong CrossTargetGuid { get; }
         ulong SkullTargetGuid { get; }
         void AntiAfk();
-        IEnumerable<IWoWUnit> CasterAggressors { get; }
-        IEnumerable<IWoWUnit> MeleeAggressors { get; }
-        IEnumerable<IWoWUnit> Aggressors { get; }
-        IEnumerable<IWoWUnit> Hostiles { get; }
         string GlueDialogText { get; }
         LoginStates LoginState { get; }
-
+        IWoWUnit GetTarget(IWoWUnit woWUnit);
         sbyte GetTalentRank(uint tabIndex, uint talentIndex);
         void PickupInventoryItem(uint inventorySlot);
         void DeleteCursorItem();

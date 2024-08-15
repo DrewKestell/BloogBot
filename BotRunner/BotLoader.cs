@@ -29,7 +29,7 @@ namespace BotRunner
 
             string currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            string[] botPaths = {
+            string[] botPaths = [
                 "AfflictionWarlockBot.dll",
                 "ArcaneMageBot.dll",
                 "ArmsWarriorBot.dll",
@@ -46,7 +46,7 @@ namespace BotRunner
                 "ProtectionWarriorBot.dll",
                 "RetributionPaladinBot.dll",
                 "ShadowPriestBot.dll"
-            };
+            ];
 
             foreach (string botPath in botPaths)
             {
@@ -95,12 +95,12 @@ namespace BotRunner
 
         private static string GetAssemblyPath(string currentFolder, string botPath)
         {
-            string[] searchPaths = {
+            string[] searchPaths = [
                 currentFolder,
                 Path.Combine(Directory.GetParent(currentFolder).FullName),
                 Path.Combine(currentFolder, "Debug"),
                 Path.Combine(currentFolder, "Release")
-            };
+            ];
 
             foreach (var searchPath in searchPaths)
             {

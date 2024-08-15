@@ -7,7 +7,7 @@ namespace ActivityForegroundMember
         private static BotRunner.BotRunner _botRunner;
         public static void Main(string[] args)
         {
-            _botRunner = new(new ObjectManager(), WoWEventHandler.Instance);
+            _botRunner = new(new ObjectManager(WoWEventHandler.Instance, new Communication.ActivityMemberState()), WoWEventHandler.Instance);
         }
     }
 }

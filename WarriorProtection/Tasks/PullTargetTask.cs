@@ -56,7 +56,7 @@ namespace WarriorProtection.Tasks
 
         public void Update()
         {
-            if (ObjectManager.Player.Target == null || ObjectManager.Player.Target.HealthPercent == 0)
+            if (ObjectManager.GetTarget(ObjectManager.Player) == null || ObjectManager.GetTarget(ObjectManager.Player).HealthPercent == 0)
             {
                 BotTasks.Pop();
                 return;
@@ -69,7 +69,7 @@ namespace WarriorProtection.Tasks
                 return;
             }
 
-            if (ObjectManager.Player.Target.Health == 0 || (!ObjectManager.Player.InLosWith(ObjectManager.Player.Target) && Wait.For("LosTimer", 2000)))
+            if (ObjectManager.GetTarget(ObjectManager.Player).Health == 0 || (!ObjectManager.Player.InLosWith(ObjectManager.GetTarget(ObjectManager.Player)) && Wait.For("LosTimer", 2000)))
             {
                 if (ObjectManager.Player.IsMoving)
                     ObjectManager.Player.StopAllMovement();
@@ -77,9 +77,9 @@ namespace WarriorProtection.Tasks
                 return;
             }
 
-            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position);
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.GetTarget(ObjectManager.Player).Position);
 
-            if (distanceToTarget < 25 && distanceToTarget > 8 && ObjectManager.Player.InLosWith(ObjectManager.Player.Target))
+            if (distanceToTarget < 25 && distanceToTarget > 8 && ObjectManager.Player.InLosWith(ObjectManager.GetTarget(ObjectManager.Player)))
             {
                 ObjectManager.Player.StopAllMovement();
 
@@ -89,7 +89,7 @@ namespace WarriorProtection.Tasks
             }
             else
             {
-                Position[] locations = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+                Position[] locations = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.GetTarget(ObjectManager.Player).Position, true);
 
                 if (locations.Where(loc => loc.DistanceTo(ObjectManager.Player.Position) > 3).Any())
                 {

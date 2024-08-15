@@ -33,7 +33,7 @@ namespace PaladinProtection.Tasks
 
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
 
-            if (ObjectManager.Player.TargetGuid == ObjectManager.Player.Guid)
+            if (ObjectManager.GetTarget(ObjectManager.Player).Guid == ObjectManager.Player.Guid)
             {
                 if (ObjectManager.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
                 {

@@ -1,37 +1,24 @@
 ﻿using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using ActivityForegroundMember.Mem;
+using BotRunner.Base;
 using BotRunner.Interfaces;
+using BotRunner.Models;
 using PathfindingService.Models;
 
 namespace ActivityForegroundMember.Objects
 {
-    public unsafe abstract class WoWObject : IWoWObject
+    public unsafe abstract class WoWObject(nint pointer, HighGuid guid, WoWObjectType objectType) : BaseWoWObject(pointer, guid, objectType)
     {
-        public virtual nint Pointer { get; set; }
-        public virtual ulong Guid { get; set; }
-        public virtual WoWObjectType ObjectType { get; set; }
-
         // used for interacting in vanilla
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         private delegate void RightClickObjectDelegate(nint unitPtr, int autoLoot);
 
-        private readonly RightClickObjectDelegate rightClickObjectFunction;
+        private readonly RightClickObjectDelegate rightClickObjectFunction = Marshal.GetDelegateForFunctionPointer<RightClickObjectDelegate>(0x60BEA0);
 
-        public WoWObject() { }
-
-        public WoWObject(nint pointer, ulong guid, WoWObjectType objectType)
-        {
-            Pointer = pointer;
-            Guid = guid;
-            ObjectType = objectType;
-
-            rightClickObjectFunction = Marshal.GetDelegateForFunctionPointer<RightClickObjectDelegate>(0x60BEA0);
-        }
-        public float ScaleX => MemoryManager.ReadFloat(nint.Add(GetDescriptorPtr(), MemoryAddresses.WoWObject_ScaleXOffset));
-        public float Height => MemoryManager.ReadFloat(nint.Add(Pointer, MemoryAddresses.WoWObject_HeightOffset));
-
-        public virtual Position Position => GetPosition();
+        public override float ScaleX => MemoryManager.ReadFloat(nint.Add(GetDescriptorPtr(), MemoryAddresses.WoWObject_ScaleXOffset));
+        public override float Height => MemoryManager.ReadFloat(nint.Add(Pointer, MemoryAddresses.WoWObject_HeightOffset));
+        public override Position Position => GetPosition();
 
         [HandleProcessCorruptedStateExceptions]
         private Position GetPosition()
@@ -44,7 +31,7 @@ namespace ActivityForegroundMember.Objects
                     var y = MemoryManager.ReadFloat(nint.Add(Pointer, 0x9BC));
                     var z = MemoryManager.ReadFloat(nint.Add(Pointer, 0x9C0));
 
-                    return new Position(x, y, z);
+                    return new(x, y, z);
                 }
                 else
                 {
@@ -56,7 +43,7 @@ namespace ActivityForegroundMember.Objects
                         x = MemoryManager.ReadFloat(GetDescriptorPtr() + 0x3C);
                         y = MemoryManager.ReadFloat(GetDescriptorPtr() + (0x3C + 4));
                         z = MemoryManager.ReadFloat(GetDescriptorPtr() + (0x3C + 8));
-                        return new Position(x, y, z);
+                        return new(x, y, z);
                     }
                     var v2 = MemoryManager.ReadInt(nint.Add(Pointer, 0x210));
                     nint xyzStruct;
@@ -69,7 +56,7 @@ namespace ActivityForegroundMember.Objects
                                 x = MemoryManager.ReadFloat(v2 + 0x2c);
                                 y = MemoryManager.ReadFloat(v2 + 0x2c + 0x4);
                                 z = MemoryManager.ReadFloat(v2 + 0x2c + 0x8);
-                                return new Position(x, y, z);
+                                return new(x, y, z);
                             case 0x005F3690:
                                 v2 = (int)nint.Add(MemoryManager.ReadIntPtr(nint.Add(MemoryManager.ReadIntPtr(v2 + 0x4), 0x110)), 0x24);
                                 x = MemoryManager.ReadFloat(v2);
@@ -86,7 +73,7 @@ namespace ActivityForegroundMember.Objects
                     x = MemoryManager.ReadFloat(xyzStruct);
                     y = MemoryManager.ReadFloat(nint.Add(xyzStruct, 0x4));
                     z = MemoryManager.ReadFloat(nint.Add(xyzStruct, 0x8));
-                    return new Position(x, y, z);
+                    return new(x, y, z);
                 }
             }
             catch (AccessViolationException)
@@ -97,17 +84,10 @@ namespace ActivityForegroundMember.Objects
             {
                 Console.WriteLine($"[WOW OBJECT]{e.Message} {e.StackTrace}");
             }
-            return new Position(0, 0, 0);
+            return new(0, 0, 0);
         }
 
-        public Position GetPointBehindUnit(float parDistanceToMove)
-        {
-            var newX = Position.X + parDistanceToMove * (float)-Math.Cos(Facing);
-            var newY = Position.Y + parDistanceToMove * (float)-Math.Sin(Facing);
-            var end = new Position(newX, newY, Position.Z);
-            return end;
-        }
-        public float Facing
+        public override float Facing
         {
             get
             {
@@ -170,7 +150,7 @@ namespace ActivityForegroundMember.Objects
                     }
                     else
                     {
-                        return null;
+                        return string.Empty;
                     }
                 }
                 catch (AccessViolationException)
@@ -191,16 +171,7 @@ namespace ActivityForegroundMember.Objects
             rightClickObjectFunction(Pointer, 0);
         }
 
-        protected nint GetDescriptorPtr() => MemoryManager.ReadIntPtr(nint.Add(Pointer, MemoryAddresses.WoWObject_DescriptorOffset));
-
-
-        public uint LastUpated { get; private set; } = 0;
-
-        public uint Entry { get; private set; } = 0;
-
-        public uint Padding { get; private set; } = 0;
-
-        public bool InWorld { get; private set; } = false;
+        protected override nint GetDescriptorPtr() => MemoryManager.ReadIntPtr(nint.Add(Pointer, MemoryAddresses.WoWObject_DescriptorOffset));
 
         public bool IsFacing(Position position)
         {

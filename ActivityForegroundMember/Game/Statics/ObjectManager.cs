@@ -2,21 +2,22 @@
 using ActivityForegroundMember.Constants;
 using ActivityForegroundMember.Mem;
 using ActivityForegroundMember.Objects;
+using BotRunner.Base;
 using BotRunner.Constants;
 using BotRunner.Interfaces;
+using BotRunner.Models;
 using Communication;
 
 namespace ActivityForegroundMember.Game.Statics
 {
     public class ObjectManager : IObjectManager
     {
-        public static ObjectManager Instance { get; } = new ObjectManager();
         private const int OBJECT_TYPE_OFFSET = 0x14;
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         private delegate int EnumerateVisibleObjectsCallbackVanilla(int filter, ulong guid);
 
-        public ulong PlayerGuid { get; private set; }
+        public HighGuid PlayerGuid { get; internal set; } = new HighGuid(new byte[4], new byte[4]);
         private volatile bool _ingame1 = true;
         private readonly bool _ingame2 = true;
         public LoginStates LoginState => (LoginStates)Enum.Parse(typeof(LoginStates), MemoryManager.ReadString(Offsets.CharacterScreen.LoginState));
@@ -24,10 +25,10 @@ namespace ActivityForegroundMember.Game.Statics
         private nint callbackPtr;
         private ActivityMemberState _characterState;
 
-        internal IList<WoWObject> Objects = [];
+        public IList<WoWObject> Objects = [];
         internal IList<WoWObject> ObjectsBuffer = [];
 
-        public void Initialize(ActivityMemberState parProbe, IWoWEventHandler eventHandler)
+        public ObjectManager(IWoWEventHandler eventHandler, ActivityMemberState parProbe)
         {
             _characterState = parProbe;
 
@@ -42,17 +43,11 @@ namespace ActivityForegroundMember.Game.Statics
         public ILocalPlayer Player { get; private set; }
 
         public ILocalPet Pet { get; private set; }
-
-        public IEnumerable<IWoWUnit> Units => Objects.OfType<WoWUnit>().Where(o => o.ObjectType == WoWObjectType.Unit).ToList();
-
-        public IEnumerable<IWoWPlayer> Players => Objects.OfType<WoWPlayer>();
-
-        public IEnumerable<IWoWItem> Items => Objects.OfType<WoWItem>();
-
-        public IEnumerable<IWoWContainer> Containers => Objects.OfType<WoWContainer>();
-
-        public IEnumerable<IWoWGameObject> GameObjects => Objects.OfType<WoWGameObject>();
-
+        public IEnumerable<IWoWGameObject> GameObjects { get; }
+        public IEnumerable<IWoWUnit> Units { get; }
+        public IEnumerable<IWoWPlayer> Players { get; }
+        public IEnumerable<IWoWItem> Items { get; }
+        public IEnumerable<IWoWContainer> Containers { get; }
         public ulong StarTargetGuid => MemoryManager.ReadUlong((nint)Offsets.RaidIcon.Star, true);
         public ulong CircleTargetGuid => MemoryManager.ReadUlong((nint)Offsets.RaidIcon.Circle, true);
         public ulong DiamondTargetGuid => MemoryManager.ReadUlong((nint)Offsets.RaidIcon.Diamond, true);
@@ -401,7 +396,9 @@ namespace ActivityForegroundMember.Game.Statics
             }
         }
 
-        public int GetBagId(ulong itemGuid)
+        IList<IWoWObject> IObjectManager.Objects => throw new NotImplementedException();
+
+        public uint GetBagId(ulong itemGuid)
         {
             var totalCount = 0;
             for (var i = 0; i < 5; i++)
@@ -422,13 +419,13 @@ namespace ActivityForegroundMember.Game.Statics
                 for (var k = 0; k < slots; k++)
                 {
                     var item = GetItem(i, k);
-                    if (item?.Guid == itemGuid) return i;
+                    if (item?.Guid == itemGuid) return (uint)i;
                 }
             }
-            return totalCount;
+            return (uint)totalCount;
         }
 
-        public int GetSlotId(ulong itemGuid)
+        public uint GetSlotId(ulong itemGuid)
         {
             var totalCount = 0;
             for (var i = 0; i < 5; i++)
@@ -449,10 +446,10 @@ namespace ActivityForegroundMember.Game.Statics
                 for (var k = 0; k < slots; k++)
                 {
                     var item = GetItem(i, k);
-                    if (item?.Guid == itemGuid) return k + 1;
+                    if (item?.Guid == itemGuid) return (uint)k + 1;
                 }
             }
-            return totalCount;
+            return (uint)totalCount;
         }
 
         public IWoWItem GetEquippedItem(EquipSlot slot)
@@ -461,7 +458,7 @@ namespace ActivityForegroundMember.Game.Statics
             if (guid == 0) return null;
             return Items.FirstOrDefault(i => i.Guid == guid);
         }
-        public List<IWoWItem> GetEquippedItems()
+        public IEnumerable<IWoWItem> GetEquippedItems()
         {
             IWoWItem headItem = GetEquippedItem(EquipSlot.Head);
             IWoWItem neckItem = GetEquippedItem(EquipSlot.Neck);
@@ -577,14 +574,16 @@ namespace ActivityForegroundMember.Game.Statics
             ThreadSynchronizer.RunOnMainThread(() =>
             {
                 if (!IsLoggedIn) return;
+                ulong playerGuid = Functions.GetPlayerGuid();
+                byte[] playerGuidParts = BitConverter.GetBytes(playerGuid);
+                PlayerGuid = new HighGuid(playerGuidParts[0..4], playerGuidParts[4..8]);
 
-                PlayerGuid = Functions.GetPlayerGuid();
-                if (PlayerGuid == 0)
+                if (PlayerGuid.FullGuid == 0)
                 {
                     Player = null;
                     return;
                 }
-                var playerObject = Functions.GetObjectPtr(PlayerGuid);
+                var playerObject = Functions.GetObjectPtr(PlayerGuid.FullGuid);
                 if (playerObject == nint.Zero)
                 {
                     Player = null;
@@ -603,7 +602,7 @@ namespace ActivityForegroundMember.Game.Statics
                     {
                         if (unit.SummonedByGuid == Player?.Guid)
                         {
-                            Pet = new LocalPet(((WoWObject)unit).Pointer, unit.Guid, unit.ObjectType);
+                            Pet = new LocalPet(((WoWObject)unit).Pointer, unit.HighGuid, unit.ObjectType);
                             petFound = true;
                         }
                     }
@@ -630,32 +629,33 @@ namespace ActivityForegroundMember.Game.Statics
             if (guid == 0) return 0;
             var pointer = Functions.GetObjectPtr(guid);
             var objectType = (WoWObjectType)MemoryManager.ReadInt(nint.Add(pointer, OBJECT_TYPE_OFFSET));
-
+            byte[] guidParts = BitConverter.GetBytes(guid);
+            HighGuid highGuid = new (guidParts[0..4], guidParts[4..8]);
             try
             {
                 switch (objectType)
                 {
                     case WoWObjectType.Container:
-                        ObjectsBuffer.Add(new WoWContainer(pointer, guid, objectType));
+                        ObjectsBuffer.Add(new WoWContainer(pointer, highGuid, objectType));
                         break;
                     case WoWObjectType.Item:
-                        ObjectsBuffer.Add(new WoWItem(pointer, guid, objectType));
+                        ObjectsBuffer.Add(new WoWItem(pointer, highGuid, objectType));
                         break;
                     case WoWObjectType.Player:
-                        if (guid == PlayerGuid)
+                        if (guid == PlayerGuid.FullGuid)
                         {
-                            var player = new LocalPlayer(pointer, guid, objectType);
+                            var player = new LocalPlayer(pointer, highGuid, objectType);
                             Player = player;
                             ObjectsBuffer.Add(player);
                         }
                         else
-                            ObjectsBuffer.Add(new WoWPlayer(pointer, guid, objectType));
+                            ObjectsBuffer.Add(new WoWPlayer(pointer, highGuid, objectType));
                         break;
                     case WoWObjectType.GameObj:
-                        ObjectsBuffer.Add(new WoWGameObject(pointer, guid, objectType));
+                        ObjectsBuffer.Add(new WoWGameObject(pointer, highGuid, objectType));
                         break;
                     case WoWObjectType.Unit:
-                        ObjectsBuffer.Add(new WoWUnit(pointer, guid, objectType));
+                        ObjectsBuffer.Add(new WoWUnit(pointer, highGuid, objectType));
                         break;
                 }
             }
@@ -913,27 +913,17 @@ namespace ActivityForegroundMember.Game.Statics
             throw new NotImplementedException();
         }
 
-        IEnumerable<IWoWItem> IObjectManager.GetEquippedItems()
-        {
-            throw new NotImplementedException();
-        }
-
         public void UseContainerItem(int v1, int v2)
         {
             throw new NotImplementedException();
         }
 
-        uint IObjectManager.GetBagId(ulong guid)
-        {
-            throw new NotImplementedException();
-        }
-
-        uint IObjectManager.GetSlotId(ulong guid)
-        {
-            throw new NotImplementedException();
-        }
-
         public void PickupContainerItem(uint v1, uint v2)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IWoWUnit GetTarget(IWoWUnit woWUnit)
         {
             throw new NotImplementedException();
         }

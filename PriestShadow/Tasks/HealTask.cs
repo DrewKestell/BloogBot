@@ -19,13 +19,13 @@ namespace PriestShadow.Tasks
 
         public void Update()
         {
-            List<IWoWPlayer> unhealthyMembers = ObjectManager.PartyMembers.Where(x => x.HealthPercent < 70).OrderBy(x => x.Health).ToList();
+            List<IWoWPlayer> unhealthyMembers = [.. ObjectManager.PartyMembers.Where(x => x.HealthPercent < 70).OrderBy(x => x.Health)];
 
             if (unhealthyMembers.Count > 0 && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(healingSpell))
             {
                 ObjectManager.Player.SetTarget(unhealthyMembers[0].Guid);
 
-                if (ObjectManager.Player.Target == null || ObjectManager.Player.Target.Guid != unhealthyMembers[0].Guid)
+                if (ObjectManager.GetTarget(ObjectManager.Player) == null || ObjectManager.GetTarget(ObjectManager.Player).Guid != unhealthyMembers[0].Guid)
                     return;
             }
             else
@@ -35,21 +35,21 @@ namespace PriestShadow.Tasks
                 return;
             }
 
-            if (ObjectManager.Player.IsCasting || ObjectManager.Player.Target == null)
+            if (ObjectManager.Player.IsCasting || ObjectManager.GetTarget(ObjectManager.Player) == null)
                 return;
 
-            if (ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) < 40 && ObjectManager.Player.InLosWith(ObjectManager.Player.Target))
+            if (ObjectManager.Player.Position.DistanceTo(ObjectManager.GetTarget(ObjectManager.Player).Position) < 40 && ObjectManager.Player.InLosWith(ObjectManager.GetTarget(ObjectManager.Player)))
             {
                 ObjectManager.Player.StopAllMovement();
 
-                if (!ObjectManager.Player.Target.HasBuff(Renew))
+                if (!ObjectManager.GetTarget(ObjectManager.Player).HasBuff(Renew))
                     ObjectManager.Player.CastSpell(Renew);
                 if (ObjectManager.Player.IsSpellReady(healingSpell))
                     ObjectManager.Player.CastSpell(healingSpell);
             }
             else
             {
-                Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+                Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.GetTarget(ObjectManager.Player).Position, true);
 
                 if (nextWaypoint.Length > 1)
                 {

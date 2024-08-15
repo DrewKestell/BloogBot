@@ -14,7 +14,7 @@ namespace WoWSharpClient
         private readonly ObjectUpdateHandler _objectUpdateHandler;
         private readonly AccountDataHandler _accountDataHandler;
         private readonly ChatHandler _chatHandlerHandler;
-        private readonly CharacterHandler _characterHandler;
+        private readonly CharacterSelectHandler _characterHandler;
         private readonly LoginHandler _loginHandler;
         private readonly SpellHandler _spellHandler;
         private readonly StandStateHandler _standStateHandler;
@@ -28,7 +28,7 @@ namespace WoWSharpClient
             _objectUpdateHandler = new ObjectUpdateHandler(_woWSharpEventEmitter, _objectManager);
             _accountDataHandler = new AccountDataHandler(_woWSharpEventEmitter, _objectManager);
             _chatHandlerHandler = new ChatHandler(_woWSharpEventEmitter, _objectManager);
-            _characterHandler = new CharacterHandler(_woWSharpEventEmitter, _objectManager);
+            _characterHandler = new CharacterSelectHandler(_woWSharpEventEmitter, _objectManager);
             _loginHandler = new LoginHandler(_woWSharpEventEmitter, _objectManager);
             _spellHandler = new SpellHandler(_woWSharpEventEmitter, _objectManager);
             _standStateHandler = new StandStateHandler(_woWSharpEventEmitter, _objectManager);
@@ -69,6 +69,8 @@ namespace WoWSharpClient
 
         public void Dispatch(Opcodes opcode, byte[] data)
         {
+            //GenerateTestFile(opcode, data);
+
             if (_handlers.TryGetValue(opcode, out var handler))
             {
                 _queue.Enqueue(() => handler(opcode, data));
@@ -77,6 +79,31 @@ namespace WoWSharpClient
             {
                 //Console.ForegroundColor = ConsoleColor.Red;
                 //Console.WriteLine($"Unhandled opcode: {opcode} {BitConverter.ToString(data)}");
+            }
+        }
+        public static void GenerateTestFile(Opcodes opcode, byte[] data)
+        {
+            try
+            {
+                // Create a directory for the opcode if it doesn't exist
+                string opcodeDirectory = Path.Combine(Directory.GetCurrentDirectory(), opcode.ToString());
+                if (!Directory.Exists(opcodeDirectory))
+                {
+                    Directory.CreateDirectory(opcodeDirectory);
+                }
+
+                // Create a unique filename based on the current timestamp
+                string fileName = $"{DateTime.Now:yyyyMMdd_HHmmssfff}.bin";
+                string filePath = Path.Combine(opcodeDirectory, fileName);
+
+                // Write the byte array to the file
+                File.WriteAllBytes(filePath, data);
+
+                Console.WriteLine($"Test file generated: {filePath}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error generating test file: {ex.Message}");
             }
         }
 
@@ -89,10 +116,7 @@ namespace WoWSharpClient
                     var action = _queue.Dequeue();
                     action();
                 }
-                else
-                {
-                    await Task.Delay(1);
-                }
+                await Task.Delay(1);
             }
         }
 

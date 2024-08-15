@@ -26,15 +26,15 @@ namespace MageFrost.Tasks
             if (ObjectManager.Player.IsCasting)
                 return;
 
-            if (ObjectManager.Player.Target.TappedByOther)
+            if (ObjectManager.GetTarget(ObjectManager.Player).TappedByOther)
             {
                 ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();
                 return;
             }
 
-            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position);
-            if (distanceToTarget <= range && ObjectManager.Player.InLosWith(ObjectManager.Player.Target))
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.GetTarget(ObjectManager.Player).Position);
+            if (distanceToTarget <= range && ObjectManager.Player.InLosWith(ObjectManager.GetTarget(ObjectManager.Player)))
             {
                 if (ObjectManager.Player.IsMoving)
                     ObjectManager.Player.StopAllMovement();
@@ -54,7 +54,7 @@ namespace MageFrost.Tasks
             }
             else
             {
-                Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+                Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.GetTarget(ObjectManager.Player).Position, true);
                 ObjectManager.Player.MoveToward(nextWaypoint[0]);
             }
         }

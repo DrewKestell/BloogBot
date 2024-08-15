@@ -15,13 +15,13 @@ namespace HunterBeastMastery.Tasks
             {
                 IWoWUnit potentialNewTarget = ObjectManager.Hostiles.First();
 
-                if (potentialNewTarget != null && potentialNewTarget.Guid != ObjectManager.Player.TargetGuid)
+                if (potentialNewTarget != null && potentialNewTarget.Guid != ObjectManager.GetTarget(ObjectManager.Player).Guid)
                 {
                     ObjectManager.Player.SetTarget(potentialNewTarget.TargetGuid);
                 }
             }
 
-            if (ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) < 28)
+            if (ObjectManager.Player.Position.DistanceTo(ObjectManager.GetTarget(ObjectManager.Player).Position) < 28)
             {
                 ObjectManager.Player.StopAllMovement();
                 ObjectManager.Player.StartRangedAttack();
@@ -31,7 +31,7 @@ namespace HunterBeastMastery.Tasks
                 return;
             } else
             {
-                Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+                Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.GetTarget(ObjectManager.Player).Position, true);
                 ObjectManager.Player.MoveToward(nextWaypoint[1]);
             }
         }

@@ -1,28 +1,14 @@
-﻿using BotRunner.Interfaces;
+﻿using BotRunner.Base;
+using BotRunner.Models;
 
 namespace WoWSharpClient.Models
 {
-    public class DynamicObject(byte[] lowGuid, byte[] highGuid, WoWObjectType objectType = WoWObjectType.DynamicObj) : GameObject(lowGuid, highGuid, objectType)
+    public class DynamicObject(HighGuid highGuid, WoWObjectType objectType = WoWObjectType.DynamicObj) : GameObject(highGuid, objectType)
     {
-        public ulong Caster { get; set; } = 0;
+        public HighGuid Caster { get; set; } = new HighGuid(new byte[4], new byte[4]);
         public uint SpellId { get; set; } = 0;
         public float Radius { get; set; } = 0.0f;
-        public byte[] Bytes { get; set; }
-
-        public void SetCaster(ulong caster)
-        {
-            Caster = caster;
-        }
-
-        public void SetSpellId(uint spellId)
-        {
-            SpellId = spellId;
-        }
-
-        public void SetRadius(float radius)
-        {
-            Radius = radius;
-        }
+        public byte[] Bytes { get; set; } = new byte[4];
 
         public void Remove()
         {

@@ -20,7 +20,7 @@ namespace BotRunner.Tasks
 
             if (Wait.For("InteractWithObjectDelay", 15000, true))
             {
-                ObjectManager.Player.Target.Interact();
+                ObjectManager.GetTarget(ObjectManager.Player).Interact();
             }
 
             if (lootFrame.LootItems.Count(x => x.Info.Name == target.Name) > initialCount)

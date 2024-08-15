@@ -33,7 +33,7 @@ namespace WarriorProtection.Tasks
 
             ObjectManager.Player.StartMeleeAttack();
 
-            List<IWoWUnit> looseUnits = ObjectManager.Aggressors.Where(x => x.TargetGuid != ObjectManager.Player.Guid).OrderBy(x => x.Position.DistanceTo(ObjectManager.Player.Position)).ToList();
+            List<IWoWUnit> looseUnits = [.. ObjectManager.Aggressors.Where(x => x.TargetGuid != ObjectManager.Player.Guid).OrderBy(x => x.Position.DistanceTo(ObjectManager.Player.Position))];
             IWoWUnit nearestHostile = ObjectManager.Hostiles.Where(x => !x.IsInCombat).OrderBy(x => x.Position.DistanceTo(ObjectManager.Player.Position)).First();
 
             if (looseUnits.Count > 0)
@@ -93,9 +93,9 @@ namespace WarriorProtection.Tasks
 
         public override void PerformCombatRotation()
         {
-            if (ObjectManager.Player.Target == null) return;
+            if (ObjectManager.GetTarget(ObjectManager.Player) == null) return;
 
-            TryUseAbility(Bloodrage, condition: ObjectManager.Player.Target.HealthPercent > 50);
+            TryUseAbility(Bloodrage, condition: ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 50);
 
             if (ObjectManager.Aggressors.Count() >= 3)
             {
@@ -121,17 +121,17 @@ namespace WarriorProtection.Tasks
 
             TryUseAbility(Revenge, 5, ObjectManager.Player.CurrentStance == DefensiveStance && overpowerStopwatch.IsRunning);
 
-            TryUseAbility(ShieldBash, 10, ObjectManager.Player.Target.IsCasting && ObjectManager.Player.Target.Mana > 0);
+            TryUseAbility(ShieldBash, 10, ObjectManager.GetTarget(ObjectManager.Player).IsCasting && ObjectManager.GetTarget(ObjectManager.Player).Mana > 0);
 
-            TryUseAbility(Rend, 10, !ObjectManager.Player.Target.HasDebuff(Rend) && ObjectManager.Player.Target.HealthPercent > 50 && ObjectManager.Player.Target.CreatureType != CreatureType.Elemental && ObjectManager.Player.Target.CreatureType != CreatureType.Undead);
+            TryUseAbility(Rend, 10, !ObjectManager.GetTarget(ObjectManager.Player).HasDebuff(Rend) && ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 50 && ObjectManager.GetTarget(ObjectManager.Player).CreatureType != CreatureType.Elemental && ObjectManager.GetTarget(ObjectManager.Player).CreatureType != CreatureType.Undead);
 
-            TryUseAbility(ShieldSlam, 20, ObjectManager.Player.Target.HealthPercent > 30);
+            TryUseAbility(ShieldSlam, 20, ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 30);
 
             TryUseAbility(SunderArmor, 15);
 
-            TryUseAbility(HeroicStrike, 40, ObjectManager.Player.Target.HealthPercent > 40 && !ObjectManager.Player.IsCasting);
+            TryUseAbility(HeroicStrike, 40, ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 40 && !ObjectManager.Player.IsCasting);
 
-            TryUseAbility(DemoralizingShout, 10, !ObjectManager.Player.Target.HasDebuff(DemoralizingShout));
+            TryUseAbility(DemoralizingShout, 10, !ObjectManager.GetTarget(ObjectManager.Player).HasDebuff(DemoralizingShout));
 
             TryUseAbility(LastStand, condition: ObjectManager.Player.HealthPercent <= 8);
 
@@ -139,9 +139,9 @@ namespace WarriorProtection.Tasks
 
             TryUseAbility(BattleShout, 10, !ObjectManager.Player.HasBuff(BattleShout));
 
-            TryUseAbility(ConcussionBlow, 15, !ObjectManager.Player.Target.IsStunned && ObjectManager.Player.Target.HealthPercent > 40);
+            TryUseAbility(ConcussionBlow, 15, !ObjectManager.GetTarget(ObjectManager.Player).IsStunned && ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 40);
 
-            TryUseAbility(Execute, 20, ObjectManager.Player.Target.HealthPercent < 20);
+            TryUseAbility(Execute, 20, ObjectManager.GetTarget(ObjectManager.Player).HealthPercent < 20);
 
             if (overpowerStopwatch.ElapsedMilliseconds > 5000)
             {

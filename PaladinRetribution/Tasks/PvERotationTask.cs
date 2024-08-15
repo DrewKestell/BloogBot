@@ -17,7 +17,7 @@ namespace PaladinRetribution.Tasks
 
         public void Update()
         {
-            if (ObjectManager.Player.HealthPercent < 30 && ObjectManager.Player.Target.HealthPercent > 50 && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(HolyLight))
+            if (ObjectManager.Player.HealthPercent < 30 && ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 50 && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(HolyLight))
             {
                 BotTasks.Push(new HealTask(BotContext));
                 return;
@@ -29,7 +29,7 @@ namespace PaladinRetribution.Tasks
                 return;
             }
 
-            if (ObjectManager.Player.Target == null || ObjectManager.Player.Target.HealthPercent <= 0)
+            if (ObjectManager.GetTarget(ObjectManager.Player) == null || ObjectManager.GetTarget(ObjectManager.Player).HealthPercent <= 0)
             {
                 ObjectManager.Player.SetTarget(ObjectManager.Aggressors.First().Guid);
             }
@@ -45,19 +45,19 @@ namespace PaladinRetribution.Tasks
 
             TryCastSpell(SanctityAura, !ObjectManager.Player.HasBuff(SanctityAura));
 
-            TryCastSpell(Exorcism, ObjectManager.Player.Target.CreatureType == CreatureType.Undead || ObjectManager.Player.Target.CreatureType == CreatureType.Demon);
+            TryCastSpell(Exorcism, ObjectManager.GetTarget(ObjectManager.Player).CreatureType == CreatureType.Undead || ObjectManager.GetTarget(ObjectManager.Player).CreatureType == CreatureType.Demon);
 
-            TryCastSpell(HammerOfJustice, ObjectManager.Player.Target.CreatureType != CreatureType.Humanoid || (ObjectManager.Player.Target.CreatureType == CreatureType.Humanoid && ObjectManager.Player.Target.HealthPercent < 20));
+            TryCastSpell(HammerOfJustice, ObjectManager.GetTarget(ObjectManager.Player).CreatureType != CreatureType.Humanoid || (ObjectManager.GetTarget(ObjectManager.Player).CreatureType == CreatureType.Humanoid && ObjectManager.GetTarget(ObjectManager.Player).HealthPercent < 20));
             
-            TryCastSpell(SealOfTheCrusader, !ObjectManager.Player.HasBuff(SealOfTheCrusader) && !ObjectManager.Player.Target.HasDebuff(JudgementOfTheCrusader));
+            TryCastSpell(SealOfTheCrusader, !ObjectManager.Player.HasBuff(SealOfTheCrusader) && !ObjectManager.GetTarget(ObjectManager.Player).HasDebuff(JudgementOfTheCrusader));
 
-            TryCastSpell(SealOfRighteousness, !ObjectManager.Player.HasBuff(SealOfRighteousness) && ObjectManager.Player.Target.HasDebuff(JudgementOfTheCrusader) && !ObjectManager.Player.IsSpellReady(SealOfCommand));
+            TryCastSpell(SealOfRighteousness, !ObjectManager.Player.HasBuff(SealOfRighteousness) && ObjectManager.GetTarget(ObjectManager.Player).HasDebuff(JudgementOfTheCrusader) && !ObjectManager.Player.IsSpellReady(SealOfCommand));
 
-            TryCastSpell(SealOfCommand, !ObjectManager.Player.HasBuff(SealOfCommand) && ObjectManager.Player.Target.HasDebuff(JudgementOfTheCrusader));
+            TryCastSpell(SealOfCommand, !ObjectManager.Player.HasBuff(SealOfCommand) && ObjectManager.GetTarget(ObjectManager.Player).HasDebuff(JudgementOfTheCrusader));
 
-            TryCastSpell(HolyShield, !ObjectManager.Player.HasBuff(HolyShield) && ObjectManager.Player.Target.HealthPercent > 50);
+            TryCastSpell(HolyShield, !ObjectManager.Player.HasBuff(HolyShield) && ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 50);
 
-            TryCastSpell(Judgement, ObjectManager.Player.HasBuff(SealOfTheCrusader) || ((ObjectManager.Player.HasBuff(SealOfRighteousness) || ObjectManager.Player.HasBuff(SealOfCommand)) && (ObjectManager.Player.ManaPercent >= 95 || ObjectManager.Player.Target.HealthPercent <= 3)));
+            TryCastSpell(Judgement, ObjectManager.Player.HasBuff(SealOfTheCrusader) || ((ObjectManager.Player.HasBuff(SealOfRighteousness) || ObjectManager.Player.HasBuff(SealOfCommand)) && (ObjectManager.Player.ManaPercent >= 95 || ObjectManager.GetTarget(ObjectManager.Player).HealthPercent <= 3)));
         }
     }
 }

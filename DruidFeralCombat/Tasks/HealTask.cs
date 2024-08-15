@@ -27,7 +27,7 @@ namespace DruidFeral.Tasks
                 return;
             }
 
-            if (ObjectManager.Player.IsSpellReady(WarStomp) && ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) <= 8)
+            if (ObjectManager.Player.IsSpellReady(WarStomp) && ObjectManager.Player.Position.DistanceTo(ObjectManager.GetTarget(ObjectManager.Player).Position) <= 8)
                 ObjectManager.Player.CastSpell(WarStomp);
 
             CastSpell(HealingTouch, castOnSelf: true);

@@ -1,5 +1,6 @@
-﻿using BotRunner.Interfaces;
-using PathfindingService.Models;
+﻿using BotRunner.Base;
+using BotRunner.Interfaces;
+using BotRunner.Models;
 
 namespace ActivityForegroundMember.Objects
 {
@@ -7,7 +8,7 @@ namespace ActivityForegroundMember.Objects
     {
         internal WoWGameObject(
             nint pointer,
-            ulong guid,
+            HighGuid guid,
             WoWObjectType objectType)
             : base(pointer, guid, objectType)
         {
@@ -26,20 +27,5 @@ namespace ActivityForegroundMember.Objects
         public uint FactionTemplate => throw new NotImplementedException();
 
         public uint TypeId => throw new NotImplementedException();
-
-        public Position GetPointBehindObject(float distanceToMove)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetDisplayId(uint displayId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetGoState(GOState state)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

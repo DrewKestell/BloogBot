@@ -18,28 +18,28 @@ namespace PriestShadow.Tasks
             IWoWUnit woWUnit = ObjectManager.Aggressors.FirstOrDefault(x => x.TargetGuid == ObjectManager.Player.Guid);
             if (ObjectManager.PartyMembers.Any(x => x.HealthPercent < 70) && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(LesserHeal))
             {
-                List<IWoWPlayer> unhealthyMembers = ObjectManager.PartyMembers.Where(x => x.HealthPercent < 70).OrderBy(x => x.Health).ToList();
+                List<IWoWPlayer> unhealthyMembers = [.. ObjectManager.PartyMembers.Where(x => x.HealthPercent < 70).OrderBy(x => x.Health)];
 
                 if (unhealthyMembers.Count > 0 && ObjectManager.Player.Mana >= ObjectManager.Player.GetManaCost(LesserHeal))
                 {
-                    if (ObjectManager.Player.Target == null || ObjectManager.Player.TargetGuid != unhealthyMembers[0].Guid)
+                    if (ObjectManager.GetTarget(ObjectManager.Player) == null || ObjectManager.GetTarget(ObjectManager.Player).Guid != unhealthyMembers[0].Guid)
                     {
                         ObjectManager.Player.SetTarget(unhealthyMembers[0].Guid);
                         return;
                     }
                 }
 
-                if (ObjectManager.Player.IsCasting || ObjectManager.Player.Target == null)
+                if (ObjectManager.Player.IsCasting || ObjectManager.GetTarget(ObjectManager.Player) == null)
                     return;
 
-                if (ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) < 40 && ObjectManager.Player.InLosWith(ObjectManager.Player.Target))
+                if (ObjectManager.Player.Position.DistanceTo(ObjectManager.GetTarget(ObjectManager.Player).Position) < 40 && ObjectManager.Player.InLosWith(ObjectManager.GetTarget(ObjectManager.Player)))
                 {
                     ObjectManager.Player.StopAllMovement();
                     ObjectManager.Player.StopWand();
 
                     ObjectManager.Player.StopAllMovement();
 
-                    if (!ObjectManager.Player.Target.HasBuff(Renew))
+                    if (!ObjectManager.GetTarget(ObjectManager.Player).HasBuff(Renew))
                         ObjectManager.Player.CastSpell(Renew);
                     if (ObjectManager.Player.IsSpellReady(LesserHeal))
                         ObjectManager.Player.CastSpell(LesserHeal);
@@ -48,7 +48,7 @@ namespace PriestShadow.Tasks
                 }
                 else
                 {
-                    Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+                    Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.GetTarget(ObjectManager.Player).Position, true);
 
                     if (nextWaypoint.Length > 1)
                     {
@@ -81,7 +81,7 @@ namespace PriestShadow.Tasks
             {
                 AssignDPSTarget();
 
-                if (ObjectManager.Player.Target == null || ObjectManager.Player.Target.UnitReaction == UnitReaction.Friendly) return;
+                if (ObjectManager.GetTarget(ObjectManager.Player) == null || ObjectManager.GetTarget(ObjectManager.Player).UnitReaction == UnitReaction.Friendly) return;
 
                 //if (Container.State.TankInPosition)
                 //{
@@ -98,18 +98,18 @@ namespace PriestShadow.Tasks
         public override void PerformCombatRotation()
         {
             ObjectManager.Player.StopAllMovement();
-            ObjectManager.Player.Face(ObjectManager.Player.Target.Position);
+            ObjectManager.Player.Face(ObjectManager.GetTarget(ObjectManager.Player).Position);
 
-            if (ObjectManager.Player.Target.HasDebuff(ShadowWordPain) || ObjectManager.Player.ManaPercent < 50)
+            if (ObjectManager.GetTarget(ObjectManager.Player).HasDebuff(ShadowWordPain) || ObjectManager.Player.ManaPercent < 50)
                 ObjectManager.Player.StartWand();
             else
             {
                 //TryCastSpell(ShadowForm, 0, int.MaxValue, !ObjectManager.Player.HasBuff(ShadowForm));
 
-                //TryCastSpell(VampiricEmbrace, 0, 29, ObjectManager.Player.HealthPercent < 100 && !ObjectManager.Player.Target.HasDebuff(VampiricEmbrace) && ObjectManager.Player.Target.HealthPercent > 50);
+                //TryCastSpell(VampiricEmbrace, 0, 29, ObjectManager.Player.HealthPercent < 100 && !ObjectManager.GetTarget(ObjectManager.Player).HasDebuff(VampiricEmbrace) && ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 50);
 
-                //bool noNeutralsNearby = !ObjectManager.Units.Any(u => u.Guid != ObjectManager.Player.TargetGuid && u.UnitReaction == UnitReaction.Neutral && u.Position.DistanceTo(ObjectManager.Player.Position) <= 10);
-                //TryCastSpell(PsychicScream, 0, 7, (ObjectManager.Player.Target.Position.DistanceTo(ObjectManager.Player.Position) < 8 && !ObjectManager.Player.HasBuff(PowerWordShield)) || ObjectManager.Aggressors.Count() > 1 && ObjectManager.Player.Target.CreatureType != CreatureType.Elemental);
+                //bool noNeutralsNearby = !ObjectManager.Units.Any(u => u.Guid != ObjectManager.GetTarget(ObjectManager.Player).Guid && u.UnitReaction == UnitReaction.Neutral && u.Position.DistanceTo(ObjectManager.Player.Position) <= 10);
+                //TryCastSpell(PsychicScream, 0, 7, (ObjectManager.GetTarget(ObjectManager.Player).Position.DistanceTo(ObjectManager.Player.Position) < 8 && !ObjectManager.Player.HasBuff(PowerWordShield)) || ObjectManager.Aggressors.Count() > 1 && ObjectManager.GetTarget(ObjectManager.Player).CreatureType != CreatureType.Elemental);
 
                 TryCastSpell(DispelMagic, 0, int.MaxValue, ObjectManager.Player.HasMagicDebuff, castOnSelf: true);
 
@@ -120,13 +120,13 @@ namespace PriestShadow.Tasks
 
                 TryCastSpell(InnerFire, 0, int.MaxValue, !ObjectManager.Player.HasBuff(InnerFire));
 
-                TryCastSpell(ShadowWordPain, 0, 29, ObjectManager.Player.Target.HealthPercent > 10 && !ObjectManager.Player.Target.HasDebuff(ShadowWordPain) && ObjectManager.Player.ManaPercent > 50);
+                TryCastSpell(ShadowWordPain, 0, 29, ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 10 && !ObjectManager.GetTarget(ObjectManager.Player).HasDebuff(ShadowWordPain) && ObjectManager.Player.ManaPercent > 50);
 
-                //TryCastSpell(PowerWordShield, 0, int.MaxValue, !ObjectManager.Player.HasDebuff(WeakenedSoul) && !ObjectManager.Player.HasBuff(PowerWordShield) && (ObjectManager.Player.Target.HealthPercent > 20 || ObjectManager.Player.HealthPercent < 10), castOnSelf: true);
+                //TryCastSpell(PowerWordShield, 0, int.MaxValue, !ObjectManager.Player.HasDebuff(WeakenedSoul) && !ObjectManager.Player.HasBuff(PowerWordShield) && (ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 20 || ObjectManager.Player.HealthPercent < 10), castOnSelf: true);
 
                 //TryCastSpell(MindBlast, 0, 29);
 
-                //if (ObjectManager.Player.IsSpellReady(MindFlay) && ObjectManager.Player.Target.Position.DistanceTo(ObjectManager.Player.Position) <= 19 && (!ObjectManager.Player.IsSpellReady(PowerWordShield) || ObjectManager.Player.HasBuff(PowerWordShield)))
+                //if (ObjectManager.Player.IsSpellReady(MindFlay) && ObjectManager.GetTarget(ObjectManager.Player).Position.DistanceTo(ObjectManager.Player.Position) <= 19 && (!ObjectManager.Player.IsSpellReady(PowerWordShield) || ObjectManager.Player.HasBuff(PowerWordShield)))
                 //    TryCastSpell(MindFlay, 0, 19);
                 //else
                 //    TryCastSpell(Smite, 0, 29, !ObjectManager.Player.HasBuff(ShadowForm));

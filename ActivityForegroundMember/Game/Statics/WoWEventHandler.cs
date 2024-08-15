@@ -476,92 +476,112 @@ namespace ActivityForegroundMember.Game.Statics
             else if (parEvent == "CHAT_MSG_SAY")
             {
                 if (OnChatMessage == null) return;
+                Language language = (Language)parArgs[2];
+                ulong senderGuid = (ulong)parArgs[3];
+                ulong targetGuid = (ulong)parArgs[4];
                 string unitName = (string)parArgs[1];
-                string chatType = "Say";
                 string chatTag = (string)parArgs[5];
                 string chatMessage = (string)parArgs[0];
 
-                ChatMessageArgs args = new(ChatSenderType.Player, chatTag, unitName, chatType, chatMessage);
+                ChatMessageArgs args = new(ChatMsg.CHAT_MSG_SAY, language, senderGuid, targetGuid, unitName, string.Empty, 0, chatMessage, PlayerChatTag.CHAT_TAG_NONE);
 
                 OnChatMessage.Invoke(this, args);
             }
             else if (parEvent == "CHAT_MSG_MONSTER_SAY")
             {
                 if (OnChatMessage == null) return;
+                Language language = (Language)parArgs[2];
+                ulong senderGuid = (ulong)parArgs[3];
+                ulong targetGuid = (ulong)parArgs[4];
                 string unitName = (string)parArgs[1];
-                string chatType = "Say";
                 string chatTag = (string)parArgs[5];
                 string chatMessage = (string)parArgs[0];
-                ChatMessageArgs args = new(ChatSenderType.Npc, chatTag, unitName, chatType, chatMessage);
+                ChatMessageArgs args = new(ChatMsg.CHAT_MSG_MONSTER_SAY, language, senderGuid, targetGuid, unitName, string.Empty, 0, chatMessage, PlayerChatTag.CHAT_TAG_NONE);
                 OnChatMessage.Invoke(this, args);
             }
             else if (parEvent == "CHAT_MSG_MONSTER_YELL")
             {
                 if (OnChatMessage == null) return;
+                Language language = (Language)parArgs[2];
+                ulong senderGuid = (ulong)parArgs[3];
+                ulong targetGuid = (ulong)parArgs[4];
                 string unitName = (string)parArgs[1];
-                string chatType = "Yell";
                 string chatTag = (string)parArgs[5];
                 string chatMessage = (string)parArgs[0];
-                ChatMessageArgs args = new(ChatSenderType.Npc, chatTag, unitName, chatType, chatMessage);
+                ChatMessageArgs args = new(ChatMsg.CHAT_MSG_MONSTER_YELL, language, senderGuid, targetGuid, unitName, string.Empty, 0, chatMessage, PlayerChatTag.CHAT_TAG_NONE);
                 OnChatMessage.Invoke(this, args);
             }
             else if (parEvent == "CHAT_MSG_YELL")
             {
                 if (OnChatMessage == null) return;
+                Language language = (Language)parArgs[2];
+                ulong senderGuid = (ulong)parArgs[3];
+                ulong targetGuid = (ulong)parArgs[4];
                 string unitName = (string)parArgs[1];
-                string chatType = "Yell";
                 string chatTag = (string)parArgs[5];
                 string chatMessage = (string)parArgs[0];
-                ChatMessageArgs args = new(ChatSenderType.Player, chatTag, unitName, chatType, chatMessage);
+                ChatMessageArgs args = new(ChatMsg.CHAT_MSG_YELL, language, senderGuid, targetGuid, unitName, string.Empty, 0, chatMessage, PlayerChatTag.CHAT_TAG_NONE);
                 OnChatMessage.Invoke(this, args);
             }
             else if (parEvent == "CHAT_MSG_CHANNEL")
             {
                 if (OnChatMessage == null) return;
+                Language language = (Language)parArgs[2];
+                ulong senderGuid = (ulong)parArgs[3];
+                ulong targetGuid = (ulong)parArgs[4];
                 string unitName = (string)parArgs[1];
                 string chatType = "Channel " + (int)parArgs[7];
                 string chatTag = (string)parArgs[5];
                 string chatMessage = (string)parArgs[0];
-                ChatMessageArgs args = new(ChatSenderType.Player, chatTag, unitName, chatType, chatMessage);
+                ChatMessageArgs args = new(ChatMsg.CHAT_MSG_CHANNEL, language, senderGuid, targetGuid, unitName, chatType, 0, chatMessage, PlayerChatTag.CHAT_TAG_NONE);
                 OnChatMessage.Invoke(this, args);
             }
             else if (parEvent == "CHAT_MSG_RAID")
             {
                 if (OnChatMessage == null) return;
+                Language language = (Language)parArgs[2];
+                ulong senderGuid = (ulong)parArgs[3];
+                ulong targetGuid = (ulong)parArgs[4];
                 string unitName = (string)parArgs[1];
-                string chatType = "Raid";
                 string chatTag = (string)parArgs[5];
                 string chatMessage = (string)parArgs[0];
-                ChatMessageArgs args = new(ChatSenderType.Player, chatTag, unitName, chatType, chatMessage);
+                ChatMessageArgs args = new(ChatMsg.CHAT_MSG_RAID, language, senderGuid, targetGuid, unitName, string.Empty, 0, chatMessage, PlayerChatTag.CHAT_TAG_NONE);
                 OnChatMessage.Invoke(this, args);
             }
             else if (parEvent == "CHAT_MSG_GUILD")
             {
                 if (OnChatMessage == null) return;
+                Language language = (Language)parArgs[2];
+                ulong senderGuid = (ulong)parArgs[3];
+                ulong targetGuid = (ulong)parArgs[4];
                 string unitName = (string)parArgs[1];
                 string chatTag = (string)parArgs[5];
                 string chatMessage = (string)parArgs[0];
-                ChatMessageArgs args = new(ChatSenderType.Player, chatTag, unitName, "Guild", chatMessage);
+                ChatMessageArgs args = new(ChatMsg.CHAT_MSG_GUILD, language, senderGuid, targetGuid, unitName, string.Empty, 0, chatMessage, PlayerChatTag.CHAT_TAG_NONE);
                 OnChatMessage.Invoke(this, args);
             }
             else if (parEvent == "CHAT_MSG_PARTY")
             {
                 if (OnChatMessage == null) return;
+                Language language = (Language)parArgs[2];
+                ulong senderGuid = (ulong)parArgs[3];
+                ulong targetGuid = (ulong)parArgs[4];
                 string unitName = (string)parArgs[1];
-                string chatType = "Party";
                 string chatTag = (string)parArgs[5];
                 string chatMessage = (string)parArgs[0];
-                ChatMessageArgs args = new(ChatSenderType.Player, chatTag, unitName, chatType, chatMessage);
+                ChatMessageArgs args = new(ChatMsg.CHAT_MSG_PARTY, language, senderGuid, targetGuid, unitName, string.Empty, 0, chatMessage, PlayerChatTag.CHAT_TAG_NONE);
                 OnChatMessage.Invoke(this, args);
             }
             else if (parEvent == "CHAT_MSG_WHISPER")
             {
                 if (OnChatMessage == null) return;
+                Language language = (Language)parArgs[2];
+                ulong senderGuid = (ulong)parArgs[3];
+                ulong targetGuid = (ulong)parArgs[4];
                 string unitName = (string)parArgs[1];
-                string chatType = "Whisper";
                 string chatTag = (string)parArgs[5];
                 string chatMessage = (string)parArgs[0];
-                ChatMessageArgs args = new(ChatSenderType.Player, chatTag, unitName, chatType, chatMessage);
+                ChatMessageArgs args = new(ChatMsg.CHAT_MSG_WHISPER, language, senderGuid, targetGuid, unitName, string.Empty, 0, chatMessage, PlayerChatTag.CHAT_TAG_NONE);
                 OnChatMessage.Invoke(this, args);
             }
             else if (parEvent == "DUEL_REQUESTED")

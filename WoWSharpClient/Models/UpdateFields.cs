@@ -10,7 +10,7 @@
             OBJECT_FIELD_SCALE_X = 0x04, // Size:1
             OBJECT_FIELD_PADDING = 0x05, // Size:1
             OBJECT_END = 0x06,
-        };
+        }
 
         public enum EItemFields
         {
@@ -33,7 +33,7 @@
             ITEM_FIELD_DURABILITY = EObjectFields.OBJECT_END + 0x28, // Size:1
             ITEM_FIELD_MAXDURABILITY = EObjectFields.OBJECT_END + 0x29, // Size:1
             ITEM_END = EObjectFields.OBJECT_END + 0x2A,
-        };
+        }
 
         public enum EContainerFields
         {
@@ -42,7 +42,7 @@
             CONTAINER_FIELD_SLOT_1 = EItemFields.ITEM_END + 0x02, // count=56
             CONTAINER_FIELD_SLOT_LAST = EItemFields.ITEM_END + 0x38,
             CONTAINER_END = EItemFields.ITEM_END + 0x3A,
-        };
+        }
 
         /**
          * Fields that are available for a \ref Unit ?
@@ -161,7 +161,7 @@
             UNIT_FIELD_PADDING = 0xb5 + EObjectFields.OBJECT_END,
             UNIT_END = 0xb6 + EObjectFields.OBJECT_END,
 
-            PLAYER_DUEL_ARBITER = 0x00 + UNIT_END, // Size:2
+            PLAYER_DUEL_ARBITER = UNIT_END, // Size:2
             PLAYER_FLAGS = 0x02 + UNIT_END, // Size:1
             PLAYER_GUILDID = 0x03 + UNIT_END, // Size:1
             PLAYER_GUILDRANK = 0x04 + UNIT_END, // Size:1
@@ -250,8 +250,7 @@
             PLAYER_FIELD_COMBAT_RATING_1 = 0x432 + UNIT_END, // Size:20
 
             PLAYER_END = 0x446 + UNIT_END
-        };
-
+        }
         public enum EGameObjectFields
         {
             OBJECT_FIELD_CREATED_BY = EObjectFields.OBJECT_END + 0x00,
@@ -271,7 +270,7 @@
             GAMEOBJECT_ANIMPROGRESS = EObjectFields.OBJECT_END + 0x12,
             GAMEOBJECT_PADDING = EObjectFields.OBJECT_END + 0x13,
             GAMEOBJECT_END = EObjectFields.OBJECT_END + 0x14,
-        };
+        }
 
         public enum EDynamicObjectFields
         {
@@ -285,7 +284,7 @@
             DYNAMICOBJECT_FACING = EObjectFields.OBJECT_END + 0x08,
             DYNAMICOBJECT_PAD = EObjectFields.OBJECT_END + 0x09,
             DYNAMICOBJECT_END = EObjectFields.OBJECT_END + 0x0A,
-        };
+        }
 
         public enum ECorpseFields
         {
@@ -303,6 +302,6 @@
             CORPSE_FIELD_DYNAMIC_FLAGS = EObjectFields.OBJECT_END + 0x1E,
             CORPSE_FIELD_PAD = EObjectFields.OBJECT_END + 0x1F,
             CORPSE_END = EObjectFields.OBJECT_END + 0x20,
-        };
+        }
     }
 }

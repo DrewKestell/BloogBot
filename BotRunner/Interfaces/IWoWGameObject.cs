@@ -13,11 +13,8 @@ namespace BotRunner.Interfaces
         uint FactionTemplate { get; }
         uint TypeId { get; }
 
-        Position GetPointBehindObject(float distanceToMove);
-
-        void SetDisplayId(uint displayId);
-
-        void SetGoState(GOState state);
+        void Interact();
+        Position GetPointBehindUnit(float distance);
     }
 
     public enum GOState

@@ -39,9 +39,9 @@ namespace PriestShadow.Tasks
 
             ObjectManager.Player.SetTarget(ObjectManager.Player.Guid);
 
-            if (ObjectManager.Player.Target == null) return;
+            if (ObjectManager.GetTarget(ObjectManager.Player) == null) return;
 
-            if (ObjectManager.Player.Target.Guid == ObjectManager.Player.Guid)
+            if (ObjectManager.GetTarget(ObjectManager.Player).Guid == ObjectManager.Player.Guid)
             {
                 if (ObjectManager.GetEquippedItems().Any(x => x.DurabilityPercentage > 0 && x.DurabilityPercentage < 100))
                 {
