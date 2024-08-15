@@ -1,6 +1,8 @@
-﻿namespace WoWSharpClient.Models
+﻿using BotRunner.Models;
+
+namespace WoWSharpClient.Models
 {
-    public class LocalPet(byte[] lowGuid, byte[] highGuid) : Unit(lowGuid, highGuid)
+    public class LocalPet(HighGuid highGuid) : Unit(highGuid)
     {
         public void Attack()
         {

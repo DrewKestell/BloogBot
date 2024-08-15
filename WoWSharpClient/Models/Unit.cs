@@ -1,69 +1,45 @@
-﻿using BotRunner.Constants;
+﻿using BotRunner.Base;
+using BotRunner.Constants;
 using BotRunner.Interfaces;
 using BotRunner.Models;
 using PathfindingService.Models;
 
 namespace WoWSharpClient.Models
 {
-    public class Unit(byte[] lowGuid, byte[] highGuid, WoWObjectType objectType = WoWObjectType.Unit) : GameObject(lowGuid, highGuid, objectType), IWoWUnit
+    public class Unit(HighGuid highGuid, WoWObjectType objectType = WoWObjectType.Unit) : GameObject(highGuid, objectType), IWoWUnit
     {
-        public int CreatureId { get; internal set; }
-        public Race Race { get; internal set; }
-        public Class Class { get; internal set; }
-        public byte Gender { get; internal set; }
+        public int CreatureId { get; set; }
+        public Race Race { get; set; }
+        public Class Class { get; set; }
+        public byte Gender { get; set; }
 
-        public IWoWUnit Target { get; internal set; }
-        public ulong TargetGuid { get; internal set; }
+        public ulong TargetGuid => TargetHighGuid.FullGuid;
+        public HighGuid TargetHighGuid { get; set; } = new HighGuid(new byte[4], new byte[4]);
 
-        public uint Health { get; internal set; }
+        public uint Health { get; set; }
+        public uint MaxHealth { get; set; }
+        public Dictionary<Powers, uint> Powers { get; } = [];
+        public Dictionary<Powers, uint> MaxPowers { get; } = [];
 
-        public uint MaxHealth { get; internal set; }
-        public Dictionary<Powers, uint> Power { get; } = [];
-        public Dictionary<Powers, uint> MaxPower { get; } = [];
+        public float BaseMeleeRangeOffset { get; set; } = 1.33f;
 
-        public float BaseMeleeRangeOffset { get; internal set; } = 1.33f;
-
-        public float BaseMinDamage { get; internal set; } = 1.0f;
-
-        public float BaseMaxDamage { get; internal set; } = 2.0f;
-
-        public float BaseAttackTime { get; internal set; } = 2000;
-
-        public float BoundingRadius { get; internal set; }
-
-        public float CombatReach { get; internal set; }
-
-        public int ChannelingId { get; internal set; }
-
-        public bool IsChanneling { get; internal set; }
-
-        public int SpellcastId { get; internal set; }
-
-        public bool IsCasting { get; internal set; }
-
-        public DynamicFlags DynamicFlags { get; internal set; }
-
-        public UnitFlags UnitFlags { get; internal set; }
-
-        public ulong SummonedByGuid { get; internal set; }
-
-        public int FactionId { get; internal set; }
-
+        public uint MinDamage { get; set; } = 1;
+        public uint MaxDamage { get; set; } = 2;
+        public uint BaseAttackTime { get; set; } = 2000;
+        public uint BaseAttackTime1 { get; set; } = 2000;
+        public uint OffhandAttackTime { get; set; } = 2000;
+        public uint OffhandAttackTime1 { get; set; } = 2000;
+        public uint RangedAttackTime { get; set; } = 2000;
+        public float BoundingRadius { get; set; }
+        public float CombatReach { get; set; }
+        public uint ChannelingId { get; set; }
+        public bool IsChanneling { get; set; }
+        public int SpellcastId { get; set; }
+        public bool IsCasting { get; set; }
+        public UnitFlags UnitFlags { get; set; }
+        public ulong SummonedByGuid { get; set; }
+        public int FactionId { get; set; }
         public bool NotAttackable => UnitFlags.HasFlag(UnitFlags.UNIT_FLAG_NON_ATTACKABLE);
-
-        public bool IsFacing(Position position) => Math.Abs(GetFacingForPosition(position) - Facing) < 0.05f;
-
-        // in radians
-        public float GetFacingForPosition(Position position)
-        {
-            var f = (float)Math.Atan2(position.Y - Position.Y, position.X - Position.X);
-            if (f < 0.0f)
-                f += (float)Math.PI * 2.0f;
-            else if (f > (float)Math.PI * 2)
-                f -= (float)Math.PI * 2.0f;
-
-            return f;
-        }
 
         public bool IsBehind(IWoWUnit target)
         {
@@ -109,25 +85,7 @@ namespace WoWSharpClient.Models
             return condition;
         }
 
-        public bool InLosWith(IWoWUnit otherUnit)
-        {
-            Position newThisPosition = new(Position.X, Position.Y, Position.Z + (Height /2 ));
-            Position newOtherPosition = new(otherUnit.Position.X, otherUnit.Position.Y, otherUnit.Position.Z + (otherUnit.Height / 2));
-
-            return newThisPosition.InLosWith(newOtherPosition);
-        }
-
-        public bool IsFacing(IWoWUnit position)
-        {
-            return true;
-        }
-
-        public bool InLosWith(Position position)
-        {
-            return true;
-        }
-
-        public MovementFlags MovementFlags { get; internal set; }
+        public MovementFlags MovementFlags { get; set; }
 
         public bool IsMoving => MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FORWARD);
 
@@ -135,13 +93,13 @@ namespace WoWSharpClient.Models
 
         public bool IsFalling => MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLING);
 
-        public bool IsMounted { get; internal set; }
+        public bool IsMounted { get; set; }
 
-        public CreatureType CreatureType { get; internal set; }
+        public CreatureType CreatureType { get; set; }
 
-        public UnitReaction UnitReaction { get; internal set; }
+        public UnitReaction UnitReaction { get; set; }
 
-        public CreatureRank CreatureRank { get; internal set; }
+        public CreatureRank CreatureRank { get; set; }
 
         public Spell GetSpellById(int spellId)
         {
@@ -149,22 +107,58 @@ namespace WoWSharpClient.Models
             return null;
         }
 
-        public List<Spell> Buffs { get; internal set; } = [];
+        public List<Spell> Buffs { get; } = [];
+        public List<Spell> Debuffs { get; } = [];
+        public HighGuid Charm { get; } = new HighGuid(new byte[4], new byte[4]);
+        public HighGuid Summon { get; } = new HighGuid(new byte[4], new byte[4]);
+        public HighGuid CharmedBy { get; } = new HighGuid(new byte[4], new byte[4]);
+        public HighGuid SummonedBy { get; } = new HighGuid(new byte[4], new byte[4]);
+        public HighGuid Persuaded { get; } = new HighGuid(new byte[4], new byte[4]);
+        public HighGuid ChannelObject { get; } = new HighGuid(new byte[4], new byte[4]);
+        public byte[] Bytes0 { get; set; } = [4];
+        public byte[] Bytes1 { get; set; } = [4];
+        public byte[] Bytes2 { get; set; } = [4];
+        public uint[] VirtualItemSlotDisplay { get; } = [3];
+        public uint[] VirtualItemInfo { get; } = [6];
+        public uint[] AuraFields { get; } = [48];
+        public uint[] AuraFlags { get; } = [6];
+        public uint[] AuraLevels { get; } = new uint[12];
+        public uint[] AuraApplications { get; } = new uint[12];
+        public uint AuraState { get; set; }
+        public uint[] Resistances { get; internal set; } = new uint[7];
+        public uint MountDisplayId { get; set; }
+        public uint NativeDisplayId { get; internal set; }
+        public uint MinOffhandDamage { get; internal set; }
+        public uint MaxOffhandDamage { get; internal set; }
+        public uint PetNumber { get; internal set; }
+        public uint PetNameTimestamp { get; internal set; }
+        public uint PetExperience { get; internal set; }
+        public uint PetNextLevelExperience { get; internal set; }
+        public float ModCastSpeed { get; internal set; }
+        public uint CreatedBySpell { get; internal set; }
+        public NPCFlags NpcFlags { get; internal set; }
+        public uint NpcEmoteState { get; internal set; }
+        public uint TrainingPoints { get; internal set; }
+        public uint Strength { get; internal set; }
+        public uint Agility { get; internal set; }
+        public uint Stamina { get; internal set; }
+        public uint Intellect { get; internal set; }
+        public uint Spirit { get; internal set; }
 
-        public List<Spell> Debuffs { get; internal set; } = [];
-
-        public ulong SummonGuid { get; internal set; }
-        public ulong CharmedByGuid { get; internal set; }
-        public ulong ChannelObject { get; internal set; }
-        public ulong PersuadedGuid { get; internal set; }
-        public ulong CreatedBy { get; internal set; }
-        public ulong CharmGuid { get; internal set; }
-        public byte[] Bytes0 { get; internal set; }
-        public Dictionary<object, object> VirtualItemSlotDisplay { get; internal set; }
-        public Dictionary<object, object> VirtualItemInfo { get; internal set; }
-        public uint Flags { get; internal set; }
-        public Dictionary<object, object> AuraFields { get; internal set; }
-        
+        public bool IsAttacking { get; set; }
+        public uint LastUpdated { get; set; }
+        public uint BaseMana { get; internal set; }
+        public uint BaseHealth { get; internal set; }
+        public uint[] PowerCostModifers { get; internal set; } = new uint[7];
+        public uint[] PowerCostMultipliers { get; internal set; } = new uint[7];
+        public uint MaxRangedDamage { get; internal set; }
+        public uint MinRangedDamage { get; internal set; }
+        public uint AttackPowerMultipler { get; internal set; }
+        public uint AttackPowerMods { get; internal set; }
+        public uint RangedAttackPowerMultipler { get; internal set; }
+        public uint RangedAttackPowerMods { get; internal set; }
+        public uint RangedAttackPower { get; internal set; }
+        public uint AttackPower { get; internal set; }
 
         public IEnumerable<SpellEffect> GetDebuffs(LuaTarget target)
         {
@@ -174,31 +168,6 @@ namespace WoWSharpClient.Models
         public bool HasBuff(string name) => Buffs.Any(a => a.Name == name);
 
         public bool HasDebuff(string name) => Debuffs.Any(a => a.Name == name);
-
-        public void MoveTo(float x, float y, float z)
-        {
-            // Implementation for moving the unit to a specific position
-        }
-
-        public void StopMoving()
-        {
-            // Implementation for stopping the unit's movement
-        }
-
-        public void CastSpell(Unit target, int spellId, bool triggered)
-        {
-            // Implementation for casting a spell
-        }
-
-        public void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed)
-        {
-            // Implementation for interrupting a spell
-        }
-
-        public void Attack(Unit victim, bool meleeAttack)
-        {
-            // Implementation for attacking a unit
-        }
 
         public void StopAttack()
         {
@@ -233,32 +202,27 @@ namespace WoWSharpClient.Models
 
         public void SetPower(Powers powerType, uint value)
         {
-            if (!Power.ContainsKey(powerType))
-                Power[powerType] = 0;
+            if (!Powers.ContainsKey(powerType))
+                Powers[powerType] = 0;
 
-            Power[powerType] = value;
-            if (Power[powerType] > MaxPower[powerType])
-                Power[powerType] = MaxPower[powerType];
+            Powers[powerType] = value;
+            if (Powers[powerType] > MaxPowers[powerType])
+                Powers[powerType] = MaxPowers[powerType];
         }
 
         public void SetMaxPower(Powers powerType, uint value)
         {
-            if (!MaxPower.ContainsKey(powerType))
-                MaxPower[powerType] = 0;
+            if (!MaxPowers.ContainsKey(powerType))
+                MaxPowers[powerType] = 0;
 
-            MaxPower[powerType] = value;
-            if (Power[powerType] > MaxPower[powerType])
-                Power[powerType] = MaxPower[powerType];
+            MaxPowers[powerType] = value;
+            if (Powers[powerType] > MaxPowers[powerType])
+                Powers[powerType] = MaxPowers[powerType];
         }
 
         public IEnumerable<ISpellEffect> GetDebuffs()
         {
             throw new NotImplementedException();
         }
-
-        public bool IsAttacking { get; set; }
-        public uint LastUpdated { get; internal set; }
-
-        public uint MountDisplayId => throw new NotImplementedException();
     }
 }

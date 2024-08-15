@@ -12,8 +12,7 @@ message WoWObject {
   float height = 6;
   float facing = 7;
   Position position = 8;
-  uint32 padding = 9;
-  bool inWorld = 10;
+  bool inWorld = 9;
 }
 
 // Definition for WoWGameObject, extending WoWObject

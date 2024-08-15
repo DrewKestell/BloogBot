@@ -1043,10 +1043,70 @@ namespace BotRunner.Constants
         TYPEMASK_WORLDOBJECT = TYPEMASK_UNIT | TYPEMASK_PLAYER | TYPEMASK_GAMEOBJECT | TYPEMASK_DYNAMICOBJECT | TYPEMASK_CORPSE,
     }
 
-    public enum ChatSenderType
+
+    public enum ChatMsg
     {
-        Player = 1,
-        Npc = 2
+        CHAT_MSG_SAY = 0x00,
+        CHAT_MSG_PARTY = 0x01,
+        CHAT_MSG_RAID = 0x02,
+        CHAT_MSG_GUILD = 0x03,
+        CHAT_MSG_OFFICER = 0x04,
+        CHAT_MSG_YELL = 0x05,
+        CHAT_MSG_WHISPER = 0x06,
+        CHAT_MSG_WHISPER_INFORM = 0x07,
+        CHAT_MSG_EMOTE = 0x08,
+        CHAT_MSG_TEXT_EMOTE = 0x09,
+        CHAT_MSG_SYSTEM = 0x0A,
+        CHAT_MSG_MONSTER_SAY = 0x0B,
+        CHAT_MSG_MONSTER_YELL = 0x0C,
+        CHAT_MSG_MONSTER_EMOTE = 0x0D,
+        CHAT_MSG_CHANNEL = 0x0E,
+        CHAT_MSG_CHANNEL_JOIN = 0x0F,
+        CHAT_MSG_CHANNEL_LEAVE = 0x10,
+        CHAT_MSG_CHANNEL_LIST = 0x11,
+        CHAT_MSG_CHANNEL_NOTICE = 0x12,
+        CHAT_MSG_CHANNEL_NOTICE_USER = 0x13,
+        CHAT_MSG_AFK = 0x14,
+        CHAT_MSG_DND = 0x15,
+        CHAT_MSG_IGNORED = 0x16,
+        CHAT_MSG_SKILL = 0x17,
+        CHAT_MSG_LOOT = 0x18,
+        CHAT_MSG_MONSTER_WHISPER = 0x1A,
+        CHAT_MSG_BG_SYSTEM_NEUTRAL = 0x52,
+        CHAT_MSG_BG_SYSTEM_ALLIANCE = 0x53,
+        CHAT_MSG_BG_SYSTEM_HORDE = 0x54,
+        CHAT_MSG_RAID_LEADER = 0x57,
+        CHAT_MSG_RAID_WARNING = 0x58,
+        CHAT_MSG_RAID_BOSS_WHISPER = 0x59,
+        CHAT_MSG_RAID_BOSS_EMOTE = 0x5A,
+        CHAT_MSG_BATTLEGROUND = 0x5C,
+        CHAT_MSG_BATTLEGROUND_LEADER = 0x5D,
+        CHAT_MSG_MONSTER_PARTY = 0x30, // Arbitrary value to avoid conflicts
+    }
+
+    public enum Language : int
+    {
+        Universal = 0,
+        Orcish = 1,
+        Darnassian = 2,
+        Taurahe = 3,
+        Dwarvish = 6,
+        Common = 7,
+        DemonTongue = 8,
+        Titan = 9,
+        Thalassian = 10,
+        Draconic = 11,
+        Kalimag = 12,
+        Gnomish = 13,
+        Troll = 14,
+        Gutterspeak = 33
+    }
+    public enum PlayerChatTag
+    {
+        CHAT_TAG_NONE = 0,
+        CHAT_TAG_AFK = 1,
+        CHAT_TAG_DND = 2,
+        CHAT_TAG_GM = 3,
     }
     public enum LuaTarget : byte
     {
@@ -1249,22 +1309,24 @@ namespace BotRunner.Constants
     }
     public enum Race
     {
+        [Description("None")]
+        None,
         [Description("Human")]
         Human,
+        [Description("Orc")]
+        Orc,
         [Description("Dwarf")]
         Dwarf,
         [Description("Night Elf")]
         NightElf,
-        [Description("Gnome")]
-        Gnome,
-        [Description("Orc")]
-        Orc,
         [Description("Undead")]
         Undead,
         [Description("Tauren")]
         Tauren,
+        [Description("Gnome")]
+        Gnome,
         [Description("Troll")]
-        Troll
+        Troll,
     }
     public enum TargetMarker : byte
     {
@@ -1555,115 +1617,18 @@ namespace BotRunner.Constants
         login,
         charselect
     }
-
-    /// <summary>
-    ///     Types of Quest-Frames (Accept, Continue, Complete, None)
-    /// </summary>
-    public enum QuestFrameState
+    public enum CreateCharacterResult : byte
     {
-        Accept = 1,
-        Continue = 2,
-        Complete = 3,
-        Greeting = 0
+        Success,
+        ErrorNameInUse,
+        ErrorCreationFailed
     }
 
-    /// <summary>
-    ///     The state of a quest selectable in a gossip dialog (complete, accept etc.)
-    /// </summary>
-    public enum QuestGossipState
+    public enum DeleteCharacterResult : byte
     {
-        Accepted = 3,
-        Available = 5,
-        Completeable = 4
-    }
-
-    /// <summary>
-    ///     Quest-objective types: Kill, Collect or Event
-    /// </summary>
-    public enum QuestObjectiveTypes : byte
-    {
-        Kill = 1,
-        Collect = 2,
-        Event = 3
-    }
-
-    /// <summary>
-    ///     The possible states of an accepted quest
-    /// </summary>
-    public enum QuestState
-    {
-        Completed = 1,
-        InProgress = 0,
-        Failed = -1
-    }
-    public enum ChatType
-    {
-        CHAT_TYPE_SAY = 0,
-        CHAT_TYPE_YELL = 1,
-        CHAT_TYPE_TEXT_EMOTE = 2,
-        CHAT_TYPE_BOSS_EMOTE = 3,
-        CHAT_TYPE_WHISPER = 4,
-        CHAT_TYPE_BOSS_WHISPER = 5,
-        CHAT_TYPE_ZONE_YELL = 6
-    }
-    public enum ChatMessageType : byte
-    {
-        Say = 0x00,
-        Party = 0x01,
-        Raid = 0x02,
-        Guild = 0x03,
-        Officer = 0x04,
-        Yell = 0x05,
-        Whisper = 0x06,
-        WhisperInform = 0x07,
-        Emote = 0x08,
-        TextEmote = 0x09,
-        System = 0x0A,
-        MonsterSay = 0x0B,
-        MonsterYell = 0x0C,
-        MonsterEmote = 0x0D,
-        Channel = 0x0E,
-        ChannelJoin = 0x0F,
-        ChannelLeave = 0x10,
-        ChannelList = 0x11,
-        ChannelNotice = 0x12,
-        ChannelNoticeUser = 0x13,
-        Afk = 0x14,
-        Dnd = 0x15,
-        Ignored = 0x16,
-        Skill = 0x17,
-        Loot = 0x18,
-        RaidLeader = 0x19,
-        RaidWarning = 0x1A,
-        Battleground = 0x1B,
-        BattlegroundLeader = 0x1C,
-        Reply = 0x1D,
-        WhisperInformForeign = 0x1E,
-        MonsterParty = 0x1F // Verify if this actually exists in 1.12.1
-    }
-    public enum Language : int
-    {
-        Universal = 0,
-        Orcish = 1,
-        Darnassian = 2,
-        Taurahe = 3,
-        Dwarvish = 6,
-        Common = 7,
-        DemonTongue = 8,
-        Titan = 9,
-        Thalassian = 10,
-        Draconic = 11,
-        Kalimag = 12,
-        Gnomish = 13,
-        Troll = 14,
-        Gutterspeak = 33
-    }
-    public enum ChatTag : byte
-    {
-        None = 0x00,
-        Afk = 0x01,
-        Dnd = 0x02,
-        Gm = 0x04
+        Success,
+        ErrorCharacterNotFound,
+        ErrorDeletionFailed
     }
 
     public enum ItemSubclass
@@ -1776,19 +1741,6 @@ namespace BotRunner.Constants
         MiscHoliday,
         MiscOther,
         MiscMount
-    }
-    public enum CreateCharacterResult : byte
-    {
-        Success,
-        ErrorNameInUse,
-        ErrorCreationFailed
-    }
-
-    public enum DeleteCharacterResult : byte
-    {
-        Success,
-        ErrorCharacterNotFound,
-        ErrorDeletionFailed
     }
 
     public enum TextEmote
@@ -1965,7 +1917,7 @@ namespace BotRunner.Constants
         TEXTEMOTE_ENEMY = 376,
         TEXTEMOTE_EYEBROW = 377,
         TEXTEMOTE_TOAST = 378
-    };
+    }
 
     public enum Emote
     {
@@ -2086,7 +2038,326 @@ namespace BotRunner.Constants
         EMOTE_STATE_SIT_CHAIR_MED = 415,
         EMOTE_STATE_SPELLEFFECT_HOLD = 422,
         EMOTE_STATE_EAT_NO_SHEATHE = 423
-    };
+    }
+    public enum BuyBankSlotResult
+    {
+        ERR_BANKSLOT_FAILED_TOO_MANY = 0,
+        ERR_BANKSLOT_INSUFFICIENT_FUNDS = 1,
+        ERR_BANKSLOT_NOTBANKER = 2,
+        ERR_BANKSLOT_OK = 3
+    }
+    public enum PlayerSpellState
+    {
+        PLAYERSPELL_UNCHANGED = 0,
+        PLAYERSPELL_CHANGED = 1,
+        PLAYERSPELL_NEW = 2,
+        PLAYERSPELL_REMOVED = 3
+    }
+    public enum RaidGroupError
+    {
+        ERR_RAID_GROUP_REQUIRED = 1,
+        ERR_RAID_GROUP_FULL = 2
+    }
+    public enum DrunkenState
+    {
+        DRUNKEN_SOBER = 0,
+        DRUNKEN_TIPSY = 1,
+        DRUNKEN_DRUNK = 2,
+        DRUNKEN_SMASHED = 3
+    }
+    public enum TYPE_OF_HONOR
+    {
+        HONORABLE = 1,
+        DISHONORABLE = 2,
+    }
+    public enum HonorKillState
+    {
+        HK_NEW = 0,
+        HK_OLD = 1,
+        HK_DELETED = 2,
+        HK_UNCHANGED = 3
+    }
+    public enum PlayerFlags
+    {
+        PLAYER_FLAGS_NONE = 0x00000000,
+        PLAYER_FLAGS_GROUP_LEADER = 0x00000001,
+        PLAYER_FLAGS_AFK = 0x00000002,
+        PLAYER_FLAGS_DND = 0x00000004,
+        PLAYER_FLAGS_GM = 0x00000008,
+        PLAYER_FLAGS_GHOST = 0x00000010,
+        PLAYER_FLAGS_RESTING = 0x00000020,
+        PLAYER_FLAGS_UNK7 = 0x00000040,       // admin?
+        PLAYER_FLAGS_FFA_PVP = 0x00000080,
+        PLAYER_FLAGS_CONTESTED_PVP = 0x00000100,       // Player has been involved in a PvP combat and will be attacked by contested guards
+        PLAYER_FLAGS_IN_PVP = 0x00000200,
+        PLAYER_FLAGS_HIDE_HELM = 0x00000400,
+        PLAYER_FLAGS_HIDE_CLOAK = 0x00000800,
+        PLAYER_FLAGS_PARTIAL_PLAY_TIME = 0x00001000,       // played long time
+        PLAYER_FLAGS_NO_PLAY_TIME = 0x00002000,       // played too long time
+        PLAYER_FLAGS_UNK15 = 0x00004000,
+        PLAYER_FLAGS_UNK16 = 0x00008000,       // strange visual effect (2.0.1), looks like PLAYER_FLAGS_GHOST flag
+        PLAYER_FLAGS_SANCTUARY = 0x00010000,       // player entered sanctuary
+        PLAYER_FLAGS_TAXI_BENCHMARK = 0x00020000,       // taxi benchmark mode (on/off) (2.0.1)
+        PLAYER_FLAGS_PVP_TIMER = 0x00040000,       // 3.0.2, pvp timer active (after you disable pvp manually)
+        PLAYER_FLAGS_XP_USER_DISABLED = 0x02000000,
+    }
+    public enum PlayerFieldByteFlags
+    {
+        PLAYER_FIELD_BYTE_TRACK_STEALTHED = 0x02,
+        PLAYER_FIELD_BYTE_RELEASE_TIMER = 0x08,             // Display time till auto release spirit
+        PLAYER_FIELD_BYTE_NO_RELEASE_WINDOW = 0x10              // Display no "release spirit" window at all
+    }
+    public enum PlayerFieldByte2Flags
+    {
+        PLAYER_FIELD_BYTE2_NONE = 0x00,
+        PLAYER_FIELD_BYTE2_DETECT_AMORE_0 = 0x02,            // SPELL_AURA_DETECT_AMORE, not used as value and maybe not relcted to, but used in code as base for mask apply
+        PLAYER_FIELD_BYTE2_DETECT_AMORE_1 = 0x04,            // SPELL_AURA_DETECT_AMORE value 1
+        PLAYER_FIELD_BYTE2_DETECT_AMORE_2 = 0x08,            // SPELL_AURA_DETECT_AMORE value 2
+        PLAYER_FIELD_BYTE2_DETECT_AMORE_3 = 0x10,            // SPELL_AURA_DETECT_AMORE value 3
+        PLAYER_FIELD_BYTE2_STEALTH = 0x20,
+        PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW = 0x40
+    }
+    public enum MirrorTimerType
+    {
+        FATIGUE_TIMER = 0,
+        BREATH_TIMER = 1,
+        FIRE_TIMER = 2     // probably mistake. More like to FEIGN_DEATH_TIMER
+    }
+    public enum PlayerExtraFlags
+    {
+        // gm abilities
+        PLAYER_EXTRA_GM_ON = 0x0001,
+        PLAYER_EXTRA_GM_ACCEPT_TICKETS = 0x0002,
+        PLAYER_EXTRA_ACCEPT_WHISPERS = 0x0004,
+        PLAYER_EXTRA_TAXICHEAT = 0x0008,
+        PLAYER_EXTRA_GM_INVISIBLE = 0x0010,
+        PLAYER_EXTRA_GM_CHAT = 0x0020,               // Show GM badge in chat messages
+        PLAYER_EXTRA_AUCTION_NEUTRAL = 0x0040,
+        PLAYER_EXTRA_AUCTION_ENEMY = 0x0080,               // overwrite PLAYER_EXTRA_AUCTION_NEUTRAL
+
+        // other states
+        PLAYER_EXTRA_PVP_DEATH = 0x0100                // store PvP death status until corpse creating.
+    }
+    public enum QuestSlotOffsets
+    {
+        QUEST_ID_OFFSET = 0,
+        QUEST_COUNT_STATE_OFFSET = 1,                        // including counters 6bits+6bits+6bits+6bits + state 8bits
+        QUEST_TIME_OFFSET = 2
+    }
+    public enum QuestSlotStateMask
+    {
+        QUEST_STATE_NONE = 0x0000,
+        QUEST_STATE_COMPLETE = 0x0001,
+        QUEST_STATE_FAIL = 0x0002
+    }
+    public enum SkillUpdateState
+    {
+        SKILL_UNCHANGED = 0,
+        SKILL_CHANGED = 1,
+        SKILL_NEW = 2,
+        SKILL_DELETED = 3
+    }
+    public enum PlayerSlots
+    {
+        // first slot for item stored (in any way in player m_items data)
+        PLAYER_SLOT_START = 0,
+        // last+1 slot for item stored (in any way in player m_items data)
+        PLAYER_SLOT_END = 118,
+        PLAYER_SLOTS_COUNT = (PLAYER_SLOT_END - PLAYER_SLOT_START)
+    }
+    public enum EquipmentSlots                                         // 19 slots
+    {
+        EQUIPMENT_SLOT_START = 0,
+        EQUIPMENT_SLOT_HEAD = 0,
+        EQUIPMENT_SLOT_NECK = 1,
+        EQUIPMENT_SLOT_SHOULDERS = 2,
+        EQUIPMENT_SLOT_BODY = 3,
+        EQUIPMENT_SLOT_CHEST = 4,
+        EQUIPMENT_SLOT_WAIST = 5,
+        EQUIPMENT_SLOT_LEGS = 6,
+        EQUIPMENT_SLOT_FEET = 7,
+        EQUIPMENT_SLOT_WRISTS = 8,
+        EQUIPMENT_SLOT_HANDS = 9,
+        EQUIPMENT_SLOT_FINGER1 = 10,
+        EQUIPMENT_SLOT_FINGER2 = 11,
+        EQUIPMENT_SLOT_TRINKET1 = 12,
+        EQUIPMENT_SLOT_TRINKET2 = 13,
+        EQUIPMENT_SLOT_BACK = 14,
+        EQUIPMENT_SLOT_MAINHAND = 15,
+        EQUIPMENT_SLOT_OFFHAND = 16,
+        EQUIPMENT_SLOT_RANGED = 17,
+        EQUIPMENT_SLOT_TABARD = 18,
+        EQUIPMENT_SLOT_END = 19
+    }
+
+    public enum InventorySlots                                         // 4 slots
+    {
+        INVENTORY_SLOT_BAG_START = 19,
+        INVENTORY_SLOT_BAG_END = 23
+    }
+
+    public enum InventoryPackSlots                                     // 16 slots
+    {
+        INVENTORY_SLOT_ITEM_START = 23,
+        INVENTORY_SLOT_ITEM_END = 39
+    }
+
+    public enum BankItemSlots                                          // 28 slots
+    {
+        BANK_SLOT_ITEM_START = 39,
+        BANK_SLOT_ITEM_END = 63
+    }
+
+    public enum BankBagSlots                                           // 7 slots
+    {
+        BANK_SLOT_BAG_START = 63,
+        BANK_SLOT_BAG_END = 69
+    }
+
+    public enum BuyBackSlots                                           // 12 slots
+    {
+        // stored in m_buybackitems
+        BUYBACK_SLOT_START = 69,
+        BUYBACK_SLOT_END = 81
+    }
+
+    public enum KeyRingSlots                                           // 32 slots
+    {
+        KEYRING_SLOT_START = 81,
+        KEYRING_SLOT_END = 97
+    }
+    public enum TradeSlots
+    {
+        TRADE_SLOT_COUNT = 7,
+        TRADE_SLOT_TRADED_COUNT = 6,
+        TRADE_SLOT_NONTRADED = 6
+    }
+
+    public enum TransferAbortReason
+    {
+        TRANSFER_ABORT_MAX_PLAYERS = 0x01,     // Transfer Aborted: instance is full
+        TRANSFER_ABORT_NOT_FOUND = 0x02,     // Transfer Aborted: instance not found
+        TRANSFER_ABORT_TOO_MANY_INSTANCES = 0x03,     // You have entered too many instances recently.
+        TRANSFER_ABORT_SILENTLY = 0x04,     // no message shown the same effect give values above 5
+        TRANSFER_ABORT_ZONE_IN_COMBAT = 0x05,     // Unable to zone in while an encounter is in progress.
+    }
+
+    public enum InstanceResetWarningType
+    {
+        RAID_INSTANCE_WARNING_HOURS = 1,                    // WARNING! %s is scheduled to reset in %d hour(s).
+        RAID_INSTANCE_WARNING_MIN = 2,                    // WARNING! %s is scheduled to reset in %d minute(s)!
+        RAID_INSTANCE_WARNING_MIN_SOON = 3,                    // WARNING! %s is scheduled to reset in %d minute(s). Please exit the zone or you will be returned to your bind location!
+        RAID_INSTANCE_WELCOME = 4                     // Welcome to %s. This raid instance is scheduled to reset in %s.
+    }
+
+    public enum RestType
+    {
+        REST_TYPE_NO = 0,
+        REST_TYPE_IN_TAVERN = 1,
+        REST_TYPE_IN_CITY = 2
+    }
+
+    public enum DuelCompleteType
+    {
+        DUEL_INTERRUPTED = 0,
+        DUEL_WON = 1,
+        DUEL_FLED = 2
+    }
+
+    public enum TeleportToOptions
+    {
+        TELE_TO_GM_MODE = 0x01,
+        TELE_TO_NOT_LEAVE_TRANSPORT = 0x02,
+        TELE_TO_NOT_LEAVE_COMBAT = 0x04,
+        TELE_TO_NOT_UNSUMMON_PET = 0x08,
+        TELE_TO_SPELL = 0x10,
+    }
+
+    /// Type of environmental damages
+    public enum EnvironmentalDamageType
+    {
+        DAMAGE_EXHAUSTED = 0,
+        DAMAGE_DROWNING = 1,
+        DAMAGE_FALL = 2,
+        DAMAGE_LAVA = 3,
+        DAMAGE_SLIME = 4,
+        DAMAGE_FIRE = 5,
+        DAMAGE_FALL_TO_VOID = 6                         // custom case for fall without durability loss
+    }
+
+    public enum PlayedTimeIndex
+    {
+        PLAYED_TIME_TOTAL = 0,
+        PLAYED_TIME_LEVEL = 1
+    }
+    public enum PlayerLoginQueryIndex
+    {
+        PLAYER_LOGIN_QUERY_LOADFROM,
+        PLAYER_LOGIN_QUERY_LOADGROUP,
+        PLAYER_LOGIN_QUERY_LOADBOUNDINSTANCES,
+        PLAYER_LOGIN_QUERY_LOADAURAS,
+        PLAYER_LOGIN_QUERY_LOADSPELLS,
+        PLAYER_LOGIN_QUERY_LOADQUESTSTATUS,
+        PLAYER_LOGIN_QUERY_LOADHONORCP,
+        PLAYER_LOGIN_QUERY_LOADREPUTATION,
+        PLAYER_LOGIN_QUERY_LOADINVENTORY,
+        PLAYER_LOGIN_QUERY_LOADITEMLOOT,
+        PLAYER_LOGIN_QUERY_LOADACTIONS,
+        PLAYER_LOGIN_QUERY_LOADSOCIALLIST,
+        PLAYER_LOGIN_QUERY_LOADHOMEBIND,
+        PLAYER_LOGIN_QUERY_LOADSPELLCOOLDOWNS,
+        PLAYER_LOGIN_QUERY_LOADGUILD,
+        PLAYER_LOGIN_QUERY_LOADBGDATA,
+        PLAYER_LOGIN_QUERY_LOADSKILLS,
+        PLAYER_LOGIN_QUERY_LOADMAILS,
+        PLAYER_LOGIN_QUERY_LOADMAILEDITEMS,
+
+        MAX_PLAYER_LOGIN_QUERY
+    }
+
+    public enum PlayerDelayedOperations
+    {
+        DELAYED_SAVE_PLAYER = 0x01,
+        DELAYED_RESURRECT_PLAYER = 0x02,
+        DELAYED_SPELL_CAST_DESERTER = 0x04,
+        DELAYED_END
+    }
+
+    public enum ReputationSource
+    {
+        REPUTATION_SOURCE_KILL,
+        REPUTATION_SOURCE_QUEST,
+        REPUTATION_SOURCE_SPELL
+    }
+    public enum PlayerRestState
+    {
+        REST_STATE_RESTED = 0x01,
+        REST_STATE_NORMAL = 0x02,
+        REST_STATE_RAF_LINKED = 0x04                      // Exact use unknown
+    }
+
+    public enum PlayerMountResult
+    {
+        MOUNTRESULT_INVALIDMOUNTEE = 0,    // You can't mount that unit!
+        MOUNTRESULT_TOOFARAWAY = 1,    // That mount is too far away!
+        MOUNTRESULT_ALREADYMOUNTED = 2,    // You're already mounted!
+        MOUNTRESULT_NOTMOUNTABLE = 3,    // That unit can't be mounted!
+        MOUNTRESULT_NOTYOURPET = 4,    // That mount isn't your pet!
+        MOUNTRESULT_OTHER = 5,    // internal
+        MOUNTRESULT_LOOTING = 6,    // You can't mount while looting!
+        MOUNTRESULT_RACECANTMOUNT = 7,    // You can't mount because of your race!
+        MOUNTRESULT_SHAPESHIFTED = 8,    // You can't mount while shapeshifted!
+        MOUNTRESULT_FORCEDDISMOUNT = 9,    // You dismount before continuing.
+        MOUNTRESULT_OK = 10    // no error
+    }
+
+    public enum PlayerDismountResult
+    {
+        DISMOUNTRESULT_NOPET = 0,    // internal
+        DISMOUNTRESULT_NOTMOUNTED = 1,    // You're not mounted!
+        DISMOUNTRESULT_NOTYOURPET = 2,    // internal
+        DISMOUNTRESULT_OK = 3     // no error
+    }
 }
 
 public static class EnumCustomAttributeHelper

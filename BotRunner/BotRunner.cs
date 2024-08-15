@@ -37,8 +37,6 @@ namespace BotRunner
 
             };
 
-            _objectManager.Initialize(_currentActivityMemberState, wowEventHandler);
-
             wowEventHandler.OnPartyInvite += (sender, args) =>
             {
                 _objectManager.AcceptGroupInvite();

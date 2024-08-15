@@ -1,5 +1,7 @@
-﻿using BotRunner.Constants;
+﻿using BotRunner.Base;
+using BotRunner.Constants;
 using BotRunner.Interfaces;
+using BotRunner.Models;
 
 namespace ActivityForegroundMember.Objects
 {
@@ -7,7 +9,7 @@ namespace ActivityForegroundMember.Objects
     {
         internal WoWPlayer(
             nint pointer,
-            ulong guid,
+            HighGuid guid,
             WoWObjectType objectType)
             : base(pointer, guid, objectType)
         {

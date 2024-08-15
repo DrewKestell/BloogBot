@@ -1,11 +1,12 @@
-﻿using ObjectManager = ActivityForegroundMember.Game.Statics.ObjectManager;
-using Functions = ActivityForegroundMember.Mem.Functions;
+﻿using Functions = ActivityForegroundMember.Mem.Functions;
 using BotRunner.Interfaces;
 using BotRunner.Constants;
 using ActivityForegroundMember.Constants;
 using ActivityForegroundMember.Mem;
 using PathfindingService.Models;
 using static BotRunner.Constants.Spellbook;
+using BotRunner.Base;
+using BotRunner.Models;
 
 namespace ActivityForegroundMember.Objects
 {
@@ -13,7 +14,7 @@ namespace ActivityForegroundMember.Objects
     {
         internal LocalPlayer(
             nint pointer,
-            ulong guid,
+            HighGuid guid,
             WoWObjectType objectType)
             : base(pointer, guid, objectType) => RefreshSpells();
 
@@ -351,8 +352,6 @@ namespace ActivityForegroundMember.Objects
         public ulong GetBackpackItemGuid(int slot) => MemoryManager.ReadUlong(GetDescriptorPtr() + (MemoryAddresses.LocalPlayer_BackpackFirstItemOffset + slot * 8));
 
         public ulong GetEquippedItemGuid(EquipSlot slot) => MemoryManager.ReadUlong(nint.Add(Pointer, MemoryAddresses.LocalPlayer_EquipmentFirstItemOffset + ((int)slot - 1) * 0x8));
-
-        public IWoWItem GetEquippedItem(EquipSlot slot) => ObjectManager.Instance.Items.FirstOrDefault(x => x.Guid == GetEquippedItemGuid(slot));
 
         public bool CanRiposte
         {

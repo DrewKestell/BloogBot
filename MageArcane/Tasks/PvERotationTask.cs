@@ -29,7 +29,7 @@ namespace MageArcane.Tasks
                 return;
             }
 
-            if (ObjectManager.Player.Target == null || ObjectManager.Player.Target.HealthPercent <= 0)
+            if (ObjectManager.GetTarget(ObjectManager.Player) == null || ObjectManager.GetTarget(ObjectManager.Player).HealthPercent <= 0)
             {
                 ObjectManager.Player.SetTarget(ObjectManager.Aggressors.First().Guid);
             }
@@ -42,17 +42,17 @@ namespace MageArcane.Tasks
             if (useWand)
                 ObjectManager.Player.StartWand();
 
-            TryCastSpell(PresenceOfMind, 0, 50, ObjectManager.Player.Target.HealthPercent > 80);
+            TryCastSpell(PresenceOfMind, 0, 50, ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 80);
 
-            TryCastSpell(ArcanePower, 0, 50, ObjectManager.Player.Target.HealthPercent > 80);
+            TryCastSpell(ArcanePower, 0, 50, ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 80);
 
-            TryCastSpell(Counterspell, 0, 29, ObjectManager.Player.Target.Mana > 0 && ObjectManager.Player.Target.IsCasting);
+            TryCastSpell(Counterspell, 0, 29, ObjectManager.GetTarget(ObjectManager.Player).Mana > 0 && ObjectManager.GetTarget(ObjectManager.Player).IsCasting);
 
             TryCastSpell(ManaShield, 0, 50, !ObjectManager.Player.HasBuff(ManaShield) && ObjectManager.Player.HealthPercent < 20);
 
             TryCastSpell(FireBlast, 0, 19, !ObjectManager.Player.HasBuff(Clearcasting));
 
-            TryCastSpell(FrostNova, 0, 10, !ObjectManager.Units.Any(u => u.Guid != ObjectManager.Player.TargetGuid && u.Health > 0 && u.Position.DistanceTo(ObjectManager.Player.Position) < 15), callback: FrostNovaCallback);
+            TryCastSpell(FrostNova, 0, 10, !ObjectManager.Units.Any(u => u.Guid != ObjectManager.GetTarget(ObjectManager.Player).Guid && u.Health > 0 && u.Position.DistanceTo(ObjectManager.Player.Position) < 15), callback: FrostNovaCallback);
 
             TryCastSpell(Fireball, 0, 34, ObjectManager.Player.Level < 15 || ObjectManager.Player.HasBuff(PresenceOfMind));
 

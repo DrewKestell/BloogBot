@@ -1,9 +1,11 @@
-﻿using BotRunner.Interfaces;
+﻿using BotRunner.Base;
+using BotRunner.Models;
 
 namespace WoWSharpClient.Models
 {
-    public class Container(byte[] lowGuid, byte[] highGuid) : Item(lowGuid, highGuid, WoWObjectType.Container)
+    public class Container(HighGuid highGuid) : Item( highGuid, WoWObjectType.Container)
     {
-        public int Slots { get; set; }
+        public int NumOfSlots { get; set; }
+        public IList<uint> Slots { get; internal set; } = [];
     }
 }

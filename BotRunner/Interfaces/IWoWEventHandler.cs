@@ -118,16 +118,20 @@ namespace BotRunner.Interfaces
         public readonly string Player = player;
     }
 
-    public class ChatMessageArgs(ChatSenderType unitType, string chatTag, string unitName, string chatChannel, string message) : EventArgs
+    public class ChatMessageArgs(ChatMsg msgtype, Language language, ulong senderGuid, ulong targetGuid, string senderName, string channelName, byte playerRank, string text, PlayerChatTag playerChatTag) : EventArgs
     {
-        public ChatSenderType UnitType { get; } = unitType;
-        public string ChatTag { get; } = chatTag;
-        public string UnitName { get; } = unitName;
-        public string ChatChannel { get; } = chatChannel;
-        public string Message { get; } = message;
+        public readonly ChatMsg MsgType = msgtype;
+        public readonly Language Language = language;
+        public readonly ulong SenderGuid = senderGuid;
+        public readonly ulong TargetGuid = targetGuid;
+        public readonly string SenderName = senderName;
+        public readonly string ChannelName = channelName;
+        public readonly byte PlayerRank = playerRank;
+        public readonly string Text = text;
+        public readonly PlayerChatTag PlayerChatTag = playerChatTag;
         public DateTime Time { get; } = DateTime.Now;
 
-        public override string ToString() => $"[{Time.ToShortTimeString()}] [{ChatTag}] [{ChatChannel}]: {Message}";
+        public override string ToString() => $"[{Time.ToShortTimeString()}]";
     }
 
     public class GuildInviteArgs(string player, string guild) : EventArgs

@@ -1,6 +1,8 @@
 ﻿using ActivityForegroundMember.Mem;
+using BotRunner.Base;
 using BotRunner.Constants;
 using BotRunner.Interfaces;
+using BotRunner.Models;
 
 namespace ActivityForegroundMember.Objects
 {
@@ -8,7 +10,7 @@ namespace ActivityForegroundMember.Objects
     {
         internal WoWItem(
             nint pointer,
-            ulong guid,
+            HighGuid guid,
             WoWObjectType objectType)
             : base(pointer, guid, objectType)
         {

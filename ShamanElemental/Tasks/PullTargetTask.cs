@@ -27,7 +27,7 @@ namespace ShamanElemental.Tasks
             {
                 IWoWUnit potentialNewTarget = ObjectManager.Hostiles.First();
 
-                if (potentialNewTarget != null && potentialNewTarget.Guid != ObjectManager.Player.TargetGuid)
+                if (potentialNewTarget != null && potentialNewTarget.Guid != ObjectManager.GetTarget(ObjectManager.Player).Guid)
                 {
                     target = potentialNewTarget;
                     ObjectManager.Player.SetTarget(potentialNewTarget.Guid);
@@ -43,7 +43,7 @@ namespace ShamanElemental.Tasks
                 return;
             }
 
-            Position[] locations = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+            Position[] locations = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.GetTarget(ObjectManager.Player).Position, true);
 
             if (locations.Length > 1)
             {

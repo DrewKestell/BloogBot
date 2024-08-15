@@ -1,12 +1,12 @@
 ﻿using BotRunner.Constants;
 using BotRunner.Interfaces;
+using BotRunner.Models;
 using PathfindingService.Models;
-using WoWSharpClient.Manager;
 
 
 namespace WoWSharpClient.Models
 {
-    public class LocalPlayer(byte[] lowGuid, byte[] highGuid) : Player(lowGuid, highGuid)
+    public class LocalPlayer(HighGuid highGuid) : Player(highGuid)
     {
         private readonly Random random = new();
 

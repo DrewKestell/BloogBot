@@ -61,7 +61,7 @@ namespace WarriorFury.Tasks
                 return;
             }
 
-            if (ObjectManager.Player.Target == null || ObjectManager.Player.Target.HealthPercent <= 0)
+            if (ObjectManager.GetTarget(ObjectManager.Player) == null || ObjectManager.GetTarget(ObjectManager.Player).HealthPercent <= 0)
             {
                 ObjectManager.Player.SetTarget(ObjectManager.Aggressors.First().Guid);
             }
@@ -73,57 +73,57 @@ namespace WarriorFury.Tasks
             IEnumerable<IWoWUnit> spellcastingAggressors = ObjectManager.Aggressors
                 .Where(a => a.Mana > 0);
             // Use these abilities when fighting any number of mobs.   
-            TryUseAbility(BerserkerStance, condition: ObjectManager.Player.Level >= 30 && currentStance == BattleStance && (ObjectManager.Player.Target.HasDebuff(Rend) || ObjectManager.Player.Target.HealthPercent < 80 || ObjectManager.Player.Target.CreatureType == CreatureType.Elemental || ObjectManager.Player.Target.CreatureType == CreatureType.Undead));
+            TryUseAbility(BerserkerStance, condition: ObjectManager.Player.Level >= 30 && currentStance == BattleStance && (ObjectManager.GetTarget(ObjectManager.Player).HasDebuff(Rend) || ObjectManager.GetTarget(ObjectManager.Player).HealthPercent < 80 || ObjectManager.GetTarget(ObjectManager.Player).CreatureType == CreatureType.Elemental || ObjectManager.GetTarget(ObjectManager.Player).CreatureType == CreatureType.Undead));
 
-            TryUseAbility(Pummel, 10, currentStance == BerserkerStance && ObjectManager.Player.Target.Mana > 0 && (ObjectManager.Player.Target.IsCasting || ObjectManager.Player.Target.IsChanneling));
+            TryUseAbility(Pummel, 10, currentStance == BerserkerStance && ObjectManager.GetTarget(ObjectManager.Player).Mana > 0 && (ObjectManager.GetTarget(ObjectManager.Player).IsCasting || ObjectManager.GetTarget(ObjectManager.Player).IsChanneling));
 
-            // TryUseAbility(Rend, 10, (currentStance == BattleStance && ObjectManager.Player.Target.HealthPercent > 50 && !ObjectManager.Player.Target.HasDebuff(Rend) && (ObjectManager.Player.Target.CreatureType != CreatureType.Elemental && ObjectManager.Player.Target.CreatureType != CreatureType.Undead)));
+            // TryUseAbility(Rend, 10, (currentStance == BattleStance && ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 50 && !ObjectManager.GetTarget(ObjectManager.Player).HasDebuff(Rend) && (ObjectManager.GetTarget(ObjectManager.Player).CreatureType != CreatureType.Elemental && ObjectManager.GetTarget(ObjectManager.Player).CreatureType != CreatureType.Undead)));
 
-            TryUseAbility(DeathWish, 10, ObjectManager.Player.IsSpellReady(DeathWish) && ObjectManager.Player.Target.HealthPercent > 80);
+            TryUseAbility(DeathWish, 10, ObjectManager.Player.IsSpellReady(DeathWish) && ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 80);
 
             TryUseAbility(BattleShout, 10, !ObjectManager.Player.HasBuff(BattleShout));
 
-            TryUseAbilityById(BloodFury, 4, 0, ObjectManager.Player.Target.HealthPercent > 80);
+            TryUseAbilityById(BloodFury, 4, 0, ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 80);
 
-            TryUseAbility(Bloodrage, condition: ObjectManager.Player.Target.HealthPercent > 50);
+            TryUseAbility(Bloodrage, condition: ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 50);
 
-            TryUseAbility(Execute, 15, ObjectManager.Player.Target.HealthPercent < 20);
+            TryUseAbility(Execute, 15, ObjectManager.GetTarget(ObjectManager.Player).HealthPercent < 20);
 
-            TryUseAbility(BerserkerRage, condition: ObjectManager.Player.Target.HealthPercent > 70 && currentStance == BerserkerStance);
+            TryUseAbility(BerserkerRage, condition: ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 70 && currentStance == BerserkerStance);
 
             TryUseAbility(Overpower, 5, currentStance == BattleStance && overpowerStopwatch.IsRunning);
 
             // Use these abilities if you are fighting TWO OR MORE mobs at once.
             if (ObjectManager.Aggressors.Count() >= 2)
             {
-                TryUseAbility(IntimidatingShout, 25, !(ObjectManager.Player.Target.HasDebuff(IntimidatingShout) || ObjectManager.Player.HasBuff(Retaliation)) && ObjectManager.Aggressors.All(a => a.Position.DistanceTo(ObjectManager.Player.Position) < 10));
+                TryUseAbility(IntimidatingShout, 25, !(ObjectManager.GetTarget(ObjectManager.Player).HasDebuff(IntimidatingShout) || ObjectManager.Player.HasBuff(Retaliation)) && ObjectManager.Aggressors.All(a => a.Position.DistanceTo(ObjectManager.Player.Position) < 10));
 
-                TryUseAbility(DemoralizingShout, 10, !ObjectManager.Player.Target.HasDebuff(DemoralizingShout));
+                TryUseAbility(DemoralizingShout, 10, !ObjectManager.GetTarget(ObjectManager.Player).HasDebuff(DemoralizingShout));
 
-                // TryUseAbility(Cleave, 20, ObjectManager.Player.Target.HealthPercent > 20 && FacingAllTargets);
+                // TryUseAbility(Cleave, 20, ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 20 && FacingAllTargets);
 
-                TryUseAbility(Whirlwind, 25, ObjectManager.Player.Target.HealthPercent > 20 && currentStance == BerserkerStance && !ObjectManager.Player.Target.HasDebuff(IntimidatingShout) && AggressorsInMelee);
+                TryUseAbility(Whirlwind, 25, ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 20 && currentStance == BerserkerStance && !ObjectManager.GetTarget(ObjectManager.Player).HasDebuff(IntimidatingShout) && AggressorsInMelee);
 
-                // if our ObjectManager.Player.Target uses melee, but there's a caster attacking us, do not use retaliation
+                // if our ObjectManager.GetTarget(ObjectManager.Player) uses melee, but there's a caster attacking us, do not use retaliation
                 TryUseAbility(Retaliation, 0, ObjectManager.Player.IsSpellReady(Retaliation) && !spellcastingAggressors.Any() && currentStance == BattleStance && FacingAllTargets && !ObjectManager.Aggressors.Any(a => a.HasDebuff(IntimidatingShout)));
             }
 
             // Use these abilities if you are fighting only one mob at a time, or multiple and one or more are not in melee range.
             if (ObjectManager.Aggressors.Any() || (ObjectManager.Aggressors.Count() > 1 && !AggressorsInMelee))
             {
-                TryUseAbility(Slam, 15, ObjectManager.Player.Target.HealthPercent > 20 && slamReady, SlamCallback);
+                TryUseAbility(Slam, 15, ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 20 && slamReady, SlamCallback);
                 
-                // TryUseAbility(Rend, 10, (currentStance == BattleStance && ObjectManager.Player.Target.HealthPercent > 50 && !ObjectManager.Player.Target.HasDebuff(Rend) && (ObjectManager.Player.Target.CreatureType != CreatureType.Elemental && ObjectManager.Player.Target.CreatureType != CreatureType.Undead)));
+                // TryUseAbility(Rend, 10, (currentStance == BattleStance && ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 50 && !ObjectManager.GetTarget(ObjectManager.Player).HasDebuff(Rend) && (ObjectManager.GetTarget(ObjectManager.Player).CreatureType != CreatureType.Elemental && ObjectManager.GetTarget(ObjectManager.Player).CreatureType != CreatureType.Undead)));
 
                 TryUseAbility(Bloodthirst, 30);
 
-                TryUseAbility(Hamstring, 10, ObjectManager.Player.Target.CreatureType == CreatureType.Humanoid && !ObjectManager.Player.Target.HasDebuff(Hamstring));
+                TryUseAbility(Hamstring, 10, ObjectManager.GetTarget(ObjectManager.Player).CreatureType == CreatureType.Humanoid && !ObjectManager.GetTarget(ObjectManager.Player).HasDebuff(Hamstring));
 
-                TryUseAbility(HeroicStrike, ObjectManager.Player.Level < 30 ? 15 : 45, ObjectManager.Player.Target.HealthPercent > 30);
+                TryUseAbility(HeroicStrike, ObjectManager.Player.Level < 30 ? 15 : 45, ObjectManager.GetTarget(ObjectManager.Player).HealthPercent > 30);
 
-                TryUseAbility(Execute, 15, ObjectManager.Player.Target.HealthPercent < 20);
+                TryUseAbility(Execute, 15, ObjectManager.GetTarget(ObjectManager.Player).HealthPercent < 20);
 
-                TryUseAbility(SunderArmor, 15, ObjectManager.Player.Target.HealthPercent < 80 && !ObjectManager.Player.Target.HasDebuff(SunderArmor));
+                TryUseAbility(SunderArmor, 15, ObjectManager.GetTarget(ObjectManager.Player).HealthPercent < 80 && !ObjectManager.GetTarget(ObjectManager.Player).HasDebuff(SunderArmor));
             }
 
             if (overpowerStopwatch.ElapsedMilliseconds > 5000)
@@ -148,7 +148,7 @@ namespace WarriorFury.Tasks
             slamReady = false;
         }
 
-        // Check to see if toon is facing all the ObjectManager.Player.Targets and they are within melee, used to determine if player should walkbackwards to reposition ObjectManager.Player.Targets in front of mob.
+        // Check to see if toon is facing all the ObjectManager.GetTarget(ObjectManager.Player)s and they are within melee, used to determine if player should walkbackwards to reposition ObjectManager.GetTarget(ObjectManager.Player)s in front of mob.
         private bool FacingAllTargets
         {
             get

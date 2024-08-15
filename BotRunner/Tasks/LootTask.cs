@@ -14,19 +14,19 @@ namespace BotRunner.Tasks
 
         public void Update()
         {
-            if (ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) >= 5)
+            if (ObjectManager.Player.Position.DistanceTo(ObjectManager.GetTarget(ObjectManager.Player).Position) >= 5)
             {
-                Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+                Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.GetTarget(ObjectManager.Player).Position, true);
                 ObjectManager.Player.MoveToward(nextWaypoint[0]);
             }
 
-            if (ObjectManager.Player.Target.CanBeLooted && currentState == LootStates.Initial && ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position) < 5)
+            if (ObjectManager.GetTarget(ObjectManager.Player).CanBeLooted && currentState == LootStates.Initial && ObjectManager.Player.Position.DistanceTo(ObjectManager.GetTarget(ObjectManager.Player).Position) < 5)
             {
                 ObjectManager.Player.StopAllMovement();
 
                 if (Wait.For("StartLootDelay", 200))
                 {
-                    ObjectManager.Player.Target.Interact();
+                    ObjectManager.GetTarget(ObjectManager.Player).Interact();
                     currentState = LootStates.RightClicked;
                     return;
                 }
@@ -37,7 +37,7 @@ namespace BotRunner.Tasks
             //  - loot frame is open, but we've already looted everything we want
             //  - stuck count is greater than 5 (perhaps the corpse is in an awkward position the character can't reach)
             //  - we've been in the loot state for over 10 seconds (again, perhaps the corpse is unreachable. most common example of this is when a mob dies on a cliff that we can't climb)
-            if (currentState == LootStates.Initial && !ObjectManager.Player.Target.CanBeLooted || lootFrame != null && lootIndex == lootFrame.LootItems.Count() || stuckCount > 5 || Environment.TickCount - startTime > 10000)
+            if (currentState == LootStates.Initial && !ObjectManager.GetTarget(ObjectManager.Player).CanBeLooted || lootFrame != null && lootIndex == lootFrame.LootItems.Count() || stuckCount > 5 || Environment.TickCount - startTime > 10000)
             {
                 ObjectManager.Player.StopAllMovement();
                 BotTasks.Pop();

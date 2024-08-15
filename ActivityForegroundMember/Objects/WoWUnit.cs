@@ -1,26 +1,19 @@
 ﻿using ActivityForegroundMember.Mem;
+using BotRunner.Base;
 using BotRunner.Constants;
 using BotRunner.Interfaces;
 using BotRunner.Models;
 using PathfindingService.Models;
 using Functions = ActivityForegroundMember.Mem.Functions;
-using ObjectManager = ActivityForegroundMember.Game.Statics.ObjectManager;
 
 namespace ActivityForegroundMember.Objects
 {
-    public class WoWUnit : WoWObject, IWoWUnit
+    public class WoWUnit(
+        nint pointer,
+        HighGuid guid,
+        WoWObjectType objectType) : WoWObject(pointer, guid, objectType), IWoWUnit
     {
         private static readonly string[] ImmobilizedSpellText = ["Immobilized"];
-
-        public WoWUnit() { }
-
-        public WoWUnit(
-            nint pointer,
-            ulong guid,
-            WoWObjectType objectType)
-            : base(pointer, guid, objectType)
-        {
-        }
 
         public int CreatureId => int.Parse(Guid.ToString("X").Substring(10, 6), System.Globalization.NumberStyles.HexNumber);
 
@@ -73,8 +66,6 @@ namespace ActivityForegroundMember.Objects
         public int FactionId => MemoryManager.ReadInt(GetDescriptorPtr() + MemoryAddresses.WoWUnit_FactionIdOffset);
 
         public bool NotAttackable => UnitFlags.HasFlag(UnitFlags.UNIT_FLAG_NON_ATTACKABLE);
-
-        public bool IsFacing(Position position) => Math.Abs(GetFacingForPosition(position) - Facing) < 0.05f;
 
         // in radians
         public float GetFacingForPosition(Position position)
@@ -159,7 +150,7 @@ namespace ActivityForegroundMember.Objects
 
         public CreatureType CreatureType => Functions.GetCreatureType(Pointer);
 
-        public UnitReaction UnitReaction => Functions.GetUnitReaction(Pointer, ObjectManager.Instance.Player.Pointer);
+        public UnitReaction UnitReaction => Functions.GetUnitReaction(Pointer, Pointer);
 
         public virtual CreatureRank CreatureRank => (CreatureRank)Functions.GetCreatureRank(Pointer);
 
@@ -264,6 +255,21 @@ namespace ActivityForegroundMember.Objects
             throw new NotImplementedException();
         }
 
+        public bool IsFacing(IWoWGameObject objc)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool InLosWith(IWoWGameObject objc)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Position GetPointBehindUnit(float distance)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool IsImmobilized
         {
             get
@@ -274,8 +280,20 @@ namespace ActivityForegroundMember.Objects
 
         public IWoWUnit Target => throw new NotImplementedException();
 
-        public Dictionary<Powers, uint> Power => throw new NotImplementedException();
+        public Dictionary<Powers, uint> Powers => throw new NotImplementedException();
 
-        public Dictionary<Powers, uint> MaxPower => throw new NotImplementedException();
+        public Dictionary<Powers, uint> MaxPowers => throw new NotImplementedException();
+
+        public uint DisplayId => throw new NotImplementedException();
+
+        public GOState GoState => throw new NotImplementedException();
+
+        public uint ArtKit => throw new NotImplementedException();
+
+        public uint AnimProgress => throw new NotImplementedException();
+
+        public uint FactionTemplate => throw new NotImplementedException();
+
+        public uint TypeId => throw new NotImplementedException();
     }
 }

@@ -19,7 +19,7 @@ namespace WoWSharpClient.Models
                     var iAdjusted = i - 1;
                     var bag = GetExtraBag(iAdjusted);
                     if (bag == null) continue;
-                    slots = bag.Slots;
+                    slots = bag.NumOfSlots;
                 }
 
                 for (var k = 0; k <= slots; k++)
@@ -46,7 +46,7 @@ namespace WoWSharpClient.Models
                     var iAdjusted = i - 1;
                     var bag = GetExtraBag(iAdjusted);
                     if (bag == null) continue;
-                    slots = bag.Slots;
+                    slots = bag.NumOfSlots;
                 }
 
                 for (var k = 0; k <= slots; k++)
@@ -69,7 +69,7 @@ namespace WoWSharpClient.Models
                     continue;
                 }
 
-                for (int slot = 0; slot < (bag == 0 ? 16 : container.Slots); slot++)
+                for (int slot = 0; slot < (bag == 0 ? 16 : container.NumOfSlots); slot++)
                 {
                     var item = GetItem(bag, slot);
                     if (item == null)
@@ -117,7 +117,7 @@ namespace WoWSharpClient.Models
                     var iAdjusted = i - 1;
                     var bag = GetExtraBag(iAdjusted);
                     if (bag == null) continue;
-                    slots = bag.Slots;
+                    slots = bag.NumOfSlots;
                 }
 
                 for (var k = 0; k < slots; k++)
@@ -144,7 +144,7 @@ namespace WoWSharpClient.Models
                     var iAdjusted = i - 1;
                     var bag = GetExtraBag(iAdjusted);
                     if (bag == null) continue;
-                    slots = bag.Slots;
+                    slots = bag.NumOfSlots;
                 }
 
                 for (var k = 0; k < slots; k++)

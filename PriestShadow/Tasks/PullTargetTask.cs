@@ -25,13 +25,13 @@ namespace PriestShadow.Tasks
             {
                 IWoWUnit potentialNewTarget = ObjectManager.Hostiles.First();
 
-                if (potentialNewTarget != null && potentialNewTarget.Guid != ObjectManager.Player.TargetGuid)
+                if (potentialNewTarget != null && potentialNewTarget.Guid != ObjectManager.GetTarget(ObjectManager.Player).Guid)
                 {
                     ObjectManager.Player.SetTarget(potentialNewTarget.Guid);
                 }
             }
 
-            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.Player.Target.Position);
+            float distanceToTarget = ObjectManager.Player.Position.DistanceTo(ObjectManager.GetTarget(ObjectManager.Player).Position);
             if (distanceToTarget < 27)
             {
                 if (ObjectManager.Player.IsMoving)
@@ -43,7 +43,7 @@ namespace PriestShadow.Tasks
                     {
                         if (Wait.For("ShadowPriestPullDelay", 250))
                         {
-                            ObjectManager.Player.SetTarget(ObjectManager.Player.TargetGuid);
+                            ObjectManager.Player.SetTarget(ObjectManager.GetTarget(ObjectManager.Player).Guid);
                             Wait.Remove("ShadowPriestPullDelay");
 
                             if (!ObjectManager.Player.IsInCombat)
@@ -63,7 +63,7 @@ namespace PriestShadow.Tasks
             }
             else
             {
-                Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.Player.Target.Position, true);
+                Position[] nextWaypoint = Container.PathfindingClient.GetPath(ObjectManager.MapId, ObjectManager.Player.Position, ObjectManager.GetTarget(ObjectManager.Player).Position, true);
                 if (nextWaypoint.Length > 1)
                 {
                     currentWaypoint = nextWaypoint[1];

@@ -1,0 +1,823 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Moq" Version="4.20.70" />
+    <PackageReference Include="xunit" Version="2.5.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WoWSharpClient\WoWSharpClient.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Resources\MSG_MOVE_FALL_LAND\20240815_084650695.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\MSG_MOVE_TIME_SKIPPED\20240815_084650594.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_ACCOUNT_DATA_TIMES\20240815_084614750.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_ACTION_BUTTONS\20240815_084614759.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_ACTION_BUTTONS\20240815_084614761.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_AUTH_RESPONSE\20240815_084614262.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_BINDPOINTUPDATE\20240815_084614755.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_CHAR_ENUM\20240815.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_MOVES\20240815_084616896.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_MOVES\20240815_084619646.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_MOVES\20240815_084623397.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_MOVES\20240815_084627289.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_MOVES\20240815_084631940.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_MOVES\20240815_084640994.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_MOVES\20240815_084744996.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_MOVES\20240815_084752844.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_MOVES\20240815_084759689.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_1.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084614763.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084614764.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084619798.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084620799.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084622497.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084622699.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084625743.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084626845.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084628746.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084631698.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084632800.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084634700.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084637690.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084638842.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084640691.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084643693.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084644845.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084646742.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084649745.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084650513.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084650796.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084652746.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084655697.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084656798.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084658698.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084701750.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084702892.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084704701.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084707748.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084708843.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084710698.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084713699.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084714895.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084716748.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084719749.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084720792.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084722689.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084725799.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084726801.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084728797.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084731747.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084732790.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084734697.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084737696.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084738842.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084740800.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084740802.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084743698.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084744997.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084746749.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084749741.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084750846.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084752845.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084755745.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084756850.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084758695.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084801798.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084802844.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084804740.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084807691.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084808848.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084810692.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084813692.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084815001.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084816694.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084819797.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084820243.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084820852.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084822697.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084825748.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084826842.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084828799.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084831699.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084832845.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084834698.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084837698.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084838843.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_DESTROY_OBJECT\20240815_084623044.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_DESTROY_OBJECT\20240815_084642450.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_DESTROY_OBJECT\20240815_084801646.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_FRIEND_LIST\20240815_084614765.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_GROUP_LIST\20240815_084614771.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_IGNORE_LIST\20240815_084614766.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_INITIALIZE_FACTIONS\20240815_084614760.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_INITIAL_SPELLS\20240815_084614757.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_INIT_WORLD_STATES\20240815_084614767.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_LOGIN_SETTIMESPEED\20240815_084614760.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_LOGIN_VERIFY_WORLD\20240815_084614750.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_MESSAGECHAT\ServerWelcome.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_MESSAGECHAT\PatchMessage.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_MESSAGECHAT\Say.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_MESSAGECHAT\Whisper.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_MESSAGECHAT\Yell.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_FLAT_SPELL_MODIFIER\20240815_084614637.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_FLAT_SPELL_MODIFIER\20240815_084614640.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_FLAT_SPELL_MODIFIER\20240815_084614644.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_FLAT_SPELL_MODIFIER\20240815_084614646.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_FLAT_SPELL_MODIFIER\20240815_084614648.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_FLAT_SPELL_MODIFIER\20240815_084614650.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_FLAT_SPELL_MODIFIER\20240815_084614651.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_FLAT_SPELL_MODIFIER\20240815_084614655.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_FLAT_SPELL_MODIFIER\20240815_084614658.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_FLAT_SPELL_MODIFIER\20240815_084614661.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_FLAT_SPELL_MODIFIER\20240815_084614662.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_FLAT_SPELL_MODIFIER\20240815_084614664.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_FLAT_SPELL_MODIFIER\20240815_084614677.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_FLAT_SPELL_MODIFIER\20240815_084614678.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_FLAT_SPELL_MODIFIER\20240815_084614679.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_FLAT_SPELL_MODIFIER\20240815_084614681.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_FLAT_SPELL_MODIFIER\20240815_084614700.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_FLAT_SPELL_MODIFIER\20240815_084614702.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_FLAT_SPELL_MODIFIER\20240815_084614703.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_FLAT_SPELL_MODIFIER\20240815_084614727.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PCT_SPELL_MODIFIER\20240815_084614641.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PCT_SPELL_MODIFIER\20240815_084614667.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PCT_SPELL_MODIFIER\20240815_084614668.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PCT_SPELL_MODIFIER\20240815_084614669.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PCT_SPELL_MODIFIER\20240815_084614671.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PCT_SPELL_MODIFIER\20240815_084614674.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PCT_SPELL_MODIFIER\20240815_084614686.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PCT_SPELL_MODIFIER\20240815_084614687.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PCT_SPELL_MODIFIER\20240815_084614688.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PCT_SPELL_MODIFIER\20240815_084614689.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PCT_SPELL_MODIFIER\20240815_084614690.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PCT_SPELL_MODIFIER\20240815_084614693.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PCT_SPELL_MODIFIER\20240815_084614694.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PCT_SPELL_MODIFIER\20240815_084614695.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PCT_SPELL_MODIFIER\20240815_084614696.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PCT_SPELL_MODIFIER\20240815_084614697.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PCT_SPELL_MODIFIER\20240815_084614699.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PROFICIENCY\20240815_084614617.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PROFICIENCY\20240815_084614621.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PROFICIENCY\20240815_084614623.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PROFICIENCY\20240815_084614625.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PROFICIENCY\20240815_084614626.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PROFICIENCY\20240815_084614628.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PROFICIENCY\20240815_084614631.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PROFICIENCY\20240815_084614633.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PROFICIENCY\20240815_084614634.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PROFICIENCY\20240815_084614635.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PROFICIENCY\20240815_084614706.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PROFICIENCY\20240815_084614709.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PROFICIENCY\20240815_084614710.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PROFICIENCY\20240815_084614711.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PROFICIENCY\20240815_084614713.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PROFICIENCY\20240815_084614716.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PROFICIENCY\20240815_084614717.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PROFICIENCY\20240815_084614718.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_PROFICIENCY\20240815_084614720.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SET_REST_START\20240815_084614754.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614620.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614622.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614624.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614626.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614627.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614629.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614630.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614632.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614633.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614635.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614636.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614638.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614639.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614640.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614642.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614645.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614647.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614649.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614651.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614652.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614653.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614654.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614655.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614656.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614657.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614659.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614661.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614663.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614665.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614666.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614670.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614672.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614673.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614676.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614678.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614680.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614681.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614682.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614683.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614684.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614685.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614698.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614700.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614701.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614702.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614704.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614705.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614707.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614710.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614711.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614712.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614713.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614715.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614716.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614717.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614719.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614720.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614721.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614723.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614724.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614725.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614726.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614727.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614728.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614729.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614730.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614731.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614732.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614733.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614734.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614735.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614736.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614737.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614739.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614740.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614741.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614742.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614743.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614744.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614745.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614746.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614747.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614748.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELLLOGMISS\20240815_084614749.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELL_GO\20240815_084614769.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_SPELL_GO\20240815_084650514.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_TUTORIAL_FLAGS\20240815_084614756.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_UPDATE_AURA_DURATION\20240815_084614572.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_UPDATE_OBJECT\20240815_1.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_UPDATE_OBJECT\20240815_084616400.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_UPDATE_OBJECT\20240815_084657910.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_UPDATE_OBJECT\20240815_084659143.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_UPDATE_OBJECT\20240815_084752641.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_UPDATE_OBJECT\20240815_084812740.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_UPDATE_OBJECT\20240815_084824095.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\SMSG_WEATHER\20240815_084614768.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -3,10 +3,12 @@ using System.Text;
 using WoWSharpClient.Manager;
 using BotRunner.Interfaces;
 using BotRunner.Constants;
+using PathfindingService.Models;
+using WoWSharpClient.Utils;
 
 namespace WoWSharpClient.Handlers
 {
-    public class CharacterHandler(WoWSharpEventEmitter woWSharpEventEmitter, ObjectManager objectManager)
+    public class CharacterSelectHandler(WoWSharpEventEmitter woWSharpEventEmitter, ObjectManager objectManager)
     {
         private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpEventEmitter;
         private readonly ObjectManager _objectManager = objectManager;
@@ -23,46 +25,54 @@ namespace WoWSharpClient.Handlers
                 var character = new CharacterSelect
                 {
                     Guid = reader.ReadUInt64(),
-                    Name = ReadString(reader),
-                    Race = reader.ReadByte(),
-                    CharacterClass = reader.ReadByte(),
+                    Name = ReaderUtils.ReadCString(reader),
+                    Race = (Race)reader.ReadByte(),
+                    Class = (Class)reader.ReadByte(),
                     Gender = reader.ReadByte(),
+
                     Skin = reader.ReadByte(),
                     Face = reader.ReadByte(),
                     HairStyle = reader.ReadByte(),
                     HairColor = reader.ReadByte(),
+
                     FacialHair = reader.ReadByte(),
+
                     Level = reader.ReadByte(),
                     ZoneId = reader.ReadUInt32(),
                     MapId = reader.ReadUInt32(),
-                    X = reader.ReadSingle(),
-                    Y = reader.ReadSingle(),
-                    Z = reader.ReadSingle(),
+
+                    Position = new Position(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()),
+
                     GuildId = reader.ReadUInt32(),
-                    Flags = reader.ReadUInt32(),
-                    FirstLogin = reader.ReadByte(),
-                    Equipment = new byte[20]
+
+                    CharacterFlags = (CharacterFlags) reader.ReadUInt32(),
+                    FirstLogin = (AtLoginFlags)reader.ReadByte(),
+
+
+                    PetDisplayId = reader.ReadUInt32(),
+                    PetLevel = reader.ReadUInt32(),
+                    PetFamily = reader.ReadUInt32(),
+                    Equipment = []
                 };
-                for (int j = 0; j < 20; j++)
+
+                // Read equipment (19 slots)
+                for (int j = 0; j < 19; j++)
                 {
-                    character.Equipment[j] = reader.ReadByte();
+                    uint displayId = reader.ReadUInt32();
+                    InventoryType inventoryType = (InventoryType) reader.ReadByte();
+                    character.Equipment.Add((displayId, inventoryType));
                 }
 
+                // Read first bag information
+                character.FirstBagDisplayId = reader.ReadUInt32();
+                character.FirstBagInventoryType = reader.ReadByte();
+
+                // Add the parsed character to the character selection list
                 _objectManager.CharacterSelects.Add(character);
             }
 
+            // Trigger an event once the character list is loaded
             _woWSharpEventEmitter.FireOnCharacterListLoaded();
-        }
-
-        private string ReadString(BinaryReader reader)
-        {
-            var stringBuilder = new StringBuilder();
-            char ch;
-            while ((ch = reader.ReadChar()) != '\0')
-            {
-                stringBuilder.Append(ch);
-            }
-            return stringBuilder.ToString();
         }
 
         public void HandleSetRestStart(Opcodes opcode, byte[] data)

@@ -63,7 +63,7 @@ namespace BotRunner.Tasks
                         //    Console.WriteLine($"Got it! {JsonConvert.SerializeObject(creatures)}");
                         //}
 
-                        ObjectManager.SetRaidTarget(ObjectManager.Player.Target, TargetMarker.Skull);
+                        ObjectManager.SetRaidTarget(ObjectManager.GetTarget(ObjectManager.Player), TargetMarker.Skull);
 
                         BotTasks.Push(Container.CreatePullTargetTask(BotContext));
                         return;

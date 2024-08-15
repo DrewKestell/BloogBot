@@ -1,39 +1,79 @@
 ﻿using BotRunner.Constants;
 using System.Text;
 using WoWSharpClient.Manager;
+using WoWSharpClient.Utils;
 
 namespace WoWSharpClient.Handlers
 {
-    public class ChatHandler(WoWSharpEventEmitter woWSharpEventEmitter, ObjectManager objectManager)
+    public class ChatHandler
     {
-        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpEventEmitter;
-        private readonly ObjectManager _objectManager = objectManager;
+        private readonly WoWSharpEventEmitter _woWSharpEventEmitter;
+        private readonly ObjectManager _objectManager;
+
+        public ChatHandler(WoWSharpEventEmitter woWSharpEventEmitter, ObjectManager objectManager)
+        {
+            _woWSharpEventEmitter = woWSharpEventEmitter;
+            _objectManager = objectManager;
+        }
+
         public void HandleServerChatMessage(Opcodes opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
             try
             {
-                //Console.WriteLine($"[HandleServerChatMessage][OpCode:{opcode}][Data:{BitConverter.ToString(data)}]");
-                ChatMessageType messageType = (ChatMessageType)reader.ReadByte();
+                ChatMsg msgtype = (ChatMsg)reader.ReadByte();
                 Language language = (Language)reader.ReadInt32();
-                ulong senderGUID = reader.ReadUInt64();
+                ulong senderGuid = 0;
+                ulong targetGuid = 0;
+                uint senderNameLength = 0;
+                string senderName = string.Empty;
+                string channelName = string.Empty;
+                byte playerRank = 0;
+                PlayerChatTag playerChatTag = PlayerChatTag.CHAT_TAG_NONE;
 
-                if (messageType == ChatMessageType.Say)
+                switch (msgtype)
                 {
-                    ulong anotherGUID = reader.ReadUInt64();
+                    case ChatMsg.CHAT_MSG_MONSTER_WHISPER:
+                    case ChatMsg.CHAT_MSG_RAID_BOSS_WHISPER:
+                    case ChatMsg.CHAT_MSG_RAID_BOSS_EMOTE:
+                    case ChatMsg.CHAT_MSG_MONSTER_EMOTE:
+                        senderNameLength = reader.ReadUInt32();
+                        senderName = ReaderUtils.ReadCString(reader); // Skip the sender name
+                        senderGuid = ReaderUtils.ReadPackedGuid(reader);
+                        break;
+
+                    case ChatMsg.CHAT_MSG_SAY:
+                    case ChatMsg.CHAT_MSG_PARTY:
+                    case ChatMsg.CHAT_MSG_YELL:
+                        senderGuid = reader.ReadUInt64();
+                        senderGuid = reader.ReadUInt64();
+                        break;
+
+                    case ChatMsg.CHAT_MSG_MONSTER_SAY:
+                    case ChatMsg.CHAT_MSG_MONSTER_YELL:
+                        senderGuid = reader.ReadUInt64();
+                        senderNameLength = reader.ReadUInt32();
+                        senderName = ReaderUtils.ReadCString(reader); // Skip the sender name
+                        targetGuid = reader.ReadUInt64();
+                        break;
+
+                    case ChatMsg.CHAT_MSG_CHANNEL:
+                        channelName = ReaderUtils.ReadCString(reader); // Skip the sender name
+                        playerRank = (byte)reader.ReadUInt32();
+                        senderGuid = reader.ReadUInt64();
+                        break;
+
+                    default:
+                        senderGuid = reader.ReadUInt64();
+                        break;
                 }
-                byte[] metadata = reader.ReadBytes(4);
 
-                string text = string.Empty;
+                uint textLength = reader.ReadUInt32();
+                string text = ReaderUtils.ReadCString(reader);
 
-                text = ReadCString(reader);
-                ChatSenderType senderType = MapMessageTypeToSenderType(messageType);
+                LogChatMessage(msgtype, senderGuid, text);
 
-#if DEBUG
-                LogChatMessage(senderType, messageType, senderGUID, text);
-#endif
-
-                _woWSharpEventEmitter.FireOnChatMessage(senderType, metadata.ToString(), senderGUID.ToString(), messageType.ToString(), text);
+                _woWSharpEventEmitter.FireOnChatMessage(msgtype, language, senderGuid, targetGuid, senderName, channelName, playerRank, text, playerChatTag);
             }
             catch (EndOfStreamException e)
             {
@@ -41,135 +81,75 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        private ChatSenderType MapMessageTypeToSenderType(ChatMessageType messageType)
-        {
-            return messageType switch
-            {
-                ChatMessageType.Say => ChatSenderType.Player,
-                ChatMessageType.Yell => ChatSenderType.Player,
-                ChatMessageType.Party => ChatSenderType.Player,
-                ChatMessageType.Guild => ChatSenderType.Player,
-                ChatMessageType.Officer => ChatSenderType.Player,
-                ChatMessageType.Whisper => ChatSenderType.Player,
-                ChatMessageType.Channel => ChatSenderType.Player,
-                ChatMessageType.Raid => ChatSenderType.Player,
-                ChatMessageType.Emote => ChatSenderType.Player,
-                ChatMessageType.System => ChatSenderType.Npc,
-                ChatMessageType.MonsterSay => ChatSenderType.Npc,
-                ChatMessageType.MonsterYell => ChatSenderType.Npc,
-                ChatMessageType.MonsterEmote => ChatSenderType.Npc,
-                _ => ChatSenderType.Player
-            };
-        }
-
-        private string ReadCString(BinaryReader reader)
-        {
-            List<byte> bytes = [];
-            byte b;
-            while ((b = reader.ReadByte()) != 0)
-            {
-                bytes.Add(b);
-            }
-            return Encoding.UTF8.GetString(bytes.ToArray());
-        }
-
-#if DEBUG
-        private void LogChatMessage(ChatSenderType senderType, ChatMessageType messageType, ulong senderGuid, string text)
+        private void LogChatMessage(ChatMsg messageType, ulong senderGuid, string text)
         {
             StringBuilder sb = new();
             switch (messageType)
             {
-                case ChatMessageType.Say:
-                case ChatMessageType.MonsterSay:
-                    Console.ForegroundColor = ConsoleColor.White;
+                case ChatMsg.CHAT_MSG_SAY:
+                case ChatMsg.CHAT_MSG_MONSTER_SAY:
                     sb.Append($"[{senderGuid}] says: ");
+                    Console.ForegroundColor = ConsoleColor.White;
                     break;
-                case ChatMessageType.BattlegroundLeader:
-                case ChatMessageType.Battleground:
-                case ChatMessageType.Party:
-                case ChatMessageType.MonsterParty:
-                    if (messageType == ChatMessageType.BattlegroundLeader)
-                        sb.Append($"[Battleground Leader]");
-                    else if (messageType == ChatMessageType.Battleground)
-                        sb.Append($"[Battleground]");
-                    else if (messageType == ChatMessageType.Party)
-                        sb.Append($"[Party]");
-                    else if (messageType == ChatMessageType.MonsterParty)
-                        sb.Append($"[Monster Party]");
+
+                case ChatMsg.CHAT_MSG_YELL:
+                case ChatMsg.CHAT_MSG_MONSTER_YELL:
+                    sb.Append($"[{senderGuid}] yells: ");
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    break;
+
+                case ChatMsg.CHAT_MSG_WHISPER:
+                case ChatMsg.CHAT_MSG_WHISPER_INFORM:
+                case ChatMsg.CHAT_MSG_MONSTER_WHISPER:
+                    sb.Append($"[{senderGuid}] whispers: ");
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    break;
+
+                case ChatMsg.CHAT_MSG_EMOTE:
+                case ChatMsg.CHAT_MSG_TEXT_EMOTE:
+                case ChatMsg.CHAT_MSG_MONSTER_EMOTE:
+                case ChatMsg.CHAT_MSG_RAID_BOSS_EMOTE:
+                    sb.Append($"[{senderGuid}] emotes: ");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    break;
+
+                case ChatMsg.CHAT_MSG_SYSTEM:
+                case ChatMsg.CHAT_MSG_CHANNEL_NOTICE:
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    sb.Append($"[System]: ");
+                    break;
+
+                case ChatMsg.CHAT_MSG_PARTY:
+                case ChatMsg.CHAT_MSG_RAID:
+                case ChatMsg.CHAT_MSG_GUILD:
+                case ChatMsg.CHAT_MSG_OFFICER:
                     sb.Append($"[{senderGuid}]: ");
                     Console.ForegroundColor = ConsoleColor.Blue;
                     break;
-                case ChatMessageType.RaidLeader:
-                case ChatMessageType.Raid:
-                case ChatMessageType.TextEmote:
-                case ChatMessageType.MonsterEmote:
-                    if (messageType == ChatMessageType.RaidLeader)
-                        sb.Append("[Raid Leader][{senderGuid}]: ");
-                    else if (messageType == ChatMessageType.Battleground)
-                        sb.Append("[Battleground][{senderGuid}]: ");
-                    else if (messageType == ChatMessageType.MonsterEmote || messageType == ChatMessageType.TextEmote)
-                        sb.Append($"{senderGuid} ");
-                    Console.ForegroundColor = ConsoleColor.DarkYellow;
-                    break;
-                case ChatMessageType.Guild:
-                    sb.Append("$[Guild][{senderGuid}]: ");
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    break;
-                case ChatMessageType.Officer:
-                    sb.Append("$[Guild][Officer][{senderGuid}]: ");
-                    Console.ForegroundColor = ConsoleColor.DarkGreen;
-                    break;
-                case ChatMessageType.Yell:
-                case ChatMessageType.MonsterYell:
-                case ChatMessageType.RaidWarning:
-                    if (messageType == ChatMessageType.MonsterYell || messageType == ChatMessageType.Yell)
-                        sb.Append($"{senderGuid} yells: ");
-                    else if (messageType == ChatMessageType.RaidWarning)
-                        sb.Append($"[Raid Warning]");
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    break;
-                case ChatMessageType.Whisper:
-                case ChatMessageType.WhisperInform:
-                case ChatMessageType.WhisperInformForeign:
-                case ChatMessageType.Reply:
-                    if (messageType == ChatMessageType.Whisper)
-                        sb.Append($"[{senderGuid}]: ");
-                    else if (messageType == ChatMessageType.WhisperInform)
-                        sb.Append($"[{senderGuid}]: ");
-                    else if (messageType == ChatMessageType.WhisperInformForeign)
-                        sb.Append($"[{senderGuid}]: ");
-                    else if (messageType == ChatMessageType.Reply)
-                        sb.Append($"To [{senderGuid}]: ");
-                    Console.ForegroundColor = ConsoleColor.Magenta;
-                    break;
-                case ChatMessageType.System:
-                case ChatMessageType.Loot:
-                case ChatMessageType.Afk:
-                case ChatMessageType.Dnd:
-                    if (messageType == ChatMessageType.Loot)
-                        sb.Append($"{senderGuid} ");
-                    else if (messageType == ChatMessageType.Afk)
-                        sb.Append($"[AFK][{senderGuid}] ");
-                    else if (messageType == ChatMessageType.Dnd)
-                        sb.Append($"[DND][{senderGuid}] ");
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    break;
-                case ChatMessageType.Channel:
-                case ChatMessageType.ChannelJoin:
-                case ChatMessageType.ChannelLeave:
-                case ChatMessageType.ChannelList:
-                case ChatMessageType.ChannelNotice:
-                case ChatMessageType.ChannelNoticeUser:
+
+                case ChatMsg.CHAT_MSG_CHANNEL:
+                    sb.Append($"[Channel]: ");
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     break;
-                case ChatMessageType.Ignored:
-                case ChatMessageType.Skill:
-                    Console.ForegroundColor = ConsoleColor.DarkBlue;
+
+                case ChatMsg.CHAT_MSG_RAID_WARNING:
+                    sb.Append($"[Raid Warning]: ");
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    break;
+
+                case ChatMsg.CHAT_MSG_LOOT:
+                    sb.Append($"[Loot]: ");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    break;
+
+                default:
+                    sb.Append($"[{senderGuid}]: ");
+                    Console.ForegroundColor = ConsoleColor.Gray;
                     break;
             }
             sb.Append(text);
+            Console.ResetColor();
             Console.WriteLine(sb.ToString());
         }
-#endif
     }
 }
