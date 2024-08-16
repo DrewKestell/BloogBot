@@ -190,19 +190,69 @@ namespace WoWSharpClient.Client
             }
             catch (Exception ex)
             {
-                Console.WriteLine("[WorldClient] An error occurred while sending CMSG_PLAYER_LOGIN: " + ex.Message);
+                Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_PLAYER_LOGIN: {ex}");
+            }
+        }
+        public void SendCMSGMessageChat(ChatMsg type, Language language, string destinationName, string message)
+        {
+            try
+            {
+                using var memoryStream = new MemoryStream();
+                using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
+                byte[] header = _vanillaEncryption.CreateClientHeader(12 + ((uint)message.Length + 1) + ((uint)(type == ChatMsg.CHAT_MSG_WHISPER || type == ChatMsg.CHAT_MSG_CHANNEL ? destinationName.Length + 1 : 0)), (uint)Opcodes.CMSG_MESSAGECHAT);
+                writer.Write(header); // Opcode: CMSG_MESSAGECHAT
+                writer.Write((uint)type); // Chat message type
+                writer.Write((uint)language); // Language
+
+                if (type == ChatMsg.CHAT_MSG_WHISPER || type == ChatMsg.CHAT_MSG_CHANNEL)
+                {
+                    writer.Write(Encoding.UTF8.GetBytes(destinationName));
+                    writer.Write((byte)0); // Null terminator
+                }
+
+                writer.Write(Encoding.UTF8.GetBytes(message)); // Message
+                writer.Write((byte)0); // Null terminator
+
+                writer.Flush();
+                byte[] packetData = memoryStream.ToArray();
+                _stream.Write(packetData, 0, packetData.Length);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_MESSAGECHAT: {ex}");
+            }
+        }
+
+        public void SendCMSGTypeQuery(Opcodes opcode, ulong guid)
+        {
+            try
+            {
+                using var memoryStream = new MemoryStream();
+                using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
+                byte[] header = _vanillaEncryption.CreateClientHeader(12, (uint)opcode);
+                writer.Write(header);
+                writer.Write(guid);
+
+                writer.Flush();
+                byte[] packetData = memoryStream.ToArray();
+                _stream.Write(packetData, 0, packetData.Length);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_MESSAGECHAT: {ex}");
             }
         }
         private async Task HandleNetworkMessagesAsync()
         {
             _woWSharpEventEmitter.FireOnWorldSessionStart();
             using var reader = new BinaryReader(_stream, Encoding.UTF8, true);
+            byte[] body = [];
             while (true) // Loop to continuously read messages
             {
                 try
                 {
                     // Read the header first to determine the size and opcode
-                    byte[] header = await PacketManager.ReadAsync(reader, 4); // Adjust size if header structure is different
+                    byte[] header = PacketManager.Read(reader, 4); // Adjust size if header structure is different
                     if (header.Length == 0)
                     {
 
@@ -213,16 +263,17 @@ namespace WoWSharpClient.Client
                     HeaderData headerData = _vanillaDecryption.ReadServerHeader(header);
 
                     // Read the packet body
-                    byte[] body = await PacketManager.ReadAsync(reader, (int)(headerData.Size - sizeof(ushort))); // Adjust based on actual header size
+                    body = PacketManager.Read(reader, (int)(headerData.Size - sizeof(ushort))); // Adjust based on actual header size
 
                     // Dispatch the packet to the appropriate handler
                     _opCodeDispatcher.Dispatch((Opcodes)headerData.Opcode, body);
                 }
                 catch (Exception ex)
                 {
-                    //Console.WriteLine($"[WorldClient][HandleNetworkMessages] An error occurred while handling network messages: {ex}");
+                    Console.WriteLine($"[WorldClient][HandleNetworkMessages] An error occurred while handling network messages: {ex} {BitConverter.ToString(body)}");
                 }
             }
+            await Task.Delay(10);
         }
     }
 }

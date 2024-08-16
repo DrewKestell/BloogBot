@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using BotRunner.Constants;
+using System.Net;
 using WoWSharpClient.Manager;
 using WoWSharpClient.Models;
 
@@ -65,6 +66,16 @@ namespace WoWSharpClient.Client
         private void StartServerPing()
         {
             _worldClient.StartServerPing();
+        }
+
+        public void SendChatMessage(ChatMsg chatMsgType, Language orcish, string destination, string text)
+        {
+            _worldClient.SendCMSGMessageChat(chatMsgType, orcish, destination, text);
+        }
+
+        public void SendNameQuery(ulong guid)
+        {
+            _worldClient.SendCMSGTypeQuery(Opcodes.CMSG_NAME_QUERY, guid);
         }
 
         public void Dispose()

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace PromptHandling.Predefined.CharacterSkills
 {
@@ -21,17 +17,17 @@ namespace PromptHandling.Predefined.CharacterSkills
 
         public class CharacterDescription
         {
-            public List<string> Skills { get; set; }
+            public List<string> Skills { get; set; } = [];
 
-            public string ClassName { get; set; }
+            public string ClassName { get; set; } = string.Empty;
 
-            public string Race { get; set; }
+            public string Race { get; set; } = string.Empty;
 
             public int Level { get; set; }
 
             public override string ToString()
             {
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new();
                 sb.AppendLine($"Class - {ClassName}");
                 sb.AppendLine($"Race - {Race}");
                 sb.AppendLine($"Level - {Level}");

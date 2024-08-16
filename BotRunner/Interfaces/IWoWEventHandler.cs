@@ -1,4 +1,5 @@
-﻿using BotRunner.Constants;
+﻿using BotRunner.Base;
+using BotRunner.Constants;
 using PathfindingService.Models;
 
 namespace BotRunner.Interfaces
@@ -74,6 +75,7 @@ namespace BotRunner.Interfaces
         event EventHandler OnBankFrameClosed;
         event EventHandler<CharCreateResponse> OnCharacterCreateResponse;
         event EventHandler<CharDeleteResponse> OnCharacterDeleteResponse;
+        event EventHandler<GameObjectCreatedArgs> OnGameObjectCreated; 
     }
     public class WorldInfo
     {
@@ -159,5 +161,10 @@ namespace BotRunner.Interfaces
     public class CharDeleteResponse(DeleteCharacterResult result) : EventArgs
     {
         public DeleteCharacterResult Result { get; } = result;
+    }
+    public class GameObjectCreatedArgs(ulong guid, WoWObjectType objectType) : EventArgs
+    {
+        public readonly ulong Guid = guid;
+        public readonly WoWObjectType ObjectType = objectType;
     }
 }

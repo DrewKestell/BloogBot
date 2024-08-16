@@ -11,7 +11,7 @@ namespace WoWSharpClient.Models
         public int CreatureId { get; set; }
         public Race Race { get; set; }
         public Class Class { get; set; }
-        public byte Gender { get; set; }
+        public Gender Gender { get; set; }
 
         public ulong TargetGuid => TargetHighGuid.FullGuid;
         public HighGuid TargetHighGuid { get; set; } = new HighGuid(new byte[4], new byte[4]);
@@ -115,17 +115,17 @@ namespace WoWSharpClient.Models
         public HighGuid SummonedBy { get; } = new HighGuid(new byte[4], new byte[4]);
         public HighGuid Persuaded { get; } = new HighGuid(new byte[4], new byte[4]);
         public HighGuid ChannelObject { get; } = new HighGuid(new byte[4], new byte[4]);
-        public byte[] Bytes0 { get; set; } = [4];
-        public byte[] Bytes1 { get; set; } = [4];
-        public byte[] Bytes2 { get; set; } = [4];
-        public uint[] VirtualItemSlotDisplay { get; } = [3];
-        public uint[] VirtualItemInfo { get; } = [6];
-        public uint[] AuraFields { get; } = [48];
-        public uint[] AuraFlags { get; } = [6];
+        public byte[] Bytes0 { get; } = new byte[4];
+        public byte[] Bytes1 { get; } = new byte[4];
+        public byte[] Bytes2 { get; } = new byte[4];
+        public uint[] VirtualItemSlotDisplay { get; } = new uint[3];
+        public uint[] VirtualItemInfo { get; } = new uint[6];
+        public uint[] AuraFields { get; } = new uint[48];
+        public uint[] AuraFlags { get; } = new uint[6];
         public uint[] AuraLevels { get; } = new uint[12];
         public uint[] AuraApplications { get; } = new uint[12];
         public uint AuraState { get; set; }
-        public uint[] Resistances { get; internal set; } = new uint[7];
+        public uint[] Resistances { get; } = new uint[7];
         public uint MountDisplayId { get; set; }
         public uint NativeDisplayId { get; internal set; }
         public uint MinOffhandDamage { get; internal set; }
@@ -159,6 +159,13 @@ namespace WoWSharpClient.Models
         public uint RangedAttackPowerMods { get; internal set; }
         public uint RangedAttackPower { get; internal set; }
         public uint AttackPower { get; internal set; }
+        public float FallTime { get; internal set; }
+        public float WalkSpeed { get; internal set; }
+        public float RunSpeed { get; internal set; }
+        public float RunBackSpeed { get; internal set; }
+        public float SwimSpeed { get; internal set; }
+        public float SwimBackSpeed { get; internal set; }
+        public float TurnRate { get; internal set; }
 
         public IEnumerable<SpellEffect> GetDebuffs(LuaTarget target)
         {

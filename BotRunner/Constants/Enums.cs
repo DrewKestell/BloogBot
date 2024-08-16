@@ -1307,6 +1307,12 @@ namespace BotRunner.Constants
         Warlock = 9,
         Druid = 11
     }
+    public enum Gender : byte
+    {
+        GENDER_MALE = 0,
+        GENDER_FEMALE = 1,
+        GENDER_NONE = 2
+    }
     public enum Race
     {
         [Description("None")]
@@ -1452,7 +1458,6 @@ namespace BotRunner.Constants
         Soulstone = 4,
         OnUseWithoutDelay = 5
     }
-
     /// <summary>
     ///     Bonding type in item DB
     /// </summary>
@@ -2163,7 +2168,7 @@ namespace BotRunner.Constants
         PLAYER_SLOT_START = 0,
         // last+1 slot for item stored (in any way in player m_items data)
         PLAYER_SLOT_END = 118,
-        PLAYER_SLOTS_COUNT = (PLAYER_SLOT_END - PLAYER_SLOT_START)
+        PLAYER_SLOTS_COUNT = PLAYER_SLOT_END - PLAYER_SLOT_START
     }
     public enum EquipmentSlots                                         // 19 slots
     {

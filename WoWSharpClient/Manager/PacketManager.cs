@@ -70,10 +70,10 @@ namespace WoWSharpClient.Manager
             }
         }
 
-        public static async Task<byte[]> ReadAsync(BinaryReader reader, int count)
+        public static byte[] Read(BinaryReader reader, int count)
         {
             byte[] buffer = new byte[count];
-            int read = await reader.BaseStream.ReadAsync(buffer, 0, count);
+            int read = reader.BaseStream.Read(buffer, 0, count);
             if (read < count)
             {
                 byte[] result = new byte[read];

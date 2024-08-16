@@ -80,13 +80,13 @@
     <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_1.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084614763.bin">
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_2.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084614764.bin">
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_3.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084619798.bin">
+    <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_4.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\SMSG_COMPRESSED_UPDATE_OBJECT\20240815_084620799.bin">

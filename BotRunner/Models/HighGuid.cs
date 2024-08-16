@@ -4,7 +4,7 @@
     {
         public byte[] LowGuidValue { get; set; } = lowGuidValue;
         public byte[] HighGuidValue { get; set; } = highGuidValue;
-        public ulong FullGuid => BitConverter.ToUInt64([ .. LowGuidValue, .. HighGuidValue]);
+        public ulong FullGuid => BitConverter.ToUInt64([ .. LowGuidValue.Take(4), .. HighGuidValue.Take(4)]);
     }
 
     [Flags]

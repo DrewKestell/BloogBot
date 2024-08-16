@@ -13,8 +13,8 @@ namespace WoWSharpClient.Models
         public HighGuid GiftCreator { get; internal set; } = new HighGuid(new byte[4], new byte[4]);
         public uint StackCount { get; set; }
         public uint Duration { get; set; }
+        public ItemDynFlags Flags { get; set; }
         public uint[] SpellCharges { get; } = new uint[5];
-        public uint Flags { get; set; }
         public uint[] Enchantments { get; } = new uint[21];
         public uint PropertySeed { get; set; }
         public uint RandomPropertiesId { get; set; }
@@ -25,7 +25,7 @@ namespace WoWSharpClient.Models
         public ItemQuality Quality { get; set; } = ItemQuality.Poor;
         public uint DurabilityPercentage => (uint)((double)Durability / MaxDurability * 100);
         public bool IsCoins => false;
-        public IWoWItemCacheInfo Info => throw new NotImplementedException();
+        public IWoWItemCacheInfo Info { get; set; }
 
         public void Use()
         {

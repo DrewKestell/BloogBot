@@ -1,5 +1,4 @@
-﻿using Azure;
-using Azure.AI.OpenAI;
+﻿using Azure.AI.OpenAI;
 using PromptHandling;
 
 namespace TWI.ClinicalTranslator.SharedGenerators.PromptRunners.Providers
@@ -8,7 +7,7 @@ namespace TWI.ClinicalTranslator.SharedGenerators.PromptRunners.Providers
     {
         public async Task<string?> RunChatAsync(IEnumerable<KeyValuePair<string, string?>> chatHistory, CancellationToken cancellationToken)
         {
-            ChatCompletionsOptions chatCompletionOptions = new ChatCompletionsOptions
+            ChatCompletionsOptions chatCompletionOptions = new()
             {
                 DeploymentName = deploymentName,
                 MaxTokens = 1000

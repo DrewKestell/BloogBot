@@ -1,5 +1,4 @@
 ﻿using WoWSharpClient.Models;
-using System.Text;
 using WoWSharpClient.Manager;
 using BotRunner.Interfaces;
 using BotRunner.Constants;
@@ -101,6 +100,22 @@ namespace WoWSharpClient.Handlers
                 // Handle addon information here if necessary
                 //Console.WriteLine($"Addon Info: {addonType:X2}");
             }
+        }
+
+        public void HandleNameQueryResponse(Opcodes opcode, byte[] data)
+        {
+            using var reader = new BinaryReader(new MemoryStream(data));
+            var guid = ReaderUtils.ReadPackedGuid(reader);
+            var name = ReaderUtils.ReadCString(reader);
+            var race = (Race)reader.ReadUInt32();
+            var gender = (Gender)reader.ReadUInt32();
+            var classId = (Class)reader.ReadUInt32();
+
+            var gameObject = (Player)_objectManager.GameObjects.First(x => x.Guid == guid);
+            gameObject.Name = name;
+            gameObject.Race = race;
+            gameObject.Gender = gender;
+            gameObject.Class = classId;
         }
     }
 }

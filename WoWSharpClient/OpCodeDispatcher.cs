@@ -43,6 +43,7 @@ namespace WoWSharpClient
         private void RegisterHandlers()
         {
             _handlers[Opcodes.SMSG_AUTH_RESPONSE] = HandleAuthResponse;
+
             _handlers[Opcodes.SMSG_UPDATE_OBJECT] = _objectUpdateHandler.HandleUpdateObject;
             _handlers[Opcodes.SMSG_COMPRESSED_UPDATE_OBJECT] = _objectUpdateHandler.HandleUpdateObject;
 
@@ -53,6 +54,7 @@ namespace WoWSharpClient
 
             _handlers[Opcodes.SMSG_CHAR_ENUM] = _characterHandler.HandleCharEnum;
             _handlers[Opcodes.SMSG_ADDON_INFO] = _characterHandler.HandleAddonInfo;
+            _handlers[Opcodes.SMSG_NAME_QUERY_RESPONSE] = _characterHandler.HandleNameQueryResponse;
 
             _handlers[Opcodes.SMSG_LOGIN_VERIFY_WORLD] = _loginHandler.HandleLoginVerifyWorld;
 
@@ -113,10 +115,17 @@ namespace WoWSharpClient
             {
                 if (_queue.Count > 0)
                 {
-                    var action = _queue.Dequeue();
-                    action();
+                    try
+                    {
+                        var action = _queue.Dequeue();
+                        action();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"Error in OpCodeDispatcher.Runner: {e}\n");
+                    }
                 }
-                await Task.Delay(1);
+                await Task.Delay(50);
             }
         }
 

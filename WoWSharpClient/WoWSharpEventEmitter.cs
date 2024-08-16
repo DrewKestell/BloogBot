@@ -75,6 +75,7 @@ namespace WoWSharpClient
         public event EventHandler OnBankFrameClosed;
         public event EventHandler<CharCreateResponse> OnCharacterCreateResponse;
         public event EventHandler<CharDeleteResponse> OnCharacterDeleteResponse;
+        public event EventHandler<GameObjectCreatedArgs> OnGameObjectCreated;
 
         public WoWSharpEventEmitter() { }
         
@@ -91,6 +92,7 @@ namespace WoWSharpClient
         public void FireOnWorldSessionStart() => FireEvent(OnWorldSessionStart);
         public void FireOnCharacterListLoaded() => FireEvent(OnCharacterListLoaded);
         public void FireOnWorldSessionEnd() => FireEvent(OnWorldSessionEnd);
+        public void FireOnGameObjectCreated(GameObjectCreatedArgs args) => FireEvent(OnGameObjectCreated, args);
         public void FireOnLoginVerifyWorld(WorldInfo worldInfo) => OnLoginVerifyWorld?.Invoke(this, worldInfo);
         public void FireOnStandStateUpdate(byte standState) => OnStandStateUpdate?.Invoke(this, standState);
         public void FireOnDisconnect() => FireEvent(OnDisconnect);

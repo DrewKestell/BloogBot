@@ -96,7 +96,7 @@ namespace WoWSharpClient.Client
                 byte opcode = packet[0];
                 ResponseCodes result = (ResponseCodes)packet[2];
 
-                if (opcode == 0x00 && result == 0x00) // CMD_AUTH_LOGON_CHALLENGE and SUCCESS
+                if (opcode == 0x00 && result == ResponseCodes.RESPONSE_SUCCESS) // CMD_AUTH_LOGON_CHALLENGE and SUCCESS
                 {
                     byte[] serverPublicKey = packet.Skip(3).Take(32).ToArray();
                     byte generator = packet[36];
@@ -116,7 +116,7 @@ namespace WoWSharpClient.Client
                 }
                 else
                 {
-                    Console.WriteLine($"[LoginClient] Unexpected opcode or result received in AUTH_CHALLENGE response. [OpCode:{opcode:X}] [Result:{result}]");
+                    Console.WriteLine($"[LoginClient] Unexpected opcode or result received in AUTH_CHALLENGE response. [OpCode:{opcode:X2}] [Result:{result}]");
                 }
             }
             catch (Exception ex)
@@ -172,7 +172,7 @@ namespace WoWSharpClient.Client
                 byte opcode = header[0];
                 ResponseCodes result = (ResponseCodes) header[1];
 
-                if (opcode == 0x01 && result == 0x00) // CMD_AUTH_LOGON_PROOF and SUCCESS
+                if (opcode == 0x01 && result == ResponseCodes.RESPONSE_SUCCESS) // CMD_AUTH_LOGON_PROOF and SUCCESS
                 {
                     Console.WriteLine($"[LoginClient] Authentication succeeded with opcode {opcode:X} and result code {result}");
                     byte[] body = reader.ReadBytes(24);

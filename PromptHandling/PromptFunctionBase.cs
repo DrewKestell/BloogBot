@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace PromptHandling
 {
@@ -14,33 +10,27 @@ namespace PromptHandling
         private const string SystemUser = "System";
 
         private readonly IDictionary<string,object> _parameters = new Dictionary<string, object>();
-        private readonly List<KeyValuePair<string, string?>> _chatHistory = new List<KeyValuePair<string, string?>>();
+        private readonly List<KeyValuePair<string, string?>> _chatHistory = [];
         // ReSharper disable once MemberCanBePrivate.Global
         protected internal IPromptRunner PromptRunner = promptRunner;
 
         public void SetParameter<T>([CallerMemberName] string? name = null, T? value = default)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
+            ArgumentNullException.ThrowIfNull(name);
 
             _parameters[name] = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         public T GetParameter<T>([CallerMemberName] string? name = null)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
+            ArgumentNullException.ThrowIfNull(name);
 
-            if (!_parameters.ContainsKey(name))
+            if (!_parameters.TryGetValue(name, out object? value))
             {
                 throw new KeyNotFoundException($"key {name} not found in parameters list");
             }
 
-            return (T)_parameters[name];
+            return (T)value;
         }
 
         public void TransferHistory(IPromptFunction transferTarget)
@@ -69,7 +59,7 @@ namespace PromptHandling
 
         public async Task SaveChat(string directoryPath, string filePath = "chat.txt", CancellationToken cancellationToken = default)
         {
-            if (String.IsNullOrWhiteSpace(filePath) || String.IsNullOrWhiteSpace(directoryPath))
+            if (string.IsNullOrWhiteSpace(filePath) || string.IsNullOrWhiteSpace(directoryPath))
             {
                 throw new ArgumentException($"{nameof(filePath)} and {nameof(directoryPath)} cannot be null or empty");
             }
@@ -91,7 +81,7 @@ namespace PromptHandling
 
         public async Task LoadChat(string directoryPath, string filePath = "chat.txt", CancellationToken cancellationToken = default)
         {
-            if (String.IsNullOrWhiteSpace(filePath) || String.IsNullOrWhiteSpace(directoryPath))
+            if (string.IsNullOrWhiteSpace(filePath) || string.IsNullOrWhiteSpace(directoryPath))
             {
                 throw new ArgumentException($"{nameof(filePath)} and {nameof(directoryPath)} cannot be null or empty");
             }
@@ -167,7 +157,7 @@ namespace PromptHandling
             {
                 if (prompt.Contains($"{{{parameterDescription}}}"))
                 {
-                    prompt = prompt.Replace($"{{{parameterDescription}}}", GetParameter<string>(parameterDescription));
+                    prompt = prompt.Replace($"{{{parameterDescription}}}", GetParameter<object>(parameterDescription).ToString());
                 }
             }
             return prompt;
@@ -183,7 +173,7 @@ namespace PromptHandling
             }
             AddChatMessage("User", fixedPrompt);
             var result = await PromptRunner.RunChatAsync(_chatHistory, cancellationToken);
-            if (String.IsNullOrWhiteSpace(result))
+            if (string.IsNullOrWhiteSpace(result))
             {
                 throw new InvalidDataException("The response from the request is null or whitespace");
             }

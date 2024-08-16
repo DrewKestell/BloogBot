@@ -2,7 +2,7 @@
 using BotRunner.Constants;
 using BotRunner.Interfaces;
 using BotRunner.Models;
-using Newtonsoft.Json;
+using Org.BouncyCastle.Utilities;
 using PathfindingService.Models;
 using System.Collections;
 using WoWSharpClient.Manager;
@@ -24,18 +24,11 @@ namespace WoWSharpClient.Handlers
             using var stream = new MemoryStream(data);
             using var reader = new BinaryReader(stream);
 
-            try
-            {
-                var objectCount = reader.ReadUInt32();
-                var hasTransport = reader.ReadByte();
+            var objectCount = reader.ReadUInt32();
+            var hasTransport = reader.ReadByte();
 
-                for (int i = 0; i < objectCount; i++)
-                    ParseNextUpdate(reader);
-            }
-            catch (EndOfStreamException e)
-            {
-                Console.WriteLine($"Exception: {e} {JsonConvert.SerializeObject(_objectManager.Objects)}");
-            }
+            for (int i = 0; i < objectCount; i++)
+                ParseNextUpdate(reader);
         }
 
         private void ParseNextUpdate(BinaryReader reader)
@@ -58,11 +51,6 @@ namespace WoWSharpClient.Handlers
                     ParseOutOfRangeObjects(reader);
                     break;
                 default:
-                    List<byte> bytes = [];
-                    while (reader.BaseStream.Position < reader.BaseStream.Length)
-                    {
-                        bytes.Add(reader.ReadByte());
-                    }
                     Console.WriteLine($"Unhandled update type: {updateType}");
                     return;
             }
@@ -85,11 +73,11 @@ namespace WoWSharpClient.Handlers
 
             if ((updateFlags & ObjectUpdateFlags.UPDATEFLAG_LIVING) != 0)
             {
-                ParseUnitMovementInfo(reader, guid);
+                ParseUnitMovementInfo(reader, (Unit)woWObject);
             }
             else if ((updateFlags & ObjectUpdateFlags.UPDATEFLAG_HAS_POSITION) != 0)
             {
-                ParseObjectPositionInfo(reader, guid);
+                ParseObjectPositionInfo(reader, woWObject);
             }
 
             if ((updateFlags & ObjectUpdateFlags.UPDATEFLAG_HIGHGUID) != 0)
@@ -122,11 +110,13 @@ namespace WoWSharpClient.Handlers
 
             ParseUpdateBlock(reader, woWObject);
 
+            if (woWObject.ObjectType != WoWObjectType.Player)
+                _woWSharpEventEmitter.FireOnGameObjectCreated(new GameObjectCreatedArgs(guid, woWObject.ObjectType));
         }
         private void ParseMovementUpdate(BinaryReader reader)
         {
             var guid = ReaderUtils.ReadPackedGuid(reader);
-            ParseUnitMovementInfo(reader, guid);
+            ParseUnitMovementInfo(reader, _objectManager.Units.FirstOrDefault(x => x.Guid == guid) as Unit);
         }
         private void ParsePartialUpdate(BinaryReader reader)
         {
@@ -160,10 +150,8 @@ namespace WoWSharpClient.Handlers
             return wowObject;
         }
 
-        private void ParseObjectPositionInfo(BinaryReader reader, ulong guid)
+        private static void ParseObjectPositionInfo(BinaryReader reader, Models.Object currentObject)
         {
-            Models.Object currentObject = (Models.Object)_objectManager.Objects.FirstOrDefault(x => x.Guid == guid);
-
             if (currentObject != null)
             {
                 float posX = reader.ReadSingle();
@@ -175,10 +163,8 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        private void ParseUnitMovementInfo(BinaryReader reader, ulong guid)
+        private static void ParseUnitMovementInfo(BinaryReader reader, Unit currentUnit)
         {
-            Unit currentUnit = (Unit)_objectManager.Units.FirstOrDefault(x => x.Guid == guid);
-
             if (currentUnit != null)
             {
                 currentUnit.MovementFlags = (MovementFlags)reader.ReadUInt32();
@@ -198,6 +184,14 @@ namespace WoWSharpClient.Handlers
                 float swimSpeed = reader.ReadSingle();
                 float swimBackSpeed = reader.ReadSingle();
                 float turnRate = reader.ReadSingle();
+
+                currentUnit.FallTime = fallTime;
+                currentUnit.WalkSpeed = walkSpeed;
+                currentUnit.RunSpeed = runSpeed;
+                currentUnit.RunBackSpeed = runBackSpeed;
+                currentUnit.SwimSpeed = swimSpeed;
+                currentUnit.SwimBackSpeed = swimBackSpeed;
+                currentUnit.TurnRate = turnRate;
             }
         }
 
@@ -224,7 +218,7 @@ namespace WoWSharpClient.Handlers
                         if (updateMaskBits[i])
                             ReadUnitField(reader, (Unit)@object, (EUnitFields)i);
                     }
-                    else if (updateMaskBits[i])
+                    else if (@object.ObjectType == WoWObjectType.Player && updateMaskBits[i])
                         ReadPlayerField(reader, (Player)@object, (EUnitFields)i);
                 }
                 else if (@object.ObjectType == WoWObjectType.Item || @object.ObjectType == WoWObjectType.Container)
@@ -234,7 +228,7 @@ namespace WoWSharpClient.Handlers
                         if (updateMaskBits[i])
                             ReadItemField(reader, (Item)@object, (EItemFields)i);
                     }
-                    else if (updateMaskBits[i])
+                    else if (@object.ObjectType == WoWObjectType.Container && updateMaskBits[i])
                         ReadContainerField(reader, (Container)@object, (EContainerFields)i);
                 }
                 else if (@object.ObjectType == WoWObjectType.GameObj)
@@ -310,7 +304,7 @@ namespace WoWSharpClient.Handlers
             else if (field <= EItemFields.ITEM_FIELD_SPELL_CHARGES_04)
                 item.SpellCharges[field - EItemFields.ITEM_FIELD_SPELL_CHARGES] = reader.ReadUInt32();
             else if (field == EItemFields.ITEM_FIELD_FLAGS)
-                item.Flags = reader.ReadUInt32();
+                item.Flags = (ItemDynFlags)reader.ReadUInt32();
             else if (field == EItemFields.ITEM_FIELD_ENCHANTMENT)
                 item.Enchantments[field - EItemFields.ITEM_FIELD_ENCHANTMENT] = reader.ReadUInt32();
             else if (field == EItemFields.ITEM_FIELD_PROPERTY_SEED)
@@ -748,13 +742,18 @@ namespace WoWSharpClient.Handlers
             else if (field == EUnitFields.UNIT_FIELD_FACTIONTEMPLATE)
                 @object.FactionTemplate = reader.ReadUInt32();
             else if (field == EUnitFields.UNIT_FIELD_BYTES_0)
-                @object.Level = reader.ReadUInt32();
+            {
+                @object.Bytes0[0] = reader.ReadByte();
+                @object.Bytes0[1] = reader.ReadByte();
+                @object.Bytes0[2] = reader.ReadByte();
+                @object.Bytes0[3] = reader.ReadByte();
+            }
             else if (field <= EUnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY_02)
                 @object.VirtualItemSlotDisplay[field - EUnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY] = reader.ReadUInt32();
             else if (field <= EUnitFields.UNIT_VIRTUAL_ITEM_INFO_05)
                 @object.VirtualItemInfo[field - EUnitFields.UNIT_VIRTUAL_ITEM_INFO] = reader.ReadUInt32();
             else if (field == EUnitFields.UNIT_FIELD_FLAGS)
-                @object.UnitFlags = (UnitFlags) reader.ReadUInt32();
+                @object.UnitFlags = (UnitFlags)reader.ReadUInt32();
             else if (field <= EUnitFields.UNIT_FIELD_AURA_LAST)
                 @object.AuraFields[field - EUnitFields.UNIT_FIELD_AURA] = reader.ReadUInt32();
             else if (field <= EUnitFields.UNIT_FIELD_AURAFLAGS_05)
@@ -765,7 +764,8 @@ namespace WoWSharpClient.Handlers
                 @object.AuraApplications[field - EUnitFields.UNIT_FIELD_AURAAPPLICATIONS] = reader.ReadUInt32();
             else if (field <= EUnitFields.UNIT_FIELD_AURASTATE)
                 @object.AuraState = reader.ReadUInt32();
-            else if (field <= EUnitFields.UNIT_FIELD_BASEATTACKTIME + 0x01){
+            else if (field <= EUnitFields.UNIT_FIELD_BASEATTACKTIME + 0x01)
+            {
                 if (field == EUnitFields.UNIT_FIELD_BASEATTACKTIME)
                     @object.BaseAttackTime = reader.ReadUInt32();
                 else
@@ -794,20 +794,25 @@ namespace WoWSharpClient.Handlers
                 @object.MaxDamage = reader.ReadUInt32();
             else if (field == EUnitFields.UNIT_FIELD_MINOFFHANDDAMAGE)
                 @object.MinOffhandDamage = reader.ReadUInt32();
-            else if (field == EUnitFields.UNIT_FIELD_MAXDAMAGE)
+            else if (field == EUnitFields.UNIT_FIELD_MAXOFFHANDDAMAGE)
                 @object.MaxOffhandDamage = reader.ReadUInt32();
             else if (field == EUnitFields.UNIT_FIELD_BYTES_1)
-                @object.Bytes1 = reader.ReadBytes(4);
+            {
+                @object.Bytes1[0] = reader.ReadByte();
+                @object.Bytes1[1] = reader.ReadByte();
+                @object.Bytes1[2] = reader.ReadByte();
+                @object.Bytes1[3] = reader.ReadByte();
+            }
             else if (field == EUnitFields.UNIT_FIELD_PETNUMBER)
                 @object.PetNumber = reader.ReadUInt32();
-            else if (field == EUnitFields.UNIT_FIELD_PETNUMBER)
+            else if (field == EUnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP)
                 @object.PetNameTimestamp = reader.ReadUInt32();
             else if (field == EUnitFields.UNIT_FIELD_PETEXPERIENCE)
                 @object.PetExperience = reader.ReadUInt32();
             else if (field == EUnitFields.UNIT_FIELD_PETNEXTLEVELEXP)
                 @object.PetNextLevelExperience = reader.ReadUInt32();
             else if (field == EUnitFields.UNIT_DYNAMIC_FLAGS)
-                @object.DynamicFlags = (DynamicFlags) reader.ReadUInt32();
+                @object.DynamicFlags = (DynamicFlags)reader.ReadUInt32();
             else if (field == EUnitFields.UNIT_CHANNEL_SPELL)
                 @object.ChannelingId = reader.ReadUInt32();
             else if (field == EUnitFields.UNIT_MOD_CAST_SPEED)
@@ -837,7 +842,12 @@ namespace WoWSharpClient.Handlers
             else if (field == EUnitFields.UNIT_FIELD_BASE_HEALTH)
                 @object.BaseHealth = reader.ReadUInt32();
             else if (field == EUnitFields.UNIT_FIELD_BYTES_2)
-                @object.Bytes2 = reader.ReadBytes(4);
+            {
+                @object.Bytes2[0] = reader.ReadByte();
+                @object.Bytes2[1] = reader.ReadByte();
+                @object.Bytes2[2] = reader.ReadByte();
+                @object.Bytes2[3] = reader.ReadByte();
+            }
             else if (field == EUnitFields.UNIT_FIELD_ATTACK_POWER)
                 @object.AttackPower = reader.ReadUInt32();
             else if (field == EUnitFields.UNIT_FIELD_ATTACK_POWER_MODS)

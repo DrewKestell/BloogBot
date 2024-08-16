@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 
 namespace TWI.ClinicalTranslator.SharedGenerators.Utility
 {
@@ -28,7 +23,7 @@ namespace TWI.ClinicalTranslator.SharedGenerators.Utility
         {
             var tableDefinitions = new List<string>();
             string pattern = @"CREATE\s+TABLE\s+\w+\s*\([\s\S]+?\);";
-            Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
+            Regex regex = new(pattern, RegexOptions.IgnoreCase);
 
             MatchCollection matches = regex.Matches(sqlDefinitions);
 

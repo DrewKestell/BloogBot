@@ -327,6 +327,7 @@ namespace ActivityForegroundMember.Game.Statics
         public event EventHandler OnInitialSpellsLoaded;
         public event EventHandler<CharCreateResponse> OnCharacterCreateResponse;
         public event EventHandler<CharDeleteResponse> OnCharacterDeleteResponse;
+        public event EventHandler<GameObjectCreatedArgs> OnGameObjectCreated;
 
         private void EvaluateEvent(string parEvent, params object[] parArgs)
         {

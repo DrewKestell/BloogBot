@@ -6,7 +6,7 @@ namespace TWI.ClinicalTranslator.SharedGenerators.PromptRunners.Providers
 {
     class OllamaPromptRunner : IPromptRunner
     {
-        private OllamaApiClient _ollamaApiClient;
+        private readonly OllamaApiClient _ollamaApiClient;
 
         public OllamaPromptRunner(Uri uri, string model)
         {
@@ -22,22 +22,13 @@ namespace TWI.ClinicalTranslator.SharedGenerators.PromptRunners.Providers
             var chat = _ollamaApiClient.Chat(stream => { response = stream.Message.Content; });
             foreach (var message in chatHistory)
             {
-                ChatRole role;
-                switch (message.Key)
+                var role = message.Key switch
                 {
-                    case "User":
-                        role = ChatRole.User;
-                        break;
-                    case "Assistant":
-                        role = ChatRole.Assistant;
-                        break;
-                    case "System":
-                        role = ChatRole.System;
-                        break;
-                    default:
-                        throw new ArgumentException($"Invalid chat role {message.Key}");
-                }
-
+                    "User" => ChatRole.User,
+                    "Assistant" => ChatRole.Assistant,
+                    "System" => ChatRole.System,
+                    _ => throw new ArgumentException($"Invalid chat role {message.Key}"),
+                };
                 var messages = await chat.SendAs(role, message.Value, cancellationToken);
                 response = messages.Last().Content;
             }

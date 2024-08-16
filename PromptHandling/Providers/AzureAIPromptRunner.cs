@@ -8,7 +8,7 @@ namespace TWI.ClinicalTranslator.SharedGenerators.PromptRunners.Providers
     class AzureAIPromptRunner : IPromptRunner
     {
         private readonly string _apiKey;
-        private readonly HttpClient client = new HttpClient();
+        private readonly HttpClient client = new();
 
         public AzureAIPromptRunner(Uri baseAddress, string apiKey)
         {
@@ -25,8 +25,6 @@ namespace TWI.ClinicalTranslator.SharedGenerators.PromptRunners.Providers
             {
                 try
                 {
-
-
                     var messages = chatHistory.Select(entry => new
                     {
                         role = entry.Key.ToLowerInvariant(),

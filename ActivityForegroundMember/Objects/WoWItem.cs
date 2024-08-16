@@ -47,5 +47,7 @@ namespace ActivityForegroundMember.Objects
         public uint RequiredLevel => 1;
 
         public bool IsCoins => false;
+
+        public ItemDynFlags Flags { get ; set; }
     }
 }

@@ -10,6 +10,7 @@ namespace BotRunner.Interfaces
         uint RequiredLevel { get; }
         uint Durability { get; }
         bool IsCoins { get; }
+        ItemDynFlags Flags { get; set; }
         IWoWItemCacheInfo Info { get; }
         ItemQuality Quality { get; }
         uint DurabilityPercentage => (uint)((double)Durability / MaxDurability * 100);
