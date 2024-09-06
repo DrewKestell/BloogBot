@@ -1,148 +1,1365 @@
-﻿using System.Collections.ObjectModel;
-using BotCommLayer.Clients;
+﻿using BotRunner.Clients;
+using BotRunner.Constants;
 using BotRunner.Interfaces;
 using Communication;
+using DatabaseDomain.Clients;
+using PathfindingService.Client;
+using Xas.FluentBehaviourTree;
+using Action = BotRunner.Constants.Action;
 
 namespace BotRunner
 {
     public class BotRunner
     {
-        private readonly BotLoader botLoader = new();
-
-        private readonly Stack<IBotTask> botTasks = new();
-        private readonly ObservableCollection<IBot> Bots = [];
-
-        private readonly ActivityMemberState _currentActivityMemberState;
-        private readonly ActivityMember _desiredActivityMemberState;
-
-        private readonly ActivityMemberUpdateClient _activityCommandClient;
-        private readonly WoWDatabaseClient _wowDatabaseClient;
-
+        private readonly List<ActivitySnapshot> _currentActivitySnapshots;
         private readonly IObjectManager _objectManager;
-        private IClassContainer _classContainer;
+        private readonly IWoWEventHandler _woWEventHandler;
+        private readonly BotContext _botContext;
+        private readonly ActivityMemberUpdateClient _activityMemberUpdateClient;
+        private readonly PathfindingClient _pathfindingClient;
+        private readonly DatabaseDomainClient _databaseDomainClient;
 
         private readonly Task _asyncBotTaskRunnerTask;
         private readonly Task _asyncServerFeedbackTask;
 
-        // General
-        private IBot currentBot;
+        private IBehaviourTreeNode _behaviorTree;
 
-        public BotRunner(IObjectManager objectManager, IWoWEventHandler wowEventHandler)
+        public BotRunner(IObjectManager objectManager,
+                         IWoWEventHandler wowEventHandler,
+                         ActivityMemberUpdateClient activityMemberUpdateClient,
+                         PathfindingClient pathfindingClient,
+                         DatabaseDomainClient databaseDomainClient)
         {
             _objectManager = objectManager;
-            Bots = new ObservableCollection<IBot>(botLoader.ReloadBots());
+            _woWEventHandler = wowEventHandler;
+            _activityMemberUpdateClient = activityMemberUpdateClient;
+            _pathfindingClient = pathfindingClient;
+            _databaseDomainClient = databaseDomainClient;
 
-            _currentActivityMemberState = new ActivityMemberState()
-            {
+            _currentActivitySnapshots = [];
 
-            };
+            _botContext = new BotContext(_objectManager, _woWEventHandler);
 
-            wowEventHandler.OnPartyInvite += (sender, args) =>
-            {
-                _objectManager.AcceptGroupInvite();
-            };
-
-            _asyncBotTaskRunnerTask = StartBotTaskRunnerAsync();
             _asyncServerFeedbackTask = StartServerFeedbackAsync();
+            _asyncBotTaskRunnerTask = StartBotTaskRunnerAsync();
         }
         private async Task StartServerFeedbackAsync()
         {
-            Console.WriteLine($"[BOT RUNNER : {Environment.ProcessId}] Start server feedback task started.");
             while (true)
             {
                 try
                 {
-                    ActivityMember incomingActivityMemberState = _activityCommandClient.SendMemberStateUpdate(_currentActivityMemberState);
-                    _desiredActivityMemberState.AccountName = incomingActivityMemberState.AccountName;
-                    _desiredActivityMemberState.BehaviorProfile = incomingActivityMemberState.BehaviorProfile;
-                    _desiredActivityMemberState.ProgressionProfile = incomingActivityMemberState.ProgressionProfile;
-                    _desiredActivityMemberState.InitialProfile = incomingActivityMemberState.InitialProfile;
-                    _desiredActivityMemberState.EndStateProfile = incomingActivityMemberState.EndStateProfile;
+                    var incomingActivityMemberState = _activityMemberUpdateClient.SendMemberStateUpdate(_currentActivitySnapshots);
                 }
                 catch (Exception e)
                 {
-
+                    Console.WriteLine($"[BOT RUNNER] Error in server feedback task: {e.Message}");
                 }
 
-                await Task.Delay(500);
+                await Task.Delay(100);
             }
         }
 
         private async Task StartBotTaskRunnerAsync()
         {
-            Console.WriteLine($"[BOT RUNNER : {Environment.ProcessId}] Bot Task Runner started.");
+            var _status = BehaviourTreeStatus.Success;
+
             while (true)
             {
                 try
                 {
-                    //ThreadSynchronizer.RunOnMainThread(() =>
-                    //{
-                    //    if (Wait.For("AntiAFK", 5000, true))
-                    //    {
-                    //        ObjectManager.AntiAfk();
-                    //    }
+                    if (_behaviorTree == null || _status != BehaviourTreeStatus.Running)
+                    {
+                        // Call the decision engine to get the next set of actions with parameters
+                        var actionMap = await _botContext.GetNextActionsWithParamsAsync();
 
-                    //    foreach (var activityMember in _desiredActivityMemberState.ActivityMembers)
-                    //        if (!_currentActivityMemberState.ActivityMembers.Contains(activityMember))
-                    //            botTasks.Push(new AddPartyMemberTask(_classContainer, botTasks, activityMember));
+                        // Dynamically rebuild the behavior tree based on the action map
+                        _behaviorTree = BuildBehaviorTreeFromActions(actionMap);
 
-                    //    foreach (var skill in _desiredActivityMemberState.Skills)
-                    //        if (!_currentActivityMemberState.Skills.Contains(skill))
-                    //            botTasks.Push(new AddSpellTask(_classContainer, botTasks, skill));
+                    }
+                    // Tick the behavior tree to execute the current task
+                    _behaviorTree.Tick(new TimeData(0.01f));
 
-                    //    foreach (var spell in _desiredActivityMemberState.Spells)
-                    //        if (!_currentActivityMemberState.Spells.Contains(spell))
-                    //            botTasks.Push(new AddSpellTask(_classContainer, botTasks, spell));
-
-                    //    foreach (var talent in _desiredActivityMemberState.Talents)
-                    //        if (!_currentActivityMemberState.Talents.Contains(talent))
-                    //            botTasks.Push(new AddSpellTask(_classContainer, botTasks, talent));
-
-                    //    foreach (var petSpell in _desiredActivityMemberState.PetSpells)
-                    //        if (!_currentActivityMemberState.PetSpells.Contains(petSpell))
-                    //            botTasks.Push(new AddSpellTask(_classContainer, botTasks, petSpell));
-
-                    //    //if (desiredActivityMemberState.Level != currentActivityMemberState.Level)
-                    //    //    botTasks.Push(new ExecuteBlockingLuaTask(classContainer, botTasks, $"SendChatMessage(\".character level {ObjectManager.Player.Name} {desiredActivityMemberState.Level}\")"));
-
-                    //    if (_desiredActivityMemberState.BehaviorProfileName != _currentActivityMemberState.BehaviorProfileName)
-                    //    {
-                    //        AssignClassContainer();
-
-                    //        botTasks.Push(new ResetActivityMemberStateTask(_classContainer, botTasks));
-                    //    }
-
-                    //    if (_desiredActivityMemberState.AccountName != _currentActivityMemberState.AccountName)
-                    //    {
-                    //        _currentActivityMemberState.AccountName = _desiredActivityMemberState.AccountName;
-                    //        botTasks.Push(new LoginTask(_classContainer, botTasks));
-                    //    }
-
-                    //    if (botTasks.Count > 0)
-                    //        botTasks.Peek()?.Update();
-                    //});
-
-                    await Task.Delay(50);
+                    // Delay to control the frequency of task processing
+                    await Task.Delay(10);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[BOT RUNNER]{ex}");
+                    Console.WriteLine($"[BOT RUNNER] {ex}");
                 }
             }
         }
-
-        private void AssignClassContainer()
+        private IBehaviourTreeNode BuildBehaviorTreeFromActions(List<(Action, List<object>)> actionMap)
         {
-            try
-            {
-                currentBot = Bots.First(b => b.Name == _currentActivityMemberState.Member.BehaviorProfile);
+            var builder = DefaultSequence;
 
-                _classContainer = currentBot.GetClassContainer(_currentActivityMemberState);
-            }
-            catch (Exception ex)
+            // Iterate over the action map and build sequences for each action with its parameters
+            foreach (var actionEntry in actionMap)
             {
-                Console.WriteLine($"[BOT RUNNER {Environment.ProcessId}]ReloadBots {ex}");
+                switch (actionEntry.Item1)
+                {
+                    case Action.Wait:
+                        builder.Splice(BuildWaitSequence((float)actionEntry.Item2[0]));
+                        break;
+                    case Action.GoTo:
+                        builder.Splice(BuildGoToSequence((float)actionEntry.Item2[0], (float)actionEntry.Item2[1], (float)actionEntry.Item2[2], (float)actionEntry.Item2[3]));
+                        break;
+                    case Action.InteractWith:
+                        builder.Splice(BuildInteractWithSequence((ulong)actionEntry.Item2[0]));
+                        break;
+
+                    case Action.SelectGossip:
+                        builder.Splice(BuildSelectGossipSequence((int)actionEntry.Item2[0]));
+                        break;
+
+                    case Action.SelectTaxiNode:
+                        builder.Splice(BuildSelectTaxiNodeSequence((int)actionEntry.Item2[0]));
+                        break;
+
+                    case Action.AcceptQuest:
+                        builder.Splice(AcceptQuestSequence);
+                        break;
+                    case Action.DeclineQuest:
+                        builder.Splice(DeclineQuestSequence);
+                        break;
+                    case Action.SelectReward:
+                        builder.Splice(BuildSelectRewardSequence((int)actionEntry.Item2[0]));
+                        break;
+                    case Action.CompleteQuest:
+                        builder.Splice(CompleteQuestSequence);
+                        break;
+
+                    case Action.TrainSkill:
+                        builder.Splice(BuildTrainSkillSequence((int)actionEntry.Item2[0]));
+                        break;
+                    case Action.TrainTalent:
+                        builder.Splice(BuildTrainTalentSequence((int)actionEntry.Item2[0]));
+                        break;
+
+                    case Action.OfferTrade:
+                        builder.Splice(BuildOfferTradeSequence((ulong)actionEntry.Item2[0]));
+                        break;
+                    case Action.OfferGold:
+                        builder.Splice(BuildOfferMoneySequence((int)actionEntry.Item2[0]));
+                        break;
+                    case Action.OfferItem:
+                        builder.Splice(BuildOfferItemSequence((int)actionEntry.Item2[0], (int)actionEntry.Item2[1], (int)actionEntry.Item2[2], (int)actionEntry.Item2[3]));
+                        break;
+                    case Action.AcceptTrade:
+                        builder.Splice(AcceptTradeSequence);
+                        break;
+                    case Action.DeclineTrade:
+                        builder.Splice(DeclineTradeSequence);
+                        break;
+                    case Action.EnchantTrade:
+                        builder.Splice(BuildOfferEnchantSequence((int)actionEntry.Item2[0]));
+                        break;
+                    case Action.LockpickTrade:
+                        builder.Splice(OfferLockpickSequence);
+                        break;
+
+                    case Action.PromoteLeader:
+                        builder.Splice(BuildPromoteLeaderSequence((ulong)actionEntry.Item2[0]));
+                        break;
+                    case Action.PromoteAssistant:
+                        builder.Splice(BuildPromoteAssistantSequence((ulong)actionEntry.Item2[0]));
+                        break;
+                    case Action.PromoteLootManager:
+                        builder.Splice(BuildPromoteLootManagerSequence((ulong)actionEntry.Item2[0]));
+                        break;
+                    case Action.SetGroupLoot:
+                        builder.Splice(BuildSetGroupLootSequence((GroupLootSetting)actionEntry.Item2[0]));
+                        break;
+                    case Action.AssignLoot:
+                        builder.Splice(BuildAssignLootSequence((int)actionEntry.Item2[0], (ulong)actionEntry.Item2[1]));
+                        break;
+
+                    case Action.LootRollNeed:
+                        builder.Splice(BuildLootRollNeedSequence((int)actionEntry.Item2[0]));
+                        break;
+                    case Action.LootRollGreed:
+                        builder.Splice(BuildLootRollGreedSequence((int)actionEntry.Item2[0]));
+                        break;
+                    case Action.LootPass:
+                        builder.Splice(BuildLootPassSequence((int)actionEntry.Item2[0]));
+                        break;
+
+                    case Action.SendGroupInvite:
+                        builder.Splice(BuildSendGroupInviteSequence((ulong)actionEntry.Item2[0]));
+                        break;
+                    case Action.AcceptGroupInvite:
+                        builder.Splice(AcceptGroupInviteSequence);
+                        break;
+                    case Action.DeclineGroupInvite:
+                        builder.Splice(DeclineGroupInviteSequence);
+                        break;
+                    case Action.KickPlayer:
+                        builder.Splice(BuildKickPlayerSequence((ulong)actionEntry.Item2[0]));
+                        break;
+                    case Action.LeaveGroup:
+                        builder.Splice(LeaveGroupSequence);
+                        break;
+                    case Action.DisbandGroup:
+                        builder.Splice(DisbandGroupSequence);
+                        break;
+
+                    case Action.StartMeleeAttack:
+                        builder.Splice(MeleeAttackSequence);
+                        break;
+                    case Action.StartRangedAttack:
+                        builder.Splice(RangedAttackSequence);
+                        break;
+                    case Action.StartWandAttack:
+                        builder.Splice(WandAttackSequence);
+                        break;
+                    case Action.StopAttack:
+                        builder.Splice(StopAttackSequence);
+                        break;
+                    case Action.CastSpell:
+                        builder.Splice(BuildCastSpellSequence((int)actionEntry.Item2[0]));
+                        break;
+                    case Action.StopCast:
+                        builder.Splice(StopCastSequence);
+                        break;
+
+                    case Action.UseItem:
+                        builder.Splice(BuildUseItemSequence((int)actionEntry.Item2[0], (int)actionEntry.Item2[1], (ulong)actionEntry.Item2[2]));
+                        break;
+                    case Action.EquipItem:
+                        builder.Splice(BuildEquipItemSequence((int)actionEntry.Item2[0], (int)actionEntry.Item2[1], (EquipSlot)actionEntry.Item2[2]));
+                        break;
+                    case Action.UnequipItem:
+                        builder.Splice(BuildUnequipItemSequence((EquipSlot)actionEntry.Item2[0]));
+                        break;
+                    case Action.DestroyItem:
+                        builder.Splice(BuildDestroyItemSequence((int)actionEntry.Item2[0], (int)actionEntry.Item2[1]));
+                        break;
+                    case Action.MoveItem:
+                        builder.Splice(BuildMoveItemSequence((int)actionEntry.Item2[0], (int)actionEntry.Item2[1], (int)actionEntry.Item2[2], (int)actionEntry.Item2[3]));
+                        break;
+                    case Action.SplitStack:
+                        builder.Splice(BuildSplitStackSequence((int)actionEntry.Item2[0], 
+                            (int)actionEntry.Item2[1], 
+                            (int)actionEntry.Item2[2], 
+                            (int)actionEntry.Item2[3], 
+                            (int)actionEntry.Item2[4]));
+                        break;
+
+                    case Action.BuyItem:
+                        builder.Splice(BuildBuyItemSequence((int)actionEntry.Item2[0], (int)actionEntry.Item2[1]));
+                        break;
+                    case Action.BuybackItem:
+                        builder.Splice(BuildBuybackItemSequence((int)actionEntry.Item2[0], (int)actionEntry.Item2[1]));
+                        break;
+                    case Action.SellItem:
+                        builder.Splice(BuildSellItemSequence((int)actionEntry.Item2[0], (int)actionEntry.Item2[1], (int)actionEntry.Item2[2]));
+                        break;
+                    case Action.RepairItem:
+                        builder.Splice(BuildRepairItemSequence((int)actionEntry.Item2[0], (int)actionEntry.Item2[1]));
+                        break;
+                    case Action.RepairAllItems:
+                        builder.Splice(RepairAllItemsSequence);
+                        break;
+
+                    case Action.DismissBuff:
+                        builder.Splice(BuildDismissBuffSequence((int)actionEntry.Item2[0]));
+                        break;
+
+                    case Action.Resurrect:
+                        builder.Splice(ResurrectSequence);
+                        break;
+
+                    case Action.Craft:
+                        builder.Splice(BuildCraftSequence((int)actionEntry.Item2[0]));
+                        break;
+
+                    case Action.Login:
+                        builder.Splice(BuildLoginSequence((string)actionEntry.Item2[0], "password"));
+                        break;
+                    case Action.Logout:
+                        builder.Splice(LogoutSequence);
+                        break;
+                    case Action.CreateCharacter:
+                        builder.Splice(BuildCreateCharacterSequence(actionEntry.Item2));
+                        break;
+                    case Action.DeleteCharacter:
+                        builder.Splice(BuildDeleteCharacterSequence((int)actionEntry.Item2[0]));
+                        break;
+                    case Action.EnterWorld:
+                        builder.Splice(BuildEnterWorldSequence((ulong)actionEntry.Item2[0]));
+                        break;
+
+                    default:
+                        break;
+                }
             }
+
+            return builder.Build();
         }
+
+        private BehaviourTreeBuilder DefaultSequence => new BehaviourTreeBuilder()
+            .Splice(CombatSequence);
+        private IBehaviourTreeNode CombatSequence => new BehaviourTreeBuilder()
+                .Sequence("Combat Sequence")
+                    .Condition("In Combat", time => _botContext.ObjectManager.Player != null 
+                                                    && _botContext.ObjectManager.Player.IsInCombat)
+                    .Do("Perform combat rotation", time => _botContext.PerformCombatRotation())
+                .End()
+                .Build();
+
+        private IBehaviourTreeNode BuildWaitSequence(float duration) => new BehaviourTreeBuilder()
+                .Sequence("Wait Sequence")
+                    .Do("Wait", time => BehaviourTreeStatus.Success)
+                .End()
+                .Build();
+        /// <summary>
+        /// Sequence to move the bot to a specific location using given coordinates (x, y, z) and a range (f).
+        /// </summary>
+        /// <param name="x">The x-coordinate of the destination.</param>
+        /// <param name="y">The y-coordinate of the destination.</param>
+        /// <param name="z">The z-coordinate of the destination.</param>
+        /// <param name="f">The allowed range/facing tolerance for reaching the destination.</param>
+        /// <returns>IBehaviourTreeNode that manages moving the bot to the specified location.</returns>
+        private IBehaviourTreeNode BuildGoToSequence(float x, float y, float z, float f) => new BehaviourTreeBuilder()
+            .Sequence("GoTo Sequence")
+                // Move the bot to the location
+                .Do("Move to Location", time => _botContext.GoTo(new PathfindingService.Models.Position(x, y, z), f))
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to interact with a specific target based on its GUID.
+        /// </summary>
+        /// <param name="guid">The GUID of the target to interact with.</param>
+        /// <returns>IBehaviourTreeNode that manages interacting with the specified target.</returns>
+        private IBehaviourTreeNode BuildInteractWithSequence(ulong guid) => new BehaviourTreeBuilder()
+            .Sequence("Interact With Sequence")
+                .Splice(CheckForTarget(guid)) // Reuse the targeting logic
+
+                // Ensure the target is valid for interaction
+                .Condition("Has Valid Target", time => _botContext.ObjectManager.Player.TargetGuid == guid)
+
+                // Perform the interaction
+                .Do("Interact with Target", time =>
+                {
+                    _botContext.InteractWith(guid);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Property to check if the player has a target, and if not, sets the target to the specified GUID.
+        /// </summary>
+        /// <param name="guid">The GUID of the target to set.</param>
+        /// <returns>IBehaviourTreeNode that checks for and sets a target if needed.</returns>
+        private IBehaviourTreeNode CheckForTarget(ulong guid) => new BehaviourTreeBuilder()
+            .Sequence("Check for Target")
+                // Check if the player already has a target
+                .Condition("Has Target", time => _botContext.ObjectManager.Player != null
+                                                 && _botContext.ObjectManager.Player.TargetGuid != 0)
+                // If no target, set the target to the provided GUID
+                .Do("Set Target", time =>
+                {
+                    if (_botContext.ObjectManager.Player.TargetGuid == 0)
+                    {
+                        _botContext.ObjectManager.Player.SetTarget(guid);
+                    }
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to select a gossip option from an NPC's menu.
+        /// </summary>
+        /// <param name="selection">The index of the gossip option to select.</param>
+        /// <returns>IBehaviourTreeNode that manages selecting a gossip option.</returns>
+        private IBehaviourTreeNode BuildSelectGossipSequence(int selection) => new BehaviourTreeBuilder()
+            .Sequence("Select Gossip Sequence")
+                // Ensure the bot has a valid target with gossip options
+                .Condition("Has Valid Gossip Target", time => _botContext.ObjectManager.GossipFrame.IsOpen 
+                                                            && _botContext.ObjectManager.GossipFrame.Options.Count > 0)
+
+                // Select the gossip option
+                .Do("Select Gossip Option", time =>
+                {
+                    _botContext.ObjectManager.GossipFrame.SelectGossipOption(selection);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+
+        /// <summary>
+        /// Sequence to select a taxi node (flight path) for fast travel.
+        /// </summary>
+        /// <param name="nodeId">The ID of the taxi node to select.</param>
+        /// <returns>IBehaviourTreeNode that manages selecting the taxi node.</returns>
+        private IBehaviourTreeNode BuildSelectTaxiNodeSequence(int nodeId) => new BehaviourTreeBuilder()
+            .Sequence("Select Taxi Node Sequence")
+                // Ensure the bot has access to the selected taxi node
+                .Condition("Has Taxi Node Unlocked", time => _botContext.HasTaxiNodeUnlocked(nodeId))
+
+                // Ensure the bot has enough gold for the flight
+                .Condition("Has Enough Gold", time => _botContext.HasEnoughGoldForTaxi(nodeId))
+
+                // Select the taxi node
+                .Do("Select Taxi Node", time =>
+                {
+                    _botContext.SelectTaxiNode(nodeId);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to accept a quest from an NPC. This checks if the quest is available and the bot meets the prerequisites.
+        /// </summary>
+        /// <returns>IBehaviourTreeNode that manages accepting the quest.</returns>
+        private IBehaviourTreeNode AcceptQuestSequence => new BehaviourTreeBuilder()
+            .Sequence("Accept Quest Sequence")
+                // Ensure the bot can accept the quest (e.g., meets level requirements)
+                .Condition("Can Accept Quest", time => _botContext.CanAcceptQuest())
+
+                // Accept the quest from the NPC
+                .Do("Accept Quest", time =>
+                {
+                    _botContext.AcceptQuest();
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to decline a quest offered by an NPC.
+        /// </summary>
+        /// <returns>IBehaviourTreeNode that manages declining the quest.</returns>
+        private IBehaviourTreeNode DeclineQuestSequence => new BehaviourTreeBuilder()
+            .Sequence("Decline Quest Sequence")
+                // Ensure the bot can decline the quest
+                .Condition("Can Decline Quest", time => _botContext.CanDeclineQuest())
+
+                // Decline the quest
+                .Do("Decline Quest", time =>
+                {
+                    _botContext.DeclineQuest();
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to select a reward from a completed quest.
+        /// </summary>
+        /// <param name="rewardIndex">The index of the reward to select.</param>
+        /// <returns>IBehaviourTreeNode that manages selecting the quest reward.</returns>
+        private IBehaviourTreeNode BuildSelectRewardSequence(int rewardIndex) => new BehaviourTreeBuilder()
+            .Sequence("Select Reward Sequence")
+                // Ensure the bot is able to select a reward
+                .Condition("Can Select Reward", time => _botContext.CanSelectReward())
+
+                // Select the specified reward
+                .Do("Select Reward", time =>
+                {
+                    _botContext.SelectReward(rewardIndex);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to complete a quest and turn it in to an NPC.
+        /// </summary>
+        /// <returns>IBehaviourTreeNode that manages completing the quest.</returns>
+        private IBehaviourTreeNode CompleteQuestSequence => new BehaviourTreeBuilder()
+            .Sequence("Complete Quest Sequence")
+                // Ensure the bot can complete the quest
+                .Condition("Can Complete Quest", time => _botContext.CanCompleteQuest())
+
+                // Complete the quest
+                .Do("Complete Quest", time =>
+                {
+                    _botContext.CompleteQuest();
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to train a specific skill from a trainer NPC.
+        /// </summary>
+        /// <param name="spellIndex">The index of the skill or spell to train.</param>
+        /// <returns>IBehaviourTreeNode that manages training the skill.</returns>
+        private IBehaviourTreeNode BuildTrainSkillSequence(int spellIndex) => new BehaviourTreeBuilder()
+            .Sequence("Train Skill Sequence")
+                // Ensure the bot is at a trainer NPC
+                .Condition("Is At Trainer", time => _botContext.IsAtTrainer())
+
+                // Ensure the bot has enough gold to train the skill
+                .Condition("Has Enough Gold", time => _botContext.HasEnoughGoldToTrain(spellIndex))
+
+                // Train the skill
+                .Do("Train Skill", time =>
+                {
+                    _botContext.TrainSpell(spellIndex);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to train a specific talent. This checks if the bot has enough resources and is eligible to train the talent.
+        /// </summary>
+        /// <param name="talentSpellId">The ID of the talent spell to train.</param>
+        /// <returns>IBehaviourTreeNode that manages training the talent.</returns>
+        private IBehaviourTreeNode BuildTrainTalentSequence(int talentSpellId) => new BehaviourTreeBuilder()
+            .Sequence("Train Talent Sequence")
+                // Ensure the bot is eligible to train the talent
+                .Condition("Can Train Talent", time => _botContext.CanTrainTalent(talentSpellId))
+
+                // Ensure the bot has enough gold to train the talent
+                .Condition("Has Enough Gold", time => _botContext.HasEnoughGoldToTrainTalent(talentSpellId))
+
+                // Train the talent
+                .Do("Train Talent", time =>
+                {
+                    _botContext.TrainTalent(talentSpellId);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        private IBehaviourTreeNode BuildBuyItemSequence(int slotId, int quantity) => new BehaviourTreeBuilder()
+                .Sequence("BuyItem Sequence")
+                    .Do("Buy Item", time => _botContext.BuyItem(slotId, quantity))
+                .End()
+                .Build();
+        private IBehaviourTreeNode BuildBuybackItemSequence(int slotId, int quantity) => new BehaviourTreeBuilder()
+                .Sequence("BuybackItem Sequence")
+                    .Do("Buy Item", time => _botContext.BuybackItem(slotId, quantity))
+                .End()
+                .Build();
+        private IBehaviourTreeNode BuildSellItemSequence(int bagId, int slotId, int quantity) => new BehaviourTreeBuilder()
+                .Sequence("SellItem Sequence")
+                    .Do("Sell Item", time => _botContext.SellItem(bagId, slotId, quantity))
+                .End()
+                .Build();
+        /// <summary>
+        /// Sequence to start auto-attacking. This sets the character's auto-attack to "on"
+        /// and the server will manage the actual attack occurrences.
+        /// </summary>
+        /// <returns>IBehaviourTreeNode that manages initiating melee auto-attacks.</returns>
+        private IBehaviourTreeNode MeleeAttackSequence => new BehaviourTreeBuilder()
+            .Sequence("Melee Attack Sequence")
+                // Ensure the bot has a valid target
+                .Condition("Has Valid Target", time => _botContext.HasValidTarget())
+
+                // Check if auto-attack is already enabled, if not, enable it
+                .Condition("Auto-Attack Not Active", time => !_botContext.IsAutoAttackActive())
+
+                // Enable auto-attack mode
+                .Do("Start Auto-Attack", time =>
+                {
+                    _botContext.EnableAutoAttack();
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to start ranged auto-attacking. This sets the character's ranged attack mode to "on"
+        /// and the server will manage the actual attack occurrences.
+        /// </summary>
+        /// <returns>IBehaviourTreeNode that manages initiating ranged auto-attacks.</returns>
+        private IBehaviourTreeNode RangedAttackSequence => new BehaviourTreeBuilder()
+            .Sequence("Ranged Attack Sequence")
+                // Ensure the bot has a valid target
+                .Condition("Has Valid Target", time => _botContext.HasValidTarget())
+
+                // Ensure the bot is using a ranged weapon
+                .Condition("Has Ranged Weapon Equipped", time => _botContext.HasRangedWeaponEquipped())
+
+                // Ensure auto-attack isn't already active
+                .Condition("Ranged Auto-Attack Not Active", time => !_botContext.IsRangedAutoAttackActive())
+
+                // Enable ranged auto-attack
+                .Do("Start Ranged Auto-Attack", time =>
+                {
+                    _botContext.EnableRangedAutoAttack();
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to start wand auto-attacking. This sets the character's wand attack to "on"
+        /// and the server will manage the actual attack occurrences.
+        /// </summary>
+        /// <returns>IBehaviourTreeNode that manages initiating wand auto-attacks.</returns>
+        private IBehaviourTreeNode WandAttackSequence => new BehaviourTreeBuilder()
+            .Sequence("Wand Attack Sequence")
+                // Ensure the bot has a valid target
+                .Condition("Has Valid Target", time => _botContext.HasValidTarget())
+
+                // Ensure the bot has a wand equipped
+                .Condition("Has Wand Equipped", time => _botContext.HasWandEquipped())
+
+                // Ensure wand auto-attack isn't already active
+                .Condition("Wand Auto-Attack Not Active", time => !_botContext.IsWandAutoAttackActive())
+
+                // Enable wand auto-attack
+                .Do("Start Wand Auto-Attack", time =>
+                {
+                    _botContext.EnableWandAutoAttack();
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to stop any active auto-attacks, including melee, ranged, and wand.
+        /// </summary>
+        /// <returns>IBehaviourTreeNode that manages stopping auto-attacks.</returns>
+        private IBehaviourTreeNode StopAttackSequence => new BehaviourTreeBuilder()
+            .Sequence("Stop Attack Sequence")
+                // Check if any auto-attack (melee, ranged, or wand) is active
+                .Condition("Is Any Auto-Attack Active", time => _botContext.IsAutoAttackActive()
+                                                            || _botContext.IsRangedAutoAttackActive()
+                                                            || _botContext.IsWandAutoAttackActive())
+
+                // Disable all auto-attacks
+                .Do("Stop All Auto-Attacks", time =>
+                {
+                    _botContext.DisableAutoAttack();
+                    _botContext.DisableRangedAutoAttack();
+                    _botContext.DisableWandAutoAttack();
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to cast a specific spell. This checks if the bot has sufficient resources,
+        /// if the spell is off cooldown, and if the target is in range before casting the spell.
+        /// </summary>
+        /// <param name="spellId">The ID of the spell to cast.</param>
+        /// <returns>IBehaviourTreeNode that manages casting a spell.</returns>
+        private IBehaviourTreeNode BuildCastSpellSequence(int spellId) => new BehaviourTreeBuilder()
+            .Sequence("Cast Spell Sequence")
+                // Ensure the bot has a valid target
+                .Condition("Has Valid Target", time => _botContext.HasValidTarget())
+
+                // Ensure the bot has enough resources to cast the spell
+                .Condition("Has Enough Resources", time => _botContext.HasEnoughResources(spellId))
+
+                // Ensure the spell is off cooldown
+                .Condition("Spell Off Cooldown", time => _botContext.IsSpellOffCooldown(spellId))
+
+                // Ensure the target is within range
+                .Condition("Target In Range", time => _botContext.IsTargetInRange(spellId))
+
+                // Cast the spell
+                .Do("Cast Spell", time =>
+                {
+                    _botContext.CastSpell(spellId);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to stop the current spell cast. This will stop any spell the bot is currently casting.
+        /// </summary>
+        /// <returns>IBehaviourTreeNode that manages stopping a spell cast.</returns>
+        private IBehaviourTreeNode StopCastSequence => new BehaviourTreeBuilder()
+            .Sequence("Stop Cast Sequence")
+                // Ensure the bot is currently casting a spell
+                .Condition("Is Casting", time => _botContext.IsCasting())
+
+                // Stop the current spell cast
+                .Do("Stop Spell Cast", time =>
+                {
+                    _botContext.StopCasting();
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to resurrect the bot or another target.
+        /// </summary>
+        /// <returns>IBehaviourTreeNode that manages the resurrection process.</returns>
+        private IBehaviourTreeNode ResurrectSequence => new BehaviourTreeBuilder()
+            .Sequence("Resurrect Sequence")
+                // Ensure the bot or target can be resurrected
+                .Condition("Can Resurrect", time => _botContext.CanResurrect())
+
+                // Perform the resurrection action
+                .Do("Resurrect", time =>
+                {
+                    _botContext.Resurrect();
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to offer a trade to another player or NPC.
+        /// </summary>
+        /// <param name="targetGuid">The GUID of the target with whom to trade.</param>
+        /// <returns>IBehaviourTreeNode that manages offering a trade.</returns>
+        private IBehaviourTreeNode BuildOfferTradeSequence(ulong targetGuid) => new BehaviourTreeBuilder()
+            .Sequence("Offer Trade Sequence")
+                // Ensure the bot has a valid trade target
+                .Condition("Has Valid Trade Target", time => _botContext.HasValidTradeTarget(targetGuid))
+
+                // Offer trade to the target
+                .Do("Offer Trade", time =>
+                {
+                    _botContext.OfferTrade(targetGuid);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to offer money in a trade to another player or NPC.
+        /// </summary>
+        /// <param name="copperCount">The amount of money (in copper) to offer in the trade.</param>
+        /// <returns>IBehaviourTreeNode that manages offering money in the trade.</returns>
+        private IBehaviourTreeNode BuildOfferMoneySequence(int copperCount) => new BehaviourTreeBuilder()
+            .Sequence("Offer Money Sequence")
+                // Ensure the bot has enough money to offer
+                .Condition("Has Enough Money", time => _botContext.HasEnoughMoney(copperCount))
+
+                // Offer money in the trade
+                .Do("Offer Money", time =>
+                {
+                    _botContext.OfferMoney(copperCount);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to offer an item in a trade to another player or NPC.
+        /// </summary>
+        /// <param name="bagId">The bag ID where the item is stored.</param>
+        /// <param name="slotId">The slot ID where the item is located.</param>
+        /// <param name="quantity">The quantity of the item to offer.</param>
+        /// <param name="tradeWindowSlot">The slot in the trade window to place the item.</param>
+        /// <returns>IBehaviourTreeNode that manages offering the item in the trade.</returns>
+        private IBehaviourTreeNode BuildOfferItemSequence(int bagId, int slotId, int quantity, int tradeWindowSlot) => new BehaviourTreeBuilder()
+            .Sequence("Offer Item Sequence")
+                // Ensure the bot has the item and quantity to offer
+                .Condition("Has Item to Offer", time => _botContext.HasItem(bagId, slotId, quantity))
+
+                // Offer the item in the trade window
+                .Do("Offer Item", time =>
+                {
+                    _botContext.OfferItem(bagId, slotId, quantity, tradeWindowSlot);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to accept a trade with another player or NPC.
+        /// </summary>
+        /// <returns>IBehaviourTreeNode that manages accepting the trade.</returns>
+        private IBehaviourTreeNode AcceptTradeSequence => new BehaviourTreeBuilder()
+            .Sequence("Accept Trade Sequence")
+                // Ensure the trade window is valid and ready for acceptance
+                .Condition("Trade Window Valid", time => _botContext.IsTradeWindowValid())
+
+                // Accept the trade
+                .Do("Accept Trade", time =>
+                {
+                    _botContext.AcceptTrade();
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to decline a trade with another player or NPC.
+        /// </summary>
+        /// <returns>IBehaviourTreeNode that manages declining the trade.</returns>
+        private IBehaviourTreeNode DeclineTradeSequence => new BehaviourTreeBuilder()
+            .Sequence("Decline Trade Sequence")
+                // Ensure the trade window is valid and the trade can be declined
+                .Condition("Trade Window Valid", time => _botContext.IsTradeWindowValid())
+
+                // Decline the trade
+                .Do("Decline Trade", time =>
+                {
+                    _botContext.DeclineTrade();
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to offer an enchantment in a trade to another player or NPC.
+        /// </summary>
+        /// <param name="enchantId">The ID of the enchantment to offer.</param>
+        /// <returns>IBehaviourTreeNode that manages offering the enchantment in the trade.</returns>
+        private IBehaviourTreeNode BuildOfferEnchantSequence(int enchantId) => new BehaviourTreeBuilder()
+            .Sequence("Offer Enchant Sequence")
+                // Ensure the bot has the correct enchantment to offer
+                .Condition("Has Enchant Available", time => _botContext.HasEnchantAvailable(enchantId))
+
+                // Offer the enchantment in the trade
+                .Do("Offer Enchant", time =>
+                {
+                    _botContext.OfferEnchant(enchantId);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to offer a lockpicking service in a trade.
+        /// </summary>
+        /// <returns>IBehaviourTreeNode that manages offering lockpicking in a trade.</returns>
+        private IBehaviourTreeNode OfferLockpickSequence => new BehaviourTreeBuilder()
+            .Sequence("Lockpick Trade Sequence")
+                // Ensure the bot has the ability to lockpick
+                .Condition("Can Lockpick", time => _botContext.CanLockpick())
+
+                // Offer lockpicking in the trade
+                .Do("Offer Lockpick", time =>
+                {
+                    _botContext.OfferLockpick();
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to promote another player to group leader.
+        /// </summary>
+        /// <param name="playerGuid">The GUID of the player to promote to leader.</param>
+        /// <returns>IBehaviourTreeNode that manages promoting the player to group leader.</returns>
+        private IBehaviourTreeNode BuildPromoteLeaderSequence(ulong playerGuid) => new BehaviourTreeBuilder()
+            .Sequence("Promote Leader Sequence")
+                // Ensure the bot is in a group with the specified player
+                .Condition("Is In Group with Player", time => _botContext.IsInGroupWith(playerGuid))
+
+                // Promote the player to group leader
+                .Do("Promote Leader", time =>
+                {
+                    _botContext.PromoteLeader(playerGuid);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to promote another player to group assistant.
+        /// </summary>
+        /// <param name="playerGuid">The GUID of the player to promote to assistant.</param>
+        /// <returns>IBehaviourTreeNode that manages promoting the player to group assistant.</returns>
+        private IBehaviourTreeNode BuildPromoteAssistantSequence(ulong playerGuid) => new BehaviourTreeBuilder()
+            .Sequence("Promote Assistant Sequence")
+                // Ensure the bot is in a group with the specified player
+                .Condition("Is In Group with Player", time => _botContext.IsInGroupWith(playerGuid))
+
+                // Promote the player to group assistant
+                .Do("Promote Assistant", time =>
+                {
+                    _botContext.PromoteAssistant(playerGuid);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to promote another player to loot manager in the group.
+        /// </summary>
+        /// <param name="playerGuid">The GUID of the player to promote to loot manager.</param>
+        /// <returns>IBehaviourTreeNode that manages promoting the player to loot manager.</returns>
+        private IBehaviourTreeNode BuildPromoteLootManagerSequence(ulong playerGuid) => new BehaviourTreeBuilder()
+            .Sequence("Promote Loot Manager Sequence")
+                // Ensure the bot is in a group with the specified player
+                .Condition("Is In Group with Player", time => _botContext.IsInGroupWith(playerGuid))
+
+                // Promote the player to loot manager
+                .Do("Promote Loot Manager", time =>
+                {
+                    _botContext.PromoteLootManager(playerGuid);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to set group loot rules for distributing loot in a group.
+        /// </summary>
+        /// <param name="setting">The group loot setting to apply (e.g., free-for-all, round-robin).</param>
+        /// <returns>IBehaviourTreeNode that manages setting the group loot rules.</returns>
+        private IBehaviourTreeNode BuildSetGroupLootSequence(GroupLootSetting setting) => new BehaviourTreeBuilder()
+            .Sequence("Set Group Loot Sequence")
+                // Ensure the bot is in a group and has permission to change loot rules
+                .Condition("Can Set Loot Rules", time => _botContext.CanSetLootRules())
+
+                // Set the group loot rule
+                .Do("Set Group Loot", time =>
+                {
+                    _botContext.SetGroupLoot(setting);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to assign specific loot to a player in the group.
+        /// </summary>
+        /// <param name="itemId">The ID of the loot item to assign.</param>
+        /// <param name="playerGuid">The GUID of the player to assign the loot to.</param>
+        /// <returns>IBehaviourTreeNode that manages assigning the loot.</returns>
+        private IBehaviourTreeNode BuildAssignLootSequence(int itemId, ulong playerGuid) => new BehaviourTreeBuilder()
+            .Sequence("Assign Loot Sequence")
+                // Ensure the bot has permission to assign loot
+                .Condition("Can Assign Loot", time => _botContext.CanAssignLoot(itemId, playerGuid))
+
+                // Assign the loot to the specified player
+                .Do("Assign Loot", time =>
+                {
+                    _botContext.AssignLoot(itemId, playerGuid);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to roll "Need" on a specific loot item during group loot distribution.
+        /// </summary>
+        /// <param name="itemId">The ID of the item to roll "Need" on.</param>
+        /// <returns>IBehaviourTreeNode that manages rolling "Need" for the item.</returns>
+        private IBehaviourTreeNode BuildLootRollNeedSequence(int itemId) => new BehaviourTreeBuilder()
+            .Sequence("Loot Roll Need Sequence")
+                // Ensure the bot can roll "Need" on the item
+                .Condition("Can Roll Need", time => _botContext.CanRollNeed(itemId))
+
+                // Roll "Need" for the item
+                .Do("Roll Need", time =>
+                {
+                    _botContext.LootRollNeed(itemId);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to roll "Greed" on a specific loot item during group loot distribution.
+        /// </summary>
+        /// <param name="itemId">The ID of the item to roll "Greed" on.</param>
+        /// <returns>IBehaviourTreeNode that manages rolling "Greed" for the item.</returns>
+        private IBehaviourTreeNode BuildLootRollGreedSequence(int itemId) => new BehaviourTreeBuilder()
+            .Sequence("Loot Roll Greed Sequence")
+                // Ensure the bot can roll "Greed" on the item
+                .Condition("Can Roll Greed", time => _botContext.CanRollGreed(itemId))
+
+                // Roll "Greed" for the item
+                .Do("Roll Greed", time =>
+                {
+                    _botContext.LootRollGreed(itemId);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to pass on a specific loot item during group loot distribution.
+        /// </summary>
+        /// <param name="itemId">The ID of the item to pass on.</param>
+        /// <returns>IBehaviourTreeNode that manages passing on the item.</returns>
+        private IBehaviourTreeNode BuildLootPassSequence(int itemId) => new BehaviourTreeBuilder()
+            .Sequence("Loot Pass Sequence")
+                // Ensure the bot can pass on the item
+                .Condition("Can Pass Loot", time => _botContext.CanPassLoot(itemId))
+
+                // Pass on the loot item
+                .Do("Pass Loot", time =>
+                {
+                    _botContext.LootPass(itemId);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to send a group invite to another player.
+        /// </summary>
+        /// <param name="playerGuid">The GUID of the player to invite to the group.</param>
+        /// <returns>IBehaviourTreeNode that manages sending the group invite.</returns>
+        private IBehaviourTreeNode BuildSendGroupInviteSequence(ulong playerGuid) => new BehaviourTreeBuilder()
+            .Sequence("Send Group Invite Sequence")
+                // Ensure the player is not already in a group and can be invited
+                .Condition("Can Send Group Invite", time => _botContext.CanSendGroupInvite(playerGuid))
+
+                // Send the group invite
+                .Do("Send Group Invite", time =>
+                {
+                    _botContext.SendGroupInvite(playerGuid);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to accept a group invite from another player.
+        /// </summary>
+        /// <returns>IBehaviourTreeNode that manages accepting the group invite.</returns>
+        private IBehaviourTreeNode AcceptGroupInviteSequence => new BehaviourTreeBuilder()
+            .Sequence("Accept Group Invite Sequence")
+                // Ensure the bot has a pending invite to accept
+                .Condition("Has Pending Invite", time => _botContext.HasPendingGroupInvite())
+
+                // Accept the group invite
+                .Do("Accept Group Invite", time =>
+                {
+                    _botContext.AcceptGroupInvite();
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to decline a group invite from another player.
+        /// </summary>
+        /// <returns>IBehaviourTreeNode that manages declining the group invite.</returns>
+        private IBehaviourTreeNode DeclineGroupInviteSequence => new BehaviourTreeBuilder()
+            .Sequence("Decline Group Invite Sequence")
+                // Ensure the bot has a pending invite to decline
+                .Condition("Has Pending Invite", time => _botContext.HasPendingGroupInvite())
+
+                // Decline the group invite
+                .Do("Decline Group Invite", time =>
+                {
+                    _botContext.DeclineGroupInvite();
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to kick a player from the group.
+        /// </summary>
+        /// <param name="playerGuid">The GUID of the player to kick from the group.</param>
+        /// <returns>IBehaviourTreeNode that manages kicking the player from the group.</returns>
+        private IBehaviourTreeNode BuildKickPlayerSequence(ulong playerGuid) => new BehaviourTreeBuilder()
+            .Sequence("Kick Player Sequence")
+                // Ensure the bot has permission to kick players and the target is valid
+                .Condition("Can Kick Player", time => _botContext.CanKickPlayer(playerGuid))
+
+                // Kick the player from the group
+                .Do("Kick Player", time =>
+                {
+                    _botContext.KickPlayer(playerGuid);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to leave the current group.
+        /// </summary>
+        /// <returns>IBehaviourTreeNode that manages leaving the group.</returns>
+        private IBehaviourTreeNode LeaveGroupSequence => new BehaviourTreeBuilder()
+            .Sequence("Leave Group Sequence")
+                // Ensure the bot is in a group
+                .Condition("Is In Group", time => _botContext.IsInGroup())
+
+                // Leave the group
+                .Do("Leave Group", time =>
+                {
+                    _botContext.LeaveGroup();
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to disband the current group the bot is leading.
+        /// </summary>
+        /// <returns>IBehaviourTreeNode that manages disbanding the group.</returns>
+        private IBehaviourTreeNode DisbandGroupSequence => new BehaviourTreeBuilder()
+            .Sequence("Disband Group Sequence")
+                // Ensure the bot is the leader of the group
+                .Condition("Is Group Leader", time => _botContext.IsGroupLeader())
+
+                // Disband the group
+                .Do("Disband Group", time =>
+                {
+                    _botContext.DisbandGroup();
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to use an item, either on the bot or a target.
+        /// </summary>
+        /// <param name="fromBag">The bag the item is in.</param>
+        /// <param name="fromSlot">The slot the item is in.</param>
+        /// <param name="targetGuid">The GUID of the target on which to use the item (optional).</param>
+        /// <returns>IBehaviourTreeNode that manages using the item.</returns>
+        private IBehaviourTreeNode BuildUseItemSequence(int fromBag, int fromSlot, ulong targetGuid) => new BehaviourTreeBuilder()
+            .Sequence("Use Item Sequence")
+                // Ensure the bot has the item available to use
+                .Condition("Has Item", time => _botContext.HasItem(fromBag, fromSlot))
+
+                // Use the item on the target (or self if target is null)
+                .Do("Use Item", time =>
+                {
+                    _botContext.UseItem(fromBag, fromSlot, targetGuid);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to move an item from one bag and slot to another bag and slot.
+        /// </summary>
+        /// <param name="fromBag">The source bag ID.</param>
+        /// <param name="fromSlot">The source slot ID.</param>
+        /// <param name="toBag">The destination bag ID.</param>
+        /// <param name="toSlot">The destination slot ID.</param>
+        /// <returns>IBehaviourTreeNode that manages moving the item.</returns>
+        private IBehaviourTreeNode BuildMoveItemSequence(int fromBag, int fromSlot, int toBag, int toSlot) => new BehaviourTreeBuilder()
+            .Sequence("Move Item Sequence")
+                // Ensure the bot has the item in the source slot
+                .Condition("Has Item to Move", time => _botContext.HasItem(fromBag, fromSlot))
+
+                // Move the item to the destination slot
+                .Do("Move Item", time =>
+                {
+                    _botContext.MoveItem(fromBag, fromSlot, toBag, toSlot);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+
+        /// <summary>
+        /// Sequence to destroy an item from the inventory.
+        /// </summary>
+        /// <param name="itemId">The ID of the item to destroy.</param>
+        /// <param name="quantity">The quantity of the item to destroy.</param>
+        /// <returns>IBehaviourTreeNode that manages destroying the item.</returns>
+        private IBehaviourTreeNode BuildDestroyItemSequence(int itemId, int quantity) => new BehaviourTreeBuilder()
+            .Sequence("Destroy Item Sequence")
+                // Ensure the bot has the item and quantity available to destroy
+                .Condition("Has Item to Destroy", time => _botContext.HasItem(itemId, quantity))
+
+                // Destroy the item
+                .Do("Destroy Item", time =>
+                {
+                    _botContext.DestroyItem(itemId, quantity);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+
+        /// <summary>
+        /// Sequence to equip an item from a bag into a specific equipment slot.
+        /// </summary>
+        /// <param name="bag">The bag where the item is located.</param>
+        /// <param name="slot">The slot in the bag where the item is located.</param>
+        /// <param name="equipSlot">The equipment slot to place the item into.</param>
+        /// <returns>IBehaviourTreeNode that manages equipping the item.</returns>
+        private IBehaviourTreeNode BuildEquipItemSequence(int bag, int slot, EquipSlot equipSlot) => new BehaviourTreeBuilder()
+            .Sequence("Equip Item Sequence")
+                // Ensure the bot has the item to equip
+                .Condition("Has Item", time => _botContext.HasItem(bag, slot))
+
+                // Equip the item into the designated equipment slot
+                .Do("Equip Item", time =>
+                {
+                    _botContext.EquipItem(bag, slot, equipSlot);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to unequip an item from a specific equipment slot and place it in the inventory.
+        /// </summary>
+        /// <param name="equipSlot">The equipment slot from which to unequip the item.</param>
+        /// <returns>IBehaviourTreeNode that manages unequipping the item.</returns>
+        private IBehaviourTreeNode BuildUnequipItemSequence(EquipSlot equipSlot) => new BehaviourTreeBuilder()
+            .Sequence("Unequip Item Sequence")
+                // Ensure there is an item in the specified equipment slot
+                .Condition("Has Item Equipped", time => _botContext.HasItemEquipped(equipSlot))
+
+                // Unequip the item from the specified equipment slot
+                .Do("Unequip Item", time =>
+                {
+                    _botContext.UnequipItem(equipSlot);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to split a stack of items into two slots in the inventory.
+        /// </summary>
+        /// <param name="bag">The bag where the stack is located.</param>
+        /// <param name="slot">The slot where the stack is located.</param>
+        /// <param name="quantity">The quantity to move to a new slot.</param>
+        /// <param name="destinationBag">The destination bag for the split stack.</param>
+        /// <param name="destinationSlot">The destination slot for the split stack.</param>
+        /// <returns>IBehaviourTreeNode that manages splitting the item stack.</returns>
+        private IBehaviourTreeNode BuildSplitStackSequence(int bag, int slot, int quantity, int destinationBag, int destinationSlot) => new BehaviourTreeBuilder()
+            .Sequence("Split Stack Sequence")
+                // Ensure the bot has the stack of items available
+                .Condition("Has Item Stack", time => _botContext.HasItemStack(bag, slot, quantity))
+
+                // Split the stack into the destination slot
+                .Do("Split Stack", time =>
+                {
+                    _botContext.SplitStack(bag, slot, quantity, destinationBag, destinationSlot);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to repair a specific item in the inventory.
+        /// </summary>
+        /// <param name="repairSlot">The slot where the item is located for repair.</param>
+        /// <param name="cost">The cost in copper to repair the item.</param>
+        /// <returns>IBehaviourTreeNode that manages repairing the item.</returns>
+        private IBehaviourTreeNode BuildRepairItemSequence(int repairSlot, int cost) => new BehaviourTreeBuilder()
+            .Sequence("Repair Item Sequence")
+                // Ensure the bot has enough money to repair the item
+                .Condition("Can Afford Repair", time => _botContext.HasEnoughMoney(cost))
+
+                // Repair the item in the specified slot
+                .Do("Repair Item", time =>
+                {
+                    _botContext.RepairItem(repairSlot, cost);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to repair all damaged items in the inventory.
+        /// </summary>
+        /// <returns>IBehaviourTreeNode that manages repairing all items.</returns>
+        private IBehaviourTreeNode RepairAllItemsSequence => new BehaviourTreeBuilder()
+            .Sequence("Repair All Items Sequence")
+                // Ensure the bot has enough money to repair all items
+                .Condition("Can Afford Full Repair", time => _botContext.CanAffordFullRepair())
+
+                // Repair all damaged items
+                .Do("Repair All Items", time =>
+                {
+                    _botContext.RepairAllItems();
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to dismiss a currently active buff.
+        /// </summary>
+        /// <param name="buffSlot">The slot or index of the buff to dismiss.</param>
+        /// <returns>IBehaviourTreeNode that manages dismissing the buff.</returns>
+        private IBehaviourTreeNode BuildDismissBuffSequence(int buffSlot) => new BehaviourTreeBuilder()
+            .Sequence("Dismiss Buff Sequence")
+                // Ensure the bot has the buff in the specified slot
+                .Condition("Has Buff", time => _botContext.HasBuff(buffSlot))
+
+                // Dismiss the buff
+                .Do("Dismiss Buff", time =>
+                {
+                    _botContext.DismissBuff(buffSlot);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to craft an item using a specific craft recipe or slot.
+        /// </summary>
+        /// <param name="craftSlotId">The ID of the crafting recipe or slot to use.</param>
+        /// <returns>IBehaviourTreeNode that manages crafting the item.</returns>
+        private IBehaviourTreeNode BuildCraftSequence(int craftSlotId) => new BehaviourTreeBuilder()
+            .Sequence("Craft Sequence")
+                // Ensure the bot can craft the item
+                .Condition("Can Craft Item", time => _botContext.CanCraftItem(craftSlotId))
+
+                // Perform the crafting action
+                .Do("Craft Item", time =>
+                {
+                    _botContext.Craft(craftSlotId);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to log the bot into the game.
+        /// </summary>
+        /// <param name="username">The bot's username.</param>
+        /// <param name="password">The bot's password.</param>
+        /// <returns>IBehaviourTreeNode that manages the login process.</returns>
+        private IBehaviourTreeNode BuildLoginSequence(string username, string password) => new BehaviourTreeBuilder()
+            .Sequence("Login Sequence")
+                // Ensure the bot is on the login screen
+                .Condition("Is On Login Screen", time => _botContext.IsOnLoginScreen())
+
+                // Input credentials
+                .Do("Input Credentials", time =>
+                {
+                    _botContext.InputCredentials(username, password);
+                    return BehaviourTreeStatus.Success;
+                })
+
+                // Wait in server queue if necessary
+                .Condition("In Server Queue", time => _botContext.InServerQueue())
+                .Do("Wait In Queue", time => _botContext.WaitInQueue())
+
+                // Select the first available realm
+                .Condition("On Realm Selection Screen", time => _botContext.IsOnRealmSelectionScreen())
+                .Do("Select Realm", time =>
+                {
+                    _botContext.SelectRealm();
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to log the bot out of the game.
+        /// </summary>
+        /// <returns>IBehaviourTreeNode that manages the logout process.</returns>
+        private IBehaviourTreeNode LogoutSequence => new BehaviourTreeBuilder()
+            .Sequence("Logout Sequence")
+                // Ensure the bot can log out (not in combat, etc.)
+                .Condition("Can Log Out", time => _botContext.CanLogOut())
+
+                // Perform the logout action
+                .Do("Log Out", time =>
+                {
+                    _botContext.Logout();
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to create a new character with specified name, race, and class.
+        /// </summary>
+        /// <param name="parameters">A list containing the name, race, and class of the new character.</param>
+        /// <returns>IBehaviourTreeNode that manages creating the character.</returns>
+        private IBehaviourTreeNode BuildCreateCharacterSequence(List<object> parameters) => new BehaviourTreeBuilder()
+            .Sequence("Create Character Sequence")
+                // Ensure the bot is on the character creation screen
+                .Condition("On Character Creation Screen", time => _botContext.IsOnCharacterCreationScreen())
+
+                // Create the new character with the specified details
+                .Do("Create Character", time =>
+                {
+                    var name = (string)parameters[0];
+                    var race = (string)parameters[1];
+                    var characterClass = (string)parameters[2];
+
+                    _botContext.CreateCharacter(name, race, characterClass);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to delete an existing character based on character ID.
+        /// </summary>
+        /// <param name="characterId">The ID of the character to delete.</param>
+        /// <returns>IBehaviourTreeNode that manages deleting the character.</returns>
+        private IBehaviourTreeNode BuildDeleteCharacterSequence(int characterId) => new BehaviourTreeBuilder()
+            .Sequence("Delete Character Sequence")
+                // Ensure the bot is on the character selection screen
+                .Condition("On Character Select Screen", time => _botContext.IsOnCharacterSelectScreen())
+
+                // Delete the specified character
+                .Do("Delete Character", time =>
+                {
+                    _botContext.DeleteCharacter(characterId);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to enter the game world with a selected character.
+        /// </summary>
+        /// <param name="characterGuid">The GUID of the character to enter the world with.</param>
+        /// <returns>IBehaviourTreeNode that manages entering the game world.</returns>
+        private IBehaviourTreeNode BuildEnterWorldSequence(ulong characterGuid) => new BehaviourTreeBuilder()
+            .Sequence("Enter World Sequence")
+                // Ensure the bot is on the character select screen
+                .Condition("On Character Select Screen", time => _botContext.IsOnCharacterSelectScreen())
+
+                // Enter the world with the specified character
+                .Do("Enter World", time =>
+                {
+                    _botContext.EnterWorld(characterGuid);
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
     }
 }

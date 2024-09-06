@@ -76,10 +76,11 @@ namespace WoWSharpClient.Client
             writer.Write((byte)_username.Length); // Username length
             writer.Write(Encoding.UTF8.GetBytes(_username.ToUpper())); // Username
 
-            writer.Flush(); 
+            writer.Flush();
             byte[] packetData = memoryStream.ToArray();
 
             _woWSharpEventEmitter.FireOnHandshakeBegin();
+
             // Send the packet
             _stream.Write(packetData, 0, packetData.Length);
 
@@ -170,7 +171,7 @@ namespace WoWSharpClient.Client
                 }
 
                 byte opcode = header[0];
-                ResponseCodes result = (ResponseCodes) header[1];
+                ResponseCodes result = (ResponseCodes)header[1];
 
                 if (opcode == 0x01 && result == ResponseCodes.RESPONSE_SUCCESS) // CMD_AUTH_LOGON_PROOF and SUCCESS
                 {

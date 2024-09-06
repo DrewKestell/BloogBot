@@ -78,7 +78,7 @@ namespace WoWSharpClient
         public event EventHandler<GameObjectCreatedArgs> OnGameObjectCreated;
 
         public WoWSharpEventEmitter() { }
-        
+
         private void FireEvent(EventHandler handler) => handler?.Invoke(this, EventArgs.Empty);
         private void FireEvent<T>(EventHandler<T> handler, T args) where T : EventArgs => handler?.Invoke(this, args);
         private void FireEvent(EventHandler<EventArgs> handler, EventArgs args) => handler?.Invoke(this, args);

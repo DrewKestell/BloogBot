@@ -2,95 +2,115 @@
 
 package communication;
 
-message DataMessage {
-    uint32 id = 1;
-    WorldStateUpdate worldStateUpdate = 2;
-    ActivityMemberState activityMemberState = 3;
+import "game.proto";
+import "decision.proto";
+import "pathfinding.proto";
+import "database.proto";
+
+message AsyncRequest {
+    uint64 id = 1;
+    // Contains AsyncMessage requests to AsyncSocketServers. Needs a unique Id to track the client
+    repeated ActivitySnapshot activitySnapshots = 2;
+    optional decision.CombatData combatData = 3;
+    optional decision.ProgressionData progressionRequest = 4;
+    optional pathfinding.PathfindingRequest pathfindingRequest = 5;
+    optional database.DatabaseRequest databaseRequest = 6;
 }
 
-message ActivityMember {
-  string accountName = 1;
-  ActivityType type = 2;
-  string behaviorProfile = 3;
-  string progressionProfile = 4;
-  string initialProfile = 5;
-  string endStateProfile = 6;
+message ActivitySnapshot {
+    uint32 timestamp = 1;
+    game.WoWPlayer player = 2;
+    repeated game.WoWGameObject nearbyObjects = 3;
+    repeated game.WoWUnit nearbyUnits = 4;
 }
 
-message ActivityMemberState {
-    ActivityMember member = 1;
-    uint64 guid = 2;
-    bool InRaid = 3;
-    repeated uint32 PetSpells = 4;
-    repeated uint32 Talents = 5;
+message PlayerSnapShot {
+    uint32 race = 1;
+    uint32 class = 2;
+    game.Position position = 3;
+    float facing = 4;
 }
 
-message WorldStateUpdate {
-  ActivityAction action = 1;
-  string param1 = 2;
-  string param2 = 3;
-  string param3 = 4;
-  string param4 = 5;
+message UnitSnapShot {
+    uint64 guid = 1;
+    game.Position position = 2;
+    float facing = 3;
 }
 
-message WorldState {
-  repeated ActivityMemberState activityMembers = 1;
+message ActionMessage {
+    ActionType action_type = 1;
+    repeated ActionParameter parameters = 2;
 }
 
-enum ActivityAction {
-  None = 0;
-  AddActivityMember = 1;
-  EditActivityMember = 2;
-  ApplyDesiredState = 3;
+enum ActionType {
+    WAIT = 0;
+    GOTO = 1;
+    INTERACT_WITH = 2;
+    SELECT_GOSSIP = 3;
+    SELECT_TAXI_NODE = 4;
+    ACCEPT_QUEST = 5;
+    DECLINE_QUEST = 6;
+    SELECT_REWARD = 7;
+    COMPLETE_QUEST = 8;
+    TRAIN_SKILL = 9;
+    TRAIN_TALENT = 10;
+    OFFER_TRADE = 11;
+    OFFER_GOLD = 12;
+    OFFER_ITEM = 13;
+    ACCEPT_TRADE = 14;
+    DECLINE_TRADE = 15;
+    ENCHANT_TRADE = 16;
+    LOCKPICK_TRADE = 17;
+    PROMOTE_LEADER = 18;
+    PROMOTE_ASSISTANT = 19;
+    PROMOTE_LOOT_MANAGER = 20;
+    SET_GROUP_LOOT = 21;
+    ASSIGN_LOOT = 22;
+    LOOT_ROLL_NEED = 23;
+    LOOT_ROLL_GREED = 24;
+    LOOT_PASS = 25;
+    SEND_GROUP_INVITE = 26;
+    ACCEPT_GROUP_INVITE = 27;
+    DECLINE_GROUP_INVITE = 28;
+    KICK_PLAYER = 29;
+    LEAVE_GROUP = 30;
+    DISBAND_GROUP = 31;
+    START_MELEE_ATTACK = 32;
+    START_RANGED_ATTACK = 33;
+    START_WAND_ATTACK = 34;
+    STOP_ATTACK = 35;
+    CAST_SPELL = 36;
+    STOP_CAST = 37;
+    USE_ITEM = 38;
+    EQUIP_ITEM = 39;
+    UNEQUIP_ITEM = 40;
+    DESTROY_ITEM = 41;
+    MOVE_ITEM = 42;
+    SPLIT_STACK = 43;
+    BUY_ITEM = 44;
+    BUYBACK_ITEM = 45;
+    SELL_ITEM = 46;
+    REPAIR_ITEM = 47;
+    REPAIR_ALL_ITEMS = 48;
+    DISMISS_BUFF = 49;
+    RESURRECT = 50;
+    CRAFT = 51;
+    LOGIN = 52;
+    LOGOUT = 53;
+    CREATE_CHARACTER = 54;
+    DELETE_CHARACTER = 55;
+    ENTER_WORLD = 56;
 }
 
-enum ActivityType
-{
-    Questing = 0;
-    PvPWarsongGulch19 = 1;
-    PvPWarsongGulch29 = 2;
-    PvPWarsongGulch39 = 3;
-    PvPWarsongGulch49 = 4;
-    PvPWarsongGulch59 = 5;
-    PvPWarsongGulch60 = 6;
-    PvPArathiBasin29 = 7;
-    PvPArathiBasin39 = 8;
-    PvPArathiBasin49 = 9;
-    PvPArathiBasin59 = 10;
-    PvPArathiBasin60 = 11;
-    PvPAlteracValley = 12;
-    PvERagefireChasm = 13;
-    PvEWailingCaverns = 14;
-    PvETheDeadmines = 15;
-    PvEShadowfangKeep = 16;
-    PvETheStockade = 17;
-    PvERazorfenKraul = 18;
-    PvEBlackfathomDeeps = 19;
-    PvEGnomeregan = 20;
-    PvESMGraveyard = 21;
-    PvESMLibrary = 22;
-    PvESMArmory = 23;
-    PvESMCathedral = 24;
-    PvERazorfenDowns = 25;
-    PvEUldaman = 26;
-    PvEZulFarrak = 27;
-    PvEMaraudonWickedGrotto = 28;
-    PvEMaraudonFoulsporeCavern = 29;
-    PvEMaraudonEarthSongFalls = 30;
-    PvETempleOfAtalHakkar = 31;
-    PvEBlackrockDepths = 32;
-    PvELowerBlackrockSpire = 33;
-    PvEUpperBlackrockSpire = 34;
-    PvEDireMaul = 35;
-    PvEStratholmeAlive = 36;
-    PvEStratholmeUndead = 37;
-    PvEScholomance = 38;
-    PvEOnyxiasLair = 39;
-    PvEZulGurub = 40;
-    PvEMoltenCore = 41;
-    PvEBlackwingLair = 42;
-    PvERuinsOfAhnQiraj = 43;
-    PvETempleOfAhnQiraj = 44;
-    PvENaxxramas = 45;
-    PvEHoggerRaid = 46;
+message ActionParameter {
+    oneof parameter {
+        float float_param = 1;
+        int32 int_param = 2;
+        int64 long_param = 3;
+        string string_param = 4;
+    }
+}
+
+message ActionMap {
+    repeated ActionMessage actions = 1;
 }

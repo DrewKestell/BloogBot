@@ -24,13 +24,14 @@ namespace BotRunner.Interfaces
         ulong GetBackpackItemGuid(int parSlot);
         ulong GetEquippedItemGuid(EquipSlot slot);
         uint GetManaCost(string healingTouch);
-        void MoveToward(Position position);
+        void MoveToward(Position position, float facing);
         void RefreshSkills();
         void RefreshSpells();
         void RetrieveCorpse();
         void SetTarget(ulong guid);
         void StartMeleeAttack();
         void StartMovement(ControlBits bits);
+        void SetFacing(float facing);
         void StartRangedAttack();
         void StopAllMovement();
         void StopMovement(ControlBits bits);

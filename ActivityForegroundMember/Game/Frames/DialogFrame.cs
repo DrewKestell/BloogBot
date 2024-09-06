@@ -1,5 +1,5 @@
 ﻿using ActivityForegroundMember.Mem;
-using BotRunner.Interfaces;
+using BotRunner.Frames;
 
 namespace ActivityForegroundMember.Game.Frames
 {

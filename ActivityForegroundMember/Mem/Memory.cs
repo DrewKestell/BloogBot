@@ -1,10 +1,10 @@
-﻿using System.Diagnostics;
+﻿using ActivityForegroundMember.Game;
+using Binarysharp.Assemblers.Fasm;
+using BotRunner.Interfaces;
+using System.Diagnostics;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using ActivityForegroundMember.Game;
-using Binarysharp.Assemblers.Fasm;
-using BotRunner.Interfaces;
 
 namespace ActivityForegroundMember.Mem
 {

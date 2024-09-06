@@ -2,7 +2,6 @@
 using BotRunner.Constants;
 using BotRunner.Interfaces;
 using BotRunner.Models;
-using Org.BouncyCastle.Utilities;
 using PathfindingService.Models;
 using System.Collections;
 using WoWSharpClient.Manager;

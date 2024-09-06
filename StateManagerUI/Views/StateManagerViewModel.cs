@@ -1,6 +1,4 @@
-﻿using BotCommLayer.Clients;
-using Communication;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using StateManagerUI.Handlers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;

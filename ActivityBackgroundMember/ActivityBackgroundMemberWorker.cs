@@ -1,34 +1,40 @@
 using BotRunner.Constants;
 using BotRunner.Interfaces;
-using Communication;
+using DatabaseDomain.Clients;
 using Microsoft.Extensions.Options;
-using PromptHandling;
-using PromptHandling.Predefined.CharacterSkills;
+using PathfindingService.Client;
 using System.Text;
 using WoWSharpClient;
 using WoWSharpClient.Client;
 using WoWSharpClient.Manager;
 using WoWSharpClient.Models;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ActivityBackgroundMember
 {
     public class ActivityBackgroundMemberWorker : BackgroundService
     {
         private readonly WoWClient _woWClient;
-        private readonly IPromptRunner _promptRunner;
         private readonly ILogger<ActivityBackgroundMemberWorker> _logger;
+
+        private readonly IPromptRunner _promptRunner;
         private readonly ActivityMember _activityMember;
         private readonly ObjectManager _objectManager;
         private readonly WoWSharpEventEmitter _woWSharpEventEmitter;
+
+        private readonly DatabaseDomainClient _databaseDomainClient;
+        private readonly PathfindingClient _pathfindingClient;
+
+        private BotRunner.BotRunner _botRunner;
+
         private CancellationToken _stoppingToken;
 
-        public ActivityBackgroundMemberWorker(ILogger<ActivityBackgroundMemberWorker> logger, IConfiguration configuration, IOptions<ActivityMember> options)
+        public ActivityBackgroundMemberWorker(ILoggerFactory loggerFactory, ILogger<ActivityBackgroundMemberWorker> logger, IConfiguration configuration, IOptions<ActivityMember> options)
         {
             _logger = logger;
             _activityMember = options.Value;
             _woWSharpEventEmitter = new();
             _objectManager = new(_woWSharpEventEmitter, new ActivityMemberState());
+            _botRunner = new BotRunner.BotRunner(_objectManager, _woWSharpEventEmitter);
 
             _promptRunner = PromptRunnerFactory.GetOllamaPromptRunner(new Uri(configuration["Ollama:BaseUri"]), configuration["Ollama:Model"]);
 
@@ -40,7 +46,11 @@ namespace ActivityBackgroundMember
             _woWSharpEventEmitter.OnChatMessage += Instance_OnChatMessage;
             _woWSharpEventEmitter.OnGameObjectCreated += Instance_OnGameObjectCreated;
 
+            _pathfindingClient = new PathfindingClient(configuration["PathfindingService:IpAddress"], int.Parse(configuration["PathfindingService:Port"]), loggerFactory.CreateLogger<PathfindingClient>());
+
             _woWClient = new WoWClient(configuration["WoWLoginServer:IpAddress"], int.Parse(configuration["WoWLoginServer:Port"]), _woWSharpEventEmitter, _objectManager);
+
+
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -54,11 +64,17 @@ namespace ActivityBackgroundMember
 
                 while (!stoppingToken.IsCancellationRequested)
                 {
-                    //if (_logger.IsEnabled(LogLevel.Information))
-                    //{
-                    //    _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                    //}
-                    await Task.Delay(1000, stoppingToken);
+                    if (_logger.IsEnabled(LogLevel.Information))
+                    {
+                        if (_objectManager.Objects.Any(x => x.Position.X != 0 || x.Position.Y != 0 || x.Position.Z != 0))
+                        {
+                            PathfindingService.Models.Position position1 = _objectManager.Units.OrderBy(x => x.Guid).First(x => x.Position.X != 0 || x.Position.Y != 0 || x.Position.Z != 0).Position;
+                            PathfindingService.Models.Position position2 = _objectManager.Units.Last(x => x.Position.X != 0 || x.Position.Y != 0 || x.Position.Z != 0).Position;
+                            PathfindingService.Models.Position[] positions = _pathfindingClient.GetPath(1, position1, position2, true);
+                            Console.WriteLine($"Pathfinding result: {positions.Length} positions");
+                        }
+                    }
+                    await Task.Delay(10000, stoppingToken);
                 }
             }
             catch (Exception ex)

@@ -1,15 +1,27 @@
 ﻿using BotRunner.Constants;
+using BotRunner.Frames;
 using BotRunner.Models;
 
 namespace BotRunner.Interfaces
 {
     public interface IObjectManager
     {
+        ILoginScreen LoginScreen { get; }
+        IRealmSelectScreen RealmSelectScreen { get; }
+        ICharacterSelectScreen CharacterSelectScreen { get; }
         HighGuid PlayerGuid { get; }
         uint MapId { get; }
         string ZoneText { get; }
         string MinimapZoneText { get; }
         string ServerName { get; }
+        IGossipFrame GossipFrame { get; }
+        ILootFrame LootFrame { get; }
+        IMerchantFrame MerchantFrame { get; }
+        IQuestFrame QuestFrame { get; }
+        IQuestGreetingFrame QuestGreetingFrame { get; }
+        ITaxiFrame TaxiFrame { get; }
+        ITradeFrame TradeFrame { get; }
+        ITrainerFrame TrainerFrame { get; }
         ILocalPlayer Player { get; }
         ILocalPet Pet { get; }
         IList<IWoWObject> Objects { get; }
@@ -50,9 +62,6 @@ namespace BotRunner.Interfaces
         void SetRaidTarget(IWoWUnit target, TargetMarker v);
         void AcceptGroupInvite();
         void LeaveGroup();
-        void EnterWorld();
-        void DefaultServerLogin(string accountName, string password);
-        void ResetLogin();
         void JoinBattleGroundQueue();
         void ResetInstances();
         void PickupMacro(uint v);

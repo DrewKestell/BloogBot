@@ -52,10 +52,61 @@ namespace WoWSharpClient.Models
 
         }
 
-        public void MoveToward(Position pos)
+        public void MoveToward(Position targetPos, float currentFacing)
         {
-            Face(pos);
-            StartMovement(ControlBits.Front);
+            // Step 1: Calculate the angle to the target position
+            float deltaX = targetPos.X - Position.X;
+            float deltaY = targetPos.Y - Position.Y;
+
+            // Calculate the angle from the player's position to the target
+            float targetAngle = (float)Math.Atan2(deltaY, deltaX);
+
+            // Normalize target angle to be between 0 and 2 * pi
+            if (targetAngle < 0)
+            {
+                targetAngle += 2 * (float)Math.PI;
+            }
+
+            // Step 2: Determine the angle difference between current facing and target angle
+            float angleDifference = targetAngle - currentFacing;
+
+            // Normalize angleDifference to the range [-pi, pi]
+            if (angleDifference > Math.PI)
+            {
+                angleDifference -= 2 * (float)Math.PI;
+            }
+            else if (angleDifference < -Math.PI)
+            {
+                angleDifference += 2 * (float)Math.PI;
+            }
+
+            // Step 3: Determine movement direction based on angle difference
+            ControlBits movementControl = ControlBits.Nothing;
+
+            // If the angle difference is small, move forward
+            if (Math.Abs(angleDifference) < 0.1) // small threshold for "facing towards target"
+            {
+                movementControl = ControlBits.Front;
+            }
+            // If the target is to the right, strafe right
+            else if (angleDifference > 0.1 && angleDifference < Math.PI / 2)
+            {
+                movementControl = ControlBits.StrafeRight;
+            }
+            // If the target is to the left, strafe left
+            else if (angleDifference < -0.1 && angleDifference > -Math.PI / 2)
+            {
+                movementControl = ControlBits.StrafeLeft;
+            }
+            // If the angle difference is large (more than 90 degrees), turn and move backward
+            else if (Math.Abs(angleDifference) > Math.PI / 2)
+            {
+                movementControl = ControlBits.Back;
+            }
+
+            // Step 4: Face the target and start the appropriate movement
+            Face(targetPos); // Adjust facing towards the target
+            StartMovement(movementControl); // Apply the calculated movement
         }
 
         public void Turn180()

@@ -75,7 +75,7 @@ namespace BotRunner.Interfaces
         event EventHandler OnBankFrameClosed;
         event EventHandler<CharCreateResponse> OnCharacterCreateResponse;
         event EventHandler<CharDeleteResponse> OnCharacterDeleteResponse;
-        event EventHandler<GameObjectCreatedArgs> OnGameObjectCreated; 
+        event EventHandler<GameObjectCreatedArgs> OnGameObjectCreated;
     }
     public class WorldInfo
     {

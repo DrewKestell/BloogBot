@@ -48,6 +48,6 @@ namespace ActivityForegroundMember.Objects
 
         public bool IsCoins => false;
 
-        public ItemDynFlags Flags { get ; set; }
+        public ItemDynFlags Flags { get; set; }
     }
 }

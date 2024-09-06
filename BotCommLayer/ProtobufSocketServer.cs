@@ -1,13 +1,13 @@
-﻿using System.Net;
-using System.Net.Sockets;
-using Google.Protobuf;
+﻿using Google.Protobuf;
 using Microsoft.Extensions.Logging;
+using System.Net;
+using System.Net.Sockets;
 
 namespace BotCommLayer
 {
     public class ProtobufSocketServer<TRequest, TResponse>
         where TRequest : IMessage<TRequest>, new()
-        where TResponse : IMessage<TResponse>, new() 
+        where TResponse : IMessage<TResponse>, new()
     {
         private readonly TcpListener _server;
         private bool _isRunning;
@@ -73,7 +73,7 @@ namespace BotCommLayer
 
                     // Process
                     TResponse response = HandleRequest(request);
-                    
+
                     // Serialize the response
                     byte[] responseBytes = response.ToByteArray();
                     byte[] responseLength = BitConverter.GetBytes(responseBytes.Length);

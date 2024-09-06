@@ -1,5 +1,4 @@
 ﻿using BotRunner.Constants;
-using System.Text;
 using WoWSharpClient.Manager;
 using WoWSharpClient.Utils;
 
@@ -71,6 +70,6 @@ namespace WoWSharpClient.Handlers
             {
                 Console.WriteLine($"Error reading chat message: {e.Message}");
             }
-        }        
+        }
     }
 }

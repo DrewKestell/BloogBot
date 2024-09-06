@@ -1,5 +1,4 @@
-﻿using Communication;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace StateManagerUI.Views

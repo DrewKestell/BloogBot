@@ -1,4 +1,5 @@
-﻿using Database;
+﻿using Common;
+using Database;
 using MySql.Data.MySqlClient;
 
 namespace DatabaseDomain.Repository
@@ -36,9 +37,12 @@ namespace DatabaseDomain.Repository
                             RequiredItem2 = Convert.ToInt32(reader["required_item2"]),
                             RequiredQuestDone = Convert.ToInt32(reader["required_quest_done"]),
                             TargetMap = Convert.ToUInt16(reader["target_map"]),
-                            TargetPositionX = Convert.ToSingle(reader["target_position_x"]),
-                            TargetPositionY = Convert.ToSingle(reader["target_position_y"]),
-                            TargetPositionZ = Convert.ToSingle(reader["target_position_z"]),
+                            Position = new Position
+                            {
+                                X = Convert.ToSingle(reader["target_position_x"]),
+                                Y = Convert.ToSingle(reader["target_position_y"]),
+                                Z = Convert.ToSingle(reader["target_position_z"]),
+                            },
                             TargetOrientation = Convert.ToSingle(reader["target_orientation"])
                         };
                     }
@@ -95,26 +99,6 @@ namespace DatabaseDomain.Repository
                         MaxCount = Convert.ToInt16(reader["maxcount"]),
                         Stackable = Convert.ToInt16(reader["stackable"]),
                         ContainerSlots = Convert.ToInt16(reader["ContainerSlots"]),
-                        StatType1 = Convert.ToInt16(reader["stat_type1"]),
-                        StatValue1 = Convert.ToInt16(reader["stat_value1"]),
-                        StatType2 = Convert.ToInt16(reader["stat_type2"]),
-                        StatValue2 = Convert.ToInt16(reader["stat_value2"]),
-                        StatType3 = Convert.ToInt16(reader["stat_type3"]),
-                        StatValue3 = Convert.ToInt16(reader["stat_value3"]),
-                        StatType4 = Convert.ToInt16(reader["stat_type4"]),
-                        StatValue4 = Convert.ToInt16(reader["stat_value4"]),
-                        StatType5 = Convert.ToInt16(reader["stat_type5"]),
-                        StatValue5 = Convert.ToInt16(reader["stat_value5"]),
-                        StatType6 = Convert.ToInt16(reader["stat_type6"]),
-                        StatValue6 = Convert.ToInt16(reader["stat_value6"]),
-                        StatType7 = Convert.ToInt16(reader["stat_type7"]),
-                        StatValue7 = Convert.ToInt16(reader["stat_value7"]),
-                        StatType8 = Convert.ToInt16(reader["stat_type8"]),
-                        StatValue8 = Convert.ToInt16(reader["stat_value8"]),
-                        StatType9 = Convert.ToInt16(reader["stat_type9"]),
-                        StatValue9 = Convert.ToInt16(reader["stat_value9"]),
-                        StatType10 = Convert.ToInt16(reader["stat_type10"]),
-                        StatValue10 = Convert.ToInt16(reader["stat_value10"]),
                         DmgMin1 = Convert.ToSingle(reader["dmg_min1"]),
                         DmgMax1 = Convert.ToSingle(reader["dmg_max1"]),
                         DmgType1 = Convert.ToInt16(reader["dmg_type1"]),
@@ -131,12 +115,6 @@ namespace DatabaseDomain.Repository
                         DmgMax5 = Convert.ToSingle(reader["dmg_max5"]),
                         DmgType5 = Convert.ToInt16(reader["dmg_type5"]),
                         Armor = Convert.ToInt16(reader["armor"]),
-                        HolyResistance = Convert.ToInt16(reader["holy_res"]),
-                        FireResistance = Convert.ToInt16(reader["fire_res"]),
-                        NatureResistance = Convert.ToInt16(reader["nature_res"]),
-                        FrostResistance = Convert.ToInt16(reader["frost_res"]),
-                        ShadowResistance = Convert.ToInt16(reader["shadow_res"]),
-                        ArcaneResistance = Convert.ToInt16(reader["arcane_res"]),
                         Delay = Convert.ToInt16(reader["delay"]),
                         AmmoType = Convert.ToInt16(reader["ammo_type"]),
                         RangedModRange = Convert.ToSingle(reader["RangedModRange"]),
@@ -200,6 +178,22 @@ namespace DatabaseDomain.Repository
                         ExtraFlags = Convert.ToInt16(reader["ExtraFlags"]),
                         OtherTeamEntry = Convert.ToInt32(reader["OtherTeamEntry"])
                     };
+                    itemTemplate.Stats.Add((uint)Convert.ToInt16(reader["stat_type1"]), (uint)Convert.ToInt16(reader["stat_value1"]));
+                    itemTemplate.Stats.Add((uint)Convert.ToInt16(reader["stat_type2"]), (uint)Convert.ToInt16(reader["stat_value2"]));
+                    itemTemplate.Stats.Add((uint)Convert.ToInt16(reader["stat_type3"]), (uint)Convert.ToInt16(reader["stat_value3"]));
+                    itemTemplate.Stats.Add((uint)Convert.ToInt16(reader["stat_type4"]), (uint)Convert.ToInt16(reader["stat_value4"]));
+                    itemTemplate.Stats.Add((uint)Convert.ToInt16(reader["stat_type5"]), (uint)Convert.ToInt16(reader["stat_value5"]));
+                    itemTemplate.Stats.Add((uint)Convert.ToInt16(reader["stat_type6"]), (uint)Convert.ToInt16(reader["stat_value6"]));
+                    itemTemplate.Stats.Add((uint)Convert.ToInt16(reader["stat_type7"]), (uint)Convert.ToInt16(reader["stat_value7"]));
+                    itemTemplate.Stats.Add((uint)Convert.ToInt16(reader["stat_type8"]), (uint)Convert.ToInt16(reader["stat_value8"]));
+                    itemTemplate.Stats.Add((uint)Convert.ToInt16(reader["stat_type9"]), (uint)Convert.ToInt16(reader["stat_value9"]));
+                    itemTemplate.Stats.Add((uint)Convert.ToInt16(reader["stat_type10"]), (uint)Convert.ToInt16(reader["stat_value10"]));
+                    itemTemplate.Resistances.Add(0, (uint)Convert.ToInt16(reader["holy_res"]));
+                    itemTemplate.Resistances.Add(0, (uint)Convert.ToInt16(reader["arcane_res"]));
+                    itemTemplate.Resistances.Add(0, (uint)Convert.ToInt16(reader["fire_res"]));
+                    itemTemplate.Resistances.Add(0, (uint)Convert.ToInt16(reader["frost_res"]));
+                    itemTemplate.Resistances.Add(0, (uint)Convert.ToInt16(reader["nature_res"]));
+                    itemTemplate.Resistances.Add(0, (uint)Convert.ToInt16(reader["shadow_res"]));
                 }
             }
             return itemTemplate;
@@ -258,26 +252,6 @@ namespace DatabaseDomain.Repository
                         MaxCount = Convert.ToInt16(reader["maxcount"]),
                         Stackable = Convert.ToInt16(reader["stackable"]),
                         ContainerSlots = Convert.ToInt16(reader["ContainerSlots"]),
-                        StatType1 = Convert.ToInt16(reader["stat_type1"]),
-                        StatValue1 = Convert.ToInt16(reader["stat_value1"]),
-                        StatType2 = Convert.ToInt16(reader["stat_type2"]),
-                        StatValue2 = Convert.ToInt16(reader["stat_value2"]),
-                        StatType3 = Convert.ToInt16(reader["stat_type3"]),
-                        StatValue3 = Convert.ToInt16(reader["stat_value3"]),
-                        StatType4 = Convert.ToInt16(reader["stat_type4"]),
-                        StatValue4 = Convert.ToInt16(reader["stat_value4"]),
-                        StatType5 = Convert.ToInt16(reader["stat_type5"]),
-                        StatValue5 = Convert.ToInt16(reader["stat_value5"]),
-                        StatType6 = Convert.ToInt16(reader["stat_type6"]),
-                        StatValue6 = Convert.ToInt16(reader["stat_value6"]),
-                        StatType7 = Convert.ToInt16(reader["stat_type7"]),
-                        StatValue7 = Convert.ToInt16(reader["stat_value7"]),
-                        StatType8 = Convert.ToInt16(reader["stat_type8"]),
-                        StatValue8 = Convert.ToInt16(reader["stat_value8"]),
-                        StatType9 = Convert.ToInt16(reader["stat_type9"]),
-                        StatValue9 = Convert.ToInt16(reader["stat_value9"]),
-                        StatType10 = Convert.ToInt16(reader["stat_type10"]),
-                        StatValue10 = Convert.ToInt16(reader["stat_value10"]),
                         DmgMin1 = Convert.ToSingle(reader["dmg_min1"]),
                         DmgMax1 = Convert.ToSingle(reader["dmg_max1"]),
                         DmgType1 = Convert.ToInt16(reader["dmg_type1"]),
@@ -294,12 +268,6 @@ namespace DatabaseDomain.Repository
                         DmgMax5 = Convert.ToSingle(reader["dmg_max5"]),
                         DmgType5 = Convert.ToInt16(reader["dmg_type5"]),
                         Armor = Convert.ToInt16(reader["armor"]),
-                        HolyResistance = Convert.ToInt16(reader["holy_res"]),
-                        FireResistance = Convert.ToInt16(reader["fire_res"]),
-                        NatureResistance = Convert.ToInt16(reader["nature_res"]),
-                        FrostResistance = Convert.ToInt16(reader["frost_res"]),
-                        ShadowResistance = Convert.ToInt16(reader["shadow_res"]),
-                        ArcaneResistance = Convert.ToInt16(reader["arcane_res"]),
                         Delay = Convert.ToInt16(reader["delay"]),
                         AmmoType = Convert.ToInt16(reader["ammo_type"]),
                         RangedModRange = Convert.ToSingle(reader["RangedModRange"]),
@@ -363,6 +331,22 @@ namespace DatabaseDomain.Repository
                         ExtraFlags = Convert.ToInt16(reader["ExtraFlags"]),
                         OtherTeamEntry = Convert.ToInt32(reader["OtherTeamEntry"])
                     };
+                    itemTemplate.Stats.Add((uint)Convert.ToInt16(reader["stat_type1"]), (uint)Convert.ToInt16(reader["stat_value1"]));
+                    itemTemplate.Stats.Add((uint)Convert.ToInt16(reader["stat_type2"]), (uint)Convert.ToInt16(reader["stat_value2"]));
+                    itemTemplate.Stats.Add((uint)Convert.ToInt16(reader["stat_type3"]), (uint)Convert.ToInt16(reader["stat_value3"]));
+                    itemTemplate.Stats.Add((uint)Convert.ToInt16(reader["stat_type4"]), (uint)Convert.ToInt16(reader["stat_value4"]));
+                    itemTemplate.Stats.Add((uint)Convert.ToInt16(reader["stat_type5"]), (uint)Convert.ToInt16(reader["stat_value5"]));
+                    itemTemplate.Stats.Add((uint)Convert.ToInt16(reader["stat_type6"]), (uint)Convert.ToInt16(reader["stat_value6"]));
+                    itemTemplate.Stats.Add((uint)Convert.ToInt16(reader["stat_type7"]), (uint)Convert.ToInt16(reader["stat_value7"]));
+                    itemTemplate.Stats.Add((uint)Convert.ToInt16(reader["stat_type8"]), (uint)Convert.ToInt16(reader["stat_value8"]));
+                    itemTemplate.Stats.Add((uint)Convert.ToInt16(reader["stat_type9"]), (uint)Convert.ToInt16(reader["stat_value9"]));
+                    itemTemplate.Stats.Add((uint)Convert.ToInt16(reader["stat_type10"]), (uint)Convert.ToInt16(reader["stat_value10"]));
+                    itemTemplate.Resistances.Add(0, (uint)Convert.ToInt16(reader["holy_res"]));
+                    itemTemplate.Resistances.Add(0, (uint)Convert.ToInt16(reader["arcane_res"]));
+                    itemTemplate.Resistances.Add(0, (uint)Convert.ToInt16(reader["fire_res"]));
+                    itemTemplate.Resistances.Add(0, (uint)Convert.ToInt16(reader["frost_res"]));
+                    itemTemplate.Resistances.Add(0, (uint)Convert.ToInt16(reader["nature_res"]));
+                    itemTemplate.Resistances.Add(0, (uint)Convert.ToInt16(reader["shadow_res"]));
                     itemTemplates.Add(itemTemplate);
                 }
             }
@@ -456,42 +440,42 @@ namespace DatabaseDomain.Repository
                         ReqSpellCast2 = Convert.ToInt32(reader["ReqSpellCast2"]),
                         ReqSpellCast3 = Convert.ToInt32(reader["ReqSpellCast3"]),
                         ReqSpellCast4 = Convert.ToInt32(reader["ReqSpellCast4"]),
-                        RewChoiceItemId1 = Convert.ToInt32(reader["RewChoiceItemId1"]),
-                        RewChoiceItemId2 = Convert.ToInt32(reader["RewChoiceItemId2"]),
-                        RewChoiceItemId3 = Convert.ToInt32(reader["RewChoiceItemId3"]),
-                        RewChoiceItemId4 = Convert.ToInt32(reader["RewChoiceItemId4"]),
-                        RewChoiceItemId5 = Convert.ToInt32(reader["RewChoiceItemId5"]),
-                        RewChoiceItemId6 = Convert.ToInt32(reader["RewChoiceItemId6"]),
-                        RewChoiceItemCount1 = Convert.ToInt16(reader["RewChoiceItemCount1"]),
-                        RewChoiceItemCount2 = Convert.ToInt16(reader["RewChoiceItemCount2"]),
-                        RewChoiceItemCount3 = Convert.ToInt16(reader["RewChoiceItemCount3"]),
-                        RewChoiceItemCount4 = Convert.ToInt16(reader["RewChoiceItemCount4"]),
-                        RewChoiceItemCount5 = Convert.ToInt16(reader["RewChoiceItemCount5"]),
-                        RewChoiceItemCount6 = Convert.ToInt16(reader["RewChoiceItemCount6"]),
-                        RewItemId1 = Convert.ToInt32(reader["RewItemId1"]),
-                        RewItemId2 = Convert.ToInt32(reader["RewItemId2"]),
-                        RewItemId3 = Convert.ToInt32(reader["RewItemId3"]),
-                        RewItemId4 = Convert.ToInt32(reader["RewItemId4"]),
-                        RewItemCount1 = Convert.ToInt16(reader["RewItemCount1"]),
-                        RewItemCount2 = Convert.ToInt16(reader["RewItemCount2"]),
-                        RewItemCount3 = Convert.ToInt16(reader["RewItemCount3"]),
-                        RewItemCount4 = Convert.ToInt16(reader["RewItemCount4"]),
-                        RewRepFaction1 = Convert.ToInt16(reader["RewRepFaction1"]),
-                        RewRepFaction2 = Convert.ToInt16(reader["RewRepFaction2"]),
-                        RewRepFaction3 = Convert.ToInt16(reader["RewRepFaction3"]),
-                        RewRepFaction4 = Convert.ToInt16(reader["RewRepFaction4"]),
-                        RewRepFaction5 = Convert.ToInt16(reader["RewRepFaction5"]),
-                        RewRepValue1 = Convert.ToInt32(reader["RewRepValue1"]),
-                        RewRepValue2 = Convert.ToInt32(reader["RewRepValue2"]),
-                        RewRepValue3 = Convert.ToInt32(reader["RewRepValue3"]),
-                        RewRepValue4 = Convert.ToInt32(reader["RewRepValue4"]),
-                        RewRepValue5 = Convert.ToInt32(reader["RewRepValue5"]),
-                        RewOrReqMoney = Convert.ToInt32(reader["RewOrReqMoney"]),
-                        RewMoneyMaxLevel = Convert.ToUInt32(reader["RewMoneyMaxLevel"]),
-                        RewSpell = Convert.ToInt32(reader["RewSpell"]),
-                        RewSpellCast = Convert.ToInt32(reader["RewSpellCast"]),
-                        RewMailTemplateId = Convert.ToInt32(reader["RewMailTemplateId"]),
-                        RewMailDelaySecs = (uint)Convert.ToInt32(reader["RewMailDelaySecs"]),
+                        RawChoiceItemId1 = Convert.ToInt32(reader["RawChoiceItemId1"]),
+                        RawChoiceItemId2 = Convert.ToInt32(reader["RawChoiceItemId2"]),
+                        RawChoiceItemId3 = Convert.ToInt32(reader["RawChoiceItemId3"]),
+                        RawChoiceItemId4 = Convert.ToInt32(reader["RawChoiceItemId4"]),
+                        RawChoiceItemId5 = Convert.ToInt32(reader["RawChoiceItemId5"]),
+                        RawChoiceItemId6 = Convert.ToInt32(reader["RawChoiceItemId6"]),
+                        RawChoiceItemCount1 = Convert.ToInt16(reader["RawChoiceItemCount1"]),
+                        RawChoiceItemCount2 = Convert.ToInt16(reader["RawChoiceItemCount2"]),
+                        RawChoiceItemCount3 = Convert.ToInt16(reader["RawChoiceItemCount3"]),
+                        RawChoiceItemCount4 = Convert.ToInt16(reader["RawChoiceItemCount4"]),
+                        RawChoiceItemCount5 = Convert.ToInt16(reader["RawChoiceItemCount5"]),
+                        RawChoiceItemCount6 = Convert.ToInt16(reader["RawChoiceItemCount6"]),
+                        RawItemId1 = Convert.ToInt32(reader["RawItemId1"]),
+                        RawItemId2 = Convert.ToInt32(reader["RawItemId2"]),
+                        RawItemId3 = Convert.ToInt32(reader["RawItemId3"]),
+                        RawItemId4 = Convert.ToInt32(reader["RawItemId4"]),
+                        RawItemCount1 = Convert.ToInt16(reader["RawItemCount1"]),
+                        RawItemCount2 = Convert.ToInt16(reader["RawItemCount2"]),
+                        RawItemCount3 = Convert.ToInt16(reader["RawItemCount3"]),
+                        RawItemCount4 = Convert.ToInt16(reader["RawItemCount4"]),
+                        RawRepFaction1 = Convert.ToInt16(reader["RawRepFaction1"]),
+                        RawRepFaction2 = Convert.ToInt16(reader["RawRepFaction2"]),
+                        RawRepFaction3 = Convert.ToInt16(reader["RawRepFaction3"]),
+                        RawRepFaction4 = Convert.ToInt16(reader["RawRepFaction4"]),
+                        RawRepFaction5 = Convert.ToInt16(reader["RawRepFaction5"]),
+                        RawRepValue1 = Convert.ToInt32(reader["RawRepValue1"]),
+                        RawRepValue2 = Convert.ToInt32(reader["RawRepValue2"]),
+                        RawRepValue3 = Convert.ToInt32(reader["RawRepValue3"]),
+                        RawRepValue4 = Convert.ToInt32(reader["RawRepValue4"]),
+                        RawRepValue5 = Convert.ToInt32(reader["RawRepValue5"]),
+                        RawOrReqMoney = Convert.ToInt32(reader["RawOrReqMoney"]),
+                        RawMoneyMaxLevel = Convert.ToUInt32(reader["RawMoneyMaxLevel"]),
+                        RawSpell = Convert.ToInt32(reader["RawSpell"]),
+                        RawSpellCast = Convert.ToInt32(reader["RawSpellCast"]),
+                        RawMailTemplateId = Convert.ToInt32(reader["RawMailTemplateId"]),
+                        RawMailDelaySecs = (uint)Convert.ToInt32(reader["RawMailDelaySecs"]),
                         PointMapId = (ushort)Convert.ToInt16(reader["PointMapId"]),
                         PointX = Convert.ToSingle(reader["PointX"]),
                         PointY = Convert.ToSingle(reader["PointY"]),
@@ -549,9 +533,12 @@ namespace DatabaseDomain.Repository
                         SpawnMask = Convert.ToByte(reader["spawnMask"]),
                         ModelId = Convert.ToInt32(reader["modelid"]),
                         EquipmentId = Convert.ToInt32(reader["equipment_id"]),
-                        PositionX = Convert.ToSingle(reader["position_x"]),
-                        PositionY = Convert.ToSingle(reader["position_y"]),
-                        PositionZ = Convert.ToSingle(reader["position_z"]),
+                        Position = new Position()
+                        {
+                            X = Convert.ToSingle(reader["position_x"]),
+                            Y = Convert.ToSingle(reader["position_y"]),
+                            Z = Convert.ToSingle(reader["position_z"])
+                        },
                         Orientation = Convert.ToSingle(reader["orientation"]),
                         SpawnTimeSecsMin = Convert.ToInt32(reader["spawntimesecsmin"]),
                         SpawnTimeSecsMax = Convert.ToInt32(reader["spawntimesecsmax"]),
@@ -697,9 +684,12 @@ namespace DatabaseDomain.Repository
                         SpawnMask = Convert.ToByte(reader["spawnMask"]),
                         ModelId = Convert.ToInt32(reader["modelid"]),
                         EquipmentId = Convert.ToInt32(reader["equipment_id"]),
-                        PositionX = Convert.ToSingle(reader["position_x"]),
-                        PositionY = Convert.ToSingle(reader["position_y"]),
-                        PositionZ = Convert.ToSingle(reader["position_z"]),
+                        Position = new Position()
+                        {
+                            X = Convert.ToSingle(reader["position_x"]),
+                            Y = Convert.ToSingle(reader["position_y"]),
+                            Z = Convert.ToSingle(reader["position_z"])
+                        },
                         Orientation = Convert.ToSingle(reader["orientation"]),
                         SpawnTimeSecsMin = Convert.ToInt32(reader["spawntimesecsmin"]),
                         SpawnTimeSecsMax = Convert.ToInt32(reader["spawntimesecsmax"]),
@@ -743,9 +733,12 @@ namespace DatabaseDomain.Repository
                         SpawnMask = Convert.ToByte(reader["spawnMask"]),
                         ModelId = Convert.ToInt32(reader["modelid"]),
                         EquipmentId = Convert.ToInt32(reader["equipment_id"]),
-                        PositionX = Convert.ToSingle(reader["position_x"]),
-                        PositionY = Convert.ToSingle(reader["position_y"]),
-                        PositionZ = Convert.ToSingle(reader["position_z"]),
+                        Position = new Position()
+                        {
+                            X = Convert.ToSingle(reader["position_x"]),
+                            Y = Convert.ToSingle(reader["position_y"]),
+                            Z = Convert.ToSingle(reader["position_z"])
+                        },
                         Orientation = Convert.ToSingle(reader["orientation"]),
                         SpawnTimeSecsMin = Convert.ToInt32(reader["spawntimesecsmin"]),
                         SpawnTimeSecsMax = Convert.ToInt32(reader["spawntimesecsmax"]),
@@ -790,9 +783,12 @@ namespace DatabaseDomain.Repository
                         SpawnMask = Convert.ToByte(reader["spawnMask"]),
                         ModelId = Convert.ToInt32(reader["modelid"]),
                         EquipmentId = Convert.ToInt32(reader["equipment_id"]),
-                        PositionX = Convert.ToSingle(reader["position_x"]),
-                        PositionY = Convert.ToSingle(reader["position_y"]),
-                        PositionZ = Convert.ToSingle(reader["position_z"]),
+                        Position = new Position()
+                        {
+                            X = Convert.ToSingle(reader["position_x"]),
+                            Y = Convert.ToSingle(reader["position_y"]),
+                            Z = Convert.ToSingle(reader["position_z"])
+                        },
                         Orientation = Convert.ToSingle(reader["orientation"]),
                         SpawnTimeSecsMin = Convert.ToInt32(reader["spawntimesecsmin"]),
                         SpawnTimeSecsMax = Convert.ToInt32(reader["spawntimesecsmax"]),
@@ -888,9 +884,12 @@ namespace DatabaseDomain.Repository
                     {
                         Id = Convert.ToInt32(reader["Id"]),
                         Point = Convert.ToInt32(reader["Point"]),
-                        PositionX = Convert.ToSingle(reader["PositionX"]),
-                        PositionY = Convert.ToSingle(reader["PositionY"]),
-                        PositionZ = Convert.ToSingle(reader["PositionZ"]),
+                        Position = new Position()
+                        {
+                            X = Convert.ToSingle(reader["position_x"]),
+                            Y = Convert.ToSingle(reader["position_y"]),
+                            Z = Convert.ToSingle(reader["position_z"])
+                        },
                         Orientation = Convert.ToSingle(reader["Orientation"]),
                         WaitTime = Convert.ToInt32(reader["WaitTime"]),
                         ScriptId = Convert.ToInt32(reader["ScriptId"]),
@@ -1087,12 +1086,6 @@ namespace DatabaseDomain.Repository
                         KillCredit2 = Convert.ToInt32(reader["KillCredit2"]),
                         MechanicImmuneMask = Convert.ToInt32(reader["MechanicImmuneMask"]),
                         SchoolImmuneMask = Convert.ToInt32(reader["SchoolImmuneMask"]),
-                        ResistanceHoly = Convert.ToInt32(reader["ResistanceHoly"]),
-                        ResistanceFire = Convert.ToInt32(reader["ResistanceFire"]),
-                        ResistanceNature = Convert.ToInt32(reader["ResistanceNature"]),
-                        ResistanceFrost = Convert.ToInt32(reader["ResistanceFrost"]),
-                        ResistanceShadow = Convert.ToInt32(reader["ResistanceShadow"]),
-                        ResistanceArcane = Convert.ToInt32(reader["ResistanceArcane"]),
                         PetSpellDataId = Convert.ToInt32(reader["PetSpellDataId"]),
                         MovementType = Convert.ToByte(reader["MovementType"]),
                         TrainerType = Convert.ToByte(reader["TrainerType"]),
@@ -1111,6 +1104,12 @@ namespace DatabaseDomain.Repository
                         AiName = reader.GetString(reader.GetOrdinal("AIName")),
                         ScriptName = reader.GetString(reader.GetOrdinal("ScriptName")),
                     };
+                    creatureTemplate.Resistances.Add(0, (uint)Convert.ToInt16(reader["holy_res"]));
+                    creatureTemplate.Resistances.Add(0, (uint)Convert.ToInt16(reader["arcane_res"]));
+                    creatureTemplate.Resistances.Add(0, (uint)Convert.ToInt16(reader["fire_res"]));
+                    creatureTemplate.Resistances.Add(0, (uint)Convert.ToInt16(reader["frost_res"]));
+                    creatureTemplate.Resistances.Add(0, (uint)Convert.ToInt16(reader["nature_res"]));
+                    creatureTemplate.Resistances.Add(0, (uint)Convert.ToInt16(reader["shadow_res"]));
 
                     creatureTemplates.Add(creatureTemplate);
                 }
@@ -1165,9 +1164,12 @@ namespace DatabaseDomain.Repository
                         Id = Convert.ToInt32(reader["id"]),
                         Map = Convert.ToInt16(reader["map"]),
                         SpawnMask = Convert.ToByte(reader["spawnMask"]),
-                        PositionX = Convert.ToSingle(reader["position_x"]),
-                        PositionY = Convert.ToSingle(reader["position_y"]),
-                        PositionZ = Convert.ToSingle(reader["position_z"]),
+                        Position = new Position()
+                        {
+                            X = Convert.ToSingle(reader["position_x"]),
+                            Y = Convert.ToSingle(reader["position_y"]),
+                            Z = Convert.ToSingle(reader["position_z"])
+                        },
                         Orientation = Convert.ToSingle(reader["orientation"]),
                         Rotation0 = Convert.ToSingle(reader["rotation0"]),
                         Rotation1 = Convert.ToSingle(reader["rotation1"]),
@@ -1210,9 +1212,12 @@ namespace DatabaseDomain.Repository
                         Id = Convert.ToInt32(reader["id"]),
                         Map = Convert.ToInt16(reader["map"]),
                         SpawnMask = Convert.ToByte(reader["spawnMask"]),
-                        PositionX = Convert.ToSingle(reader["position_x"]),
-                        PositionY = Convert.ToSingle(reader["position_y"]),
-                        PositionZ = Convert.ToSingle(reader["position_z"]),
+                        Position = new Position()
+                        {
+                            X = Convert.ToSingle(reader["position_x"]),
+                            Y = Convert.ToSingle(reader["position_y"]),
+                            Z = Convert.ToSingle(reader["position_z"])
+                        },
                         Orientation = Convert.ToSingle(reader["orientation"]),
                         Rotation0 = Convert.ToSingle(reader["rotation0"]),
                         Rotation1 = Convert.ToSingle(reader["rotation1"]),

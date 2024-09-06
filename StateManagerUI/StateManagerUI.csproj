@@ -10,6 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.AI.OpenAI" Version="1.0.0-beta.17" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\BotCommLayer\BotCommLayer.csproj" />
     <ProjectReference Include="..\BotRunner\BotRunner.csproj" />
   </ItemGroup>

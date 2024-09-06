@@ -999,7 +999,6 @@ namespace BotRunner.Constants
         CHAR_NAME_FAILURE = 0x51,
         CHAR_NAME_SUCCESS = 0x52,
     }
-
     public enum ObjectUpdateType
     {
         PARTIAL = 0,
@@ -1009,7 +1008,6 @@ namespace BotRunner.Constants
         OUT_OF_RANGE_OBJECTS = 4,
         NEAR_OBJECTS = 5
     };
-
     [Flags]
     public enum ObjectUpdateFlags
     {
@@ -1022,28 +1020,6 @@ namespace BotRunner.Constants
         UPDATEFLAG_LIVING = 0x0020,
         UPDATEFLAG_HAS_POSITION = 0x0040
     }
-
-    [Flags]
-    public enum TypeMask
-    {
-        TYPEMASK_OBJECT = 0x0001,
-        TYPEMASK_ITEM = 0x0002,
-        TYPEMASK_CONTAINER = 0x0004,
-        TYPEMASK_UNIT = 0x0008,                       // players also have it
-        TYPEMASK_PLAYER = 0x0010,
-        TYPEMASK_GAMEOBJECT = 0x0020,
-        TYPEMASK_DYNAMICOBJECT = 0x0040,
-        TYPEMASK_CORPSE = 0x0080,
-
-        // used combinations in Player::GetObjectByTypeMask (TYPEMASK_UNIT case ignore players in call)
-        TYPEMASK_CREATURE_OR_GAMEOBJECT = TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT,
-        TYPEMASK_CREATURE_GAMEOBJECT_OR_ITEM = TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_ITEM,
-        TYPEMASK_CREATURE_GAMEOBJECT_PLAYER_OR_ITEM = TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_ITEM | TYPEMASK_PLAYER,
-
-        TYPEMASK_WORLDOBJECT = TYPEMASK_UNIT | TYPEMASK_PLAYER | TYPEMASK_GAMEOBJECT | TYPEMASK_DYNAMICOBJECT | TYPEMASK_CORPSE,
-    }
-
-
     public enum ChatMsg
     {
         CHAT_MSG_SAY = 0x00,
@@ -1083,7 +1059,6 @@ namespace BotRunner.Constants
         CHAT_MSG_BATTLEGROUND_LEADER = 0x5D,
         CHAT_MSG_MONSTER_PARTY = 0x30, // Arbitrary value to avoid conflicts
     }
-
     public enum Language : int
     {
         Universal = 0,
@@ -1113,10 +1088,6 @@ namespace BotRunner.Constants
         Player,
         Target
     }
-
-    /// <summary>
-    /// Skills in WoW
-    /// </summary>
     public enum Skills : short
     {
         FROST = 6,
@@ -1266,10 +1237,6 @@ namespace BotRunner.Constants
         PET_SERPENT = 768,
         INTERNAL = 769,
     }
-
-    /// <summary>
-    /// Qualities of WoW Items
-    /// </summary>
     public enum ItemQuality
     {
         Poor = 0,
@@ -1279,22 +1246,16 @@ namespace BotRunner.Constants
         Epic = 4,
         Legendary = 5,
     }
-
     public enum MerchantState
     {
         SHOW = 1,
         CLOSE = 2
     }
-
     public enum LootState
     {
         SHOW = 1,
         CLOSE = 2
     }
-
-    /// <summary>
-    ///     Classes of WoW
-    /// </summary>
     public enum Class : byte
     {
         Warrior = 1,
@@ -1355,10 +1316,6 @@ namespace BotRunner.Constants
         [Description("Skull")]
         Skull
     }
-
-    /// <summary>
-    ///     Item Classes of WoW
-    /// </summary>
     public enum ItemClass
     {
         Consumable,
@@ -1418,10 +1375,6 @@ namespace BotRunner.Constants
         Lockpick,
         Junk
     }
-
-    /// <summary>
-    ///     Stat type in item DB
-    /// </summary>
     public enum StatType
     {
         NoStats = 0,
@@ -1432,10 +1385,6 @@ namespace BotRunner.Constants
         Spirit = 6,
         Stamina = 7,
     }
-
-    /// <summary>
-    ///     Damage type in item DB
-    /// </summary>
     public enum DamageType
     {
         Physical = 0,
@@ -1446,10 +1395,6 @@ namespace BotRunner.Constants
         Shadow = 5,
         Arcane = 6
     }
-
-    /// <summary>
-    ///     Spell Trigger in item DB
-    /// </summary>
     public enum SpellTrigger
     {
         OnUse = 0,
@@ -1458,9 +1403,6 @@ namespace BotRunner.Constants
         Soulstone = 4,
         OnUseWithoutDelay = 5
     }
-    /// <summary>
-    ///     Bonding type in item DB
-    /// </summary>
     public enum Bonding
     {
         NoBinding = 0,
@@ -1469,10 +1411,6 @@ namespace BotRunner.Constants
         BindOnUse = 3,
         QuestItem = 4
     }
-
-    /// <summary>
-    ///     Equip slot type in item DB
-    /// </summary>
     public enum InventoryType : byte
     {
         NonEquippable = 0,
@@ -1505,7 +1443,6 @@ namespace BotRunner.Constants
         Quiver = 27,
         Relic = 28,
     }
-
     public enum EffectType
     {
         None,
@@ -1514,10 +1451,6 @@ namespace BotRunner.Constants
         Curse,
         Disease
     }
-
-    /// <summary>
-    ///     ControlBits used for movement
-    /// </summary>
     [Flags]
     public enum ControlBits
     {
@@ -1534,10 +1467,6 @@ namespace BotRunner.Constants
         Strafing = 0x00020000,
         Turning = 0x00040000
     }
-
-    /// <summary>
-    ///     The different ranks of creatures
-    /// </summary>
     public enum CreatureRank
     {
         Normal = 0,
@@ -1546,10 +1475,6 @@ namespace BotRunner.Constants
         Boss = 3,
         Rare = 4
     }
-
-    /// <summary>
-    /// Types of creatures
-    /// </summary>
     public enum CreatureType
     {
         Beast = 1,
@@ -1564,10 +1489,6 @@ namespace BotRunner.Constants
         NotSpecified = 10,
         Totem = 11,
     }
-
-    /// <summary>
-    ///     Character equipment slots
-    /// </summary>
     public enum EquipSlot
     {
         Ammo = 0,
@@ -1595,28 +1516,6 @@ namespace BotRunner.Constants
         Bag2 = 22,
         Bag3 = 23,
     }
-
-    /// <summary>
-    ///     The different types of Gossip Options in WoW
-    /// </summary>
-    public enum GossipTypes
-    {
-        Gossip = 0,
-        Vendor = 1,
-        Taxi = 2,
-        Trainer = 3,
-        Healer = 4,
-        Binder = 5,
-        Banker = 6,
-        Petition = 7,
-        Tabard = 8,
-        Battlemaster = 9,
-        Auctioneer = 10
-    }
-
-    /// <summary>
-    ///     Login states (login, charselect)
-    /// </summary>
     public enum LoginStates
     {
         login,
@@ -1628,14 +1527,12 @@ namespace BotRunner.Constants
         ErrorNameInUse,
         ErrorCreationFailed
     }
-
     public enum DeleteCharacterResult : byte
     {
         Success,
         ErrorCharacterNotFound,
         ErrorDeletionFailed
     }
-
     public enum ItemSubclass
     {
         Consumable,
@@ -1747,7 +1644,6 @@ namespace BotRunner.Constants
         MiscOther,
         MiscMount
     }
-
     public enum TextEmote
     {
         TEXTEMOTE_AGREE = 1,
@@ -1923,7 +1819,6 @@ namespace BotRunner.Constants
         TEXTEMOTE_EYEBROW = 377,
         TEXTEMOTE_TOAST = 378
     }
-
     public enum Emote
     {
         EMOTE_ONESHOT_NONE = 0,
@@ -2173,7 +2068,7 @@ namespace BotRunner.Constants
     public enum EquipmentSlots                                         // 19 slots
     {
         EQUIPMENT_SLOT_START = 0,
-        EQUIPMENT_SLOT_HEAD = 0,
+        EQUIPMENT_SLOT_HEAD = EQUIPMENT_SLOT_START,
         EQUIPMENT_SLOT_NECK = 1,
         EQUIPMENT_SLOT_SHOULDERS = 2,
         EQUIPMENT_SLOT_BODY = 3,
@@ -2194,38 +2089,32 @@ namespace BotRunner.Constants
         EQUIPMENT_SLOT_TABARD = 18,
         EQUIPMENT_SLOT_END = 19
     }
-
     public enum InventorySlots                                         // 4 slots
     {
         INVENTORY_SLOT_BAG_START = 19,
         INVENTORY_SLOT_BAG_END = 23
     }
-
     public enum InventoryPackSlots                                     // 16 slots
     {
         INVENTORY_SLOT_ITEM_START = 23,
         INVENTORY_SLOT_ITEM_END = 39
     }
-
     public enum BankItemSlots                                          // 28 slots
     {
         BANK_SLOT_ITEM_START = 39,
         BANK_SLOT_ITEM_END = 63
     }
-
     public enum BankBagSlots                                           // 7 slots
     {
         BANK_SLOT_BAG_START = 63,
         BANK_SLOT_BAG_END = 69
     }
-
     public enum BuyBackSlots                                           // 12 slots
     {
         // stored in m_buybackitems
         BUYBACK_SLOT_START = 69,
         BUYBACK_SLOT_END = 81
     }
-
     public enum KeyRingSlots                                           // 32 slots
     {
         KEYRING_SLOT_START = 81,
@@ -2237,7 +2126,6 @@ namespace BotRunner.Constants
         TRADE_SLOT_TRADED_COUNT = 6,
         TRADE_SLOT_NONTRADED = 6
     }
-
     public enum TransferAbortReason
     {
         TRANSFER_ABORT_MAX_PLAYERS = 0x01,     // Transfer Aborted: instance is full
@@ -2246,7 +2134,6 @@ namespace BotRunner.Constants
         TRANSFER_ABORT_SILENTLY = 0x04,     // no message shown the same effect give values above 5
         TRANSFER_ABORT_ZONE_IN_COMBAT = 0x05,     // Unable to zone in while an encounter is in progress.
     }
-
     public enum InstanceResetWarningType
     {
         RAID_INSTANCE_WARNING_HOURS = 1,                    // WARNING! %s is scheduled to reset in %d hour(s).
@@ -2254,21 +2141,18 @@ namespace BotRunner.Constants
         RAID_INSTANCE_WARNING_MIN_SOON = 3,                    // WARNING! %s is scheduled to reset in %d minute(s). Please exit the zone or you will be returned to your bind location!
         RAID_INSTANCE_WELCOME = 4                     // Welcome to %s. This raid instance is scheduled to reset in %s.
     }
-
     public enum RestType
     {
         REST_TYPE_NO = 0,
         REST_TYPE_IN_TAVERN = 1,
         REST_TYPE_IN_CITY = 2
     }
-
     public enum DuelCompleteType
     {
         DUEL_INTERRUPTED = 0,
         DUEL_WON = 1,
         DUEL_FLED = 2
     }
-
     public enum TeleportToOptions
     {
         TELE_TO_GM_MODE = 0x01,
@@ -2277,8 +2161,6 @@ namespace BotRunner.Constants
         TELE_TO_NOT_UNSUMMON_PET = 0x08,
         TELE_TO_SPELL = 0x10,
     }
-
-    /// Type of environmental damages
     public enum EnvironmentalDamageType
     {
         DAMAGE_EXHAUSTED = 0,
@@ -2289,7 +2171,6 @@ namespace BotRunner.Constants
         DAMAGE_FIRE = 5,
         DAMAGE_FALL_TO_VOID = 6                         // custom case for fall without durability loss
     }
-
     public enum PlayedTimeIndex
     {
         PLAYED_TIME_TOTAL = 0,
@@ -2319,7 +2200,6 @@ namespace BotRunner.Constants
 
         MAX_PLAYER_LOGIN_QUERY
     }
-
     public enum PlayerDelayedOperations
     {
         DELAYED_SAVE_PLAYER = 0x01,
@@ -2327,7 +2207,6 @@ namespace BotRunner.Constants
         DELAYED_SPELL_CAST_DESERTER = 0x04,
         DELAYED_END
     }
-
     public enum ReputationSource
     {
         REPUTATION_SOURCE_KILL,
@@ -2340,7 +2219,6 @@ namespace BotRunner.Constants
         REST_STATE_NORMAL = 0x02,
         REST_STATE_RAF_LINKED = 0x04                      // Exact use unknown
     }
-
     public enum PlayerMountResult
     {
         MOUNTRESULT_INVALIDMOUNTEE = 0,    // You can't mount that unit!
@@ -2355,13 +2233,94 @@ namespace BotRunner.Constants
         MOUNTRESULT_FORCEDDISMOUNT = 9,    // You dismount before continuing.
         MOUNTRESULT_OK = 10    // no error
     }
-
     public enum PlayerDismountResult
     {
         DISMOUNTRESULT_NOPET = 0,    // internal
         DISMOUNTRESULT_NOTMOUNTED = 1,    // You're not mounted!
         DISMOUNTRESULT_NOTYOURPET = 2,    // internal
         DISMOUNTRESULT_OK = 3     // no error
+    }
+    public enum Action
+    {
+        Wait,               // Do nothing until a trigger changes state.
+        GoTo,               // Move to a specified location.
+        InteractWith,       // Interact with an NPC, object, or other elements.
+
+        SelectGossip,       // Select a gossip option in a dialog.
+        SelectTaxiNode,     // Select a taxi node to fly to.
+
+        AcceptQuest,        // Accept a quest from an NPC.
+        DeclineQuest,       // Decline a quest from an NPC.
+        AbandonQuest,       // Abandon a quest from the quest log.
+        SelectReward,       // Choose a reward upon completing a quest.
+        CompleteQuest,      // Turn in a quest to an NPC.
+
+        TrainSkill,         // Train a skill from a trainer.
+        TrainTalent,        // Train a talent from a trainer.
+
+        OfferTrade,         // Offer a trade with another player.
+        OfferGold,          // Offer a certain amount of gold in a trade.
+        OfferItem,          // Offer an item in a trade window.
+        AcceptTrade,        // Accept the current trade offer.
+        DeclineTrade,       // Decline the current trade offer.
+        EnchantTrade,       // Enchant an item in a trade window.
+        LockpickTrade,      // Picks a lock in a trade window.
+
+        PromoteLeader,      // Promote a group member to leader.
+        PromoteAssistant,   // Promote a group member to assistant.
+        PromoteLootManager, // Promote a group member to loot manager.
+        SetGroupLoot,       // Set the loot distribution method for a group.
+        AssignLoot,         // Assign loot to a player in a group.
+        LootRollNeed,       // Roll "Need" on a loot item.
+        LootRollGreed,      // Roll "Greed" on a loot item.
+        LootPass,           // Pass on a loot item.
+
+        SendGroupInvite,    // Send an invitation to join a group.
+        AcceptGroupInvite,  // Accept an invitation to join a group.
+        DeclineGroupInvite, // Decline an invitation to join a group.
+        KickPlayer,         // Kick a player from the group.
+        LeaveGroup,         // Leave the current group.
+        DisbandGroup,       // Disband the current group.
+
+        StartMeleeAttack,   // Begin a melee auto-attack.
+        StartRangedAttack,  // Begin a ranged auto-attack.
+        StartWandAttack,    // Begin a wand auto-attack.
+        StopAttack,         // Cease any ongoing attack.
+        CastSpell,          // Cast or channel a spell on a target or location.
+        StopCast,           // Stop casting a spell.
+
+        UseItem,            // Use an item from inventory.
+        EquipItem,          // Equip an item from the inventory.
+        UnequipItem,        // Unequip an item from the character.
+        DestroyItem,        // Destroy an item from the character.
+        MoveItem,           // Move an item within the inventory.
+        SplitStack,         // Unequip an item from the character.
+
+        BuyItem,            // Purchase an item from a vendor.
+        BuybackItem,        // Purchase a previously sold item from a vendor.
+        SellItem,           // Sell an item to a vendor.
+        RepairItem,         // Repair an item with a vendor.
+        RepairAllItems,     // Repair all items with a vendor.
+
+        DismissBuff,        // Dismiss a buff from the character.
+
+        Resurrect,          // Accept a resurrection from another player or near corpse.
+
+        Craft,              // Perform a crafting action.
+
+        Login,              // Log in to the game world.
+        Logout,             // Log out of the game world.
+        CreateCharacter,    // Create a new character.
+        DeleteCharacter,    // Delete an existing character.
+        EnterWorld,         // Enter the game world with a character.
+    }
+    public enum GroupLootSetting
+    {
+        Default = 0,
+        MasterLooterCommon = 1,
+        MasterLooterRare = 2,
+        MasterLooterEpic = 3,
+        MasterLooterLegendary = 4,
     }
 }
 

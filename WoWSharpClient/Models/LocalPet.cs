@@ -26,7 +26,7 @@ namespace WoWSharpClient.Models
 
         public void Cast(string parPetSpell)
         {
-            
+
         }
         enum PetType
         {

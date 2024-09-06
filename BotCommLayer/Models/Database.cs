@@ -24,136 +24,123 @@ namespace Database {
     static DatabaseReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "Cg5kYXRhYmFzZS5wcm90bxIIZGF0YWJhc2UijQEKD0RhdGFiYXNlUmVxdWVz",
-            "dBImCglxdWVyeVR5cGUYASABKA4yEy5kYXRhYmFzZS5RdWVyeVR5cGUSEwoL",
-            "cXVlcnlQYXJhbTEYAiABKAkSEwoLcXVlcnlQYXJhbTIYAyABKAkSEwoLcXVl",
-            "cnlQYXJhbTMYBCABKAkSEwoLcXVlcnlQYXJhbTQYBSABKAki2AUKEERhdGFi",
-            "YXNlUmVzcG9uc2USOwoUYXJlYVRyaWdnZXJUZWxlcG9ydHMYASADKAsyHS5k",
-            "YXRhYmFzZS5BcmVhVHJpZ2dlclRlbGVwb3J0EjUKEWNyZWF0dXJlR3JvdXBp",
-            "bmdzGAIgAygLMhouZGF0YWJhc2UuQ3JlYXR1cmVHcm91cGluZxI0ChBjcmVh",
-            "dHVyZU1vdmVtZW50GAMgAygLMhouZGF0YWJhc2UuQ3JlYXR1cmVNb3ZlbWVu",
-            "dBJEChhjcmVhdHVyZU1vdmVtZW50VGVtcGxhdGUYBCADKAsyIi5kYXRhYmFz",
-            "ZS5DcmVhdHVyZU1vdmVtZW50VGVtcGxhdGUSKQoLZ2FtZU9iamVjdHMYBSAD",
-            "KAsyFC5kYXRhYmFzZS5HYW1lT2JqZWN0EiUKCWNyZWF0dXJlcxgGIAMoCzIS",
-            "LmRhdGFiYXNlLkNyZWF0dXJlEkMKFWNyZWF0dXJlRXF1aXBUZW1wbGF0ZRgH",
-            "IAEoCzIfLmRhdGFiYXNlLkNyZWF0dXJlRXF1aXBUZW1wbGF0ZUgAiAEBEjEK",
-            "DGl0ZW1UZW1wbGF0ZRgIIAEoCzIWLmRhdGFiYXNlLkl0ZW1UZW1wbGF0ZUgB",
-            "iAEBEjUKDm5wY1ZlbmRvckVudHJ5GAkgASgLMhguZGF0YWJhc2UuTnBjVmVu",
-            "ZG9yRW50cnlIAogBARIzCg1xdWVzdFRlbXBsYXRlGAogASgLMhcuZGF0YWJh",
-            "c2UuUXVlc3RUZW1wbGF0ZUgDiAEBEjkKEGNyZWF0dXJlVGVtcGxhdGUYCyAB",
-            "KAsyGi5kYXRhYmFzZS5DcmVhdHVyZVRlbXBsYXRlSASIAQFCGAoWX2NyZWF0",
-            "dXJlRXF1aXBUZW1wbGF0ZUIPCg1faXRlbVRlbXBsYXRlQhEKD19ucGNWZW5k",
-            "b3JFbnRyeUIQCg5fcXVlc3RUZW1wbGF0ZUITChFfY3JlYXR1cmVUZW1wbGF0",
-            "ZSK2AgoTQXJlYVRyaWdnZXJUZWxlcG9ydBIKCgJpZBgBIAEoBRIMCgRuYW1l",
-            "GAIgASgJEhUKDXJlcXVpcmVkTGV2ZWwYAyABKA0SFAoMcmVxdWlyZWRJdGVt",
-            "GAQgASgFEhUKDXJlcXVpcmVkSXRlbTIYBSABKAUSGQoRcmVxdWlyZWRRdWVz",
-            "dERvbmUYBiABKAUSEQoJdGFyZ2V0TWFwGAcgASgNEhcKD3RhcmdldFBvc2l0",
-            "aW9uWBgIIAEoAhIXCg90YXJnZXRQb3NpdGlvblkYCSABKAISFwoPdGFyZ2V0",
-            "UG9zaXRpb25aGAogASgCEhkKEXRhcmdldE9yaWVudGF0aW9uGAsgASgCEhgK",
-            "EHN0YXR1c0ZhaWxlZFRleHQYDCABKAkSEwoLY29uZGl0aW9uSWQYDSABKAUi",
-            "qgQKCENyZWF0dXJlEgwKBGd1aWQYASABKAUSDAoEbmFtZRgCIAEoCRIKCgJp",
-            "ZBgDIAEoBRILCgNtYXAYBCABKAUSDgoGem9uZUlkGAUgASgFEg4KBmFyZWFJ",
-            "ZBgGIAEoBRIRCglwb3NpdGlvblgYByABKAISEQoJcG9zaXRpb25ZGAggASgC",
-            "EhEKCXBvc2l0aW9uWhgJIAEoAhITCgtvcmllbnRhdGlvbhgKIAEoAhIYChBz",
-            "cGF3blRpbWVTZWNzTWluGAsgASgFEhgKEHNwYXduVGltZVNlY3NNYXgYDCAB",
-            "KAUSEQoJc3Bhd25EaXN0GA0gASgCEhkKEWN1cnJlbnRXYXlwb2ludElkGA4g",
-            "ASgFEhEKCXNwYXduVHlwZRgPIAEoBRITCgtyZXNwYXduVGltZRgQIAEoBRIU",
-            "Cgxtb3ZlbWVudFR5cGUYESABKAUSFgoOd2FuZGVyRGlzdGFuY2UYEiABKAUS",
-            "EwoLc2VhcmNoUmFuZ2UYEyABKAUSEwoLZXF1aXBtZW50SWQYFCABKAUSEgoK",
-            "c2NyaXB0TmFtZRgVIAEoCRIQCghjb21tZW50cxgWIAEoCRIRCglzcGF3bk1h",
-            "c2sYFyABKAUSDwoHbW9kZWxJZBgYIAEoBRIXCg9jdXJyZW50V2F5cG9pbnQY",
-            "GSABKAUSEQoJY3VySGVhbHRoGBogASgFEg8KB2N1ck1hbmEYGyABKAUSEgoK",
-            "ZGVhdGhTdGF0ZRgcIAEoBSJlChVDcmVhdHVyZUVxdWlwVGVtcGxhdGUSDQoF",
-            "ZW50cnkYASABKAUSEwoLZXF1aXBFbnRyeTEYAiABKAUSEwoLZXF1aXBFbnRy",
-            "eTIYAyABKAUSEwoLZXF1aXBFbnRyeTMYBCABKAUiOgoQQ3JlYXR1cmVHcm91",
-            "cGluZxISCgpsZWFkZXJHdWlkGAEgASgFEhIKCm1lbWJlckd1aWQYAiABKAUi",
-            "sAEKEENyZWF0dXJlTW92ZW1lbnQSCgoCaWQYASABKAUSDQoFcG9pbnQYAiAB",
-            "KAUSEQoJcG9zaXRpb25YGAMgASgCEhEKCXBvc2l0aW9uWRgEIAEoAhIRCglw",
-            "b3NpdGlvbloYBSABKAISEwoLb3JpZW50YXRpb24YBiABKAISEAoId2FpdFRp",
-            "bWUYByABKAUSEAoIc2NyaXB0SWQYCCABKAUSDwoHY29tbWVudBgJIAEoCSLL",
-            "AQoYQ3JlYXR1cmVNb3ZlbWVudFRlbXBsYXRlEg0KBWVudHJ5GAEgASgFEg4K",
-            "BnBhdGhJZBgCIAEoBRINCgVwb2ludBgDIAEoBRIRCglwb3NpdGlvblgYBCAB",
-            "KAISEQoJcG9zaXRpb25ZGAUgASgCEhEKCXBvc2l0aW9uWhgGIAEoAhITCgtv",
-            "cmllbnRhdGlvbhgHIAEoAhIQCgh3YWl0VGltZRgIIAEoBRIQCghzY3JpcHRJ",
-            "ZBgJIAEoBRIPCgdjb21tZW50GAogASgJIo4OChBDcmVhdHVyZVRlbXBsYXRl",
-            "Eg0KBWVudHJ5GAEgASgDEgwKBG5hbWUYAiABKAkSDwoHc3ViTmFtZRgDIAEo",
-            "CRIQCghtaW5MZXZlbBgEIAEoDRIQCghtYXhMZXZlbBgFIAEoDRIQCghtb2Rl",
-            "bElkMRgGIAEoBRIQCghtb2RlbElkMhgHIAEoBRIQCghtb2RlbElkMxgIIAEo",
-            "BRIQCghtb2RlbElkNBgJIAEoBRIPCgdmYWN0aW9uGAogASgFEg0KBXNjYWxl",
-            "GAsgASgCEg4KBmZhbWlseRgMIAEoDRIUCgxjcmVhdHVyZVR5cGUYDSABKA0S",
-            "EwoLaW5oYWJpdFR5cGUYDiABKA0SFwoPcmVnZW5lcmF0ZVN0YXRzGA8gASgN",
-            "EhQKDHJhY2lhbExlYWRlchgQIAEoDRIQCghucGNGbGFncxgRIAEoBRIRCgl1",
-            "bml0RmxhZ3MYEiABKAUSFAoMZHluYW1pY0ZsYWdzGBMgASgFEhIKCmV4dHJh",
-            "RmxhZ3MYFCABKAUSGQoRY3JlYXR1cmVUeXBlRmxhZ3MYFSABKAUSEQoJc3Bl",
-            "ZWRXYWxrGBYgASgCEhAKCHNwZWVkUnVuGBcgASgCEhEKCWRldGVjdGlvbhgY",
-            "IAEoBRITCgtjYWxsRm9ySGVscBgZIAEoBRIPCgdwdXJzdWl0GBogASgFEg0K",
-            "BWxlYXNoGBsgASgFEg8KB3RpbWVvdXQYHCABKAUSEQoJdW5pdENsYXNzGB0g",
-            "ASgNEgwKBHJhbmsYHiABKA0SGAoQaGVhbHRoTXVsdGlwbGllchgfIAEoAhIX",
-            "Cg9wb3dlck11bHRpcGxpZXIYICABKAISGAoQZGFtYWdlTXVsdGlwbGllchgh",
-            "IAEoAhIWCg5kYW1hZ2VWYXJpYW5jZRgiIAEoAhIXCg9hcm1vck11bHRpcGxp",
-            "ZXIYIyABKAISHAoUZXhwZXJpZW5jZU11bHRpcGxpZXIYJCABKAISFgoObWlu",
-            "TGV2ZWxIZWFsdGgYJSABKAUSFgoObWF4TGV2ZWxIZWFsdGgYJiABKAUSFAoM",
-            "bWluTGV2ZWxNYW5hGCcgASgFEhQKDG1heExldmVsTWFuYRgoIAEoBRITCgtt",
-            "aW5NZWxlZURtZxgpIAEoAhITCgttYXhNZWxlZURtZxgqIAEoAhIUCgxtaW5S",
-            "YW5nZWREbWcYKyABKAISFAoMbWF4UmFuZ2VkRG1nGCwgASgCEg0KBWFybW9y",
-            "GC0gASgFEhgKEG1lbGVlQXR0YWNrUG93ZXIYLiABKAUSGQoRcmFuZ2VkQXR0",
-            "YWNrUG93ZXIYLyABKAUSGwoTbWVsZWVCYXNlQXR0YWNrVGltZRgwIAEoBRIc",
-            "ChRyYW5nZWRCYXNlQXR0YWNrVGltZRgxIAEoBRIUCgxkYW1hZ2VTY2hvb2wY",
-            "MiABKA0SEwoLbWluTG9vdEdvbGQYMyABKAUSEwoLbWF4TG9vdEdvbGQYNCAB",
-            "KAUSDgoGbG9vdElkGDUgASgFEhgKEHBpY2twb2NrZXRMb290SWQYNiABKAUS",
-            "FgoOc2tpbm5pbmdMb290SWQYNyABKAUSEwoLa2lsbENyZWRpdDEYOCABKAUS",
-            "EwoLa2lsbENyZWRpdDIYOSABKAUSGgoSbWVjaGFuaWNJbW11bmVNYXNrGDog",
-            "ASgFEhgKEHNjaG9vbEltbXVuZU1hc2sYOyABKAUSFgoOcmVzaXN0YW5jZUhv",
-            "bHkYPCABKAUSFgoOcmVzaXN0YW5jZUZpcmUYPSABKAUSGAoQcmVzaXN0YW5j",
-            "ZU5hdHVyZRg+IAEoBRIXCg9yZXNpc3RhbmNlRnJvc3QYPyABKAUSGAoQcmVz",
-            "aXN0YW5jZVNoYWRvdxhAIAEoBRIYChByZXNpc3RhbmNlQXJjYW5lGEEgASgF",
-            "EhYKDnBldFNwZWxsRGF0YUlkGEIgASgFEhQKDG1vdmVtZW50VHlwZRhDIAEo",
-            "DRITCgt0cmFpbmVyVHlwZRhEIAEoDRIUCgx0cmFpbmVyU3BlbGwYRSABKAUS",
-            "FAoMdHJhaW5lckNsYXNzGEYgASgNEhMKC3RyYWluZXJSYWNlGEcgASgNEhkK",
-            "EXRyYWluZXJUZW1wbGF0ZUlkGEggASgFEhgKEHZlbmRvclRlbXBsYXRlSWQY",
-            "SSABKAUSFAoMZ29zc2lwTWVudUlkGEogASgFEh0KFWludGVyYWN0aW9uUGF1",
-            "c2VUaW1lchhLIAEoBRIeChZ2aXNpYmlsaXR5RGlzdGFuY2VUeXBlGEwgASgN",
-            "EhMKC2NvcnBzZURlY2F5GE0gASgFEhEKCXNwZWxsTGlzdBhOIAEoBRIbChNl",
-            "cXVpcG1lbnRUZW1wbGF0ZUlkGE8gASgFEhAKCGNpdmlsaWFuGFAgASgNEg4K",
-            "BmFpTmFtZRhRIAEoCRISCgpzY3JpcHROYW1lGFIgASgJIrkCCgpHYW1lT2Jq",
-            "ZWN0EgwKBGd1aWQYASABKAUSCgoCaWQYAiABKAUSCwoDbWFwGAMgASgFEhEK",
-            "CXNwYXduTWFzaxgEIAEoDRIRCglwb3NpdGlvblgYBSABKAISEQoJcG9zaXRp",
-            "b25ZGAYgASgCEhEKCXBvc2l0aW9uWhgHIAEoAhITCgtvcmllbnRhdGlvbhgI",
-            "IAEoAhIRCglyb3RhdGlvbjAYCSABKAISEQoJcm90YXRpb24xGAogASgCEhEK",
-            "CXJvdGF0aW9uMhgLIAEoAhIRCglyb3RhdGlvbjMYDCABKAISGAoQc3Bhd25U",
-            "aW1lU2Vjc01pbhgNIAEoBRIYChBzcGF3blRpbWVTZWNzTWF4GA4gASgFEhQK",
-            "DGFuaW1Qcm9ncmVzcxgPIAEoDRINCgVzdGF0ZRgQIAEoDSKvFQoMSXRlbVRl",
-            "bXBsYXRlEg0KBWVudHJ5GAEgASgFEg0KBXBhdGNoGAIgASgFEg0KBWNsYXNz",
-            "GAMgASgFEhAKCHN1YmNsYXNzGAQgASgFEgwKBG5hbWUYBSABKAkSEQoJZGlz",
-            "cGxheUlkGAYgASgFEg8KB3F1YWxpdHkYByABKAUSDQoFZmxhZ3MYCCABKAUS",
-            "EAoIYnV5Q291bnQYCSABKAUSEAoIYnV5UHJpY2UYCiABKAUSEQoJc2VsbFBy",
-            "aWNlGAsgASgFEhUKDWludmVudG9yeVR5cGUYDCABKAUSFgoOYWxsb3dhYmxl",
-            "Q2xhc3MYDSABKAUSFQoNYWxsb3dhYmxlUmFjZRgOIAEoBRIRCglpdGVtTGV2",
-            "ZWwYDyABKAUSFQoNcmVxdWlyZWRMZXZlbBgQIAEoBRIVCg1yZXF1aXJlZFNr",
-            "aWxsGBEgASgFEhkKEXJlcXVpcmVkU2tpbGxSYW5rGBIgASgFEhUKDXJlcXVp",
-            "cmVkU3BlbGwYEyABKAUSGQoRcmVxdWlyZWRIb25vclJhbmsYFCABKAUSGAoQ",
-            "cmVxdWlyZWRDaXR5UmFuaxgVIAEoBRIhChlyZXF1aXJlZFJlcHV0YXRpb25G",
-            "YWN0aW9uGBYgASgFEh4KFnJlcXVpcmVkUmVwdXRhdGlvblJhbmsYFyABKAUS",
-            "EAoIbWF4Q291bnQYGCABKAUSEQoJc3RhY2thYmxlGBkgASgFEhYKDmNvbnRh",
-            "aW5lclNsb3RzGBogASgFEhEKCXN0YXRUeXBlMRgbIAEoBRISCgpzdGF0VmFs",
-            "dWUxGBwgASgFEhEKCXN0YXRUeXBlMhgdIAEoBRISCgpzdGF0VmFsdWUyGB4g",
-            "ASgFEhEKCXN0YXRUeXBlMxgfIAEoBRISCgpzdGF0VmFsdWUzGCAgASgFEhEK",
-            "CXN0YXRUeXBlNBghIAEoBRISCgpzdGF0VmFsdWU0GCIgASgFEhEKCXN0YXRU",
-            "eXBlNRgjIAEoBRISCgpzdGF0VmFsdWU1GCQgASgFEhEKCXN0YXRUeXBlNhgl",
-            "IAEoBRISCgpzdGF0VmFsdWU2GCYgASgFEhEKCXN0YXRUeXBlNxgnIAEoBRIS",
-            "CgpzdGF0VmFsdWU3GCggASgFEhEKCXN0YXRUeXBlOBgpIAEoBRISCgpzdGF0",
-            "VmFsdWU4GCogASgFEhEKCXN0YXRUeXBlORgrIAEoBRISCgpzdGF0VmFsdWU5",
-            "GCwgASgFEhIKCnN0YXRUeXBlMTAYLSABKAUSEwoLc3RhdFZhbHVlMTAYLiAB",
-            "KAUSDwoHZG1nTWluMRgvIAEoAhIPCgdkbWdNYXgxGDAgASgCEhAKCGRtZ1R5",
-            "cGUxGDEgASgFEg8KB2RtZ01pbjIYMiABKAISDwoHZG1nTWF4MhgzIAEoAhIQ",
-            "CghkbWdUeXBlMhg0IAEoBRIPCgdkbWdNaW4zGDUgASgCEg8KB2RtZ01heDMY",
-            "NiABKAISEAoIZG1nVHlwZTMYNyABKAUSDwoHZG1nTWluNBg4IAEoAhIPCgdk",
-            "bWdNYXg0GDkgASgCEhAKCGRtZ1R5cGU0GDogASgFEg8KB2RtZ01pbjUYOyAB",
-            "KAISDwoHZG1nTWF4NRg8IAEoAhIQCghkbWdUeXBlNRg9IAEoBRINCgVhcm1v",
-            "chg+IAEoBRIWCg5ob2x5UmVzaXN0YW5jZRg/IAEoBRIWCg5maXJlUmVzaXN0",
-            "YW5jZRhAIAEoBRIYChBuYXR1cmVSZXNpc3RhbmNlGEEgASgFEhcKD2Zyb3N0",
-            "UmVzaXN0YW5jZRhCIAEoBRIYChBzaGFkb3dSZXNpc3RhbmNlGEMgASgFEhgK",
-            "EGFyY2FuZVJlc2lzdGFuY2UYRCABKAUSDQoFZGVsYXkYRSABKAUSEAoIYW1t",
+            "Cg5kYXRhYmFzZS5wcm90bxIIZGF0YWJhc2UaCmdhbWUucHJvdG8ijQEKD0Rh",
+            "dGFiYXNlUmVxdWVzdBImCglxdWVyeVR5cGUYASABKA4yEy5kYXRhYmFzZS5R",
+            "dWVyeVR5cGUSEwoLcXVlcnlQYXJhbTEYAiABKAkSEwoLcXVlcnlQYXJhbTIY",
+            "AyABKAkSEwoLcXVlcnlQYXJhbTMYBCABKAkSEwoLcXVlcnlQYXJhbTQYBSAB",
+            "KAki2AUKEERhdGFiYXNlUmVzcG9uc2USOwoUYXJlYVRyaWdnZXJUZWxlcG9y",
+            "dHMYASADKAsyHS5kYXRhYmFzZS5BcmVhVHJpZ2dlclRlbGVwb3J0EjUKEWNy",
+            "ZWF0dXJlR3JvdXBpbmdzGAIgAygLMhouZGF0YWJhc2UuQ3JlYXR1cmVHcm91",
+            "cGluZxI0ChBjcmVhdHVyZU1vdmVtZW50GAMgAygLMhouZGF0YWJhc2UuQ3Jl",
+            "YXR1cmVNb3ZlbWVudBJEChhjcmVhdHVyZU1vdmVtZW50VGVtcGxhdGUYBCAD",
+            "KAsyIi5kYXRhYmFzZS5DcmVhdHVyZU1vdmVtZW50VGVtcGxhdGUSKQoLZ2Ft",
+            "ZU9iamVjdHMYBSADKAsyFC5kYXRhYmFzZS5HYW1lT2JqZWN0EiUKCWNyZWF0",
+            "dXJlcxgGIAMoCzISLmRhdGFiYXNlLkNyZWF0dXJlEkMKFWNyZWF0dXJlRXF1",
+            "aXBUZW1wbGF0ZRgHIAEoCzIfLmRhdGFiYXNlLkNyZWF0dXJlRXF1aXBUZW1w",
+            "bGF0ZUgAiAEBEjEKDGl0ZW1UZW1wbGF0ZRgIIAEoCzIWLmRhdGFiYXNlLkl0",
+            "ZW1UZW1wbGF0ZUgBiAEBEjUKDm5wY1ZlbmRvckVudHJ5GAkgASgLMhguZGF0",
+            "YWJhc2UuTnBjVmVuZG9yRW50cnlIAogBARIzCg1xdWVzdFRlbXBsYXRlGAog",
+            "ASgLMhcuZGF0YWJhc2UuUXVlc3RUZW1wbGF0ZUgDiAEBEjkKEGNyZWF0dXJl",
+            "VGVtcGxhdGUYCyABKAsyGi5kYXRhYmFzZS5DcmVhdHVyZVRlbXBsYXRlSASI",
+            "AQFCGAoWX2NyZWF0dXJlRXF1aXBUZW1wbGF0ZUIPCg1faXRlbVRlbXBsYXRl",
+            "QhEKD19ucGNWZW5kb3JFbnRyeUIQCg5fcXVlc3RUZW1wbGF0ZUITChFfY3Jl",
+            "YXR1cmVUZW1wbGF0ZSKNAgoTQXJlYVRyaWdnZXJUZWxlcG9ydBIKCgJpZBgB",
+            "IAEoBRIMCgRuYW1lGAIgASgJEhUKDXJlcXVpcmVkTGV2ZWwYAyABKA0SFAoM",
+            "cmVxdWlyZWRJdGVtGAQgASgFEhUKDXJlcXVpcmVkSXRlbTIYBSABKAUSGQoR",
+            "cmVxdWlyZWRRdWVzdERvbmUYBiABKAUSEQoJdGFyZ2V0TWFwGAcgASgNEiAK",
+            "CHBvc2l0aW9uGAggASgLMg4uZ2FtZS5Qb3NpdGlvbhIZChF0YXJnZXRPcmll",
+            "bnRhdGlvbhgJIAEoAhIYChBzdGF0dXNGYWlsZWRUZXh0GAogASgJEhMKC2Nv",
+            "bmRpdGlvbklkGAsgASgFIpMECghDcmVhdHVyZRIMCgRndWlkGAEgASgDEgwK",
+            "BG5hbWUYAiABKAkSCgoCaWQYAyABKAUSCwoDbWFwGAQgASgFEg4KBnpvbmVJ",
+            "ZBgFIAEoBRIOCgZhcmVhSWQYBiABKAUSIAoIcG9zaXRpb24YByABKAsyDi5n",
+            "YW1lLlBvc2l0aW9uEhMKC29yaWVudGF0aW9uGAggASgCEhgKEHNwYXduVGlt",
+            "ZVNlY3NNaW4YCSABKAUSGAoQc3Bhd25UaW1lU2Vjc01heBgKIAEoBRIRCglz",
+            "cGF3bkRpc3QYCyABKAISGQoRY3VycmVudFdheXBvaW50SWQYDCABKAUSEQoJ",
+            "c3Bhd25UeXBlGA0gASgFEhMKC3Jlc3Bhd25UaW1lGA4gASgFEhQKDG1vdmVt",
+            "ZW50VHlwZRgPIAEoBRIWCg53YW5kZXJEaXN0YW5jZRgQIAEoBRITCgtzZWFy",
+            "Y2hSYW5nZRgRIAEoBRITCgtlcXVpcG1lbnRJZBgSIAEoBRISCgpzY3JpcHRO",
+            "YW1lGBMgASgJEhAKCGNvbW1lbnRzGBQgASgJEhEKCXNwYXduTWFzaxgVIAEo",
+            "BRIPCgdtb2RlbElkGBYgASgFEhcKD2N1cnJlbnRXYXlwb2ludBgXIAEoBRIR",
+            "CgljdXJIZWFsdGgYGCABKAUSDwoHY3VyTWFuYRgZIAEoBRISCgpkZWF0aFN0",
+            "YXRlGBogASgFImUKFUNyZWF0dXJlRXF1aXBUZW1wbGF0ZRINCgVlbnRyeRgB",
+            "IAEoBRITCgtlcXVpcEVudHJ5MRgCIAEoBRITCgtlcXVpcEVudHJ5MhgDIAEo",
+            "BRITCgtlcXVpcEVudHJ5MxgEIAEoBSI6ChBDcmVhdHVyZUdyb3VwaW5nEhIK",
+            "CmxlYWRlckd1aWQYASABKAMSEgoKbWVtYmVyR3VpZBgCIAEoAyKZAQoQQ3Jl",
+            "YXR1cmVNb3ZlbWVudBIKCgJpZBgBIAEoBRINCgVwb2ludBgCIAEoBRIgCghw",
+            "b3NpdGlvbhgDIAEoCzIOLmdhbWUuUG9zaXRpb24SEwoLb3JpZW50YXRpb24Y",
+            "BCABKAISEAoId2FpdFRpbWUYBSABKAUSEAoIc2NyaXB0SWQYBiABKAUSDwoH",
+            "Y29tbWVudBgHIAEoCSK0AQoYQ3JlYXR1cmVNb3ZlbWVudFRlbXBsYXRlEg0K",
+            "BWVudHJ5GAEgASgFEg4KBnBhdGhJZBgCIAEoBRINCgVwb2ludBgDIAEoBRIg",
+            "Cghwb3NpdGlvbhgEIAEoCzIOLmdhbWUuUG9zaXRpb24SEwoLb3JpZW50YXRp",
+            "b24YBSABKAISEAoId2FpdFRpbWUYBiABKAUSEAoIc2NyaXB0SWQYByABKAUS",
+            "DwoHY29tbWVudBgIIAEoCSLtDQoQQ3JlYXR1cmVUZW1wbGF0ZRINCgVlbnRy",
+            "eRgBIAEoAxIMCgRuYW1lGAIgASgJEg8KB3N1Yk5hbWUYAyABKAkSEAoIbWlu",
+            "TGV2ZWwYBCABKA0SEAoIbWF4TGV2ZWwYBSABKA0SEAoIbW9kZWxJZDEYBiAB",
+            "KAUSEAoIbW9kZWxJZDIYByABKAUSEAoIbW9kZWxJZDMYCCABKAUSEAoIbW9k",
+            "ZWxJZDQYCSABKAUSDwoHZmFjdGlvbhgKIAEoBRINCgVzY2FsZRgLIAEoAhIO",
+            "CgZmYW1pbHkYDCABKA0SFAoMY3JlYXR1cmVUeXBlGA0gASgNEhMKC2luaGFi",
+            "aXRUeXBlGA4gASgNEhcKD3JlZ2VuZXJhdGVTdGF0cxgPIAEoDRIUCgxyYWNp",
+            "YWxMZWFkZXIYECABKA0SEAoIbnBjRmxhZ3MYESABKAUSEQoJdW5pdEZsYWdz",
+            "GBIgASgFEhQKDGR5bmFtaWNGbGFncxgTIAEoBRISCgpleHRyYUZsYWdzGBQg",
+            "ASgFEhkKEWNyZWF0dXJlVHlwZUZsYWdzGBUgASgFEhEKCXNwZWVkV2FsaxgW",
+            "IAEoAhIQCghzcGVlZFJ1bhgXIAEoAhIRCglkZXRlY3Rpb24YGCABKAUSEwoL",
+            "Y2FsbEZvckhlbHAYGSABKAUSDwoHcHVyc3VpdBgaIAEoBRINCgVsZWFzaBgb",
+            "IAEoBRIPCgd0aW1lb3V0GBwgASgFEhEKCXVuaXRDbGFzcxgdIAEoDRIMCgRy",
+            "YW5rGB4gASgNEhgKEGhlYWx0aE11bHRpcGxpZXIYHyABKAISFwoPcG93ZXJN",
+            "dWx0aXBsaWVyGCAgASgCEhgKEGRhbWFnZU11bHRpcGxpZXIYISABKAISFgoO",
+            "ZGFtYWdlVmFyaWFuY2UYIiABKAISFwoPYXJtb3JNdWx0aXBsaWVyGCMgASgC",
+            "EhwKFGV4cGVyaWVuY2VNdWx0aXBsaWVyGCQgASgCEhYKDm1pbkxldmVsSGVh",
+            "bHRoGCUgASgFEhYKDm1heExldmVsSGVhbHRoGCYgASgFEhQKDG1pbkxldmVs",
+            "TWFuYRgnIAEoBRIUCgxtYXhMZXZlbE1hbmEYKCABKAUSEwoLbWluTWVsZWVE",
+            "bWcYKSABKAISEwoLbWF4TWVsZWVEbWcYKiABKAISFAoMbWluUmFuZ2VkRG1n",
+            "GCsgASgCEhQKDG1heFJhbmdlZERtZxgsIAEoAhINCgVhcm1vchgtIAEoBRIY",
+            "ChBtZWxlZUF0dGFja1Bvd2VyGC4gASgFEhkKEXJhbmdlZEF0dGFja1Bvd2Vy",
+            "GC8gASgFEhsKE21lbGVlQmFzZUF0dGFja1RpbWUYMCABKAUSHAoUcmFuZ2Vk",
+            "QmFzZUF0dGFja1RpbWUYMSABKAUSFAoMZGFtYWdlU2Nob29sGDIgASgNEhMK",
+            "C21pbkxvb3RHb2xkGDMgASgFEhMKC21heExvb3RHb2xkGDQgASgFEg4KBmxv",
+            "b3RJZBg1IAEoBRIYChBwaWNrcG9ja2V0TG9vdElkGDYgASgFEhYKDnNraW5u",
+            "aW5nTG9vdElkGDcgASgFEhMKC2tpbGxDcmVkaXQxGDggASgFEhMKC2tpbGxD",
+            "cmVkaXQyGDkgASgFEhoKEm1lY2hhbmljSW1tdW5lTWFzaxg6IAEoBRIYChBz",
+            "Y2hvb2xJbW11bmVNYXNrGDsgASgFEkAKC3Jlc2lzdGFuY2VzGDwgAygLMisu",
+            "ZGF0YWJhc2UuQ3JlYXR1cmVUZW1wbGF0ZS5SZXNpc3RhbmNlc0VudHJ5EhYK",
+            "DnBldFNwZWxsRGF0YUlkGEIgASgFEhQKDG1vdmVtZW50VHlwZRhDIAEoDRIT",
+            "Cgt0cmFpbmVyVHlwZRhEIAEoDRIUCgx0cmFpbmVyU3BlbGwYRSABKAUSFAoM",
+            "dHJhaW5lckNsYXNzGEYgASgNEhMKC3RyYWluZXJSYWNlGEcgASgNEhkKEXRy",
+            "YWluZXJUZW1wbGF0ZUlkGEggASgFEhgKEHZlbmRvclRlbXBsYXRlSWQYSSAB",
+            "KAUSFAoMZ29zc2lwTWVudUlkGEogASgFEh0KFWludGVyYWN0aW9uUGF1c2VU",
+            "aW1lchhLIAEoBRIeChZ2aXNpYmlsaXR5RGlzdGFuY2VUeXBlGEwgASgNEhMK",
+            "C2NvcnBzZURlY2F5GE0gASgFEhEKCXNwZWxsTGlzdBhOIAEoBRIbChNlcXVp",
+            "cG1lbnRUZW1wbGF0ZUlkGE8gASgFEhAKCGNpdmlsaWFuGFAgASgNEg4KBmFp",
+            "TmFtZRhRIAEoCRISCgpzY3JpcHROYW1lGFIgASgJGjIKEFJlc2lzdGFuY2Vz",
+            "RW50cnkSCwoDa2V5GAEgASgNEg0KBXZhbHVlGAIgASgNOgI4ASKiAgoKR2Ft",
+            "ZU9iamVjdBIMCgRndWlkGAEgASgDEgoKAmlkGAIgASgFEgsKA21hcBgDIAEo",
+            "BRIRCglzcGF3bk1hc2sYBCABKA0SIAoIcG9zaXRpb24YBSABKAsyDi5nYW1l",
+            "LlBvc2l0aW9uEhMKC29yaWVudGF0aW9uGAYgASgCEhEKCXJvdGF0aW9uMBgH",
+            "IAEoAhIRCglyb3RhdGlvbjEYCCABKAISEQoJcm90YXRpb24yGAkgASgCEhEK",
+            "CXJvdGF0aW9uMxgKIAEoAhIYChBzcGF3blRpbWVTZWNzTWluGAsgASgFEhgK",
+            "EHNwYXduVGltZVNlY3NNYXgYDCABKAUSFAoMYW5pbVByb2dyZXNzGA0gASgN",
+            "Eg0KBXN0YXRlGA4gASgNIuISCgxJdGVtVGVtcGxhdGUSDQoFZW50cnkYASAB",
+            "KAUSDQoFcGF0Y2gYAiABKAUSDQoFY2xhc3MYAyABKAUSEAoIc3ViY2xhc3MY",
+            "BCABKAUSDAoEbmFtZRgFIAEoCRIRCglkaXNwbGF5SWQYBiABKAUSDwoHcXVh",
+            "bGl0eRgHIAEoBRINCgVmbGFncxgIIAEoBRIQCghidXlDb3VudBgJIAEoBRIQ",
+            "CghidXlQcmljZRgKIAEoBRIRCglzZWxsUHJpY2UYCyABKAUSFQoNaW52ZW50",
+            "b3J5VHlwZRgMIAEoBRIWCg5hbGxvd2FibGVDbGFzcxgNIAEoBRIVCg1hbGxv",
+            "d2FibGVSYWNlGA4gASgFEhEKCWl0ZW1MZXZlbBgPIAEoBRIVCg1yZXF1aXJl",
+            "ZExldmVsGBAgASgFEhUKDXJlcXVpcmVkU2tpbGwYESABKAUSGQoRcmVxdWly",
+            "ZWRTa2lsbFJhbmsYEiABKAUSFQoNcmVxdWlyZWRTcGVsbBgTIAEoBRIZChFy",
+            "ZXF1aXJlZEhvbm9yUmFuaxgUIAEoBRIYChByZXF1aXJlZENpdHlSYW5rGBUg",
+            "ASgFEiEKGXJlcXVpcmVkUmVwdXRhdGlvbkZhY3Rpb24YFiABKAUSHgoWcmVx",
+            "dWlyZWRSZXB1dGF0aW9uUmFuaxgXIAEoBRIQCghtYXhDb3VudBgYIAEoBRIR",
+            "CglzdGFja2FibGUYGSABKAUSFgoOY29udGFpbmVyU2xvdHMYGiABKAUSMAoF",
+            "c3RhdHMYGyADKAsyIS5kYXRhYmFzZS5JdGVtVGVtcGxhdGUuU3RhdHNFbnRy",
+            "eRIPCgdkbWdNaW4xGC8gASgCEg8KB2RtZ01heDEYMCABKAISEAoIZG1nVHlw",
+            "ZTEYMSABKAUSDwoHZG1nTWluMhgyIAEoAhIPCgdkbWdNYXgyGDMgASgCEhAK",
+            "CGRtZ1R5cGUyGDQgASgFEg8KB2RtZ01pbjMYNSABKAISDwoHZG1nTWF4Mxg2",
+            "IAEoAhIQCghkbWdUeXBlMxg3IAEoBRIPCgdkbWdNaW40GDggASgCEg8KB2Rt",
+            "Z01heDQYOSABKAISEAoIZG1nVHlwZTQYOiABKAUSDwoHZG1nTWluNRg7IAEo",
+            "AhIPCgdkbWdNYXg1GDwgASgCEhAKCGRtZ1R5cGU1GD0gASgFEg0KBWFybW9y",
+            "GD4gASgFEjwKC3Jlc2lzdGFuY2VzGD8gAygLMicuZGF0YWJhc2UuSXRlbVRl",
+            "bXBsYXRlLlJlc2lzdGFuY2VzRW50cnkSDQoFZGVsYXkYRSABKAUSEAoIYW1t",
             "b1R5cGUYRiABKAUSFgoOcmFuZ2VkTW9kUmFuZ2UYRyABKAISEAoIc3BlbGxJ",
             "ZDEYSCABKAUSFQoNc3BlbGxUcmlnZ2VyMRhJIAEoBRIVCg1zcGVsbENoYXJn",
             "ZXMxGEogASgFEhUKDXNwZWxsUHBtUmF0ZTEYSyABKAISFgoOc3BlbGxDb29s",
@@ -183,101 +170,103 @@ namespace Database {
             "aXB0TmFtZRh7IAEoCRIUCgxkaXNlbmNoYW50SUQYfCABKAUSEAoIZm9vZFR5",
             "cGUYfSABKAUSFAoMbWluTW9uZXlMb290GH4gASgFEhQKDG1heE1vbmV5TG9v",
             "dBh/IAEoBRIRCghkdXJhdGlvbhiAASABKAUSEwoKZXh0cmFGbGFncxiBASAB",
-            "KAUSFwoOb3RoZXJUZWFtRW50cnkYggEgASgFIoYBCg5OcGNWZW5kb3JFbnRy",
-            "eRINCgVlbnRyeRgBIAEoBRIMCgRpdGVtGAIgASgFEhAKCG1heENvdW50GAMg",
-            "ASgFEhAKCGluY3JUaW1lGAQgASgFEgwKBHNsb3QYBSABKAUSEwoLY29uZGl0",
-            "aW9uSWQYBiABKAUSEAoIY29tbWVudHMYByABKAkizBgKDVF1ZXN0VGVtcGxh",
-            "dGUSDQoFZW50cnkYASABKAUSDgoGbWV0aG9kGAIgASgFEhIKCnpvbmVPclNv",
-            "cnQYAyABKAUSEAoIbWluTGV2ZWwYBCABKAUSEAoIbWF4TGV2ZWwYBSABKAUS",
-            "EgoKcXVlc3RMZXZlbBgGIAEoBRIMCgR0eXBlGAcgASgFEhcKD3JlcXVpcmVk",
-            "Q2xhc3NlcxgIIAEoBRIVCg1yZXF1aXJlZFJhY2VzGAkgASgFEhUKDXJlcXVp",
-            "cmVkU2tpbGwYCiABKAUSGgoScmVxdWlyZWRTa2lsbFZhbHVlGAsgASgFEhkK",
-            "EXJlcXVpcmVkQ29uZGl0aW9uGAwgASgFEhsKE3JlcE9iamVjdGl2ZUZhY3Rp",
-            "b24YDSABKAUSGQoRcmVwT2JqZWN0aXZlVmFsdWUYDiABKAUSHQoVcmVxdWly",
-            "ZWRNaW5SZXBGYWN0aW9uGA8gASgFEhsKE3JlcXVpcmVkTWluUmVwVmFsdWUY",
-            "ECABKAUSHQoVcmVxdWlyZWRNYXhSZXBGYWN0aW9uGBEgASgFEhsKE3JlcXVp",
-            "cmVkTWF4UmVwVmFsdWUYEiABKAUSGAoQc3VnZ2VzdGVkUGxheWVycxgTIAEo",
-            "BRIRCglsaW1pdFRpbWUYFCABKAUSEgoKcXVlc3RGbGFncxgVIAEoBRIUCgxz",
-            "cGVjaWFsRmxhZ3MYFiABKAUSEwoLcHJldlF1ZXN0SWQYFyABKAUSEwoLbmV4",
-            "dFF1ZXN0SWQYGCABKAUSFgoOZXhjbHVzaXZlR3JvdXAYGSABKAUSHAoUYnJl",
-            "YWRjcnVtYkZvclF1ZXN0SWQYGiABKAUSGAoQbmV4dFF1ZXN0SW5DaGFpbhgb",
-            "IAEoBRIRCglzcmNJdGVtSWQYHCABKAUSFAoMc3JjSXRlbUNvdW50GB0gASgF",
-            "EhAKCHNyY1NwZWxsGB4gASgFEg0KBXRpdGxlGB8gASgJEg8KB2RldGFpbHMY",
-            "ICABKAkSEgoKb2JqZWN0aXZlcxghIAEoCRIXCg9vZmZlclJld2FyZFRleHQY",
-            "IiABKAkSGAoQcmVxdWVzdEl0ZW1zVGV4dBgjIAEoCRIPCgdlbmRUZXh0GCQg",
-            "ASgJEhYKDm9iamVjdGl2ZVRleHQxGCUgASgJEhYKDm9iamVjdGl2ZVRleHQy",
-            "GCYgASgJEhYKDm9iamVjdGl2ZVRleHQzGCcgASgJEhYKDm9iamVjdGl2ZVRl",
-            "eHQ0GCggASgJEhIKCnJlcUl0ZW1JZDEYKSABKAUSEgoKcmVxSXRlbUlkMhgq",
-            "IAEoBRISCgpyZXFJdGVtSWQzGCsgASgFEhIKCnJlcUl0ZW1JZDQYLCABKAUS",
-            "FQoNcmVxSXRlbUNvdW50MRgtIAEoBRIVCg1yZXFJdGVtQ291bnQyGC4gASgF",
-            "EhUKDXJlcUl0ZW1Db3VudDMYLyABKAUSFQoNcmVxSXRlbUNvdW50NBgwIAEo",
-            "BRIUCgxyZXFTb3VyY2VJZDEYMSABKAUSFAoMcmVxU291cmNlSWQyGDIgASgF",
-            "EhQKDHJlcVNvdXJjZUlkMxgzIAEoBRIUCgxyZXFTb3VyY2VJZDQYNCABKAUS",
-            "FwoPcmVxU291cmNlQ291bnQxGDUgASgFEhcKD3JlcVNvdXJjZUNvdW50Mhg2",
-            "IAEoBRIXCg9yZXFTb3VyY2VDb3VudDMYNyABKAUSFwoPcmVxU291cmNlQ291",
-            "bnQ0GDggASgFEhoKEnJlcUNyZWF0dXJlT3JHT0lkMRg5IAEoBRIaChJyZXFD",
-            "cmVhdHVyZU9yR09JZDIYOiABKAUSGgoScmVxQ3JlYXR1cmVPckdPSWQzGDsg",
-            "ASgFEhoKEnJlcUNyZWF0dXJlT3JHT0lkNBg8IAEoBRIdChVyZXFDcmVhdHVy",
-            "ZU9yR09Db3VudDEYPSABKAUSHQoVcmVxQ3JlYXR1cmVPckdPQ291bnQyGD4g",
-            "ASgFEh0KFXJlcUNyZWF0dXJlT3JHT0NvdW50Mxg/IAEoBRIdChVyZXFDcmVh",
-            "dHVyZU9yR09Db3VudDQYQCABKAUSFQoNcmVxU3BlbGxDYXN0MRhBIAEoBRIV",
-            "Cg1yZXFTcGVsbENhc3QyGEIgASgFEhUKDXJlcVNwZWxsQ2FzdDMYQyABKAUS",
-            "FQoNcmVxU3BlbGxDYXN0NBhEIAEoBRIYChByZXdDaG9pY2VJdGVtSWQxGEUg",
-            "ASgDEhgKEHJld0Nob2ljZUl0ZW1JZDIYRiABKAMSGAoQcmV3Q2hvaWNlSXRl",
-            "bUlkMxhHIAEoAxIYChByZXdDaG9pY2VJdGVtSWQ0GEggASgDEhgKEHJld0No",
-            "b2ljZUl0ZW1JZDUYSSABKAMSGAoQcmV3Q2hvaWNlSXRlbUlkNhhKIAEoAxIb",
-            "ChNyZXdDaG9pY2VJdGVtQ291bnQxGEsgASgFEhsKE3Jld0Nob2ljZUl0ZW1D",
-            "b3VudDIYTCABKAUSGwoTcmV3Q2hvaWNlSXRlbUNvdW50MxhNIAEoBRIbChNy",
-            "ZXdDaG9pY2VJdGVtQ291bnQ0GE4gASgFEhsKE3Jld0Nob2ljZUl0ZW1Db3Vu",
-            "dDUYTyABKAUSGwoTcmV3Q2hvaWNlSXRlbUNvdW50NhhQIAEoBRISCgpyZXdJ",
-            "dGVtSWQxGFEgASgFEhIKCnJld0l0ZW1JZDIYUiABKAUSEgoKcmV3SXRlbUlk",
-            "MxhTIAEoBRISCgpyZXdJdGVtSWQ0GFQgASgFEhUKDXJld0l0ZW1Db3VudDEY",
-            "VSABKAUSFQoNcmV3SXRlbUNvdW50MhhWIAEoBRIVCg1yZXdJdGVtQ291bnQz",
-            "GFcgASgFEhUKDXJld0l0ZW1Db3VudDQYWCABKAUSFgoOcmV3UmVwRmFjdGlv",
-            "bjEYWSABKAUSFgoOcmV3UmVwRmFjdGlvbjIYWiABKAUSFgoOcmV3UmVwRmFj",
-            "dGlvbjMYWyABKAUSFgoOcmV3UmVwRmFjdGlvbjQYXCABKAUSFgoOcmV3UmVw",
-            "RmFjdGlvbjUYXSABKAUSFAoMcmV3UmVwVmFsdWUxGF4gASgFEhQKDHJld1Jl",
-            "cFZhbHVlMhhfIAEoBRIUCgxyZXdSZXBWYWx1ZTMYYCABKAUSFAoMcmV3UmVw",
-            "VmFsdWU0GGEgASgFEhQKDHJld1JlcFZhbHVlNRhiIAEoBRIVCg1yZXdPclJl",
-            "cU1vbmV5GGMgASgFEhgKEHJld01vbmV5TWF4TGV2ZWwYZCABKA0SEAoIcmV3",
-            "U3BlbGwYZSABKAUSFAoMcmV3U3BlbGxDYXN0GGYgASgFEhkKEXJld01haWxU",
-            "ZW1wbGF0ZUlkGGcgASgFEhgKEHJld01haWxEZWxheVNlY3MYaCABKA0SEgoK",
-            "cG9pbnRNYXBJZBhpIAEoBRIOCgZwb2ludFgYaiABKAISDgoGcG9pbnRZGGsg",
-            "ASgCEhAKCHBvaW50T3B0GGwgASgNEhUKDWRldGFpbHNFbW90ZTEYbSABKAUS",
-            "FQoNZGV0YWlsc0Vtb3RlMhhuIAEoBRIVCg1kZXRhaWxzRW1vdGUzGG8gASgF",
-            "EhUKDWRldGFpbHNFbW90ZTQYcCABKAUSGgoSZGV0YWlsc0Vtb3RlRGVsYXkx",
-            "GHEgASgFEhoKEmRldGFpbHNFbW90ZURlbGF5MhhyIAEoBRIaChJkZXRhaWxz",
-            "RW1vdGVEZWxheTMYcyABKAUSGgoSZGV0YWlsc0Vtb3RlRGVsYXk0GHQgASgF",
-            "EhcKD2luY29tcGxldGVFbW90ZRh1IAEoBRIcChRpbmNvbXBsZXRlRW1vdGVE",
-            "ZWxheRh2IAEoBRIVCg1jb21wbGV0ZUVtb3RlGHcgASgFEhoKEmNvbXBsZXRl",
-            "RW1vdGVEZWxheRh4IAEoBRIZChFvZmZlclJld2FyZEVtb3RlMRh5IAEoBRIZ",
-            "ChFvZmZlclJld2FyZEVtb3RlMhh6IAEoBRIZChFvZmZlclJld2FyZEVtb3Rl",
-            "Mxh7IAEoBRIZChFvZmZlclJld2FyZEVtb3RlNBh8IAEoBRIeChZvZmZlclJl",
-            "d2FyZEVtb3RlRGVsYXkxGH0gASgFEh4KFm9mZmVyUmV3YXJkRW1vdGVEZWxh",
-            "eTIYfiABKAUSHgoWb2ZmZXJSZXdhcmRFbW90ZURlbGF5Mxh/IAEoBRIfChZv",
-            "ZmZlclJld2FyZEVtb3RlRGVsYXk0GIABIAEoBRIUCgtzdGFydFNjcmlwdBiB",
-            "ASABKAUSFwoOY29tcGxldGVTY3JpcHQYggEgASgFKs4BCglRdWVyeVR5cGUS",
-            "DwoLR2V0SXRlbUJ5SWQQABIdChlHZXRDcmVhdHVyZU1vdmVtZW50QnlHdWlk",
-            "EAESIwofR2V0Q3JlYXR1cmVHcm91cGluZ0J5TWVtYmVyR3VpZBACEhsKF0dl",
-            "dENyZWF0dXJlVGVtcGxhdGVCeUlkEAMSFAoQR2V0Q3JlYXR1cmVzQnlJZBAE",
-            "EhcKE0dldENyZWF0dXJlc0J5TWFwSWQQBRIgChxHZXRDcmVhdHVyZUVxdWlw",
-            "VGVtcGxhdGVCeUlkEAZiBnByb3RvMw=="));
+            "KAUSFwoOb3RoZXJUZWFtRW50cnkYggEgASgFGiwKClN0YXRzRW50cnkSCwoD",
+            "a2V5GAEgASgNEg0KBXZhbHVlGAIgASgNOgI4ARoyChBSZXNpc3RhbmNlc0Vu",
+            "dHJ5EgsKA2tleRgBIAEoDRINCgV2YWx1ZRgCIAEoDToCOAEihgEKDk5wY1Zl",
+            "bmRvckVudHJ5Eg0KBWVudHJ5GAEgASgFEgwKBGl0ZW0YAiABKAUSEAoIbWF4",
+            "Q291bnQYAyABKAUSEAoIaW5jclRpbWUYBCABKAUSDAoEc2xvdBgFIAEoBRIT",
+            "Cgtjb25kaXRpb25JZBgGIAEoBRIQCghjb21tZW50cxgHIAEoCSLMGAoNUXVl",
+            "c3RUZW1wbGF0ZRINCgVlbnRyeRgBIAEoBRIOCgZtZXRob2QYAiABKAUSEgoK",
+            "em9uZU9yU29ydBgDIAEoBRIQCghtaW5MZXZlbBgEIAEoBRIQCghtYXhMZXZl",
+            "bBgFIAEoBRISCgpxdWVzdExldmVsGAYgASgFEgwKBHR5cGUYByABKAUSFwoP",
+            "cmVxdWlyZWRDbGFzc2VzGAggASgFEhUKDXJlcXVpcmVkUmFjZXMYCSABKAUS",
+            "FQoNcmVxdWlyZWRTa2lsbBgKIAEoBRIaChJyZXF1aXJlZFNraWxsVmFsdWUY",
+            "CyABKAUSGQoRcmVxdWlyZWRDb25kaXRpb24YDCABKAUSGwoTcmVwT2JqZWN0",
+            "aXZlRmFjdGlvbhgNIAEoBRIZChFyZXBPYmplY3RpdmVWYWx1ZRgOIAEoBRId",
+            "ChVyZXF1aXJlZE1pblJlcEZhY3Rpb24YDyABKAUSGwoTcmVxdWlyZWRNaW5S",
+            "ZXBWYWx1ZRgQIAEoBRIdChVyZXF1aXJlZE1heFJlcEZhY3Rpb24YESABKAUS",
+            "GwoTcmVxdWlyZWRNYXhSZXBWYWx1ZRgSIAEoBRIYChBzdWdnZXN0ZWRQbGF5",
+            "ZXJzGBMgASgFEhEKCWxpbWl0VGltZRgUIAEoBRISCgpxdWVzdEZsYWdzGBUg",
+            "ASgFEhQKDHNwZWNpYWxGbGFncxgWIAEoBRITCgtwcmV2UXVlc3RJZBgXIAEo",
+            "BRITCgtuZXh0UXVlc3RJZBgYIAEoBRIWCg5leGNsdXNpdmVHcm91cBgZIAEo",
+            "BRIcChRicmVhZGNydW1iRm9yUXVlc3RJZBgaIAEoBRIYChBuZXh0UXVlc3RJ",
+            "bkNoYWluGBsgASgFEhEKCXNyY0l0ZW1JZBgcIAEoBRIUCgxzcmNJdGVtQ291",
+            "bnQYHSABKAUSEAoIc3JjU3BlbGwYHiABKAUSDQoFdGl0bGUYHyABKAkSDwoH",
+            "ZGV0YWlscxggIAEoCRISCgpvYmplY3RpdmVzGCEgASgJEhcKD29mZmVyUmV3",
+            "YXJkVGV4dBgiIAEoCRIYChByZXF1ZXN0SXRlbXNUZXh0GCMgASgJEg8KB2Vu",
+            "ZFRleHQYJCABKAkSFgoOb2JqZWN0aXZlVGV4dDEYJSABKAkSFgoOb2JqZWN0",
+            "aXZlVGV4dDIYJiABKAkSFgoOb2JqZWN0aXZlVGV4dDMYJyABKAkSFgoOb2Jq",
+            "ZWN0aXZlVGV4dDQYKCABKAkSEgoKcmVxSXRlbUlkMRgpIAEoBRISCgpyZXFJ",
+            "dGVtSWQyGCogASgFEhIKCnJlcUl0ZW1JZDMYKyABKAUSEgoKcmVxSXRlbUlk",
+            "NBgsIAEoBRIVCg1yZXFJdGVtQ291bnQxGC0gASgFEhUKDXJlcUl0ZW1Db3Vu",
+            "dDIYLiABKAUSFQoNcmVxSXRlbUNvdW50MxgvIAEoBRIVCg1yZXFJdGVtQ291",
+            "bnQ0GDAgASgFEhQKDHJlcVNvdXJjZUlkMRgxIAEoBRIUCgxyZXFTb3VyY2VJ",
+            "ZDIYMiABKAUSFAoMcmVxU291cmNlSWQzGDMgASgFEhQKDHJlcVNvdXJjZUlk",
+            "NBg0IAEoBRIXCg9yZXFTb3VyY2VDb3VudDEYNSABKAUSFwoPcmVxU291cmNl",
+            "Q291bnQyGDYgASgFEhcKD3JlcVNvdXJjZUNvdW50Mxg3IAEoBRIXCg9yZXFT",
+            "b3VyY2VDb3VudDQYOCABKAUSGgoScmVxQ3JlYXR1cmVPckdPSWQxGDkgASgF",
+            "EhoKEnJlcUNyZWF0dXJlT3JHT0lkMhg6IAEoBRIaChJyZXFDcmVhdHVyZU9y",
+            "R09JZDMYOyABKAUSGgoScmVxQ3JlYXR1cmVPckdPSWQ0GDwgASgFEh0KFXJl",
+            "cUNyZWF0dXJlT3JHT0NvdW50MRg9IAEoBRIdChVyZXFDcmVhdHVyZU9yR09D",
+            "b3VudDIYPiABKAUSHQoVcmVxQ3JlYXR1cmVPckdPQ291bnQzGD8gASgFEh0K",
+            "FXJlcUNyZWF0dXJlT3JHT0NvdW50NBhAIAEoBRIVCg1yZXFTcGVsbENhc3Qx",
+            "GEEgASgFEhUKDXJlcVNwZWxsQ2FzdDIYQiABKAUSFQoNcmVxU3BlbGxDYXN0",
+            "MxhDIAEoBRIVCg1yZXFTcGVsbENhc3Q0GEQgASgFEhgKEHJhd0Nob2ljZUl0",
+            "ZW1JZDEYRSABKAUSGAoQcmF3Q2hvaWNlSXRlbUlkMhhGIAEoBRIYChByYXdD",
+            "aG9pY2VJdGVtSWQzGEcgASgFEhgKEHJhd0Nob2ljZUl0ZW1JZDQYSCABKAUS",
+            "GAoQcmF3Q2hvaWNlSXRlbUlkNRhJIAEoBRIYChByYXdDaG9pY2VJdGVtSWQ2",
+            "GEogASgFEhsKE3Jhd0Nob2ljZUl0ZW1Db3VudDEYSyABKAUSGwoTcmF3Q2hv",
+            "aWNlSXRlbUNvdW50MhhMIAEoBRIbChNyYXdDaG9pY2VJdGVtQ291bnQzGE0g",
+            "ASgFEhsKE3Jhd0Nob2ljZUl0ZW1Db3VudDQYTiABKAUSGwoTcmF3Q2hvaWNl",
+            "SXRlbUNvdW50NRhPIAEoBRIbChNyYXdDaG9pY2VJdGVtQ291bnQ2GFAgASgF",
+            "EhIKCnJhd0l0ZW1JZDEYUSABKAUSEgoKcmF3SXRlbUlkMhhSIAEoBRISCgpy",
+            "YXdJdGVtSWQzGFMgASgFEhIKCnJhd0l0ZW1JZDQYVCABKAUSFQoNcmF3SXRl",
+            "bUNvdW50MRhVIAEoBRIVCg1yYXdJdGVtQ291bnQyGFYgASgFEhUKDXJhd0l0",
+            "ZW1Db3VudDMYVyABKAUSFQoNcmF3SXRlbUNvdW50NBhYIAEoBRIWCg5yYXdS",
+            "ZXBGYWN0aW9uMRhZIAEoBRIWCg5yYXdSZXBGYWN0aW9uMhhaIAEoBRIWCg5y",
+            "YXdSZXBGYWN0aW9uMxhbIAEoBRIWCg5yYXdSZXBGYWN0aW9uNBhcIAEoBRIW",
+            "Cg5yYXdSZXBGYWN0aW9uNRhdIAEoBRIUCgxyYXdSZXBWYWx1ZTEYXiABKAUS",
+            "FAoMcmF3UmVwVmFsdWUyGF8gASgFEhQKDHJhd1JlcFZhbHVlMxhgIAEoBRIU",
+            "CgxyYXdSZXBWYWx1ZTQYYSABKAUSFAoMcmF3UmVwVmFsdWU1GGIgASgFEhUK",
+            "DXJhd09yUmVxTW9uZXkYYyABKAUSGAoQcmF3TW9uZXlNYXhMZXZlbBhkIAEo",
+            "DRIQCghyYXdTcGVsbBhlIAEoBRIUCgxyYXdTcGVsbENhc3QYZiABKAUSGQoR",
+            "cmF3TWFpbFRlbXBsYXRlSWQYZyABKAUSGAoQcmF3TWFpbERlbGF5U2Vjcxho",
+            "IAEoDRISCgpwb2ludE1hcElkGGkgASgFEg4KBnBvaW50WBhqIAEoAhIOCgZw",
+            "b2ludFkYayABKAISEAoIcG9pbnRPcHQYbCABKA0SFQoNZGV0YWlsc0Vtb3Rl",
+            "MRhtIAEoBRIVCg1kZXRhaWxzRW1vdGUyGG4gASgFEhUKDWRldGFpbHNFbW90",
+            "ZTMYbyABKAUSFQoNZGV0YWlsc0Vtb3RlNBhwIAEoBRIaChJkZXRhaWxzRW1v",
+            "dGVEZWxheTEYcSABKAUSGgoSZGV0YWlsc0Vtb3RlRGVsYXkyGHIgASgFEhoK",
+            "EmRldGFpbHNFbW90ZURlbGF5MxhzIAEoBRIaChJkZXRhaWxzRW1vdGVEZWxh",
+            "eTQYdCABKAUSFwoPaW5jb21wbGV0ZUVtb3RlGHUgASgFEhwKFGluY29tcGxl",
+            "dGVFbW90ZURlbGF5GHYgASgFEhUKDWNvbXBsZXRlRW1vdGUYdyABKAUSGgoS",
+            "Y29tcGxldGVFbW90ZURlbGF5GHggASgFEhkKEW9mZmVyUmV3YXJkRW1vdGUx",
+            "GHkgASgFEhkKEW9mZmVyUmV3YXJkRW1vdGUyGHogASgFEhkKEW9mZmVyUmV3",
+            "YXJkRW1vdGUzGHsgASgFEhkKEW9mZmVyUmV3YXJkRW1vdGU0GHwgASgFEh4K",
+            "Fm9mZmVyUmV3YXJkRW1vdGVEZWxheTEYfSABKAUSHgoWb2ZmZXJSZXdhcmRF",
+            "bW90ZURlbGF5Mhh+IAEoBRIeChZvZmZlclJld2FyZEVtb3RlRGVsYXkzGH8g",
+            "ASgFEh8KFm9mZmVyUmV3YXJkRW1vdGVEZWxheTQYgAEgASgFEhQKC3N0YXJ0",
+            "U2NyaXB0GIEBIAEoBRIXCg5jb21wbGV0ZVNjcmlwdBiCASABKAUqzgEKCVF1",
+            "ZXJ5VHlwZRIPCgtHZXRJdGVtQnlJZBAAEh0KGUdldENyZWF0dXJlTW92ZW1l",
+            "bnRCeUd1aWQQARIjCh9HZXRDcmVhdHVyZUdyb3VwaW5nQnlNZW1iZXJHdWlk",
+            "EAISGwoXR2V0Q3JlYXR1cmVUZW1wbGF0ZUJ5SWQQAxIUChBHZXRDcmVhdHVy",
+            "ZXNCeUlkEAQSFwoTR2V0Q3JlYXR1cmVzQnlNYXBJZBAFEiAKHEdldENyZWF0",
+            "dXJlRXF1aXBUZW1wbGF0ZUJ5SWQQBmIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { },
+          new pbr::FileDescriptor[] { global::Game.GameReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Database.QueryType), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Database.DatabaseRequest), global::Database.DatabaseRequest.Parser, new[]{ "QueryType", "QueryParam1", "QueryParam2", "QueryParam3", "QueryParam4" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Database.DatabaseResponse), global::Database.DatabaseResponse.Parser, new[]{ "AreaTriggerTeleports", "CreatureGroupings", "CreatureMovement", "CreatureMovementTemplate", "GameObjects", "Creatures", "CreatureEquipTemplate", "ItemTemplate", "NpcVendorEntry", "QuestTemplate", "CreatureTemplate" }, new[]{ "CreatureEquipTemplate", "ItemTemplate", "NpcVendorEntry", "QuestTemplate", "CreatureTemplate" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Database.AreaTriggerTeleport), global::Database.AreaTriggerTeleport.Parser, new[]{ "Id", "Name", "RequiredLevel", "RequiredItem", "RequiredItem2", "RequiredQuestDone", "TargetMap", "TargetPositionX", "TargetPositionY", "TargetPositionZ", "TargetOrientation", "StatusFailedText", "ConditionId" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Database.Creature), global::Database.Creature.Parser, new[]{ "Guid", "Name", "Id", "Map", "ZoneId", "AreaId", "PositionX", "PositionY", "PositionZ", "Orientation", "SpawnTimeSecsMin", "SpawnTimeSecsMax", "SpawnDist", "CurrentWaypointId", "SpawnType", "RespawnTime", "MovementType", "WanderDistance", "SearchRange", "EquipmentId", "ScriptName", "Comments", "SpawnMask", "ModelId", "CurrentWaypoint", "CurHealth", "CurMana", "DeathState" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Database.AreaTriggerTeleport), global::Database.AreaTriggerTeleport.Parser, new[]{ "Id", "Name", "RequiredLevel", "RequiredItem", "RequiredItem2", "RequiredQuestDone", "TargetMap", "Position", "TargetOrientation", "StatusFailedText", "ConditionId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Database.Creature), global::Database.Creature.Parser, new[]{ "Guid", "Name", "Id", "Map", "ZoneId", "AreaId", "Position", "Orientation", "SpawnTimeSecsMin", "SpawnTimeSecsMax", "SpawnDist", "CurrentWaypointId", "SpawnType", "RespawnTime", "MovementType", "WanderDistance", "SearchRange", "EquipmentId", "ScriptName", "Comments", "SpawnMask", "ModelId", "CurrentWaypoint", "CurHealth", "CurMana", "DeathState" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Database.CreatureEquipTemplate), global::Database.CreatureEquipTemplate.Parser, new[]{ "Entry", "EquipEntry1", "EquipEntry2", "EquipEntry3" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Database.CreatureGrouping), global::Database.CreatureGrouping.Parser, new[]{ "LeaderGuid", "MemberGuid" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Database.CreatureMovement), global::Database.CreatureMovement.Parser, new[]{ "Id", "Point", "PositionX", "PositionY", "PositionZ", "Orientation", "WaitTime", "ScriptId", "Comment" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Database.CreatureMovementTemplate), global::Database.CreatureMovementTemplate.Parser, new[]{ "Entry", "PathId", "Point", "PositionX", "PositionY", "PositionZ", "Orientation", "WaitTime", "ScriptId", "Comment" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Database.CreatureTemplate), global::Database.CreatureTemplate.Parser, new[]{ "Entry", "Name", "SubName", "MinLevel", "MaxLevel", "ModelId1", "ModelId2", "ModelId3", "ModelId4", "Faction", "Scale", "Family", "CreatureType", "InhabitType", "RegenerateStats", "RacialLeader", "NpcFlags", "UnitFlags", "DynamicFlags", "ExtraFlags", "CreatureTypeFlags", "SpeedWalk", "SpeedRun", "Detection", "CallForHelp", "Pursuit", "Leash", "Timeout", "UnitClass", "Rank", "HealthMultiplier", "PowerMultiplier", "DamageMultiplier", "DamageVariance", "ArmorMultiplier", "ExperienceMultiplier", "MinLevelHealth", "MaxLevelHealth", "MinLevelMana", "MaxLevelMana", "MinMeleeDmg", "MaxMeleeDmg", "MinRangedDmg", "MaxRangedDmg", "Armor", "MeleeAttackPower", "RangedAttackPower", "MeleeBaseAttackTime", "RangedBaseAttackTime", "DamageSchool", "MinLootGold", "MaxLootGold", "LootId", "PickpocketLootId", "SkinningLootId", "KillCredit1", "KillCredit2", "MechanicImmuneMask", "SchoolImmuneMask", "ResistanceHoly", "ResistanceFire", "ResistanceNature", "ResistanceFrost", "ResistanceShadow", "ResistanceArcane", "PetSpellDataId", "MovementType", "TrainerType", "TrainerSpell", "TrainerClass", "TrainerRace", "TrainerTemplateId", "VendorTemplateId", "GossipMenuId", "InteractionPauseTimer", "VisibilityDistanceType", "CorpseDecay", "SpellList", "EquipmentTemplateId", "Civilian", "AiName", "ScriptName" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Database.GameObject), global::Database.GameObject.Parser, new[]{ "Guid", "Id", "Map", "SpawnMask", "PositionX", "PositionY", "PositionZ", "Orientation", "Rotation0", "Rotation1", "Rotation2", "Rotation3", "SpawnTimeSecsMin", "SpawnTimeSecsMax", "AnimProgress", "State" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Database.ItemTemplate), global::Database.ItemTemplate.Parser, new[]{ "Entry", "Patch", "Class", "Subclass", "Name", "DisplayId", "Quality", "Flags", "BuyCount", "BuyPrice", "SellPrice", "InventoryType", "AllowableClass", "AllowableRace", "ItemLevel", "RequiredLevel", "RequiredSkill", "RequiredSkillRank", "RequiredSpell", "RequiredHonorRank", "RequiredCityRank", "RequiredReputationFaction", "RequiredReputationRank", "MaxCount", "Stackable", "ContainerSlots", "StatType1", "StatValue1", "StatType2", "StatValue2", "StatType3", "StatValue3", "StatType4", "StatValue4", "StatType5", "StatValue5", "StatType6", "StatValue6", "StatType7", "StatValue7", "StatType8", "StatValue8", "StatType9", "StatValue9", "StatType10", "StatValue10", "DmgMin1", "DmgMax1", "DmgType1", "DmgMin2", "DmgMax2", "DmgType2", "DmgMin3", "DmgMax3", "DmgType3", "DmgMin4", "DmgMax4", "DmgType4", "DmgMin5", "DmgMax5", "DmgType5", "Armor", "HolyResistance", "FireResistance", "NatureResistance", "FrostResistance", "ShadowResistance", "ArcaneResistance", "Delay", "AmmoType", "RangedModRange", "SpellId1", "SpellTrigger1", "SpellCharges1", "SpellPpmRate1", "SpellCooldown1", "SpellCategory1", "SpellCategoryCooldown1", "SpellId2", "SpellTrigger2", "SpellCharges2", "SpellPpmRate2", "SpellCooldown2", "SpellCategory2", "SpellCategoryCooldown2", "SpellId3", "SpellTrigger3", "SpellCharges3", "SpellPpmRate3", "SpellCooldown3", "SpellCategory3", "SpellCategoryCooldown3", "SpellId4", "SpellTrigger4", "SpellCharges4", "SpellPpmRate4", "SpellCooldown4", "SpellCategory4", "SpellCategoryCooldown4", "SpellId5", "SpellTrigger5", "SpellCharges5", "SpellPpmRate5", "SpellCooldown5", "SpellCategory5", "SpellCategoryCooldown5", "Bonding", "Description", "PageText", "LanguageID", "PageMaterial", "StartQuest", "LockId", "Material", "Sheath", "RandomProperty", "Block", "ItemSet", "MaxDurability", "Area", "Map", "BagFamily", "ScriptName", "DisenchantID", "FoodType", "MinMoneyLoot", "MaxMoneyLoot", "Duration", "ExtraFlags", "OtherTeamEntry" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Database.CreatureMovement), global::Database.CreatureMovement.Parser, new[]{ "Id", "Point", "Position", "Orientation", "WaitTime", "ScriptId", "Comment" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Database.CreatureMovementTemplate), global::Database.CreatureMovementTemplate.Parser, new[]{ "Entry", "PathId", "Point", "Position", "Orientation", "WaitTime", "ScriptId", "Comment" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Database.CreatureTemplate), global::Database.CreatureTemplate.Parser, new[]{ "Entry", "Name", "SubName", "MinLevel", "MaxLevel", "ModelId1", "ModelId2", "ModelId3", "ModelId4", "Faction", "Scale", "Family", "CreatureType", "InhabitType", "RegenerateStats", "RacialLeader", "NpcFlags", "UnitFlags", "DynamicFlags", "ExtraFlags", "CreatureTypeFlags", "SpeedWalk", "SpeedRun", "Detection", "CallForHelp", "Pursuit", "Leash", "Timeout", "UnitClass", "Rank", "HealthMultiplier", "PowerMultiplier", "DamageMultiplier", "DamageVariance", "ArmorMultiplier", "ExperienceMultiplier", "MinLevelHealth", "MaxLevelHealth", "MinLevelMana", "MaxLevelMana", "MinMeleeDmg", "MaxMeleeDmg", "MinRangedDmg", "MaxRangedDmg", "Armor", "MeleeAttackPower", "RangedAttackPower", "MeleeBaseAttackTime", "RangedBaseAttackTime", "DamageSchool", "MinLootGold", "MaxLootGold", "LootId", "PickpocketLootId", "SkinningLootId", "KillCredit1", "KillCredit2", "MechanicImmuneMask", "SchoolImmuneMask", "Resistances", "PetSpellDataId", "MovementType", "TrainerType", "TrainerSpell", "TrainerClass", "TrainerRace", "TrainerTemplateId", "VendorTemplateId", "GossipMenuId", "InteractionPauseTimer", "VisibilityDistanceType", "CorpseDecay", "SpellList", "EquipmentTemplateId", "Civilian", "AiName", "ScriptName" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Database.GameObject), global::Database.GameObject.Parser, new[]{ "Guid", "Id", "Map", "SpawnMask", "Position", "Orientation", "Rotation0", "Rotation1", "Rotation2", "Rotation3", "SpawnTimeSecsMin", "SpawnTimeSecsMax", "AnimProgress", "State" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Database.ItemTemplate), global::Database.ItemTemplate.Parser, new[]{ "Entry", "Patch", "Class", "Subclass", "Name", "DisplayId", "Quality", "Flags", "BuyCount", "BuyPrice", "SellPrice", "InventoryType", "AllowableClass", "AllowableRace", "ItemLevel", "RequiredLevel", "RequiredSkill", "RequiredSkillRank", "RequiredSpell", "RequiredHonorRank", "RequiredCityRank", "RequiredReputationFaction", "RequiredReputationRank", "MaxCount", "Stackable", "ContainerSlots", "Stats", "DmgMin1", "DmgMax1", "DmgType1", "DmgMin2", "DmgMax2", "DmgType2", "DmgMin3", "DmgMax3", "DmgType3", "DmgMin4", "DmgMax4", "DmgType4", "DmgMin5", "DmgMax5", "DmgType5", "Armor", "Resistances", "Delay", "AmmoType", "RangedModRange", "SpellId1", "SpellTrigger1", "SpellCharges1", "SpellPpmRate1", "SpellCooldown1", "SpellCategory1", "SpellCategoryCooldown1", "SpellId2", "SpellTrigger2", "SpellCharges2", "SpellPpmRate2", "SpellCooldown2", "SpellCategory2", "SpellCategoryCooldown2", "SpellId3", "SpellTrigger3", "SpellCharges3", "SpellPpmRate3", "SpellCooldown3", "SpellCategory3", "SpellCategoryCooldown3", "SpellId4", "SpellTrigger4", "SpellCharges4", "SpellPpmRate4", "SpellCooldown4", "SpellCategory4", "SpellCategoryCooldown4", "SpellId5", "SpellTrigger5", "SpellCharges5", "SpellPpmRate5", "SpellCooldown5", "SpellCategory5", "SpellCategoryCooldown5", "Bonding", "Description", "PageText", "LanguageID", "PageMaterial", "StartQuest", "LockId", "Material", "Sheath", "RandomProperty", "Block", "ItemSet", "MaxDurability", "Area", "Map", "BagFamily", "ScriptName", "DisenchantID", "FoodType", "MinMoneyLoot", "MaxMoneyLoot", "Duration", "ExtraFlags", "OtherTeamEntry" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, null, }),
             new pbr::GeneratedClrTypeInfo(typeof(global::Database.NpcVendorEntry), global::Database.NpcVendorEntry.Parser, new[]{ "Entry", "Item", "MaxCount", "IncrTime", "Slot", "ConditionId", "Comments" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Database.QuestTemplate), global::Database.QuestTemplate.Parser, new[]{ "Entry", "Method", "ZoneOrSort", "MinLevel", "MaxLevel", "QuestLevel", "Type", "RequiredClasses", "RequiredRaces", "RequiredSkill", "RequiredSkillValue", "RequiredCondition", "RepObjectiveFaction", "RepObjectiveValue", "RequiredMinRepFaction", "RequiredMinRepValue", "RequiredMaxRepFaction", "RequiredMaxRepValue", "SuggestedPlayers", "LimitTime", "QuestFlags", "SpecialFlags", "PrevQuestId", "NextQuestId", "ExclusiveGroup", "BreadcrumbForQuestId", "NextQuestInChain", "SrcItemId", "SrcItemCount", "SrcSpell", "Title", "Details", "Objectives", "OfferRewardText", "RequestItemsText", "EndText", "ObjectiveText1", "ObjectiveText2", "ObjectiveText3", "ObjectiveText4", "ReqItemId1", "ReqItemId2", "ReqItemId3", "ReqItemId4", "ReqItemCount1", "ReqItemCount2", "ReqItemCount3", "ReqItemCount4", "ReqSourceId1", "ReqSourceId2", "ReqSourceId3", "ReqSourceId4", "ReqSourceCount1", "ReqSourceCount2", "ReqSourceCount3", "ReqSourceCount4", "ReqCreatureOrGOId1", "ReqCreatureOrGOId2", "ReqCreatureOrGOId3", "ReqCreatureOrGOId4", "ReqCreatureOrGOCount1", "ReqCreatureOrGOCount2", "ReqCreatureOrGOCount3", "ReqCreatureOrGOCount4", "ReqSpellCast1", "ReqSpellCast2", "ReqSpellCast3", "ReqSpellCast4", "RewChoiceItemId1", "RewChoiceItemId2", "RewChoiceItemId3", "RewChoiceItemId4", "RewChoiceItemId5", "RewChoiceItemId6", "RewChoiceItemCount1", "RewChoiceItemCount2", "RewChoiceItemCount3", "RewChoiceItemCount4", "RewChoiceItemCount5", "RewChoiceItemCount6", "RewItemId1", "RewItemId2", "RewItemId3", "RewItemId4", "RewItemCount1", "RewItemCount2", "RewItemCount3", "RewItemCount4", "RewRepFaction1", "RewRepFaction2", "RewRepFaction3", "RewRepFaction4", "RewRepFaction5", "RewRepValue1", "RewRepValue2", "RewRepValue3", "RewRepValue4", "RewRepValue5", "RewOrReqMoney", "RewMoneyMaxLevel", "RewSpell", "RewSpellCast", "RewMailTemplateId", "RewMailDelaySecs", "PointMapId", "PointX", "PointY", "PointOpt", "DetailsEmote1", "DetailsEmote2", "DetailsEmote3", "DetailsEmote4", "DetailsEmoteDelay1", "DetailsEmoteDelay2", "DetailsEmoteDelay3", "DetailsEmoteDelay4", "IncompleteEmote", "IncompleteEmoteDelay", "CompleteEmote", "CompleteEmoteDelay", "OfferRewardEmote1", "OfferRewardEmote2", "OfferRewardEmote3", "OfferRewardEmote4", "OfferRewardEmoteDelay1", "OfferRewardEmoteDelay2", "OfferRewardEmoteDelay3", "OfferRewardEmoteDelay4", "StartScript", "CompleteScript" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Database.QuestTemplate), global::Database.QuestTemplate.Parser, new[]{ "Entry", "Method", "ZoneOrSort", "MinLevel", "MaxLevel", "QuestLevel", "Type", "RequiredClasses", "RequiredRaces", "RequiredSkill", "RequiredSkillValue", "RequiredCondition", "RepObjectiveFaction", "RepObjectiveValue", "RequiredMinRepFaction", "RequiredMinRepValue", "RequiredMaxRepFaction", "RequiredMaxRepValue", "SuggestedPlayers", "LimitTime", "QuestFlags", "SpecialFlags", "PrevQuestId", "NextQuestId", "ExclusiveGroup", "BreadcrumbForQuestId", "NextQuestInChain", "SrcItemId", "SrcItemCount", "SrcSpell", "Title", "Details", "Objectives", "OfferRewardText", "RequestItemsText", "EndText", "ObjectiveText1", "ObjectiveText2", "ObjectiveText3", "ObjectiveText4", "ReqItemId1", "ReqItemId2", "ReqItemId3", "ReqItemId4", "ReqItemCount1", "ReqItemCount2", "ReqItemCount3", "ReqItemCount4", "ReqSourceId1", "ReqSourceId2", "ReqSourceId3", "ReqSourceId4", "ReqSourceCount1", "ReqSourceCount2", "ReqSourceCount3", "ReqSourceCount4", "ReqCreatureOrGOId1", "ReqCreatureOrGOId2", "ReqCreatureOrGOId3", "ReqCreatureOrGOId4", "ReqCreatureOrGOCount1", "ReqCreatureOrGOCount2", "ReqCreatureOrGOCount3", "ReqCreatureOrGOCount4", "ReqSpellCast1", "ReqSpellCast2", "ReqSpellCast3", "ReqSpellCast4", "RawChoiceItemId1", "RawChoiceItemId2", "RawChoiceItemId3", "RawChoiceItemId4", "RawChoiceItemId5", "RawChoiceItemId6", "RawChoiceItemCount1", "RawChoiceItemCount2", "RawChoiceItemCount3", "RawChoiceItemCount4", "RawChoiceItemCount5", "RawChoiceItemCount6", "RawItemId1", "RawItemId2", "RawItemId3", "RawItemId4", "RawItemCount1", "RawItemCount2", "RawItemCount3", "RawItemCount4", "RawRepFaction1", "RawRepFaction2", "RawRepFaction3", "RawRepFaction4", "RawRepFaction5", "RawRepValue1", "RawRepValue2", "RawRepValue3", "RawRepValue4", "RawRepValue5", "RawOrReqMoney", "RawMoneyMaxLevel", "RawSpell", "RawSpellCast", "RawMailTemplateId", "RawMailDelaySecs", "PointMapId", "PointX", "PointY", "PointOpt", "DetailsEmote1", "DetailsEmote2", "DetailsEmote3", "DetailsEmote4", "DetailsEmoteDelay1", "DetailsEmoteDelay2", "DetailsEmoteDelay3", "DetailsEmoteDelay4", "IncompleteEmote", "IncompleteEmoteDelay", "CompleteEmote", "CompleteEmoteDelay", "OfferRewardEmote1", "OfferRewardEmote2", "OfferRewardEmote3", "OfferRewardEmote4", "OfferRewardEmoteDelay1", "OfferRewardEmoteDelay2", "OfferRewardEmoteDelay3", "OfferRewardEmoteDelay4", "StartScript", "CompleteScript" }, null, null, null, null)
           }));
     }
     #endregion
@@ -1216,9 +1205,7 @@ namespace Database {
       requiredItem2_ = other.requiredItem2_;
       requiredQuestDone_ = other.requiredQuestDone_;
       targetMap_ = other.targetMap_;
-      targetPositionX_ = other.targetPositionX_;
-      targetPositionY_ = other.targetPositionY_;
-      targetPositionZ_ = other.targetPositionZ_;
+      position_ = other.position_ != null ? other.position_.Clone() : null;
       targetOrientation_ = other.targetOrientation_;
       statusFailedText_ = other.statusFailedText_;
       conditionId_ = other.conditionId_;
@@ -1315,44 +1302,20 @@ namespace Database {
       }
     }
 
-    /// <summary>Field number for the "targetPositionX" field.</summary>
-    public const int TargetPositionXFieldNumber = 8;
-    private float targetPositionX_;
+    /// <summary>Field number for the "position" field.</summary>
+    public const int PositionFieldNumber = 8;
+    private global::Game.Position position_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float TargetPositionX {
-      get { return targetPositionX_; }
+    public global::Game.Position Position {
+      get { return position_; }
       set {
-        targetPositionX_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "targetPositionY" field.</summary>
-    public const int TargetPositionYFieldNumber = 9;
-    private float targetPositionY_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float TargetPositionY {
-      get { return targetPositionY_; }
-      set {
-        targetPositionY_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "targetPositionZ" field.</summary>
-    public const int TargetPositionZFieldNumber = 10;
-    private float targetPositionZ_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float TargetPositionZ {
-      get { return targetPositionZ_; }
-      set {
-        targetPositionZ_ = value;
+        position_ = value;
       }
     }
 
     /// <summary>Field number for the "targetOrientation" field.</summary>
-    public const int TargetOrientationFieldNumber = 11;
+    public const int TargetOrientationFieldNumber = 9;
     private float targetOrientation_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -1364,7 +1327,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "statusFailedText" field.</summary>
-    public const int StatusFailedTextFieldNumber = 12;
+    public const int StatusFailedTextFieldNumber = 10;
     private string statusFailedText_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -1376,7 +1339,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "conditionId" field.</summary>
-    public const int ConditionIdFieldNumber = 13;
+    public const int ConditionIdFieldNumber = 11;
     private int conditionId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -1409,9 +1372,7 @@ namespace Database {
       if (RequiredItem2 != other.RequiredItem2) return false;
       if (RequiredQuestDone != other.RequiredQuestDone) return false;
       if (TargetMap != other.TargetMap) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(TargetPositionX, other.TargetPositionX)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(TargetPositionY, other.TargetPositionY)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(TargetPositionZ, other.TargetPositionZ)) return false;
+      if (!object.Equals(Position, other.Position)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(TargetOrientation, other.TargetOrientation)) return false;
       if (StatusFailedText != other.StatusFailedText) return false;
       if (ConditionId != other.ConditionId) return false;
@@ -1429,9 +1390,7 @@ namespace Database {
       if (RequiredItem2 != 0) hash ^= RequiredItem2.GetHashCode();
       if (RequiredQuestDone != 0) hash ^= RequiredQuestDone.GetHashCode();
       if (TargetMap != 0) hash ^= TargetMap.GetHashCode();
-      if (TargetPositionX != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(TargetPositionX);
-      if (TargetPositionY != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(TargetPositionY);
-      if (TargetPositionZ != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(TargetPositionZ);
+      if (position_ != null) hash ^= Position.GetHashCode();
       if (TargetOrientation != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(TargetOrientation);
       if (StatusFailedText.Length != 0) hash ^= StatusFailedText.GetHashCode();
       if (ConditionId != 0) hash ^= ConditionId.GetHashCode();
@@ -1481,28 +1440,20 @@ namespace Database {
         output.WriteRawTag(56);
         output.WriteUInt32(TargetMap);
       }
-      if (TargetPositionX != 0F) {
-        output.WriteRawTag(69);
-        output.WriteFloat(TargetPositionX);
-      }
-      if (TargetPositionY != 0F) {
-        output.WriteRawTag(77);
-        output.WriteFloat(TargetPositionY);
-      }
-      if (TargetPositionZ != 0F) {
-        output.WriteRawTag(85);
-        output.WriteFloat(TargetPositionZ);
+      if (position_ != null) {
+        output.WriteRawTag(66);
+        output.WriteMessage(Position);
       }
       if (TargetOrientation != 0F) {
-        output.WriteRawTag(93);
+        output.WriteRawTag(77);
         output.WriteFloat(TargetOrientation);
       }
       if (StatusFailedText.Length != 0) {
-        output.WriteRawTag(98);
+        output.WriteRawTag(82);
         output.WriteString(StatusFailedText);
       }
       if (ConditionId != 0) {
-        output.WriteRawTag(104);
+        output.WriteRawTag(88);
         output.WriteInt32(ConditionId);
       }
       if (_unknownFields != null) {
@@ -1543,28 +1494,20 @@ namespace Database {
         output.WriteRawTag(56);
         output.WriteUInt32(TargetMap);
       }
-      if (TargetPositionX != 0F) {
-        output.WriteRawTag(69);
-        output.WriteFloat(TargetPositionX);
-      }
-      if (TargetPositionY != 0F) {
-        output.WriteRawTag(77);
-        output.WriteFloat(TargetPositionY);
-      }
-      if (TargetPositionZ != 0F) {
-        output.WriteRawTag(85);
-        output.WriteFloat(TargetPositionZ);
+      if (position_ != null) {
+        output.WriteRawTag(66);
+        output.WriteMessage(Position);
       }
       if (TargetOrientation != 0F) {
-        output.WriteRawTag(93);
+        output.WriteRawTag(77);
         output.WriteFloat(TargetOrientation);
       }
       if (StatusFailedText.Length != 0) {
-        output.WriteRawTag(98);
+        output.WriteRawTag(82);
         output.WriteString(StatusFailedText);
       }
       if (ConditionId != 0) {
-        output.WriteRawTag(104);
+        output.WriteRawTag(88);
         output.WriteInt32(ConditionId);
       }
       if (_unknownFields != null) {
@@ -1598,14 +1541,8 @@ namespace Database {
       if (TargetMap != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(TargetMap);
       }
-      if (TargetPositionX != 0F) {
-        size += 1 + 4;
-      }
-      if (TargetPositionY != 0F) {
-        size += 1 + 4;
-      }
-      if (TargetPositionZ != 0F) {
-        size += 1 + 4;
+      if (position_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Position);
       }
       if (TargetOrientation != 0F) {
         size += 1 + 4;
@@ -1649,14 +1586,11 @@ namespace Database {
       if (other.TargetMap != 0) {
         TargetMap = other.TargetMap;
       }
-      if (other.TargetPositionX != 0F) {
-        TargetPositionX = other.TargetPositionX;
-      }
-      if (other.TargetPositionY != 0F) {
-        TargetPositionY = other.TargetPositionY;
-      }
-      if (other.TargetPositionZ != 0F) {
-        TargetPositionZ = other.TargetPositionZ;
+      if (other.position_ != null) {
+        if (position_ == null) {
+          Position = new global::Game.Position();
+        }
+        Position.MergeFrom(other.Position);
       }
       if (other.TargetOrientation != 0F) {
         TargetOrientation = other.TargetOrientation;
@@ -1710,27 +1644,22 @@ namespace Database {
             TargetMap = input.ReadUInt32();
             break;
           }
-          case 69: {
-            TargetPositionX = input.ReadFloat();
+          case 66: {
+            if (position_ == null) {
+              Position = new global::Game.Position();
+            }
+            input.ReadMessage(Position);
             break;
           }
           case 77: {
-            TargetPositionY = input.ReadFloat();
-            break;
-          }
-          case 85: {
-            TargetPositionZ = input.ReadFloat();
-            break;
-          }
-          case 93: {
             TargetOrientation = input.ReadFloat();
             break;
           }
-          case 98: {
+          case 82: {
             StatusFailedText = input.ReadString();
             break;
           }
-          case 104: {
+          case 88: {
             ConditionId = input.ReadInt32();
             break;
           }
@@ -1777,27 +1706,22 @@ namespace Database {
             TargetMap = input.ReadUInt32();
             break;
           }
-          case 69: {
-            TargetPositionX = input.ReadFloat();
+          case 66: {
+            if (position_ == null) {
+              Position = new global::Game.Position();
+            }
+            input.ReadMessage(Position);
             break;
           }
           case 77: {
-            TargetPositionY = input.ReadFloat();
-            break;
-          }
-          case 85: {
-            TargetPositionZ = input.ReadFloat();
-            break;
-          }
-          case 93: {
             TargetOrientation = input.ReadFloat();
             break;
           }
-          case 98: {
+          case 82: {
             StatusFailedText = input.ReadString();
             break;
           }
-          case 104: {
+          case 88: {
             ConditionId = input.ReadInt32();
             break;
           }
@@ -1849,9 +1773,7 @@ namespace Database {
       map_ = other.map_;
       zoneId_ = other.zoneId_;
       areaId_ = other.areaId_;
-      positionX_ = other.positionX_;
-      positionY_ = other.positionY_;
-      positionZ_ = other.positionZ_;
+      position_ = other.position_ != null ? other.position_.Clone() : null;
       orientation_ = other.orientation_;
       spawnTimeSecsMin_ = other.spawnTimeSecsMin_;
       spawnTimeSecsMax_ = other.spawnTimeSecsMax_;
@@ -1882,10 +1804,13 @@ namespace Database {
 
     /// <summary>Field number for the "guid" field.</summary>
     public const int GuidFieldNumber = 1;
-    private int guid_;
+    private long guid_;
+    /// <summary>
+    /// Consistent ID type
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int Guid {
+    public long Guid {
       get { return guid_; }
       set {
         guid_ = value;
@@ -1952,44 +1877,20 @@ namespace Database {
       }
     }
 
-    /// <summary>Field number for the "positionX" field.</summary>
-    public const int PositionXFieldNumber = 7;
-    private float positionX_;
+    /// <summary>Field number for the "position" field.</summary>
+    public const int PositionFieldNumber = 7;
+    private global::Game.Position position_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float PositionX {
-      get { return positionX_; }
+    public global::Game.Position Position {
+      get { return position_; }
       set {
-        positionX_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "positionY" field.</summary>
-    public const int PositionYFieldNumber = 8;
-    private float positionY_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float PositionY {
-      get { return positionY_; }
-      set {
-        positionY_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "positionZ" field.</summary>
-    public const int PositionZFieldNumber = 9;
-    private float positionZ_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float PositionZ {
-      get { return positionZ_; }
-      set {
-        positionZ_ = value;
+        position_ = value;
       }
     }
 
     /// <summary>Field number for the "orientation" field.</summary>
-    public const int OrientationFieldNumber = 10;
+    public const int OrientationFieldNumber = 8;
     private float orientation_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2001,7 +1902,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "spawnTimeSecsMin" field.</summary>
-    public const int SpawnTimeSecsMinFieldNumber = 11;
+    public const int SpawnTimeSecsMinFieldNumber = 9;
     private int spawnTimeSecsMin_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2013,7 +1914,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "spawnTimeSecsMax" field.</summary>
-    public const int SpawnTimeSecsMaxFieldNumber = 12;
+    public const int SpawnTimeSecsMaxFieldNumber = 10;
     private int spawnTimeSecsMax_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2025,7 +1926,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "spawnDist" field.</summary>
-    public const int SpawnDistFieldNumber = 13;
+    public const int SpawnDistFieldNumber = 11;
     private float spawnDist_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2037,7 +1938,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "currentWaypointId" field.</summary>
-    public const int CurrentWaypointIdFieldNumber = 14;
+    public const int CurrentWaypointIdFieldNumber = 12;
     private int currentWaypointId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2049,7 +1950,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "spawnType" field.</summary>
-    public const int SpawnTypeFieldNumber = 15;
+    public const int SpawnTypeFieldNumber = 13;
     private int spawnType_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2061,7 +1962,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "respawnTime" field.</summary>
-    public const int RespawnTimeFieldNumber = 16;
+    public const int RespawnTimeFieldNumber = 14;
     private int respawnTime_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2073,7 +1974,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "movementType" field.</summary>
-    public const int MovementTypeFieldNumber = 17;
+    public const int MovementTypeFieldNumber = 15;
     private int movementType_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2085,7 +1986,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "wanderDistance" field.</summary>
-    public const int WanderDistanceFieldNumber = 18;
+    public const int WanderDistanceFieldNumber = 16;
     private int wanderDistance_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2097,7 +1998,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "searchRange" field.</summary>
-    public const int SearchRangeFieldNumber = 19;
+    public const int SearchRangeFieldNumber = 17;
     private int searchRange_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2109,7 +2010,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "equipmentId" field.</summary>
-    public const int EquipmentIdFieldNumber = 20;
+    public const int EquipmentIdFieldNumber = 18;
     private int equipmentId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2121,7 +2022,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "scriptName" field.</summary>
-    public const int ScriptNameFieldNumber = 21;
+    public const int ScriptNameFieldNumber = 19;
     private string scriptName_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2133,7 +2034,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "comments" field.</summary>
-    public const int CommentsFieldNumber = 22;
+    public const int CommentsFieldNumber = 20;
     private string comments_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2145,7 +2046,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "spawnMask" field.</summary>
-    public const int SpawnMaskFieldNumber = 23;
+    public const int SpawnMaskFieldNumber = 21;
     private int spawnMask_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2157,7 +2058,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "modelId" field.</summary>
-    public const int ModelIdFieldNumber = 24;
+    public const int ModelIdFieldNumber = 22;
     private int modelId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2169,7 +2070,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "currentWaypoint" field.</summary>
-    public const int CurrentWaypointFieldNumber = 25;
+    public const int CurrentWaypointFieldNumber = 23;
     private int currentWaypoint_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2181,7 +2082,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "curHealth" field.</summary>
-    public const int CurHealthFieldNumber = 26;
+    public const int CurHealthFieldNumber = 24;
     private int curHealth_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2193,7 +2094,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "curMana" field.</summary>
-    public const int CurManaFieldNumber = 27;
+    public const int CurManaFieldNumber = 25;
     private int curMana_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2205,7 +2106,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "deathState" field.</summary>
-    public const int DeathStateFieldNumber = 28;
+    public const int DeathStateFieldNumber = 26;
     private int deathState_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2237,9 +2138,7 @@ namespace Database {
       if (Map != other.Map) return false;
       if (ZoneId != other.ZoneId) return false;
       if (AreaId != other.AreaId) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(PositionX, other.PositionX)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(PositionY, other.PositionY)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(PositionZ, other.PositionZ)) return false;
+      if (!object.Equals(Position, other.Position)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Orientation, other.Orientation)) return false;
       if (SpawnTimeSecsMin != other.SpawnTimeSecsMin) return false;
       if (SpawnTimeSecsMax != other.SpawnTimeSecsMax) return false;
@@ -2266,15 +2165,13 @@ namespace Database {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (Guid != 0) hash ^= Guid.GetHashCode();
+      if (Guid != 0L) hash ^= Guid.GetHashCode();
       if (Name.Length != 0) hash ^= Name.GetHashCode();
       if (Id != 0) hash ^= Id.GetHashCode();
       if (Map != 0) hash ^= Map.GetHashCode();
       if (ZoneId != 0) hash ^= ZoneId.GetHashCode();
       if (AreaId != 0) hash ^= AreaId.GetHashCode();
-      if (PositionX != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(PositionX);
-      if (PositionY != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(PositionY);
-      if (PositionZ != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(PositionZ);
+      if (position_ != null) hash ^= Position.GetHashCode();
       if (Orientation != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Orientation);
       if (SpawnTimeSecsMin != 0) hash ^= SpawnTimeSecsMin.GetHashCode();
       if (SpawnTimeSecsMax != 0) hash ^= SpawnTimeSecsMax.GetHashCode();
@@ -2312,9 +2209,9 @@ namespace Database {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (Guid != 0) {
+      if (Guid != 0L) {
         output.WriteRawTag(8);
-        output.WriteInt32(Guid);
+        output.WriteInt64(Guid);
       }
       if (Name.Length != 0) {
         output.WriteRawTag(18);
@@ -2336,92 +2233,84 @@ namespace Database {
         output.WriteRawTag(48);
         output.WriteInt32(AreaId);
       }
-      if (PositionX != 0F) {
-        output.WriteRawTag(61);
-        output.WriteFloat(PositionX);
-      }
-      if (PositionY != 0F) {
-        output.WriteRawTag(69);
-        output.WriteFloat(PositionY);
-      }
-      if (PositionZ != 0F) {
-        output.WriteRawTag(77);
-        output.WriteFloat(PositionZ);
+      if (position_ != null) {
+        output.WriteRawTag(58);
+        output.WriteMessage(Position);
       }
       if (Orientation != 0F) {
-        output.WriteRawTag(85);
+        output.WriteRawTag(69);
         output.WriteFloat(Orientation);
       }
       if (SpawnTimeSecsMin != 0) {
-        output.WriteRawTag(88);
+        output.WriteRawTag(72);
         output.WriteInt32(SpawnTimeSecsMin);
       }
       if (SpawnTimeSecsMax != 0) {
-        output.WriteRawTag(96);
+        output.WriteRawTag(80);
         output.WriteInt32(SpawnTimeSecsMax);
       }
       if (SpawnDist != 0F) {
-        output.WriteRawTag(109);
+        output.WriteRawTag(93);
         output.WriteFloat(SpawnDist);
       }
       if (CurrentWaypointId != 0) {
-        output.WriteRawTag(112);
+        output.WriteRawTag(96);
         output.WriteInt32(CurrentWaypointId);
       }
       if (SpawnType != 0) {
-        output.WriteRawTag(120);
+        output.WriteRawTag(104);
         output.WriteInt32(SpawnType);
       }
       if (RespawnTime != 0) {
-        output.WriteRawTag(128, 1);
+        output.WriteRawTag(112);
         output.WriteInt32(RespawnTime);
       }
       if (MovementType != 0) {
-        output.WriteRawTag(136, 1);
+        output.WriteRawTag(120);
         output.WriteInt32(MovementType);
       }
       if (WanderDistance != 0) {
-        output.WriteRawTag(144, 1);
+        output.WriteRawTag(128, 1);
         output.WriteInt32(WanderDistance);
       }
       if (SearchRange != 0) {
-        output.WriteRawTag(152, 1);
+        output.WriteRawTag(136, 1);
         output.WriteInt32(SearchRange);
       }
       if (EquipmentId != 0) {
-        output.WriteRawTag(160, 1);
+        output.WriteRawTag(144, 1);
         output.WriteInt32(EquipmentId);
       }
       if (ScriptName.Length != 0) {
-        output.WriteRawTag(170, 1);
+        output.WriteRawTag(154, 1);
         output.WriteString(ScriptName);
       }
       if (Comments.Length != 0) {
-        output.WriteRawTag(178, 1);
+        output.WriteRawTag(162, 1);
         output.WriteString(Comments);
       }
       if (SpawnMask != 0) {
-        output.WriteRawTag(184, 1);
+        output.WriteRawTag(168, 1);
         output.WriteInt32(SpawnMask);
       }
       if (ModelId != 0) {
-        output.WriteRawTag(192, 1);
+        output.WriteRawTag(176, 1);
         output.WriteInt32(ModelId);
       }
       if (CurrentWaypoint != 0) {
-        output.WriteRawTag(200, 1);
+        output.WriteRawTag(184, 1);
         output.WriteInt32(CurrentWaypoint);
       }
       if (CurHealth != 0) {
-        output.WriteRawTag(208, 1);
+        output.WriteRawTag(192, 1);
         output.WriteInt32(CurHealth);
       }
       if (CurMana != 0) {
-        output.WriteRawTag(216, 1);
+        output.WriteRawTag(200, 1);
         output.WriteInt32(CurMana);
       }
       if (DeathState != 0) {
-        output.WriteRawTag(224, 1);
+        output.WriteRawTag(208, 1);
         output.WriteInt32(DeathState);
       }
       if (_unknownFields != null) {
@@ -2434,9 +2323,9 @@ namespace Database {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Guid != 0) {
+      if (Guid != 0L) {
         output.WriteRawTag(8);
-        output.WriteInt32(Guid);
+        output.WriteInt64(Guid);
       }
       if (Name.Length != 0) {
         output.WriteRawTag(18);
@@ -2458,92 +2347,84 @@ namespace Database {
         output.WriteRawTag(48);
         output.WriteInt32(AreaId);
       }
-      if (PositionX != 0F) {
-        output.WriteRawTag(61);
-        output.WriteFloat(PositionX);
-      }
-      if (PositionY != 0F) {
-        output.WriteRawTag(69);
-        output.WriteFloat(PositionY);
-      }
-      if (PositionZ != 0F) {
-        output.WriteRawTag(77);
-        output.WriteFloat(PositionZ);
+      if (position_ != null) {
+        output.WriteRawTag(58);
+        output.WriteMessage(Position);
       }
       if (Orientation != 0F) {
-        output.WriteRawTag(85);
+        output.WriteRawTag(69);
         output.WriteFloat(Orientation);
       }
       if (SpawnTimeSecsMin != 0) {
-        output.WriteRawTag(88);
+        output.WriteRawTag(72);
         output.WriteInt32(SpawnTimeSecsMin);
       }
       if (SpawnTimeSecsMax != 0) {
-        output.WriteRawTag(96);
+        output.WriteRawTag(80);
         output.WriteInt32(SpawnTimeSecsMax);
       }
       if (SpawnDist != 0F) {
-        output.WriteRawTag(109);
+        output.WriteRawTag(93);
         output.WriteFloat(SpawnDist);
       }
       if (CurrentWaypointId != 0) {
-        output.WriteRawTag(112);
+        output.WriteRawTag(96);
         output.WriteInt32(CurrentWaypointId);
       }
       if (SpawnType != 0) {
-        output.WriteRawTag(120);
+        output.WriteRawTag(104);
         output.WriteInt32(SpawnType);
       }
       if (RespawnTime != 0) {
-        output.WriteRawTag(128, 1);
+        output.WriteRawTag(112);
         output.WriteInt32(RespawnTime);
       }
       if (MovementType != 0) {
-        output.WriteRawTag(136, 1);
+        output.WriteRawTag(120);
         output.WriteInt32(MovementType);
       }
       if (WanderDistance != 0) {
-        output.WriteRawTag(144, 1);
+        output.WriteRawTag(128, 1);
         output.WriteInt32(WanderDistance);
       }
       if (SearchRange != 0) {
-        output.WriteRawTag(152, 1);
+        output.WriteRawTag(136, 1);
         output.WriteInt32(SearchRange);
       }
       if (EquipmentId != 0) {
-        output.WriteRawTag(160, 1);
+        output.WriteRawTag(144, 1);
         output.WriteInt32(EquipmentId);
       }
       if (ScriptName.Length != 0) {
-        output.WriteRawTag(170, 1);
+        output.WriteRawTag(154, 1);
         output.WriteString(ScriptName);
       }
       if (Comments.Length != 0) {
-        output.WriteRawTag(178, 1);
+        output.WriteRawTag(162, 1);
         output.WriteString(Comments);
       }
       if (SpawnMask != 0) {
-        output.WriteRawTag(184, 1);
+        output.WriteRawTag(168, 1);
         output.WriteInt32(SpawnMask);
       }
       if (ModelId != 0) {
-        output.WriteRawTag(192, 1);
+        output.WriteRawTag(176, 1);
         output.WriteInt32(ModelId);
       }
       if (CurrentWaypoint != 0) {
-        output.WriteRawTag(200, 1);
+        output.WriteRawTag(184, 1);
         output.WriteInt32(CurrentWaypoint);
       }
       if (CurHealth != 0) {
-        output.WriteRawTag(208, 1);
+        output.WriteRawTag(192, 1);
         output.WriteInt32(CurHealth);
       }
       if (CurMana != 0) {
-        output.WriteRawTag(216, 1);
+        output.WriteRawTag(200, 1);
         output.WriteInt32(CurMana);
       }
       if (DeathState != 0) {
-        output.WriteRawTag(224, 1);
+        output.WriteRawTag(208, 1);
         output.WriteInt32(DeathState);
       }
       if (_unknownFields != null) {
@@ -2556,8 +2437,8 @@ namespace Database {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (Guid != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Guid);
+      if (Guid != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(Guid);
       }
       if (Name.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
@@ -2574,14 +2455,8 @@ namespace Database {
       if (AreaId != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(AreaId);
       }
-      if (PositionX != 0F) {
-        size += 1 + 4;
-      }
-      if (PositionY != 0F) {
-        size += 1 + 4;
-      }
-      if (PositionZ != 0F) {
-        size += 1 + 4;
+      if (position_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Position);
       }
       if (Orientation != 0F) {
         size += 1 + 4;
@@ -2602,10 +2477,10 @@ namespace Database {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(SpawnType);
       }
       if (RespawnTime != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RespawnTime);
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(RespawnTime);
       }
       if (MovementType != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(MovementType);
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(MovementType);
       }
       if (WanderDistance != 0) {
         size += 2 + pb::CodedOutputStream.ComputeInt32Size(WanderDistance);
@@ -2652,7 +2527,7 @@ namespace Database {
       if (other == null) {
         return;
       }
-      if (other.Guid != 0) {
+      if (other.Guid != 0L) {
         Guid = other.Guid;
       }
       if (other.Name.Length != 0) {
@@ -2670,14 +2545,11 @@ namespace Database {
       if (other.AreaId != 0) {
         AreaId = other.AreaId;
       }
-      if (other.PositionX != 0F) {
-        PositionX = other.PositionX;
-      }
-      if (other.PositionY != 0F) {
-        PositionY = other.PositionY;
-      }
-      if (other.PositionZ != 0F) {
-        PositionZ = other.PositionZ;
+      if (other.position_ != null) {
+        if (position_ == null) {
+          Position = new global::Game.Position();
+        }
+        Position.MergeFrom(other.Position);
       }
       if (other.Orientation != 0F) {
         Orientation = other.Orientation;
@@ -2752,7 +2624,7 @@ namespace Database {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            Guid = input.ReadInt32();
+            Guid = input.ReadInt64();
             break;
           }
           case 18: {
@@ -2775,91 +2647,86 @@ namespace Database {
             AreaId = input.ReadInt32();
             break;
           }
-          case 61: {
-            PositionX = input.ReadFloat();
+          case 58: {
+            if (position_ == null) {
+              Position = new global::Game.Position();
+            }
+            input.ReadMessage(Position);
             break;
           }
           case 69: {
-            PositionY = input.ReadFloat();
-            break;
-          }
-          case 77: {
-            PositionZ = input.ReadFloat();
-            break;
-          }
-          case 85: {
             Orientation = input.ReadFloat();
             break;
           }
-          case 88: {
+          case 72: {
             SpawnTimeSecsMin = input.ReadInt32();
             break;
           }
-          case 96: {
+          case 80: {
             SpawnTimeSecsMax = input.ReadInt32();
             break;
           }
-          case 109: {
+          case 93: {
             SpawnDist = input.ReadFloat();
             break;
           }
-          case 112: {
+          case 96: {
             CurrentWaypointId = input.ReadInt32();
             break;
           }
-          case 120: {
+          case 104: {
             SpawnType = input.ReadInt32();
             break;
           }
-          case 128: {
+          case 112: {
             RespawnTime = input.ReadInt32();
             break;
           }
-          case 136: {
+          case 120: {
             MovementType = input.ReadInt32();
             break;
           }
-          case 144: {
+          case 128: {
             WanderDistance = input.ReadInt32();
             break;
           }
-          case 152: {
+          case 136: {
             SearchRange = input.ReadInt32();
             break;
           }
-          case 160: {
+          case 144: {
             EquipmentId = input.ReadInt32();
             break;
           }
-          case 170: {
+          case 154: {
             ScriptName = input.ReadString();
             break;
           }
-          case 178: {
+          case 162: {
             Comments = input.ReadString();
             break;
           }
-          case 184: {
+          case 168: {
             SpawnMask = input.ReadInt32();
             break;
           }
-          case 192: {
+          case 176: {
             ModelId = input.ReadInt32();
             break;
           }
-          case 200: {
+          case 184: {
             CurrentWaypoint = input.ReadInt32();
             break;
           }
-          case 208: {
+          case 192: {
             CurHealth = input.ReadInt32();
             break;
           }
-          case 216: {
+          case 200: {
             CurMana = input.ReadInt32();
             break;
           }
-          case 224: {
+          case 208: {
             DeathState = input.ReadInt32();
             break;
           }
@@ -2879,7 +2746,7 @@ namespace Database {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            Guid = input.ReadInt32();
+            Guid = input.ReadInt64();
             break;
           }
           case 18: {
@@ -2902,91 +2769,86 @@ namespace Database {
             AreaId = input.ReadInt32();
             break;
           }
-          case 61: {
-            PositionX = input.ReadFloat();
+          case 58: {
+            if (position_ == null) {
+              Position = new global::Game.Position();
+            }
+            input.ReadMessage(Position);
             break;
           }
           case 69: {
-            PositionY = input.ReadFloat();
-            break;
-          }
-          case 77: {
-            PositionZ = input.ReadFloat();
-            break;
-          }
-          case 85: {
             Orientation = input.ReadFloat();
             break;
           }
-          case 88: {
+          case 72: {
             SpawnTimeSecsMin = input.ReadInt32();
             break;
           }
-          case 96: {
+          case 80: {
             SpawnTimeSecsMax = input.ReadInt32();
             break;
           }
-          case 109: {
+          case 93: {
             SpawnDist = input.ReadFloat();
             break;
           }
-          case 112: {
+          case 96: {
             CurrentWaypointId = input.ReadInt32();
             break;
           }
-          case 120: {
+          case 104: {
             SpawnType = input.ReadInt32();
             break;
           }
-          case 128: {
+          case 112: {
             RespawnTime = input.ReadInt32();
             break;
           }
-          case 136: {
+          case 120: {
             MovementType = input.ReadInt32();
             break;
           }
-          case 144: {
+          case 128: {
             WanderDistance = input.ReadInt32();
             break;
           }
-          case 152: {
+          case 136: {
             SearchRange = input.ReadInt32();
             break;
           }
-          case 160: {
+          case 144: {
             EquipmentId = input.ReadInt32();
             break;
           }
-          case 170: {
+          case 154: {
             ScriptName = input.ReadString();
             break;
           }
-          case 178: {
+          case 162: {
             Comments = input.ReadString();
             break;
           }
-          case 184: {
+          case 168: {
             SpawnMask = input.ReadInt32();
             break;
           }
-          case 192: {
+          case 176: {
             ModelId = input.ReadInt32();
             break;
           }
-          case 200: {
+          case 184: {
             CurrentWaypoint = input.ReadInt32();
             break;
           }
-          case 208: {
+          case 192: {
             CurHealth = input.ReadInt32();
             break;
           }
-          case 216: {
+          case 200: {
             CurMana = input.ReadInt32();
             break;
           }
-          case 224: {
+          case 208: {
             DeathState = input.ReadInt32();
             break;
           }
@@ -3346,10 +3208,13 @@ namespace Database {
 
     /// <summary>Field number for the "leaderGuid" field.</summary>
     public const int LeaderGuidFieldNumber = 1;
-    private int leaderGuid_;
+    private long leaderGuid_;
+    /// <summary>
+    /// Consistent ID type
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int LeaderGuid {
+    public long LeaderGuid {
       get { return leaderGuid_; }
       set {
         leaderGuid_ = value;
@@ -3358,10 +3223,13 @@ namespace Database {
 
     /// <summary>Field number for the "memberGuid" field.</summary>
     public const int MemberGuidFieldNumber = 2;
-    private int memberGuid_;
+    private long memberGuid_;
+    /// <summary>
+    /// Consistent ID type
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int MemberGuid {
+    public long MemberGuid {
       get { return memberGuid_; }
       set {
         memberGuid_ = value;
@@ -3392,8 +3260,8 @@ namespace Database {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (LeaderGuid != 0) hash ^= LeaderGuid.GetHashCode();
-      if (MemberGuid != 0) hash ^= MemberGuid.GetHashCode();
+      if (LeaderGuid != 0L) hash ^= LeaderGuid.GetHashCode();
+      if (MemberGuid != 0L) hash ^= MemberGuid.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -3412,13 +3280,13 @@ namespace Database {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (LeaderGuid != 0) {
+      if (LeaderGuid != 0L) {
         output.WriteRawTag(8);
-        output.WriteInt32(LeaderGuid);
+        output.WriteInt64(LeaderGuid);
       }
-      if (MemberGuid != 0) {
+      if (MemberGuid != 0L) {
         output.WriteRawTag(16);
-        output.WriteInt32(MemberGuid);
+        output.WriteInt64(MemberGuid);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -3430,13 +3298,13 @@ namespace Database {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (LeaderGuid != 0) {
+      if (LeaderGuid != 0L) {
         output.WriteRawTag(8);
-        output.WriteInt32(LeaderGuid);
+        output.WriteInt64(LeaderGuid);
       }
-      if (MemberGuid != 0) {
+      if (MemberGuid != 0L) {
         output.WriteRawTag(16);
-        output.WriteInt32(MemberGuid);
+        output.WriteInt64(MemberGuid);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -3448,11 +3316,11 @@ namespace Database {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (LeaderGuid != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(LeaderGuid);
+      if (LeaderGuid != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(LeaderGuid);
       }
-      if (MemberGuid != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(MemberGuid);
+      if (MemberGuid != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(MemberGuid);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -3466,10 +3334,10 @@ namespace Database {
       if (other == null) {
         return;
       }
-      if (other.LeaderGuid != 0) {
+      if (other.LeaderGuid != 0L) {
         LeaderGuid = other.LeaderGuid;
       }
-      if (other.MemberGuid != 0) {
+      if (other.MemberGuid != 0L) {
         MemberGuid = other.MemberGuid;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -3488,11 +3356,11 @@ namespace Database {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            LeaderGuid = input.ReadInt32();
+            LeaderGuid = input.ReadInt64();
             break;
           }
           case 16: {
-            MemberGuid = input.ReadInt32();
+            MemberGuid = input.ReadInt64();
             break;
           }
         }
@@ -3511,11 +3379,11 @@ namespace Database {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            LeaderGuid = input.ReadInt32();
+            LeaderGuid = input.ReadInt64();
             break;
           }
           case 16: {
-            MemberGuid = input.ReadInt32();
+            MemberGuid = input.ReadInt64();
             break;
           }
         }
@@ -3562,9 +3430,7 @@ namespace Database {
     public CreatureMovement(CreatureMovement other) : this() {
       id_ = other.id_;
       point_ = other.point_;
-      positionX_ = other.positionX_;
-      positionY_ = other.positionY_;
-      positionZ_ = other.positionZ_;
+      position_ = other.position_ != null ? other.position_.Clone() : null;
       orientation_ = other.orientation_;
       waitTime_ = other.waitTime_;
       scriptId_ = other.scriptId_;
@@ -3602,44 +3468,20 @@ namespace Database {
       }
     }
 
-    /// <summary>Field number for the "positionX" field.</summary>
-    public const int PositionXFieldNumber = 3;
-    private float positionX_;
+    /// <summary>Field number for the "position" field.</summary>
+    public const int PositionFieldNumber = 3;
+    private global::Game.Position position_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float PositionX {
-      get { return positionX_; }
+    public global::Game.Position Position {
+      get { return position_; }
       set {
-        positionX_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "positionY" field.</summary>
-    public const int PositionYFieldNumber = 4;
-    private float positionY_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float PositionY {
-      get { return positionY_; }
-      set {
-        positionY_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "positionZ" field.</summary>
-    public const int PositionZFieldNumber = 5;
-    private float positionZ_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float PositionZ {
-      get { return positionZ_; }
-      set {
-        positionZ_ = value;
+        position_ = value;
       }
     }
 
     /// <summary>Field number for the "orientation" field.</summary>
-    public const int OrientationFieldNumber = 6;
+    public const int OrientationFieldNumber = 4;
     private float orientation_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -3651,7 +3493,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "waitTime" field.</summary>
-    public const int WaitTimeFieldNumber = 7;
+    public const int WaitTimeFieldNumber = 5;
     private int waitTime_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -3663,7 +3505,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "scriptId" field.</summary>
-    public const int ScriptIdFieldNumber = 8;
+    public const int ScriptIdFieldNumber = 6;
     private int scriptId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -3675,7 +3517,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "comment" field.</summary>
-    public const int CommentFieldNumber = 9;
+    public const int CommentFieldNumber = 7;
     private string comment_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -3703,9 +3545,7 @@ namespace Database {
       }
       if (Id != other.Id) return false;
       if (Point != other.Point) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(PositionX, other.PositionX)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(PositionY, other.PositionY)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(PositionZ, other.PositionZ)) return false;
+      if (!object.Equals(Position, other.Position)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Orientation, other.Orientation)) return false;
       if (WaitTime != other.WaitTime) return false;
       if (ScriptId != other.ScriptId) return false;
@@ -3719,9 +3559,7 @@ namespace Database {
       int hash = 1;
       if (Id != 0) hash ^= Id.GetHashCode();
       if (Point != 0) hash ^= Point.GetHashCode();
-      if (PositionX != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(PositionX);
-      if (PositionY != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(PositionY);
-      if (PositionZ != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(PositionZ);
+      if (position_ != null) hash ^= Position.GetHashCode();
       if (Orientation != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Orientation);
       if (WaitTime != 0) hash ^= WaitTime.GetHashCode();
       if (ScriptId != 0) hash ^= ScriptId.GetHashCode();
@@ -3752,32 +3590,24 @@ namespace Database {
         output.WriteRawTag(16);
         output.WriteInt32(Point);
       }
-      if (PositionX != 0F) {
-        output.WriteRawTag(29);
-        output.WriteFloat(PositionX);
-      }
-      if (PositionY != 0F) {
-        output.WriteRawTag(37);
-        output.WriteFloat(PositionY);
-      }
-      if (PositionZ != 0F) {
-        output.WriteRawTag(45);
-        output.WriteFloat(PositionZ);
+      if (position_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(Position);
       }
       if (Orientation != 0F) {
-        output.WriteRawTag(53);
+        output.WriteRawTag(37);
         output.WriteFloat(Orientation);
       }
       if (WaitTime != 0) {
-        output.WriteRawTag(56);
+        output.WriteRawTag(40);
         output.WriteInt32(WaitTime);
       }
       if (ScriptId != 0) {
-        output.WriteRawTag(64);
+        output.WriteRawTag(48);
         output.WriteInt32(ScriptId);
       }
       if (Comment.Length != 0) {
-        output.WriteRawTag(74);
+        output.WriteRawTag(58);
         output.WriteString(Comment);
       }
       if (_unknownFields != null) {
@@ -3798,32 +3628,24 @@ namespace Database {
         output.WriteRawTag(16);
         output.WriteInt32(Point);
       }
-      if (PositionX != 0F) {
-        output.WriteRawTag(29);
-        output.WriteFloat(PositionX);
-      }
-      if (PositionY != 0F) {
-        output.WriteRawTag(37);
-        output.WriteFloat(PositionY);
-      }
-      if (PositionZ != 0F) {
-        output.WriteRawTag(45);
-        output.WriteFloat(PositionZ);
+      if (position_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(Position);
       }
       if (Orientation != 0F) {
-        output.WriteRawTag(53);
+        output.WriteRawTag(37);
         output.WriteFloat(Orientation);
       }
       if (WaitTime != 0) {
-        output.WriteRawTag(56);
+        output.WriteRawTag(40);
         output.WriteInt32(WaitTime);
       }
       if (ScriptId != 0) {
-        output.WriteRawTag(64);
+        output.WriteRawTag(48);
         output.WriteInt32(ScriptId);
       }
       if (Comment.Length != 0) {
-        output.WriteRawTag(74);
+        output.WriteRawTag(58);
         output.WriteString(Comment);
       }
       if (_unknownFields != null) {
@@ -3842,14 +3664,8 @@ namespace Database {
       if (Point != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Point);
       }
-      if (PositionX != 0F) {
-        size += 1 + 4;
-      }
-      if (PositionY != 0F) {
-        size += 1 + 4;
-      }
-      if (PositionZ != 0F) {
-        size += 1 + 4;
+      if (position_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Position);
       }
       if (Orientation != 0F) {
         size += 1 + 4;
@@ -3881,14 +3697,11 @@ namespace Database {
       if (other.Point != 0) {
         Point = other.Point;
       }
-      if (other.PositionX != 0F) {
-        PositionX = other.PositionX;
-      }
-      if (other.PositionY != 0F) {
-        PositionY = other.PositionY;
-      }
-      if (other.PositionZ != 0F) {
-        PositionZ = other.PositionZ;
+      if (other.position_ != null) {
+        if (position_ == null) {
+          Position = new global::Game.Position();
+        }
+        Position.MergeFrom(other.Position);
       }
       if (other.Orientation != 0F) {
         Orientation = other.Orientation;
@@ -3925,31 +3738,26 @@ namespace Database {
             Point = input.ReadInt32();
             break;
           }
-          case 29: {
-            PositionX = input.ReadFloat();
+          case 26: {
+            if (position_ == null) {
+              Position = new global::Game.Position();
+            }
+            input.ReadMessage(Position);
             break;
           }
           case 37: {
-            PositionY = input.ReadFloat();
-            break;
-          }
-          case 45: {
-            PositionZ = input.ReadFloat();
-            break;
-          }
-          case 53: {
             Orientation = input.ReadFloat();
             break;
           }
-          case 56: {
+          case 40: {
             WaitTime = input.ReadInt32();
             break;
           }
-          case 64: {
+          case 48: {
             ScriptId = input.ReadInt32();
             break;
           }
-          case 74: {
+          case 58: {
             Comment = input.ReadString();
             break;
           }
@@ -3976,31 +3784,26 @@ namespace Database {
             Point = input.ReadInt32();
             break;
           }
-          case 29: {
-            PositionX = input.ReadFloat();
+          case 26: {
+            if (position_ == null) {
+              Position = new global::Game.Position();
+            }
+            input.ReadMessage(Position);
             break;
           }
           case 37: {
-            PositionY = input.ReadFloat();
-            break;
-          }
-          case 45: {
-            PositionZ = input.ReadFloat();
-            break;
-          }
-          case 53: {
             Orientation = input.ReadFloat();
             break;
           }
-          case 56: {
+          case 40: {
             WaitTime = input.ReadInt32();
             break;
           }
-          case 64: {
+          case 48: {
             ScriptId = input.ReadInt32();
             break;
           }
-          case 74: {
+          case 58: {
             Comment = input.ReadString();
             break;
           }
@@ -4049,9 +3852,7 @@ namespace Database {
       entry_ = other.entry_;
       pathId_ = other.pathId_;
       point_ = other.point_;
-      positionX_ = other.positionX_;
-      positionY_ = other.positionY_;
-      positionZ_ = other.positionZ_;
+      position_ = other.position_ != null ? other.position_.Clone() : null;
       orientation_ = other.orientation_;
       waitTime_ = other.waitTime_;
       scriptId_ = other.scriptId_;
@@ -4101,44 +3902,20 @@ namespace Database {
       }
     }
 
-    /// <summary>Field number for the "positionX" field.</summary>
-    public const int PositionXFieldNumber = 4;
-    private float positionX_;
+    /// <summary>Field number for the "position" field.</summary>
+    public const int PositionFieldNumber = 4;
+    private global::Game.Position position_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float PositionX {
-      get { return positionX_; }
+    public global::Game.Position Position {
+      get { return position_; }
       set {
-        positionX_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "positionY" field.</summary>
-    public const int PositionYFieldNumber = 5;
-    private float positionY_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float PositionY {
-      get { return positionY_; }
-      set {
-        positionY_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "positionZ" field.</summary>
-    public const int PositionZFieldNumber = 6;
-    private float positionZ_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float PositionZ {
-      get { return positionZ_; }
-      set {
-        positionZ_ = value;
+        position_ = value;
       }
     }
 
     /// <summary>Field number for the "orientation" field.</summary>
-    public const int OrientationFieldNumber = 7;
+    public const int OrientationFieldNumber = 5;
     private float orientation_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -4150,7 +3927,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "waitTime" field.</summary>
-    public const int WaitTimeFieldNumber = 8;
+    public const int WaitTimeFieldNumber = 6;
     private int waitTime_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -4162,7 +3939,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "scriptId" field.</summary>
-    public const int ScriptIdFieldNumber = 9;
+    public const int ScriptIdFieldNumber = 7;
     private int scriptId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -4174,7 +3951,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "comment" field.</summary>
-    public const int CommentFieldNumber = 10;
+    public const int CommentFieldNumber = 8;
     private string comment_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -4203,9 +3980,7 @@ namespace Database {
       if (Entry != other.Entry) return false;
       if (PathId != other.PathId) return false;
       if (Point != other.Point) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(PositionX, other.PositionX)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(PositionY, other.PositionY)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(PositionZ, other.PositionZ)) return false;
+      if (!object.Equals(Position, other.Position)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Orientation, other.Orientation)) return false;
       if (WaitTime != other.WaitTime) return false;
       if (ScriptId != other.ScriptId) return false;
@@ -4220,9 +3995,7 @@ namespace Database {
       if (Entry != 0) hash ^= Entry.GetHashCode();
       if (PathId != 0) hash ^= PathId.GetHashCode();
       if (Point != 0) hash ^= Point.GetHashCode();
-      if (PositionX != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(PositionX);
-      if (PositionY != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(PositionY);
-      if (PositionZ != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(PositionZ);
+      if (position_ != null) hash ^= Position.GetHashCode();
       if (Orientation != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Orientation);
       if (WaitTime != 0) hash ^= WaitTime.GetHashCode();
       if (ScriptId != 0) hash ^= ScriptId.GetHashCode();
@@ -4257,32 +4030,24 @@ namespace Database {
         output.WriteRawTag(24);
         output.WriteInt32(Point);
       }
-      if (PositionX != 0F) {
-        output.WriteRawTag(37);
-        output.WriteFloat(PositionX);
-      }
-      if (PositionY != 0F) {
-        output.WriteRawTag(45);
-        output.WriteFloat(PositionY);
-      }
-      if (PositionZ != 0F) {
-        output.WriteRawTag(53);
-        output.WriteFloat(PositionZ);
+      if (position_ != null) {
+        output.WriteRawTag(34);
+        output.WriteMessage(Position);
       }
       if (Orientation != 0F) {
-        output.WriteRawTag(61);
+        output.WriteRawTag(45);
         output.WriteFloat(Orientation);
       }
       if (WaitTime != 0) {
-        output.WriteRawTag(64);
+        output.WriteRawTag(48);
         output.WriteInt32(WaitTime);
       }
       if (ScriptId != 0) {
-        output.WriteRawTag(72);
+        output.WriteRawTag(56);
         output.WriteInt32(ScriptId);
       }
       if (Comment.Length != 0) {
-        output.WriteRawTag(82);
+        output.WriteRawTag(66);
         output.WriteString(Comment);
       }
       if (_unknownFields != null) {
@@ -4307,32 +4072,24 @@ namespace Database {
         output.WriteRawTag(24);
         output.WriteInt32(Point);
       }
-      if (PositionX != 0F) {
-        output.WriteRawTag(37);
-        output.WriteFloat(PositionX);
-      }
-      if (PositionY != 0F) {
-        output.WriteRawTag(45);
-        output.WriteFloat(PositionY);
-      }
-      if (PositionZ != 0F) {
-        output.WriteRawTag(53);
-        output.WriteFloat(PositionZ);
+      if (position_ != null) {
+        output.WriteRawTag(34);
+        output.WriteMessage(Position);
       }
       if (Orientation != 0F) {
-        output.WriteRawTag(61);
+        output.WriteRawTag(45);
         output.WriteFloat(Orientation);
       }
       if (WaitTime != 0) {
-        output.WriteRawTag(64);
+        output.WriteRawTag(48);
         output.WriteInt32(WaitTime);
       }
       if (ScriptId != 0) {
-        output.WriteRawTag(72);
+        output.WriteRawTag(56);
         output.WriteInt32(ScriptId);
       }
       if (Comment.Length != 0) {
-        output.WriteRawTag(82);
+        output.WriteRawTag(66);
         output.WriteString(Comment);
       }
       if (_unknownFields != null) {
@@ -4354,14 +4111,8 @@ namespace Database {
       if (Point != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Point);
       }
-      if (PositionX != 0F) {
-        size += 1 + 4;
-      }
-      if (PositionY != 0F) {
-        size += 1 + 4;
-      }
-      if (PositionZ != 0F) {
-        size += 1 + 4;
+      if (position_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Position);
       }
       if (Orientation != 0F) {
         size += 1 + 4;
@@ -4396,14 +4147,11 @@ namespace Database {
       if (other.Point != 0) {
         Point = other.Point;
       }
-      if (other.PositionX != 0F) {
-        PositionX = other.PositionX;
-      }
-      if (other.PositionY != 0F) {
-        PositionY = other.PositionY;
-      }
-      if (other.PositionZ != 0F) {
-        PositionZ = other.PositionZ;
+      if (other.position_ != null) {
+        if (position_ == null) {
+          Position = new global::Game.Position();
+        }
+        Position.MergeFrom(other.Position);
       }
       if (other.Orientation != 0F) {
         Orientation = other.Orientation;
@@ -4444,31 +4192,26 @@ namespace Database {
             Point = input.ReadInt32();
             break;
           }
-          case 37: {
-            PositionX = input.ReadFloat();
+          case 34: {
+            if (position_ == null) {
+              Position = new global::Game.Position();
+            }
+            input.ReadMessage(Position);
             break;
           }
           case 45: {
-            PositionY = input.ReadFloat();
-            break;
-          }
-          case 53: {
-            PositionZ = input.ReadFloat();
-            break;
-          }
-          case 61: {
             Orientation = input.ReadFloat();
             break;
           }
-          case 64: {
+          case 48: {
             WaitTime = input.ReadInt32();
             break;
           }
-          case 72: {
+          case 56: {
             ScriptId = input.ReadInt32();
             break;
           }
-          case 82: {
+          case 66: {
             Comment = input.ReadString();
             break;
           }
@@ -4499,31 +4242,26 @@ namespace Database {
             Point = input.ReadInt32();
             break;
           }
-          case 37: {
-            PositionX = input.ReadFloat();
+          case 34: {
+            if (position_ == null) {
+              Position = new global::Game.Position();
+            }
+            input.ReadMessage(Position);
             break;
           }
           case 45: {
-            PositionY = input.ReadFloat();
-            break;
-          }
-          case 53: {
-            PositionZ = input.ReadFloat();
-            break;
-          }
-          case 61: {
             Orientation = input.ReadFloat();
             break;
           }
-          case 64: {
+          case 48: {
             WaitTime = input.ReadInt32();
             break;
           }
-          case 72: {
+          case 56: {
             ScriptId = input.ReadInt32();
             break;
           }
-          case 82: {
+          case 66: {
             Comment = input.ReadString();
             break;
           }
@@ -4628,12 +4366,7 @@ namespace Database {
       killCredit2_ = other.killCredit2_;
       mechanicImmuneMask_ = other.mechanicImmuneMask_;
       schoolImmuneMask_ = other.schoolImmuneMask_;
-      resistanceHoly_ = other.resistanceHoly_;
-      resistanceFire_ = other.resistanceFire_;
-      resistanceNature_ = other.resistanceNature_;
-      resistanceFrost_ = other.resistanceFrost_;
-      resistanceShadow_ = other.resistanceShadow_;
-      resistanceArcane_ = other.resistanceArcane_;
+      resistances_ = other.resistances_.Clone();
       petSpellDataId_ = other.petSpellDataId_;
       movementType_ = other.movementType_;
       trainerType_ = other.trainerType_;
@@ -5368,76 +5101,18 @@ namespace Database {
       }
     }
 
-    /// <summary>Field number for the "resistanceHoly" field.</summary>
-    public const int ResistanceHolyFieldNumber = 60;
-    private int resistanceHoly_;
+    /// <summary>Field number for the "resistances" field.</summary>
+    public const int ResistancesFieldNumber = 60;
+    private static readonly pbc::MapField<uint, uint>.Codec _map_resistances_codec
+        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 482);
+    private readonly pbc::MapField<uint, uint> resistances_ = new pbc::MapField<uint, uint>();
+    /// <summary>
+    /// Reused Resistances
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int ResistanceHoly {
-      get { return resistanceHoly_; }
-      set {
-        resistanceHoly_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "resistanceFire" field.</summary>
-    public const int ResistanceFireFieldNumber = 61;
-    private int resistanceFire_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int ResistanceFire {
-      get { return resistanceFire_; }
-      set {
-        resistanceFire_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "resistanceNature" field.</summary>
-    public const int ResistanceNatureFieldNumber = 62;
-    private int resistanceNature_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int ResistanceNature {
-      get { return resistanceNature_; }
-      set {
-        resistanceNature_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "resistanceFrost" field.</summary>
-    public const int ResistanceFrostFieldNumber = 63;
-    private int resistanceFrost_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int ResistanceFrost {
-      get { return resistanceFrost_; }
-      set {
-        resistanceFrost_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "resistanceShadow" field.</summary>
-    public const int ResistanceShadowFieldNumber = 64;
-    private int resistanceShadow_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int ResistanceShadow {
-      get { return resistanceShadow_; }
-      set {
-        resistanceShadow_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "resistanceArcane" field.</summary>
-    public const int ResistanceArcaneFieldNumber = 65;
-    private int resistanceArcane_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int ResistanceArcane {
-      get { return resistanceArcane_; }
-      set {
-        resistanceArcane_ = value;
-      }
+    public pbc::MapField<uint, uint> Resistances {
+      get { return resistances_; }
     }
 
     /// <summary>Field number for the "petSpellDataId" field.</summary>
@@ -5718,12 +5393,7 @@ namespace Database {
       if (KillCredit2 != other.KillCredit2) return false;
       if (MechanicImmuneMask != other.MechanicImmuneMask) return false;
       if (SchoolImmuneMask != other.SchoolImmuneMask) return false;
-      if (ResistanceHoly != other.ResistanceHoly) return false;
-      if (ResistanceFire != other.ResistanceFire) return false;
-      if (ResistanceNature != other.ResistanceNature) return false;
-      if (ResistanceFrost != other.ResistanceFrost) return false;
-      if (ResistanceShadow != other.ResistanceShadow) return false;
-      if (ResistanceArcane != other.ResistanceArcane) return false;
+      if (!Resistances.Equals(other.Resistances)) return false;
       if (PetSpellDataId != other.PetSpellDataId) return false;
       if (MovementType != other.MovementType) return false;
       if (TrainerType != other.TrainerType) return false;
@@ -5807,12 +5477,7 @@ namespace Database {
       if (KillCredit2 != 0) hash ^= KillCredit2.GetHashCode();
       if (MechanicImmuneMask != 0) hash ^= MechanicImmuneMask.GetHashCode();
       if (SchoolImmuneMask != 0) hash ^= SchoolImmuneMask.GetHashCode();
-      if (ResistanceHoly != 0) hash ^= ResistanceHoly.GetHashCode();
-      if (ResistanceFire != 0) hash ^= ResistanceFire.GetHashCode();
-      if (ResistanceNature != 0) hash ^= ResistanceNature.GetHashCode();
-      if (ResistanceFrost != 0) hash ^= ResistanceFrost.GetHashCode();
-      if (ResistanceShadow != 0) hash ^= ResistanceShadow.GetHashCode();
-      if (ResistanceArcane != 0) hash ^= ResistanceArcane.GetHashCode();
+      hash ^= Resistances.GetHashCode();
       if (PetSpellDataId != 0) hash ^= PetSpellDataId.GetHashCode();
       if (MovementType != 0) hash ^= MovementType.GetHashCode();
       if (TrainerType != 0) hash ^= TrainerType.GetHashCode();
@@ -6084,30 +5749,7 @@ namespace Database {
         output.WriteRawTag(216, 3);
         output.WriteInt32(SchoolImmuneMask);
       }
-      if (ResistanceHoly != 0) {
-        output.WriteRawTag(224, 3);
-        output.WriteInt32(ResistanceHoly);
-      }
-      if (ResistanceFire != 0) {
-        output.WriteRawTag(232, 3);
-        output.WriteInt32(ResistanceFire);
-      }
-      if (ResistanceNature != 0) {
-        output.WriteRawTag(240, 3);
-        output.WriteInt32(ResistanceNature);
-      }
-      if (ResistanceFrost != 0) {
-        output.WriteRawTag(248, 3);
-        output.WriteInt32(ResistanceFrost);
-      }
-      if (ResistanceShadow != 0) {
-        output.WriteRawTag(128, 4);
-        output.WriteInt32(ResistanceShadow);
-      }
-      if (ResistanceArcane != 0) {
-        output.WriteRawTag(136, 4);
-        output.WriteInt32(ResistanceArcane);
-      }
+      resistances_.WriteTo(output, _map_resistances_codec);
       if (PetSpellDataId != 0) {
         output.WriteRawTag(144, 4);
         output.WriteInt32(PetSpellDataId);
@@ -6422,30 +6064,7 @@ namespace Database {
         output.WriteRawTag(216, 3);
         output.WriteInt32(SchoolImmuneMask);
       }
-      if (ResistanceHoly != 0) {
-        output.WriteRawTag(224, 3);
-        output.WriteInt32(ResistanceHoly);
-      }
-      if (ResistanceFire != 0) {
-        output.WriteRawTag(232, 3);
-        output.WriteInt32(ResistanceFire);
-      }
-      if (ResistanceNature != 0) {
-        output.WriteRawTag(240, 3);
-        output.WriteInt32(ResistanceNature);
-      }
-      if (ResistanceFrost != 0) {
-        output.WriteRawTag(248, 3);
-        output.WriteInt32(ResistanceFrost);
-      }
-      if (ResistanceShadow != 0) {
-        output.WriteRawTag(128, 4);
-        output.WriteInt32(ResistanceShadow);
-      }
-      if (ResistanceArcane != 0) {
-        output.WriteRawTag(136, 4);
-        output.WriteInt32(ResistanceArcane);
-      }
+      resistances_.WriteTo(ref output, _map_resistances_codec);
       if (PetSpellDataId != 0) {
         output.WriteRawTag(144, 4);
         output.WriteInt32(PetSpellDataId);
@@ -6701,24 +6320,7 @@ namespace Database {
       if (SchoolImmuneMask != 0) {
         size += 2 + pb::CodedOutputStream.ComputeInt32Size(SchoolImmuneMask);
       }
-      if (ResistanceHoly != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(ResistanceHoly);
-      }
-      if (ResistanceFire != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(ResistanceFire);
-      }
-      if (ResistanceNature != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(ResistanceNature);
-      }
-      if (ResistanceFrost != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(ResistanceFrost);
-      }
-      if (ResistanceShadow != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(ResistanceShadow);
-      }
-      if (ResistanceArcane != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(ResistanceArcane);
-      }
+      size += resistances_.CalculateSize(_map_resistances_codec);
       if (PetSpellDataId != 0) {
         size += 2 + pb::CodedOutputStream.ComputeInt32Size(PetSpellDataId);
       }
@@ -6959,24 +6561,7 @@ namespace Database {
       if (other.SchoolImmuneMask != 0) {
         SchoolImmuneMask = other.SchoolImmuneMask;
       }
-      if (other.ResistanceHoly != 0) {
-        ResistanceHoly = other.ResistanceHoly;
-      }
-      if (other.ResistanceFire != 0) {
-        ResistanceFire = other.ResistanceFire;
-      }
-      if (other.ResistanceNature != 0) {
-        ResistanceNature = other.ResistanceNature;
-      }
-      if (other.ResistanceFrost != 0) {
-        ResistanceFrost = other.ResistanceFrost;
-      }
-      if (other.ResistanceShadow != 0) {
-        ResistanceShadow = other.ResistanceShadow;
-      }
-      if (other.ResistanceArcane != 0) {
-        ResistanceArcane = other.ResistanceArcane;
-      }
+      resistances_.MergeFrom(other.resistances_);
       if (other.PetSpellDataId != 0) {
         PetSpellDataId = other.PetSpellDataId;
       }
@@ -7279,28 +6864,8 @@ namespace Database {
             SchoolImmuneMask = input.ReadInt32();
             break;
           }
-          case 480: {
-            ResistanceHoly = input.ReadInt32();
-            break;
-          }
-          case 488: {
-            ResistanceFire = input.ReadInt32();
-            break;
-          }
-          case 496: {
-            ResistanceNature = input.ReadInt32();
-            break;
-          }
-          case 504: {
-            ResistanceFrost = input.ReadInt32();
-            break;
-          }
-          case 512: {
-            ResistanceShadow = input.ReadInt32();
-            break;
-          }
-          case 520: {
-            ResistanceArcane = input.ReadInt32();
+          case 482: {
+            resistances_.AddEntriesFrom(input, _map_resistances_codec);
             break;
           }
           case 528: {
@@ -7622,28 +7187,8 @@ namespace Database {
             SchoolImmuneMask = input.ReadInt32();
             break;
           }
-          case 480: {
-            ResistanceHoly = input.ReadInt32();
-            break;
-          }
-          case 488: {
-            ResistanceFire = input.ReadInt32();
-            break;
-          }
-          case 496: {
-            ResistanceNature = input.ReadInt32();
-            break;
-          }
-          case 504: {
-            ResistanceFrost = input.ReadInt32();
-            break;
-          }
-          case 512: {
-            ResistanceShadow = input.ReadInt32();
-            break;
-          }
-          case 520: {
-            ResistanceArcane = input.ReadInt32();
+          case 482: {
+            resistances_.AddEntriesFrom(ref input, _map_resistances_codec);
             break;
           }
           case 528: {
@@ -7760,9 +7305,7 @@ namespace Database {
       id_ = other.id_;
       map_ = other.map_;
       spawnMask_ = other.spawnMask_;
-      positionX_ = other.positionX_;
-      positionY_ = other.positionY_;
-      positionZ_ = other.positionZ_;
+      position_ = other.position_ != null ? other.position_.Clone() : null;
       orientation_ = other.orientation_;
       rotation0_ = other.rotation0_;
       rotation1_ = other.rotation1_;
@@ -7783,10 +7326,13 @@ namespace Database {
 
     /// <summary>Field number for the "guid" field.</summary>
     public const int GuidFieldNumber = 1;
-    private int guid_;
+    private long guid_;
+    /// <summary>
+    /// Consistent ID type
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int Guid {
+    public long Guid {
       get { return guid_; }
       set {
         guid_ = value;
@@ -7829,44 +7375,20 @@ namespace Database {
       }
     }
 
-    /// <summary>Field number for the "positionX" field.</summary>
-    public const int PositionXFieldNumber = 5;
-    private float positionX_;
+    /// <summary>Field number for the "position" field.</summary>
+    public const int PositionFieldNumber = 5;
+    private global::Game.Position position_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float PositionX {
-      get { return positionX_; }
+    public global::Game.Position Position {
+      get { return position_; }
       set {
-        positionX_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "positionY" field.</summary>
-    public const int PositionYFieldNumber = 6;
-    private float positionY_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float PositionY {
-      get { return positionY_; }
-      set {
-        positionY_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "positionZ" field.</summary>
-    public const int PositionZFieldNumber = 7;
-    private float positionZ_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float PositionZ {
-      get { return positionZ_; }
-      set {
-        positionZ_ = value;
+        position_ = value;
       }
     }
 
     /// <summary>Field number for the "orientation" field.</summary>
-    public const int OrientationFieldNumber = 8;
+    public const int OrientationFieldNumber = 6;
     private float orientation_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -7878,7 +7400,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "rotation0" field.</summary>
-    public const int Rotation0FieldNumber = 9;
+    public const int Rotation0FieldNumber = 7;
     private float rotation0_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -7890,7 +7412,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "rotation1" field.</summary>
-    public const int Rotation1FieldNumber = 10;
+    public const int Rotation1FieldNumber = 8;
     private float rotation1_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -7902,7 +7424,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "rotation2" field.</summary>
-    public const int Rotation2FieldNumber = 11;
+    public const int Rotation2FieldNumber = 9;
     private float rotation2_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -7914,7 +7436,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "rotation3" field.</summary>
-    public const int Rotation3FieldNumber = 12;
+    public const int Rotation3FieldNumber = 10;
     private float rotation3_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -7926,7 +7448,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "spawnTimeSecsMin" field.</summary>
-    public const int SpawnTimeSecsMinFieldNumber = 13;
+    public const int SpawnTimeSecsMinFieldNumber = 11;
     private int spawnTimeSecsMin_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -7938,7 +7460,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "spawnTimeSecsMax" field.</summary>
-    public const int SpawnTimeSecsMaxFieldNumber = 14;
+    public const int SpawnTimeSecsMaxFieldNumber = 12;
     private int spawnTimeSecsMax_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -7950,7 +7472,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "animProgress" field.</summary>
-    public const int AnimProgressFieldNumber = 15;
+    public const int AnimProgressFieldNumber = 13;
     private uint animProgress_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -7962,7 +7484,7 @@ namespace Database {
     }
 
     /// <summary>Field number for the "state" field.</summary>
-    public const int StateFieldNumber = 16;
+    public const int StateFieldNumber = 14;
     private uint state_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -7992,9 +7514,7 @@ namespace Database {
       if (Id != other.Id) return false;
       if (Map != other.Map) return false;
       if (SpawnMask != other.SpawnMask) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(PositionX, other.PositionX)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(PositionY, other.PositionY)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(PositionZ, other.PositionZ)) return false;
+      if (!object.Equals(Position, other.Position)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Orientation, other.Orientation)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Rotation0, other.Rotation0)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Rotation1, other.Rotation1)) return false;
@@ -8011,13 +7531,11 @@ namespace Database {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (Guid != 0) hash ^= Guid.GetHashCode();
+      if (Guid != 0L) hash ^= Guid.GetHashCode();
       if (Id != 0) hash ^= Id.GetHashCode();
       if (Map != 0) hash ^= Map.GetHashCode();
       if (SpawnMask != 0) hash ^= SpawnMask.GetHashCode();
-      if (PositionX != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(PositionX);
-      if (PositionY != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(PositionY);
-      if (PositionZ != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(PositionZ);
+      if (position_ != null) hash ^= Position.GetHashCode();
       if (Orientation != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Orientation);
       if (Rotation0 != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Rotation0);
       if (Rotation1 != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Rotation1);
@@ -8045,9 +7563,9 @@ namespace Database {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (Guid != 0) {
+      if (Guid != 0L) {
         output.WriteRawTag(8);
-        output.WriteInt32(Guid);
+        output.WriteInt64(Guid);
       }
       if (Id != 0) {
         output.WriteRawTag(16);
@@ -8061,52 +7579,44 @@ namespace Database {
         output.WriteRawTag(32);
         output.WriteUInt32(SpawnMask);
       }
-      if (PositionX != 0F) {
-        output.WriteRawTag(45);
-        output.WriteFloat(PositionX);
-      }
-      if (PositionY != 0F) {
-        output.WriteRawTag(53);
-        output.WriteFloat(PositionY);
-      }
-      if (PositionZ != 0F) {
-        output.WriteRawTag(61);
-        output.WriteFloat(PositionZ);
+      if (position_ != null) {
+        output.WriteRawTag(42);
+        output.WriteMessage(Position);
       }
       if (Orientation != 0F) {
-        output.WriteRawTag(69);
+        output.WriteRawTag(53);
         output.WriteFloat(Orientation);
       }
       if (Rotation0 != 0F) {
-        output.WriteRawTag(77);
+        output.WriteRawTag(61);
         output.WriteFloat(Rotation0);
       }
       if (Rotation1 != 0F) {
-        output.WriteRawTag(85);
+        output.WriteRawTag(69);
         output.WriteFloat(Rotation1);
       }
       if (Rotation2 != 0F) {
-        output.WriteRawTag(93);
+        output.WriteRawTag(77);
         output.WriteFloat(Rotation2);
       }
       if (Rotation3 != 0F) {
-        output.WriteRawTag(101);
+        output.WriteRawTag(85);
         output.WriteFloat(Rotation3);
       }
       if (SpawnTimeSecsMin != 0) {
-        output.WriteRawTag(104);
+        output.WriteRawTag(88);
         output.WriteInt32(SpawnTimeSecsMin);
       }
       if (SpawnTimeSecsMax != 0) {
-        output.WriteRawTag(112);
+        output.WriteRawTag(96);
         output.WriteInt32(SpawnTimeSecsMax);
       }
       if (AnimProgress != 0) {
-        output.WriteRawTag(120);
+        output.WriteRawTag(104);
         output.WriteUInt32(AnimProgress);
       }
       if (State != 0) {
-        output.WriteRawTag(128, 1);
+        output.WriteRawTag(112);
         output.WriteUInt32(State);
       }
       if (_unknownFields != null) {
@@ -8119,9 +7629,9 @@ namespace Database {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Guid != 0) {
+      if (Guid != 0L) {
         output.WriteRawTag(8);
-        output.WriteInt32(Guid);
+        output.WriteInt64(Guid);
       }
       if (Id != 0) {
         output.WriteRawTag(16);
@@ -8135,52 +7645,44 @@ namespace Database {
         output.WriteRawTag(32);
         output.WriteUInt32(SpawnMask);
       }
-      if (PositionX != 0F) {
-        output.WriteRawTag(45);
-        output.WriteFloat(PositionX);
-      }
-      if (PositionY != 0F) {
-        output.WriteRawTag(53);
-        output.WriteFloat(PositionY);
-      }
-      if (PositionZ != 0F) {
-        output.WriteRawTag(61);
-        output.WriteFloat(PositionZ);
+      if (position_ != null) {
+        output.WriteRawTag(42);
+        output.WriteMessage(Position);
       }
       if (Orientation != 0F) {
-        output.WriteRawTag(69);
+        output.WriteRawTag(53);
         output.WriteFloat(Orientation);
       }
       if (Rotation0 != 0F) {
-        output.WriteRawTag(77);
+        output.WriteRawTag(61);
         output.WriteFloat(Rotation0);
       }
       if (Rotation1 != 0F) {
-        output.WriteRawTag(85);
+        output.WriteRawTag(69);
         output.WriteFloat(Rotation1);
       }
       if (Rotation2 != 0F) {
-        output.WriteRawTag(93);
+        output.WriteRawTag(77);
         output.WriteFloat(Rotation2);
       }
       if (Rotation3 != 0F) {
-        output.WriteRawTag(101);
+        output.WriteRawTag(85);
         output.WriteFloat(Rotation3);
       }
       if (SpawnTimeSecsMin != 0) {
-        output.WriteRawTag(104);
+        output.WriteRawTag(88);
         output.WriteInt32(SpawnTimeSecsMin);
       }
       if (SpawnTimeSecsMax != 0) {
-        output.WriteRawTag(112);
+        output.WriteRawTag(96);
         output.WriteInt32(SpawnTimeSecsMax);
       }
       if (AnimProgress != 0) {
-        output.WriteRawTag(120);
+        output.WriteRawTag(104);
         output.WriteUInt32(AnimProgress);
       }
       if (State != 0) {
-        output.WriteRawTag(128, 1);
+        output.WriteRawTag(112);
         output.WriteUInt32(State);
       }
       if (_unknownFields != null) {
@@ -8193,8 +7695,8 @@ namespace Database {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (Guid != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Guid);
+      if (Guid != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(Guid);
       }
       if (Id != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Id);
@@ -8205,14 +7707,8 @@ namespace Database {
       if (SpawnMask != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(SpawnMask);
       }
-      if (PositionX != 0F) {
-        size += 1 + 4;
-      }
-      if (PositionY != 0F) {
-        size += 1 + 4;
-      }
-      if (PositionZ != 0F) {
-        size += 1 + 4;
+      if (position_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Position);
       }
       if (Orientation != 0F) {
         size += 1 + 4;
@@ -8239,7 +7735,7 @@ namespace Database {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(AnimProgress);
       }
       if (State != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(State);
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(State);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -8253,7 +7749,7 @@ namespace Database {
       if (other == null) {
         return;
       }
-      if (other.Guid != 0) {
+      if (other.Guid != 0L) {
         Guid = other.Guid;
       }
       if (other.Id != 0) {
@@ -8265,14 +7761,11 @@ namespace Database {
       if (other.SpawnMask != 0) {
         SpawnMask = other.SpawnMask;
       }
-      if (other.PositionX != 0F) {
-        PositionX = other.PositionX;
-      }
-      if (other.PositionY != 0F) {
-        PositionY = other.PositionY;
-      }
-      if (other.PositionZ != 0F) {
-        PositionZ = other.PositionZ;
+      if (other.position_ != null) {
+        if (position_ == null) {
+          Position = new global::Game.Position();
+        }
+        Position.MergeFrom(other.Position);
       }
       if (other.Orientation != 0F) {
         Orientation = other.Orientation;
@@ -8317,7 +7810,7 @@ namespace Database {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            Guid = input.ReadInt32();
+            Guid = input.ReadInt64();
             break;
           }
           case 16: {
@@ -8332,51 +7825,46 @@ namespace Database {
             SpawnMask = input.ReadUInt32();
             break;
           }
-          case 45: {
-            PositionX = input.ReadFloat();
+          case 42: {
+            if (position_ == null) {
+              Position = new global::Game.Position();
+            }
+            input.ReadMessage(Position);
             break;
           }
           case 53: {
-            PositionY = input.ReadFloat();
-            break;
-          }
-          case 61: {
-            PositionZ = input.ReadFloat();
-            break;
-          }
-          case 69: {
             Orientation = input.ReadFloat();
             break;
           }
-          case 77: {
+          case 61: {
             Rotation0 = input.ReadFloat();
             break;
           }
-          case 85: {
+          case 69: {
             Rotation1 = input.ReadFloat();
             break;
           }
-          case 93: {
+          case 77: {
             Rotation2 = input.ReadFloat();
             break;
           }
-          case 101: {
+          case 85: {
             Rotation3 = input.ReadFloat();
             break;
           }
-          case 104: {
+          case 88: {
             SpawnTimeSecsMin = input.ReadInt32();
             break;
           }
-          case 112: {
+          case 96: {
             SpawnTimeSecsMax = input.ReadInt32();
             break;
           }
-          case 120: {
+          case 104: {
             AnimProgress = input.ReadUInt32();
             break;
           }
-          case 128: {
+          case 112: {
             State = input.ReadUInt32();
             break;
           }
@@ -8396,7 +7884,7 @@ namespace Database {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            Guid = input.ReadInt32();
+            Guid = input.ReadInt64();
             break;
           }
           case 16: {
@@ -8411,51 +7899,46 @@ namespace Database {
             SpawnMask = input.ReadUInt32();
             break;
           }
-          case 45: {
-            PositionX = input.ReadFloat();
+          case 42: {
+            if (position_ == null) {
+              Position = new global::Game.Position();
+            }
+            input.ReadMessage(Position);
             break;
           }
           case 53: {
-            PositionY = input.ReadFloat();
-            break;
-          }
-          case 61: {
-            PositionZ = input.ReadFloat();
-            break;
-          }
-          case 69: {
             Orientation = input.ReadFloat();
             break;
           }
-          case 77: {
+          case 61: {
             Rotation0 = input.ReadFloat();
             break;
           }
-          case 85: {
+          case 69: {
             Rotation1 = input.ReadFloat();
             break;
           }
-          case 93: {
+          case 77: {
             Rotation2 = input.ReadFloat();
             break;
           }
-          case 101: {
+          case 85: {
             Rotation3 = input.ReadFloat();
             break;
           }
-          case 104: {
+          case 88: {
             SpawnTimeSecsMin = input.ReadInt32();
             break;
           }
-          case 112: {
+          case 96: {
             SpawnTimeSecsMax = input.ReadInt32();
             break;
           }
-          case 120: {
+          case 104: {
             AnimProgress = input.ReadUInt32();
             break;
           }
-          case 128: {
+          case 112: {
             State = input.ReadUInt32();
             break;
           }
@@ -8527,26 +8010,7 @@ namespace Database {
       maxCount_ = other.maxCount_;
       stackable_ = other.stackable_;
       containerSlots_ = other.containerSlots_;
-      statType1_ = other.statType1_;
-      statValue1_ = other.statValue1_;
-      statType2_ = other.statType2_;
-      statValue2_ = other.statValue2_;
-      statType3_ = other.statType3_;
-      statValue3_ = other.statValue3_;
-      statType4_ = other.statType4_;
-      statValue4_ = other.statValue4_;
-      statType5_ = other.statType5_;
-      statValue5_ = other.statValue5_;
-      statType6_ = other.statType6_;
-      statValue6_ = other.statValue6_;
-      statType7_ = other.statType7_;
-      statValue7_ = other.statValue7_;
-      statType8_ = other.statType8_;
-      statValue8_ = other.statValue8_;
-      statType9_ = other.statType9_;
-      statValue9_ = other.statValue9_;
-      statType10_ = other.statType10_;
-      statValue10_ = other.statValue10_;
+      stats_ = other.stats_.Clone();
       dmgMin1_ = other.dmgMin1_;
       dmgMax1_ = other.dmgMax1_;
       dmgType1_ = other.dmgType1_;
@@ -8563,12 +8027,7 @@ namespace Database {
       dmgMax5_ = other.dmgMax5_;
       dmgType5_ = other.dmgType5_;
       armor_ = other.armor_;
-      holyResistance_ = other.holyResistance_;
-      fireResistance_ = other.fireResistance_;
-      natureResistance_ = other.natureResistance_;
-      frostResistance_ = other.frostResistance_;
-      shadowResistance_ = other.shadowResistance_;
-      arcaneResistance_ = other.arcaneResistance_;
+      resistances_ = other.resistances_.Clone();
       delay_ = other.delay_;
       ammoType_ = other.ammoType_;
       rangedModRange_ = other.rangedModRange_;
@@ -8952,244 +8411,18 @@ namespace Database {
       }
     }
 
-    /// <summary>Field number for the "statType1" field.</summary>
-    public const int StatType1FieldNumber = 27;
-    private int statType1_;
+    /// <summary>Field number for the "stats" field.</summary>
+    public const int StatsFieldNumber = 27;
+    private static readonly pbc::MapField<uint, uint>.Codec _map_stats_codec
+        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 218);
+    private readonly pbc::MapField<uint, uint> stats_ = new pbc::MapField<uint, uint>();
+    /// <summary>
+    /// Reused Stat instead of individual statType/statValue fields
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int StatType1 {
-      get { return statType1_; }
-      set {
-        statType1_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "statValue1" field.</summary>
-    public const int StatValue1FieldNumber = 28;
-    private int statValue1_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int StatValue1 {
-      get { return statValue1_; }
-      set {
-        statValue1_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "statType2" field.</summary>
-    public const int StatType2FieldNumber = 29;
-    private int statType2_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int StatType2 {
-      get { return statType2_; }
-      set {
-        statType2_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "statValue2" field.</summary>
-    public const int StatValue2FieldNumber = 30;
-    private int statValue2_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int StatValue2 {
-      get { return statValue2_; }
-      set {
-        statValue2_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "statType3" field.</summary>
-    public const int StatType3FieldNumber = 31;
-    private int statType3_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int StatType3 {
-      get { return statType3_; }
-      set {
-        statType3_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "statValue3" field.</summary>
-    public const int StatValue3FieldNumber = 32;
-    private int statValue3_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int StatValue3 {
-      get { return statValue3_; }
-      set {
-        statValue3_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "statType4" field.</summary>
-    public const int StatType4FieldNumber = 33;
-    private int statType4_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int StatType4 {
-      get { return statType4_; }
-      set {
-        statType4_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "statValue4" field.</summary>
-    public const int StatValue4FieldNumber = 34;
-    private int statValue4_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int StatValue4 {
-      get { return statValue4_; }
-      set {
-        statValue4_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "statType5" field.</summary>
-    public const int StatType5FieldNumber = 35;
-    private int statType5_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int StatType5 {
-      get { return statType5_; }
-      set {
-        statType5_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "statValue5" field.</summary>
-    public const int StatValue5FieldNumber = 36;
-    private int statValue5_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int StatValue5 {
-      get { return statValue5_; }
-      set {
-        statValue5_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "statType6" field.</summary>
-    public const int StatType6FieldNumber = 37;
-    private int statType6_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int StatType6 {
-      get { return statType6_; }
-      set {
-        statType6_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "statValue6" field.</summary>
-    public const int StatValue6FieldNumber = 38;
-    private int statValue6_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int StatValue6 {
-      get { return statValue6_; }
-      set {
-        statValue6_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "statType7" field.</summary>
-    public const int StatType7FieldNumber = 39;
-    private int statType7_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int StatType7 {
-      get { return statType7_; }
-      set {
-        statType7_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "statValue7" field.</summary>
-    public const int StatValue7FieldNumber = 40;
-    private int statValue7_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int StatValue7 {
-      get { return statValue7_; }
-      set {
-        statValue7_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "statType8" field.</summary>
-    public const int StatType8FieldNumber = 41;
-    private int statType8_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int StatType8 {
-      get { return statType8_; }
-      set {
-        statType8_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "statValue8" field.</summary>
-    public const int StatValue8FieldNumber = 42;
-    private int statValue8_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int StatValue8 {
-      get { return statValue8_; }
-      set {
-        statValue8_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "statType9" field.</summary>
-    public const int StatType9FieldNumber = 43;
-    private int statType9_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int StatType9 {
-      get { return statType9_; }
-      set {
-        statType9_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "statValue9" field.</summary>
-    public const int StatValue9FieldNumber = 44;
-    private int statValue9_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int StatValue9 {
-      get { return statValue9_; }
-      set {
-        statValue9_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "statType10" field.</summary>
-    public const int StatType10FieldNumber = 45;
-    private int statType10_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int StatType10 {
-      get { return statType10_; }
-      set {
-        statType10_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "statValue10" field.</summary>
-    public const int StatValue10FieldNumber = 46;
-    private int statValue10_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int StatValue10 {
-      get { return statValue10_; }
-      set {
-        statValue10_ = value;
-      }
+    public pbc::MapField<uint, uint> Stats {
+      get { return stats_; }
     }
 
     /// <summary>Field number for the "dmgMin1" field.</summary>
@@ -9384,76 +8617,18 @@ namespace Database {
       }
     }
 
-    /// <summary>Field number for the "holyResistance" field.</summary>
-    public const int HolyResistanceFieldNumber = 63;
-    private int holyResistance_;
+    /// <summary>Field number for the "resistances" field.</summary>
+    public const int ResistancesFieldNumber = 63;
+    private static readonly pbc::MapField<uint, uint>.Codec _map_resistances_codec
+        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 506);
+    private readonly pbc::MapField<uint, uint> resistances_ = new pbc::MapField<uint, uint>();
+    /// <summary>
+    /// Reused Resistances
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int HolyResistance {
-      get { return holyResistance_; }
-      set {
-        holyResistance_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "fireResistance" field.</summary>
-    public const int FireResistanceFieldNumber = 64;
-    private int fireResistance_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int FireResistance {
-      get { return fireResistance_; }
-      set {
-        fireResistance_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "natureResistance" field.</summary>
-    public const int NatureResistanceFieldNumber = 65;
-    private int natureResistance_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int NatureResistance {
-      get { return natureResistance_; }
-      set {
-        natureResistance_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "frostResistance" field.</summary>
-    public const int FrostResistanceFieldNumber = 66;
-    private int frostResistance_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int FrostResistance {
-      get { return frostResistance_; }
-      set {
-        frostResistance_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "shadowResistance" field.</summary>
-    public const int ShadowResistanceFieldNumber = 67;
-    private int shadowResistance_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int ShadowResistance {
-      get { return shadowResistance_; }
-      set {
-        shadowResistance_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "arcaneResistance" field.</summary>
-    public const int ArcaneResistanceFieldNumber = 68;
-    private int arcaneResistance_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int ArcaneResistance {
-      get { return arcaneResistance_; }
-      set {
-        arcaneResistance_ = value;
-      }
+    public pbc::MapField<uint, uint> Resistances {
+      get { return resistances_; }
     }
 
     /// <summary>Field number for the "delay" field.</summary>
@@ -10241,26 +9416,7 @@ namespace Database {
       if (MaxCount != other.MaxCount) return false;
       if (Stackable != other.Stackable) return false;
       if (ContainerSlots != other.ContainerSlots) return false;
-      if (StatType1 != other.StatType1) return false;
-      if (StatValue1 != other.StatValue1) return false;
-      if (StatType2 != other.StatType2) return false;
-      if (StatValue2 != other.StatValue2) return false;
-      if (StatType3 != other.StatType3) return false;
-      if (StatValue3 != other.StatValue3) return false;
-      if (StatType4 != other.StatType4) return false;
-      if (StatValue4 != other.StatValue4) return false;
-      if (StatType5 != other.StatType5) return false;
-      if (StatValue5 != other.StatValue5) return false;
-      if (StatType6 != other.StatType6) return false;
-      if (StatValue6 != other.StatValue6) return false;
-      if (StatType7 != other.StatType7) return false;
-      if (StatValue7 != other.StatValue7) return false;
-      if (StatType8 != other.StatType8) return false;
-      if (StatValue8 != other.StatValue8) return false;
-      if (StatType9 != other.StatType9) return false;
-      if (StatValue9 != other.StatValue9) return false;
-      if (StatType10 != other.StatType10) return false;
-      if (StatValue10 != other.StatValue10) return false;
+      if (!Stats.Equals(other.Stats)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(DmgMin1, other.DmgMin1)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(DmgMax1, other.DmgMax1)) return false;
       if (DmgType1 != other.DmgType1) return false;
@@ -10277,12 +9433,7 @@ namespace Database {
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(DmgMax5, other.DmgMax5)) return false;
       if (DmgType5 != other.DmgType5) return false;
       if (Armor != other.Armor) return false;
-      if (HolyResistance != other.HolyResistance) return false;
-      if (FireResistance != other.FireResistance) return false;
-      if (NatureResistance != other.NatureResistance) return false;
-      if (FrostResistance != other.FrostResistance) return false;
-      if (ShadowResistance != other.ShadowResistance) return false;
-      if (ArcaneResistance != other.ArcaneResistance) return false;
+      if (!Resistances.Equals(other.Resistances)) return false;
       if (Delay != other.Delay) return false;
       if (AmmoType != other.AmmoType) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(RangedModRange, other.RangedModRange)) return false;
@@ -10378,26 +9529,7 @@ namespace Database {
       if (MaxCount != 0) hash ^= MaxCount.GetHashCode();
       if (Stackable != 0) hash ^= Stackable.GetHashCode();
       if (ContainerSlots != 0) hash ^= ContainerSlots.GetHashCode();
-      if (StatType1 != 0) hash ^= StatType1.GetHashCode();
-      if (StatValue1 != 0) hash ^= StatValue1.GetHashCode();
-      if (StatType2 != 0) hash ^= StatType2.GetHashCode();
-      if (StatValue2 != 0) hash ^= StatValue2.GetHashCode();
-      if (StatType3 != 0) hash ^= StatType3.GetHashCode();
-      if (StatValue3 != 0) hash ^= StatValue3.GetHashCode();
-      if (StatType4 != 0) hash ^= StatType4.GetHashCode();
-      if (StatValue4 != 0) hash ^= StatValue4.GetHashCode();
-      if (StatType5 != 0) hash ^= StatType5.GetHashCode();
-      if (StatValue5 != 0) hash ^= StatValue5.GetHashCode();
-      if (StatType6 != 0) hash ^= StatType6.GetHashCode();
-      if (StatValue6 != 0) hash ^= StatValue6.GetHashCode();
-      if (StatType7 != 0) hash ^= StatType7.GetHashCode();
-      if (StatValue7 != 0) hash ^= StatValue7.GetHashCode();
-      if (StatType8 != 0) hash ^= StatType8.GetHashCode();
-      if (StatValue8 != 0) hash ^= StatValue8.GetHashCode();
-      if (StatType9 != 0) hash ^= StatType9.GetHashCode();
-      if (StatValue9 != 0) hash ^= StatValue9.GetHashCode();
-      if (StatType10 != 0) hash ^= StatType10.GetHashCode();
-      if (StatValue10 != 0) hash ^= StatValue10.GetHashCode();
+      hash ^= Stats.GetHashCode();
       if (DmgMin1 != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(DmgMin1);
       if (DmgMax1 != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(DmgMax1);
       if (DmgType1 != 0) hash ^= DmgType1.GetHashCode();
@@ -10414,12 +9546,7 @@ namespace Database {
       if (DmgMax5 != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(DmgMax5);
       if (DmgType5 != 0) hash ^= DmgType5.GetHashCode();
       if (Armor != 0) hash ^= Armor.GetHashCode();
-      if (HolyResistance != 0) hash ^= HolyResistance.GetHashCode();
-      if (FireResistance != 0) hash ^= FireResistance.GetHashCode();
-      if (NatureResistance != 0) hash ^= NatureResistance.GetHashCode();
-      if (FrostResistance != 0) hash ^= FrostResistance.GetHashCode();
-      if (ShadowResistance != 0) hash ^= ShadowResistance.GetHashCode();
-      if (ArcaneResistance != 0) hash ^= ArcaneResistance.GetHashCode();
+      hash ^= Resistances.GetHashCode();
       if (Delay != 0) hash ^= Delay.GetHashCode();
       if (AmmoType != 0) hash ^= AmmoType.GetHashCode();
       if (RangedModRange != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(RangedModRange);
@@ -10604,86 +9731,7 @@ namespace Database {
         output.WriteRawTag(208, 1);
         output.WriteInt32(ContainerSlots);
       }
-      if (StatType1 != 0) {
-        output.WriteRawTag(216, 1);
-        output.WriteInt32(StatType1);
-      }
-      if (StatValue1 != 0) {
-        output.WriteRawTag(224, 1);
-        output.WriteInt32(StatValue1);
-      }
-      if (StatType2 != 0) {
-        output.WriteRawTag(232, 1);
-        output.WriteInt32(StatType2);
-      }
-      if (StatValue2 != 0) {
-        output.WriteRawTag(240, 1);
-        output.WriteInt32(StatValue2);
-      }
-      if (StatType3 != 0) {
-        output.WriteRawTag(248, 1);
-        output.WriteInt32(StatType3);
-      }
-      if (StatValue3 != 0) {
-        output.WriteRawTag(128, 2);
-        output.WriteInt32(StatValue3);
-      }
-      if (StatType4 != 0) {
-        output.WriteRawTag(136, 2);
-        output.WriteInt32(StatType4);
-      }
-      if (StatValue4 != 0) {
-        output.WriteRawTag(144, 2);
-        output.WriteInt32(StatValue4);
-      }
-      if (StatType5 != 0) {
-        output.WriteRawTag(152, 2);
-        output.WriteInt32(StatType5);
-      }
-      if (StatValue5 != 0) {
-        output.WriteRawTag(160, 2);
-        output.WriteInt32(StatValue5);
-      }
-      if (StatType6 != 0) {
-        output.WriteRawTag(168, 2);
-        output.WriteInt32(StatType6);
-      }
-      if (StatValue6 != 0) {
-        output.WriteRawTag(176, 2);
-        output.WriteInt32(StatValue6);
-      }
-      if (StatType7 != 0) {
-        output.WriteRawTag(184, 2);
-        output.WriteInt32(StatType7);
-      }
-      if (StatValue7 != 0) {
-        output.WriteRawTag(192, 2);
-        output.WriteInt32(StatValue7);
-      }
-      if (StatType8 != 0) {
-        output.WriteRawTag(200, 2);
-        output.WriteInt32(StatType8);
-      }
-      if (StatValue8 != 0) {
-        output.WriteRawTag(208, 2);
-        output.WriteInt32(StatValue8);
-      }
-      if (StatType9 != 0) {
-        output.WriteRawTag(216, 2);
-        output.WriteInt32(StatType9);
-      }
-      if (StatValue9 != 0) {
-        output.WriteRawTag(224, 2);
-        output.WriteInt32(StatValue9);
-      }
-      if (StatType10 != 0) {
-        output.WriteRawTag(232, 2);
-        output.WriteInt32(StatType10);
-      }
-      if (StatValue10 != 0) {
-        output.WriteRawTag(240, 2);
-        output.WriteInt32(StatValue10);
-      }
+      stats_.WriteTo(output, _map_stats_codec);
       if (DmgMin1 != 0F) {
         output.WriteRawTag(253, 2);
         output.WriteFloat(DmgMin1);
@@ -10748,30 +9796,7 @@ namespace Database {
         output.WriteRawTag(240, 3);
         output.WriteInt32(Armor);
       }
-      if (HolyResistance != 0) {
-        output.WriteRawTag(248, 3);
-        output.WriteInt32(HolyResistance);
-      }
-      if (FireResistance != 0) {
-        output.WriteRawTag(128, 4);
-        output.WriteInt32(FireResistance);
-      }
-      if (NatureResistance != 0) {
-        output.WriteRawTag(136, 4);
-        output.WriteInt32(NatureResistance);
-      }
-      if (FrostResistance != 0) {
-        output.WriteRawTag(144, 4);
-        output.WriteInt32(FrostResistance);
-      }
-      if (ShadowResistance != 0) {
-        output.WriteRawTag(152, 4);
-        output.WriteInt32(ShadowResistance);
-      }
-      if (ArcaneResistance != 0) {
-        output.WriteRawTag(160, 4);
-        output.WriteInt32(ArcaneResistance);
-      }
+      resistances_.WriteTo(output, _map_resistances_codec);
       if (Delay != 0) {
         output.WriteRawTag(168, 4);
         output.WriteInt32(Delay);
@@ -11134,86 +10159,7 @@ namespace Database {
         output.WriteRawTag(208, 1);
         output.WriteInt32(ContainerSlots);
       }
-      if (StatType1 != 0) {
-        output.WriteRawTag(216, 1);
-        output.WriteInt32(StatType1);
-      }
-      if (StatValue1 != 0) {
-        output.WriteRawTag(224, 1);
-        output.WriteInt32(StatValue1);
-      }
-      if (StatType2 != 0) {
-        output.WriteRawTag(232, 1);
-        output.WriteInt32(StatType2);
-      }
-      if (StatValue2 != 0) {
-        output.WriteRawTag(240, 1);
-        output.WriteInt32(StatValue2);
-      }
-      if (StatType3 != 0) {
-        output.WriteRawTag(248, 1);
-        output.WriteInt32(StatType3);
-      }
-      if (StatValue3 != 0) {
-        output.WriteRawTag(128, 2);
-        output.WriteInt32(StatValue3);
-      }
-      if (StatType4 != 0) {
-        output.WriteRawTag(136, 2);
-        output.WriteInt32(StatType4);
-      }
-      if (StatValue4 != 0) {
-        output.WriteRawTag(144, 2);
-        output.WriteInt32(StatValue4);
-      }
-      if (StatType5 != 0) {
-        output.WriteRawTag(152, 2);
-        output.WriteInt32(StatType5);
-      }
-      if (StatValue5 != 0) {
-        output.WriteRawTag(160, 2);
-        output.WriteInt32(StatValue5);
-      }
-      if (StatType6 != 0) {
-        output.WriteRawTag(168, 2);
-        output.WriteInt32(StatType6);
-      }
-      if (StatValue6 != 0) {
-        output.WriteRawTag(176, 2);
-        output.WriteInt32(StatValue6);
-      }
-      if (StatType7 != 0) {
-        output.WriteRawTag(184, 2);
-        output.WriteInt32(StatType7);
-      }
-      if (StatValue7 != 0) {
-        output.WriteRawTag(192, 2);
-        output.WriteInt32(StatValue7);
-      }
-      if (StatType8 != 0) {
-        output.WriteRawTag(200, 2);
-        output.WriteInt32(StatType8);
-      }
-      if (StatValue8 != 0) {
-        output.WriteRawTag(208, 2);
-        output.WriteInt32(StatValue8);
-      }
-      if (StatType9 != 0) {
-        output.WriteRawTag(216, 2);
-        output.WriteInt32(StatType9);
-      }
-      if (StatValue9 != 0) {
-        output.WriteRawTag(224, 2);
-        output.WriteInt32(StatValue9);
-      }
-      if (StatType10 != 0) {
-        output.WriteRawTag(232, 2);
-        output.WriteInt32(StatType10);
-      }
-      if (StatValue10 != 0) {
-        output.WriteRawTag(240, 2);
-        output.WriteInt32(StatValue10);
-      }
+      stats_.WriteTo(ref output, _map_stats_codec);
       if (DmgMin1 != 0F) {
         output.WriteRawTag(253, 2);
         output.WriteFloat(DmgMin1);
@@ -11278,30 +10224,7 @@ namespace Database {
         output.WriteRawTag(240, 3);
         output.WriteInt32(Armor);
       }
-      if (HolyResistance != 0) {
-        output.WriteRawTag(248, 3);
-        output.WriteInt32(HolyResistance);
-      }
-      if (FireResistance != 0) {
-        output.WriteRawTag(128, 4);
-        output.WriteInt32(FireResistance);
-      }
-      if (NatureResistance != 0) {
-        output.WriteRawTag(136, 4);
-        output.WriteInt32(NatureResistance);
-      }
-      if (FrostResistance != 0) {
-        output.WriteRawTag(144, 4);
-        output.WriteInt32(FrostResistance);
-      }
-      if (ShadowResistance != 0) {
-        output.WriteRawTag(152, 4);
-        output.WriteInt32(ShadowResistance);
-      }
-      if (ArcaneResistance != 0) {
-        output.WriteRawTag(160, 4);
-        output.WriteInt32(ArcaneResistance);
-      }
+      resistances_.WriteTo(ref output, _map_resistances_codec);
       if (Delay != 0) {
         output.WriteRawTag(168, 4);
         output.WriteInt32(Delay);
@@ -11638,66 +10561,7 @@ namespace Database {
       if (ContainerSlots != 0) {
         size += 2 + pb::CodedOutputStream.ComputeInt32Size(ContainerSlots);
       }
-      if (StatType1 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(StatType1);
-      }
-      if (StatValue1 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(StatValue1);
-      }
-      if (StatType2 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(StatType2);
-      }
-      if (StatValue2 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(StatValue2);
-      }
-      if (StatType3 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(StatType3);
-      }
-      if (StatValue3 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(StatValue3);
-      }
-      if (StatType4 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(StatType4);
-      }
-      if (StatValue4 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(StatValue4);
-      }
-      if (StatType5 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(StatType5);
-      }
-      if (StatValue5 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(StatValue5);
-      }
-      if (StatType6 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(StatType6);
-      }
-      if (StatValue6 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(StatValue6);
-      }
-      if (StatType7 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(StatType7);
-      }
-      if (StatValue7 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(StatValue7);
-      }
-      if (StatType8 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(StatType8);
-      }
-      if (StatValue8 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(StatValue8);
-      }
-      if (StatType9 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(StatType9);
-      }
-      if (StatValue9 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(StatValue9);
-      }
-      if (StatType10 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(StatType10);
-      }
-      if (StatValue10 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(StatValue10);
-      }
+      size += stats_.CalculateSize(_map_stats_codec);
       if (DmgMin1 != 0F) {
         size += 2 + 4;
       }
@@ -11746,24 +10610,7 @@ namespace Database {
       if (Armor != 0) {
         size += 2 + pb::CodedOutputStream.ComputeInt32Size(Armor);
       }
-      if (HolyResistance != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(HolyResistance);
-      }
-      if (FireResistance != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(FireResistance);
-      }
-      if (NatureResistance != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(NatureResistance);
-      }
-      if (FrostResistance != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(FrostResistance);
-      }
-      if (ShadowResistance != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(ShadowResistance);
-      }
-      if (ArcaneResistance != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(ArcaneResistance);
-      }
+      size += resistances_.CalculateSize(_map_resistances_codec);
       if (Delay != 0) {
         size += 2 + pb::CodedOutputStream.ComputeInt32Size(Delay);
       }
@@ -12040,66 +10887,7 @@ namespace Database {
       if (other.ContainerSlots != 0) {
         ContainerSlots = other.ContainerSlots;
       }
-      if (other.StatType1 != 0) {
-        StatType1 = other.StatType1;
-      }
-      if (other.StatValue1 != 0) {
-        StatValue1 = other.StatValue1;
-      }
-      if (other.StatType2 != 0) {
-        StatType2 = other.StatType2;
-      }
-      if (other.StatValue2 != 0) {
-        StatValue2 = other.StatValue2;
-      }
-      if (other.StatType3 != 0) {
-        StatType3 = other.StatType3;
-      }
-      if (other.StatValue3 != 0) {
-        StatValue3 = other.StatValue3;
-      }
-      if (other.StatType4 != 0) {
-        StatType4 = other.StatType4;
-      }
-      if (other.StatValue4 != 0) {
-        StatValue4 = other.StatValue4;
-      }
-      if (other.StatType5 != 0) {
-        StatType5 = other.StatType5;
-      }
-      if (other.StatValue5 != 0) {
-        StatValue5 = other.StatValue5;
-      }
-      if (other.StatType6 != 0) {
-        StatType6 = other.StatType6;
-      }
-      if (other.StatValue6 != 0) {
-        StatValue6 = other.StatValue6;
-      }
-      if (other.StatType7 != 0) {
-        StatType7 = other.StatType7;
-      }
-      if (other.StatValue7 != 0) {
-        StatValue7 = other.StatValue7;
-      }
-      if (other.StatType8 != 0) {
-        StatType8 = other.StatType8;
-      }
-      if (other.StatValue8 != 0) {
-        StatValue8 = other.StatValue8;
-      }
-      if (other.StatType9 != 0) {
-        StatType9 = other.StatType9;
-      }
-      if (other.StatValue9 != 0) {
-        StatValue9 = other.StatValue9;
-      }
-      if (other.StatType10 != 0) {
-        StatType10 = other.StatType10;
-      }
-      if (other.StatValue10 != 0) {
-        StatValue10 = other.StatValue10;
-      }
+      stats_.MergeFrom(other.stats_);
       if (other.DmgMin1 != 0F) {
         DmgMin1 = other.DmgMin1;
       }
@@ -12148,24 +10936,7 @@ namespace Database {
       if (other.Armor != 0) {
         Armor = other.Armor;
       }
-      if (other.HolyResistance != 0) {
-        HolyResistance = other.HolyResistance;
-      }
-      if (other.FireResistance != 0) {
-        FireResistance = other.FireResistance;
-      }
-      if (other.NatureResistance != 0) {
-        NatureResistance = other.NatureResistance;
-      }
-      if (other.FrostResistance != 0) {
-        FrostResistance = other.FrostResistance;
-      }
-      if (other.ShadowResistance != 0) {
-        ShadowResistance = other.ShadowResistance;
-      }
-      if (other.ArcaneResistance != 0) {
-        ArcaneResistance = other.ArcaneResistance;
-      }
+      resistances_.MergeFrom(other.resistances_);
       if (other.Delay != 0) {
         Delay = other.Delay;
       }
@@ -12471,84 +11242,8 @@ namespace Database {
             ContainerSlots = input.ReadInt32();
             break;
           }
-          case 216: {
-            StatType1 = input.ReadInt32();
-            break;
-          }
-          case 224: {
-            StatValue1 = input.ReadInt32();
-            break;
-          }
-          case 232: {
-            StatType2 = input.ReadInt32();
-            break;
-          }
-          case 240: {
-            StatValue2 = input.ReadInt32();
-            break;
-          }
-          case 248: {
-            StatType3 = input.ReadInt32();
-            break;
-          }
-          case 256: {
-            StatValue3 = input.ReadInt32();
-            break;
-          }
-          case 264: {
-            StatType4 = input.ReadInt32();
-            break;
-          }
-          case 272: {
-            StatValue4 = input.ReadInt32();
-            break;
-          }
-          case 280: {
-            StatType5 = input.ReadInt32();
-            break;
-          }
-          case 288: {
-            StatValue5 = input.ReadInt32();
-            break;
-          }
-          case 296: {
-            StatType6 = input.ReadInt32();
-            break;
-          }
-          case 304: {
-            StatValue6 = input.ReadInt32();
-            break;
-          }
-          case 312: {
-            StatType7 = input.ReadInt32();
-            break;
-          }
-          case 320: {
-            StatValue7 = input.ReadInt32();
-            break;
-          }
-          case 328: {
-            StatType8 = input.ReadInt32();
-            break;
-          }
-          case 336: {
-            StatValue8 = input.ReadInt32();
-            break;
-          }
-          case 344: {
-            StatType9 = input.ReadInt32();
-            break;
-          }
-          case 352: {
-            StatValue9 = input.ReadInt32();
-            break;
-          }
-          case 360: {
-            StatType10 = input.ReadInt32();
-            break;
-          }
-          case 368: {
-            StatValue10 = input.ReadInt32();
+          case 218: {
+            stats_.AddEntriesFrom(input, _map_stats_codec);
             break;
           }
           case 381: {
@@ -12615,28 +11310,8 @@ namespace Database {
             Armor = input.ReadInt32();
             break;
           }
-          case 504: {
-            HolyResistance = input.ReadInt32();
-            break;
-          }
-          case 512: {
-            FireResistance = input.ReadInt32();
-            break;
-          }
-          case 520: {
-            NatureResistance = input.ReadInt32();
-            break;
-          }
-          case 528: {
-            FrostResistance = input.ReadInt32();
-            break;
-          }
-          case 536: {
-            ShadowResistance = input.ReadInt32();
-            break;
-          }
-          case 544: {
-            ArcaneResistance = input.ReadInt32();
+          case 506: {
+            resistances_.AddEntriesFrom(input, _map_resistances_codec);
             break;
           }
           case 552: {
@@ -13006,84 +11681,8 @@ namespace Database {
             ContainerSlots = input.ReadInt32();
             break;
           }
-          case 216: {
-            StatType1 = input.ReadInt32();
-            break;
-          }
-          case 224: {
-            StatValue1 = input.ReadInt32();
-            break;
-          }
-          case 232: {
-            StatType2 = input.ReadInt32();
-            break;
-          }
-          case 240: {
-            StatValue2 = input.ReadInt32();
-            break;
-          }
-          case 248: {
-            StatType3 = input.ReadInt32();
-            break;
-          }
-          case 256: {
-            StatValue3 = input.ReadInt32();
-            break;
-          }
-          case 264: {
-            StatType4 = input.ReadInt32();
-            break;
-          }
-          case 272: {
-            StatValue4 = input.ReadInt32();
-            break;
-          }
-          case 280: {
-            StatType5 = input.ReadInt32();
-            break;
-          }
-          case 288: {
-            StatValue5 = input.ReadInt32();
-            break;
-          }
-          case 296: {
-            StatType6 = input.ReadInt32();
-            break;
-          }
-          case 304: {
-            StatValue6 = input.ReadInt32();
-            break;
-          }
-          case 312: {
-            StatType7 = input.ReadInt32();
-            break;
-          }
-          case 320: {
-            StatValue7 = input.ReadInt32();
-            break;
-          }
-          case 328: {
-            StatType8 = input.ReadInt32();
-            break;
-          }
-          case 336: {
-            StatValue8 = input.ReadInt32();
-            break;
-          }
-          case 344: {
-            StatType9 = input.ReadInt32();
-            break;
-          }
-          case 352: {
-            StatValue9 = input.ReadInt32();
-            break;
-          }
-          case 360: {
-            StatType10 = input.ReadInt32();
-            break;
-          }
-          case 368: {
-            StatValue10 = input.ReadInt32();
+          case 218: {
+            stats_.AddEntriesFrom(ref input, _map_stats_codec);
             break;
           }
           case 381: {
@@ -13150,28 +11749,8 @@ namespace Database {
             Armor = input.ReadInt32();
             break;
           }
-          case 504: {
-            HolyResistance = input.ReadInt32();
-            break;
-          }
-          case 512: {
-            FireResistance = input.ReadInt32();
-            break;
-          }
-          case 520: {
-            NatureResistance = input.ReadInt32();
-            break;
-          }
-          case 528: {
-            FrostResistance = input.ReadInt32();
-            break;
-          }
-          case 536: {
-            ShadowResistance = input.ReadInt32();
-            break;
-          }
-          case 544: {
-            ArcaneResistance = input.ReadInt32();
+          case 506: {
+            resistances_.AddEntriesFrom(ref input, _map_resistances_codec);
             break;
           }
           case 552: {
@@ -13944,42 +12523,42 @@ namespace Database {
       reqSpellCast2_ = other.reqSpellCast2_;
       reqSpellCast3_ = other.reqSpellCast3_;
       reqSpellCast4_ = other.reqSpellCast4_;
-      rewChoiceItemId1_ = other.rewChoiceItemId1_;
-      rewChoiceItemId2_ = other.rewChoiceItemId2_;
-      rewChoiceItemId3_ = other.rewChoiceItemId3_;
-      rewChoiceItemId4_ = other.rewChoiceItemId4_;
-      rewChoiceItemId5_ = other.rewChoiceItemId5_;
-      rewChoiceItemId6_ = other.rewChoiceItemId6_;
-      rewChoiceItemCount1_ = other.rewChoiceItemCount1_;
-      rewChoiceItemCount2_ = other.rewChoiceItemCount2_;
-      rewChoiceItemCount3_ = other.rewChoiceItemCount3_;
-      rewChoiceItemCount4_ = other.rewChoiceItemCount4_;
-      rewChoiceItemCount5_ = other.rewChoiceItemCount5_;
-      rewChoiceItemCount6_ = other.rewChoiceItemCount6_;
-      rewItemId1_ = other.rewItemId1_;
-      rewItemId2_ = other.rewItemId2_;
-      rewItemId3_ = other.rewItemId3_;
-      rewItemId4_ = other.rewItemId4_;
-      rewItemCount1_ = other.rewItemCount1_;
-      rewItemCount2_ = other.rewItemCount2_;
-      rewItemCount3_ = other.rewItemCount3_;
-      rewItemCount4_ = other.rewItemCount4_;
-      rewRepFaction1_ = other.rewRepFaction1_;
-      rewRepFaction2_ = other.rewRepFaction2_;
-      rewRepFaction3_ = other.rewRepFaction3_;
-      rewRepFaction4_ = other.rewRepFaction4_;
-      rewRepFaction5_ = other.rewRepFaction5_;
-      rewRepValue1_ = other.rewRepValue1_;
-      rewRepValue2_ = other.rewRepValue2_;
-      rewRepValue3_ = other.rewRepValue3_;
-      rewRepValue4_ = other.rewRepValue4_;
-      rewRepValue5_ = other.rewRepValue5_;
-      rewOrReqMoney_ = other.rewOrReqMoney_;
-      rewMoneyMaxLevel_ = other.rewMoneyMaxLevel_;
-      rewSpell_ = other.rewSpell_;
-      rewSpellCast_ = other.rewSpellCast_;
-      rewMailTemplateId_ = other.rewMailTemplateId_;
-      rewMailDelaySecs_ = other.rewMailDelaySecs_;
+      rawChoiceItemId1_ = other.rawChoiceItemId1_;
+      rawChoiceItemId2_ = other.rawChoiceItemId2_;
+      rawChoiceItemId3_ = other.rawChoiceItemId3_;
+      rawChoiceItemId4_ = other.rawChoiceItemId4_;
+      rawChoiceItemId5_ = other.rawChoiceItemId5_;
+      rawChoiceItemId6_ = other.rawChoiceItemId6_;
+      rawChoiceItemCount1_ = other.rawChoiceItemCount1_;
+      rawChoiceItemCount2_ = other.rawChoiceItemCount2_;
+      rawChoiceItemCount3_ = other.rawChoiceItemCount3_;
+      rawChoiceItemCount4_ = other.rawChoiceItemCount4_;
+      rawChoiceItemCount5_ = other.rawChoiceItemCount5_;
+      rawChoiceItemCount6_ = other.rawChoiceItemCount6_;
+      rawItemId1_ = other.rawItemId1_;
+      rawItemId2_ = other.rawItemId2_;
+      rawItemId3_ = other.rawItemId3_;
+      rawItemId4_ = other.rawItemId4_;
+      rawItemCount1_ = other.rawItemCount1_;
+      rawItemCount2_ = other.rawItemCount2_;
+      rawItemCount3_ = other.rawItemCount3_;
+      rawItemCount4_ = other.rawItemCount4_;
+      rawRepFaction1_ = other.rawRepFaction1_;
+      rawRepFaction2_ = other.rawRepFaction2_;
+      rawRepFaction3_ = other.rawRepFaction3_;
+      rawRepFaction4_ = other.rawRepFaction4_;
+      rawRepFaction5_ = other.rawRepFaction5_;
+      rawRepValue1_ = other.rawRepValue1_;
+      rawRepValue2_ = other.rawRepValue2_;
+      rawRepValue3_ = other.rawRepValue3_;
+      rawRepValue4_ = other.rawRepValue4_;
+      rawRepValue5_ = other.rawRepValue5_;
+      rawOrReqMoney_ = other.rawOrReqMoney_;
+      rawMoneyMaxLevel_ = other.rawMoneyMaxLevel_;
+      rawSpell_ = other.rawSpell_;
+      rawSpellCast_ = other.rawSpellCast_;
+      rawMailTemplateId_ = other.rawMailTemplateId_;
+      rawMailDelaySecs_ = other.rawMailDelaySecs_;
       pointMapId_ = other.pointMapId_;
       pointX_ = other.pointX_;
       pointY_ = other.pointY_;
@@ -14498,6 +13077,9 @@ namespace Database {
     /// <summary>Field number for the "reqItemId1" field.</summary>
     public const int ReqItemId1FieldNumber = 41;
     private int reqItemId1_;
+    /// <summary>
+    /// Keeping the unique identifiers and counts
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int ReqItemId1 {
@@ -14831,435 +13413,435 @@ namespace Database {
       }
     }
 
-    /// <summary>Field number for the "rewChoiceItemId1" field.</summary>
-    public const int RewChoiceItemId1FieldNumber = 69;
-    private long rewChoiceItemId1_;
+    /// <summary>Field number for the "rawChoiceItemId1" field.</summary>
+    public const int RawChoiceItemId1FieldNumber = 69;
+    private int rawChoiceItemId1_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public long RewChoiceItemId1 {
-      get { return rewChoiceItemId1_; }
+    public int RawChoiceItemId1 {
+      get { return rawChoiceItemId1_; }
       set {
-        rewChoiceItemId1_ = value;
+        rawChoiceItemId1_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewChoiceItemId2" field.</summary>
-    public const int RewChoiceItemId2FieldNumber = 70;
-    private long rewChoiceItemId2_;
+    /// <summary>Field number for the "rawChoiceItemId2" field.</summary>
+    public const int RawChoiceItemId2FieldNumber = 70;
+    private int rawChoiceItemId2_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public long RewChoiceItemId2 {
-      get { return rewChoiceItemId2_; }
+    public int RawChoiceItemId2 {
+      get { return rawChoiceItemId2_; }
       set {
-        rewChoiceItemId2_ = value;
+        rawChoiceItemId2_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewChoiceItemId3" field.</summary>
-    public const int RewChoiceItemId3FieldNumber = 71;
-    private long rewChoiceItemId3_;
+    /// <summary>Field number for the "rawChoiceItemId3" field.</summary>
+    public const int RawChoiceItemId3FieldNumber = 71;
+    private int rawChoiceItemId3_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public long RewChoiceItemId3 {
-      get { return rewChoiceItemId3_; }
+    public int RawChoiceItemId3 {
+      get { return rawChoiceItemId3_; }
       set {
-        rewChoiceItemId3_ = value;
+        rawChoiceItemId3_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewChoiceItemId4" field.</summary>
-    public const int RewChoiceItemId4FieldNumber = 72;
-    private long rewChoiceItemId4_;
+    /// <summary>Field number for the "rawChoiceItemId4" field.</summary>
+    public const int RawChoiceItemId4FieldNumber = 72;
+    private int rawChoiceItemId4_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public long RewChoiceItemId4 {
-      get { return rewChoiceItemId4_; }
+    public int RawChoiceItemId4 {
+      get { return rawChoiceItemId4_; }
       set {
-        rewChoiceItemId4_ = value;
+        rawChoiceItemId4_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewChoiceItemId5" field.</summary>
-    public const int RewChoiceItemId5FieldNumber = 73;
-    private long rewChoiceItemId5_;
+    /// <summary>Field number for the "rawChoiceItemId5" field.</summary>
+    public const int RawChoiceItemId5FieldNumber = 73;
+    private int rawChoiceItemId5_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public long RewChoiceItemId5 {
-      get { return rewChoiceItemId5_; }
+    public int RawChoiceItemId5 {
+      get { return rawChoiceItemId5_; }
       set {
-        rewChoiceItemId5_ = value;
+        rawChoiceItemId5_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewChoiceItemId6" field.</summary>
-    public const int RewChoiceItemId6FieldNumber = 74;
-    private long rewChoiceItemId6_;
+    /// <summary>Field number for the "rawChoiceItemId6" field.</summary>
+    public const int RawChoiceItemId6FieldNumber = 74;
+    private int rawChoiceItemId6_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public long RewChoiceItemId6 {
-      get { return rewChoiceItemId6_; }
+    public int RawChoiceItemId6 {
+      get { return rawChoiceItemId6_; }
       set {
-        rewChoiceItemId6_ = value;
+        rawChoiceItemId6_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewChoiceItemCount1" field.</summary>
-    public const int RewChoiceItemCount1FieldNumber = 75;
-    private int rewChoiceItemCount1_;
+    /// <summary>Field number for the "rawChoiceItemCount1" field.</summary>
+    public const int RawChoiceItemCount1FieldNumber = 75;
+    private int rawChoiceItemCount1_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewChoiceItemCount1 {
-      get { return rewChoiceItemCount1_; }
+    public int RawChoiceItemCount1 {
+      get { return rawChoiceItemCount1_; }
       set {
-        rewChoiceItemCount1_ = value;
+        rawChoiceItemCount1_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewChoiceItemCount2" field.</summary>
-    public const int RewChoiceItemCount2FieldNumber = 76;
-    private int rewChoiceItemCount2_;
+    /// <summary>Field number for the "rawChoiceItemCount2" field.</summary>
+    public const int RawChoiceItemCount2FieldNumber = 76;
+    private int rawChoiceItemCount2_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewChoiceItemCount2 {
-      get { return rewChoiceItemCount2_; }
+    public int RawChoiceItemCount2 {
+      get { return rawChoiceItemCount2_; }
       set {
-        rewChoiceItemCount2_ = value;
+        rawChoiceItemCount2_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewChoiceItemCount3" field.</summary>
-    public const int RewChoiceItemCount3FieldNumber = 77;
-    private int rewChoiceItemCount3_;
+    /// <summary>Field number for the "rawChoiceItemCount3" field.</summary>
+    public const int RawChoiceItemCount3FieldNumber = 77;
+    private int rawChoiceItemCount3_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewChoiceItemCount3 {
-      get { return rewChoiceItemCount3_; }
+    public int RawChoiceItemCount3 {
+      get { return rawChoiceItemCount3_; }
       set {
-        rewChoiceItemCount3_ = value;
+        rawChoiceItemCount3_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewChoiceItemCount4" field.</summary>
-    public const int RewChoiceItemCount4FieldNumber = 78;
-    private int rewChoiceItemCount4_;
+    /// <summary>Field number for the "rawChoiceItemCount4" field.</summary>
+    public const int RawChoiceItemCount4FieldNumber = 78;
+    private int rawChoiceItemCount4_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewChoiceItemCount4 {
-      get { return rewChoiceItemCount4_; }
+    public int RawChoiceItemCount4 {
+      get { return rawChoiceItemCount4_; }
       set {
-        rewChoiceItemCount4_ = value;
+        rawChoiceItemCount4_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewChoiceItemCount5" field.</summary>
-    public const int RewChoiceItemCount5FieldNumber = 79;
-    private int rewChoiceItemCount5_;
+    /// <summary>Field number for the "rawChoiceItemCount5" field.</summary>
+    public const int RawChoiceItemCount5FieldNumber = 79;
+    private int rawChoiceItemCount5_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewChoiceItemCount5 {
-      get { return rewChoiceItemCount5_; }
+    public int RawChoiceItemCount5 {
+      get { return rawChoiceItemCount5_; }
       set {
-        rewChoiceItemCount5_ = value;
+        rawChoiceItemCount5_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewChoiceItemCount6" field.</summary>
-    public const int RewChoiceItemCount6FieldNumber = 80;
-    private int rewChoiceItemCount6_;
+    /// <summary>Field number for the "rawChoiceItemCount6" field.</summary>
+    public const int RawChoiceItemCount6FieldNumber = 80;
+    private int rawChoiceItemCount6_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewChoiceItemCount6 {
-      get { return rewChoiceItemCount6_; }
+    public int RawChoiceItemCount6 {
+      get { return rawChoiceItemCount6_; }
       set {
-        rewChoiceItemCount6_ = value;
+        rawChoiceItemCount6_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewItemId1" field.</summary>
-    public const int RewItemId1FieldNumber = 81;
-    private int rewItemId1_;
+    /// <summary>Field number for the "rawItemId1" field.</summary>
+    public const int RawItemId1FieldNumber = 81;
+    private int rawItemId1_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewItemId1 {
-      get { return rewItemId1_; }
+    public int RawItemId1 {
+      get { return rawItemId1_; }
       set {
-        rewItemId1_ = value;
+        rawItemId1_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewItemId2" field.</summary>
-    public const int RewItemId2FieldNumber = 82;
-    private int rewItemId2_;
+    /// <summary>Field number for the "rawItemId2" field.</summary>
+    public const int RawItemId2FieldNumber = 82;
+    private int rawItemId2_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewItemId2 {
-      get { return rewItemId2_; }
+    public int RawItemId2 {
+      get { return rawItemId2_; }
       set {
-        rewItemId2_ = value;
+        rawItemId2_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewItemId3" field.</summary>
-    public const int RewItemId3FieldNumber = 83;
-    private int rewItemId3_;
+    /// <summary>Field number for the "rawItemId3" field.</summary>
+    public const int RawItemId3FieldNumber = 83;
+    private int rawItemId3_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewItemId3 {
-      get { return rewItemId3_; }
+    public int RawItemId3 {
+      get { return rawItemId3_; }
       set {
-        rewItemId3_ = value;
+        rawItemId3_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewItemId4" field.</summary>
-    public const int RewItemId4FieldNumber = 84;
-    private int rewItemId4_;
+    /// <summary>Field number for the "rawItemId4" field.</summary>
+    public const int RawItemId4FieldNumber = 84;
+    private int rawItemId4_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewItemId4 {
-      get { return rewItemId4_; }
+    public int RawItemId4 {
+      get { return rawItemId4_; }
       set {
-        rewItemId4_ = value;
+        rawItemId4_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewItemCount1" field.</summary>
-    public const int RewItemCount1FieldNumber = 85;
-    private int rewItemCount1_;
+    /// <summary>Field number for the "rawItemCount1" field.</summary>
+    public const int RawItemCount1FieldNumber = 85;
+    private int rawItemCount1_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewItemCount1 {
-      get { return rewItemCount1_; }
+    public int RawItemCount1 {
+      get { return rawItemCount1_; }
       set {
-        rewItemCount1_ = value;
+        rawItemCount1_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewItemCount2" field.</summary>
-    public const int RewItemCount2FieldNumber = 86;
-    private int rewItemCount2_;
+    /// <summary>Field number for the "rawItemCount2" field.</summary>
+    public const int RawItemCount2FieldNumber = 86;
+    private int rawItemCount2_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewItemCount2 {
-      get { return rewItemCount2_; }
+    public int RawItemCount2 {
+      get { return rawItemCount2_; }
       set {
-        rewItemCount2_ = value;
+        rawItemCount2_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewItemCount3" field.</summary>
-    public const int RewItemCount3FieldNumber = 87;
-    private int rewItemCount3_;
+    /// <summary>Field number for the "rawItemCount3" field.</summary>
+    public const int RawItemCount3FieldNumber = 87;
+    private int rawItemCount3_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewItemCount3 {
-      get { return rewItemCount3_; }
+    public int RawItemCount3 {
+      get { return rawItemCount3_; }
       set {
-        rewItemCount3_ = value;
+        rawItemCount3_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewItemCount4" field.</summary>
-    public const int RewItemCount4FieldNumber = 88;
-    private int rewItemCount4_;
+    /// <summary>Field number for the "rawItemCount4" field.</summary>
+    public const int RawItemCount4FieldNumber = 88;
+    private int rawItemCount4_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewItemCount4 {
-      get { return rewItemCount4_; }
+    public int RawItemCount4 {
+      get { return rawItemCount4_; }
       set {
-        rewItemCount4_ = value;
+        rawItemCount4_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewRepFaction1" field.</summary>
-    public const int RewRepFaction1FieldNumber = 89;
-    private int rewRepFaction1_;
+    /// <summary>Field number for the "rawRepFaction1" field.</summary>
+    public const int RawRepFaction1FieldNumber = 89;
+    private int rawRepFaction1_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewRepFaction1 {
-      get { return rewRepFaction1_; }
+    public int RawRepFaction1 {
+      get { return rawRepFaction1_; }
       set {
-        rewRepFaction1_ = value;
+        rawRepFaction1_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewRepFaction2" field.</summary>
-    public const int RewRepFaction2FieldNumber = 90;
-    private int rewRepFaction2_;
+    /// <summary>Field number for the "rawRepFaction2" field.</summary>
+    public const int RawRepFaction2FieldNumber = 90;
+    private int rawRepFaction2_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewRepFaction2 {
-      get { return rewRepFaction2_; }
+    public int RawRepFaction2 {
+      get { return rawRepFaction2_; }
       set {
-        rewRepFaction2_ = value;
+        rawRepFaction2_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewRepFaction3" field.</summary>
-    public const int RewRepFaction3FieldNumber = 91;
-    private int rewRepFaction3_;
+    /// <summary>Field number for the "rawRepFaction3" field.</summary>
+    public const int RawRepFaction3FieldNumber = 91;
+    private int rawRepFaction3_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewRepFaction3 {
-      get { return rewRepFaction3_; }
+    public int RawRepFaction3 {
+      get { return rawRepFaction3_; }
       set {
-        rewRepFaction3_ = value;
+        rawRepFaction3_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewRepFaction4" field.</summary>
-    public const int RewRepFaction4FieldNumber = 92;
-    private int rewRepFaction4_;
+    /// <summary>Field number for the "rawRepFaction4" field.</summary>
+    public const int RawRepFaction4FieldNumber = 92;
+    private int rawRepFaction4_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewRepFaction4 {
-      get { return rewRepFaction4_; }
+    public int RawRepFaction4 {
+      get { return rawRepFaction4_; }
       set {
-        rewRepFaction4_ = value;
+        rawRepFaction4_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewRepFaction5" field.</summary>
-    public const int RewRepFaction5FieldNumber = 93;
-    private int rewRepFaction5_;
+    /// <summary>Field number for the "rawRepFaction5" field.</summary>
+    public const int RawRepFaction5FieldNumber = 93;
+    private int rawRepFaction5_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewRepFaction5 {
-      get { return rewRepFaction5_; }
+    public int RawRepFaction5 {
+      get { return rawRepFaction5_; }
       set {
-        rewRepFaction5_ = value;
+        rawRepFaction5_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewRepValue1" field.</summary>
-    public const int RewRepValue1FieldNumber = 94;
-    private int rewRepValue1_;
+    /// <summary>Field number for the "rawRepValue1" field.</summary>
+    public const int RawRepValue1FieldNumber = 94;
+    private int rawRepValue1_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewRepValue1 {
-      get { return rewRepValue1_; }
+    public int RawRepValue1 {
+      get { return rawRepValue1_; }
       set {
-        rewRepValue1_ = value;
+        rawRepValue1_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewRepValue2" field.</summary>
-    public const int RewRepValue2FieldNumber = 95;
-    private int rewRepValue2_;
+    /// <summary>Field number for the "rawRepValue2" field.</summary>
+    public const int RawRepValue2FieldNumber = 95;
+    private int rawRepValue2_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewRepValue2 {
-      get { return rewRepValue2_; }
+    public int RawRepValue2 {
+      get { return rawRepValue2_; }
       set {
-        rewRepValue2_ = value;
+        rawRepValue2_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewRepValue3" field.</summary>
-    public const int RewRepValue3FieldNumber = 96;
-    private int rewRepValue3_;
+    /// <summary>Field number for the "rawRepValue3" field.</summary>
+    public const int RawRepValue3FieldNumber = 96;
+    private int rawRepValue3_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewRepValue3 {
-      get { return rewRepValue3_; }
+    public int RawRepValue3 {
+      get { return rawRepValue3_; }
       set {
-        rewRepValue3_ = value;
+        rawRepValue3_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewRepValue4" field.</summary>
-    public const int RewRepValue4FieldNumber = 97;
-    private int rewRepValue4_;
+    /// <summary>Field number for the "rawRepValue4" field.</summary>
+    public const int RawRepValue4FieldNumber = 97;
+    private int rawRepValue4_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewRepValue4 {
-      get { return rewRepValue4_; }
+    public int RawRepValue4 {
+      get { return rawRepValue4_; }
       set {
-        rewRepValue4_ = value;
+        rawRepValue4_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewRepValue5" field.</summary>
-    public const int RewRepValue5FieldNumber = 98;
-    private int rewRepValue5_;
+    /// <summary>Field number for the "rawRepValue5" field.</summary>
+    public const int RawRepValue5FieldNumber = 98;
+    private int rawRepValue5_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewRepValue5 {
-      get { return rewRepValue5_; }
+    public int RawRepValue5 {
+      get { return rawRepValue5_; }
       set {
-        rewRepValue5_ = value;
+        rawRepValue5_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewOrReqMoney" field.</summary>
-    public const int RewOrReqMoneyFieldNumber = 99;
-    private int rewOrReqMoney_;
+    /// <summary>Field number for the "rawOrReqMoney" field.</summary>
+    public const int RawOrReqMoneyFieldNumber = 99;
+    private int rawOrReqMoney_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewOrReqMoney {
-      get { return rewOrReqMoney_; }
+    public int RawOrReqMoney {
+      get { return rawOrReqMoney_; }
       set {
-        rewOrReqMoney_ = value;
+        rawOrReqMoney_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewMoneyMaxLevel" field.</summary>
-    public const int RewMoneyMaxLevelFieldNumber = 100;
-    private uint rewMoneyMaxLevel_;
+    /// <summary>Field number for the "rawMoneyMaxLevel" field.</summary>
+    public const int RawMoneyMaxLevelFieldNumber = 100;
+    private uint rawMoneyMaxLevel_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint RewMoneyMaxLevel {
-      get { return rewMoneyMaxLevel_; }
+    public uint RawMoneyMaxLevel {
+      get { return rawMoneyMaxLevel_; }
       set {
-        rewMoneyMaxLevel_ = value;
+        rawMoneyMaxLevel_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewSpell" field.</summary>
-    public const int RewSpellFieldNumber = 101;
-    private int rewSpell_;
+    /// <summary>Field number for the "rawSpell" field.</summary>
+    public const int RawSpellFieldNumber = 101;
+    private int rawSpell_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewSpell {
-      get { return rewSpell_; }
+    public int RawSpell {
+      get { return rawSpell_; }
       set {
-        rewSpell_ = value;
+        rawSpell_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewSpellCast" field.</summary>
-    public const int RewSpellCastFieldNumber = 102;
-    private int rewSpellCast_;
+    /// <summary>Field number for the "rawSpellCast" field.</summary>
+    public const int RawSpellCastFieldNumber = 102;
+    private int rawSpellCast_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewSpellCast {
-      get { return rewSpellCast_; }
+    public int RawSpellCast {
+      get { return rawSpellCast_; }
       set {
-        rewSpellCast_ = value;
+        rawSpellCast_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewMailTemplateId" field.</summary>
-    public const int RewMailTemplateIdFieldNumber = 103;
-    private int rewMailTemplateId_;
+    /// <summary>Field number for the "rawMailTemplateId" field.</summary>
+    public const int RawMailTemplateIdFieldNumber = 103;
+    private int rawMailTemplateId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RewMailTemplateId {
-      get { return rewMailTemplateId_; }
+    public int RawMailTemplateId {
+      get { return rawMailTemplateId_; }
       set {
-        rewMailTemplateId_ = value;
+        rawMailTemplateId_ = value;
       }
     }
 
-    /// <summary>Field number for the "rewMailDelaySecs" field.</summary>
-    public const int RewMailDelaySecsFieldNumber = 104;
-    private uint rewMailDelaySecs_;
+    /// <summary>Field number for the "rawMailDelaySecs" field.</summary>
+    public const int RawMailDelaySecsFieldNumber = 104;
+    private uint rawMailDelaySecs_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint RewMailDelaySecs {
-      get { return rewMailDelaySecs_; }
+    public uint RawMailDelaySecs {
+      get { return rawMailDelaySecs_; }
       set {
-        rewMailDelaySecs_ = value;
+        rawMailDelaySecs_ = value;
       }
     }
 
@@ -15658,42 +14240,42 @@ namespace Database {
       if (ReqSpellCast2 != other.ReqSpellCast2) return false;
       if (ReqSpellCast3 != other.ReqSpellCast3) return false;
       if (ReqSpellCast4 != other.ReqSpellCast4) return false;
-      if (RewChoiceItemId1 != other.RewChoiceItemId1) return false;
-      if (RewChoiceItemId2 != other.RewChoiceItemId2) return false;
-      if (RewChoiceItemId3 != other.RewChoiceItemId3) return false;
-      if (RewChoiceItemId4 != other.RewChoiceItemId4) return false;
-      if (RewChoiceItemId5 != other.RewChoiceItemId5) return false;
-      if (RewChoiceItemId6 != other.RewChoiceItemId6) return false;
-      if (RewChoiceItemCount1 != other.RewChoiceItemCount1) return false;
-      if (RewChoiceItemCount2 != other.RewChoiceItemCount2) return false;
-      if (RewChoiceItemCount3 != other.RewChoiceItemCount3) return false;
-      if (RewChoiceItemCount4 != other.RewChoiceItemCount4) return false;
-      if (RewChoiceItemCount5 != other.RewChoiceItemCount5) return false;
-      if (RewChoiceItemCount6 != other.RewChoiceItemCount6) return false;
-      if (RewItemId1 != other.RewItemId1) return false;
-      if (RewItemId2 != other.RewItemId2) return false;
-      if (RewItemId3 != other.RewItemId3) return false;
-      if (RewItemId4 != other.RewItemId4) return false;
-      if (RewItemCount1 != other.RewItemCount1) return false;
-      if (RewItemCount2 != other.RewItemCount2) return false;
-      if (RewItemCount3 != other.RewItemCount3) return false;
-      if (RewItemCount4 != other.RewItemCount4) return false;
-      if (RewRepFaction1 != other.RewRepFaction1) return false;
-      if (RewRepFaction2 != other.RewRepFaction2) return false;
-      if (RewRepFaction3 != other.RewRepFaction3) return false;
-      if (RewRepFaction4 != other.RewRepFaction4) return false;
-      if (RewRepFaction5 != other.RewRepFaction5) return false;
-      if (RewRepValue1 != other.RewRepValue1) return false;
-      if (RewRepValue2 != other.RewRepValue2) return false;
-      if (RewRepValue3 != other.RewRepValue3) return false;
-      if (RewRepValue4 != other.RewRepValue4) return false;
-      if (RewRepValue5 != other.RewRepValue5) return false;
-      if (RewOrReqMoney != other.RewOrReqMoney) return false;
-      if (RewMoneyMaxLevel != other.RewMoneyMaxLevel) return false;
-      if (RewSpell != other.RewSpell) return false;
-      if (RewSpellCast != other.RewSpellCast) return false;
-      if (RewMailTemplateId != other.RewMailTemplateId) return false;
-      if (RewMailDelaySecs != other.RewMailDelaySecs) return false;
+      if (RawChoiceItemId1 != other.RawChoiceItemId1) return false;
+      if (RawChoiceItemId2 != other.RawChoiceItemId2) return false;
+      if (RawChoiceItemId3 != other.RawChoiceItemId3) return false;
+      if (RawChoiceItemId4 != other.RawChoiceItemId4) return false;
+      if (RawChoiceItemId5 != other.RawChoiceItemId5) return false;
+      if (RawChoiceItemId6 != other.RawChoiceItemId6) return false;
+      if (RawChoiceItemCount1 != other.RawChoiceItemCount1) return false;
+      if (RawChoiceItemCount2 != other.RawChoiceItemCount2) return false;
+      if (RawChoiceItemCount3 != other.RawChoiceItemCount3) return false;
+      if (RawChoiceItemCount4 != other.RawChoiceItemCount4) return false;
+      if (RawChoiceItemCount5 != other.RawChoiceItemCount5) return false;
+      if (RawChoiceItemCount6 != other.RawChoiceItemCount6) return false;
+      if (RawItemId1 != other.RawItemId1) return false;
+      if (RawItemId2 != other.RawItemId2) return false;
+      if (RawItemId3 != other.RawItemId3) return false;
+      if (RawItemId4 != other.RawItemId4) return false;
+      if (RawItemCount1 != other.RawItemCount1) return false;
+      if (RawItemCount2 != other.RawItemCount2) return false;
+      if (RawItemCount3 != other.RawItemCount3) return false;
+      if (RawItemCount4 != other.RawItemCount4) return false;
+      if (RawRepFaction1 != other.RawRepFaction1) return false;
+      if (RawRepFaction2 != other.RawRepFaction2) return false;
+      if (RawRepFaction3 != other.RawRepFaction3) return false;
+      if (RawRepFaction4 != other.RawRepFaction4) return false;
+      if (RawRepFaction5 != other.RawRepFaction5) return false;
+      if (RawRepValue1 != other.RawRepValue1) return false;
+      if (RawRepValue2 != other.RawRepValue2) return false;
+      if (RawRepValue3 != other.RawRepValue3) return false;
+      if (RawRepValue4 != other.RawRepValue4) return false;
+      if (RawRepValue5 != other.RawRepValue5) return false;
+      if (RawOrReqMoney != other.RawOrReqMoney) return false;
+      if (RawMoneyMaxLevel != other.RawMoneyMaxLevel) return false;
+      if (RawSpell != other.RawSpell) return false;
+      if (RawSpellCast != other.RawSpellCast) return false;
+      if (RawMailTemplateId != other.RawMailTemplateId) return false;
+      if (RawMailDelaySecs != other.RawMailDelaySecs) return false;
       if (PointMapId != other.PointMapId) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(PointX, other.PointX)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(PointY, other.PointY)) return false;
@@ -15795,42 +14377,42 @@ namespace Database {
       if (ReqSpellCast2 != 0) hash ^= ReqSpellCast2.GetHashCode();
       if (ReqSpellCast3 != 0) hash ^= ReqSpellCast3.GetHashCode();
       if (ReqSpellCast4 != 0) hash ^= ReqSpellCast4.GetHashCode();
-      if (RewChoiceItemId1 != 0L) hash ^= RewChoiceItemId1.GetHashCode();
-      if (RewChoiceItemId2 != 0L) hash ^= RewChoiceItemId2.GetHashCode();
-      if (RewChoiceItemId3 != 0L) hash ^= RewChoiceItemId3.GetHashCode();
-      if (RewChoiceItemId4 != 0L) hash ^= RewChoiceItemId4.GetHashCode();
-      if (RewChoiceItemId5 != 0L) hash ^= RewChoiceItemId5.GetHashCode();
-      if (RewChoiceItemId6 != 0L) hash ^= RewChoiceItemId6.GetHashCode();
-      if (RewChoiceItemCount1 != 0) hash ^= RewChoiceItemCount1.GetHashCode();
-      if (RewChoiceItemCount2 != 0) hash ^= RewChoiceItemCount2.GetHashCode();
-      if (RewChoiceItemCount3 != 0) hash ^= RewChoiceItemCount3.GetHashCode();
-      if (RewChoiceItemCount4 != 0) hash ^= RewChoiceItemCount4.GetHashCode();
-      if (RewChoiceItemCount5 != 0) hash ^= RewChoiceItemCount5.GetHashCode();
-      if (RewChoiceItemCount6 != 0) hash ^= RewChoiceItemCount6.GetHashCode();
-      if (RewItemId1 != 0) hash ^= RewItemId1.GetHashCode();
-      if (RewItemId2 != 0) hash ^= RewItemId2.GetHashCode();
-      if (RewItemId3 != 0) hash ^= RewItemId3.GetHashCode();
-      if (RewItemId4 != 0) hash ^= RewItemId4.GetHashCode();
-      if (RewItemCount1 != 0) hash ^= RewItemCount1.GetHashCode();
-      if (RewItemCount2 != 0) hash ^= RewItemCount2.GetHashCode();
-      if (RewItemCount3 != 0) hash ^= RewItemCount3.GetHashCode();
-      if (RewItemCount4 != 0) hash ^= RewItemCount4.GetHashCode();
-      if (RewRepFaction1 != 0) hash ^= RewRepFaction1.GetHashCode();
-      if (RewRepFaction2 != 0) hash ^= RewRepFaction2.GetHashCode();
-      if (RewRepFaction3 != 0) hash ^= RewRepFaction3.GetHashCode();
-      if (RewRepFaction4 != 0) hash ^= RewRepFaction4.GetHashCode();
-      if (RewRepFaction5 != 0) hash ^= RewRepFaction5.GetHashCode();
-      if (RewRepValue1 != 0) hash ^= RewRepValue1.GetHashCode();
-      if (RewRepValue2 != 0) hash ^= RewRepValue2.GetHashCode();
-      if (RewRepValue3 != 0) hash ^= RewRepValue3.GetHashCode();
-      if (RewRepValue4 != 0) hash ^= RewRepValue4.GetHashCode();
-      if (RewRepValue5 != 0) hash ^= RewRepValue5.GetHashCode();
-      if (RewOrReqMoney != 0) hash ^= RewOrReqMoney.GetHashCode();
-      if (RewMoneyMaxLevel != 0) hash ^= RewMoneyMaxLevel.GetHashCode();
-      if (RewSpell != 0) hash ^= RewSpell.GetHashCode();
-      if (RewSpellCast != 0) hash ^= RewSpellCast.GetHashCode();
-      if (RewMailTemplateId != 0) hash ^= RewMailTemplateId.GetHashCode();
-      if (RewMailDelaySecs != 0) hash ^= RewMailDelaySecs.GetHashCode();
+      if (RawChoiceItemId1 != 0) hash ^= RawChoiceItemId1.GetHashCode();
+      if (RawChoiceItemId2 != 0) hash ^= RawChoiceItemId2.GetHashCode();
+      if (RawChoiceItemId3 != 0) hash ^= RawChoiceItemId3.GetHashCode();
+      if (RawChoiceItemId4 != 0) hash ^= RawChoiceItemId4.GetHashCode();
+      if (RawChoiceItemId5 != 0) hash ^= RawChoiceItemId5.GetHashCode();
+      if (RawChoiceItemId6 != 0) hash ^= RawChoiceItemId6.GetHashCode();
+      if (RawChoiceItemCount1 != 0) hash ^= RawChoiceItemCount1.GetHashCode();
+      if (RawChoiceItemCount2 != 0) hash ^= RawChoiceItemCount2.GetHashCode();
+      if (RawChoiceItemCount3 != 0) hash ^= RawChoiceItemCount3.GetHashCode();
+      if (RawChoiceItemCount4 != 0) hash ^= RawChoiceItemCount4.GetHashCode();
+      if (RawChoiceItemCount5 != 0) hash ^= RawChoiceItemCount5.GetHashCode();
+      if (RawChoiceItemCount6 != 0) hash ^= RawChoiceItemCount6.GetHashCode();
+      if (RawItemId1 != 0) hash ^= RawItemId1.GetHashCode();
+      if (RawItemId2 != 0) hash ^= RawItemId2.GetHashCode();
+      if (RawItemId3 != 0) hash ^= RawItemId3.GetHashCode();
+      if (RawItemId4 != 0) hash ^= RawItemId4.GetHashCode();
+      if (RawItemCount1 != 0) hash ^= RawItemCount1.GetHashCode();
+      if (RawItemCount2 != 0) hash ^= RawItemCount2.GetHashCode();
+      if (RawItemCount3 != 0) hash ^= RawItemCount3.GetHashCode();
+      if (RawItemCount4 != 0) hash ^= RawItemCount4.GetHashCode();
+      if (RawRepFaction1 != 0) hash ^= RawRepFaction1.GetHashCode();
+      if (RawRepFaction2 != 0) hash ^= RawRepFaction2.GetHashCode();
+      if (RawRepFaction3 != 0) hash ^= RawRepFaction3.GetHashCode();
+      if (RawRepFaction4 != 0) hash ^= RawRepFaction4.GetHashCode();
+      if (RawRepFaction5 != 0) hash ^= RawRepFaction5.GetHashCode();
+      if (RawRepValue1 != 0) hash ^= RawRepValue1.GetHashCode();
+      if (RawRepValue2 != 0) hash ^= RawRepValue2.GetHashCode();
+      if (RawRepValue3 != 0) hash ^= RawRepValue3.GetHashCode();
+      if (RawRepValue4 != 0) hash ^= RawRepValue4.GetHashCode();
+      if (RawRepValue5 != 0) hash ^= RawRepValue5.GetHashCode();
+      if (RawOrReqMoney != 0) hash ^= RawOrReqMoney.GetHashCode();
+      if (RawMoneyMaxLevel != 0) hash ^= RawMoneyMaxLevel.GetHashCode();
+      if (RawSpell != 0) hash ^= RawSpell.GetHashCode();
+      if (RawSpellCast != 0) hash ^= RawSpellCast.GetHashCode();
+      if (RawMailTemplateId != 0) hash ^= RawMailTemplateId.GetHashCode();
+      if (RawMailDelaySecs != 0) hash ^= RawMailDelaySecs.GetHashCode();
       if (PointMapId != 0) hash ^= PointMapId.GetHashCode();
       if (PointX != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(PointX);
       if (PointY != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(PointY);
@@ -16147,149 +14729,149 @@ namespace Database {
         output.WriteRawTag(160, 4);
         output.WriteInt32(ReqSpellCast4);
       }
-      if (RewChoiceItemId1 != 0L) {
+      if (RawChoiceItemId1 != 0) {
         output.WriteRawTag(168, 4);
-        output.WriteInt64(RewChoiceItemId1);
+        output.WriteInt32(RawChoiceItemId1);
       }
-      if (RewChoiceItemId2 != 0L) {
+      if (RawChoiceItemId2 != 0) {
         output.WriteRawTag(176, 4);
-        output.WriteInt64(RewChoiceItemId2);
+        output.WriteInt32(RawChoiceItemId2);
       }
-      if (RewChoiceItemId3 != 0L) {
+      if (RawChoiceItemId3 != 0) {
         output.WriteRawTag(184, 4);
-        output.WriteInt64(RewChoiceItemId3);
+        output.WriteInt32(RawChoiceItemId3);
       }
-      if (RewChoiceItemId4 != 0L) {
+      if (RawChoiceItemId4 != 0) {
         output.WriteRawTag(192, 4);
-        output.WriteInt64(RewChoiceItemId4);
+        output.WriteInt32(RawChoiceItemId4);
       }
-      if (RewChoiceItemId5 != 0L) {
+      if (RawChoiceItemId5 != 0) {
         output.WriteRawTag(200, 4);
-        output.WriteInt64(RewChoiceItemId5);
+        output.WriteInt32(RawChoiceItemId5);
       }
-      if (RewChoiceItemId6 != 0L) {
+      if (RawChoiceItemId6 != 0) {
         output.WriteRawTag(208, 4);
-        output.WriteInt64(RewChoiceItemId6);
+        output.WriteInt32(RawChoiceItemId6);
       }
-      if (RewChoiceItemCount1 != 0) {
+      if (RawChoiceItemCount1 != 0) {
         output.WriteRawTag(216, 4);
-        output.WriteInt32(RewChoiceItemCount1);
+        output.WriteInt32(RawChoiceItemCount1);
       }
-      if (RewChoiceItemCount2 != 0) {
+      if (RawChoiceItemCount2 != 0) {
         output.WriteRawTag(224, 4);
-        output.WriteInt32(RewChoiceItemCount2);
+        output.WriteInt32(RawChoiceItemCount2);
       }
-      if (RewChoiceItemCount3 != 0) {
+      if (RawChoiceItemCount3 != 0) {
         output.WriteRawTag(232, 4);
-        output.WriteInt32(RewChoiceItemCount3);
+        output.WriteInt32(RawChoiceItemCount3);
       }
-      if (RewChoiceItemCount4 != 0) {
+      if (RawChoiceItemCount4 != 0) {
         output.WriteRawTag(240, 4);
-        output.WriteInt32(RewChoiceItemCount4);
+        output.WriteInt32(RawChoiceItemCount4);
       }
-      if (RewChoiceItemCount5 != 0) {
+      if (RawChoiceItemCount5 != 0) {
         output.WriteRawTag(248, 4);
-        output.WriteInt32(RewChoiceItemCount5);
+        output.WriteInt32(RawChoiceItemCount5);
       }
-      if (RewChoiceItemCount6 != 0) {
+      if (RawChoiceItemCount6 != 0) {
         output.WriteRawTag(128, 5);
-        output.WriteInt32(RewChoiceItemCount6);
+        output.WriteInt32(RawChoiceItemCount6);
       }
-      if (RewItemId1 != 0) {
+      if (RawItemId1 != 0) {
         output.WriteRawTag(136, 5);
-        output.WriteInt32(RewItemId1);
+        output.WriteInt32(RawItemId1);
       }
-      if (RewItemId2 != 0) {
+      if (RawItemId2 != 0) {
         output.WriteRawTag(144, 5);
-        output.WriteInt32(RewItemId2);
+        output.WriteInt32(RawItemId2);
       }
-      if (RewItemId3 != 0) {
+      if (RawItemId3 != 0) {
         output.WriteRawTag(152, 5);
-        output.WriteInt32(RewItemId3);
+        output.WriteInt32(RawItemId3);
       }
-      if (RewItemId4 != 0) {
+      if (RawItemId4 != 0) {
         output.WriteRawTag(160, 5);
-        output.WriteInt32(RewItemId4);
+        output.WriteInt32(RawItemId4);
       }
-      if (RewItemCount1 != 0) {
+      if (RawItemCount1 != 0) {
         output.WriteRawTag(168, 5);
-        output.WriteInt32(RewItemCount1);
+        output.WriteInt32(RawItemCount1);
       }
-      if (RewItemCount2 != 0) {
+      if (RawItemCount2 != 0) {
         output.WriteRawTag(176, 5);
-        output.WriteInt32(RewItemCount2);
+        output.WriteInt32(RawItemCount2);
       }
-      if (RewItemCount3 != 0) {
+      if (RawItemCount3 != 0) {
         output.WriteRawTag(184, 5);
-        output.WriteInt32(RewItemCount3);
+        output.WriteInt32(RawItemCount3);
       }
-      if (RewItemCount4 != 0) {
+      if (RawItemCount4 != 0) {
         output.WriteRawTag(192, 5);
-        output.WriteInt32(RewItemCount4);
+        output.WriteInt32(RawItemCount4);
       }
-      if (RewRepFaction1 != 0) {
+      if (RawRepFaction1 != 0) {
         output.WriteRawTag(200, 5);
-        output.WriteInt32(RewRepFaction1);
+        output.WriteInt32(RawRepFaction1);
       }
-      if (RewRepFaction2 != 0) {
+      if (RawRepFaction2 != 0) {
         output.WriteRawTag(208, 5);
-        output.WriteInt32(RewRepFaction2);
+        output.WriteInt32(RawRepFaction2);
       }
-      if (RewRepFaction3 != 0) {
+      if (RawRepFaction3 != 0) {
         output.WriteRawTag(216, 5);
-        output.WriteInt32(RewRepFaction3);
+        output.WriteInt32(RawRepFaction3);
       }
-      if (RewRepFaction4 != 0) {
+      if (RawRepFaction4 != 0) {
         output.WriteRawTag(224, 5);
-        output.WriteInt32(RewRepFaction4);
+        output.WriteInt32(RawRepFaction4);
       }
-      if (RewRepFaction5 != 0) {
+      if (RawRepFaction5 != 0) {
         output.WriteRawTag(232, 5);
-        output.WriteInt32(RewRepFaction5);
+        output.WriteInt32(RawRepFaction5);
       }
-      if (RewRepValue1 != 0) {
+      if (RawRepValue1 != 0) {
         output.WriteRawTag(240, 5);
-        output.WriteInt32(RewRepValue1);
+        output.WriteInt32(RawRepValue1);
       }
-      if (RewRepValue2 != 0) {
+      if (RawRepValue2 != 0) {
         output.WriteRawTag(248, 5);
-        output.WriteInt32(RewRepValue2);
+        output.WriteInt32(RawRepValue2);
       }
-      if (RewRepValue3 != 0) {
+      if (RawRepValue3 != 0) {
         output.WriteRawTag(128, 6);
-        output.WriteInt32(RewRepValue3);
+        output.WriteInt32(RawRepValue3);
       }
-      if (RewRepValue4 != 0) {
+      if (RawRepValue4 != 0) {
         output.WriteRawTag(136, 6);
-        output.WriteInt32(RewRepValue4);
+        output.WriteInt32(RawRepValue4);
       }
-      if (RewRepValue5 != 0) {
+      if (RawRepValue5 != 0) {
         output.WriteRawTag(144, 6);
-        output.WriteInt32(RewRepValue5);
+        output.WriteInt32(RawRepValue5);
       }
-      if (RewOrReqMoney != 0) {
+      if (RawOrReqMoney != 0) {
         output.WriteRawTag(152, 6);
-        output.WriteInt32(RewOrReqMoney);
+        output.WriteInt32(RawOrReqMoney);
       }
-      if (RewMoneyMaxLevel != 0) {
+      if (RawMoneyMaxLevel != 0) {
         output.WriteRawTag(160, 6);
-        output.WriteUInt32(RewMoneyMaxLevel);
+        output.WriteUInt32(RawMoneyMaxLevel);
       }
-      if (RewSpell != 0) {
+      if (RawSpell != 0) {
         output.WriteRawTag(168, 6);
-        output.WriteInt32(RewSpell);
+        output.WriteInt32(RawSpell);
       }
-      if (RewSpellCast != 0) {
+      if (RawSpellCast != 0) {
         output.WriteRawTag(176, 6);
-        output.WriteInt32(RewSpellCast);
+        output.WriteInt32(RawSpellCast);
       }
-      if (RewMailTemplateId != 0) {
+      if (RawMailTemplateId != 0) {
         output.WriteRawTag(184, 6);
-        output.WriteInt32(RewMailTemplateId);
+        output.WriteInt32(RawMailTemplateId);
       }
-      if (RewMailDelaySecs != 0) {
+      if (RawMailDelaySecs != 0) {
         output.WriteRawTag(192, 6);
-        output.WriteUInt32(RewMailDelaySecs);
+        output.WriteUInt32(RawMailDelaySecs);
       }
       if (PointMapId != 0) {
         output.WriteRawTag(200, 6);
@@ -16677,149 +15259,149 @@ namespace Database {
         output.WriteRawTag(160, 4);
         output.WriteInt32(ReqSpellCast4);
       }
-      if (RewChoiceItemId1 != 0L) {
+      if (RawChoiceItemId1 != 0) {
         output.WriteRawTag(168, 4);
-        output.WriteInt64(RewChoiceItemId1);
+        output.WriteInt32(RawChoiceItemId1);
       }
-      if (RewChoiceItemId2 != 0L) {
+      if (RawChoiceItemId2 != 0) {
         output.WriteRawTag(176, 4);
-        output.WriteInt64(RewChoiceItemId2);
+        output.WriteInt32(RawChoiceItemId2);
       }
-      if (RewChoiceItemId3 != 0L) {
+      if (RawChoiceItemId3 != 0) {
         output.WriteRawTag(184, 4);
-        output.WriteInt64(RewChoiceItemId3);
+        output.WriteInt32(RawChoiceItemId3);
       }
-      if (RewChoiceItemId4 != 0L) {
+      if (RawChoiceItemId4 != 0) {
         output.WriteRawTag(192, 4);
-        output.WriteInt64(RewChoiceItemId4);
+        output.WriteInt32(RawChoiceItemId4);
       }
-      if (RewChoiceItemId5 != 0L) {
+      if (RawChoiceItemId5 != 0) {
         output.WriteRawTag(200, 4);
-        output.WriteInt64(RewChoiceItemId5);
+        output.WriteInt32(RawChoiceItemId5);
       }
-      if (RewChoiceItemId6 != 0L) {
+      if (RawChoiceItemId6 != 0) {
         output.WriteRawTag(208, 4);
-        output.WriteInt64(RewChoiceItemId6);
+        output.WriteInt32(RawChoiceItemId6);
       }
-      if (RewChoiceItemCount1 != 0) {
+      if (RawChoiceItemCount1 != 0) {
         output.WriteRawTag(216, 4);
-        output.WriteInt32(RewChoiceItemCount1);
+        output.WriteInt32(RawChoiceItemCount1);
       }
-      if (RewChoiceItemCount2 != 0) {
+      if (RawChoiceItemCount2 != 0) {
         output.WriteRawTag(224, 4);
-        output.WriteInt32(RewChoiceItemCount2);
+        output.WriteInt32(RawChoiceItemCount2);
       }
-      if (RewChoiceItemCount3 != 0) {
+      if (RawChoiceItemCount3 != 0) {
         output.WriteRawTag(232, 4);
-        output.WriteInt32(RewChoiceItemCount3);
+        output.WriteInt32(RawChoiceItemCount3);
       }
-      if (RewChoiceItemCount4 != 0) {
+      if (RawChoiceItemCount4 != 0) {
         output.WriteRawTag(240, 4);
-        output.WriteInt32(RewChoiceItemCount4);
+        output.WriteInt32(RawChoiceItemCount4);
       }
-      if (RewChoiceItemCount5 != 0) {
+      if (RawChoiceItemCount5 != 0) {
         output.WriteRawTag(248, 4);
-        output.WriteInt32(RewChoiceItemCount5);
+        output.WriteInt32(RawChoiceItemCount5);
       }
-      if (RewChoiceItemCount6 != 0) {
+      if (RawChoiceItemCount6 != 0) {
         output.WriteRawTag(128, 5);
-        output.WriteInt32(RewChoiceItemCount6);
+        output.WriteInt32(RawChoiceItemCount6);
       }
-      if (RewItemId1 != 0) {
+      if (RawItemId1 != 0) {
         output.WriteRawTag(136, 5);
-        output.WriteInt32(RewItemId1);
+        output.WriteInt32(RawItemId1);
       }
-      if (RewItemId2 != 0) {
+      if (RawItemId2 != 0) {
         output.WriteRawTag(144, 5);
-        output.WriteInt32(RewItemId2);
+        output.WriteInt32(RawItemId2);
       }
-      if (RewItemId3 != 0) {
+      if (RawItemId3 != 0) {
         output.WriteRawTag(152, 5);
-        output.WriteInt32(RewItemId3);
+        output.WriteInt32(RawItemId3);
       }
-      if (RewItemId4 != 0) {
+      if (RawItemId4 != 0) {
         output.WriteRawTag(160, 5);
-        output.WriteInt32(RewItemId4);
+        output.WriteInt32(RawItemId4);
       }
-      if (RewItemCount1 != 0) {
+      if (RawItemCount1 != 0) {
         output.WriteRawTag(168, 5);
-        output.WriteInt32(RewItemCount1);
+        output.WriteInt32(RawItemCount1);
       }
-      if (RewItemCount2 != 0) {
+      if (RawItemCount2 != 0) {
         output.WriteRawTag(176, 5);
-        output.WriteInt32(RewItemCount2);
+        output.WriteInt32(RawItemCount2);
       }
-      if (RewItemCount3 != 0) {
+      if (RawItemCount3 != 0) {
         output.WriteRawTag(184, 5);
-        output.WriteInt32(RewItemCount3);
+        output.WriteInt32(RawItemCount3);
       }
-      if (RewItemCount4 != 0) {
+      if (RawItemCount4 != 0) {
         output.WriteRawTag(192, 5);
-        output.WriteInt32(RewItemCount4);
+        output.WriteInt32(RawItemCount4);
       }
-      if (RewRepFaction1 != 0) {
+      if (RawRepFaction1 != 0) {
         output.WriteRawTag(200, 5);
-        output.WriteInt32(RewRepFaction1);
+        output.WriteInt32(RawRepFaction1);
       }
-      if (RewRepFaction2 != 0) {
+      if (RawRepFaction2 != 0) {
         output.WriteRawTag(208, 5);
-        output.WriteInt32(RewRepFaction2);
+        output.WriteInt32(RawRepFaction2);
       }
-      if (RewRepFaction3 != 0) {
+      if (RawRepFaction3 != 0) {
         output.WriteRawTag(216, 5);
-        output.WriteInt32(RewRepFaction3);
+        output.WriteInt32(RawRepFaction3);
       }
-      if (RewRepFaction4 != 0) {
+      if (RawRepFaction4 != 0) {
         output.WriteRawTag(224, 5);
-        output.WriteInt32(RewRepFaction4);
+        output.WriteInt32(RawRepFaction4);
       }
-      if (RewRepFaction5 != 0) {
+      if (RawRepFaction5 != 0) {
         output.WriteRawTag(232, 5);
-        output.WriteInt32(RewRepFaction5);
+        output.WriteInt32(RawRepFaction5);
       }
-      if (RewRepValue1 != 0) {
+      if (RawRepValue1 != 0) {
         output.WriteRawTag(240, 5);
-        output.WriteInt32(RewRepValue1);
+        output.WriteInt32(RawRepValue1);
       }
-      if (RewRepValue2 != 0) {
+      if (RawRepValue2 != 0) {
         output.WriteRawTag(248, 5);
-        output.WriteInt32(RewRepValue2);
+        output.WriteInt32(RawRepValue2);
       }
-      if (RewRepValue3 != 0) {
+      if (RawRepValue3 != 0) {
         output.WriteRawTag(128, 6);
-        output.WriteInt32(RewRepValue3);
+        output.WriteInt32(RawRepValue3);
       }
-      if (RewRepValue4 != 0) {
+      if (RawRepValue4 != 0) {
         output.WriteRawTag(136, 6);
-        output.WriteInt32(RewRepValue4);
+        output.WriteInt32(RawRepValue4);
       }
-      if (RewRepValue5 != 0) {
+      if (RawRepValue5 != 0) {
         output.WriteRawTag(144, 6);
-        output.WriteInt32(RewRepValue5);
+        output.WriteInt32(RawRepValue5);
       }
-      if (RewOrReqMoney != 0) {
+      if (RawOrReqMoney != 0) {
         output.WriteRawTag(152, 6);
-        output.WriteInt32(RewOrReqMoney);
+        output.WriteInt32(RawOrReqMoney);
       }
-      if (RewMoneyMaxLevel != 0) {
+      if (RawMoneyMaxLevel != 0) {
         output.WriteRawTag(160, 6);
-        output.WriteUInt32(RewMoneyMaxLevel);
+        output.WriteUInt32(RawMoneyMaxLevel);
       }
-      if (RewSpell != 0) {
+      if (RawSpell != 0) {
         output.WriteRawTag(168, 6);
-        output.WriteInt32(RewSpell);
+        output.WriteInt32(RawSpell);
       }
-      if (RewSpellCast != 0) {
+      if (RawSpellCast != 0) {
         output.WriteRawTag(176, 6);
-        output.WriteInt32(RewSpellCast);
+        output.WriteInt32(RawSpellCast);
       }
-      if (RewMailTemplateId != 0) {
+      if (RawMailTemplateId != 0) {
         output.WriteRawTag(184, 6);
-        output.WriteInt32(RewMailTemplateId);
+        output.WriteInt32(RawMailTemplateId);
       }
-      if (RewMailDelaySecs != 0) {
+      if (RawMailDelaySecs != 0) {
         output.WriteRawTag(192, 6);
-        output.WriteUInt32(RewMailDelaySecs);
+        output.WriteUInt32(RawMailDelaySecs);
       }
       if (PointMapId != 0) {
         output.WriteRawTag(200, 6);
@@ -17139,113 +15721,113 @@ namespace Database {
       if (ReqSpellCast4 != 0) {
         size += 2 + pb::CodedOutputStream.ComputeInt32Size(ReqSpellCast4);
       }
-      if (RewChoiceItemId1 != 0L) {
-        size += 2 + pb::CodedOutputStream.ComputeInt64Size(RewChoiceItemId1);
+      if (RawChoiceItemId1 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawChoiceItemId1);
       }
-      if (RewChoiceItemId2 != 0L) {
-        size += 2 + pb::CodedOutputStream.ComputeInt64Size(RewChoiceItemId2);
+      if (RawChoiceItemId2 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawChoiceItemId2);
       }
-      if (RewChoiceItemId3 != 0L) {
-        size += 2 + pb::CodedOutputStream.ComputeInt64Size(RewChoiceItemId3);
+      if (RawChoiceItemId3 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawChoiceItemId3);
       }
-      if (RewChoiceItemId4 != 0L) {
-        size += 2 + pb::CodedOutputStream.ComputeInt64Size(RewChoiceItemId4);
+      if (RawChoiceItemId4 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawChoiceItemId4);
       }
-      if (RewChoiceItemId5 != 0L) {
-        size += 2 + pb::CodedOutputStream.ComputeInt64Size(RewChoiceItemId5);
+      if (RawChoiceItemId5 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawChoiceItemId5);
       }
-      if (RewChoiceItemId6 != 0L) {
-        size += 2 + pb::CodedOutputStream.ComputeInt64Size(RewChoiceItemId6);
+      if (RawChoiceItemId6 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawChoiceItemId6);
       }
-      if (RewChoiceItemCount1 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewChoiceItemCount1);
+      if (RawChoiceItemCount1 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawChoiceItemCount1);
       }
-      if (RewChoiceItemCount2 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewChoiceItemCount2);
+      if (RawChoiceItemCount2 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawChoiceItemCount2);
       }
-      if (RewChoiceItemCount3 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewChoiceItemCount3);
+      if (RawChoiceItemCount3 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawChoiceItemCount3);
       }
-      if (RewChoiceItemCount4 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewChoiceItemCount4);
+      if (RawChoiceItemCount4 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawChoiceItemCount4);
       }
-      if (RewChoiceItemCount5 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewChoiceItemCount5);
+      if (RawChoiceItemCount5 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawChoiceItemCount5);
       }
-      if (RewChoiceItemCount6 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewChoiceItemCount6);
+      if (RawChoiceItemCount6 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawChoiceItemCount6);
       }
-      if (RewItemId1 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewItemId1);
+      if (RawItemId1 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawItemId1);
       }
-      if (RewItemId2 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewItemId2);
+      if (RawItemId2 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawItemId2);
       }
-      if (RewItemId3 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewItemId3);
+      if (RawItemId3 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawItemId3);
       }
-      if (RewItemId4 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewItemId4);
+      if (RawItemId4 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawItemId4);
       }
-      if (RewItemCount1 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewItemCount1);
+      if (RawItemCount1 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawItemCount1);
       }
-      if (RewItemCount2 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewItemCount2);
+      if (RawItemCount2 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawItemCount2);
       }
-      if (RewItemCount3 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewItemCount3);
+      if (RawItemCount3 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawItemCount3);
       }
-      if (RewItemCount4 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewItemCount4);
+      if (RawItemCount4 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawItemCount4);
       }
-      if (RewRepFaction1 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewRepFaction1);
+      if (RawRepFaction1 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawRepFaction1);
       }
-      if (RewRepFaction2 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewRepFaction2);
+      if (RawRepFaction2 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawRepFaction2);
       }
-      if (RewRepFaction3 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewRepFaction3);
+      if (RawRepFaction3 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawRepFaction3);
       }
-      if (RewRepFaction4 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewRepFaction4);
+      if (RawRepFaction4 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawRepFaction4);
       }
-      if (RewRepFaction5 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewRepFaction5);
+      if (RawRepFaction5 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawRepFaction5);
       }
-      if (RewRepValue1 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewRepValue1);
+      if (RawRepValue1 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawRepValue1);
       }
-      if (RewRepValue2 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewRepValue2);
+      if (RawRepValue2 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawRepValue2);
       }
-      if (RewRepValue3 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewRepValue3);
+      if (RawRepValue3 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawRepValue3);
       }
-      if (RewRepValue4 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewRepValue4);
+      if (RawRepValue4 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawRepValue4);
       }
-      if (RewRepValue5 != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewRepValue5);
+      if (RawRepValue5 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawRepValue5);
       }
-      if (RewOrReqMoney != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewOrReqMoney);
+      if (RawOrReqMoney != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawOrReqMoney);
       }
-      if (RewMoneyMaxLevel != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(RewMoneyMaxLevel);
+      if (RawMoneyMaxLevel != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(RawMoneyMaxLevel);
       }
-      if (RewSpell != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewSpell);
+      if (RawSpell != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawSpell);
       }
-      if (RewSpellCast != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewSpellCast);
+      if (RawSpellCast != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawSpellCast);
       }
-      if (RewMailTemplateId != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RewMailTemplateId);
+      if (RawMailTemplateId != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RawMailTemplateId);
       }
-      if (RewMailDelaySecs != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(RewMailDelaySecs);
+      if (RawMailDelaySecs != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(RawMailDelaySecs);
       }
       if (PointMapId != 0) {
         size += 2 + pb::CodedOutputStream.ComputeInt32Size(PointMapId);
@@ -17541,113 +16123,113 @@ namespace Database {
       if (other.ReqSpellCast4 != 0) {
         ReqSpellCast4 = other.ReqSpellCast4;
       }
-      if (other.RewChoiceItemId1 != 0L) {
-        RewChoiceItemId1 = other.RewChoiceItemId1;
+      if (other.RawChoiceItemId1 != 0) {
+        RawChoiceItemId1 = other.RawChoiceItemId1;
       }
-      if (other.RewChoiceItemId2 != 0L) {
-        RewChoiceItemId2 = other.RewChoiceItemId2;
+      if (other.RawChoiceItemId2 != 0) {
+        RawChoiceItemId2 = other.RawChoiceItemId2;
       }
-      if (other.RewChoiceItemId3 != 0L) {
-        RewChoiceItemId3 = other.RewChoiceItemId3;
+      if (other.RawChoiceItemId3 != 0) {
+        RawChoiceItemId3 = other.RawChoiceItemId3;
       }
-      if (other.RewChoiceItemId4 != 0L) {
-        RewChoiceItemId4 = other.RewChoiceItemId4;
+      if (other.RawChoiceItemId4 != 0) {
+        RawChoiceItemId4 = other.RawChoiceItemId4;
       }
-      if (other.RewChoiceItemId5 != 0L) {
-        RewChoiceItemId5 = other.RewChoiceItemId5;
+      if (other.RawChoiceItemId5 != 0) {
+        RawChoiceItemId5 = other.RawChoiceItemId5;
       }
-      if (other.RewChoiceItemId6 != 0L) {
-        RewChoiceItemId6 = other.RewChoiceItemId6;
+      if (other.RawChoiceItemId6 != 0) {
+        RawChoiceItemId6 = other.RawChoiceItemId6;
       }
-      if (other.RewChoiceItemCount1 != 0) {
-        RewChoiceItemCount1 = other.RewChoiceItemCount1;
+      if (other.RawChoiceItemCount1 != 0) {
+        RawChoiceItemCount1 = other.RawChoiceItemCount1;
       }
-      if (other.RewChoiceItemCount2 != 0) {
-        RewChoiceItemCount2 = other.RewChoiceItemCount2;
+      if (other.RawChoiceItemCount2 != 0) {
+        RawChoiceItemCount2 = other.RawChoiceItemCount2;
       }
-      if (other.RewChoiceItemCount3 != 0) {
-        RewChoiceItemCount3 = other.RewChoiceItemCount3;
+      if (other.RawChoiceItemCount3 != 0) {
+        RawChoiceItemCount3 = other.RawChoiceItemCount3;
       }
-      if (other.RewChoiceItemCount4 != 0) {
-        RewChoiceItemCount4 = other.RewChoiceItemCount4;
+      if (other.RawChoiceItemCount4 != 0) {
+        RawChoiceItemCount4 = other.RawChoiceItemCount4;
       }
-      if (other.RewChoiceItemCount5 != 0) {
-        RewChoiceItemCount5 = other.RewChoiceItemCount5;
+      if (other.RawChoiceItemCount5 != 0) {
+        RawChoiceItemCount5 = other.RawChoiceItemCount5;
       }
-      if (other.RewChoiceItemCount6 != 0) {
-        RewChoiceItemCount6 = other.RewChoiceItemCount6;
+      if (other.RawChoiceItemCount6 != 0) {
+        RawChoiceItemCount6 = other.RawChoiceItemCount6;
       }
-      if (other.RewItemId1 != 0) {
-        RewItemId1 = other.RewItemId1;
+      if (other.RawItemId1 != 0) {
+        RawItemId1 = other.RawItemId1;
       }
-      if (other.RewItemId2 != 0) {
-        RewItemId2 = other.RewItemId2;
+      if (other.RawItemId2 != 0) {
+        RawItemId2 = other.RawItemId2;
       }
-      if (other.RewItemId3 != 0) {
-        RewItemId3 = other.RewItemId3;
+      if (other.RawItemId3 != 0) {
+        RawItemId3 = other.RawItemId3;
       }
-      if (other.RewItemId4 != 0) {
-        RewItemId4 = other.RewItemId4;
+      if (other.RawItemId4 != 0) {
+        RawItemId4 = other.RawItemId4;
       }
-      if (other.RewItemCount1 != 0) {
-        RewItemCount1 = other.RewItemCount1;
+      if (other.RawItemCount1 != 0) {
+        RawItemCount1 = other.RawItemCount1;
       }
-      if (other.RewItemCount2 != 0) {
-        RewItemCount2 = other.RewItemCount2;
+      if (other.RawItemCount2 != 0) {
+        RawItemCount2 = other.RawItemCount2;
       }
-      if (other.RewItemCount3 != 0) {
-        RewItemCount3 = other.RewItemCount3;
+      if (other.RawItemCount3 != 0) {
+        RawItemCount3 = other.RawItemCount3;
       }
-      if (other.RewItemCount4 != 0) {
-        RewItemCount4 = other.RewItemCount4;
+      if (other.RawItemCount4 != 0) {
+        RawItemCount4 = other.RawItemCount4;
       }
-      if (other.RewRepFaction1 != 0) {
-        RewRepFaction1 = other.RewRepFaction1;
+      if (other.RawRepFaction1 != 0) {
+        RawRepFaction1 = other.RawRepFaction1;
       }
-      if (other.RewRepFaction2 != 0) {
-        RewRepFaction2 = other.RewRepFaction2;
+      if (other.RawRepFaction2 != 0) {
+        RawRepFaction2 = other.RawRepFaction2;
       }
-      if (other.RewRepFaction3 != 0) {
-        RewRepFaction3 = other.RewRepFaction3;
+      if (other.RawRepFaction3 != 0) {
+        RawRepFaction3 = other.RawRepFaction3;
       }
-      if (other.RewRepFaction4 != 0) {
-        RewRepFaction4 = other.RewRepFaction4;
+      if (other.RawRepFaction4 != 0) {
+        RawRepFaction4 = other.RawRepFaction4;
       }
-      if (other.RewRepFaction5 != 0) {
-        RewRepFaction5 = other.RewRepFaction5;
+      if (other.RawRepFaction5 != 0) {
+        RawRepFaction5 = other.RawRepFaction5;
       }
-      if (other.RewRepValue1 != 0) {
-        RewRepValue1 = other.RewRepValue1;
+      if (other.RawRepValue1 != 0) {
+        RawRepValue1 = other.RawRepValue1;
       }
-      if (other.RewRepValue2 != 0) {
-        RewRepValue2 = other.RewRepValue2;
+      if (other.RawRepValue2 != 0) {
+        RawRepValue2 = other.RawRepValue2;
       }
-      if (other.RewRepValue3 != 0) {
-        RewRepValue3 = other.RewRepValue3;
+      if (other.RawRepValue3 != 0) {
+        RawRepValue3 = other.RawRepValue3;
       }
-      if (other.RewRepValue4 != 0) {
-        RewRepValue4 = other.RewRepValue4;
+      if (other.RawRepValue4 != 0) {
+        RawRepValue4 = other.RawRepValue4;
       }
-      if (other.RewRepValue5 != 0) {
-        RewRepValue5 = other.RewRepValue5;
+      if (other.RawRepValue5 != 0) {
+        RawRepValue5 = other.RawRepValue5;
       }
-      if (other.RewOrReqMoney != 0) {
-        RewOrReqMoney = other.RewOrReqMoney;
+      if (other.RawOrReqMoney != 0) {
+        RawOrReqMoney = other.RawOrReqMoney;
       }
-      if (other.RewMoneyMaxLevel != 0) {
-        RewMoneyMaxLevel = other.RewMoneyMaxLevel;
+      if (other.RawMoneyMaxLevel != 0) {
+        RawMoneyMaxLevel = other.RawMoneyMaxLevel;
       }
-      if (other.RewSpell != 0) {
-        RewSpell = other.RewSpell;
+      if (other.RawSpell != 0) {
+        RawSpell = other.RawSpell;
       }
-      if (other.RewSpellCast != 0) {
-        RewSpellCast = other.RewSpellCast;
+      if (other.RawSpellCast != 0) {
+        RawSpellCast = other.RawSpellCast;
       }
-      if (other.RewMailTemplateId != 0) {
-        RewMailTemplateId = other.RewMailTemplateId;
+      if (other.RawMailTemplateId != 0) {
+        RawMailTemplateId = other.RawMailTemplateId;
       }
-      if (other.RewMailDelaySecs != 0) {
-        RewMailDelaySecs = other.RewMailDelaySecs;
+      if (other.RawMailDelaySecs != 0) {
+        RawMailDelaySecs = other.RawMailDelaySecs;
       }
       if (other.PointMapId != 0) {
         PointMapId = other.PointMapId;
@@ -18015,147 +16597,147 @@ namespace Database {
             break;
           }
           case 552: {
-            RewChoiceItemId1 = input.ReadInt64();
+            RawChoiceItemId1 = input.ReadInt32();
             break;
           }
           case 560: {
-            RewChoiceItemId2 = input.ReadInt64();
+            RawChoiceItemId2 = input.ReadInt32();
             break;
           }
           case 568: {
-            RewChoiceItemId3 = input.ReadInt64();
+            RawChoiceItemId3 = input.ReadInt32();
             break;
           }
           case 576: {
-            RewChoiceItemId4 = input.ReadInt64();
+            RawChoiceItemId4 = input.ReadInt32();
             break;
           }
           case 584: {
-            RewChoiceItemId5 = input.ReadInt64();
+            RawChoiceItemId5 = input.ReadInt32();
             break;
           }
           case 592: {
-            RewChoiceItemId6 = input.ReadInt64();
+            RawChoiceItemId6 = input.ReadInt32();
             break;
           }
           case 600: {
-            RewChoiceItemCount1 = input.ReadInt32();
+            RawChoiceItemCount1 = input.ReadInt32();
             break;
           }
           case 608: {
-            RewChoiceItemCount2 = input.ReadInt32();
+            RawChoiceItemCount2 = input.ReadInt32();
             break;
           }
           case 616: {
-            RewChoiceItemCount3 = input.ReadInt32();
+            RawChoiceItemCount3 = input.ReadInt32();
             break;
           }
           case 624: {
-            RewChoiceItemCount4 = input.ReadInt32();
+            RawChoiceItemCount4 = input.ReadInt32();
             break;
           }
           case 632: {
-            RewChoiceItemCount5 = input.ReadInt32();
+            RawChoiceItemCount5 = input.ReadInt32();
             break;
           }
           case 640: {
-            RewChoiceItemCount6 = input.ReadInt32();
+            RawChoiceItemCount6 = input.ReadInt32();
             break;
           }
           case 648: {
-            RewItemId1 = input.ReadInt32();
+            RawItemId1 = input.ReadInt32();
             break;
           }
           case 656: {
-            RewItemId2 = input.ReadInt32();
+            RawItemId2 = input.ReadInt32();
             break;
           }
           case 664: {
-            RewItemId3 = input.ReadInt32();
+            RawItemId3 = input.ReadInt32();
             break;
           }
           case 672: {
-            RewItemId4 = input.ReadInt32();
+            RawItemId4 = input.ReadInt32();
             break;
           }
           case 680: {
-            RewItemCount1 = input.ReadInt32();
+            RawItemCount1 = input.ReadInt32();
             break;
           }
           case 688: {
-            RewItemCount2 = input.ReadInt32();
+            RawItemCount2 = input.ReadInt32();
             break;
           }
           case 696: {
-            RewItemCount3 = input.ReadInt32();
+            RawItemCount3 = input.ReadInt32();
             break;
           }
           case 704: {
-            RewItemCount4 = input.ReadInt32();
+            RawItemCount4 = input.ReadInt32();
             break;
           }
           case 712: {
-            RewRepFaction1 = input.ReadInt32();
+            RawRepFaction1 = input.ReadInt32();
             break;
           }
           case 720: {
-            RewRepFaction2 = input.ReadInt32();
+            RawRepFaction2 = input.ReadInt32();
             break;
           }
           case 728: {
-            RewRepFaction3 = input.ReadInt32();
+            RawRepFaction3 = input.ReadInt32();
             break;
           }
           case 736: {
-            RewRepFaction4 = input.ReadInt32();
+            RawRepFaction4 = input.ReadInt32();
             break;
           }
           case 744: {
-            RewRepFaction5 = input.ReadInt32();
+            RawRepFaction5 = input.ReadInt32();
             break;
           }
           case 752: {
-            RewRepValue1 = input.ReadInt32();
+            RawRepValue1 = input.ReadInt32();
             break;
           }
           case 760: {
-            RewRepValue2 = input.ReadInt32();
+            RawRepValue2 = input.ReadInt32();
             break;
           }
           case 768: {
-            RewRepValue3 = input.ReadInt32();
+            RawRepValue3 = input.ReadInt32();
             break;
           }
           case 776: {
-            RewRepValue4 = input.ReadInt32();
+            RawRepValue4 = input.ReadInt32();
             break;
           }
           case 784: {
-            RewRepValue5 = input.ReadInt32();
+            RawRepValue5 = input.ReadInt32();
             break;
           }
           case 792: {
-            RewOrReqMoney = input.ReadInt32();
+            RawOrReqMoney = input.ReadInt32();
             break;
           }
           case 800: {
-            RewMoneyMaxLevel = input.ReadUInt32();
+            RawMoneyMaxLevel = input.ReadUInt32();
             break;
           }
           case 808: {
-            RewSpell = input.ReadInt32();
+            RawSpell = input.ReadInt32();
             break;
           }
           case 816: {
-            RewSpellCast = input.ReadInt32();
+            RawSpellCast = input.ReadInt32();
             break;
           }
           case 824: {
-            RewMailTemplateId = input.ReadInt32();
+            RawMailTemplateId = input.ReadInt32();
             break;
           }
           case 832: {
-            RewMailDelaySecs = input.ReadUInt32();
+            RawMailDelaySecs = input.ReadUInt32();
             break;
           }
           case 840: {
@@ -18550,147 +17132,147 @@ namespace Database {
             break;
           }
           case 552: {
-            RewChoiceItemId1 = input.ReadInt64();
+            RawChoiceItemId1 = input.ReadInt32();
             break;
           }
           case 560: {
-            RewChoiceItemId2 = input.ReadInt64();
+            RawChoiceItemId2 = input.ReadInt32();
             break;
           }
           case 568: {
-            RewChoiceItemId3 = input.ReadInt64();
+            RawChoiceItemId3 = input.ReadInt32();
             break;
           }
           case 576: {
-            RewChoiceItemId4 = input.ReadInt64();
+            RawChoiceItemId4 = input.ReadInt32();
             break;
           }
           case 584: {
-            RewChoiceItemId5 = input.ReadInt64();
+            RawChoiceItemId5 = input.ReadInt32();
             break;
           }
           case 592: {
-            RewChoiceItemId6 = input.ReadInt64();
+            RawChoiceItemId6 = input.ReadInt32();
             break;
           }
           case 600: {
-            RewChoiceItemCount1 = input.ReadInt32();
+            RawChoiceItemCount1 = input.ReadInt32();
             break;
           }
           case 608: {
-            RewChoiceItemCount2 = input.ReadInt32();
+            RawChoiceItemCount2 = input.ReadInt32();
             break;
           }
           case 616: {
-            RewChoiceItemCount3 = input.ReadInt32();
+            RawChoiceItemCount3 = input.ReadInt32();
             break;
           }
           case 624: {
-            RewChoiceItemCount4 = input.ReadInt32();
+            RawChoiceItemCount4 = input.ReadInt32();
             break;
           }
           case 632: {
-            RewChoiceItemCount5 = input.ReadInt32();
+            RawChoiceItemCount5 = input.ReadInt32();
             break;
           }
           case 640: {
-            RewChoiceItemCount6 = input.ReadInt32();
+            RawChoiceItemCount6 = input.ReadInt32();
             break;
           }
           case 648: {
-            RewItemId1 = input.ReadInt32();
+            RawItemId1 = input.ReadInt32();
             break;
           }
           case 656: {
-            RewItemId2 = input.ReadInt32();
+            RawItemId2 = input.ReadInt32();
             break;
           }
           case 664: {
-            RewItemId3 = input.ReadInt32();
+            RawItemId3 = input.ReadInt32();
             break;
           }
           case 672: {
-            RewItemId4 = input.ReadInt32();
+            RawItemId4 = input.ReadInt32();
             break;
           }
           case 680: {
-            RewItemCount1 = input.ReadInt32();
+            RawItemCount1 = input.ReadInt32();
             break;
           }
           case 688: {
-            RewItemCount2 = input.ReadInt32();
+            RawItemCount2 = input.ReadInt32();
             break;
           }
           case 696: {
-            RewItemCount3 = input.ReadInt32();
+            RawItemCount3 = input.ReadInt32();
             break;
           }
           case 704: {
-            RewItemCount4 = input.ReadInt32();
+            RawItemCount4 = input.ReadInt32();
             break;
           }
           case 712: {
-            RewRepFaction1 = input.ReadInt32();
+            RawRepFaction1 = input.ReadInt32();
             break;
           }
           case 720: {
-            RewRepFaction2 = input.ReadInt32();
+            RawRepFaction2 = input.ReadInt32();
             break;
           }
           case 728: {
-            RewRepFaction3 = input.ReadInt32();
+            RawRepFaction3 = input.ReadInt32();
             break;
           }
           case 736: {
-            RewRepFaction4 = input.ReadInt32();
+            RawRepFaction4 = input.ReadInt32();
             break;
           }
           case 744: {
-            RewRepFaction5 = input.ReadInt32();
+            RawRepFaction5 = input.ReadInt32();
             break;
           }
           case 752: {
-            RewRepValue1 = input.ReadInt32();
+            RawRepValue1 = input.ReadInt32();
             break;
           }
           case 760: {
-            RewRepValue2 = input.ReadInt32();
+            RawRepValue2 = input.ReadInt32();
             break;
           }
           case 768: {
-            RewRepValue3 = input.ReadInt32();
+            RawRepValue3 = input.ReadInt32();
             break;
           }
           case 776: {
-            RewRepValue4 = input.ReadInt32();
+            RawRepValue4 = input.ReadInt32();
             break;
           }
           case 784: {
-            RewRepValue5 = input.ReadInt32();
+            RawRepValue5 = input.ReadInt32();
             break;
           }
           case 792: {
-            RewOrReqMoney = input.ReadInt32();
+            RawOrReqMoney = input.ReadInt32();
             break;
           }
           case 800: {
-            RewMoneyMaxLevel = input.ReadUInt32();
+            RawMoneyMaxLevel = input.ReadUInt32();
             break;
           }
           case 808: {
-            RewSpell = input.ReadInt32();
+            RawSpell = input.ReadInt32();
             break;
           }
           case 816: {
-            RewSpellCast = input.ReadInt32();
+            RawSpellCast = input.ReadInt32();
             break;
           }
           case 824: {
-            RewMailTemplateId = input.ReadInt32();
+            RawMailTemplateId = input.ReadInt32();
             break;
           }
           case 832: {
-            RewMailDelaySecs = input.ReadUInt32();
+            RawMailDelaySecs = input.ReadUInt32();
             break;
           }
           case 840: {

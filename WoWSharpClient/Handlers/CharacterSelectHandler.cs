@@ -1,8 +1,8 @@
-﻿using WoWSharpClient.Models;
-using WoWSharpClient.Manager;
+﻿using BotRunner.Constants;
 using BotRunner.Interfaces;
-using BotRunner.Constants;
 using PathfindingService.Models;
+using WoWSharpClient.Manager;
+using WoWSharpClient.Models;
 using WoWSharpClient.Utils;
 
 namespace WoWSharpClient.Handlers
@@ -44,7 +44,7 @@ namespace WoWSharpClient.Handlers
 
                     GuildId = reader.ReadUInt32(),
 
-                    CharacterFlags = (CharacterFlags) reader.ReadUInt32(),
+                    CharacterFlags = (CharacterFlags)reader.ReadUInt32(),
                     FirstLogin = (AtLoginFlags)reader.ReadByte(),
 
 
@@ -58,7 +58,7 @@ namespace WoWSharpClient.Handlers
                 for (int j = 0; j < 19; j++)
                 {
                     uint displayId = reader.ReadUInt32();
-                    InventoryType inventoryType = (InventoryType) reader.ReadByte();
+                    InventoryType inventoryType = (InventoryType)reader.ReadByte();
                     character.Equipment.Add((displayId, inventoryType));
                 }
 

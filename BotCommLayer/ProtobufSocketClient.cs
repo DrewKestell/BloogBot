@@ -1,6 +1,6 @@
-﻿using System.Net.Sockets;
-using Google.Protobuf;
+﻿using Google.Protobuf;
 using Microsoft.Extensions.Logging;
+using System.Net.Sockets;
 
 namespace BotCommLayer
 {

@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BotRunner\BotRunner.csproj" />
-    <ProjectReference Include="..\WinImports\WinProcessImports.csproj" />
   </ItemGroup>
 
   <ItemGroup>

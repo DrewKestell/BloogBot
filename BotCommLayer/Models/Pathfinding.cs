@@ -24,19 +24,16 @@ namespace Pathfinding {
     static PathfindingReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "ChFwYXRoZmluZGluZy5wcm90bxILcGF0aGZpbmRpbmcihwEKElBhdGhmaW5k",
-            "aW5nUmVxdWVzdBINCgVtYXBJZBgBIAEoDRInCgVzdGFydBgCIAEoCzIYLnBh",
-            "dGhmaW5kaW5nLlBvc2l0aW9uRFRPEiUKA2VuZBgDIAEoCzIYLnBhdGhmaW5k",
-            "aW5nLlBvc2l0aW9uRFRPEhIKCnNtb290aFBhdGgYBCABKAgiPQoTUGF0aGZp",
-            "bmRpbmdSZXNwb25zZRImCgRwYXRoGAEgAygLMhgucGF0aGZpbmRpbmcuUG9z",
-            "aXRpb25EVE8iLgoLUG9zaXRpb25EVE8SCQoBeBgBIAEoAhIJCgF5GAIgASgC",
-            "EgkKAXoYAyABKAJiBnByb3RvMw=="));
+            "ChFwYXRoZmluZGluZy5wcm90bxILcGF0aGZpbmRpbmcaCmdhbWUucHJvdG8i",
+            "cwoSUGF0aGZpbmRpbmdSZXF1ZXN0Eg0KBW1hcElkGAEgASgNEh0KBXN0YXJ0",
+            "GAIgASgLMg4uZ2FtZS5Qb3NpdGlvbhIbCgNlbmQYAyABKAsyDi5nYW1lLlBv",
+            "c2l0aW9uEhIKCnNtb290aFBhdGgYBCABKAgiMwoTUGF0aGZpbmRpbmdSZXNw",
+            "b25zZRIcCgRwYXRoGAEgAygLMg4uZ2FtZS5Qb3NpdGlvbmIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { },
+          new pbr::FileDescriptor[] { global::Game.GameReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PathfindingRequest), global::Pathfinding.PathfindingRequest.Parser, new[]{ "MapId", "Start", "End", "SmoothPath" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PathfindingResponse), global::Pathfinding.PathfindingResponse.Parser, new[]{ "Path" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PositionDTO), global::Pathfinding.PositionDTO.Parser, new[]{ "X", "Y", "Z" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PathfindingResponse), global::Pathfinding.PathfindingResponse.Parser, new[]{ "Path" }, null, null, null, null)
           }));
     }
     #endregion
@@ -105,10 +102,10 @@ namespace Pathfinding {
 
     /// <summary>Field number for the "start" field.</summary>
     public const int StartFieldNumber = 2;
-    private global::Pathfinding.PositionDTO start_;
+    private global::Game.Position start_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Pathfinding.PositionDTO Start {
+    public global::Game.Position Start {
       get { return start_; }
       set {
         start_ = value;
@@ -117,10 +114,10 @@ namespace Pathfinding {
 
     /// <summary>Field number for the "end" field.</summary>
     public const int EndFieldNumber = 3;
-    private global::Pathfinding.PositionDTO end_;
+    private global::Game.Position end_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Pathfinding.PositionDTO End {
+    public global::Game.Position End {
       get { return end_; }
       set {
         end_ = value;
@@ -268,13 +265,13 @@ namespace Pathfinding {
       }
       if (other.start_ != null) {
         if (start_ == null) {
-          Start = new global::Pathfinding.PositionDTO();
+          Start = new global::Game.Position();
         }
         Start.MergeFrom(other.Start);
       }
       if (other.end_ != null) {
         if (end_ == null) {
-          End = new global::Pathfinding.PositionDTO();
+          End = new global::Game.Position();
         }
         End.MergeFrom(other.End);
       }
@@ -302,14 +299,14 @@ namespace Pathfinding {
           }
           case 18: {
             if (start_ == null) {
-              Start = new global::Pathfinding.PositionDTO();
+              Start = new global::Game.Position();
             }
             input.ReadMessage(Start);
             break;
           }
           case 26: {
             if (end_ == null) {
-              End = new global::Pathfinding.PositionDTO();
+              End = new global::Game.Position();
             }
             input.ReadMessage(End);
             break;
@@ -339,14 +336,14 @@ namespace Pathfinding {
           }
           case 18: {
             if (start_ == null) {
-              Start = new global::Pathfinding.PositionDTO();
+              Start = new global::Game.Position();
             }
             input.ReadMessage(Start);
             break;
           }
           case 26: {
             if (end_ == null) {
-              End = new global::Pathfinding.PositionDTO();
+              End = new global::Game.Position();
             }
             input.ReadMessage(End);
             break;
@@ -409,12 +406,12 @@ namespace Pathfinding {
 
     /// <summary>Field number for the "path" field.</summary>
     public const int PathFieldNumber = 1;
-    private static readonly pb::FieldCodec<global::Pathfinding.PositionDTO> _repeated_path_codec
-        = pb::FieldCodec.ForMessage(10, global::Pathfinding.PositionDTO.Parser);
-    private readonly pbc::RepeatedField<global::Pathfinding.PositionDTO> path_ = new pbc::RepeatedField<global::Pathfinding.PositionDTO>();
+    private static readonly pb::FieldCodec<global::Game.Position> _repeated_path_codec
+        = pb::FieldCodec.ForMessage(10, global::Game.Position.Parser);
+    private readonly pbc::RepeatedField<global::Game.Position> path_ = new pbc::RepeatedField<global::Game.Position>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Pathfinding.PositionDTO> Path {
+    public pbc::RepeatedField<global::Game.Position> Path {
       get { return path_; }
     }
 
@@ -532,270 +529,6 @@ namespace Pathfinding {
             break;
           case 10: {
             path_.AddEntriesFrom(ref input, _repeated_path_codec);
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class PositionDTO : pb::IMessage<PositionDTO>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<PositionDTO> _parser = new pb::MessageParser<PositionDTO>(() => new PositionDTO());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<PositionDTO> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[2]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public PositionDTO() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public PositionDTO(PositionDTO other) : this() {
-      x_ = other.x_;
-      y_ = other.y_;
-      z_ = other.z_;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public PositionDTO Clone() {
-      return new PositionDTO(this);
-    }
-
-    /// <summary>Field number for the "x" field.</summary>
-    public const int XFieldNumber = 1;
-    private float x_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float X {
-      get { return x_; }
-      set {
-        x_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "y" field.</summary>
-    public const int YFieldNumber = 2;
-    private float y_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float Y {
-      get { return y_; }
-      set {
-        y_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "z" field.</summary>
-    public const int ZFieldNumber = 3;
-    private float z_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float Z {
-      get { return z_; }
-      set {
-        z_ = value;
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as PositionDTO);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(PositionDTO other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(X, other.X)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Y, other.Y)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Z, other.Z)) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (X != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(X);
-      if (Y != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Y);
-      if (Z != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Z);
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (X != 0F) {
-        output.WriteRawTag(13);
-        output.WriteFloat(X);
-      }
-      if (Y != 0F) {
-        output.WriteRawTag(21);
-        output.WriteFloat(Y);
-      }
-      if (Z != 0F) {
-        output.WriteRawTag(29);
-        output.WriteFloat(Z);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (X != 0F) {
-        output.WriteRawTag(13);
-        output.WriteFloat(X);
-      }
-      if (Y != 0F) {
-        output.WriteRawTag(21);
-        output.WriteFloat(Y);
-      }
-      if (Z != 0F) {
-        output.WriteRawTag(29);
-        output.WriteFloat(Z);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (X != 0F) {
-        size += 1 + 4;
-      }
-      if (Y != 0F) {
-        size += 1 + 4;
-      }
-      if (Z != 0F) {
-        size += 1 + 4;
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(PositionDTO other) {
-      if (other == null) {
-        return;
-      }
-      if (other.X != 0F) {
-        X = other.X;
-      }
-      if (other.Y != 0F) {
-        Y = other.Y;
-      }
-      if (other.Z != 0F) {
-        Z = other.Z;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 13: {
-            X = input.ReadFloat();
-            break;
-          }
-          case 21: {
-            Y = input.ReadFloat();
-            break;
-          }
-          case 29: {
-            Z = input.ReadFloat();
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 13: {
-            X = input.ReadFloat();
-            break;
-          }
-          case 21: {
-            Y = input.ReadFloat();
-            break;
-          }
-          case 29: {
-            Z = input.ReadFloat();
             break;
           }
         }

@@ -1,8 +1,7 @@
-﻿using System.Runtime.ExceptionServices;
-using System.Runtime.InteropServices;
+﻿using BotRunner.Constants;
 using BotRunner.Interfaces;
-using BotRunner.Constants;
-using PathfindingService.Models;
+using System.Runtime.ExceptionServices;
+using System.Runtime.InteropServices;
 
 namespace ActivityForegroundMember.Mem
 {
@@ -17,20 +16,6 @@ namespace ActivityForegroundMember.Mem
         static public void BuyVendorItem(ulong vendorGuid, int itemId, int quantity)
         {
             BuyVendorItemFunction(itemId, quantity, vendorGuid, MemoryAddresses.BuyVendorItemFunPtr);
-        }
-
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        private delegate int CastAtPositionDelegate(ref XYZ parPos);
-
-        private static readonly CastAtPositionDelegate CastAtPositionFunction =
-            Marshal.GetDelegateForFunctionPointer<CastAtPositionDelegate>(MemoryAddresses.CastAtPositionFunPtr);
-
-        static public void CastAtPosition(string spellName, Position position)
-        {
-            MemoryManager.WriteByte(0xCECAC0, 0);
-            LuaCall($"CastSpellByName('{spellName}')");
-            var pos = position.ToXYZ();
-            CastAtPositionFunction(ref pos);
         }
 
         [DllImport("FastCall.dll", EntryPoint = "EnumerateVisibleObjects")]
@@ -121,30 +106,6 @@ namespace ActivityForegroundMember.Mem
         static public UnitReaction GetUnitReaction(nint unitPtr1, nint unitPtr2)
         {
             return (UnitReaction)GetUnitReactionFunction(unitPtr1, unitPtr2);
-        }
-
-        [DllImport("FastCall.dll", EntryPoint = "Intersect2")]
-        private static extern bool IntersectFunction(ref XYZ p1, ref XYZ p2, ref XYZ intersection, ref float distance, uint flags, nint Ptr);
-
-        /// <summary>
-        /// Returns { 1, 1, 1 } if there is a collission when casting a ray between start and end params.
-        /// A result of { 1, 1, 1 } would indicate you are not in line-of-sight with your target.
-        /// </summary>
-        /// <param name="start">The start of the raycast.</param>
-        /// <param name="end">The end of the raycast.</param>
-        /// <returns>The result of the collision check.</returns>
-        static public XYZ Intersect(Position start, Position end)
-        {
-            var intersection = new XYZ();
-            var distance = start.DistanceTo(end);
-            var p1 = new XYZ(start.X, start.Y, start.Z + 2);
-            var p2 = new XYZ(end.X, end.Y, end.Z + 2);
-
-            var result = IntersectFunction(ref p1, ref p2, ref intersection, ref distance, 0x00100111, MemoryAddresses.IntersectFunPtr);
-
-            var collisionDetected = distance < 1;
-
-            return collisionDetected ? new XYZ(1, 1, 1) : new XYZ(0, 0, 0);
         }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]

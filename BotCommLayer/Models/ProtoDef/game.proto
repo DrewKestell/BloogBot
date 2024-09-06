@@ -4,108 +4,145 @@ package game;
 
 // Definition for WoWObject
 message WoWObject {
-  uint64 guid = 1;
-  uint32 objectType = 2;
-  uint32 lastUpdated = 3;
-  uint32 entry = 4;
-  float scaleX = 5;
-  float height = 6;
-  float facing = 7;
-  Position position = 8;
-  bool inWorld = 9;
+    uint64 guid = 1;
+    uint32 mapId = 2;
+    uint32 zoneId = 3;
+    uint32 objectType = 4;
+    float scaleX = 5;
+    float height = 6;
+    float facing = 7;
+    Position position = 8;
 }
 
 // Definition for WoWGameObject, extending WoWObject
 message WoWGameObject {
-  WoWObject base = 1; // Composition for inheritance
-  string name = 2;
-  uint32 displayId = 3;
-  uint32 goState = 4;
-  uint32 artKit = 5;
-  uint32 animProgress = 6;
-  uint32 level = 7;
-  uint32 factionTemplate = 8;
-  uint32 typeId = 9;
+    WoWObject base = 1; // Composition for inheritance
+    uint32 goState = 2;
+    uint32 level = 3;
+    uint32 factionTemplate = 4;
 }
 
 // Definition for WoWUnit, extending WoWGameObject
 message WoWUnit {
-  WoWGameObject base = 1; // Composition for inheritance
-  string name = 2;
-  uint64 targetGuid = 3;
-  uint32 health = 4;
-  uint32 maxHealth = 5;
-  map<uint32, uint32> power = 6;
-  map<uint32, uint32> maxPower = 7;
-  uint64 summonedByGuid = 8;
-  uint32 mountDisplayId = 9;
-  uint32 unitReaction = 10;
-  uint32 dynamicFlags = 11;
-  uint32 unitFlags = 12;
-  uint32 movementFlags = 13;
-  int32 level = 14;
+    WoWGameObject gameObject = 1; // Composition for inheritance
+    uint64 charm = 2;
+    uint64 summon = 3;
+    uint64 charmedBy = 4;
+    uint64 summonedBy = 5;
+    uint64 createdBy = 6;
+    uint64 targetGuid = 7;
+    uint64 persuaded = 8;
+    uint64 channelObject = 9;
+    uint32 channelSpellId = 10;
+    uint32 health = 11;
+    uint32 maxHealth = 12;
+    map<uint32, uint32> power = 13;
+    map<uint32, uint32> maxPower = 14;
+    map<uint32, uint32> stats = 15;
+    map<uint32, uint32> resistances = 16;
+    uint32 bytes0 = 17;
+    uint32 bytes1 = 18;
+    uint32 bytes2 = 19;
+    uint32 mountDisplayId = 20;
+    uint32 unitFlags = 21;
+    uint32 movementFlags = 22;
+    uint32 dynamicFlags = 23;
+    uint32 npcFlags = 24;
+    repeated uint32 auras = 25;
+    repeated uint32 auraFlags = 26;
+    repeated uint32 auraLevels = 27;
+    repeated uint32 auraApplications = 28;
+    uint32 auraState = 29;
+    uint32 petNumber = 30;
 }
 
-// Definition for Equipment
-message Equipment {
-  Item head = 1;
-  Item neck = 2;
-  Item shoulder = 3;
-  Item back = 4;
-  Item chest = 5;
-  Item wrist = 6;
-  Item hands = 7;
-  Item waist = 8;
-  Item legs = 9;
-  Item feet = 10;
-  Item finger1 = 11;
-  Item finger2 = 12;
-  Item trinket1 = 13;
-  Item trinket2 = 14;
-  Item mainHand = 15;
-  Item offHand = 16;
-  Item ranged = 17;
+// Definition for WoWPlayer, extending WoWUnit
+message WoWPlayer {
+    WoWUnit unit = 1; 
+    uint32 playerBytes0 = 2;
+    uint32 playerBytes1 = 3;
+    uint32 playerBytes2 = 4;
+    uint32 playerFlags = 5;
+    repeated QuestLogEntry questLogEntries = 6;
+    map<uint32, uint64> inventory = 7;
+    map<uint32, uint32> bagContents = 8;
+    map<uint32, uint32> keyRing = 9;
+    uint64 farsightGuid = 10;
+    uint64 comboTargetGuid = 11;
+    uint32 playerXP = 12;
+    map<uint32, uint32> skillInfo = 13;
+    repeated uint32 spellList = 14;
+    map<uint32, float> spellCooldowns = 15;
+    map<uint32, uint32> spellStacks = 16;
+    map<uint32, float> buffList = 17;
+    uint32 characterPoints1 = 18;
+    uint32 characterPoints2 = 19;
+    uint32 trackCreatures = 20;
+    uint32 trackResources = 21;
+    float blockPercent = 22;
+    float dodgePercent = 23;
+    float parryPercent = 24;
+    float critPercent = 25;
+    float rangedCritPercent = 26;
+    map<uint32, uint32> exploredZones = 27;
+    uint32 restStateExperience = 28;
+    uint32 coinage = 29;
+    uint32 posModDamageDone = 30;
+    uint32 negModDamageDone = 31;
+    uint32 pctModDamageDone = 32;
+    map<uint32, uint32> posStats = 33;
+    map<uint32, uint32> negStats = 34;
+    map<uint32, uint32> posResistBuff = 35;
+    map<uint32, uint32> negResistBuff = 36;
+    uint32 ammoId = 37;
+    uint32 selfResSpell = 38;
+    uint32 pvpMedals = 39;
+    uint32 sessionKills = 40;
+    uint32 watchedFactionIndex = 41;
+    map<uint32, uint32> combatRating = 42;
 }
 
-// Definition for Skill
-message Skill {
-  string name = 1;
-  uint32 level = 2;
+// Reusable message for WoWItem, extending WoWGameObject
+message WoWItem {
+    WoWGameObject gameObject = 1;
+    uint64 owner = 2;
+    uint64 contained = 3;
+    uint64 creator = 4;
+    uint64 giftCreator = 5;
+    uint32 stackCount = 6;
+    uint32 duration = 7;
+    map<uint32, uint32> spellCharges = 8;
+    uint32 itemFlags = 9;
+    map<uint32, uint32> enchantments = 10;
+    uint32 durability = 11;
+    uint32 propertySeed = 12;
+    uint32 randomPropertiesId = 13;
 }
 
-// Reusable message for Resistances
-message Resistances {
-  uint32 holy = 1;
-  uint32 fire = 2;
-  uint32 nature = 3;
-  uint32 frost = 4;
-  uint32 shadow = 5;
-  uint32 arcane = 6;
+// Reusable message for WoWContainer, extending WoWItem
+message WoWContainer {
+    WoWItem item = 1;
+    repeated uint32 itemSlots = 2;
 }
 
-// Reusable message for Faction Reputation
-message FactionReputation {
-  string factionName = 1;
-  int32 reputation = 2; // -42000 to 42000 (Hated to Exalted)
+// Definition for QuestLogEntry
+message QuestLogEntry {
+    uint32 questLog1 = 1;
+    uint32 questLog2 = 2;
+    uint32 questLog3 = 3;
+}
+
+message Position {
+    float x = 1;
+    float y = 2;
+    float z = 3;
 }
 
 // Reusable message for Item
 message Item {
-  uint64 id = 1;
-  string name = 2;
-  string slot = 3;
-  uint32 quantity = 4;
-  repeated Stat stats = 5;
-}
-
-// Reusable message for Stat
-message Stat {
-  string type = 1;
-  int32 value = 2;
-}
-
-message Position {
-  float x = 1;
-  float y = 2;
-  float z = 3;
+    uint64 id = 1;
+    string name = 2;
+    string slot = 3;
+    uint32 quantity = 4;    
+    map<uint32, uint32> stats = 5;
 }

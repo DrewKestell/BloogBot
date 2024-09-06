@@ -1,10 +1,7 @@
 using BotRunner.Base;
 using BotRunner.Constants;
 using BotRunner.Interfaces;
-using BotRunner.Models;
-using Communication;
 using Moq;
-using PathfindingService.Models;
 using WoWSharpClient.Handlers;
 using WoWSharpClient.Manager;
 using WoWSharpClient.Models;

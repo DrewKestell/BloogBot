@@ -2,36 +2,38 @@ syntax = "proto3";
 
 package database;
 
+import "game.proto";
+
 enum QueryType {
-  GetItemById = 0;
-  GetCreatureMovementByGuid = 1;
-  GetCreatureGroupingByMemberGuid = 2;
-  GetCreatureTemplateById = 3;
-  GetCreaturesById = 4;
-  GetCreaturesByMapId = 5; 
-  GetCreatureEquipTemplateById = 6;
+    GetItemById = 0;
+    GetCreatureMovementByGuid = 1;
+    GetCreatureGroupingByMemberGuid = 2;
+    GetCreatureTemplateById = 3;
+    GetCreaturesById = 4;
+    GetCreaturesByMapId = 5;
+    GetCreatureEquipTemplateById = 6;
 }
 
 message DatabaseRequest {
-  QueryType queryType = 1;
-  string queryParam1 = 2;
-  string queryParam2 = 3;
-  string queryParam3 = 4;
-  string queryParam4 = 5;
+    QueryType queryType = 1;
+    string queryParam1 = 2;
+    string queryParam2 = 3;
+    string queryParam3 = 4;
+    string queryParam4 = 5;
 }
 
 message DatabaseResponse {
-  repeated AreaTriggerTeleport areaTriggerTeleports = 1;
-  repeated CreatureGrouping creatureGroupings = 2;
-  repeated CreatureMovement creatureMovement = 3;
-  repeated CreatureMovementTemplate creatureMovementTemplate = 4;
-  repeated GameObject gameObjects = 5;
-  repeated Creature creatures = 6;
-  optional CreatureEquipTemplate creatureEquipTemplate = 7;
-  optional ItemTemplate itemTemplate = 8;
-  optional NpcVendorEntry npcVendorEntry = 9;
-  optional QuestTemplate questTemplate = 10;
-  optional CreatureTemplate creatureTemplate = 11;
+    repeated AreaTriggerTeleport areaTriggerTeleports = 1;
+    repeated CreatureGrouping creatureGroupings = 2;
+    repeated CreatureMovement creatureMovement = 3;
+    repeated CreatureMovementTemplate creatureMovementTemplate = 4;
+    repeated GameObject gameObjects = 5;
+    repeated Creature creatures = 6;
+    optional CreatureEquipTemplate creatureEquipTemplate = 7;
+    optional ItemTemplate itemTemplate = 8;
+    optional NpcVendorEntry npcVendorEntry = 9;
+    optional QuestTemplate questTemplate = 10;
+    optional CreatureTemplate creatureTemplate = 11;
 }
 
 message AreaTriggerTeleport {
@@ -42,76 +44,74 @@ message AreaTriggerTeleport {
     int32 requiredItem2 = 5;
     int32 requiredQuestDone = 6;
     uint32 targetMap = 7;
-    float targetPositionX = 8;
-    float targetPositionY = 9;
-    float targetPositionZ = 10;
-    float targetOrientation = 11;
-    string statusFailedText = 12;
-    int32 conditionId = 13;
+    game.Position position = 8;
+    float targetOrientation = 9;
+    string statusFailedText = 10;
+    int32 conditionId = 11;
 }
+
 message Creature {
-    int32 guid = 1;
+    int64 guid = 1;  // Consistent ID type
     string name = 2;
     int32 id = 3;
     int32 map = 4;
     int32 zoneId = 5;
     int32 areaId = 6;
-    float positionX = 7;
-    float positionY = 8;
-    float positionZ = 9;
-    float orientation = 10;
-    int32 spawnTimeSecsMin = 11;
-    int32 spawnTimeSecsMax = 12;
-    float spawnDist = 13;
-    int32 currentWaypointId = 14;
-    int32 spawnType = 15;
-    int32 respawnTime = 16;
-    int32 movementType = 17;
-    int32 wanderDistance = 18;
-    int32 searchRange = 19;
-    int32 equipmentId = 20;
-    string scriptName = 21;
-    string comments = 22;
-    int32 spawnMask = 23;
-    int32 modelId = 24;
-    int32 currentWaypoint = 25;
-    int32 curHealth = 26;
-    int32 curMana = 27;
-    int32 deathState = 28;
+    game.Position position = 7;
+    float orientation = 8;
+    int32 spawnTimeSecsMin = 9;
+    int32 spawnTimeSecsMax = 10;
+    float spawnDist = 11;
+    int32 currentWaypointId = 12;
+    int32 spawnType = 13;
+    int32 respawnTime = 14;
+    int32 movementType = 15;
+    int32 wanderDistance = 16;
+    int32 searchRange = 17;
+    int32 equipmentId = 18;
+    string scriptName = 19;
+    string comments = 20;
+    int32 spawnMask = 21;
+    int32 modelId = 22;
+    int32 currentWaypoint = 23;
+    int32 curHealth = 24;
+    int32 curMana = 25;
+    int32 deathState = 26;
 }
+
 message CreatureEquipTemplate {
     int32 entry = 1;
     int32 equipEntry1 = 2;
     int32 equipEntry2 = 3;
     int32 equipEntry3 = 4;
 }
+
 message CreatureGrouping {
-    int32 leaderGuid = 1;
-    int32 memberGuid = 2;
+    int64 leaderGuid = 1;  // Consistent ID type
+    int64 memberGuid = 2;  // Consistent ID type
 }
+
 message CreatureMovement {
     int32 id = 1;
     int32 point = 2;
-    float positionX = 3;
-    float positionY = 4;
-    float positionZ = 5;
-    float orientation = 6;
-    int32 waitTime = 7;
-    int32 scriptId = 8;
-    string comment = 9;
+    game.Position position = 3;
+    float orientation = 4;
+    int32 waitTime = 5;
+    int32 scriptId = 6;
+    string comment = 7;
 }
+
 message CreatureMovementTemplate {
     int32 entry = 1;
     int32 pathId = 2;
     int32 point = 3;
-    float positionX = 4;
-    float positionY = 5;
-    float positionZ = 6;
-    float orientation = 7;
-    int32 waitTime = 8;
-    int32 scriptId = 9;
-    string comment = 10;
+    game.Position position = 4;
+    float orientation = 5;
+    int32 waitTime = 6;
+    int32 scriptId = 7;
+    string comment = 8;
 }
+
 message CreatureTemplate {
     int64 entry = 1;
     string name = 2;
@@ -172,12 +172,7 @@ message CreatureTemplate {
     int32 killCredit2 = 57;
     int32 mechanicImmuneMask = 58;
     int32 schoolImmuneMask = 59;
-    int32 resistanceHoly = 60;
-    int32 resistanceFire = 61;
-    int32 resistanceNature = 62;
-    int32 resistanceFrost = 63;
-    int32 resistanceShadow = 64;
-    int32 resistanceArcane = 65;
+    map<uint32, uint32> resistances = 60;  // Reused Resistances
     int32 petSpellDataId = 66;
     uint32 movementType = 67;
     uint32 trainerType = 68;
@@ -196,24 +191,24 @@ message CreatureTemplate {
     string aiName = 81;
     string scriptName = 82;
 }
+
 message GameObject {
-    int32 guid = 1;
+    int64 guid = 1;  // Consistent ID type
     int32 id = 2;
     int32 map = 3;
     uint32 spawnMask = 4;
-    float positionX = 5;
-    float positionY = 6;
-    float positionZ = 7;
-    float orientation = 8;
-    float rotation0 = 9;
-    float rotation1 = 10;
-    float rotation2 = 11;
-    float rotation3 = 12;
-    int32 spawnTimeSecsMin = 13;
-    int32 spawnTimeSecsMax = 14;
-    uint32 animProgress = 15;
-    uint32 state = 16;
+    game.Position position = 5;
+    float orientation = 6;
+    float rotation0 = 7;
+    float rotation1 = 8;
+    float rotation2 = 9;
+    float rotation3 = 10;
+    int32 spawnTimeSecsMin = 11;
+    int32 spawnTimeSecsMax = 12;
+    uint32 animProgress = 13;
+    uint32 state = 14;
 }
+
 message ItemTemplate {
     int32 entry = 1;
     int32 patch = 2;
@@ -241,26 +236,7 @@ message ItemTemplate {
     int32 maxCount = 24;
     int32 stackable = 25;
     int32 containerSlots = 26;
-    int32 statType1 = 27;
-    int32 statValue1 = 28;
-    int32 statType2 = 29;
-    int32 statValue2 = 30;
-    int32 statType3 = 31;
-    int32 statValue3 = 32;
-    int32 statType4 = 33;
-    int32 statValue4 = 34;
-    int32 statType5 = 35;
-    int32 statValue5 = 36;
-    int32 statType6 = 37;
-    int32 statValue6 = 38;
-    int32 statType7 = 39;
-    int32 statValue7 = 40;
-    int32 statType8 = 41;
-    int32 statValue8 = 42;
-    int32 statType9 = 43;
-    int32 statValue9 = 44;
-    int32 statType10 = 45;
-    int32 statValue10 = 46;
+    map<uint32, uint32> stats = 27;  // Reused Stat instead of individual statType/statValue fields
     float dmgMin1 = 47;
     float dmgMax1 = 48;
     int32 dmgType1 = 49;
@@ -277,12 +253,7 @@ message ItemTemplate {
     float dmgMax5 = 60;
     int32 dmgType5 = 61;
     int32 armor = 62;
-    int32 holyResistance = 63;
-    int32 fireResistance = 64;
-    int32 natureResistance = 65;
-    int32 frostResistance = 66;
-    int32 shadowResistance = 67;
-    int32 arcaneResistance = 68;
+    map<uint32, uint32> resistances = 63;  // Reused Resistances
     int32 delay = 69;
     int32 ammoType = 70;
     float rangedModRange = 71;
@@ -346,6 +317,7 @@ message ItemTemplate {
     int32 extraFlags = 129;
     int32 otherTeamEntry = 130;
 }
+
 message NpcVendorEntry {
     int32 entry = 1;
     int32 item = 2;
@@ -355,6 +327,7 @@ message NpcVendorEntry {
     int32 conditionId = 6;
     string comments = 7;
 }
+
 message QuestTemplate {
     int32 entry = 1;
     int32 method = 2;
@@ -396,6 +369,8 @@ message QuestTemplate {
     string objectiveText2 = 38;
     string objectiveText3 = 39;
     string objectiveText4 = 40;
+    
+    // Keeping the unique identifiers and counts
     int32 reqItemId1 = 41;
     int32 reqItemId2 = 42;
     int32 reqItemId3 = 43;
@@ -404,6 +379,7 @@ message QuestTemplate {
     int32 reqItemCount2 = 46;
     int32 reqItemCount3 = 47;
     int32 reqItemCount4 = 48;
+    
     int32 reqSourceId1 = 49;
     int32 reqSourceId2 = 50;
     int32 reqSourceId3 = 51;
@@ -412,6 +388,7 @@ message QuestTemplate {
     int32 reqSourceCount2 = 54;
     int32 reqSourceCount3 = 55;
     int32 reqSourceCount4 = 56;
+    
     int32 reqCreatureOrGOId1 = 57;
     int32 reqCreatureOrGOId2 = 58;
     int32 reqCreatureOrGOId3 = 59;
@@ -420,50 +397,56 @@ message QuestTemplate {
     int32 reqCreatureOrGOCount2 = 62;
     int32 reqCreatureOrGOCount3 = 63;
     int32 reqCreatureOrGOCount4 = 64;
+    
     int32 reqSpellCast1 = 65;
     int32 reqSpellCast2 = 66;
     int32 reqSpellCast3 = 67;
     int32 reqSpellCast4 = 68;
-    int64 rewChoiceItemId1 = 69;
-    int64 rewChoiceItemId2 = 70;
-    int64 rewChoiceItemId3 = 71;
-    int64 rewChoiceItemId4 = 72;
-    int64 rewChoiceItemId5 = 73;
-    int64 rewChoiceItemId6 = 74;
-    int32 rewChoiceItemCount1 = 75;
-    int32 rewChoiceItemCount2 = 76;
-    int32 rewChoiceItemCount3 = 77;
-    int32 rewChoiceItemCount4 = 78;
-    int32 rewChoiceItemCount5 = 79;
-    int32 rewChoiceItemCount6 = 80;
-    int32 rewItemId1 = 81;
-    int32 rewItemId2 = 82;
-    int32 rewItemId3 = 83;
-    int32 rewItemId4 = 84;
-    int32 rewItemCount1 = 85;
-    int32 rewItemCount2 = 86;
-    int32 rewItemCount3 = 87;
-    int32 rewItemCount4 = 88;
-    int32 rewRepFaction1 = 89;
-    int32 rewRepFaction2 = 90;
-    int32 rewRepFaction3 = 91;
-    int32 rewRepFaction4 = 92;
-    int32 rewRepFaction5 = 93;
-    int32 rewRepValue1 = 94;
-    int32 rewRepValue2 = 95;
-    int32 rewRepValue3 = 96;
-    int32 rewRepValue4 = 97;
-    int32 rewRepValue5 = 98;
-    int32 rewOrReqMoney = 99;
-    uint32 rewMoneyMaxLevel = 100;
-    int32 rewSpell = 101;
-    int32 rewSpellCast = 102;
-    int32 rewMailTemplateId = 103;
-    uint32 rewMailDelaySecs = 104;
+    
+    int32 rawChoiceItemId1 = 69;
+    int32 rawChoiceItemId2 = 70;
+    int32 rawChoiceItemId3 = 71;
+    int32 rawChoiceItemId4 = 72;
+    int32 rawChoiceItemId5 = 73;
+    int32 rawChoiceItemId6 = 74;
+    int32 rawChoiceItemCount1 = 75;
+    int32 rawChoiceItemCount2 = 76;
+    int32 rawChoiceItemCount3 = 77;
+    int32 rawChoiceItemCount4 = 78;
+    int32 rawChoiceItemCount5 = 79;
+    int32 rawChoiceItemCount6 = 80;
+    
+    int32 rawItemId1 = 81;
+    int32 rawItemId2 = 82;
+    int32 rawItemId3 = 83;
+    int32 rawItemId4 = 84;
+    int32 rawItemCount1 = 85;
+    int32 rawItemCount2 = 86;
+    int32 rawItemCount3 = 87;
+    int32 rawItemCount4 = 88;
+    
+    int32 rawRepFaction1 = 89;
+    int32 rawRepFaction2 = 90;
+    int32 rawRepFaction3 = 91;
+    int32 rawRepFaction4 = 92;
+    int32 rawRepFaction5 = 93;
+    int32 rawRepValue1 = 94;
+    int32 rawRepValue2 = 95;
+    int32 rawRepValue3 = 96;
+    int32 rawRepValue4 = 97;
+    int32 rawRepValue5 = 98;
+    
+    int32 rawOrReqMoney = 99;
+    uint32 rawMoneyMaxLevel = 100;
+    int32 rawSpell = 101;
+    int32 rawSpellCast = 102;
+    int32 rawMailTemplateId = 103;
+    uint32 rawMailDelaySecs = 104;
     int32 pointMapId = 105;
     float pointX = 106;
     float pointY = 107;
     uint32 pointOpt = 108;
+    
     int32 detailsEmote1 = 109;
     int32 detailsEmote2 = 110;
     int32 detailsEmote3 = 111;
@@ -472,10 +455,12 @@ message QuestTemplate {
     int32 detailsEmoteDelay2 = 114;
     int32 detailsEmoteDelay3 = 115;
     int32 detailsEmoteDelay4 = 116;
+    
     int32 incompleteEmote = 117;
     int32 incompleteEmoteDelay = 118;
     int32 completeEmote = 119;
     int32 completeEmoteDelay = 120;
+    
     int32 offerRewardEmote1 = 121;
     int32 offerRewardEmote2 = 122;
     int32 offerRewardEmote3 = 123;
@@ -484,6 +469,7 @@ message QuestTemplate {
     int32 offerRewardEmoteDelay2 = 126;
     int32 offerRewardEmoteDelay3 = 127;
     int32 offerRewardEmoteDelay4 = 128;
+    
     int32 startScript = 129;
     int32 completeScript = 130;
 }

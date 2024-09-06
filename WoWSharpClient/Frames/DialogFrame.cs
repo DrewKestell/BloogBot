@@ -1,8 +1,8 @@
-﻿using BotRunner.Interfaces;
+﻿using BotRunner.Frames;
 
 namespace WoWSharpClient.Frames
 {
-    public class DialogFrame : IDialogFrame
+    public class DialogFrame : BotRunner.Frames.DialogFrame
     {
         public IList<DialogOption> DialogOptions { get; } = [];
 

@@ -1,14 +1,25 @@
-﻿using BotRunner.Constants;
+﻿using BotRunner.Clients;
+using BotRunner.Constants;
 using BotRunner.Interfaces;
 using BotRunner.Models;
 using Communication;
+using DatabaseDomain.Clients;
+using PathfindingService.Client;
 
 namespace BotRunner.Base
 {
-    public abstract class BaseObjectManager(IWoWEventHandler woWEventHandler, ActivityMemberState activityMemberState) : IObjectManager
+    public abstract class BaseObjectManager(IWoWEventHandler woWEventHandler,
+        ActivitySnapshot activityMemberState,
+        PathfindingClient pathfindingClient,
+        DatabaseDomainClient databaseDomainClient) : IObjectManager
     {
         private readonly IWoWEventHandler _woWEventHandler = woWEventHandler;
-        private readonly ActivityMemberState _activityMemberState = activityMemberState;
+        private readonly ActivitySnapshot _activitySnapshot = activityMemberState;
+
+        public PathfindingClient PathfindingClient => pathfindingClient;
+        public DatabaseDomainClient DatabaseDomainClient => databaseDomainClient;
+
+        public ActivityMemberUpdateClient ActivityMemberUpdateClient => throw new NotImplementedException();
 
         public HighGuid PlayerGuid { get; } = new HighGuid(new byte[4], new byte[4]);
 
@@ -50,6 +61,7 @@ namespace BotRunner.Base
         public string GlueDialogText { get; } = string.Empty;
 
         public LoginStates LoginState { get; }
+
         public abstract void AcceptGroupInvite();
         public abstract void AntiAfk();
         public abstract void ConfirmItemEquip();

@@ -1,8 +1,6 @@
-﻿using BotRunner.Interfaces;
-
-namespace WoWSharpClient.Frames
+﻿namespace WoWSharpClient.Frames
 {
-    public class MerchantFrame : IMerchantFrame
+    public class MerchantFrame : BotRunner.Frames.MerchantFrame
     {
         private readonly IList<MerchantItem> items = [];
 

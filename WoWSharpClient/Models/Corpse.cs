@@ -16,7 +16,7 @@ namespace WoWSharpClient.Models
             Angle = 0.0f;
         }
 
-        public HighGuid OwnerGuid { get; set; }
+        public HighGuid OwnerGuid { get; set; } = new HighGuid(new byte[4], new byte[4]);
         public uint GhostTime { get; set; }
         public CorpseType Type { get; set; }
         public float Angle { get; set; }

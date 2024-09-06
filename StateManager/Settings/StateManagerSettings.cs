@@ -1,6 +1,5 @@
-﻿using System.Reflection;
-using Communication;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System.Reflection;
 
 namespace StateManager.Settings
 {

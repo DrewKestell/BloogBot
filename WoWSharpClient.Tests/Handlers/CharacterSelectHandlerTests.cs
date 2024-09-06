@@ -1,5 +1,4 @@
 ﻿using BotRunner.Constants;
-using Communication;
 using Moq;
 using PathfindingService.Models;
 using WoWSharpClient.Handlers;
@@ -42,12 +41,12 @@ namespace WoWSharpClient.Tests.Handlers
             // Define expected values for assertions (these values are hypothetical, replace them with the correct expected values)
             var expectedCharacters = new List<CharacterSelect>
             {
-                new() { Guid = 150, Name = "Greenbarbie", Race = Race.Orc, Class = Class.Warrior, Level = 60, ZoneId = 1637, MapId = 1, Position = new Position(1984.09f, -4792.23f, 55.8203f), GuildId = 0, CharacterFlags = CharacterFlags.CHARACTER_FLAG_NONE, FirstLogin = AtLoginFlags.AT_LOGIN_NONE, PetDisplayId = 0, PetLevel = 0, PetFamily = 0, FirstBagDisplayId = 0, FirstBagInventoryType = 0, Equipment = { 
-                        (34215, InventoryType.Head), (9860, InventoryType.Neck), (34253, InventoryType.Shoulders), 
-                        (7904, InventoryType.Shirt), (33983, InventoryType.Chest), (33990, InventoryType.Waist), 
-                        (33986, InventoryType.Legs), (33989, InventoryType.Feet), (33982, InventoryType.Wrists), 
+                new() { Guid = 150, Name = "Greenbarbie", Race = Race.Orc, Class = Class.Warrior, Level = 60, ZoneId = 1637, MapId = 1, Position = new Position(1984.09f, -4792.23f, 55.8203f), GuildId = 0, CharacterFlags = CharacterFlags.CHARACTER_FLAG_NONE, FirstLogin = AtLoginFlags.AT_LOGIN_NONE, PetDisplayId = 0, PetLevel = 0, PetFamily = 0, FirstBagDisplayId = 0, FirstBagInventoryType = 0, Equipment = {
+                        (34215, InventoryType.Head), (9860, InventoryType.Neck), (34253, InventoryType.Shoulders),
+                        (7904, InventoryType.Shirt), (33983, InventoryType.Chest), (33990, InventoryType.Waist),
+                        (33986, InventoryType.Legs), (33989, InventoryType.Feet), (33982, InventoryType.Wrists),
                         (33984, InventoryType.Hands), (9835, InventoryType.Finger), (9840, InventoryType.Finger),
-                        (24776, InventoryType.Trinket), (6337, InventoryType.Trinket), (29827, InventoryType.Cloak), 
+                        (24776, InventoryType.Trinket), (6337, InventoryType.Trinket), (29827, InventoryType.Cloak),
                         (31866, InventoryType.Weapon), (34110, InventoryType.Shield), (35071, InventoryType.RangedRight), (15817, InventoryType.Tabard)} },
                 new() { Guid = 153, Name = "Beefburgers", Race = Race.Tauren, Class = Class.Warrior, Level = 1, ZoneId = 215, MapId = 1, Position = new Position(-2917.58f, -257.98f, 52.9968f), GuildId = 0, CharacterFlags = CharacterFlags.CHARACTER_FLAG_NONE, FirstLogin = AtLoginFlags.AT_LOGIN_NONE, PetDisplayId = 0, PetLevel = 0, PetFamily = 0, FirstBagDisplayId = 0, FirstBagInventoryType = 0, Equipment = {
                         (0, InventoryType.NonEquippable), (0, InventoryType.NonEquippable), (0, InventoryType.NonEquippable),

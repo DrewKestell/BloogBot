@@ -11,7 +11,7 @@ namespace WoWSharpClient.Client
     {
         private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpEventEmitter;
         private readonly ObjectManager _objectManager = objectManager;
-        private readonly OpCodeDispatcher _opCodeDispatcher = new (woWSharpEventEmitter, objectManager);
+        private readonly OpCodeDispatcher _opCodeDispatcher = new(woWSharpEventEmitter, objectManager);
         private readonly bool _hasReceivedCharListReply;
 
         private IPAddress _ipAddress = IPAddress.Loopback;

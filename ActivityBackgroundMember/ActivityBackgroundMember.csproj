@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PromptHandling\PromptHandling.csproj" />
+    <ProjectReference Include="..\BotRunner\BotRunner.csproj" />
     <ProjectReference Include="..\WoWSharpClient\WoWSharpClient.csproj" />
   </ItemGroup>
 </Project>

@@ -24,58 +24,109 @@ namespace Game {
     static GameReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "CgpnYW1lLnByb3RvEgRnYW1lIsUBCglXb1dPYmplY3QSDAoEZ3VpZBgBIAEo",
-            "BBISCgpvYmplY3RUeXBlGAIgASgNEhMKC2xhc3RVcGRhdGVkGAMgASgNEg0K",
-            "BWVudHJ5GAQgASgNEg4KBnNjYWxlWBgFIAEoAhIOCgZoZWlnaHQYBiABKAIS",
-            "DgoGZmFjaW5nGAcgASgCEiAKCHBvc2l0aW9uGAggASgLMg4uZ2FtZS5Qb3Np",
-            "dGlvbhIPCgdwYWRkaW5nGAkgASgNEg8KB2luV29ybGQYCiABKAgivgEKDVdv",
-            "V0dhbWVPYmplY3QSHQoEYmFzZRgBIAEoCzIPLmdhbWUuV29XT2JqZWN0EgwK",
-            "BG5hbWUYAiABKAkSEQoJZGlzcGxheUlkGAMgASgNEg8KB2dvU3RhdGUYBCAB",
-            "KA0SDgoGYXJ0S2l0GAUgASgNEhQKDGFuaW1Qcm9ncmVzcxgGIAEoDRINCgVs",
-            "ZXZlbBgHIAEoDRIXCg9mYWN0aW9uVGVtcGxhdGUYCCABKA0SDgoGdHlwZUlk",
-            "GAkgASgNIr0DCgdXb1dVbml0EiEKBGJhc2UYASABKAsyEy5nYW1lLldvV0dh",
-            "bWVPYmplY3QSDAoEbmFtZRgCIAEoCRISCgp0YXJnZXRHdWlkGAMgASgEEg4K",
-            "BmhlYWx0aBgEIAEoDRIRCgltYXhIZWFsdGgYBSABKA0SJwoFcG93ZXIYBiAD",
-            "KAsyGC5nYW1lLldvV1VuaXQuUG93ZXJFbnRyeRItCghtYXhQb3dlchgHIAMo",
-            "CzIbLmdhbWUuV29XVW5pdC5NYXhQb3dlckVudHJ5EhYKDnN1bW1vbmVkQnlH",
-            "dWlkGAggASgEEhYKDm1vdW50RGlzcGxheUlkGAkgASgNEhQKDHVuaXRSZWFj",
-            "dGlvbhgKIAEoDRIUCgxkeW5hbWljRmxhZ3MYCyABKA0SEQoJdW5pdEZsYWdz",
-            "GAwgASgNEhUKDW1vdmVtZW50RmxhZ3MYDSABKA0SDQoFbGV2ZWwYDiABKAUa",
-            "LAoKUG93ZXJFbnRyeRILCgNrZXkYASABKA0SDQoFdmFsdWUYAiABKA06AjgB",
-            "Gi8KDU1heFBvd2VyRW50cnkSCwoDa2V5GAEgASgNEg0KBXZhbHVlGAIgASgN",
-            "OgI4ASLkAwoJRXF1aXBtZW50EhgKBGhlYWQYASABKAsyCi5nYW1lLkl0ZW0S",
-            "GAoEbmVjaxgCIAEoCzIKLmdhbWUuSXRlbRIcCghzaG91bGRlchgDIAEoCzIK",
-            "LmdhbWUuSXRlbRIYCgRiYWNrGAQgASgLMgouZ2FtZS5JdGVtEhkKBWNoZXN0",
-            "GAUgASgLMgouZ2FtZS5JdGVtEhkKBXdyaXN0GAYgASgLMgouZ2FtZS5JdGVt",
-            "EhkKBWhhbmRzGAcgASgLMgouZ2FtZS5JdGVtEhkKBXdhaXN0GAggASgLMgou",
-            "Z2FtZS5JdGVtEhgKBGxlZ3MYCSABKAsyCi5nYW1lLkl0ZW0SGAoEZmVldBgK",
-            "IAEoCzIKLmdhbWUuSXRlbRIbCgdmaW5nZXIxGAsgASgLMgouZ2FtZS5JdGVt",
-            "EhsKB2ZpbmdlcjIYDCABKAsyCi5nYW1lLkl0ZW0SHAoIdHJpbmtldDEYDSAB",
-            "KAsyCi5nYW1lLkl0ZW0SHAoIdHJpbmtldDIYDiABKAsyCi5nYW1lLkl0ZW0S",
-            "HAoIbWFpbkhhbmQYDyABKAsyCi5nYW1lLkl0ZW0SGwoHb2ZmSGFuZBgQIAEo",
-            "CzIKLmdhbWUuSXRlbRIaCgZyYW5nZWQYESABKAsyCi5nYW1lLkl0ZW0iJAoF",
-            "U2tpbGwSDAoEbmFtZRgBIAEoCRINCgVsZXZlbBgCIAEoDSJoCgtSZXNpc3Rh",
-            "bmNlcxIMCgRob2x5GAEgASgNEgwKBGZpcmUYAiABKA0SDgoGbmF0dXJlGAMg",
-            "ASgNEg0KBWZyb3N0GAQgASgNEg4KBnNoYWRvdxgFIAEoDRIOCgZhcmNhbmUY",
-            "BiABKA0iPAoRRmFjdGlvblJlcHV0YXRpb24SEwoLZmFjdGlvbk5hbWUYASAB",
-            "KAkSEgoKcmVwdXRhdGlvbhgCIAEoBSJbCgRJdGVtEgoKAmlkGAEgASgEEgwK",
-            "BG5hbWUYAiABKAkSDAoEc2xvdBgDIAEoCRIQCghxdWFudGl0eRgEIAEoDRIZ",
-            "CgVzdGF0cxgFIAMoCzIKLmdhbWUuU3RhdCIjCgRTdGF0EgwKBHR5cGUYASAB",
-            "KAkSDQoFdmFsdWUYAiABKAUiKwoIUG9zaXRpb24SCQoBeBgBIAEoAhIJCgF5",
-            "GAIgASgCEgkKAXoYAyABKAJiBnByb3RvMw=="));
+            "CgpnYW1lLnByb3RvEgRnYW1lIp4BCglXb1dPYmplY3QSDAoEZ3VpZBgBIAEo",
+            "BBINCgVtYXBJZBgCIAEoDRIOCgZ6b25lSWQYAyABKA0SEgoKb2JqZWN0VHlw",
+            "ZRgEIAEoDRIOCgZzY2FsZVgYBSABKAISDgoGaGVpZ2h0GAYgASgCEg4KBmZh",
+            "Y2luZxgHIAEoAhIgCghwb3NpdGlvbhgIIAEoCzIOLmdhbWUuUG9zaXRpb24i",
+            "ZwoNV29XR2FtZU9iamVjdBIdCgRiYXNlGAEgASgLMg8uZ2FtZS5Xb1dPYmpl",
+            "Y3QSDwoHZ29TdGF0ZRgCIAEoDRINCgVsZXZlbBgDIAEoDRIXCg9mYWN0aW9u",
+            "VGVtcGxhdGUYBCABKA0iiwcKB1dvV1VuaXQSJwoKZ2FtZU9iamVjdBgBIAEo",
+            "CzITLmdhbWUuV29XR2FtZU9iamVjdBINCgVjaGFybRgCIAEoBBIOCgZzdW1t",
+            "b24YAyABKAQSEQoJY2hhcm1lZEJ5GAQgASgEEhIKCnN1bW1vbmVkQnkYBSAB",
+            "KAQSEQoJY3JlYXRlZEJ5GAYgASgEEhIKCnRhcmdldEd1aWQYByABKAQSEQoJ",
+            "cGVyc3VhZGVkGAggASgEEhUKDWNoYW5uZWxPYmplY3QYCSABKAQSFgoOY2hh",
+            "bm5lbFNwZWxsSWQYCiABKA0SDgoGaGVhbHRoGAsgASgNEhEKCW1heEhlYWx0",
+            "aBgMIAEoDRInCgVwb3dlchgNIAMoCzIYLmdhbWUuV29XVW5pdC5Qb3dlckVu",
+            "dHJ5Ei0KCG1heFBvd2VyGA4gAygLMhsuZ2FtZS5Xb1dVbml0Lk1heFBvd2Vy",
+            "RW50cnkSJwoFc3RhdHMYDyADKAsyGC5nYW1lLldvV1VuaXQuU3RhdHNFbnRy",
+            "eRIzCgtyZXNpc3RhbmNlcxgQIAMoCzIeLmdhbWUuV29XVW5pdC5SZXNpc3Rh",
+            "bmNlc0VudHJ5Eg4KBmJ5dGVzMBgRIAEoDRIOCgZieXRlczEYEiABKA0SDgoG",
+            "Ynl0ZXMyGBMgASgNEhYKDm1vdW50RGlzcGxheUlkGBQgASgNEhEKCXVuaXRG",
+            "bGFncxgVIAEoDRIVCg1tb3ZlbWVudEZsYWdzGBYgASgNEhQKDGR5bmFtaWNG",
+            "bGFncxgXIAEoDRIQCghucGNGbGFncxgYIAEoDRINCgVhdXJhcxgZIAMoDRIR",
+            "CglhdXJhRmxhZ3MYGiADKA0SEgoKYXVyYUxldmVscxgbIAMoDRIYChBhdXJh",
+            "QXBwbGljYXRpb25zGBwgAygNEhEKCWF1cmFTdGF0ZRgdIAEoDRIRCglwZXRO",
+            "dW1iZXIYHiABKA0aLAoKUG93ZXJFbnRyeRILCgNrZXkYASABKA0SDQoFdmFs",
+            "dWUYAiABKA06AjgBGi8KDU1heFBvd2VyRW50cnkSCwoDa2V5GAEgASgNEg0K",
+            "BXZhbHVlGAIgASgNOgI4ARosCgpTdGF0c0VudHJ5EgsKA2tleRgBIAEoDRIN",
+            "CgV2YWx1ZRgCIAEoDToCOAEaMgoQUmVzaXN0YW5jZXNFbnRyeRILCgNrZXkY",
+            "ASABKA0SDQoFdmFsdWUYAiABKA06AjgBIpkQCglXb1dQbGF5ZXISGwoEdW5p",
+            "dBgBIAEoCzINLmdhbWUuV29XVW5pdBIUCgxwbGF5ZXJCeXRlczAYAiABKA0S",
+            "FAoMcGxheWVyQnl0ZXMxGAMgASgNEhQKDHBsYXllckJ5dGVzMhgEIAEoDRIT",
+            "CgtwbGF5ZXJGbGFncxgFIAEoDRIsCg9xdWVzdExvZ0VudHJpZXMYBiADKAsy",
+            "Ey5nYW1lLlF1ZXN0TG9nRW50cnkSMQoJaW52ZW50b3J5GAcgAygLMh4uZ2Ft",
+            "ZS5Xb1dQbGF5ZXIuSW52ZW50b3J5RW50cnkSNQoLYmFnQ29udGVudHMYCCAD",
+            "KAsyIC5nYW1lLldvV1BsYXllci5CYWdDb250ZW50c0VudHJ5Ei0KB2tleVJp",
+            "bmcYCSADKAsyHC5nYW1lLldvV1BsYXllci5LZXlSaW5nRW50cnkSFAoMZmFy",
+            "c2lnaHRHdWlkGAogASgEEhcKD2NvbWJvVGFyZ2V0R3VpZBgLIAEoBBIQCghw",
+            "bGF5ZXJYUBgMIAEoDRIxCglza2lsbEluZm8YDSADKAsyHi5nYW1lLldvV1Bs",
+            "YXllci5Ta2lsbEluZm9FbnRyeRIRCglzcGVsbExpc3QYDiADKA0SOwoOc3Bl",
+            "bGxDb29sZG93bnMYDyADKAsyIy5nYW1lLldvV1BsYXllci5TcGVsbENvb2xk",
+            "b3duc0VudHJ5EjUKC3NwZWxsU3RhY2tzGBAgAygLMiAuZ2FtZS5Xb1dQbGF5",
+            "ZXIuU3BlbGxTdGFja3NFbnRyeRIvCghidWZmTGlzdBgRIAMoCzIdLmdhbWUu",
+            "V29XUGxheWVyLkJ1ZmZMaXN0RW50cnkSGAoQY2hhcmFjdGVyUG9pbnRzMRgS",
+            "IAEoDRIYChBjaGFyYWN0ZXJQb2ludHMyGBMgASgNEhYKDnRyYWNrQ3JlYXR1",
+            "cmVzGBQgASgNEhYKDnRyYWNrUmVzb3VyY2VzGBUgASgNEhQKDGJsb2NrUGVy",
+            "Y2VudBgWIAEoAhIUCgxkb2RnZVBlcmNlbnQYFyABKAISFAoMcGFycnlQZXJj",
+            "ZW50GBggASgCEhMKC2NyaXRQZXJjZW50GBkgASgCEhkKEXJhbmdlZENyaXRQ",
+            "ZXJjZW50GBogASgCEjkKDWV4cGxvcmVkWm9uZXMYGyADKAsyIi5nYW1lLldv",
+            "V1BsYXllci5FeHBsb3JlZFpvbmVzRW50cnkSGwoTcmVzdFN0YXRlRXhwZXJp",
+            "ZW5jZRgcIAEoDRIPCgdjb2luYWdlGB0gASgNEhgKEHBvc01vZERhbWFnZURv",
+            "bmUYHiABKA0SGAoQbmVnTW9kRGFtYWdlRG9uZRgfIAEoDRIYChBwY3RNb2RE",
+            "YW1hZ2VEb25lGCAgASgNEi8KCHBvc1N0YXRzGCEgAygLMh0uZ2FtZS5Xb1dQ",
+            "bGF5ZXIuUG9zU3RhdHNFbnRyeRIvCghuZWdTdGF0cxgiIAMoCzIdLmdhbWUu",
+            "V29XUGxheWVyLk5lZ1N0YXRzRW50cnkSOQoNcG9zUmVzaXN0QnVmZhgjIAMo",
+            "CzIiLmdhbWUuV29XUGxheWVyLlBvc1Jlc2lzdEJ1ZmZFbnRyeRI5Cg1uZWdS",
+            "ZXNpc3RCdWZmGCQgAygLMiIuZ2FtZS5Xb1dQbGF5ZXIuTmVnUmVzaXN0QnVm",
+            "ZkVudHJ5Eg4KBmFtbW9JZBglIAEoDRIUCgxzZWxmUmVzU3BlbGwYJiABKA0S",
+            "EQoJcHZwTWVkYWxzGCcgASgNEhQKDHNlc3Npb25LaWxscxgoIAEoDRIbChN3",
+            "YXRjaGVkRmFjdGlvbkluZGV4GCkgASgNEjcKDGNvbWJhdFJhdGluZxgqIAMo",
+            "CzIhLmdhbWUuV29XUGxheWVyLkNvbWJhdFJhdGluZ0VudHJ5GjAKDkludmVu",
+            "dG9yeUVudHJ5EgsKA2tleRgBIAEoDRINCgV2YWx1ZRgCIAEoBDoCOAEaMgoQ",
+            "QmFnQ29udGVudHNFbnRyeRILCgNrZXkYASABKA0SDQoFdmFsdWUYAiABKA06",
+            "AjgBGi4KDEtleVJpbmdFbnRyeRILCgNrZXkYASABKA0SDQoFdmFsdWUYAiAB",
+            "KA06AjgBGjAKDlNraWxsSW5mb0VudHJ5EgsKA2tleRgBIAEoDRINCgV2YWx1",
+            "ZRgCIAEoDToCOAEaNQoTU3BlbGxDb29sZG93bnNFbnRyeRILCgNrZXkYASAB",
+            "KA0SDQoFdmFsdWUYAiABKAI6AjgBGjIKEFNwZWxsU3RhY2tzRW50cnkSCwoD",
+            "a2V5GAEgASgNEg0KBXZhbHVlGAIgASgNOgI4ARovCg1CdWZmTGlzdEVudHJ5",
+            "EgsKA2tleRgBIAEoDRINCgV2YWx1ZRgCIAEoAjoCOAEaNAoSRXhwbG9yZWRa",
+            "b25lc0VudHJ5EgsKA2tleRgBIAEoDRINCgV2YWx1ZRgCIAEoDToCOAEaLwoN",
+            "UG9zU3RhdHNFbnRyeRILCgNrZXkYASABKA0SDQoFdmFsdWUYAiABKA06AjgB",
+            "Gi8KDU5lZ1N0YXRzRW50cnkSCwoDa2V5GAEgASgNEg0KBXZhbHVlGAIgASgN",
+            "OgI4ARo0ChJQb3NSZXNpc3RCdWZmRW50cnkSCwoDa2V5GAEgASgNEg0KBXZh",
+            "bHVlGAIgASgNOgI4ARo0ChJOZWdSZXNpc3RCdWZmRW50cnkSCwoDa2V5GAEg",
+            "ASgNEg0KBXZhbHVlGAIgASgNOgI4ARozChFDb21iYXRSYXRpbmdFbnRyeRIL",
+            "CgNrZXkYASABKA0SDQoFdmFsdWUYAiABKA06AjgBItEDCgdXb1dJdGVtEicK",
+            "CmdhbWVPYmplY3QYASABKAsyEy5nYW1lLldvV0dhbWVPYmplY3QSDQoFb3du",
+            "ZXIYAiABKAQSEQoJY29udGFpbmVkGAMgASgEEg8KB2NyZWF0b3IYBCABKAQS",
+            "EwoLZ2lmdENyZWF0b3IYBSABKAQSEgoKc3RhY2tDb3VudBgGIAEoDRIQCghk",
+            "dXJhdGlvbhgHIAEoDRI1CgxzcGVsbENoYXJnZXMYCCADKAsyHy5nYW1lLldv",
+            "V0l0ZW0uU3BlbGxDaGFyZ2VzRW50cnkSEQoJaXRlbUZsYWdzGAkgASgNEjUK",
+            "DGVuY2hhbnRtZW50cxgKIAMoCzIfLmdhbWUuV29XSXRlbS5FbmNoYW50bWVu",
+            "dHNFbnRyeRISCgpkdXJhYmlsaXR5GAsgASgNEhQKDHByb3BlcnR5U2VlZBgM",
+            "IAEoDRIaChJyYW5kb21Qcm9wZXJ0aWVzSWQYDSABKA0aMwoRU3BlbGxDaGFy",
+            "Z2VzRW50cnkSCwoDa2V5GAEgASgNEg0KBXZhbHVlGAIgASgNOgI4ARozChFF",
+            "bmNoYW50bWVudHNFbnRyeRILCgNrZXkYASABKA0SDQoFdmFsdWUYAiABKA06",
+            "AjgBIj4KDFdvV0NvbnRhaW5lchIbCgRpdGVtGAEgASgLMg0uZ2FtZS5Xb1dJ",
+            "dGVtEhEKCWl0ZW1TbG90cxgCIAMoDSJICg1RdWVzdExvZ0VudHJ5EhEKCXF1",
+            "ZXN0TG9nMRgBIAEoDRIRCglxdWVzdExvZzIYAiABKA0SEQoJcXVlc3RMb2cz",
+            "GAMgASgNIisKCFBvc2l0aW9uEgkKAXgYASABKAISCQoBeRgCIAEoAhIJCgF6",
+            "GAMgASgCIpQBCgRJdGVtEgoKAmlkGAEgASgEEgwKBG5hbWUYAiABKAkSDAoE",
+            "c2xvdBgDIAEoCRIQCghxdWFudGl0eRgEIAEoDRIkCgVzdGF0cxgFIAMoCzIV",
+            "LmdhbWUuSXRlbS5TdGF0c0VudHJ5GiwKClN0YXRzRW50cnkSCwoDa2V5GAEg",
+            "ASgNEg0KBXZhbHVlGAIgASgNOgI4AWIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Game.WoWObject), global::Game.WoWObject.Parser, new[]{ "Guid", "ObjectType", "LastUpdated", "Entry", "ScaleX", "Height", "Facing", "Position", "Padding", "InWorld" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Game.WoWGameObject), global::Game.WoWGameObject.Parser, new[]{ "Base", "Name", "DisplayId", "GoState", "ArtKit", "AnimProgress", "Level", "FactionTemplate", "TypeId" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Game.WoWUnit), global::Game.WoWUnit.Parser, new[]{ "Base", "Name", "TargetGuid", "Health", "MaxHealth", "Power", "MaxPower", "SummonedByGuid", "MountDisplayId", "UnitReaction", "DynamicFlags", "UnitFlags", "MovementFlags", "Level" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, null, }),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Game.Equipment), global::Game.Equipment.Parser, new[]{ "Head", "Neck", "Shoulder", "Back", "Chest", "Wrist", "Hands", "Waist", "Legs", "Feet", "Finger1", "Finger2", "Trinket1", "Trinket2", "MainHand", "OffHand", "Ranged" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Game.Skill), global::Game.Skill.Parser, new[]{ "Name", "Level" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Game.Resistances), global::Game.Resistances.Parser, new[]{ "Holy", "Fire", "Nature", "Frost", "Shadow", "Arcane" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Game.FactionReputation), global::Game.FactionReputation.Parser, new[]{ "FactionName", "Reputation" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Game.Item), global::Game.Item.Parser, new[]{ "Id", "Name", "Slot", "Quantity", "Stats" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Game.Stat), global::Game.Stat.Parser, new[]{ "Type", "Value" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Game.Position), global::Game.Position.Parser, new[]{ "X", "Y", "Z" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Game.WoWObject), global::Game.WoWObject.Parser, new[]{ "Guid", "MapId", "ZoneId", "ObjectType", "ScaleX", "Height", "Facing", "Position" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Game.WoWGameObject), global::Game.WoWGameObject.Parser, new[]{ "Base", "GoState", "Level", "FactionTemplate" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Game.WoWUnit), global::Game.WoWUnit.Parser, new[]{ "GameObject", "Charm", "Summon", "CharmedBy", "SummonedBy", "CreatedBy", "TargetGuid", "Persuaded", "ChannelObject", "ChannelSpellId", "Health", "MaxHealth", "Power", "MaxPower", "Stats", "Resistances", "Bytes0", "Bytes1", "Bytes2", "MountDisplayId", "UnitFlags", "MovementFlags", "DynamicFlags", "NpcFlags", "Auras", "AuraFlags", "AuraLevels", "AuraApplications", "AuraState", "PetNumber" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, null, null, null, }),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Game.WoWPlayer), global::Game.WoWPlayer.Parser, new[]{ "Unit", "PlayerBytes0", "PlayerBytes1", "PlayerBytes2", "PlayerFlags", "QuestLogEntries", "Inventory", "BagContents", "KeyRing", "FarsightGuid", "ComboTargetGuid", "PlayerXP", "SkillInfo", "SpellList", "SpellCooldowns", "SpellStacks", "BuffList", "CharacterPoints1", "CharacterPoints2", "TrackCreatures", "TrackResources", "BlockPercent", "DodgePercent", "ParryPercent", "CritPercent", "RangedCritPercent", "ExploredZones", "RestStateExperience", "Coinage", "PosModDamageDone", "NegModDamageDone", "PctModDamageDone", "PosStats", "NegStats", "PosResistBuff", "NegResistBuff", "AmmoId", "SelfResSpell", "PvpMedals", "SessionKills", "WatchedFactionIndex", "CombatRating" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, null, null, null, null, null, null, null, null, null, null, null, null, }),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Game.WoWItem), global::Game.WoWItem.Parser, new[]{ "GameObject", "Owner", "Contained", "Creator", "GiftCreator", "StackCount", "Duration", "SpellCharges", "ItemFlags", "Enchantments", "Durability", "PropertySeed", "RandomPropertiesId" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, null, }),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Game.WoWContainer), global::Game.WoWContainer.Parser, new[]{ "Item", "ItemSlots" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Game.QuestLogEntry), global::Game.QuestLogEntry.Parser, new[]{ "QuestLog1", "QuestLog2", "QuestLog3" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Game.Position), global::Game.Position.Parser, new[]{ "X", "Y", "Z" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Game.Item), global::Game.Item.Parser, new[]{ "Id", "Name", "Slot", "Quantity", "Stats" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, })
           }));
     }
     #endregion
@@ -121,15 +172,13 @@ namespace Game {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public WoWObject(WoWObject other) : this() {
       guid_ = other.guid_;
+      mapId_ = other.mapId_;
+      zoneId_ = other.zoneId_;
       objectType_ = other.objectType_;
-      lastUpdated_ = other.lastUpdated_;
-      entry_ = other.entry_;
       scaleX_ = other.scaleX_;
       height_ = other.height_;
       facing_ = other.facing_;
       position_ = other.position_ != null ? other.position_.Clone() : null;
-      padding_ = other.padding_;
-      inWorld_ = other.inWorld_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -151,8 +200,32 @@ namespace Game {
       }
     }
 
+    /// <summary>Field number for the "mapId" field.</summary>
+    public const int MapIdFieldNumber = 2;
+    private uint mapId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint MapId {
+      get { return mapId_; }
+      set {
+        mapId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "zoneId" field.</summary>
+    public const int ZoneIdFieldNumber = 3;
+    private uint zoneId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint ZoneId {
+      get { return zoneId_; }
+      set {
+        zoneId_ = value;
+      }
+    }
+
     /// <summary>Field number for the "objectType" field.</summary>
-    public const int ObjectTypeFieldNumber = 2;
+    public const int ObjectTypeFieldNumber = 4;
     private uint objectType_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -160,30 +233,6 @@ namespace Game {
       get { return objectType_; }
       set {
         objectType_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "lastUpdated" field.</summary>
-    public const int LastUpdatedFieldNumber = 3;
-    private uint lastUpdated_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint LastUpdated {
-      get { return lastUpdated_; }
-      set {
-        lastUpdated_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "entry" field.</summary>
-    public const int EntryFieldNumber = 4;
-    private uint entry_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint Entry {
-      get { return entry_; }
-      set {
-        entry_ = value;
       }
     }
 
@@ -235,30 +284,6 @@ namespace Game {
       }
     }
 
-    /// <summary>Field number for the "padding" field.</summary>
-    public const int PaddingFieldNumber = 9;
-    private uint padding_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint Padding {
-      get { return padding_; }
-      set {
-        padding_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "inWorld" field.</summary>
-    public const int InWorldFieldNumber = 10;
-    private bool inWorld_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool InWorld {
-      get { return inWorld_; }
-      set {
-        inWorld_ = value;
-      }
-    }
-
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -275,15 +300,13 @@ namespace Game {
         return true;
       }
       if (Guid != other.Guid) return false;
+      if (MapId != other.MapId) return false;
+      if (ZoneId != other.ZoneId) return false;
       if (ObjectType != other.ObjectType) return false;
-      if (LastUpdated != other.LastUpdated) return false;
-      if (Entry != other.Entry) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(ScaleX, other.ScaleX)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Height, other.Height)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Facing, other.Facing)) return false;
       if (!object.Equals(Position, other.Position)) return false;
-      if (Padding != other.Padding) return false;
-      if (InWorld != other.InWorld) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -292,15 +315,13 @@ namespace Game {
     public override int GetHashCode() {
       int hash = 1;
       if (Guid != 0UL) hash ^= Guid.GetHashCode();
+      if (MapId != 0) hash ^= MapId.GetHashCode();
+      if (ZoneId != 0) hash ^= ZoneId.GetHashCode();
       if (ObjectType != 0) hash ^= ObjectType.GetHashCode();
-      if (LastUpdated != 0) hash ^= LastUpdated.GetHashCode();
-      if (Entry != 0) hash ^= Entry.GetHashCode();
       if (ScaleX != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(ScaleX);
       if (Height != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Height);
       if (Facing != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Facing);
       if (position_ != null) hash ^= Position.GetHashCode();
-      if (Padding != 0) hash ^= Padding.GetHashCode();
-      if (InWorld != false) hash ^= InWorld.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -323,17 +344,17 @@ namespace Game {
         output.WriteRawTag(8);
         output.WriteUInt64(Guid);
       }
-      if (ObjectType != 0) {
+      if (MapId != 0) {
         output.WriteRawTag(16);
-        output.WriteUInt32(ObjectType);
+        output.WriteUInt32(MapId);
       }
-      if (LastUpdated != 0) {
+      if (ZoneId != 0) {
         output.WriteRawTag(24);
-        output.WriteUInt32(LastUpdated);
+        output.WriteUInt32(ZoneId);
       }
-      if (Entry != 0) {
+      if (ObjectType != 0) {
         output.WriteRawTag(32);
-        output.WriteUInt32(Entry);
+        output.WriteUInt32(ObjectType);
       }
       if (ScaleX != 0F) {
         output.WriteRawTag(45);
@@ -350,14 +371,6 @@ namespace Game {
       if (position_ != null) {
         output.WriteRawTag(66);
         output.WriteMessage(Position);
-      }
-      if (Padding != 0) {
-        output.WriteRawTag(72);
-        output.WriteUInt32(Padding);
-      }
-      if (InWorld != false) {
-        output.WriteRawTag(80);
-        output.WriteBool(InWorld);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -373,17 +386,17 @@ namespace Game {
         output.WriteRawTag(8);
         output.WriteUInt64(Guid);
       }
-      if (ObjectType != 0) {
+      if (MapId != 0) {
         output.WriteRawTag(16);
-        output.WriteUInt32(ObjectType);
+        output.WriteUInt32(MapId);
       }
-      if (LastUpdated != 0) {
+      if (ZoneId != 0) {
         output.WriteRawTag(24);
-        output.WriteUInt32(LastUpdated);
+        output.WriteUInt32(ZoneId);
       }
-      if (Entry != 0) {
+      if (ObjectType != 0) {
         output.WriteRawTag(32);
-        output.WriteUInt32(Entry);
+        output.WriteUInt32(ObjectType);
       }
       if (ScaleX != 0F) {
         output.WriteRawTag(45);
@@ -401,14 +414,6 @@ namespace Game {
         output.WriteRawTag(66);
         output.WriteMessage(Position);
       }
-      if (Padding != 0) {
-        output.WriteRawTag(72);
-        output.WriteUInt32(Padding);
-      }
-      if (InWorld != false) {
-        output.WriteRawTag(80);
-        output.WriteBool(InWorld);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -422,14 +427,14 @@ namespace Game {
       if (Guid != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(Guid);
       }
+      if (MapId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MapId);
+      }
+      if (ZoneId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ZoneId);
+      }
       if (ObjectType != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ObjectType);
-      }
-      if (LastUpdated != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(LastUpdated);
-      }
-      if (Entry != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Entry);
       }
       if (ScaleX != 0F) {
         size += 1 + 4;
@@ -442,12 +447,6 @@ namespace Game {
       }
       if (position_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Position);
-      }
-      if (Padding != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Padding);
-      }
-      if (InWorld != false) {
-        size += 1 + 1;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -464,14 +463,14 @@ namespace Game {
       if (other.Guid != 0UL) {
         Guid = other.Guid;
       }
+      if (other.MapId != 0) {
+        MapId = other.MapId;
+      }
+      if (other.ZoneId != 0) {
+        ZoneId = other.ZoneId;
+      }
       if (other.ObjectType != 0) {
         ObjectType = other.ObjectType;
-      }
-      if (other.LastUpdated != 0) {
-        LastUpdated = other.LastUpdated;
-      }
-      if (other.Entry != 0) {
-        Entry = other.Entry;
       }
       if (other.ScaleX != 0F) {
         ScaleX = other.ScaleX;
@@ -487,12 +486,6 @@ namespace Game {
           Position = new global::Game.Position();
         }
         Position.MergeFrom(other.Position);
-      }
-      if (other.Padding != 0) {
-        Padding = other.Padding;
-      }
-      if (other.InWorld != false) {
-        InWorld = other.InWorld;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -514,15 +507,15 @@ namespace Game {
             break;
           }
           case 16: {
-            ObjectType = input.ReadUInt32();
+            MapId = input.ReadUInt32();
             break;
           }
           case 24: {
-            LastUpdated = input.ReadUInt32();
+            ZoneId = input.ReadUInt32();
             break;
           }
           case 32: {
-            Entry = input.ReadUInt32();
+            ObjectType = input.ReadUInt32();
             break;
           }
           case 45: {
@@ -542,14 +535,6 @@ namespace Game {
               Position = new global::Game.Position();
             }
             input.ReadMessage(Position);
-            break;
-          }
-          case 72: {
-            Padding = input.ReadUInt32();
-            break;
-          }
-          case 80: {
-            InWorld = input.ReadBool();
             break;
           }
         }
@@ -572,15 +557,15 @@ namespace Game {
             break;
           }
           case 16: {
-            ObjectType = input.ReadUInt32();
+            MapId = input.ReadUInt32();
             break;
           }
           case 24: {
-            LastUpdated = input.ReadUInt32();
+            ZoneId = input.ReadUInt32();
             break;
           }
           case 32: {
-            Entry = input.ReadUInt32();
+            ObjectType = input.ReadUInt32();
             break;
           }
           case 45: {
@@ -600,14 +585,6 @@ namespace Game {
               Position = new global::Game.Position();
             }
             input.ReadMessage(Position);
-            break;
-          }
-          case 72: {
-            Padding = input.ReadUInt32();
-            break;
-          }
-          case 80: {
-            InWorld = input.ReadBool();
             break;
           }
         }
@@ -656,14 +633,9 @@ namespace Game {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public WoWGameObject(WoWGameObject other) : this() {
       base_ = other.base_ != null ? other.base_.Clone() : null;
-      name_ = other.name_;
-      displayId_ = other.displayId_;
       goState_ = other.goState_;
-      artKit_ = other.artKit_;
-      animProgress_ = other.animProgress_;
       level_ = other.level_;
       factionTemplate_ = other.factionTemplate_;
-      typeId_ = other.typeId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -688,32 +660,8 @@ namespace Game {
       }
     }
 
-    /// <summary>Field number for the "name" field.</summary>
-    public const int NameFieldNumber = 2;
-    private string name_ = "";
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Name {
-      get { return name_; }
-      set {
-        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
-    /// <summary>Field number for the "displayId" field.</summary>
-    public const int DisplayIdFieldNumber = 3;
-    private uint displayId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint DisplayId {
-      get { return displayId_; }
-      set {
-        displayId_ = value;
-      }
-    }
-
     /// <summary>Field number for the "goState" field.</summary>
-    public const int GoStateFieldNumber = 4;
+    public const int GoStateFieldNumber = 2;
     private uint goState_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -724,32 +672,8 @@ namespace Game {
       }
     }
 
-    /// <summary>Field number for the "artKit" field.</summary>
-    public const int ArtKitFieldNumber = 5;
-    private uint artKit_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint ArtKit {
-      get { return artKit_; }
-      set {
-        artKit_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "animProgress" field.</summary>
-    public const int AnimProgressFieldNumber = 6;
-    private uint animProgress_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint AnimProgress {
-      get { return animProgress_; }
-      set {
-        animProgress_ = value;
-      }
-    }
-
     /// <summary>Field number for the "level" field.</summary>
-    public const int LevelFieldNumber = 7;
+    public const int LevelFieldNumber = 3;
     private uint level_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -761,7 +685,7 @@ namespace Game {
     }
 
     /// <summary>Field number for the "factionTemplate" field.</summary>
-    public const int FactionTemplateFieldNumber = 8;
+    public const int FactionTemplateFieldNumber = 4;
     private uint factionTemplate_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -769,18 +693,6 @@ namespace Game {
       get { return factionTemplate_; }
       set {
         factionTemplate_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "typeId" field.</summary>
-    public const int TypeIdFieldNumber = 9;
-    private uint typeId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint TypeId {
-      get { return typeId_; }
-      set {
-        typeId_ = value;
       }
     }
 
@@ -800,14 +712,9 @@ namespace Game {
         return true;
       }
       if (!object.Equals(Base, other.Base)) return false;
-      if (Name != other.Name) return false;
-      if (DisplayId != other.DisplayId) return false;
       if (GoState != other.GoState) return false;
-      if (ArtKit != other.ArtKit) return false;
-      if (AnimProgress != other.AnimProgress) return false;
       if (Level != other.Level) return false;
       if (FactionTemplate != other.FactionTemplate) return false;
-      if (TypeId != other.TypeId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -816,14 +723,9 @@ namespace Game {
     public override int GetHashCode() {
       int hash = 1;
       if (base_ != null) hash ^= Base.GetHashCode();
-      if (Name.Length != 0) hash ^= Name.GetHashCode();
-      if (DisplayId != 0) hash ^= DisplayId.GetHashCode();
       if (GoState != 0) hash ^= GoState.GetHashCode();
-      if (ArtKit != 0) hash ^= ArtKit.GetHashCode();
-      if (AnimProgress != 0) hash ^= AnimProgress.GetHashCode();
       if (Level != 0) hash ^= Level.GetHashCode();
       if (FactionTemplate != 0) hash ^= FactionTemplate.GetHashCode();
-      if (TypeId != 0) hash ^= TypeId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -846,37 +748,17 @@ namespace Game {
         output.WriteRawTag(10);
         output.WriteMessage(Base);
       }
-      if (Name.Length != 0) {
-        output.WriteRawTag(18);
-        output.WriteString(Name);
-      }
-      if (DisplayId != 0) {
-        output.WriteRawTag(24);
-        output.WriteUInt32(DisplayId);
-      }
       if (GoState != 0) {
-        output.WriteRawTag(32);
+        output.WriteRawTag(16);
         output.WriteUInt32(GoState);
       }
-      if (ArtKit != 0) {
-        output.WriteRawTag(40);
-        output.WriteUInt32(ArtKit);
-      }
-      if (AnimProgress != 0) {
-        output.WriteRawTag(48);
-        output.WriteUInt32(AnimProgress);
-      }
       if (Level != 0) {
-        output.WriteRawTag(56);
+        output.WriteRawTag(24);
         output.WriteUInt32(Level);
       }
       if (FactionTemplate != 0) {
-        output.WriteRawTag(64);
+        output.WriteRawTag(32);
         output.WriteUInt32(FactionTemplate);
-      }
-      if (TypeId != 0) {
-        output.WriteRawTag(72);
-        output.WriteUInt32(TypeId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -892,37 +774,17 @@ namespace Game {
         output.WriteRawTag(10);
         output.WriteMessage(Base);
       }
-      if (Name.Length != 0) {
-        output.WriteRawTag(18);
-        output.WriteString(Name);
-      }
-      if (DisplayId != 0) {
-        output.WriteRawTag(24);
-        output.WriteUInt32(DisplayId);
-      }
       if (GoState != 0) {
-        output.WriteRawTag(32);
+        output.WriteRawTag(16);
         output.WriteUInt32(GoState);
       }
-      if (ArtKit != 0) {
-        output.WriteRawTag(40);
-        output.WriteUInt32(ArtKit);
-      }
-      if (AnimProgress != 0) {
-        output.WriteRawTag(48);
-        output.WriteUInt32(AnimProgress);
-      }
       if (Level != 0) {
-        output.WriteRawTag(56);
+        output.WriteRawTag(24);
         output.WriteUInt32(Level);
       }
       if (FactionTemplate != 0) {
-        output.WriteRawTag(64);
+        output.WriteRawTag(32);
         output.WriteUInt32(FactionTemplate);
-      }
-      if (TypeId != 0) {
-        output.WriteRawTag(72);
-        output.WriteUInt32(TypeId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -937,29 +799,14 @@ namespace Game {
       if (base_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Base);
       }
-      if (Name.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
-      }
-      if (DisplayId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(DisplayId);
-      }
       if (GoState != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(GoState);
-      }
-      if (ArtKit != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ArtKit);
-      }
-      if (AnimProgress != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(AnimProgress);
       }
       if (Level != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Level);
       }
       if (FactionTemplate != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(FactionTemplate);
-      }
-      if (TypeId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(TypeId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -979,29 +826,14 @@ namespace Game {
         }
         Base.MergeFrom(other.Base);
       }
-      if (other.Name.Length != 0) {
-        Name = other.Name;
-      }
-      if (other.DisplayId != 0) {
-        DisplayId = other.DisplayId;
-      }
       if (other.GoState != 0) {
         GoState = other.GoState;
-      }
-      if (other.ArtKit != 0) {
-        ArtKit = other.ArtKit;
-      }
-      if (other.AnimProgress != 0) {
-        AnimProgress = other.AnimProgress;
       }
       if (other.Level != 0) {
         Level = other.Level;
       }
       if (other.FactionTemplate != 0) {
         FactionTemplate = other.FactionTemplate;
-      }
-      if (other.TypeId != 0) {
-        TypeId = other.TypeId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -1025,36 +857,16 @@ namespace Game {
             input.ReadMessage(Base);
             break;
           }
-          case 18: {
-            Name = input.ReadString();
-            break;
-          }
-          case 24: {
-            DisplayId = input.ReadUInt32();
-            break;
-          }
-          case 32: {
+          case 16: {
             GoState = input.ReadUInt32();
             break;
           }
-          case 40: {
-            ArtKit = input.ReadUInt32();
-            break;
-          }
-          case 48: {
-            AnimProgress = input.ReadUInt32();
-            break;
-          }
-          case 56: {
+          case 24: {
             Level = input.ReadUInt32();
             break;
           }
-          case 64: {
+          case 32: {
             FactionTemplate = input.ReadUInt32();
-            break;
-          }
-          case 72: {
-            TypeId = input.ReadUInt32();
             break;
           }
         }
@@ -1079,36 +891,16 @@ namespace Game {
             input.ReadMessage(Base);
             break;
           }
-          case 18: {
-            Name = input.ReadString();
-            break;
-          }
-          case 24: {
-            DisplayId = input.ReadUInt32();
-            break;
-          }
-          case 32: {
+          case 16: {
             GoState = input.ReadUInt32();
             break;
           }
-          case 40: {
-            ArtKit = input.ReadUInt32();
-            break;
-          }
-          case 48: {
-            AnimProgress = input.ReadUInt32();
-            break;
-          }
-          case 56: {
+          case 24: {
             Level = input.ReadUInt32();
             break;
           }
-          case 64: {
+          case 32: {
             FactionTemplate = input.ReadUInt32();
-            break;
-          }
-          case 72: {
-            TypeId = input.ReadUInt32();
             break;
           }
         }
@@ -1156,20 +948,36 @@ namespace Game {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public WoWUnit(WoWUnit other) : this() {
-      base_ = other.base_ != null ? other.base_.Clone() : null;
-      name_ = other.name_;
+      gameObject_ = other.gameObject_ != null ? other.gameObject_.Clone() : null;
+      charm_ = other.charm_;
+      summon_ = other.summon_;
+      charmedBy_ = other.charmedBy_;
+      summonedBy_ = other.summonedBy_;
+      createdBy_ = other.createdBy_;
       targetGuid_ = other.targetGuid_;
+      persuaded_ = other.persuaded_;
+      channelObject_ = other.channelObject_;
+      channelSpellId_ = other.channelSpellId_;
       health_ = other.health_;
       maxHealth_ = other.maxHealth_;
       power_ = other.power_.Clone();
       maxPower_ = other.maxPower_.Clone();
-      summonedByGuid_ = other.summonedByGuid_;
+      stats_ = other.stats_.Clone();
+      resistances_ = other.resistances_.Clone();
+      bytes0_ = other.bytes0_;
+      bytes1_ = other.bytes1_;
+      bytes2_ = other.bytes2_;
       mountDisplayId_ = other.mountDisplayId_;
-      unitReaction_ = other.unitReaction_;
-      dynamicFlags_ = other.dynamicFlags_;
       unitFlags_ = other.unitFlags_;
       movementFlags_ = other.movementFlags_;
-      level_ = other.level_;
+      dynamicFlags_ = other.dynamicFlags_;
+      npcFlags_ = other.npcFlags_;
+      auras_ = other.auras_.Clone();
+      auraFlags_ = other.auraFlags_.Clone();
+      auraLevels_ = other.auraLevels_.Clone();
+      auraApplications_ = other.auraApplications_.Clone();
+      auraState_ = other.auraState_;
+      petNumber_ = other.petNumber_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1179,35 +987,83 @@ namespace Game {
       return new WoWUnit(this);
     }
 
-    /// <summary>Field number for the "base" field.</summary>
-    public const int BaseFieldNumber = 1;
-    private global::Game.WoWGameObject base_;
+    /// <summary>Field number for the "gameObject" field.</summary>
+    public const int GameObjectFieldNumber = 1;
+    private global::Game.WoWGameObject gameObject_;
     /// <summary>
     /// Composition for inheritance
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.WoWGameObject Base {
-      get { return base_; }
+    public global::Game.WoWGameObject GameObject {
+      get { return gameObject_; }
       set {
-        base_ = value;
+        gameObject_ = value;
       }
     }
 
-    /// <summary>Field number for the "name" field.</summary>
-    public const int NameFieldNumber = 2;
-    private string name_ = "";
+    /// <summary>Field number for the "charm" field.</summary>
+    public const int CharmFieldNumber = 2;
+    private ulong charm_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Name {
-      get { return name_; }
+    public ulong Charm {
+      get { return charm_; }
       set {
-        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        charm_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "summon" field.</summary>
+    public const int SummonFieldNumber = 3;
+    private ulong summon_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong Summon {
+      get { return summon_; }
+      set {
+        summon_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "charmedBy" field.</summary>
+    public const int CharmedByFieldNumber = 4;
+    private ulong charmedBy_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong CharmedBy {
+      get { return charmedBy_; }
+      set {
+        charmedBy_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "summonedBy" field.</summary>
+    public const int SummonedByFieldNumber = 5;
+    private ulong summonedBy_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong SummonedBy {
+      get { return summonedBy_; }
+      set {
+        summonedBy_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "createdBy" field.</summary>
+    public const int CreatedByFieldNumber = 6;
+    private ulong createdBy_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong CreatedBy {
+      get { return createdBy_; }
+      set {
+        createdBy_ = value;
       }
     }
 
     /// <summary>Field number for the "targetGuid" field.</summary>
-    public const int TargetGuidFieldNumber = 3;
+    public const int TargetGuidFieldNumber = 7;
     private ulong targetGuid_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -1218,8 +1074,44 @@ namespace Game {
       }
     }
 
+    /// <summary>Field number for the "persuaded" field.</summary>
+    public const int PersuadedFieldNumber = 8;
+    private ulong persuaded_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong Persuaded {
+      get { return persuaded_; }
+      set {
+        persuaded_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "channelObject" field.</summary>
+    public const int ChannelObjectFieldNumber = 9;
+    private ulong channelObject_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong ChannelObject {
+      get { return channelObject_; }
+      set {
+        channelObject_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "channelSpellId" field.</summary>
+    public const int ChannelSpellIdFieldNumber = 10;
+    private uint channelSpellId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint ChannelSpellId {
+      get { return channelSpellId_; }
+      set {
+        channelSpellId_ = value;
+      }
+    }
+
     /// <summary>Field number for the "health" field.</summary>
-    public const int HealthFieldNumber = 4;
+    public const int HealthFieldNumber = 11;
     private uint health_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -1231,7 +1123,7 @@ namespace Game {
     }
 
     /// <summary>Field number for the "maxHealth" field.</summary>
-    public const int MaxHealthFieldNumber = 5;
+    public const int MaxHealthFieldNumber = 12;
     private uint maxHealth_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -1243,9 +1135,9 @@ namespace Game {
     }
 
     /// <summary>Field number for the "power" field.</summary>
-    public const int PowerFieldNumber = 6;
+    public const int PowerFieldNumber = 13;
     private static readonly pbc::MapField<uint, uint>.Codec _map_power_codec
-        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 50);
+        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 106);
     private readonly pbc::MapField<uint, uint> power_ = new pbc::MapField<uint, uint>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -1254,9 +1146,9 @@ namespace Game {
     }
 
     /// <summary>Field number for the "maxPower" field.</summary>
-    public const int MaxPowerFieldNumber = 7;
+    public const int MaxPowerFieldNumber = 14;
     private static readonly pbc::MapField<uint, uint>.Codec _map_maxPower_codec
-        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 58);
+        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 114);
     private readonly pbc::MapField<uint, uint> maxPower_ = new pbc::MapField<uint, uint>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -1264,20 +1156,66 @@ namespace Game {
       get { return maxPower_; }
     }
 
-    /// <summary>Field number for the "summonedByGuid" field.</summary>
-    public const int SummonedByGuidFieldNumber = 8;
-    private ulong summonedByGuid_;
+    /// <summary>Field number for the "stats" field.</summary>
+    public const int StatsFieldNumber = 15;
+    private static readonly pbc::MapField<uint, uint>.Codec _map_stats_codec
+        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 122);
+    private readonly pbc::MapField<uint, uint> stats_ = new pbc::MapField<uint, uint>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong SummonedByGuid {
-      get { return summonedByGuid_; }
+    public pbc::MapField<uint, uint> Stats {
+      get { return stats_; }
+    }
+
+    /// <summary>Field number for the "resistances" field.</summary>
+    public const int ResistancesFieldNumber = 16;
+    private static readonly pbc::MapField<uint, uint>.Codec _map_resistances_codec
+        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 130);
+    private readonly pbc::MapField<uint, uint> resistances_ = new pbc::MapField<uint, uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::MapField<uint, uint> Resistances {
+      get { return resistances_; }
+    }
+
+    /// <summary>Field number for the "bytes0" field.</summary>
+    public const int Bytes0FieldNumber = 17;
+    private uint bytes0_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Bytes0 {
+      get { return bytes0_; }
       set {
-        summonedByGuid_ = value;
+        bytes0_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "bytes1" field.</summary>
+    public const int Bytes1FieldNumber = 18;
+    private uint bytes1_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Bytes1 {
+      get { return bytes1_; }
+      set {
+        bytes1_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "bytes2" field.</summary>
+    public const int Bytes2FieldNumber = 19;
+    private uint bytes2_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Bytes2 {
+      get { return bytes2_; }
+      set {
+        bytes2_ = value;
       }
     }
 
     /// <summary>Field number for the "mountDisplayId" field.</summary>
-    public const int MountDisplayIdFieldNumber = 9;
+    public const int MountDisplayIdFieldNumber = 20;
     private uint mountDisplayId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -1288,32 +1226,8 @@ namespace Game {
       }
     }
 
-    /// <summary>Field number for the "unitReaction" field.</summary>
-    public const int UnitReactionFieldNumber = 10;
-    private uint unitReaction_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint UnitReaction {
-      get { return unitReaction_; }
-      set {
-        unitReaction_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "dynamicFlags" field.</summary>
-    public const int DynamicFlagsFieldNumber = 11;
-    private uint dynamicFlags_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint DynamicFlags {
-      get { return dynamicFlags_; }
-      set {
-        dynamicFlags_ = value;
-      }
-    }
-
     /// <summary>Field number for the "unitFlags" field.</summary>
-    public const int UnitFlagsFieldNumber = 12;
+    public const int UnitFlagsFieldNumber = 21;
     private uint unitFlags_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -1325,7 +1239,7 @@ namespace Game {
     }
 
     /// <summary>Field number for the "movementFlags" field.</summary>
-    public const int MovementFlagsFieldNumber = 13;
+    public const int MovementFlagsFieldNumber = 22;
     private uint movementFlags_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -1336,15 +1250,95 @@ namespace Game {
       }
     }
 
-    /// <summary>Field number for the "level" field.</summary>
-    public const int LevelFieldNumber = 14;
-    private int level_;
+    /// <summary>Field number for the "dynamicFlags" field.</summary>
+    public const int DynamicFlagsFieldNumber = 23;
+    private uint dynamicFlags_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int Level {
-      get { return level_; }
+    public uint DynamicFlags {
+      get { return dynamicFlags_; }
       set {
-        level_ = value;
+        dynamicFlags_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "npcFlags" field.</summary>
+    public const int NpcFlagsFieldNumber = 24;
+    private uint npcFlags_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint NpcFlags {
+      get { return npcFlags_; }
+      set {
+        npcFlags_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "auras" field.</summary>
+    public const int AurasFieldNumber = 25;
+    private static readonly pb::FieldCodec<uint> _repeated_auras_codec
+        = pb::FieldCodec.ForUInt32(202);
+    private readonly pbc::RepeatedField<uint> auras_ = new pbc::RepeatedField<uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<uint> Auras {
+      get { return auras_; }
+    }
+
+    /// <summary>Field number for the "auraFlags" field.</summary>
+    public const int AuraFlagsFieldNumber = 26;
+    private static readonly pb::FieldCodec<uint> _repeated_auraFlags_codec
+        = pb::FieldCodec.ForUInt32(210);
+    private readonly pbc::RepeatedField<uint> auraFlags_ = new pbc::RepeatedField<uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<uint> AuraFlags {
+      get { return auraFlags_; }
+    }
+
+    /// <summary>Field number for the "auraLevels" field.</summary>
+    public const int AuraLevelsFieldNumber = 27;
+    private static readonly pb::FieldCodec<uint> _repeated_auraLevels_codec
+        = pb::FieldCodec.ForUInt32(218);
+    private readonly pbc::RepeatedField<uint> auraLevels_ = new pbc::RepeatedField<uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<uint> AuraLevels {
+      get { return auraLevels_; }
+    }
+
+    /// <summary>Field number for the "auraApplications" field.</summary>
+    public const int AuraApplicationsFieldNumber = 28;
+    private static readonly pb::FieldCodec<uint> _repeated_auraApplications_codec
+        = pb::FieldCodec.ForUInt32(226);
+    private readonly pbc::RepeatedField<uint> auraApplications_ = new pbc::RepeatedField<uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<uint> AuraApplications {
+      get { return auraApplications_; }
+    }
+
+    /// <summary>Field number for the "auraState" field.</summary>
+    public const int AuraStateFieldNumber = 29;
+    private uint auraState_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint AuraState {
+      get { return auraState_; }
+      set {
+        auraState_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "petNumber" field.</summary>
+    public const int PetNumberFieldNumber = 30;
+    private uint petNumber_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint PetNumber {
+      get { return petNumber_; }
+      set {
+        petNumber_ = value;
       }
     }
 
@@ -1363,20 +1357,36 @@ namespace Game {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (!object.Equals(Base, other.Base)) return false;
-      if (Name != other.Name) return false;
+      if (!object.Equals(GameObject, other.GameObject)) return false;
+      if (Charm != other.Charm) return false;
+      if (Summon != other.Summon) return false;
+      if (CharmedBy != other.CharmedBy) return false;
+      if (SummonedBy != other.SummonedBy) return false;
+      if (CreatedBy != other.CreatedBy) return false;
       if (TargetGuid != other.TargetGuid) return false;
+      if (Persuaded != other.Persuaded) return false;
+      if (ChannelObject != other.ChannelObject) return false;
+      if (ChannelSpellId != other.ChannelSpellId) return false;
       if (Health != other.Health) return false;
       if (MaxHealth != other.MaxHealth) return false;
       if (!Power.Equals(other.Power)) return false;
       if (!MaxPower.Equals(other.MaxPower)) return false;
-      if (SummonedByGuid != other.SummonedByGuid) return false;
+      if (!Stats.Equals(other.Stats)) return false;
+      if (!Resistances.Equals(other.Resistances)) return false;
+      if (Bytes0 != other.Bytes0) return false;
+      if (Bytes1 != other.Bytes1) return false;
+      if (Bytes2 != other.Bytes2) return false;
       if (MountDisplayId != other.MountDisplayId) return false;
-      if (UnitReaction != other.UnitReaction) return false;
-      if (DynamicFlags != other.DynamicFlags) return false;
       if (UnitFlags != other.UnitFlags) return false;
       if (MovementFlags != other.MovementFlags) return false;
-      if (Level != other.Level) return false;
+      if (DynamicFlags != other.DynamicFlags) return false;
+      if (NpcFlags != other.NpcFlags) return false;
+      if(!auras_.Equals(other.auras_)) return false;
+      if(!auraFlags_.Equals(other.auraFlags_)) return false;
+      if(!auraLevels_.Equals(other.auraLevels_)) return false;
+      if(!auraApplications_.Equals(other.auraApplications_)) return false;
+      if (AuraState != other.AuraState) return false;
+      if (PetNumber != other.PetNumber) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1384,20 +1394,36 @@ namespace Game {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (base_ != null) hash ^= Base.GetHashCode();
-      if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (gameObject_ != null) hash ^= GameObject.GetHashCode();
+      if (Charm != 0UL) hash ^= Charm.GetHashCode();
+      if (Summon != 0UL) hash ^= Summon.GetHashCode();
+      if (CharmedBy != 0UL) hash ^= CharmedBy.GetHashCode();
+      if (SummonedBy != 0UL) hash ^= SummonedBy.GetHashCode();
+      if (CreatedBy != 0UL) hash ^= CreatedBy.GetHashCode();
       if (TargetGuid != 0UL) hash ^= TargetGuid.GetHashCode();
+      if (Persuaded != 0UL) hash ^= Persuaded.GetHashCode();
+      if (ChannelObject != 0UL) hash ^= ChannelObject.GetHashCode();
+      if (ChannelSpellId != 0) hash ^= ChannelSpellId.GetHashCode();
       if (Health != 0) hash ^= Health.GetHashCode();
       if (MaxHealth != 0) hash ^= MaxHealth.GetHashCode();
       hash ^= Power.GetHashCode();
       hash ^= MaxPower.GetHashCode();
-      if (SummonedByGuid != 0UL) hash ^= SummonedByGuid.GetHashCode();
+      hash ^= Stats.GetHashCode();
+      hash ^= Resistances.GetHashCode();
+      if (Bytes0 != 0) hash ^= Bytes0.GetHashCode();
+      if (Bytes1 != 0) hash ^= Bytes1.GetHashCode();
+      if (Bytes2 != 0) hash ^= Bytes2.GetHashCode();
       if (MountDisplayId != 0) hash ^= MountDisplayId.GetHashCode();
-      if (UnitReaction != 0) hash ^= UnitReaction.GetHashCode();
-      if (DynamicFlags != 0) hash ^= DynamicFlags.GetHashCode();
       if (UnitFlags != 0) hash ^= UnitFlags.GetHashCode();
       if (MovementFlags != 0) hash ^= MovementFlags.GetHashCode();
-      if (Level != 0) hash ^= Level.GetHashCode();
+      if (DynamicFlags != 0) hash ^= DynamicFlags.GetHashCode();
+      if (NpcFlags != 0) hash ^= NpcFlags.GetHashCode();
+      hash ^= auras_.GetHashCode();
+      hash ^= auraFlags_.GetHashCode();
+      hash ^= auraLevels_.GetHashCode();
+      hash ^= auraApplications_.GetHashCode();
+      if (AuraState != 0) hash ^= AuraState.GetHashCode();
+      if (PetNumber != 0) hash ^= PetNumber.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1416,55 +1442,101 @@ namespace Game {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (base_ != null) {
+      if (gameObject_ != null) {
         output.WriteRawTag(10);
-        output.WriteMessage(Base);
+        output.WriteMessage(GameObject);
       }
-      if (Name.Length != 0) {
-        output.WriteRawTag(18);
-        output.WriteString(Name);
+      if (Charm != 0UL) {
+        output.WriteRawTag(16);
+        output.WriteUInt64(Charm);
+      }
+      if (Summon != 0UL) {
+        output.WriteRawTag(24);
+        output.WriteUInt64(Summon);
+      }
+      if (CharmedBy != 0UL) {
+        output.WriteRawTag(32);
+        output.WriteUInt64(CharmedBy);
+      }
+      if (SummonedBy != 0UL) {
+        output.WriteRawTag(40);
+        output.WriteUInt64(SummonedBy);
+      }
+      if (CreatedBy != 0UL) {
+        output.WriteRawTag(48);
+        output.WriteUInt64(CreatedBy);
       }
       if (TargetGuid != 0UL) {
-        output.WriteRawTag(24);
+        output.WriteRawTag(56);
         output.WriteUInt64(TargetGuid);
       }
+      if (Persuaded != 0UL) {
+        output.WriteRawTag(64);
+        output.WriteUInt64(Persuaded);
+      }
+      if (ChannelObject != 0UL) {
+        output.WriteRawTag(72);
+        output.WriteUInt64(ChannelObject);
+      }
+      if (ChannelSpellId != 0) {
+        output.WriteRawTag(80);
+        output.WriteUInt32(ChannelSpellId);
+      }
       if (Health != 0) {
-        output.WriteRawTag(32);
+        output.WriteRawTag(88);
         output.WriteUInt32(Health);
       }
       if (MaxHealth != 0) {
-        output.WriteRawTag(40);
+        output.WriteRawTag(96);
         output.WriteUInt32(MaxHealth);
       }
       power_.WriteTo(output, _map_power_codec);
       maxPower_.WriteTo(output, _map_maxPower_codec);
-      if (SummonedByGuid != 0UL) {
-        output.WriteRawTag(64);
-        output.WriteUInt64(SummonedByGuid);
+      stats_.WriteTo(output, _map_stats_codec);
+      resistances_.WriteTo(output, _map_resistances_codec);
+      if (Bytes0 != 0) {
+        output.WriteRawTag(136, 1);
+        output.WriteUInt32(Bytes0);
+      }
+      if (Bytes1 != 0) {
+        output.WriteRawTag(144, 1);
+        output.WriteUInt32(Bytes1);
+      }
+      if (Bytes2 != 0) {
+        output.WriteRawTag(152, 1);
+        output.WriteUInt32(Bytes2);
       }
       if (MountDisplayId != 0) {
-        output.WriteRawTag(72);
+        output.WriteRawTag(160, 1);
         output.WriteUInt32(MountDisplayId);
       }
-      if (UnitReaction != 0) {
-        output.WriteRawTag(80);
-        output.WriteUInt32(UnitReaction);
-      }
-      if (DynamicFlags != 0) {
-        output.WriteRawTag(88);
-        output.WriteUInt32(DynamicFlags);
-      }
       if (UnitFlags != 0) {
-        output.WriteRawTag(96);
+        output.WriteRawTag(168, 1);
         output.WriteUInt32(UnitFlags);
       }
       if (MovementFlags != 0) {
-        output.WriteRawTag(104);
+        output.WriteRawTag(176, 1);
         output.WriteUInt32(MovementFlags);
       }
-      if (Level != 0) {
-        output.WriteRawTag(112);
-        output.WriteInt32(Level);
+      if (DynamicFlags != 0) {
+        output.WriteRawTag(184, 1);
+        output.WriteUInt32(DynamicFlags);
+      }
+      if (NpcFlags != 0) {
+        output.WriteRawTag(192, 1);
+        output.WriteUInt32(NpcFlags);
+      }
+      auras_.WriteTo(output, _repeated_auras_codec);
+      auraFlags_.WriteTo(output, _repeated_auraFlags_codec);
+      auraLevels_.WriteTo(output, _repeated_auraLevels_codec);
+      auraApplications_.WriteTo(output, _repeated_auraApplications_codec);
+      if (AuraState != 0) {
+        output.WriteRawTag(232, 1);
+        output.WriteUInt32(AuraState);
+      }
+      if (PetNumber != 0) {
+        output.WriteRawTag(240, 1);
+        output.WriteUInt32(PetNumber);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -1476,55 +1548,101 @@ namespace Game {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (base_ != null) {
+      if (gameObject_ != null) {
         output.WriteRawTag(10);
-        output.WriteMessage(Base);
+        output.WriteMessage(GameObject);
       }
-      if (Name.Length != 0) {
-        output.WriteRawTag(18);
-        output.WriteString(Name);
+      if (Charm != 0UL) {
+        output.WriteRawTag(16);
+        output.WriteUInt64(Charm);
+      }
+      if (Summon != 0UL) {
+        output.WriteRawTag(24);
+        output.WriteUInt64(Summon);
+      }
+      if (CharmedBy != 0UL) {
+        output.WriteRawTag(32);
+        output.WriteUInt64(CharmedBy);
+      }
+      if (SummonedBy != 0UL) {
+        output.WriteRawTag(40);
+        output.WriteUInt64(SummonedBy);
+      }
+      if (CreatedBy != 0UL) {
+        output.WriteRawTag(48);
+        output.WriteUInt64(CreatedBy);
       }
       if (TargetGuid != 0UL) {
-        output.WriteRawTag(24);
+        output.WriteRawTag(56);
         output.WriteUInt64(TargetGuid);
       }
+      if (Persuaded != 0UL) {
+        output.WriteRawTag(64);
+        output.WriteUInt64(Persuaded);
+      }
+      if (ChannelObject != 0UL) {
+        output.WriteRawTag(72);
+        output.WriteUInt64(ChannelObject);
+      }
+      if (ChannelSpellId != 0) {
+        output.WriteRawTag(80);
+        output.WriteUInt32(ChannelSpellId);
+      }
       if (Health != 0) {
-        output.WriteRawTag(32);
+        output.WriteRawTag(88);
         output.WriteUInt32(Health);
       }
       if (MaxHealth != 0) {
-        output.WriteRawTag(40);
+        output.WriteRawTag(96);
         output.WriteUInt32(MaxHealth);
       }
       power_.WriteTo(ref output, _map_power_codec);
       maxPower_.WriteTo(ref output, _map_maxPower_codec);
-      if (SummonedByGuid != 0UL) {
-        output.WriteRawTag(64);
-        output.WriteUInt64(SummonedByGuid);
+      stats_.WriteTo(ref output, _map_stats_codec);
+      resistances_.WriteTo(ref output, _map_resistances_codec);
+      if (Bytes0 != 0) {
+        output.WriteRawTag(136, 1);
+        output.WriteUInt32(Bytes0);
+      }
+      if (Bytes1 != 0) {
+        output.WriteRawTag(144, 1);
+        output.WriteUInt32(Bytes1);
+      }
+      if (Bytes2 != 0) {
+        output.WriteRawTag(152, 1);
+        output.WriteUInt32(Bytes2);
       }
       if (MountDisplayId != 0) {
-        output.WriteRawTag(72);
+        output.WriteRawTag(160, 1);
         output.WriteUInt32(MountDisplayId);
       }
-      if (UnitReaction != 0) {
-        output.WriteRawTag(80);
-        output.WriteUInt32(UnitReaction);
-      }
-      if (DynamicFlags != 0) {
-        output.WriteRawTag(88);
-        output.WriteUInt32(DynamicFlags);
-      }
       if (UnitFlags != 0) {
-        output.WriteRawTag(96);
+        output.WriteRawTag(168, 1);
         output.WriteUInt32(UnitFlags);
       }
       if (MovementFlags != 0) {
-        output.WriteRawTag(104);
+        output.WriteRawTag(176, 1);
         output.WriteUInt32(MovementFlags);
       }
-      if (Level != 0) {
-        output.WriteRawTag(112);
-        output.WriteInt32(Level);
+      if (DynamicFlags != 0) {
+        output.WriteRawTag(184, 1);
+        output.WriteUInt32(DynamicFlags);
+      }
+      if (NpcFlags != 0) {
+        output.WriteRawTag(192, 1);
+        output.WriteUInt32(NpcFlags);
+      }
+      auras_.WriteTo(ref output, _repeated_auras_codec);
+      auraFlags_.WriteTo(ref output, _repeated_auraFlags_codec);
+      auraLevels_.WriteTo(ref output, _repeated_auraLevels_codec);
+      auraApplications_.WriteTo(ref output, _repeated_auraApplications_codec);
+      if (AuraState != 0) {
+        output.WriteRawTag(232, 1);
+        output.WriteUInt32(AuraState);
+      }
+      if (PetNumber != 0) {
+        output.WriteRawTag(240, 1);
+        output.WriteUInt32(PetNumber);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -1536,14 +1654,35 @@ namespace Game {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (base_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Base);
+      if (gameObject_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(GameObject);
       }
-      if (Name.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      if (Charm != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(Charm);
+      }
+      if (Summon != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(Summon);
+      }
+      if (CharmedBy != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(CharmedBy);
+      }
+      if (SummonedBy != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(SummonedBy);
+      }
+      if (CreatedBy != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(CreatedBy);
       }
       if (TargetGuid != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(TargetGuid);
+      }
+      if (Persuaded != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(Persuaded);
+      }
+      if (ChannelObject != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(ChannelObject);
+      }
+      if (ChannelSpellId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ChannelSpellId);
       }
       if (Health != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Health);
@@ -1553,26 +1692,41 @@ namespace Game {
       }
       size += power_.CalculateSize(_map_power_codec);
       size += maxPower_.CalculateSize(_map_maxPower_codec);
-      if (SummonedByGuid != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(SummonedByGuid);
+      size += stats_.CalculateSize(_map_stats_codec);
+      size += resistances_.CalculateSize(_map_resistances_codec);
+      if (Bytes0 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(Bytes0);
+      }
+      if (Bytes1 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(Bytes1);
+      }
+      if (Bytes2 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(Bytes2);
       }
       if (MountDisplayId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MountDisplayId);
-      }
-      if (UnitReaction != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(UnitReaction);
-      }
-      if (DynamicFlags != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(DynamicFlags);
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(MountDisplayId);
       }
       if (UnitFlags != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(UnitFlags);
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(UnitFlags);
       }
       if (MovementFlags != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MovementFlags);
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(MovementFlags);
       }
-      if (Level != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Level);
+      if (DynamicFlags != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(DynamicFlags);
+      }
+      if (NpcFlags != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(NpcFlags);
+      }
+      size += auras_.CalculateSize(_repeated_auras_codec);
+      size += auraFlags_.CalculateSize(_repeated_auraFlags_codec);
+      size += auraLevels_.CalculateSize(_repeated_auraLevels_codec);
+      size += auraApplications_.CalculateSize(_repeated_auraApplications_codec);
+      if (AuraState != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(AuraState);
+      }
+      if (PetNumber != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(PetNumber);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1586,17 +1740,38 @@ namespace Game {
       if (other == null) {
         return;
       }
-      if (other.base_ != null) {
-        if (base_ == null) {
-          Base = new global::Game.WoWGameObject();
+      if (other.gameObject_ != null) {
+        if (gameObject_ == null) {
+          GameObject = new global::Game.WoWGameObject();
         }
-        Base.MergeFrom(other.Base);
+        GameObject.MergeFrom(other.GameObject);
       }
-      if (other.Name.Length != 0) {
-        Name = other.Name;
+      if (other.Charm != 0UL) {
+        Charm = other.Charm;
+      }
+      if (other.Summon != 0UL) {
+        Summon = other.Summon;
+      }
+      if (other.CharmedBy != 0UL) {
+        CharmedBy = other.CharmedBy;
+      }
+      if (other.SummonedBy != 0UL) {
+        SummonedBy = other.SummonedBy;
+      }
+      if (other.CreatedBy != 0UL) {
+        CreatedBy = other.CreatedBy;
       }
       if (other.TargetGuid != 0UL) {
         TargetGuid = other.TargetGuid;
+      }
+      if (other.Persuaded != 0UL) {
+        Persuaded = other.Persuaded;
+      }
+      if (other.ChannelObject != 0UL) {
+        ChannelObject = other.ChannelObject;
+      }
+      if (other.ChannelSpellId != 0) {
+        ChannelSpellId = other.ChannelSpellId;
       }
       if (other.Health != 0) {
         Health = other.Health;
@@ -1606,17 +1781,19 @@ namespace Game {
       }
       power_.MergeFrom(other.power_);
       maxPower_.MergeFrom(other.maxPower_);
-      if (other.SummonedByGuid != 0UL) {
-        SummonedByGuid = other.SummonedByGuid;
+      stats_.MergeFrom(other.stats_);
+      resistances_.MergeFrom(other.resistances_);
+      if (other.Bytes0 != 0) {
+        Bytes0 = other.Bytes0;
+      }
+      if (other.Bytes1 != 0) {
+        Bytes1 = other.Bytes1;
+      }
+      if (other.Bytes2 != 0) {
+        Bytes2 = other.Bytes2;
       }
       if (other.MountDisplayId != 0) {
         MountDisplayId = other.MountDisplayId;
-      }
-      if (other.UnitReaction != 0) {
-        UnitReaction = other.UnitReaction;
-      }
-      if (other.DynamicFlags != 0) {
-        DynamicFlags = other.DynamicFlags;
       }
       if (other.UnitFlags != 0) {
         UnitFlags = other.UnitFlags;
@@ -1624,8 +1801,21 @@ namespace Game {
       if (other.MovementFlags != 0) {
         MovementFlags = other.MovementFlags;
       }
-      if (other.Level != 0) {
-        Level = other.Level;
+      if (other.DynamicFlags != 0) {
+        DynamicFlags = other.DynamicFlags;
+      }
+      if (other.NpcFlags != 0) {
+        NpcFlags = other.NpcFlags;
+      }
+      auras_.Add(other.auras_);
+      auraFlags_.Add(other.auraFlags_);
+      auraLevels_.Add(other.auraLevels_);
+      auraApplications_.Add(other.auraApplications_);
+      if (other.AuraState != 0) {
+        AuraState = other.AuraState;
+      }
+      if (other.PetNumber != 0) {
+        PetNumber = other.PetNumber;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -1643,62 +1833,130 @@ namespace Game {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            if (base_ == null) {
-              Base = new global::Game.WoWGameObject();
+            if (gameObject_ == null) {
+              GameObject = new global::Game.WoWGameObject();
             }
-            input.ReadMessage(Base);
+            input.ReadMessage(GameObject);
             break;
           }
-          case 18: {
-            Name = input.ReadString();
+          case 16: {
+            Charm = input.ReadUInt64();
             break;
           }
           case 24: {
-            TargetGuid = input.ReadUInt64();
+            Summon = input.ReadUInt64();
             break;
           }
           case 32: {
-            Health = input.ReadUInt32();
+            CharmedBy = input.ReadUInt64();
             break;
           }
           case 40: {
-            MaxHealth = input.ReadUInt32();
+            SummonedBy = input.ReadUInt64();
             break;
           }
-          case 50: {
-            power_.AddEntriesFrom(input, _map_power_codec);
+          case 48: {
+            CreatedBy = input.ReadUInt64();
             break;
           }
-          case 58: {
-            maxPower_.AddEntriesFrom(input, _map_maxPower_codec);
+          case 56: {
+            TargetGuid = input.ReadUInt64();
             break;
           }
           case 64: {
-            SummonedByGuid = input.ReadUInt64();
+            Persuaded = input.ReadUInt64();
             break;
           }
           case 72: {
-            MountDisplayId = input.ReadUInt32();
+            ChannelObject = input.ReadUInt64();
             break;
           }
           case 80: {
-            UnitReaction = input.ReadUInt32();
+            ChannelSpellId = input.ReadUInt32();
             break;
           }
           case 88: {
-            DynamicFlags = input.ReadUInt32();
+            Health = input.ReadUInt32();
             break;
           }
           case 96: {
+            MaxHealth = input.ReadUInt32();
+            break;
+          }
+          case 106: {
+            power_.AddEntriesFrom(input, _map_power_codec);
+            break;
+          }
+          case 114: {
+            maxPower_.AddEntriesFrom(input, _map_maxPower_codec);
+            break;
+          }
+          case 122: {
+            stats_.AddEntriesFrom(input, _map_stats_codec);
+            break;
+          }
+          case 130: {
+            resistances_.AddEntriesFrom(input, _map_resistances_codec);
+            break;
+          }
+          case 136: {
+            Bytes0 = input.ReadUInt32();
+            break;
+          }
+          case 144: {
+            Bytes1 = input.ReadUInt32();
+            break;
+          }
+          case 152: {
+            Bytes2 = input.ReadUInt32();
+            break;
+          }
+          case 160: {
+            MountDisplayId = input.ReadUInt32();
+            break;
+          }
+          case 168: {
             UnitFlags = input.ReadUInt32();
             break;
           }
-          case 104: {
+          case 176: {
             MovementFlags = input.ReadUInt32();
             break;
           }
-          case 112: {
-            Level = input.ReadInt32();
+          case 184: {
+            DynamicFlags = input.ReadUInt32();
+            break;
+          }
+          case 192: {
+            NpcFlags = input.ReadUInt32();
+            break;
+          }
+          case 202:
+          case 200: {
+            auras_.AddEntriesFrom(input, _repeated_auras_codec);
+            break;
+          }
+          case 210:
+          case 208: {
+            auraFlags_.AddEntriesFrom(input, _repeated_auraFlags_codec);
+            break;
+          }
+          case 218:
+          case 216: {
+            auraLevels_.AddEntriesFrom(input, _repeated_auraLevels_codec);
+            break;
+          }
+          case 226:
+          case 224: {
+            auraApplications_.AddEntriesFrom(input, _repeated_auraApplications_codec);
+            break;
+          }
+          case 232: {
+            AuraState = input.ReadUInt32();
+            break;
+          }
+          case 240: {
+            PetNumber = input.ReadUInt32();
             break;
           }
         }
@@ -1717,62 +1975,130 @@ namespace Game {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 10: {
-            if (base_ == null) {
-              Base = new global::Game.WoWGameObject();
+            if (gameObject_ == null) {
+              GameObject = new global::Game.WoWGameObject();
             }
-            input.ReadMessage(Base);
+            input.ReadMessage(GameObject);
             break;
           }
-          case 18: {
-            Name = input.ReadString();
+          case 16: {
+            Charm = input.ReadUInt64();
             break;
           }
           case 24: {
-            TargetGuid = input.ReadUInt64();
+            Summon = input.ReadUInt64();
             break;
           }
           case 32: {
-            Health = input.ReadUInt32();
+            CharmedBy = input.ReadUInt64();
             break;
           }
           case 40: {
-            MaxHealth = input.ReadUInt32();
+            SummonedBy = input.ReadUInt64();
             break;
           }
-          case 50: {
-            power_.AddEntriesFrom(ref input, _map_power_codec);
+          case 48: {
+            CreatedBy = input.ReadUInt64();
             break;
           }
-          case 58: {
-            maxPower_.AddEntriesFrom(ref input, _map_maxPower_codec);
+          case 56: {
+            TargetGuid = input.ReadUInt64();
             break;
           }
           case 64: {
-            SummonedByGuid = input.ReadUInt64();
+            Persuaded = input.ReadUInt64();
             break;
           }
           case 72: {
-            MountDisplayId = input.ReadUInt32();
+            ChannelObject = input.ReadUInt64();
             break;
           }
           case 80: {
-            UnitReaction = input.ReadUInt32();
+            ChannelSpellId = input.ReadUInt32();
             break;
           }
           case 88: {
-            DynamicFlags = input.ReadUInt32();
+            Health = input.ReadUInt32();
             break;
           }
           case 96: {
+            MaxHealth = input.ReadUInt32();
+            break;
+          }
+          case 106: {
+            power_.AddEntriesFrom(ref input, _map_power_codec);
+            break;
+          }
+          case 114: {
+            maxPower_.AddEntriesFrom(ref input, _map_maxPower_codec);
+            break;
+          }
+          case 122: {
+            stats_.AddEntriesFrom(ref input, _map_stats_codec);
+            break;
+          }
+          case 130: {
+            resistances_.AddEntriesFrom(ref input, _map_resistances_codec);
+            break;
+          }
+          case 136: {
+            Bytes0 = input.ReadUInt32();
+            break;
+          }
+          case 144: {
+            Bytes1 = input.ReadUInt32();
+            break;
+          }
+          case 152: {
+            Bytes2 = input.ReadUInt32();
+            break;
+          }
+          case 160: {
+            MountDisplayId = input.ReadUInt32();
+            break;
+          }
+          case 168: {
             UnitFlags = input.ReadUInt32();
             break;
           }
-          case 104: {
+          case 176: {
             MovementFlags = input.ReadUInt32();
             break;
           }
-          case 112: {
-            Level = input.ReadInt32();
+          case 184: {
+            DynamicFlags = input.ReadUInt32();
+            break;
+          }
+          case 192: {
+            NpcFlags = input.ReadUInt32();
+            break;
+          }
+          case 202:
+          case 200: {
+            auras_.AddEntriesFrom(ref input, _repeated_auras_codec);
+            break;
+          }
+          case 210:
+          case 208: {
+            auraFlags_.AddEntriesFrom(ref input, _repeated_auraFlags_codec);
+            break;
+          }
+          case 218:
+          case 216: {
+            auraLevels_.AddEntriesFrom(ref input, _repeated_auraLevels_codec);
+            break;
+          }
+          case 226:
+          case 224: {
+            auraApplications_.AddEntriesFrom(ref input, _repeated_auraApplications_codec);
+            break;
+          }
+          case 232: {
+            AuraState = input.ReadUInt32();
+            break;
+          }
+          case 240: {
+            PetNumber = input.ReadUInt32();
             break;
           }
         }
@@ -1783,19 +2109,19 @@ namespace Game {
   }
 
   /// <summary>
-  /// Definition for Equipment
+  /// Definition for WoWPlayer, extending WoWUnit
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class Equipment : pb::IMessage<Equipment>
+  public sealed partial class WoWPlayer : pb::IMessage<WoWPlayer>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
   {
-    private static readonly pb::MessageParser<Equipment> _parser = new pb::MessageParser<Equipment>(() => new Equipment());
+    private static readonly pb::MessageParser<WoWPlayer> _parser = new pb::MessageParser<WoWPlayer>(() => new WoWPlayer());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<Equipment> Parser { get { return _parser; } }
+    public static pb::MessageParser<WoWPlayer> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -1811,7 +2137,7 @@ namespace Game {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Equipment() {
+    public WoWPlayer() {
       OnConstruction();
     }
 
@@ -1819,269 +2145,604 @@ namespace Game {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Equipment(Equipment other) : this() {
-      head_ = other.head_ != null ? other.head_.Clone() : null;
-      neck_ = other.neck_ != null ? other.neck_.Clone() : null;
-      shoulder_ = other.shoulder_ != null ? other.shoulder_.Clone() : null;
-      back_ = other.back_ != null ? other.back_.Clone() : null;
-      chest_ = other.chest_ != null ? other.chest_.Clone() : null;
-      wrist_ = other.wrist_ != null ? other.wrist_.Clone() : null;
-      hands_ = other.hands_ != null ? other.hands_.Clone() : null;
-      waist_ = other.waist_ != null ? other.waist_.Clone() : null;
-      legs_ = other.legs_ != null ? other.legs_.Clone() : null;
-      feet_ = other.feet_ != null ? other.feet_.Clone() : null;
-      finger1_ = other.finger1_ != null ? other.finger1_.Clone() : null;
-      finger2_ = other.finger2_ != null ? other.finger2_.Clone() : null;
-      trinket1_ = other.trinket1_ != null ? other.trinket1_.Clone() : null;
-      trinket2_ = other.trinket2_ != null ? other.trinket2_.Clone() : null;
-      mainHand_ = other.mainHand_ != null ? other.mainHand_.Clone() : null;
-      offHand_ = other.offHand_ != null ? other.offHand_.Clone() : null;
-      ranged_ = other.ranged_ != null ? other.ranged_.Clone() : null;
+    public WoWPlayer(WoWPlayer other) : this() {
+      unit_ = other.unit_ != null ? other.unit_.Clone() : null;
+      playerBytes0_ = other.playerBytes0_;
+      playerBytes1_ = other.playerBytes1_;
+      playerBytes2_ = other.playerBytes2_;
+      playerFlags_ = other.playerFlags_;
+      questLogEntries_ = other.questLogEntries_.Clone();
+      inventory_ = other.inventory_.Clone();
+      bagContents_ = other.bagContents_.Clone();
+      keyRing_ = other.keyRing_.Clone();
+      farsightGuid_ = other.farsightGuid_;
+      comboTargetGuid_ = other.comboTargetGuid_;
+      playerXP_ = other.playerXP_;
+      skillInfo_ = other.skillInfo_.Clone();
+      spellList_ = other.spellList_.Clone();
+      spellCooldowns_ = other.spellCooldowns_.Clone();
+      spellStacks_ = other.spellStacks_.Clone();
+      buffList_ = other.buffList_.Clone();
+      characterPoints1_ = other.characterPoints1_;
+      characterPoints2_ = other.characterPoints2_;
+      trackCreatures_ = other.trackCreatures_;
+      trackResources_ = other.trackResources_;
+      blockPercent_ = other.blockPercent_;
+      dodgePercent_ = other.dodgePercent_;
+      parryPercent_ = other.parryPercent_;
+      critPercent_ = other.critPercent_;
+      rangedCritPercent_ = other.rangedCritPercent_;
+      exploredZones_ = other.exploredZones_.Clone();
+      restStateExperience_ = other.restStateExperience_;
+      coinage_ = other.coinage_;
+      posModDamageDone_ = other.posModDamageDone_;
+      negModDamageDone_ = other.negModDamageDone_;
+      pctModDamageDone_ = other.pctModDamageDone_;
+      posStats_ = other.posStats_.Clone();
+      negStats_ = other.negStats_.Clone();
+      posResistBuff_ = other.posResistBuff_.Clone();
+      negResistBuff_ = other.negResistBuff_.Clone();
+      ammoId_ = other.ammoId_;
+      selfResSpell_ = other.selfResSpell_;
+      pvpMedals_ = other.pvpMedals_;
+      sessionKills_ = other.sessionKills_;
+      watchedFactionIndex_ = other.watchedFactionIndex_;
+      combatRating_ = other.combatRating_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Equipment Clone() {
-      return new Equipment(this);
+    public WoWPlayer Clone() {
+      return new WoWPlayer(this);
     }
 
-    /// <summary>Field number for the "head" field.</summary>
-    public const int HeadFieldNumber = 1;
-    private global::Game.Item head_;
+    /// <summary>Field number for the "unit" field.</summary>
+    public const int UnitFieldNumber = 1;
+    private global::Game.WoWUnit unit_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Item Head {
-      get { return head_; }
+    public global::Game.WoWUnit Unit {
+      get { return unit_; }
       set {
-        head_ = value;
+        unit_ = value;
       }
     }
 
-    /// <summary>Field number for the "neck" field.</summary>
-    public const int NeckFieldNumber = 2;
-    private global::Game.Item neck_;
+    /// <summary>Field number for the "playerBytes0" field.</summary>
+    public const int PlayerBytes0FieldNumber = 2;
+    private uint playerBytes0_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Item Neck {
-      get { return neck_; }
+    public uint PlayerBytes0 {
+      get { return playerBytes0_; }
       set {
-        neck_ = value;
+        playerBytes0_ = value;
       }
     }
 
-    /// <summary>Field number for the "shoulder" field.</summary>
-    public const int ShoulderFieldNumber = 3;
-    private global::Game.Item shoulder_;
+    /// <summary>Field number for the "playerBytes1" field.</summary>
+    public const int PlayerBytes1FieldNumber = 3;
+    private uint playerBytes1_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Item Shoulder {
-      get { return shoulder_; }
+    public uint PlayerBytes1 {
+      get { return playerBytes1_; }
       set {
-        shoulder_ = value;
+        playerBytes1_ = value;
       }
     }
 
-    /// <summary>Field number for the "back" field.</summary>
-    public const int BackFieldNumber = 4;
-    private global::Game.Item back_;
+    /// <summary>Field number for the "playerBytes2" field.</summary>
+    public const int PlayerBytes2FieldNumber = 4;
+    private uint playerBytes2_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Item Back {
-      get { return back_; }
+    public uint PlayerBytes2 {
+      get { return playerBytes2_; }
       set {
-        back_ = value;
+        playerBytes2_ = value;
       }
     }
 
-    /// <summary>Field number for the "chest" field.</summary>
-    public const int ChestFieldNumber = 5;
-    private global::Game.Item chest_;
+    /// <summary>Field number for the "playerFlags" field.</summary>
+    public const int PlayerFlagsFieldNumber = 5;
+    private uint playerFlags_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Item Chest {
-      get { return chest_; }
+    public uint PlayerFlags {
+      get { return playerFlags_; }
       set {
-        chest_ = value;
+        playerFlags_ = value;
       }
     }
 
-    /// <summary>Field number for the "wrist" field.</summary>
-    public const int WristFieldNumber = 6;
-    private global::Game.Item wrist_;
+    /// <summary>Field number for the "questLogEntries" field.</summary>
+    public const int QuestLogEntriesFieldNumber = 6;
+    private static readonly pb::FieldCodec<global::Game.QuestLogEntry> _repeated_questLogEntries_codec
+        = pb::FieldCodec.ForMessage(50, global::Game.QuestLogEntry.Parser);
+    private readonly pbc::RepeatedField<global::Game.QuestLogEntry> questLogEntries_ = new pbc::RepeatedField<global::Game.QuestLogEntry>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Item Wrist {
-      get { return wrist_; }
+    public pbc::RepeatedField<global::Game.QuestLogEntry> QuestLogEntries {
+      get { return questLogEntries_; }
+    }
+
+    /// <summary>Field number for the "inventory" field.</summary>
+    public const int InventoryFieldNumber = 7;
+    private static readonly pbc::MapField<uint, ulong>.Codec _map_inventory_codec
+        = new pbc::MapField<uint, ulong>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt64(16, 0UL), 58);
+    private readonly pbc::MapField<uint, ulong> inventory_ = new pbc::MapField<uint, ulong>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::MapField<uint, ulong> Inventory {
+      get { return inventory_; }
+    }
+
+    /// <summary>Field number for the "bagContents" field.</summary>
+    public const int BagContentsFieldNumber = 8;
+    private static readonly pbc::MapField<uint, uint>.Codec _map_bagContents_codec
+        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 66);
+    private readonly pbc::MapField<uint, uint> bagContents_ = new pbc::MapField<uint, uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::MapField<uint, uint> BagContents {
+      get { return bagContents_; }
+    }
+
+    /// <summary>Field number for the "keyRing" field.</summary>
+    public const int KeyRingFieldNumber = 9;
+    private static readonly pbc::MapField<uint, uint>.Codec _map_keyRing_codec
+        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 74);
+    private readonly pbc::MapField<uint, uint> keyRing_ = new pbc::MapField<uint, uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::MapField<uint, uint> KeyRing {
+      get { return keyRing_; }
+    }
+
+    /// <summary>Field number for the "farsightGuid" field.</summary>
+    public const int FarsightGuidFieldNumber = 10;
+    private ulong farsightGuid_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong FarsightGuid {
+      get { return farsightGuid_; }
       set {
-        wrist_ = value;
+        farsightGuid_ = value;
       }
     }
 
-    /// <summary>Field number for the "hands" field.</summary>
-    public const int HandsFieldNumber = 7;
-    private global::Game.Item hands_;
+    /// <summary>Field number for the "comboTargetGuid" field.</summary>
+    public const int ComboTargetGuidFieldNumber = 11;
+    private ulong comboTargetGuid_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Item Hands {
-      get { return hands_; }
+    public ulong ComboTargetGuid {
+      get { return comboTargetGuid_; }
       set {
-        hands_ = value;
+        comboTargetGuid_ = value;
       }
     }
 
-    /// <summary>Field number for the "waist" field.</summary>
-    public const int WaistFieldNumber = 8;
-    private global::Game.Item waist_;
+    /// <summary>Field number for the "playerXP" field.</summary>
+    public const int PlayerXPFieldNumber = 12;
+    private uint playerXP_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Item Waist {
-      get { return waist_; }
+    public uint PlayerXP {
+      get { return playerXP_; }
       set {
-        waist_ = value;
+        playerXP_ = value;
       }
     }
 
-    /// <summary>Field number for the "legs" field.</summary>
-    public const int LegsFieldNumber = 9;
-    private global::Game.Item legs_;
+    /// <summary>Field number for the "skillInfo" field.</summary>
+    public const int SkillInfoFieldNumber = 13;
+    private static readonly pbc::MapField<uint, uint>.Codec _map_skillInfo_codec
+        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 106);
+    private readonly pbc::MapField<uint, uint> skillInfo_ = new pbc::MapField<uint, uint>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Item Legs {
-      get { return legs_; }
+    public pbc::MapField<uint, uint> SkillInfo {
+      get { return skillInfo_; }
+    }
+
+    /// <summary>Field number for the "spellList" field.</summary>
+    public const int SpellListFieldNumber = 14;
+    private static readonly pb::FieldCodec<uint> _repeated_spellList_codec
+        = pb::FieldCodec.ForUInt32(114);
+    private readonly pbc::RepeatedField<uint> spellList_ = new pbc::RepeatedField<uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<uint> SpellList {
+      get { return spellList_; }
+    }
+
+    /// <summary>Field number for the "spellCooldowns" field.</summary>
+    public const int SpellCooldownsFieldNumber = 15;
+    private static readonly pbc::MapField<uint, float>.Codec _map_spellCooldowns_codec
+        = new pbc::MapField<uint, float>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForFloat(21, 0F), 122);
+    private readonly pbc::MapField<uint, float> spellCooldowns_ = new pbc::MapField<uint, float>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::MapField<uint, float> SpellCooldowns {
+      get { return spellCooldowns_; }
+    }
+
+    /// <summary>Field number for the "spellStacks" field.</summary>
+    public const int SpellStacksFieldNumber = 16;
+    private static readonly pbc::MapField<uint, uint>.Codec _map_spellStacks_codec
+        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 130);
+    private readonly pbc::MapField<uint, uint> spellStacks_ = new pbc::MapField<uint, uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::MapField<uint, uint> SpellStacks {
+      get { return spellStacks_; }
+    }
+
+    /// <summary>Field number for the "buffList" field.</summary>
+    public const int BuffListFieldNumber = 17;
+    private static readonly pbc::MapField<uint, float>.Codec _map_buffList_codec
+        = new pbc::MapField<uint, float>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForFloat(21, 0F), 138);
+    private readonly pbc::MapField<uint, float> buffList_ = new pbc::MapField<uint, float>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::MapField<uint, float> BuffList {
+      get { return buffList_; }
+    }
+
+    /// <summary>Field number for the "characterPoints1" field.</summary>
+    public const int CharacterPoints1FieldNumber = 18;
+    private uint characterPoints1_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint CharacterPoints1 {
+      get { return characterPoints1_; }
       set {
-        legs_ = value;
+        characterPoints1_ = value;
       }
     }
 
-    /// <summary>Field number for the "feet" field.</summary>
-    public const int FeetFieldNumber = 10;
-    private global::Game.Item feet_;
+    /// <summary>Field number for the "characterPoints2" field.</summary>
+    public const int CharacterPoints2FieldNumber = 19;
+    private uint characterPoints2_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Item Feet {
-      get { return feet_; }
+    public uint CharacterPoints2 {
+      get { return characterPoints2_; }
       set {
-        feet_ = value;
+        characterPoints2_ = value;
       }
     }
 
-    /// <summary>Field number for the "finger1" field.</summary>
-    public const int Finger1FieldNumber = 11;
-    private global::Game.Item finger1_;
+    /// <summary>Field number for the "trackCreatures" field.</summary>
+    public const int TrackCreaturesFieldNumber = 20;
+    private uint trackCreatures_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Item Finger1 {
-      get { return finger1_; }
+    public uint TrackCreatures {
+      get { return trackCreatures_; }
       set {
-        finger1_ = value;
+        trackCreatures_ = value;
       }
     }
 
-    /// <summary>Field number for the "finger2" field.</summary>
-    public const int Finger2FieldNumber = 12;
-    private global::Game.Item finger2_;
+    /// <summary>Field number for the "trackResources" field.</summary>
+    public const int TrackResourcesFieldNumber = 21;
+    private uint trackResources_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Item Finger2 {
-      get { return finger2_; }
+    public uint TrackResources {
+      get { return trackResources_; }
       set {
-        finger2_ = value;
+        trackResources_ = value;
       }
     }
 
-    /// <summary>Field number for the "trinket1" field.</summary>
-    public const int Trinket1FieldNumber = 13;
-    private global::Game.Item trinket1_;
+    /// <summary>Field number for the "blockPercent" field.</summary>
+    public const int BlockPercentFieldNumber = 22;
+    private float blockPercent_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Item Trinket1 {
-      get { return trinket1_; }
+    public float BlockPercent {
+      get { return blockPercent_; }
       set {
-        trinket1_ = value;
+        blockPercent_ = value;
       }
     }
 
-    /// <summary>Field number for the "trinket2" field.</summary>
-    public const int Trinket2FieldNumber = 14;
-    private global::Game.Item trinket2_;
+    /// <summary>Field number for the "dodgePercent" field.</summary>
+    public const int DodgePercentFieldNumber = 23;
+    private float dodgePercent_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Item Trinket2 {
-      get { return trinket2_; }
+    public float DodgePercent {
+      get { return dodgePercent_; }
       set {
-        trinket2_ = value;
+        dodgePercent_ = value;
       }
     }
 
-    /// <summary>Field number for the "mainHand" field.</summary>
-    public const int MainHandFieldNumber = 15;
-    private global::Game.Item mainHand_;
+    /// <summary>Field number for the "parryPercent" field.</summary>
+    public const int ParryPercentFieldNumber = 24;
+    private float parryPercent_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Item MainHand {
-      get { return mainHand_; }
+    public float ParryPercent {
+      get { return parryPercent_; }
       set {
-        mainHand_ = value;
+        parryPercent_ = value;
       }
     }
 
-    /// <summary>Field number for the "offHand" field.</summary>
-    public const int OffHandFieldNumber = 16;
-    private global::Game.Item offHand_;
+    /// <summary>Field number for the "critPercent" field.</summary>
+    public const int CritPercentFieldNumber = 25;
+    private float critPercent_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Item OffHand {
-      get { return offHand_; }
+    public float CritPercent {
+      get { return critPercent_; }
       set {
-        offHand_ = value;
+        critPercent_ = value;
       }
     }
 
-    /// <summary>Field number for the "ranged" field.</summary>
-    public const int RangedFieldNumber = 17;
-    private global::Game.Item ranged_;
+    /// <summary>Field number for the "rangedCritPercent" field.</summary>
+    public const int RangedCritPercentFieldNumber = 26;
+    private float rangedCritPercent_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Item Ranged {
-      get { return ranged_; }
+    public float RangedCritPercent {
+      get { return rangedCritPercent_; }
       set {
-        ranged_ = value;
+        rangedCritPercent_ = value;
       }
+    }
+
+    /// <summary>Field number for the "exploredZones" field.</summary>
+    public const int ExploredZonesFieldNumber = 27;
+    private static readonly pbc::MapField<uint, uint>.Codec _map_exploredZones_codec
+        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 218);
+    private readonly pbc::MapField<uint, uint> exploredZones_ = new pbc::MapField<uint, uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::MapField<uint, uint> ExploredZones {
+      get { return exploredZones_; }
+    }
+
+    /// <summary>Field number for the "restStateExperience" field.</summary>
+    public const int RestStateExperienceFieldNumber = 28;
+    private uint restStateExperience_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint RestStateExperience {
+      get { return restStateExperience_; }
+      set {
+        restStateExperience_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "coinage" field.</summary>
+    public const int CoinageFieldNumber = 29;
+    private uint coinage_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Coinage {
+      get { return coinage_; }
+      set {
+        coinage_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "posModDamageDone" field.</summary>
+    public const int PosModDamageDoneFieldNumber = 30;
+    private uint posModDamageDone_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint PosModDamageDone {
+      get { return posModDamageDone_; }
+      set {
+        posModDamageDone_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "negModDamageDone" field.</summary>
+    public const int NegModDamageDoneFieldNumber = 31;
+    private uint negModDamageDone_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint NegModDamageDone {
+      get { return negModDamageDone_; }
+      set {
+        negModDamageDone_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "pctModDamageDone" field.</summary>
+    public const int PctModDamageDoneFieldNumber = 32;
+    private uint pctModDamageDone_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint PctModDamageDone {
+      get { return pctModDamageDone_; }
+      set {
+        pctModDamageDone_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "posStats" field.</summary>
+    public const int PosStatsFieldNumber = 33;
+    private static readonly pbc::MapField<uint, uint>.Codec _map_posStats_codec
+        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 266);
+    private readonly pbc::MapField<uint, uint> posStats_ = new pbc::MapField<uint, uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::MapField<uint, uint> PosStats {
+      get { return posStats_; }
+    }
+
+    /// <summary>Field number for the "negStats" field.</summary>
+    public const int NegStatsFieldNumber = 34;
+    private static readonly pbc::MapField<uint, uint>.Codec _map_negStats_codec
+        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 274);
+    private readonly pbc::MapField<uint, uint> negStats_ = new pbc::MapField<uint, uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::MapField<uint, uint> NegStats {
+      get { return negStats_; }
+    }
+
+    /// <summary>Field number for the "posResistBuff" field.</summary>
+    public const int PosResistBuffFieldNumber = 35;
+    private static readonly pbc::MapField<uint, uint>.Codec _map_posResistBuff_codec
+        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 282);
+    private readonly pbc::MapField<uint, uint> posResistBuff_ = new pbc::MapField<uint, uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::MapField<uint, uint> PosResistBuff {
+      get { return posResistBuff_; }
+    }
+
+    /// <summary>Field number for the "negResistBuff" field.</summary>
+    public const int NegResistBuffFieldNumber = 36;
+    private static readonly pbc::MapField<uint, uint>.Codec _map_negResistBuff_codec
+        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 290);
+    private readonly pbc::MapField<uint, uint> negResistBuff_ = new pbc::MapField<uint, uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::MapField<uint, uint> NegResistBuff {
+      get { return negResistBuff_; }
+    }
+
+    /// <summary>Field number for the "ammoId" field.</summary>
+    public const int AmmoIdFieldNumber = 37;
+    private uint ammoId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint AmmoId {
+      get { return ammoId_; }
+      set {
+        ammoId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "selfResSpell" field.</summary>
+    public const int SelfResSpellFieldNumber = 38;
+    private uint selfResSpell_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint SelfResSpell {
+      get { return selfResSpell_; }
+      set {
+        selfResSpell_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "pvpMedals" field.</summary>
+    public const int PvpMedalsFieldNumber = 39;
+    private uint pvpMedals_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint PvpMedals {
+      get { return pvpMedals_; }
+      set {
+        pvpMedals_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "sessionKills" field.</summary>
+    public const int SessionKillsFieldNumber = 40;
+    private uint sessionKills_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint SessionKills {
+      get { return sessionKills_; }
+      set {
+        sessionKills_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "watchedFactionIndex" field.</summary>
+    public const int WatchedFactionIndexFieldNumber = 41;
+    private uint watchedFactionIndex_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint WatchedFactionIndex {
+      get { return watchedFactionIndex_; }
+      set {
+        watchedFactionIndex_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "combatRating" field.</summary>
+    public const int CombatRatingFieldNumber = 42;
+    private static readonly pbc::MapField<uint, uint>.Codec _map_combatRating_codec
+        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 338);
+    private readonly pbc::MapField<uint, uint> combatRating_ = new pbc::MapField<uint, uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::MapField<uint, uint> CombatRating {
+      get { return combatRating_; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
-      return Equals(other as Equipment);
+      return Equals(other as WoWPlayer);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(Equipment other) {
+    public bool Equals(WoWPlayer other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (!object.Equals(Head, other.Head)) return false;
-      if (!object.Equals(Neck, other.Neck)) return false;
-      if (!object.Equals(Shoulder, other.Shoulder)) return false;
-      if (!object.Equals(Back, other.Back)) return false;
-      if (!object.Equals(Chest, other.Chest)) return false;
-      if (!object.Equals(Wrist, other.Wrist)) return false;
-      if (!object.Equals(Hands, other.Hands)) return false;
-      if (!object.Equals(Waist, other.Waist)) return false;
-      if (!object.Equals(Legs, other.Legs)) return false;
-      if (!object.Equals(Feet, other.Feet)) return false;
-      if (!object.Equals(Finger1, other.Finger1)) return false;
-      if (!object.Equals(Finger2, other.Finger2)) return false;
-      if (!object.Equals(Trinket1, other.Trinket1)) return false;
-      if (!object.Equals(Trinket2, other.Trinket2)) return false;
-      if (!object.Equals(MainHand, other.MainHand)) return false;
-      if (!object.Equals(OffHand, other.OffHand)) return false;
-      if (!object.Equals(Ranged, other.Ranged)) return false;
+      if (!object.Equals(Unit, other.Unit)) return false;
+      if (PlayerBytes0 != other.PlayerBytes0) return false;
+      if (PlayerBytes1 != other.PlayerBytes1) return false;
+      if (PlayerBytes2 != other.PlayerBytes2) return false;
+      if (PlayerFlags != other.PlayerFlags) return false;
+      if(!questLogEntries_.Equals(other.questLogEntries_)) return false;
+      if (!Inventory.Equals(other.Inventory)) return false;
+      if (!BagContents.Equals(other.BagContents)) return false;
+      if (!KeyRing.Equals(other.KeyRing)) return false;
+      if (FarsightGuid != other.FarsightGuid) return false;
+      if (ComboTargetGuid != other.ComboTargetGuid) return false;
+      if (PlayerXP != other.PlayerXP) return false;
+      if (!SkillInfo.Equals(other.SkillInfo)) return false;
+      if(!spellList_.Equals(other.spellList_)) return false;
+      if (!SpellCooldowns.Equals(other.SpellCooldowns)) return false;
+      if (!SpellStacks.Equals(other.SpellStacks)) return false;
+      if (!BuffList.Equals(other.BuffList)) return false;
+      if (CharacterPoints1 != other.CharacterPoints1) return false;
+      if (CharacterPoints2 != other.CharacterPoints2) return false;
+      if (TrackCreatures != other.TrackCreatures) return false;
+      if (TrackResources != other.TrackResources) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(BlockPercent, other.BlockPercent)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(DodgePercent, other.DodgePercent)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(ParryPercent, other.ParryPercent)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(CritPercent, other.CritPercent)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(RangedCritPercent, other.RangedCritPercent)) return false;
+      if (!ExploredZones.Equals(other.ExploredZones)) return false;
+      if (RestStateExperience != other.RestStateExperience) return false;
+      if (Coinage != other.Coinage) return false;
+      if (PosModDamageDone != other.PosModDamageDone) return false;
+      if (NegModDamageDone != other.NegModDamageDone) return false;
+      if (PctModDamageDone != other.PctModDamageDone) return false;
+      if (!PosStats.Equals(other.PosStats)) return false;
+      if (!NegStats.Equals(other.NegStats)) return false;
+      if (!PosResistBuff.Equals(other.PosResistBuff)) return false;
+      if (!NegResistBuff.Equals(other.NegResistBuff)) return false;
+      if (AmmoId != other.AmmoId) return false;
+      if (SelfResSpell != other.SelfResSpell) return false;
+      if (PvpMedals != other.PvpMedals) return false;
+      if (SessionKills != other.SessionKills) return false;
+      if (WatchedFactionIndex != other.WatchedFactionIndex) return false;
+      if (!CombatRating.Equals(other.CombatRating)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -2089,23 +2750,48 @@ namespace Game {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (head_ != null) hash ^= Head.GetHashCode();
-      if (neck_ != null) hash ^= Neck.GetHashCode();
-      if (shoulder_ != null) hash ^= Shoulder.GetHashCode();
-      if (back_ != null) hash ^= Back.GetHashCode();
-      if (chest_ != null) hash ^= Chest.GetHashCode();
-      if (wrist_ != null) hash ^= Wrist.GetHashCode();
-      if (hands_ != null) hash ^= Hands.GetHashCode();
-      if (waist_ != null) hash ^= Waist.GetHashCode();
-      if (legs_ != null) hash ^= Legs.GetHashCode();
-      if (feet_ != null) hash ^= Feet.GetHashCode();
-      if (finger1_ != null) hash ^= Finger1.GetHashCode();
-      if (finger2_ != null) hash ^= Finger2.GetHashCode();
-      if (trinket1_ != null) hash ^= Trinket1.GetHashCode();
-      if (trinket2_ != null) hash ^= Trinket2.GetHashCode();
-      if (mainHand_ != null) hash ^= MainHand.GetHashCode();
-      if (offHand_ != null) hash ^= OffHand.GetHashCode();
-      if (ranged_ != null) hash ^= Ranged.GetHashCode();
+      if (unit_ != null) hash ^= Unit.GetHashCode();
+      if (PlayerBytes0 != 0) hash ^= PlayerBytes0.GetHashCode();
+      if (PlayerBytes1 != 0) hash ^= PlayerBytes1.GetHashCode();
+      if (PlayerBytes2 != 0) hash ^= PlayerBytes2.GetHashCode();
+      if (PlayerFlags != 0) hash ^= PlayerFlags.GetHashCode();
+      hash ^= questLogEntries_.GetHashCode();
+      hash ^= Inventory.GetHashCode();
+      hash ^= BagContents.GetHashCode();
+      hash ^= KeyRing.GetHashCode();
+      if (FarsightGuid != 0UL) hash ^= FarsightGuid.GetHashCode();
+      if (ComboTargetGuid != 0UL) hash ^= ComboTargetGuid.GetHashCode();
+      if (PlayerXP != 0) hash ^= PlayerXP.GetHashCode();
+      hash ^= SkillInfo.GetHashCode();
+      hash ^= spellList_.GetHashCode();
+      hash ^= SpellCooldowns.GetHashCode();
+      hash ^= SpellStacks.GetHashCode();
+      hash ^= BuffList.GetHashCode();
+      if (CharacterPoints1 != 0) hash ^= CharacterPoints1.GetHashCode();
+      if (CharacterPoints2 != 0) hash ^= CharacterPoints2.GetHashCode();
+      if (TrackCreatures != 0) hash ^= TrackCreatures.GetHashCode();
+      if (TrackResources != 0) hash ^= TrackResources.GetHashCode();
+      if (BlockPercent != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(BlockPercent);
+      if (DodgePercent != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(DodgePercent);
+      if (ParryPercent != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(ParryPercent);
+      if (CritPercent != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(CritPercent);
+      if (RangedCritPercent != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(RangedCritPercent);
+      hash ^= ExploredZones.GetHashCode();
+      if (RestStateExperience != 0) hash ^= RestStateExperience.GetHashCode();
+      if (Coinage != 0) hash ^= Coinage.GetHashCode();
+      if (PosModDamageDone != 0) hash ^= PosModDamageDone.GetHashCode();
+      if (NegModDamageDone != 0) hash ^= NegModDamageDone.GetHashCode();
+      if (PctModDamageDone != 0) hash ^= PctModDamageDone.GetHashCode();
+      hash ^= PosStats.GetHashCode();
+      hash ^= NegStats.GetHashCode();
+      hash ^= PosResistBuff.GetHashCode();
+      hash ^= NegResistBuff.GetHashCode();
+      if (AmmoId != 0) hash ^= AmmoId.GetHashCode();
+      if (SelfResSpell != 0) hash ^= SelfResSpell.GetHashCode();
+      if (PvpMedals != 0) hash ^= PvpMedals.GetHashCode();
+      if (SessionKills != 0) hash ^= SessionKills.GetHashCode();
+      if (WatchedFactionIndex != 0) hash ^= WatchedFactionIndex.GetHashCode();
+      hash ^= CombatRating.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -2124,74 +2810,129 @@ namespace Game {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (head_ != null) {
+      if (unit_ != null) {
         output.WriteRawTag(10);
-        output.WriteMessage(Head);
+        output.WriteMessage(Unit);
       }
-      if (neck_ != null) {
-        output.WriteRawTag(18);
-        output.WriteMessage(Neck);
+      if (PlayerBytes0 != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(PlayerBytes0);
       }
-      if (shoulder_ != null) {
-        output.WriteRawTag(26);
-        output.WriteMessage(Shoulder);
+      if (PlayerBytes1 != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(PlayerBytes1);
       }
-      if (back_ != null) {
-        output.WriteRawTag(34);
-        output.WriteMessage(Back);
+      if (PlayerBytes2 != 0) {
+        output.WriteRawTag(32);
+        output.WriteUInt32(PlayerBytes2);
       }
-      if (chest_ != null) {
-        output.WriteRawTag(42);
-        output.WriteMessage(Chest);
+      if (PlayerFlags != 0) {
+        output.WriteRawTag(40);
+        output.WriteUInt32(PlayerFlags);
       }
-      if (wrist_ != null) {
-        output.WriteRawTag(50);
-        output.WriteMessage(Wrist);
+      questLogEntries_.WriteTo(output, _repeated_questLogEntries_codec);
+      inventory_.WriteTo(output, _map_inventory_codec);
+      bagContents_.WriteTo(output, _map_bagContents_codec);
+      keyRing_.WriteTo(output, _map_keyRing_codec);
+      if (FarsightGuid != 0UL) {
+        output.WriteRawTag(80);
+        output.WriteUInt64(FarsightGuid);
       }
-      if (hands_ != null) {
-        output.WriteRawTag(58);
-        output.WriteMessage(Hands);
+      if (ComboTargetGuid != 0UL) {
+        output.WriteRawTag(88);
+        output.WriteUInt64(ComboTargetGuid);
       }
-      if (waist_ != null) {
-        output.WriteRawTag(66);
-        output.WriteMessage(Waist);
+      if (PlayerXP != 0) {
+        output.WriteRawTag(96);
+        output.WriteUInt32(PlayerXP);
       }
-      if (legs_ != null) {
-        output.WriteRawTag(74);
-        output.WriteMessage(Legs);
+      skillInfo_.WriteTo(output, _map_skillInfo_codec);
+      spellList_.WriteTo(output, _repeated_spellList_codec);
+      spellCooldowns_.WriteTo(output, _map_spellCooldowns_codec);
+      spellStacks_.WriteTo(output, _map_spellStacks_codec);
+      buffList_.WriteTo(output, _map_buffList_codec);
+      if (CharacterPoints1 != 0) {
+        output.WriteRawTag(144, 1);
+        output.WriteUInt32(CharacterPoints1);
       }
-      if (feet_ != null) {
-        output.WriteRawTag(82);
-        output.WriteMessage(Feet);
+      if (CharacterPoints2 != 0) {
+        output.WriteRawTag(152, 1);
+        output.WriteUInt32(CharacterPoints2);
       }
-      if (finger1_ != null) {
-        output.WriteRawTag(90);
-        output.WriteMessage(Finger1);
+      if (TrackCreatures != 0) {
+        output.WriteRawTag(160, 1);
+        output.WriteUInt32(TrackCreatures);
       }
-      if (finger2_ != null) {
-        output.WriteRawTag(98);
-        output.WriteMessage(Finger2);
+      if (TrackResources != 0) {
+        output.WriteRawTag(168, 1);
+        output.WriteUInt32(TrackResources);
       }
-      if (trinket1_ != null) {
-        output.WriteRawTag(106);
-        output.WriteMessage(Trinket1);
+      if (BlockPercent != 0F) {
+        output.WriteRawTag(181, 1);
+        output.WriteFloat(BlockPercent);
       }
-      if (trinket2_ != null) {
-        output.WriteRawTag(114);
-        output.WriteMessage(Trinket2);
+      if (DodgePercent != 0F) {
+        output.WriteRawTag(189, 1);
+        output.WriteFloat(DodgePercent);
       }
-      if (mainHand_ != null) {
-        output.WriteRawTag(122);
-        output.WriteMessage(MainHand);
+      if (ParryPercent != 0F) {
+        output.WriteRawTag(197, 1);
+        output.WriteFloat(ParryPercent);
       }
-      if (offHand_ != null) {
-        output.WriteRawTag(130, 1);
-        output.WriteMessage(OffHand);
+      if (CritPercent != 0F) {
+        output.WriteRawTag(205, 1);
+        output.WriteFloat(CritPercent);
       }
-      if (ranged_ != null) {
-        output.WriteRawTag(138, 1);
-        output.WriteMessage(Ranged);
+      if (RangedCritPercent != 0F) {
+        output.WriteRawTag(213, 1);
+        output.WriteFloat(RangedCritPercent);
       }
+      exploredZones_.WriteTo(output, _map_exploredZones_codec);
+      if (RestStateExperience != 0) {
+        output.WriteRawTag(224, 1);
+        output.WriteUInt32(RestStateExperience);
+      }
+      if (Coinage != 0) {
+        output.WriteRawTag(232, 1);
+        output.WriteUInt32(Coinage);
+      }
+      if (PosModDamageDone != 0) {
+        output.WriteRawTag(240, 1);
+        output.WriteUInt32(PosModDamageDone);
+      }
+      if (NegModDamageDone != 0) {
+        output.WriteRawTag(248, 1);
+        output.WriteUInt32(NegModDamageDone);
+      }
+      if (PctModDamageDone != 0) {
+        output.WriteRawTag(128, 2);
+        output.WriteUInt32(PctModDamageDone);
+      }
+      posStats_.WriteTo(output, _map_posStats_codec);
+      negStats_.WriteTo(output, _map_negStats_codec);
+      posResistBuff_.WriteTo(output, _map_posResistBuff_codec);
+      negResistBuff_.WriteTo(output, _map_negResistBuff_codec);
+      if (AmmoId != 0) {
+        output.WriteRawTag(168, 2);
+        output.WriteUInt32(AmmoId);
+      }
+      if (SelfResSpell != 0) {
+        output.WriteRawTag(176, 2);
+        output.WriteUInt32(SelfResSpell);
+      }
+      if (PvpMedals != 0) {
+        output.WriteRawTag(184, 2);
+        output.WriteUInt32(PvpMedals);
+      }
+      if (SessionKills != 0) {
+        output.WriteRawTag(192, 2);
+        output.WriteUInt32(SessionKills);
+      }
+      if (WatchedFactionIndex != 0) {
+        output.WriteRawTag(200, 2);
+        output.WriteUInt32(WatchedFactionIndex);
+      }
+      combatRating_.WriteTo(output, _map_combatRating_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -2202,74 +2943,129 @@ namespace Game {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (head_ != null) {
+      if (unit_ != null) {
         output.WriteRawTag(10);
-        output.WriteMessage(Head);
+        output.WriteMessage(Unit);
       }
-      if (neck_ != null) {
-        output.WriteRawTag(18);
-        output.WriteMessage(Neck);
+      if (PlayerBytes0 != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(PlayerBytes0);
       }
-      if (shoulder_ != null) {
-        output.WriteRawTag(26);
-        output.WriteMessage(Shoulder);
+      if (PlayerBytes1 != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(PlayerBytes1);
       }
-      if (back_ != null) {
-        output.WriteRawTag(34);
-        output.WriteMessage(Back);
+      if (PlayerBytes2 != 0) {
+        output.WriteRawTag(32);
+        output.WriteUInt32(PlayerBytes2);
       }
-      if (chest_ != null) {
-        output.WriteRawTag(42);
-        output.WriteMessage(Chest);
+      if (PlayerFlags != 0) {
+        output.WriteRawTag(40);
+        output.WriteUInt32(PlayerFlags);
       }
-      if (wrist_ != null) {
-        output.WriteRawTag(50);
-        output.WriteMessage(Wrist);
+      questLogEntries_.WriteTo(ref output, _repeated_questLogEntries_codec);
+      inventory_.WriteTo(ref output, _map_inventory_codec);
+      bagContents_.WriteTo(ref output, _map_bagContents_codec);
+      keyRing_.WriteTo(ref output, _map_keyRing_codec);
+      if (FarsightGuid != 0UL) {
+        output.WriteRawTag(80);
+        output.WriteUInt64(FarsightGuid);
       }
-      if (hands_ != null) {
-        output.WriteRawTag(58);
-        output.WriteMessage(Hands);
+      if (ComboTargetGuid != 0UL) {
+        output.WriteRawTag(88);
+        output.WriteUInt64(ComboTargetGuid);
       }
-      if (waist_ != null) {
-        output.WriteRawTag(66);
-        output.WriteMessage(Waist);
+      if (PlayerXP != 0) {
+        output.WriteRawTag(96);
+        output.WriteUInt32(PlayerXP);
       }
-      if (legs_ != null) {
-        output.WriteRawTag(74);
-        output.WriteMessage(Legs);
+      skillInfo_.WriteTo(ref output, _map_skillInfo_codec);
+      spellList_.WriteTo(ref output, _repeated_spellList_codec);
+      spellCooldowns_.WriteTo(ref output, _map_spellCooldowns_codec);
+      spellStacks_.WriteTo(ref output, _map_spellStacks_codec);
+      buffList_.WriteTo(ref output, _map_buffList_codec);
+      if (CharacterPoints1 != 0) {
+        output.WriteRawTag(144, 1);
+        output.WriteUInt32(CharacterPoints1);
       }
-      if (feet_ != null) {
-        output.WriteRawTag(82);
-        output.WriteMessage(Feet);
+      if (CharacterPoints2 != 0) {
+        output.WriteRawTag(152, 1);
+        output.WriteUInt32(CharacterPoints2);
       }
-      if (finger1_ != null) {
-        output.WriteRawTag(90);
-        output.WriteMessage(Finger1);
+      if (TrackCreatures != 0) {
+        output.WriteRawTag(160, 1);
+        output.WriteUInt32(TrackCreatures);
       }
-      if (finger2_ != null) {
-        output.WriteRawTag(98);
-        output.WriteMessage(Finger2);
+      if (TrackResources != 0) {
+        output.WriteRawTag(168, 1);
+        output.WriteUInt32(TrackResources);
       }
-      if (trinket1_ != null) {
-        output.WriteRawTag(106);
-        output.WriteMessage(Trinket1);
+      if (BlockPercent != 0F) {
+        output.WriteRawTag(181, 1);
+        output.WriteFloat(BlockPercent);
       }
-      if (trinket2_ != null) {
-        output.WriteRawTag(114);
-        output.WriteMessage(Trinket2);
+      if (DodgePercent != 0F) {
+        output.WriteRawTag(189, 1);
+        output.WriteFloat(DodgePercent);
       }
-      if (mainHand_ != null) {
-        output.WriteRawTag(122);
-        output.WriteMessage(MainHand);
+      if (ParryPercent != 0F) {
+        output.WriteRawTag(197, 1);
+        output.WriteFloat(ParryPercent);
       }
-      if (offHand_ != null) {
-        output.WriteRawTag(130, 1);
-        output.WriteMessage(OffHand);
+      if (CritPercent != 0F) {
+        output.WriteRawTag(205, 1);
+        output.WriteFloat(CritPercent);
       }
-      if (ranged_ != null) {
-        output.WriteRawTag(138, 1);
-        output.WriteMessage(Ranged);
+      if (RangedCritPercent != 0F) {
+        output.WriteRawTag(213, 1);
+        output.WriteFloat(RangedCritPercent);
       }
+      exploredZones_.WriteTo(ref output, _map_exploredZones_codec);
+      if (RestStateExperience != 0) {
+        output.WriteRawTag(224, 1);
+        output.WriteUInt32(RestStateExperience);
+      }
+      if (Coinage != 0) {
+        output.WriteRawTag(232, 1);
+        output.WriteUInt32(Coinage);
+      }
+      if (PosModDamageDone != 0) {
+        output.WriteRawTag(240, 1);
+        output.WriteUInt32(PosModDamageDone);
+      }
+      if (NegModDamageDone != 0) {
+        output.WriteRawTag(248, 1);
+        output.WriteUInt32(NegModDamageDone);
+      }
+      if (PctModDamageDone != 0) {
+        output.WriteRawTag(128, 2);
+        output.WriteUInt32(PctModDamageDone);
+      }
+      posStats_.WriteTo(ref output, _map_posStats_codec);
+      negStats_.WriteTo(ref output, _map_negStats_codec);
+      posResistBuff_.WriteTo(ref output, _map_posResistBuff_codec);
+      negResistBuff_.WriteTo(ref output, _map_negResistBuff_codec);
+      if (AmmoId != 0) {
+        output.WriteRawTag(168, 2);
+        output.WriteUInt32(AmmoId);
+      }
+      if (SelfResSpell != 0) {
+        output.WriteRawTag(176, 2);
+        output.WriteUInt32(SelfResSpell);
+      }
+      if (PvpMedals != 0) {
+        output.WriteRawTag(184, 2);
+        output.WriteUInt32(PvpMedals);
+      }
+      if (SessionKills != 0) {
+        output.WriteRawTag(192, 2);
+        output.WriteUInt32(SessionKills);
+      }
+      if (WatchedFactionIndex != 0) {
+        output.WriteRawTag(200, 2);
+        output.WriteUInt32(WatchedFactionIndex);
+      }
+      combatRating_.WriteTo(ref output, _map_combatRating_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -2280,57 +3076,102 @@ namespace Game {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (head_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Head);
+      if (unit_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Unit);
       }
-      if (neck_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Neck);
+      if (PlayerBytes0 != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(PlayerBytes0);
       }
-      if (shoulder_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Shoulder);
+      if (PlayerBytes1 != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(PlayerBytes1);
       }
-      if (back_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Back);
+      if (PlayerBytes2 != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(PlayerBytes2);
       }
-      if (chest_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Chest);
+      if (PlayerFlags != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(PlayerFlags);
       }
-      if (wrist_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Wrist);
+      size += questLogEntries_.CalculateSize(_repeated_questLogEntries_codec);
+      size += inventory_.CalculateSize(_map_inventory_codec);
+      size += bagContents_.CalculateSize(_map_bagContents_codec);
+      size += keyRing_.CalculateSize(_map_keyRing_codec);
+      if (FarsightGuid != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(FarsightGuid);
       }
-      if (hands_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Hands);
+      if (ComboTargetGuid != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(ComboTargetGuid);
       }
-      if (waist_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Waist);
+      if (PlayerXP != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(PlayerXP);
       }
-      if (legs_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Legs);
+      size += skillInfo_.CalculateSize(_map_skillInfo_codec);
+      size += spellList_.CalculateSize(_repeated_spellList_codec);
+      size += spellCooldowns_.CalculateSize(_map_spellCooldowns_codec);
+      size += spellStacks_.CalculateSize(_map_spellStacks_codec);
+      size += buffList_.CalculateSize(_map_buffList_codec);
+      if (CharacterPoints1 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(CharacterPoints1);
       }
-      if (feet_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Feet);
+      if (CharacterPoints2 != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(CharacterPoints2);
       }
-      if (finger1_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Finger1);
+      if (TrackCreatures != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(TrackCreatures);
       }
-      if (finger2_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Finger2);
+      if (TrackResources != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(TrackResources);
       }
-      if (trinket1_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Trinket1);
+      if (BlockPercent != 0F) {
+        size += 2 + 4;
       }
-      if (trinket2_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Trinket2);
+      if (DodgePercent != 0F) {
+        size += 2 + 4;
       }
-      if (mainHand_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(MainHand);
+      if (ParryPercent != 0F) {
+        size += 2 + 4;
       }
-      if (offHand_ != null) {
-        size += 2 + pb::CodedOutputStream.ComputeMessageSize(OffHand);
+      if (CritPercent != 0F) {
+        size += 2 + 4;
       }
-      if (ranged_ != null) {
-        size += 2 + pb::CodedOutputStream.ComputeMessageSize(Ranged);
+      if (RangedCritPercent != 0F) {
+        size += 2 + 4;
       }
+      size += exploredZones_.CalculateSize(_map_exploredZones_codec);
+      if (RestStateExperience != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(RestStateExperience);
+      }
+      if (Coinage != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(Coinage);
+      }
+      if (PosModDamageDone != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(PosModDamageDone);
+      }
+      if (NegModDamageDone != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(NegModDamageDone);
+      }
+      if (PctModDamageDone != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(PctModDamageDone);
+      }
+      size += posStats_.CalculateSize(_map_posStats_codec);
+      size += negStats_.CalculateSize(_map_negStats_codec);
+      size += posResistBuff_.CalculateSize(_map_posResistBuff_codec);
+      size += negResistBuff_.CalculateSize(_map_negResistBuff_codec);
+      if (AmmoId != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(AmmoId);
+      }
+      if (SelfResSpell != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(SelfResSpell);
+      }
+      if (PvpMedals != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(PvpMedals);
+      }
+      if (SessionKills != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(SessionKills);
+      }
+      if (WatchedFactionIndex != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(WatchedFactionIndex);
+      }
+      size += combatRating_.CalculateSize(_map_combatRating_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -2339,112 +3180,109 @@ namespace Game {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(Equipment other) {
+    public void MergeFrom(WoWPlayer other) {
       if (other == null) {
         return;
       }
-      if (other.head_ != null) {
-        if (head_ == null) {
-          Head = new global::Game.Item();
+      if (other.unit_ != null) {
+        if (unit_ == null) {
+          Unit = new global::Game.WoWUnit();
         }
-        Head.MergeFrom(other.Head);
+        Unit.MergeFrom(other.Unit);
       }
-      if (other.neck_ != null) {
-        if (neck_ == null) {
-          Neck = new global::Game.Item();
-        }
-        Neck.MergeFrom(other.Neck);
+      if (other.PlayerBytes0 != 0) {
+        PlayerBytes0 = other.PlayerBytes0;
       }
-      if (other.shoulder_ != null) {
-        if (shoulder_ == null) {
-          Shoulder = new global::Game.Item();
-        }
-        Shoulder.MergeFrom(other.Shoulder);
+      if (other.PlayerBytes1 != 0) {
+        PlayerBytes1 = other.PlayerBytes1;
       }
-      if (other.back_ != null) {
-        if (back_ == null) {
-          Back = new global::Game.Item();
-        }
-        Back.MergeFrom(other.Back);
+      if (other.PlayerBytes2 != 0) {
+        PlayerBytes2 = other.PlayerBytes2;
       }
-      if (other.chest_ != null) {
-        if (chest_ == null) {
-          Chest = new global::Game.Item();
-        }
-        Chest.MergeFrom(other.Chest);
+      if (other.PlayerFlags != 0) {
+        PlayerFlags = other.PlayerFlags;
       }
-      if (other.wrist_ != null) {
-        if (wrist_ == null) {
-          Wrist = new global::Game.Item();
-        }
-        Wrist.MergeFrom(other.Wrist);
+      questLogEntries_.Add(other.questLogEntries_);
+      inventory_.MergeFrom(other.inventory_);
+      bagContents_.MergeFrom(other.bagContents_);
+      keyRing_.MergeFrom(other.keyRing_);
+      if (other.FarsightGuid != 0UL) {
+        FarsightGuid = other.FarsightGuid;
       }
-      if (other.hands_ != null) {
-        if (hands_ == null) {
-          Hands = new global::Game.Item();
-        }
-        Hands.MergeFrom(other.Hands);
+      if (other.ComboTargetGuid != 0UL) {
+        ComboTargetGuid = other.ComboTargetGuid;
       }
-      if (other.waist_ != null) {
-        if (waist_ == null) {
-          Waist = new global::Game.Item();
-        }
-        Waist.MergeFrom(other.Waist);
+      if (other.PlayerXP != 0) {
+        PlayerXP = other.PlayerXP;
       }
-      if (other.legs_ != null) {
-        if (legs_ == null) {
-          Legs = new global::Game.Item();
-        }
-        Legs.MergeFrom(other.Legs);
+      skillInfo_.MergeFrom(other.skillInfo_);
+      spellList_.Add(other.spellList_);
+      spellCooldowns_.MergeFrom(other.spellCooldowns_);
+      spellStacks_.MergeFrom(other.spellStacks_);
+      buffList_.MergeFrom(other.buffList_);
+      if (other.CharacterPoints1 != 0) {
+        CharacterPoints1 = other.CharacterPoints1;
       }
-      if (other.feet_ != null) {
-        if (feet_ == null) {
-          Feet = new global::Game.Item();
-        }
-        Feet.MergeFrom(other.Feet);
+      if (other.CharacterPoints2 != 0) {
+        CharacterPoints2 = other.CharacterPoints2;
       }
-      if (other.finger1_ != null) {
-        if (finger1_ == null) {
-          Finger1 = new global::Game.Item();
-        }
-        Finger1.MergeFrom(other.Finger1);
+      if (other.TrackCreatures != 0) {
+        TrackCreatures = other.TrackCreatures;
       }
-      if (other.finger2_ != null) {
-        if (finger2_ == null) {
-          Finger2 = new global::Game.Item();
-        }
-        Finger2.MergeFrom(other.Finger2);
+      if (other.TrackResources != 0) {
+        TrackResources = other.TrackResources;
       }
-      if (other.trinket1_ != null) {
-        if (trinket1_ == null) {
-          Trinket1 = new global::Game.Item();
-        }
-        Trinket1.MergeFrom(other.Trinket1);
+      if (other.BlockPercent != 0F) {
+        BlockPercent = other.BlockPercent;
       }
-      if (other.trinket2_ != null) {
-        if (trinket2_ == null) {
-          Trinket2 = new global::Game.Item();
-        }
-        Trinket2.MergeFrom(other.Trinket2);
+      if (other.DodgePercent != 0F) {
+        DodgePercent = other.DodgePercent;
       }
-      if (other.mainHand_ != null) {
-        if (mainHand_ == null) {
-          MainHand = new global::Game.Item();
-        }
-        MainHand.MergeFrom(other.MainHand);
+      if (other.ParryPercent != 0F) {
+        ParryPercent = other.ParryPercent;
       }
-      if (other.offHand_ != null) {
-        if (offHand_ == null) {
-          OffHand = new global::Game.Item();
-        }
-        OffHand.MergeFrom(other.OffHand);
+      if (other.CritPercent != 0F) {
+        CritPercent = other.CritPercent;
       }
-      if (other.ranged_ != null) {
-        if (ranged_ == null) {
-          Ranged = new global::Game.Item();
-        }
-        Ranged.MergeFrom(other.Ranged);
+      if (other.RangedCritPercent != 0F) {
+        RangedCritPercent = other.RangedCritPercent;
       }
+      exploredZones_.MergeFrom(other.exploredZones_);
+      if (other.RestStateExperience != 0) {
+        RestStateExperience = other.RestStateExperience;
+      }
+      if (other.Coinage != 0) {
+        Coinage = other.Coinage;
+      }
+      if (other.PosModDamageDone != 0) {
+        PosModDamageDone = other.PosModDamageDone;
+      }
+      if (other.NegModDamageDone != 0) {
+        NegModDamageDone = other.NegModDamageDone;
+      }
+      if (other.PctModDamageDone != 0) {
+        PctModDamageDone = other.PctModDamageDone;
+      }
+      posStats_.MergeFrom(other.posStats_);
+      negStats_.MergeFrom(other.negStats_);
+      posResistBuff_.MergeFrom(other.posResistBuff_);
+      negResistBuff_.MergeFrom(other.negResistBuff_);
+      if (other.AmmoId != 0) {
+        AmmoId = other.AmmoId;
+      }
+      if (other.SelfResSpell != 0) {
+        SelfResSpell = other.SelfResSpell;
+      }
+      if (other.PvpMedals != 0) {
+        PvpMedals = other.PvpMedals;
+      }
+      if (other.SessionKills != 0) {
+        SessionKills = other.SessionKills;
+      }
+      if (other.WatchedFactionIndex != 0) {
+        WatchedFactionIndex = other.WatchedFactionIndex;
+      }
+      combatRating_.MergeFrom(other.combatRating_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -2461,122 +3299,175 @@ namespace Game {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            if (head_ == null) {
-              Head = new global::Game.Item();
+            if (unit_ == null) {
+              Unit = new global::Game.WoWUnit();
             }
-            input.ReadMessage(Head);
+            input.ReadMessage(Unit);
             break;
           }
-          case 18: {
-            if (neck_ == null) {
-              Neck = new global::Game.Item();
-            }
-            input.ReadMessage(Neck);
+          case 16: {
+            PlayerBytes0 = input.ReadUInt32();
             break;
           }
-          case 26: {
-            if (shoulder_ == null) {
-              Shoulder = new global::Game.Item();
-            }
-            input.ReadMessage(Shoulder);
+          case 24: {
+            PlayerBytes1 = input.ReadUInt32();
             break;
           }
-          case 34: {
-            if (back_ == null) {
-              Back = new global::Game.Item();
-            }
-            input.ReadMessage(Back);
+          case 32: {
+            PlayerBytes2 = input.ReadUInt32();
             break;
           }
-          case 42: {
-            if (chest_ == null) {
-              Chest = new global::Game.Item();
-            }
-            input.ReadMessage(Chest);
+          case 40: {
+            PlayerFlags = input.ReadUInt32();
             break;
           }
           case 50: {
-            if (wrist_ == null) {
-              Wrist = new global::Game.Item();
-            }
-            input.ReadMessage(Wrist);
+            questLogEntries_.AddEntriesFrom(input, _repeated_questLogEntries_codec);
             break;
           }
           case 58: {
-            if (hands_ == null) {
-              Hands = new global::Game.Item();
-            }
-            input.ReadMessage(Hands);
+            inventory_.AddEntriesFrom(input, _map_inventory_codec);
             break;
           }
           case 66: {
-            if (waist_ == null) {
-              Waist = new global::Game.Item();
-            }
-            input.ReadMessage(Waist);
+            bagContents_.AddEntriesFrom(input, _map_bagContents_codec);
             break;
           }
           case 74: {
-            if (legs_ == null) {
-              Legs = new global::Game.Item();
-            }
-            input.ReadMessage(Legs);
+            keyRing_.AddEntriesFrom(input, _map_keyRing_codec);
             break;
           }
-          case 82: {
-            if (feet_ == null) {
-              Feet = new global::Game.Item();
-            }
-            input.ReadMessage(Feet);
+          case 80: {
+            FarsightGuid = input.ReadUInt64();
             break;
           }
-          case 90: {
-            if (finger1_ == null) {
-              Finger1 = new global::Game.Item();
-            }
-            input.ReadMessage(Finger1);
+          case 88: {
+            ComboTargetGuid = input.ReadUInt64();
             break;
           }
-          case 98: {
-            if (finger2_ == null) {
-              Finger2 = new global::Game.Item();
-            }
-            input.ReadMessage(Finger2);
+          case 96: {
+            PlayerXP = input.ReadUInt32();
             break;
           }
           case 106: {
-            if (trinket1_ == null) {
-              Trinket1 = new global::Game.Item();
-            }
-            input.ReadMessage(Trinket1);
+            skillInfo_.AddEntriesFrom(input, _map_skillInfo_codec);
             break;
           }
-          case 114: {
-            if (trinket2_ == null) {
-              Trinket2 = new global::Game.Item();
-            }
-            input.ReadMessage(Trinket2);
+          case 114:
+          case 112: {
+            spellList_.AddEntriesFrom(input, _repeated_spellList_codec);
             break;
           }
           case 122: {
-            if (mainHand_ == null) {
-              MainHand = new global::Game.Item();
-            }
-            input.ReadMessage(MainHand);
+            spellCooldowns_.AddEntriesFrom(input, _map_spellCooldowns_codec);
             break;
           }
           case 130: {
-            if (offHand_ == null) {
-              OffHand = new global::Game.Item();
-            }
-            input.ReadMessage(OffHand);
+            spellStacks_.AddEntriesFrom(input, _map_spellStacks_codec);
             break;
           }
           case 138: {
-            if (ranged_ == null) {
-              Ranged = new global::Game.Item();
-            }
-            input.ReadMessage(Ranged);
+            buffList_.AddEntriesFrom(input, _map_buffList_codec);
+            break;
+          }
+          case 144: {
+            CharacterPoints1 = input.ReadUInt32();
+            break;
+          }
+          case 152: {
+            CharacterPoints2 = input.ReadUInt32();
+            break;
+          }
+          case 160: {
+            TrackCreatures = input.ReadUInt32();
+            break;
+          }
+          case 168: {
+            TrackResources = input.ReadUInt32();
+            break;
+          }
+          case 181: {
+            BlockPercent = input.ReadFloat();
+            break;
+          }
+          case 189: {
+            DodgePercent = input.ReadFloat();
+            break;
+          }
+          case 197: {
+            ParryPercent = input.ReadFloat();
+            break;
+          }
+          case 205: {
+            CritPercent = input.ReadFloat();
+            break;
+          }
+          case 213: {
+            RangedCritPercent = input.ReadFloat();
+            break;
+          }
+          case 218: {
+            exploredZones_.AddEntriesFrom(input, _map_exploredZones_codec);
+            break;
+          }
+          case 224: {
+            RestStateExperience = input.ReadUInt32();
+            break;
+          }
+          case 232: {
+            Coinage = input.ReadUInt32();
+            break;
+          }
+          case 240: {
+            PosModDamageDone = input.ReadUInt32();
+            break;
+          }
+          case 248: {
+            NegModDamageDone = input.ReadUInt32();
+            break;
+          }
+          case 256: {
+            PctModDamageDone = input.ReadUInt32();
+            break;
+          }
+          case 266: {
+            posStats_.AddEntriesFrom(input, _map_posStats_codec);
+            break;
+          }
+          case 274: {
+            negStats_.AddEntriesFrom(input, _map_negStats_codec);
+            break;
+          }
+          case 282: {
+            posResistBuff_.AddEntriesFrom(input, _map_posResistBuff_codec);
+            break;
+          }
+          case 290: {
+            negResistBuff_.AddEntriesFrom(input, _map_negResistBuff_codec);
+            break;
+          }
+          case 296: {
+            AmmoId = input.ReadUInt32();
+            break;
+          }
+          case 304: {
+            SelfResSpell = input.ReadUInt32();
+            break;
+          }
+          case 312: {
+            PvpMedals = input.ReadUInt32();
+            break;
+          }
+          case 320: {
+            SessionKills = input.ReadUInt32();
+            break;
+          }
+          case 328: {
+            WatchedFactionIndex = input.ReadUInt32();
+            break;
+          }
+          case 338: {
+            combatRating_.AddEntriesFrom(input, _map_combatRating_codec);
             break;
           }
         }
@@ -2595,122 +3486,175 @@ namespace Game {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 10: {
-            if (head_ == null) {
-              Head = new global::Game.Item();
+            if (unit_ == null) {
+              Unit = new global::Game.WoWUnit();
             }
-            input.ReadMessage(Head);
+            input.ReadMessage(Unit);
             break;
           }
-          case 18: {
-            if (neck_ == null) {
-              Neck = new global::Game.Item();
-            }
-            input.ReadMessage(Neck);
+          case 16: {
+            PlayerBytes0 = input.ReadUInt32();
             break;
           }
-          case 26: {
-            if (shoulder_ == null) {
-              Shoulder = new global::Game.Item();
-            }
-            input.ReadMessage(Shoulder);
+          case 24: {
+            PlayerBytes1 = input.ReadUInt32();
             break;
           }
-          case 34: {
-            if (back_ == null) {
-              Back = new global::Game.Item();
-            }
-            input.ReadMessage(Back);
+          case 32: {
+            PlayerBytes2 = input.ReadUInt32();
             break;
           }
-          case 42: {
-            if (chest_ == null) {
-              Chest = new global::Game.Item();
-            }
-            input.ReadMessage(Chest);
+          case 40: {
+            PlayerFlags = input.ReadUInt32();
             break;
           }
           case 50: {
-            if (wrist_ == null) {
-              Wrist = new global::Game.Item();
-            }
-            input.ReadMessage(Wrist);
+            questLogEntries_.AddEntriesFrom(ref input, _repeated_questLogEntries_codec);
             break;
           }
           case 58: {
-            if (hands_ == null) {
-              Hands = new global::Game.Item();
-            }
-            input.ReadMessage(Hands);
+            inventory_.AddEntriesFrom(ref input, _map_inventory_codec);
             break;
           }
           case 66: {
-            if (waist_ == null) {
-              Waist = new global::Game.Item();
-            }
-            input.ReadMessage(Waist);
+            bagContents_.AddEntriesFrom(ref input, _map_bagContents_codec);
             break;
           }
           case 74: {
-            if (legs_ == null) {
-              Legs = new global::Game.Item();
-            }
-            input.ReadMessage(Legs);
+            keyRing_.AddEntriesFrom(ref input, _map_keyRing_codec);
             break;
           }
-          case 82: {
-            if (feet_ == null) {
-              Feet = new global::Game.Item();
-            }
-            input.ReadMessage(Feet);
+          case 80: {
+            FarsightGuid = input.ReadUInt64();
             break;
           }
-          case 90: {
-            if (finger1_ == null) {
-              Finger1 = new global::Game.Item();
-            }
-            input.ReadMessage(Finger1);
+          case 88: {
+            ComboTargetGuid = input.ReadUInt64();
             break;
           }
-          case 98: {
-            if (finger2_ == null) {
-              Finger2 = new global::Game.Item();
-            }
-            input.ReadMessage(Finger2);
+          case 96: {
+            PlayerXP = input.ReadUInt32();
             break;
           }
           case 106: {
-            if (trinket1_ == null) {
-              Trinket1 = new global::Game.Item();
-            }
-            input.ReadMessage(Trinket1);
+            skillInfo_.AddEntriesFrom(ref input, _map_skillInfo_codec);
             break;
           }
-          case 114: {
-            if (trinket2_ == null) {
-              Trinket2 = new global::Game.Item();
-            }
-            input.ReadMessage(Trinket2);
+          case 114:
+          case 112: {
+            spellList_.AddEntriesFrom(ref input, _repeated_spellList_codec);
             break;
           }
           case 122: {
-            if (mainHand_ == null) {
-              MainHand = new global::Game.Item();
-            }
-            input.ReadMessage(MainHand);
+            spellCooldowns_.AddEntriesFrom(ref input, _map_spellCooldowns_codec);
             break;
           }
           case 130: {
-            if (offHand_ == null) {
-              OffHand = new global::Game.Item();
-            }
-            input.ReadMessage(OffHand);
+            spellStacks_.AddEntriesFrom(ref input, _map_spellStacks_codec);
             break;
           }
           case 138: {
-            if (ranged_ == null) {
-              Ranged = new global::Game.Item();
-            }
-            input.ReadMessage(Ranged);
+            buffList_.AddEntriesFrom(ref input, _map_buffList_codec);
+            break;
+          }
+          case 144: {
+            CharacterPoints1 = input.ReadUInt32();
+            break;
+          }
+          case 152: {
+            CharacterPoints2 = input.ReadUInt32();
+            break;
+          }
+          case 160: {
+            TrackCreatures = input.ReadUInt32();
+            break;
+          }
+          case 168: {
+            TrackResources = input.ReadUInt32();
+            break;
+          }
+          case 181: {
+            BlockPercent = input.ReadFloat();
+            break;
+          }
+          case 189: {
+            DodgePercent = input.ReadFloat();
+            break;
+          }
+          case 197: {
+            ParryPercent = input.ReadFloat();
+            break;
+          }
+          case 205: {
+            CritPercent = input.ReadFloat();
+            break;
+          }
+          case 213: {
+            RangedCritPercent = input.ReadFloat();
+            break;
+          }
+          case 218: {
+            exploredZones_.AddEntriesFrom(ref input, _map_exploredZones_codec);
+            break;
+          }
+          case 224: {
+            RestStateExperience = input.ReadUInt32();
+            break;
+          }
+          case 232: {
+            Coinage = input.ReadUInt32();
+            break;
+          }
+          case 240: {
+            PosModDamageDone = input.ReadUInt32();
+            break;
+          }
+          case 248: {
+            NegModDamageDone = input.ReadUInt32();
+            break;
+          }
+          case 256: {
+            PctModDamageDone = input.ReadUInt32();
+            break;
+          }
+          case 266: {
+            posStats_.AddEntriesFrom(ref input, _map_posStats_codec);
+            break;
+          }
+          case 274: {
+            negStats_.AddEntriesFrom(ref input, _map_negStats_codec);
+            break;
+          }
+          case 282: {
+            posResistBuff_.AddEntriesFrom(ref input, _map_posResistBuff_codec);
+            break;
+          }
+          case 290: {
+            negResistBuff_.AddEntriesFrom(ref input, _map_negResistBuff_codec);
+            break;
+          }
+          case 296: {
+            AmmoId = input.ReadUInt32();
+            break;
+          }
+          case 304: {
+            SelfResSpell = input.ReadUInt32();
+            break;
+          }
+          case 312: {
+            PvpMedals = input.ReadUInt32();
+            break;
+          }
+          case 320: {
+            SessionKills = input.ReadUInt32();
+            break;
+          }
+          case 328: {
+            WatchedFactionIndex = input.ReadUInt32();
+            break;
+          }
+          case 338: {
+            combatRating_.AddEntriesFrom(ref input, _map_combatRating_codec);
             break;
           }
         }
@@ -2721,19 +3665,19 @@ namespace Game {
   }
 
   /// <summary>
-  /// Definition for Skill
+  /// Reusable message for WoWItem, extending WoWGameObject
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class Skill : pb::IMessage<Skill>
+  public sealed partial class WoWItem : pb::IMessage<WoWItem>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
   {
-    private static readonly pb::MessageParser<Skill> _parser = new pb::MessageParser<Skill>(() => new Skill());
+    private static readonly pb::MessageParser<WoWItem> _parser = new pb::MessageParser<WoWItem>(() => new WoWItem());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<Skill> Parser { get { return _parser; } }
+    public static pb::MessageParser<WoWItem> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2749,7 +3693,7 @@ namespace Game {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Skill() {
+    public WoWItem() {
       OnConstruction();
     }
 
@@ -2757,59 +3701,211 @@ namespace Game {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Skill(Skill other) : this() {
-      name_ = other.name_;
-      level_ = other.level_;
+    public WoWItem(WoWItem other) : this() {
+      gameObject_ = other.gameObject_ != null ? other.gameObject_.Clone() : null;
+      owner_ = other.owner_;
+      contained_ = other.contained_;
+      creator_ = other.creator_;
+      giftCreator_ = other.giftCreator_;
+      stackCount_ = other.stackCount_;
+      duration_ = other.duration_;
+      spellCharges_ = other.spellCharges_.Clone();
+      itemFlags_ = other.itemFlags_;
+      enchantments_ = other.enchantments_.Clone();
+      durability_ = other.durability_;
+      propertySeed_ = other.propertySeed_;
+      randomPropertiesId_ = other.randomPropertiesId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Skill Clone() {
-      return new Skill(this);
+    public WoWItem Clone() {
+      return new WoWItem(this);
     }
 
-    /// <summary>Field number for the "name" field.</summary>
-    public const int NameFieldNumber = 1;
-    private string name_ = "";
+    /// <summary>Field number for the "gameObject" field.</summary>
+    public const int GameObjectFieldNumber = 1;
+    private global::Game.WoWGameObject gameObject_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Name {
-      get { return name_; }
+    public global::Game.WoWGameObject GameObject {
+      get { return gameObject_; }
       set {
-        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        gameObject_ = value;
       }
     }
 
-    /// <summary>Field number for the "level" field.</summary>
-    public const int LevelFieldNumber = 2;
-    private uint level_;
+    /// <summary>Field number for the "owner" field.</summary>
+    public const int OwnerFieldNumber = 2;
+    private ulong owner_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint Level {
-      get { return level_; }
+    public ulong Owner {
+      get { return owner_; }
       set {
-        level_ = value;
+        owner_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "contained" field.</summary>
+    public const int ContainedFieldNumber = 3;
+    private ulong contained_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong Contained {
+      get { return contained_; }
+      set {
+        contained_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "creator" field.</summary>
+    public const int CreatorFieldNumber = 4;
+    private ulong creator_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong Creator {
+      get { return creator_; }
+      set {
+        creator_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "giftCreator" field.</summary>
+    public const int GiftCreatorFieldNumber = 5;
+    private ulong giftCreator_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong GiftCreator {
+      get { return giftCreator_; }
+      set {
+        giftCreator_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "stackCount" field.</summary>
+    public const int StackCountFieldNumber = 6;
+    private uint stackCount_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint StackCount {
+      get { return stackCount_; }
+      set {
+        stackCount_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "duration" field.</summary>
+    public const int DurationFieldNumber = 7;
+    private uint duration_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Duration {
+      get { return duration_; }
+      set {
+        duration_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "spellCharges" field.</summary>
+    public const int SpellChargesFieldNumber = 8;
+    private static readonly pbc::MapField<uint, uint>.Codec _map_spellCharges_codec
+        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 66);
+    private readonly pbc::MapField<uint, uint> spellCharges_ = new pbc::MapField<uint, uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::MapField<uint, uint> SpellCharges {
+      get { return spellCharges_; }
+    }
+
+    /// <summary>Field number for the "itemFlags" field.</summary>
+    public const int ItemFlagsFieldNumber = 9;
+    private uint itemFlags_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint ItemFlags {
+      get { return itemFlags_; }
+      set {
+        itemFlags_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "enchantments" field.</summary>
+    public const int EnchantmentsFieldNumber = 10;
+    private static readonly pbc::MapField<uint, uint>.Codec _map_enchantments_codec
+        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 82);
+    private readonly pbc::MapField<uint, uint> enchantments_ = new pbc::MapField<uint, uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::MapField<uint, uint> Enchantments {
+      get { return enchantments_; }
+    }
+
+    /// <summary>Field number for the "durability" field.</summary>
+    public const int DurabilityFieldNumber = 11;
+    private uint durability_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Durability {
+      get { return durability_; }
+      set {
+        durability_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "propertySeed" field.</summary>
+    public const int PropertySeedFieldNumber = 12;
+    private uint propertySeed_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint PropertySeed {
+      get { return propertySeed_; }
+      set {
+        propertySeed_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "randomPropertiesId" field.</summary>
+    public const int RandomPropertiesIdFieldNumber = 13;
+    private uint randomPropertiesId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint RandomPropertiesId {
+      get { return randomPropertiesId_; }
+      set {
+        randomPropertiesId_ = value;
       }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
-      return Equals(other as Skill);
+      return Equals(other as WoWItem);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(Skill other) {
+    public bool Equals(WoWItem other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (Name != other.Name) return false;
-      if (Level != other.Level) return false;
+      if (!object.Equals(GameObject, other.GameObject)) return false;
+      if (Owner != other.Owner) return false;
+      if (Contained != other.Contained) return false;
+      if (Creator != other.Creator) return false;
+      if (GiftCreator != other.GiftCreator) return false;
+      if (StackCount != other.StackCount) return false;
+      if (Duration != other.Duration) return false;
+      if (!SpellCharges.Equals(other.SpellCharges)) return false;
+      if (ItemFlags != other.ItemFlags) return false;
+      if (!Enchantments.Equals(other.Enchantments)) return false;
+      if (Durability != other.Durability) return false;
+      if (PropertySeed != other.PropertySeed) return false;
+      if (RandomPropertiesId != other.RandomPropertiesId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -2817,8 +3913,19 @@ namespace Game {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (Name.Length != 0) hash ^= Name.GetHashCode();
-      if (Level != 0) hash ^= Level.GetHashCode();
+      if (gameObject_ != null) hash ^= GameObject.GetHashCode();
+      if (Owner != 0UL) hash ^= Owner.GetHashCode();
+      if (Contained != 0UL) hash ^= Contained.GetHashCode();
+      if (Creator != 0UL) hash ^= Creator.GetHashCode();
+      if (GiftCreator != 0UL) hash ^= GiftCreator.GetHashCode();
+      if (StackCount != 0) hash ^= StackCount.GetHashCode();
+      if (Duration != 0) hash ^= Duration.GetHashCode();
+      hash ^= SpellCharges.GetHashCode();
+      if (ItemFlags != 0) hash ^= ItemFlags.GetHashCode();
+      hash ^= Enchantments.GetHashCode();
+      if (Durability != 0) hash ^= Durability.GetHashCode();
+      if (PropertySeed != 0) hash ^= PropertySeed.GetHashCode();
+      if (RandomPropertiesId != 0) hash ^= RandomPropertiesId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -2837,13 +3944,51 @@ namespace Game {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (Name.Length != 0) {
+      if (gameObject_ != null) {
         output.WriteRawTag(10);
-        output.WriteString(Name);
+        output.WriteMessage(GameObject);
       }
-      if (Level != 0) {
+      if (Owner != 0UL) {
         output.WriteRawTag(16);
-        output.WriteUInt32(Level);
+        output.WriteUInt64(Owner);
+      }
+      if (Contained != 0UL) {
+        output.WriteRawTag(24);
+        output.WriteUInt64(Contained);
+      }
+      if (Creator != 0UL) {
+        output.WriteRawTag(32);
+        output.WriteUInt64(Creator);
+      }
+      if (GiftCreator != 0UL) {
+        output.WriteRawTag(40);
+        output.WriteUInt64(GiftCreator);
+      }
+      if (StackCount != 0) {
+        output.WriteRawTag(48);
+        output.WriteUInt32(StackCount);
+      }
+      if (Duration != 0) {
+        output.WriteRawTag(56);
+        output.WriteUInt32(Duration);
+      }
+      spellCharges_.WriteTo(output, _map_spellCharges_codec);
+      if (ItemFlags != 0) {
+        output.WriteRawTag(72);
+        output.WriteUInt32(ItemFlags);
+      }
+      enchantments_.WriteTo(output, _map_enchantments_codec);
+      if (Durability != 0) {
+        output.WriteRawTag(88);
+        output.WriteUInt32(Durability);
+      }
+      if (PropertySeed != 0) {
+        output.WriteRawTag(96);
+        output.WriteUInt32(PropertySeed);
+      }
+      if (RandomPropertiesId != 0) {
+        output.WriteRawTag(104);
+        output.WriteUInt32(RandomPropertiesId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -2855,13 +4000,51 @@ namespace Game {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Name.Length != 0) {
+      if (gameObject_ != null) {
         output.WriteRawTag(10);
-        output.WriteString(Name);
+        output.WriteMessage(GameObject);
       }
-      if (Level != 0) {
+      if (Owner != 0UL) {
         output.WriteRawTag(16);
-        output.WriteUInt32(Level);
+        output.WriteUInt64(Owner);
+      }
+      if (Contained != 0UL) {
+        output.WriteRawTag(24);
+        output.WriteUInt64(Contained);
+      }
+      if (Creator != 0UL) {
+        output.WriteRawTag(32);
+        output.WriteUInt64(Creator);
+      }
+      if (GiftCreator != 0UL) {
+        output.WriteRawTag(40);
+        output.WriteUInt64(GiftCreator);
+      }
+      if (StackCount != 0) {
+        output.WriteRawTag(48);
+        output.WriteUInt32(StackCount);
+      }
+      if (Duration != 0) {
+        output.WriteRawTag(56);
+        output.WriteUInt32(Duration);
+      }
+      spellCharges_.WriteTo(ref output, _map_spellCharges_codec);
+      if (ItemFlags != 0) {
+        output.WriteRawTag(72);
+        output.WriteUInt32(ItemFlags);
+      }
+      enchantments_.WriteTo(ref output, _map_enchantments_codec);
+      if (Durability != 0) {
+        output.WriteRawTag(88);
+        output.WriteUInt32(Durability);
+      }
+      if (PropertySeed != 0) {
+        output.WriteRawTag(96);
+        output.WriteUInt32(PropertySeed);
+      }
+      if (RandomPropertiesId != 0) {
+        output.WriteRawTag(104);
+        output.WriteUInt32(RandomPropertiesId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -2873,11 +4056,40 @@ namespace Game {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (Name.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      if (gameObject_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(GameObject);
       }
-      if (Level != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Level);
+      if (Owner != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(Owner);
+      }
+      if (Contained != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(Contained);
+      }
+      if (Creator != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(Creator);
+      }
+      if (GiftCreator != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(GiftCreator);
+      }
+      if (StackCount != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(StackCount);
+      }
+      if (Duration != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Duration);
+      }
+      size += spellCharges_.CalculateSize(_map_spellCharges_codec);
+      if (ItemFlags != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ItemFlags);
+      }
+      size += enchantments_.CalculateSize(_map_enchantments_codec);
+      if (Durability != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Durability);
+      }
+      if (PropertySeed != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(PropertySeed);
+      }
+      if (RandomPropertiesId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(RandomPropertiesId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -2887,15 +4099,47 @@ namespace Game {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(Skill other) {
+    public void MergeFrom(WoWItem other) {
       if (other == null) {
         return;
       }
-      if (other.Name.Length != 0) {
-        Name = other.Name;
+      if (other.gameObject_ != null) {
+        if (gameObject_ == null) {
+          GameObject = new global::Game.WoWGameObject();
+        }
+        GameObject.MergeFrom(other.GameObject);
       }
-      if (other.Level != 0) {
-        Level = other.Level;
+      if (other.Owner != 0UL) {
+        Owner = other.Owner;
+      }
+      if (other.Contained != 0UL) {
+        Contained = other.Contained;
+      }
+      if (other.Creator != 0UL) {
+        Creator = other.Creator;
+      }
+      if (other.GiftCreator != 0UL) {
+        GiftCreator = other.GiftCreator;
+      }
+      if (other.StackCount != 0) {
+        StackCount = other.StackCount;
+      }
+      if (other.Duration != 0) {
+        Duration = other.Duration;
+      }
+      spellCharges_.MergeFrom(other.spellCharges_);
+      if (other.ItemFlags != 0) {
+        ItemFlags = other.ItemFlags;
+      }
+      enchantments_.MergeFrom(other.enchantments_);
+      if (other.Durability != 0) {
+        Durability = other.Durability;
+      }
+      if (other.PropertySeed != 0) {
+        PropertySeed = other.PropertySeed;
+      }
+      if (other.RandomPropertiesId != 0) {
+        RandomPropertiesId = other.RandomPropertiesId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -2913,11 +4157,58 @@ namespace Game {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            Name = input.ReadString();
+            if (gameObject_ == null) {
+              GameObject = new global::Game.WoWGameObject();
+            }
+            input.ReadMessage(GameObject);
             break;
           }
           case 16: {
-            Level = input.ReadUInt32();
+            Owner = input.ReadUInt64();
+            break;
+          }
+          case 24: {
+            Contained = input.ReadUInt64();
+            break;
+          }
+          case 32: {
+            Creator = input.ReadUInt64();
+            break;
+          }
+          case 40: {
+            GiftCreator = input.ReadUInt64();
+            break;
+          }
+          case 48: {
+            StackCount = input.ReadUInt32();
+            break;
+          }
+          case 56: {
+            Duration = input.ReadUInt32();
+            break;
+          }
+          case 66: {
+            spellCharges_.AddEntriesFrom(input, _map_spellCharges_codec);
+            break;
+          }
+          case 72: {
+            ItemFlags = input.ReadUInt32();
+            break;
+          }
+          case 82: {
+            enchantments_.AddEntriesFrom(input, _map_enchantments_codec);
+            break;
+          }
+          case 88: {
+            Durability = input.ReadUInt32();
+            break;
+          }
+          case 96: {
+            PropertySeed = input.ReadUInt32();
+            break;
+          }
+          case 104: {
+            RandomPropertiesId = input.ReadUInt32();
             break;
           }
         }
@@ -2936,11 +4227,58 @@ namespace Game {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 10: {
-            Name = input.ReadString();
+            if (gameObject_ == null) {
+              GameObject = new global::Game.WoWGameObject();
+            }
+            input.ReadMessage(GameObject);
             break;
           }
           case 16: {
-            Level = input.ReadUInt32();
+            Owner = input.ReadUInt64();
+            break;
+          }
+          case 24: {
+            Contained = input.ReadUInt64();
+            break;
+          }
+          case 32: {
+            Creator = input.ReadUInt64();
+            break;
+          }
+          case 40: {
+            GiftCreator = input.ReadUInt64();
+            break;
+          }
+          case 48: {
+            StackCount = input.ReadUInt32();
+            break;
+          }
+          case 56: {
+            Duration = input.ReadUInt32();
+            break;
+          }
+          case 66: {
+            spellCharges_.AddEntriesFrom(ref input, _map_spellCharges_codec);
+            break;
+          }
+          case 72: {
+            ItemFlags = input.ReadUInt32();
+            break;
+          }
+          case 82: {
+            enchantments_.AddEntriesFrom(ref input, _map_enchantments_codec);
+            break;
+          }
+          case 88: {
+            Durability = input.ReadUInt32();
+            break;
+          }
+          case 96: {
+            PropertySeed = input.ReadUInt32();
+            break;
+          }
+          case 104: {
+            RandomPropertiesId = input.ReadUInt32();
             break;
           }
         }
@@ -2951,19 +4289,19 @@ namespace Game {
   }
 
   /// <summary>
-  /// Reusable message for Resistances
+  /// Reusable message for WoWContainer, extending WoWItem
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class Resistances : pb::IMessage<Resistances>
+  public sealed partial class WoWContainer : pb::IMessage<WoWContainer>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
   {
-    private static readonly pb::MessageParser<Resistances> _parser = new pb::MessageParser<Resistances>(() => new Resistances());
+    private static readonly pb::MessageParser<WoWContainer> _parser = new pb::MessageParser<WoWContainer>(() => new WoWContainer());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<Resistances> Parser { get { return _parser; } }
+    public static pb::MessageParser<WoWContainer> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2979,7 +4317,7 @@ namespace Game {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Resistances() {
+    public WoWContainer() {
       OnConstruction();
     }
 
@@ -2987,115 +4325,58 @@ namespace Game {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Resistances(Resistances other) : this() {
-      holy_ = other.holy_;
-      fire_ = other.fire_;
-      nature_ = other.nature_;
-      frost_ = other.frost_;
-      shadow_ = other.shadow_;
-      arcane_ = other.arcane_;
+    public WoWContainer(WoWContainer other) : this() {
+      item_ = other.item_ != null ? other.item_.Clone() : null;
+      itemSlots_ = other.itemSlots_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Resistances Clone() {
-      return new Resistances(this);
+    public WoWContainer Clone() {
+      return new WoWContainer(this);
     }
 
-    /// <summary>Field number for the "holy" field.</summary>
-    public const int HolyFieldNumber = 1;
-    private uint holy_;
+    /// <summary>Field number for the "item" field.</summary>
+    public const int ItemFieldNumber = 1;
+    private global::Game.WoWItem item_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint Holy {
-      get { return holy_; }
+    public global::Game.WoWItem Item {
+      get { return item_; }
       set {
-        holy_ = value;
+        item_ = value;
       }
     }
 
-    /// <summary>Field number for the "fire" field.</summary>
-    public const int FireFieldNumber = 2;
-    private uint fire_;
+    /// <summary>Field number for the "itemSlots" field.</summary>
+    public const int ItemSlotsFieldNumber = 2;
+    private static readonly pb::FieldCodec<uint> _repeated_itemSlots_codec
+        = pb::FieldCodec.ForUInt32(18);
+    private readonly pbc::RepeatedField<uint> itemSlots_ = new pbc::RepeatedField<uint>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint Fire {
-      get { return fire_; }
-      set {
-        fire_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "nature" field.</summary>
-    public const int NatureFieldNumber = 3;
-    private uint nature_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint Nature {
-      get { return nature_; }
-      set {
-        nature_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "frost" field.</summary>
-    public const int FrostFieldNumber = 4;
-    private uint frost_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint Frost {
-      get { return frost_; }
-      set {
-        frost_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "shadow" field.</summary>
-    public const int ShadowFieldNumber = 5;
-    private uint shadow_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint Shadow {
-      get { return shadow_; }
-      set {
-        shadow_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "arcane" field.</summary>
-    public const int ArcaneFieldNumber = 6;
-    private uint arcane_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint Arcane {
-      get { return arcane_; }
-      set {
-        arcane_ = value;
-      }
+    public pbc::RepeatedField<uint> ItemSlots {
+      get { return itemSlots_; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
-      return Equals(other as Resistances);
+      return Equals(other as WoWContainer);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(Resistances other) {
+    public bool Equals(WoWContainer other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (Holy != other.Holy) return false;
-      if (Fire != other.Fire) return false;
-      if (Nature != other.Nature) return false;
-      if (Frost != other.Frost) return false;
-      if (Shadow != other.Shadow) return false;
-      if (Arcane != other.Arcane) return false;
+      if (!object.Equals(Item, other.Item)) return false;
+      if(!itemSlots_.Equals(other.itemSlots_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -3103,12 +4384,8 @@ namespace Game {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (Holy != 0) hash ^= Holy.GetHashCode();
-      if (Fire != 0) hash ^= Fire.GetHashCode();
-      if (Nature != 0) hash ^= Nature.GetHashCode();
-      if (Frost != 0) hash ^= Frost.GetHashCode();
-      if (Shadow != 0) hash ^= Shadow.GetHashCode();
-      if (Arcane != 0) hash ^= Arcane.GetHashCode();
+      if (item_ != null) hash ^= Item.GetHashCode();
+      hash ^= itemSlots_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -3127,30 +4404,11 @@ namespace Game {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (Holy != 0) {
-        output.WriteRawTag(8);
-        output.WriteUInt32(Holy);
+      if (item_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(Item);
       }
-      if (Fire != 0) {
-        output.WriteRawTag(16);
-        output.WriteUInt32(Fire);
-      }
-      if (Nature != 0) {
-        output.WriteRawTag(24);
-        output.WriteUInt32(Nature);
-      }
-      if (Frost != 0) {
-        output.WriteRawTag(32);
-        output.WriteUInt32(Frost);
-      }
-      if (Shadow != 0) {
-        output.WriteRawTag(40);
-        output.WriteUInt32(Shadow);
-      }
-      if (Arcane != 0) {
-        output.WriteRawTag(48);
-        output.WriteUInt32(Arcane);
-      }
+      itemSlots_.WriteTo(output, _repeated_itemSlots_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -3161,30 +4419,11 @@ namespace Game {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Holy != 0) {
-        output.WriteRawTag(8);
-        output.WriteUInt32(Holy);
+      if (item_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(Item);
       }
-      if (Fire != 0) {
-        output.WriteRawTag(16);
-        output.WriteUInt32(Fire);
-      }
-      if (Nature != 0) {
-        output.WriteRawTag(24);
-        output.WriteUInt32(Nature);
-      }
-      if (Frost != 0) {
-        output.WriteRawTag(32);
-        output.WriteUInt32(Frost);
-      }
-      if (Shadow != 0) {
-        output.WriteRawTag(40);
-        output.WriteUInt32(Shadow);
-      }
-      if (Arcane != 0) {
-        output.WriteRawTag(48);
-        output.WriteUInt32(Arcane);
-      }
+      itemSlots_.WriteTo(ref output, _repeated_itemSlots_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -3195,24 +4434,10 @@ namespace Game {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (Holy != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Holy);
+      if (item_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Item);
       }
-      if (Fire != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Fire);
-      }
-      if (Nature != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Nature);
-      }
-      if (Frost != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Frost);
-      }
-      if (Shadow != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Shadow);
-      }
-      if (Arcane != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Arcane);
-      }
+      size += itemSlots_.CalculateSize(_repeated_itemSlots_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -3221,28 +4446,17 @@ namespace Game {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(Resistances other) {
+    public void MergeFrom(WoWContainer other) {
       if (other == null) {
         return;
       }
-      if (other.Holy != 0) {
-        Holy = other.Holy;
+      if (other.item_ != null) {
+        if (item_ == null) {
+          Item = new global::Game.WoWItem();
+        }
+        Item.MergeFrom(other.Item);
       }
-      if (other.Fire != 0) {
-        Fire = other.Fire;
-      }
-      if (other.Nature != 0) {
-        Nature = other.Nature;
-      }
-      if (other.Frost != 0) {
-        Frost = other.Frost;
-      }
-      if (other.Shadow != 0) {
-        Shadow = other.Shadow;
-      }
-      if (other.Arcane != 0) {
-        Arcane = other.Arcane;
-      }
+      itemSlots_.Add(other.itemSlots_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -3258,28 +4472,16 @@ namespace Game {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
-            Holy = input.ReadUInt32();
+          case 10: {
+            if (item_ == null) {
+              Item = new global::Game.WoWItem();
+            }
+            input.ReadMessage(Item);
             break;
           }
+          case 18:
           case 16: {
-            Fire = input.ReadUInt32();
-            break;
-          }
-          case 24: {
-            Nature = input.ReadUInt32();
-            break;
-          }
-          case 32: {
-            Frost = input.ReadUInt32();
-            break;
-          }
-          case 40: {
-            Shadow = input.ReadUInt32();
-            break;
-          }
-          case 48: {
-            Arcane = input.ReadUInt32();
+            itemSlots_.AddEntriesFrom(input, _repeated_itemSlots_codec);
             break;
           }
         }
@@ -3297,28 +4499,16 @@ namespace Game {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
-            Holy = input.ReadUInt32();
+          case 10: {
+            if (item_ == null) {
+              Item = new global::Game.WoWItem();
+            }
+            input.ReadMessage(Item);
             break;
           }
+          case 18:
           case 16: {
-            Fire = input.ReadUInt32();
-            break;
-          }
-          case 24: {
-            Nature = input.ReadUInt32();
-            break;
-          }
-          case 32: {
-            Frost = input.ReadUInt32();
-            break;
-          }
-          case 40: {
-            Shadow = input.ReadUInt32();
-            break;
-          }
-          case 48: {
-            Arcane = input.ReadUInt32();
+            itemSlots_.AddEntriesFrom(ref input, _repeated_itemSlots_codec);
             break;
           }
         }
@@ -3329,19 +4519,19 @@ namespace Game {
   }
 
   /// <summary>
-  /// Reusable message for Faction Reputation
+  /// Definition for QuestLogEntry
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class FactionReputation : pb::IMessage<FactionReputation>
+  public sealed partial class QuestLogEntry : pb::IMessage<QuestLogEntry>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
   {
-    private static readonly pb::MessageParser<FactionReputation> _parser = new pb::MessageParser<FactionReputation>(() => new FactionReputation());
+    private static readonly pb::MessageParser<QuestLogEntry> _parser = new pb::MessageParser<QuestLogEntry>(() => new QuestLogEntry());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<FactionReputation> Parser { get { return _parser; } }
+    public static pb::MessageParser<QuestLogEntry> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -3357,7 +4547,7 @@ namespace Game {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public FactionReputation() {
+    public QuestLogEntry() {
       OnConstruction();
     }
 
@@ -3365,62 +4555,73 @@ namespace Game {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public FactionReputation(FactionReputation other) : this() {
-      factionName_ = other.factionName_;
-      reputation_ = other.reputation_;
+    public QuestLogEntry(QuestLogEntry other) : this() {
+      questLog1_ = other.questLog1_;
+      questLog2_ = other.questLog2_;
+      questLog3_ = other.questLog3_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public FactionReputation Clone() {
-      return new FactionReputation(this);
+    public QuestLogEntry Clone() {
+      return new QuestLogEntry(this);
     }
 
-    /// <summary>Field number for the "factionName" field.</summary>
-    public const int FactionNameFieldNumber = 1;
-    private string factionName_ = "";
+    /// <summary>Field number for the "questLog1" field.</summary>
+    public const int QuestLog1FieldNumber = 1;
+    private uint questLog1_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string FactionName {
-      get { return factionName_; }
+    public uint QuestLog1 {
+      get { return questLog1_; }
       set {
-        factionName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        questLog1_ = value;
       }
     }
 
-    /// <summary>Field number for the "reputation" field.</summary>
-    public const int ReputationFieldNumber = 2;
-    private int reputation_;
-    /// <summary>
-    /// -42000 to 42000 (Hated to Exalted)
-    /// </summary>
+    /// <summary>Field number for the "questLog2" field.</summary>
+    public const int QuestLog2FieldNumber = 2;
+    private uint questLog2_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int Reputation {
-      get { return reputation_; }
+    public uint QuestLog2 {
+      get { return questLog2_; }
       set {
-        reputation_ = value;
+        questLog2_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "questLog3" field.</summary>
+    public const int QuestLog3FieldNumber = 3;
+    private uint questLog3_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint QuestLog3 {
+      get { return questLog3_; }
+      set {
+        questLog3_ = value;
       }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
-      return Equals(other as FactionReputation);
+      return Equals(other as QuestLogEntry);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(FactionReputation other) {
+    public bool Equals(QuestLogEntry other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (FactionName != other.FactionName) return false;
-      if (Reputation != other.Reputation) return false;
+      if (QuestLog1 != other.QuestLog1) return false;
+      if (QuestLog2 != other.QuestLog2) return false;
+      if (QuestLog3 != other.QuestLog3) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -3428,8 +4629,9 @@ namespace Game {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (FactionName.Length != 0) hash ^= FactionName.GetHashCode();
-      if (Reputation != 0) hash ^= Reputation.GetHashCode();
+      if (QuestLog1 != 0) hash ^= QuestLog1.GetHashCode();
+      if (QuestLog2 != 0) hash ^= QuestLog2.GetHashCode();
+      if (QuestLog3 != 0) hash ^= QuestLog3.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -3448,13 +4650,17 @@ namespace Game {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (FactionName.Length != 0) {
-        output.WriteRawTag(10);
-        output.WriteString(FactionName);
+      if (QuestLog1 != 0) {
+        output.WriteRawTag(8);
+        output.WriteUInt32(QuestLog1);
       }
-      if (Reputation != 0) {
+      if (QuestLog2 != 0) {
         output.WriteRawTag(16);
-        output.WriteInt32(Reputation);
+        output.WriteUInt32(QuestLog2);
+      }
+      if (QuestLog3 != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(QuestLog3);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -3466,13 +4672,17 @@ namespace Game {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (FactionName.Length != 0) {
-        output.WriteRawTag(10);
-        output.WriteString(FactionName);
+      if (QuestLog1 != 0) {
+        output.WriteRawTag(8);
+        output.WriteUInt32(QuestLog1);
       }
-      if (Reputation != 0) {
+      if (QuestLog2 != 0) {
         output.WriteRawTag(16);
-        output.WriteInt32(Reputation);
+        output.WriteUInt32(QuestLog2);
+      }
+      if (QuestLog3 != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(QuestLog3);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -3484,11 +4694,14 @@ namespace Game {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (FactionName.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(FactionName);
+      if (QuestLog1 != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(QuestLog1);
       }
-      if (Reputation != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Reputation);
+      if (QuestLog2 != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(QuestLog2);
+      }
+      if (QuestLog3 != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(QuestLog3);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -3498,322 +4711,19 @@ namespace Game {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(FactionReputation other) {
+    public void MergeFrom(QuestLogEntry other) {
       if (other == null) {
         return;
       }
-      if (other.FactionName.Length != 0) {
-        FactionName = other.FactionName;
+      if (other.QuestLog1 != 0) {
+        QuestLog1 = other.QuestLog1;
       }
-      if (other.Reputation != 0) {
-        Reputation = other.Reputation;
+      if (other.QuestLog2 != 0) {
+        QuestLog2 = other.QuestLog2;
       }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 10: {
-            FactionName = input.ReadString();
-            break;
-          }
-          case 16: {
-            Reputation = input.ReadInt32();
-            break;
-          }
-        }
+      if (other.QuestLog3 != 0) {
+        QuestLog3 = other.QuestLog3;
       }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 10: {
-            FactionName = input.ReadString();
-            break;
-          }
-          case 16: {
-            Reputation = input.ReadInt32();
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  /// <summary>
-  /// Reusable message for Item
-  /// </summary>
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class Item : pb::IMessage<Item>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<Item> _parser = new pb::MessageParser<Item>(() => new Item());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<Item> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Game.GameReflection.Descriptor.MessageTypes[7]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Item() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Item(Item other) : this() {
-      id_ = other.id_;
-      name_ = other.name_;
-      slot_ = other.slot_;
-      quantity_ = other.quantity_;
-      stats_ = other.stats_.Clone();
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Item Clone() {
-      return new Item(this);
-    }
-
-    /// <summary>Field number for the "id" field.</summary>
-    public const int IdFieldNumber = 1;
-    private ulong id_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong Id {
-      get { return id_; }
-      set {
-        id_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "name" field.</summary>
-    public const int NameFieldNumber = 2;
-    private string name_ = "";
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Name {
-      get { return name_; }
-      set {
-        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
-    /// <summary>Field number for the "slot" field.</summary>
-    public const int SlotFieldNumber = 3;
-    private string slot_ = "";
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Slot {
-      get { return slot_; }
-      set {
-        slot_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
-    /// <summary>Field number for the "quantity" field.</summary>
-    public const int QuantityFieldNumber = 4;
-    private uint quantity_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint Quantity {
-      get { return quantity_; }
-      set {
-        quantity_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "stats" field.</summary>
-    public const int StatsFieldNumber = 5;
-    private static readonly pb::FieldCodec<global::Game.Stat> _repeated_stats_codec
-        = pb::FieldCodec.ForMessage(42, global::Game.Stat.Parser);
-    private readonly pbc::RepeatedField<global::Game.Stat> stats_ = new pbc::RepeatedField<global::Game.Stat>();
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Game.Stat> Stats {
-      get { return stats_; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as Item);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(Item other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (Id != other.Id) return false;
-      if (Name != other.Name) return false;
-      if (Slot != other.Slot) return false;
-      if (Quantity != other.Quantity) return false;
-      if(!stats_.Equals(other.stats_)) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (Id != 0UL) hash ^= Id.GetHashCode();
-      if (Name.Length != 0) hash ^= Name.GetHashCode();
-      if (Slot.Length != 0) hash ^= Slot.GetHashCode();
-      if (Quantity != 0) hash ^= Quantity.GetHashCode();
-      hash ^= stats_.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (Id != 0UL) {
-        output.WriteRawTag(8);
-        output.WriteUInt64(Id);
-      }
-      if (Name.Length != 0) {
-        output.WriteRawTag(18);
-        output.WriteString(Name);
-      }
-      if (Slot.Length != 0) {
-        output.WriteRawTag(26);
-        output.WriteString(Slot);
-      }
-      if (Quantity != 0) {
-        output.WriteRawTag(32);
-        output.WriteUInt32(Quantity);
-      }
-      stats_.WriteTo(output, _repeated_stats_codec);
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Id != 0UL) {
-        output.WriteRawTag(8);
-        output.WriteUInt64(Id);
-      }
-      if (Name.Length != 0) {
-        output.WriteRawTag(18);
-        output.WriteString(Name);
-      }
-      if (Slot.Length != 0) {
-        output.WriteRawTag(26);
-        output.WriteString(Slot);
-      }
-      if (Quantity != 0) {
-        output.WriteRawTag(32);
-        output.WriteUInt32(Quantity);
-      }
-      stats_.WriteTo(ref output, _repeated_stats_codec);
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (Id != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(Id);
-      }
-      if (Name.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
-      }
-      if (Slot.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Slot);
-      }
-      if (Quantity != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Quantity);
-      }
-      size += stats_.CalculateSize(_repeated_stats_codec);
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(Item other) {
-      if (other == null) {
-        return;
-      }
-      if (other.Id != 0UL) {
-        Id = other.Id;
-      }
-      if (other.Name.Length != 0) {
-        Name = other.Name;
-      }
-      if (other.Slot.Length != 0) {
-        Slot = other.Slot;
-      }
-      if (other.Quantity != 0) {
-        Quantity = other.Quantity;
-      }
-      stats_.Add(other.stats_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -3830,23 +4740,15 @@ namespace Game {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            Id = input.ReadUInt64();
+            QuestLog1 = input.ReadUInt32();
             break;
           }
-          case 18: {
-            Name = input.ReadString();
+          case 16: {
+            QuestLog2 = input.ReadUInt32();
             break;
           }
-          case 26: {
-            Slot = input.ReadString();
-            break;
-          }
-          case 32: {
-            Quantity = input.ReadUInt32();
-            break;
-          }
-          case 42: {
-            stats_.AddEntriesFrom(input, _repeated_stats_codec);
+          case 24: {
+            QuestLog3 = input.ReadUInt32();
             break;
           }
         }
@@ -3865,253 +4767,15 @@ namespace Game {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            Id = input.ReadUInt64();
-            break;
-          }
-          case 18: {
-            Name = input.ReadString();
-            break;
-          }
-          case 26: {
-            Slot = input.ReadString();
-            break;
-          }
-          case 32: {
-            Quantity = input.ReadUInt32();
-            break;
-          }
-          case 42: {
-            stats_.AddEntriesFrom(ref input, _repeated_stats_codec);
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  /// <summary>
-  /// Reusable message for Stat
-  /// </summary>
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class Stat : pb::IMessage<Stat>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<Stat> _parser = new pb::MessageParser<Stat>(() => new Stat());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<Stat> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Game.GameReflection.Descriptor.MessageTypes[8]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Stat() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Stat(Stat other) : this() {
-      type_ = other.type_;
-      value_ = other.value_;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Stat Clone() {
-      return new Stat(this);
-    }
-
-    /// <summary>Field number for the "type" field.</summary>
-    public const int TypeFieldNumber = 1;
-    private string type_ = "";
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Type {
-      get { return type_; }
-      set {
-        type_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
-    /// <summary>Field number for the "value" field.</summary>
-    public const int ValueFieldNumber = 2;
-    private int value_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int Value {
-      get { return value_; }
-      set {
-        value_ = value;
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as Stat);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(Stat other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (Type != other.Type) return false;
-      if (Value != other.Value) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (Type.Length != 0) hash ^= Type.GetHashCode();
-      if (Value != 0) hash ^= Value.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (Type.Length != 0) {
-        output.WriteRawTag(10);
-        output.WriteString(Type);
-      }
-      if (Value != 0) {
-        output.WriteRawTag(16);
-        output.WriteInt32(Value);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Type.Length != 0) {
-        output.WriteRawTag(10);
-        output.WriteString(Type);
-      }
-      if (Value != 0) {
-        output.WriteRawTag(16);
-        output.WriteInt32(Value);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (Type.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Type);
-      }
-      if (Value != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Value);
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(Stat other) {
-      if (other == null) {
-        return;
-      }
-      if (other.Type.Length != 0) {
-        Type = other.Type;
-      }
-      if (other.Value != 0) {
-        Value = other.Value;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 10: {
-            Type = input.ReadString();
+            QuestLog1 = input.ReadUInt32();
             break;
           }
           case 16: {
-            Value = input.ReadInt32();
+            QuestLog2 = input.ReadUInt32();
             break;
           }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 10: {
-            Type = input.ReadString();
-            break;
-          }
-          case 16: {
-            Value = input.ReadInt32();
+          case 24: {
+            QuestLog3 = input.ReadUInt32();
             break;
           }
         }
@@ -4136,7 +4800,7 @@ namespace Game {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Game.GameReflection.Descriptor.MessageTypes[9]; }
+      get { return global::Game.GameReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4376,6 +5040,336 @@ namespace Game {
           }
           case 29: {
             Z = input.ReadFloat();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// Reusable message for Item
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class Item : pb::IMessage<Item>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<Item> _parser = new pb::MessageParser<Item>(() => new Item());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<Item> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Game.GameReflection.Descriptor.MessageTypes[8]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public Item() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public Item(Item other) : this() {
+      id_ = other.id_;
+      name_ = other.name_;
+      slot_ = other.slot_;
+      quantity_ = other.quantity_;
+      stats_ = other.stats_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public Item Clone() {
+      return new Item(this);
+    }
+
+    /// <summary>Field number for the "id" field.</summary>
+    public const int IdFieldNumber = 1;
+    private ulong id_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong Id {
+      get { return id_; }
+      set {
+        id_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "name" field.</summary>
+    public const int NameFieldNumber = 2;
+    private string name_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Name {
+      get { return name_; }
+      set {
+        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "slot" field.</summary>
+    public const int SlotFieldNumber = 3;
+    private string slot_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Slot {
+      get { return slot_; }
+      set {
+        slot_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "quantity" field.</summary>
+    public const int QuantityFieldNumber = 4;
+    private uint quantity_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Quantity {
+      get { return quantity_; }
+      set {
+        quantity_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "stats" field.</summary>
+    public const int StatsFieldNumber = 5;
+    private static readonly pbc::MapField<uint, uint>.Codec _map_stats_codec
+        = new pbc::MapField<uint, uint>.Codec(pb::FieldCodec.ForUInt32(8, 0), pb::FieldCodec.ForUInt32(16, 0), 42);
+    private readonly pbc::MapField<uint, uint> stats_ = new pbc::MapField<uint, uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::MapField<uint, uint> Stats {
+      get { return stats_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as Item);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(Item other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Id != other.Id) return false;
+      if (Name != other.Name) return false;
+      if (Slot != other.Slot) return false;
+      if (Quantity != other.Quantity) return false;
+      if (!Stats.Equals(other.Stats)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Id != 0UL) hash ^= Id.GetHashCode();
+      if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (Slot.Length != 0) hash ^= Slot.GetHashCode();
+      if (Quantity != 0) hash ^= Quantity.GetHashCode();
+      hash ^= Stats.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Id != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(Id);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Name);
+      }
+      if (Slot.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Slot);
+      }
+      if (Quantity != 0) {
+        output.WriteRawTag(32);
+        output.WriteUInt32(Quantity);
+      }
+      stats_.WriteTo(output, _map_stats_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Id != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(Id);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Name);
+      }
+      if (Slot.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Slot);
+      }
+      if (Quantity != 0) {
+        output.WriteRawTag(32);
+        output.WriteUInt32(Quantity);
+      }
+      stats_.WriteTo(ref output, _map_stats_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Id != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(Id);
+      }
+      if (Name.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      }
+      if (Slot.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Slot);
+      }
+      if (Quantity != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Quantity);
+      }
+      size += stats_.CalculateSize(_map_stats_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(Item other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Id != 0UL) {
+        Id = other.Id;
+      }
+      if (other.Name.Length != 0) {
+        Name = other.Name;
+      }
+      if (other.Slot.Length != 0) {
+        Slot = other.Slot;
+      }
+      if (other.Quantity != 0) {
+        Quantity = other.Quantity;
+      }
+      stats_.MergeFrom(other.stats_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            Id = input.ReadUInt64();
+            break;
+          }
+          case 18: {
+            Name = input.ReadString();
+            break;
+          }
+          case 26: {
+            Slot = input.ReadString();
+            break;
+          }
+          case 32: {
+            Quantity = input.ReadUInt32();
+            break;
+          }
+          case 42: {
+            stats_.AddEntriesFrom(input, _map_stats_codec);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            Id = input.ReadUInt64();
+            break;
+          }
+          case 18: {
+            Name = input.ReadString();
+            break;
+          }
+          case 26: {
+            Slot = input.ReadString();
+            break;
+          }
+          case 32: {
+            Quantity = input.ReadUInt32();
+            break;
+          }
+          case 42: {
+            stats_.AddEntriesFrom(ref input, _map_stats_codec);
             break;
           }
         }

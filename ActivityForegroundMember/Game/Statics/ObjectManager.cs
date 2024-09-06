@@ -1,12 +1,11 @@
-﻿using System.Runtime.InteropServices;
-using ActivityForegroundMember.Constants;
+﻿using ActivityForegroundMember.Constants;
 using ActivityForegroundMember.Mem;
 using ActivityForegroundMember.Objects;
 using BotRunner.Base;
 using BotRunner.Constants;
 using BotRunner.Interfaces;
 using BotRunner.Models;
-using Communication;
+using System.Runtime.InteropServices;
 
 namespace ActivityForegroundMember.Game.Statics
 {
@@ -630,7 +629,7 @@ namespace ActivityForegroundMember.Game.Statics
             var pointer = Functions.GetObjectPtr(guid);
             var objectType = (WoWObjectType)MemoryManager.ReadInt(nint.Add(pointer, OBJECT_TYPE_OFFSET));
             byte[] guidParts = BitConverter.GetBytes(guid);
-            HighGuid highGuid = new (guidParts[0..4], guidParts[4..8]);
+            HighGuid highGuid = new(guidParts[0..3], guidParts[4..8]);
             try
             {
                 switch (objectType)

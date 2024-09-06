@@ -11,11 +11,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="DotRecast.Core" Version="2024.3.1" />
+    <PackageReference Include="DotRecast.Detour" Version="2024.3.1" />
+    <PackageReference Include="DotRecast.Detour.Dynamic" Version="2024.3.1" />
+    <PackageReference Include="DotRecast.Detour.TileCache" Version="2024.3.1" />
+    <PackageReference Include="DotRecast.Recast" Version="2024.3.1" />
+    <PackageReference Include="DotRecast.Recast.Toolset" Version="2024.3.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.4" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BotCommLayer\BotCommLayer.csproj" />
-    <ProjectReference Include="..\WinImports\WinProcessImports.csproj" />
   </ItemGroup>
 </Project>

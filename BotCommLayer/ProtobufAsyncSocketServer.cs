@@ -1,19 +1,19 @@
-﻿using System.Net;
-using System.Net.Sockets;
-using System.Reactive.Subjects;
-using Communication;
+﻿using Communication;
 using Google.Protobuf;
 using Microsoft.Extensions.Logging;
+using System.Net;
+using System.Net.Sockets;
+using System.Reactive.Subjects;
 
 namespace BotCommLayer
 {
-    public class ProtobufAsyncSocketServer<T> where T: IMessage<T>
+    public class ProtobufAsyncSocketServer<T> where T : IMessage<T>
     {
         private readonly TcpListener _server;
         private bool _isRunning;
         private readonly ILogger _logger;
         private Dictionary<ulong, TcpClient> _clients;
-        protected Subject<DataMessage> _instanceObservable;
+        protected Subject<AsyncRequest> _instanceObservable;
 
         public ProtobufAsyncSocketServer(string ipAddress, int port, ILogger logger)
         {
@@ -84,7 +84,7 @@ namespace BotCommLayer
                     if (bytesRead == 0) break;
 
                     // Deserialize the request
-                    DataMessage request = new();
+                    AsyncRequest request = new();
                     request.MergeFrom(buffer);
 
                     _clients.TryAdd(request.Id, client);

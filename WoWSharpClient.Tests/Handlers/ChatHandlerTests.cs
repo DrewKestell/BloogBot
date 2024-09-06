@@ -1,5 +1,4 @@
 ﻿using BotRunner.Constants;
-using Communication;
 using WoWSharpClient.Handlers;
 using WoWSharpClient.Manager;
 using WoWSharpClient.Tests.Util;
@@ -43,7 +42,7 @@ namespace WoWSharpClient.Tests.Handlers
             {
                 msgtype = args.MsgType;
                 language = args.Language;
-                senderGuid = args.SenderGuid;    
+                senderGuid = args.SenderGuid;
                 targetGuid = args.TargetGuid;
                 channelName = args.ChannelName;
                 playerRank = 0;

@@ -2,13 +2,13 @@
 
 namespace WoWSharpClient.Frames
 {
-    public class LootFrame : ILootFrame
+    public class LootFrame : BotRunner.Frames.LootFrame
     {
         public IEnumerable<IWoWItem> LootItems { get; } = [];
 
         public LootFrame()
         {
-            
+
         }
     }
 }

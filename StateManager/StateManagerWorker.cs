@@ -1,5 +1,4 @@
 using ActivityBackgroundMember;
-using Communication;
 using Microsoft.Extensions.Options;
 using StateManager.Listeners;
 using StateManager.Settings;
@@ -57,6 +56,7 @@ namespace StateManager
             var tokenSource = new CancellationTokenSource();
             var service = ActivatorUtilities.CreateInstance<ActivityBackgroundMemberWorker>(
                 scope.ServiceProvider,
+                _loggerFactory,
                 _loggerFactory.CreateLogger<ActivityBackgroundMemberWorker>(),
                 _configuration,
                 Options.Create(new ActivityMember() { AccountName = accountName })

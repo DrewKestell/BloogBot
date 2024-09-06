@@ -41,33 +41,25 @@ namespace WoWSharpClient.Manager
 
         public static byte[] Compress(byte[] addonInfo)
         {
-            using (var outputStream = new MemoryStream())
-            using (var compressionStream = new ZLibStream(outputStream, CompressionLevel.Optimal))
-            {
-                compressionStream.Write(addonInfo, 0, addonInfo.Length);
-                return outputStream.ToArray();
-            }
+            using var outputStream = new MemoryStream();
+            using var compressionStream = new ZLibStream(outputStream, CompressionLevel.Optimal);
+            compressionStream.Write(addonInfo, 0, addonInfo.Length);
+            return outputStream.ToArray();
         }
         public static Stream Decompress(Stream data)
         {
-            using (var zlibStream = new ZLibStream(data, CompressionMode.Decompress))
-            {
-                return zlibStream;
-            }
+            using var zlibStream = new ZLibStream(data, CompressionMode.Decompress);
+            return zlibStream;
         }
 
         public static byte[] Decompress(byte[] data)
         {
-            using (var compressedStream = new MemoryStream(data))
-            using (var decompressedStream = new MemoryStream())
-            {
-                using (var zlibStream = new ZLibStream(compressedStream, CompressionMode.Decompress))
-                {
-                    zlibStream.CopyTo(decompressedStream);
+            using var compressedStream = new MemoryStream(data);
+            using var decompressedStream = new MemoryStream();
+            using var zlibStream = new ZLibStream(compressedStream, CompressionMode.Decompress);
+            zlibStream.CopyTo(decompressedStream);
 
-                    return decompressedStream.ToArray();
-                }
-            }
+            return decompressedStream.ToArray();
         }
 
         public static byte[] Read(BinaryReader reader, int count)

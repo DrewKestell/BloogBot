@@ -8,7 +8,7 @@ namespace DatabaseDomain
     {
         protected override DatabaseResponse HandleRequest(DatabaseRequest payload)
         {
-            DatabaseResponse databaseResponse = new ();
+            DatabaseResponse databaseResponse = new();
             switch (payload.QueryType)
             {
                 case QueryType.GetCreatureMovementByGuid:

@@ -5,7 +5,7 @@ namespace BotRunner.Interfaces
     public interface IWoWGameObject : IWoWObject
     {
         string Name { get; }
-        uint DisplayId { get;  }
+        uint DisplayId { get; }
         GOState GoState { get; }
         uint ArtKit { get; }
         uint AnimProgress { get; }

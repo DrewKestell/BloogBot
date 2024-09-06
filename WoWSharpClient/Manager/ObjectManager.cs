@@ -1,6 +1,5 @@
 ﻿using BotRunner.Base;
 using BotRunner.Models;
-using Communication;
 using WoWSharpClient.Models;
 
 namespace WoWSharpClient.Manager
