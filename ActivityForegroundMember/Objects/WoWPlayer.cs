@@ -22,5 +22,10 @@ namespace ActivityForegroundMember.Objects
         public Race Race => throw new NotImplementedException();
 
         public Class Class => throw new NotImplementedException();
+
+        public void OfferTrade()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

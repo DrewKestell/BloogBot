@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BotCommLayer\BotCommLayer.csproj" />
-    <ProjectReference Include="..\DatabaseDomain\DatabaseDomain.csproj" />
     <ProjectReference Include="..\PathfindingService\PathfindingService.csproj" />
   </ItemGroup>
 

@@ -167,6 +167,8 @@ namespace WoWSharpClient.Models
         public float SwimBackSpeed { get; internal set; }
         public float TurnRate { get; internal set; }
 
+        public NPCFlags NPCFlags => throw new NotImplementedException();
+
         public IEnumerable<SpellEffect> GetDebuffs(LuaTarget target)
         {
             return [];
@@ -228,6 +230,16 @@ namespace WoWSharpClient.Models
         }
 
         public IEnumerable<ISpellEffect> GetDebuffs()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool DismissBuff(string buffName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<ISpellEffect> GetBuffs()
         {
             throw new NotImplementedException();
         }

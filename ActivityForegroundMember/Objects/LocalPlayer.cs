@@ -375,6 +375,12 @@ namespace ActivityForegroundMember.Objects
 
         public bool TastyCorpsesNearby => throw new NotImplementedException();
 
+        public uint Copper => throw new NotImplementedException();
+
+        public bool IsAutoAttacking => throw new NotImplementedException();
+
+        public bool CanResurrect => throw new NotImplementedException();
+
         public void StartMeleeAttack()
         {
             if (!IsCasting && (Class == Class.Warlock || Class == Class.Mage || Class == Class.Priest))
@@ -407,7 +413,7 @@ namespace ActivityForegroundMember.Objects
             throw new NotImplementedException();
         }
 
-        public void StopWand()
+        public void StopAttack()
         {
             throw new NotImplementedException();
         }
@@ -427,7 +433,97 @@ namespace ActivityForegroundMember.Objects
             throw new NotImplementedException();
         }
 
-        public void StartWand()
+        public void StartWandAttack()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void MoveToward(Position position, float facing)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void StopCasting()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CastSpell(int spellId, int rank = -1, bool castOnSelf = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool CanCastSpell(int spellId, ulong targetGuid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UseItem(int bagId, int slotId, ulong targetGuid = 0)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IWoWItem GetEquippedItem(EquipSlot ranged)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IWoWItem GetContainedItem(int bagSlot, int slotId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<IWoWItem> GetEquippedItems()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<IWoWItem> GetContainedItems()
+        {
+            throw new NotImplementedException();
+        }
+
+        public uint GetBagGuid(EquipSlot equipSlot)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void PickupContainedItem(int bagSlot, int slotId, int quantity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void PlaceItemInContainer(int bagSlot, int slotId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DestroyItemInContainer(int bagSlot, int slotId, int quantity = -1)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Logout()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SplitStack(int bag, int slot, int quantity, int destinationBag, int destinationSlot)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void EquipItem(int bagSlot, int slotId, EquipSlot? equipSlot = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UnequipItem(EquipSlot slot)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AcceptResurrect()
         {
             throw new NotImplementedException();
         }

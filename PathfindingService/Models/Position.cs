@@ -1,10 +1,28 @@
-﻿namespace PathfindingService.Models
+﻿using PathfindingService.Repository;
+
+namespace PathfindingService.Models
 {
-    public class Position(float x, float y, float z)
+    public class Position
     {
-        public float X { get; set; } = x;
-        public float Y { get; set; } = y;
-        public float Z { get; set; } = z;
+        public Position(float x, float y, float z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+
+        public Position(XYZ xyz)
+        {
+            X = xyz.X;
+            Y = xyz.Y;
+            Z = xyz.Z;
+        }
+
+        public float X { get; set; }
+
+        public float Y { get; set; }
+
+        public float Z { get; set; }
 
         public float DistanceTo(Position position)
         {
@@ -29,13 +47,6 @@
 
             return new Position((float)(X / magnitude), (float)(Y / magnitude), (float)(Z / magnitude));
         }
-        public bool InLosWith(Position position)
-        {
-            //if (position.X == X && position.Y == Y && position.Z == Z) return true;
-            //var i = Functions.Intersect(this, position);
-            //return i.X == 0 && i.Y == 0 && i.Z == 0;
-            return true;
-        }
 
         public static Position operator -(Position a, Position b) =>
             new(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
@@ -44,6 +55,10 @@
             new(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
 
         public static Position operator *(Position a, int n) =>
-        new(a.X * n, a.Y * n, a.Z * n);
+            new(a.X * n, a.Y * n, a.Z * n);
+
+        public XYZ ToXYZ() => new(X, Y, Z);
+
+        public override string ToString() => $"X: {Math.Round(X, 2)}, Y: {Math.Round(Y, 2)}, Z: {Math.Round(Z, 2)}";
     }
 }

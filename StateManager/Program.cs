@@ -1,5 +1,4 @@
 using ActivityBackgroundMember;
-using DatabaseDomain;
 using PathfindingService;
 
 namespace StateManager
@@ -26,7 +25,6 @@ namespace StateManager
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddHostedService<StateManagerWorker>();
-                    services.AddHostedService<DatabaseDomainWorker>();
                     services.AddHostedService<PathfindingServiceWorker>();
                     services.AddTransient<ActivityBackgroundMemberWorker>();
                 });

@@ -1,4 +1,5 @@
 ﻿using BotRunner.Constants;
+using Communication;
 using WoWSharpClient.Handlers;
 using WoWSharpClient.Manager;
 using WoWSharpClient.Tests.Util;
@@ -10,12 +11,12 @@ namespace WoWSharpClient.Tests.Handlers
         private readonly ChatHandler _chatHandler;
         private readonly WoWSharpEventEmitter _woWSharpEventEmitter;
         private readonly ObjectManager _objectManager;
-        private readonly ActivityMemberState _activityMember;
+        private readonly ActivitySnapshot _activityMember;
 
         public ChatHandlerTests()
         {
             _woWSharpEventEmitter = new WoWSharpEventEmitter();
-            _activityMember = new ActivityMemberState();
+            _activityMember = new ActivitySnapshot();
             _objectManager = new ObjectManager(_woWSharpEventEmitter, _activityMember);
 
             _chatHandler = new ChatHandler(_woWSharpEventEmitter, _objectManager);

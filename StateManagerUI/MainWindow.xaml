@@ -8,127 +8,51 @@
         d:DataContext="{d:DesignInstance Type=views:StateManagerViewModel}"
         mc:Ignorable="d"
         Title="MainWindow" Height="475" Width="665">
-    <Window.Resources>
-        <convert:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
-        <convert:EnumDescriptionConverter x:Key="EnumDescriptionConverter"/>
-    </Window.Resources>
+
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="37*"/>
-            <ColumnDefinition Width="53*"/>
-        </Grid.ColumnDefinitions>
-        <Canvas Grid.ColumnSpan="2">
-            <Canvas>
-                <TextBox Text="{Binding StateManagerIP}" HorizontalAlignment="Center" VerticalAlignment="Top" Width="140" Canvas.Left="5" Canvas.Top="7" Height="21"></TextBox>
-                <TextBox Text="{Binding StateManagerPort}" Width="40" Canvas.Left="105" Canvas.Top="33" HorizontalAlignment="Center" VerticalAlignment="Center" Height="23"/>
-                <Button Command="{Binding AddActivityCommand}"  Content="Add Activity" Height="21" Width="95" Canvas.Left="220" Canvas.Top="7" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <Button Command="{Binding RemoveActivityCommand}" Content="Remove Activity" Height="23" Width="95" Canvas.Left="220" Canvas.Top="33" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <Button Command="{Binding ConnectToCommand}" Content="Connect" Height="23" Width="95" Canvas.Left="5" Canvas.Top="33" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <Button Command="{Binding AddActivityMemberCommand}" Content="Add Member" Height="21" Width="95" Canvas.Left="495" Canvas.Top="7" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <Button Command="{Binding RemoveActivityMemberCommand}" Content="Remove Member" Height="23" Width="95" Canvas.Left="495" Canvas.Top="33" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <Button Command="{Binding ApplyWorldStateCommand}" Content="Apply" Height="20" Width="65" Canvas.Left="150" Canvas.Top="7" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-            </Canvas>
-            <ScrollViewer Height="280" HorizontalAlignment="Center" Canvas.Top="64" VerticalAlignment="Top">
-                <StackPanel>
-                    <ItemsControl ItemsSource="{Binding ActivityViewModels}">
-                        <d:ItemsControl.ItemsSource>
-                            <x:Array Type="{x:Type views:ActivityViewModel}">
-                                <views:ActivityViewModel 
-                                    CurrentActivity="PvPwarsongGulch19" 
-                                    IsFocused="True" />
-                                <views:ActivityViewModel 
-                                    CurrentActivity="PvEnaxxramas" 
-                                    IsFocused="False"  />
-                            </x:Array>
-                        </d:ItemsControl.ItemsSource>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="{x:Type views:ActivityViewModel}">
-                                <GroupBox Header="{Binding CurrentActivity}" Height="69" Width="300"  MouseDown="Activity_MouseDown">
-                                    <GroupBox.Style>
-                                        <Style TargetType="GroupBox">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsFocused}" Value="True">
-                                                    <Setter Property="Foreground" Value="White"/>
-                                                    <Setter Property="Background" Value="DarkOrange"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsFocused}" Value="False">
-                                                    <Setter Property="Foreground" Value="Black"/>
-                                                    <Setter Property="Background" Value="White"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </GroupBox.Style>
-                                    <Grid>
-                                        <ComboBox x:Name="InstanceComboBox" 
-                                              Margin="0,0,0,10" 
-                                              Height="NaN" 
-                                              Width="NaN" 
-                                              IsEnabled="{Binding IsFocused}" 
-                                              VerticalContentAlignment="Center" 
-                                              HorizontalContentAlignment="Left" 
-                                              ItemsSource="{Binding Path=EnumActivityTypes}"
-                                              SelectedValue="{Binding CurrentActivity}"
-                                              SelectionChanged="InstanceComboBox_SelectionChanged">
-                                            <ComboBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                                                </DataTemplate>
-                                            </ComboBox.ItemTemplate>
-                                        </ComboBox>
-                                    </Grid>
-                                </GroupBox>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-            </ScrollViewer>
-            <ScrollViewer Height="280" Canvas.Left="317" Canvas.Top="64" HorizontalAlignment="Left" VerticalAlignment="Center" Width="328">
-                <StackPanel>
-                    <ItemsControl ItemsSource="{Binding SelectedActivityMemberViewModels}">
-                        <d:ItemsControl.ItemsSource>
-                            <x:Array Type="{x:Type views:ActivityMemberViewModel}">
-                                <views:ActivityMemberViewModel/>
-                                <views:ActivityMemberViewModel IsFocused="True"/>
-                            </x:Array>
-                        </d:ItemsControl.ItemsSource>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="{x:Type views:ActivityMemberViewModel}">
-                                <GroupBox Height="150" Width="300" MouseDown="ActivityMember_MouseDown">
-                                    <GroupBox.Style>
-                                        <Style TargetType="{x:Type GroupBox}">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsFocused}" Value="True">
-                                                    <Setter Property="Foreground" Value="OrangeRed"/>
-                                                    <Setter Property="Background" Value="DarkOrange"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsFocused}" Value="False">
-                                                    <Setter Property="Foreground" Value="Black"/>
-                                                    <Setter Property="Background" Value="White"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </GroupBox.Style>
-                                    <Grid>
-                                        <Label Content="Behavior Profile" Height="26" Margin="0,10,166,107"/>
-                                        <Label Content="Account" Margin="2,36,211,81"/>
-                                        <Label Content="Progression Config" Height="26" Margin="0,62,166,55"/>
-                                        <Label Content="Begin State Config" Height="26" Margin="0,88,166,29"/>
-                                        <Label Content="End State Config" Height="26" Margin="0,114,166,3"/>
-                                        <TextBox Name="BehaviorProfileTextBox" Height="26" Text="{Binding BehaviorProfile}" TextChanged="TextBox_TextChanged" Margin="127,10,10,107"/>
-                                        <TextBox Name="AccountTextBox" Height="26" Text="{Binding AccountName}" TextChanged="TextBox_TextChanged" Margin="127,36,10,81"/>
-                                        <TextBox Name="ProgressionConfigTextBox" Height="26" Text="{Binding ProgressionProfile}" TextChanged="TextBox_TextChanged" Margin="127,62,10,55"/>
-                                        <TextBox Name="InitialStateConfigTextBox" Height="26" Text="{Binding InitialProfile}" TextChanged="TextBox_TextChanged" Margin="127,88,10,29"/>
-                                        <TextBox Name="EndStateConfigTextBox" Height="26" Text="{Binding EndStateProfile}" TextChanged="TextBox_TextChanged" Margin="127,114,10,3"/>
-                                    </Grid>
-                                </GroupBox>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-            </ScrollViewer>
-            <ScrollViewer Height="75" Canvas.Left="10" Canvas.Top="349" HorizontalAlignment="Left" VerticalAlignment="Center" Width="635">
-                <TextBox Text="{Binding ConsoleLogText}" d:Text="Text 1" IsReadOnly="True"/>
-            </ScrollViewer>
-        </Canvas>
+        <DataGrid Name="AccountDataGrid" AutoGenerateColumns="False" CanUserSortColumns="True" ItemsSource="{Binding Accounts}" 
+                  IsReadOnly="False" CanUserAddRows="False" SelectionMode="Single">
+            <DataGrid.Columns>
+
+                <!-- Checkbox Column -->
+                <DataGridTemplateColumn Header="Select" Width="50">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding IsSelected}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <!-- Online/Offline Indicator -->
+                <DataGridTemplateColumn Header="Status" Width="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Status}" Foreground="{Binding Status, Converter={StaticResource StatusToColorConverter}}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <!-- Account Name -->
+                <DataGridTextColumn Header="Account Name" Binding="{Binding AccountName}" Width="200"/>
+
+                <!-- Activity Field -->
+                <DataGridTextColumn Header="Activity" Binding="{Binding Activity}" Width="200"/>
+
+                <!-- OCEAN Model Fields -->
+                <DataGridTextColumn Header="Openness" Binding="{Binding OCEAN.Openness, StringFormat=N2}" Width="100"/>
+                <DataGridTextColumn Header="Conscientiousness" Binding="{Binding OCEAN.Conscientiousness, StringFormat=N2}" Width="100"/>
+                <DataGridTextColumn Header="Extraversion" Binding="{Binding OCEAN.Extraversion, StringFormat=N2}" Width="100"/>
+                <DataGridTextColumn Header="Agreeableness" Binding="{Binding OCEAN.Agreeableness, StringFormat=N2}" Width="100"/>
+                <DataGridTextColumn Header="Neuroticism" Binding="{Binding OCEAN.Neuroticism, StringFormat=N2}" Width="100"/>
+
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Pagination Controls -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10">
+            <Button Content="Previous" Command="{Binding PreviousPageCommand}" Width="100"/>
+            <TextBlock Text="{Binding CurrentPage}" VerticalAlignment="Center" Margin="10,0"/>
+            <Button Content="Next" Command="{Binding NextPageCommand}" Width="100"/>
+        </StackPanel>
     </Grid>
 </Window>

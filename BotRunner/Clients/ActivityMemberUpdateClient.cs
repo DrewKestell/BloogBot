@@ -9,7 +9,6 @@ namespace BotRunner.Clients
         public AsyncRequest SendMemberStateUpdate(List<ActivitySnapshot> update)
         {
             AsyncRequest request = new();
-            request.ActivitySnapshots.AddRange(update);
 
             return SendMessage(request);
         }

@@ -1295,6 +1295,12 @@ namespace BotRunner.Constants
         [Description("Troll")]
         Troll,
     }
+    public enum Role
+    {
+        Tank,
+        Healer,
+        DPS
+    }
     public enum TargetMarker : byte
     {
         [Description("None")]
@@ -2282,9 +2288,6 @@ namespace BotRunner.Constants
         LeaveGroup,         // Leave the current group.
         DisbandGroup,       // Disband the current group.
 
-        StartMeleeAttack,   // Begin a melee auto-attack.
-        StartRangedAttack,  // Begin a ranged auto-attack.
-        StartWandAttack,    // Begin a wand auto-attack.
         StopAttack,         // Cease any ongoing attack.
         CastSpell,          // Cast or channel a spell on a target or location.
         StopCast,           // Stop casting a spell.

@@ -8,6 +8,8 @@ namespace BotRunner.Interfaces
         Class Class { get; }
         bool IsDrinking { get; }
         bool IsEating { get; }
+
+        void OfferTrade();
     }
     public enum SpellModType
     {

@@ -22,7 +22,7 @@ namespace BotRunner.Base
         public DynamicFlags DynamicFlags { get; set; }
         public virtual uint DisplayId { get; set; }
         public virtual uint Timestamp { get; set; }
-        public bool InLosWith(Position position) => position.InLosWith(Position);
+        public bool InLosWith(Position position) => true;
         public bool InLosWith(IWoWObject objc) => InLosWith(objc.Position);
         public bool IsFacing(Position position) => Math.Abs(GetFacingForPosition(position) - Facing) < 0.05f;
         public bool IsFacing(IWoWObject objc) => IsFacing(objc.Position);

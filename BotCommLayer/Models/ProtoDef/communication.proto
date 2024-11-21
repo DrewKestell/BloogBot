@@ -3,43 +3,32 @@
 package communication;
 
 import "game.proto";
-import "decision.proto";
-import "pathfinding.proto";
-import "database.proto";
 
 message AsyncRequest {
     uint64 id = 1;
-    // Contains AsyncMessage requests to AsyncSocketServers. Needs a unique Id to track the client
-    repeated ActivitySnapshot activitySnapshots = 2;
-    optional decision.CombatData combatData = 3;
-    optional decision.ProgressionData progressionRequest = 4;
-    optional pathfinding.PathfindingRequest pathfindingRequest = 5;
-    optional database.DatabaseRequest databaseRequest = 6;
+    ActivitySnapshot activitySnapshots = 2;
 }
 
 message ActivitySnapshot {
     uint32 timestamp = 1;
-    game.WoWPlayer player = 2;
-    repeated game.WoWGameObject nearbyObjects = 3;
-    repeated game.WoWUnit nearbyUnits = 4;
-}
-
-message PlayerSnapShot {
-    uint32 race = 1;
-    uint32 class = 2;
-    game.Position position = 3;
-    float facing = 4;
-}
-
-message UnitSnapShot {
-    uint64 guid = 1;
-    game.Position position = 2;
-    float facing = 3;
+    string accountName = 2;
+    game.WoWPlayer player = 3;
+    ActionMessage previousAction = 4;
+    ActionMessage currentAction = 5;
+    repeated game.WoWGameObject nearbyObjects = 6;
+    repeated game.WoWUnit nearbyUnits = 7;
 }
 
 message ActionMessage {
     ActionType action_type = 1;
     repeated ActionParameter parameters = 2;
+    ActionResult actionResult = 3;
+}
+
+enum ActionResult {
+	SUCCESS = 0;
+	FAILURE = 1;
+	IN_PROGRESS = 2;
 }
 
 enum ActionType {

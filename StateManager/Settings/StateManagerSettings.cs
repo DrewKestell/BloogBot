@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Communication;
+using Newtonsoft.Json;
 using System.Reflection;
 
 namespace StateManager.Settings
@@ -42,6 +43,6 @@ namespace StateManager.Settings
             }
         }
         private StateManagerSettings() { }
-        public List<ActivityMember> ActivityMemberPresets { get; set; } = [];
+        public List<ActivitySnapshot> ActivityMemberPresets { get; set; } = [];
     }
 }

@@ -5,13 +5,14 @@ namespace BotRunner.Interfaces
     public interface IWoWItem : IWoWObject
     {
         uint ItemId { get; }
+        uint Quantity { get; }
         uint StackCount { get; }
         uint MaxDurability { get; }
         uint RequiredLevel { get; }
         uint Durability { get; }
         bool IsCoins { get; }
+        ItemCacheInfo Info { get; }
         ItemDynFlags Flags { get; set; }
-        IWoWItemCacheInfo Info { get; }
         ItemQuality Quality { get; }
         uint DurabilityPercentage => (uint)((double)Durability / MaxDurability * 100);
         void Use();

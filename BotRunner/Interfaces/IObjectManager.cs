@@ -17,11 +17,13 @@ namespace BotRunner.Interfaces
         IGossipFrame GossipFrame { get; }
         ILootFrame LootFrame { get; }
         IMerchantFrame MerchantFrame { get; }
+        ICraftFrame CraftFrame { get; }
         IQuestFrame QuestFrame { get; }
         IQuestGreetingFrame QuestGreetingFrame { get; }
         ITaxiFrame TaxiFrame { get; }
         ITradeFrame TradeFrame { get; }
         ITrainerFrame TrainerFrame { get; }
+        ITalentFrame TalentFrame { get; }
         ILocalPlayer Player { get; }
         ILocalPet Pet { get; }
         IList<IWoWObject> Objects { get; }
@@ -60,22 +62,26 @@ namespace BotRunner.Interfaces
         void ConfirmItemEquip();
         void SendChatMessage(string chatMessage);
         void SetRaidTarget(IWoWUnit target, TargetMarker v);
-        void AcceptGroupInvite();
-        void LeaveGroup();
         void JoinBattleGroundQueue();
         void ResetInstances();
         void PickupMacro(uint v);
         void PlaceAction(uint v);
+        void InviteToGroup(ulong guid);
+        void KickPlayer(ulong guid);
+        void AcceptGroupInvite();
+        void DeclineGroupInvite();
+        void LeaveGroup();
+        void DisbandGroup();
         void ConvertToRaid();
-        void InviteToGroup(string characterName);
-        uint GetItemCount(uint itemId);
-        IWoWItem GetEquippedItem(EquipSlot ranged);
-        IEnumerable<IWoWItem> GetEquippedItems();
-        int CountFreeSlots(bool v);
-        IWoWItem GetItem(int v1, int v2);
-        void UseContainerItem(int v1, int v2);
-        uint GetBagId(ulong guid);
-        uint GetSlotId(ulong guid);
-        void PickupContainerItem(uint v1, uint v2);
+        bool HasPendingGroupInvite();
+        bool HasLootRollWindow(int itemId);
+        void LootPass(int itemId);
+        void LootRollGreed(int itemId);
+        void LootRollNeed(int itemId);
+        void AssignLoot(int itemId, ulong playerGuid);
+        void SetGroupLoot(GroupLootSetting setting);
+        void PromoteLootManager(ulong playerGuid);
+        void PromoteAssistant(ulong playerGuid);
+        void PromoteLeader(ulong playerGuid);
     }
 }

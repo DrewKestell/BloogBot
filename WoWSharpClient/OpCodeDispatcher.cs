@@ -7,7 +7,7 @@ namespace WoWSharpClient
     internal class OpCodeDispatcher
     {
         private readonly Dictionary<Opcodes, Action<Opcodes, byte[]>> _handlers = [];
-        private readonly Queue<Action> _queue;
+        private readonly Queue<System.Action> _queue;
         private readonly Task _runnerTask;
         private readonly WoWSharpEventEmitter _woWSharpEventEmitter;
         private readonly ObjectManager _objectManager;
@@ -34,7 +34,7 @@ namespace WoWSharpClient
             _standStateHandler = new StandStateHandler(_woWSharpEventEmitter, _objectManager);
             _worldStateHandler = new WorldStateHandler(_woWSharpEventEmitter, _objectManager);
 
-            _queue = new Queue<Action>();
+            _queue = new Queue<System.Action>();
             _runnerTask = Runner();
 
             RegisterHandlers();

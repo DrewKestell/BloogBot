@@ -2,474 +2,2608 @@ syntax = "proto3";
 
 package database;
 
-import "game.proto";
+import "google/protobuf/timestamp.proto";
 
-enum QueryType {
-    GetItemById = 0;
-    GetCreatureMovementByGuid = 1;
-    GetCreatureGroupingByMemberGuid = 2;
-    GetCreatureTemplateById = 3;
-    GetCreaturesById = 4;
-    GetCreaturesByMapId = 5;
-    GetCreatureEquipTemplateById = 6;
+enum TableName {
+    UNKNOWN_TABLE = 0;
+    AREA_TRIGGER_BG_ENTRANCE = 1;
+    AREA_TRIGGER_INVOLVED_RELATION = 2;
+    AREA_TRIGGER_TAVERN = 3;
+    AREA_TRIGGER_TELEPORT = 4;
+    AREA_TEMPLATE = 5;
+    AUCTION_HOUSE_BOT = 6;
+    AUTO_BROADCAST = 7;
+    BATTLEGROUND_EVENT = 8;
+    BATTLEGROUND_TEMPLATE = 9;
+    BATTLEMASTER_ENTRY = 10;
+    BROADCAST_TEXT = 11;
+    CINEMATIC_WAYPOINT = 12;
+    COMMAND = 13;
+    CONDITION = 14;
+    CREATURE = 15;
+    CREATURE_ADDON = 16;
+    CREATURE_AI_EVENT = 17;
+    CREATURE_AI_SCRIPT = 18;
+    CREATURE_BATTLEGROUND = 19;
+    CREATURE_EQUIP_TEMPLATE = 20;
+    CREATURE_EQUIP_TEMPLATE_RAW = 21;
+    CREATURE_GROUP = 22;
+    CREATURE_INVOLVED_RELATION = 23;
+    CREATURE_LINKING = 24;
+    CREATURE_LINKING_TEMPLATE = 25;
+    CREATURE_LOOT_TEMPLATE = 26;
+    CREATURE_MODEL_INFO = 27;
+    CREATURE_MOVEMENT = 28;
+    CREATURE_MOVEMENT_SCRIPT = 29;
+    CREATURE_MOVEMENT_SPECIAL = 30;
+    CREATURE_MOVEMENT_TEMPLATE = 31;
+    CREATURE_ON_KILL_REPUTATION = 32;
+    CREATURE_QUEST_RELATION = 33;
+    CREATURE_SPELL = 34;
+    CREATURE_SPELL_SCRIPT = 35;
+    CREATURE_TEMPLATE = 36;
+    CREATURE_TEMPLATE_ADDON = 37;
+    CUSTOM_TEXT = 38;
+    DISENCHANT_LOOT_TEMPLATE = 39;
+    EVENT_SCRIPT = 40;
+    EXPLORATION_BASE_XP = 41;
+    FACTION = 42;
+    FACTION_TEMPLATE = 43;
+    FISHING_LOOT_TEMPLATE = 44;
+    FORBIDDEN_ITEM = 45;
+    GAME_OBJECT = 46;
+    GAME_OBJECT_BATTLEGROUND = 47;
+    GAME_OBJECT_INVOLVED_RELATION = 48;
+    GAME_OBJECT_LOOT_TEMPLATE = 49;
+    GAME_OBJECT_QUEST_RELATION = 50;
+    GAME_OBJECT_REQUIREMENT = 51;
+    GAME_OBJECT_SCRIPT = 52;
+    GAME_OBJECT_TEMPLATE = 53;
+    GAME_EVENT = 54;
+    GAME_EVENT_CREATURE = 55;
+    GAME_EVENT_GAME_OBJECT = 56;
+    GAME_EVENT_MAIL = 57;
+    GAME_EVENT_QUEST = 58;
+    GAME_GRAVEYARD_ZONE = 59;
+    GAME_TELE = 60;
+    GAME_WEATHER = 61;
+    GM_SUB_SURVEY = 62;
+    GM_SURVEY = 63;
+    GM_TICKET = 64;
+    GOSSIP_MENU = 65;
+    GOSSIP_MENU_OPTION = 66;
+    GOSSIP_SCRIPT = 67;
+    INSTANCE_BUFF_REMOVAL = 68;
+    INSTANCE_CREATURE_KILLS = 69;
+    INSTANCE_CUSTOM_COUNTER = 70;
+    INSTANCE_WIPE = 71;
+    ITEM_DISPLAY_INFO = 72;
+    ITEM_ENCHANTMENT_TEMPLATE = 73;
+    ITEM_LOOT_TEMPLATE = 74;
+    ITEM_REQUIRED_TARGET = 75;
+    ITEM_TEMPLATE = 76;
+    STAT = 77;
+    DAMAGE = 78;
+    RESISTANCE = 79;
+    SPELL = 80;
+    LOCALES_AREA = 81;
+    LOCALES_BROADCAST_TEXT = 82;
+    LOCALES_CREATURE = 83;
+    LOCALES_GAME_OBJECT = 84;
+    LOCALES_GOSSIP_MENU_OPTION = 85;
+    LOCALES_ITEM = 86;
+    LOCALES_PAGE_TEXT = 87;
+    LOCALES_POINTS_OF_INTEREST = 88;
+    LOCALES_QUEST = 89;
+    MAIL_LOOT_TEMPLATE = 90;
+    MANGOS_STRING = 91;
+    MAP_LOOT_DISABLED = 92;
+    MAP_TEMPLATE = 93;
+    MIGRATIONS = 94;
+    NPC_GOSSIP = 95;
+    NPC_TEXT = 96;
+    NPC_TRAINER = 97;
+    NPC_TRAINER_TEMPLATE = 98;
+    NPC_VENDOR = 99;
+    NPC_VENDOR_TEMPLATE = 100;
+    PAGE_TEXT = 101;
+    PET_CREATE_INFO_SPELL = 102;
+    PET_LEVEL_STATS = 103;
+    PET_NAME_GENERATION = 104;
+    PICKPOCKETING_LOOT_TEMPLATE = 105;
+    PLAYER_BOT = 106;
+    PLAYER_CREATE_INFO = 107;
+    PLAYER_CREATE_INFO_ACTION = 108;
+    PLAYER_CREATE_INFO_ITEM = 109;
+    PLAYER_CREATE_INFO_SPELL = 110;
+    PLAYER_CLASS_LEVEL_STATS = 111;
+    PLAYER_FACTION_CHANGE_ITEMS = 112;
+    PLAYER_FACTION_CHANGE_MOUNTS = 113;
+    PLAYER_FACTION_CHANGE_QUESTS = 114;
+    PLAYER_FACTION_CHANGE_REPUTATIONS = 115;
+    PLAYER_FACTION_CHANGE_SPELLS = 116;
+    PLAYER_LEVEL_STATS = 117;
+    PLAYER_XP_FOR_LEVEL = 118;
+    POINTS_OF_INTEREST = 119;
+    POOL_CREATURE = 120;
+    POOL_CREATURE_TEMPLATE = 121;
+    POOL_GAME_OBJECT = 122;
+    POOL_GAME_OBJECT_TEMPLATE = 123;
+    POOL_POOL = 124;
+    POOL_TEMPLATE = 125;
+    QUEST_END_SCRIPTS = 126;
+    QUEST_GREETING = 127;
+    QUEST_START_SCRIPTS = 128;
+    QUEST_TEMPLATE = 129;
+    REFERENCE_LOOT_TEMPLATE = 130;
+    REPUTATION_REWARD_RATE = 131;
+    REPUTATION_SPILLOVER_TEMPLATE = 132;
+    RESERVED_NAME = 133;
+    SCRIPTED_AREATRIGGER = 134;
+    SCRIPTED_EVENT_ID = 135;
+    SCRIPT_ESCORT_DATA = 136;
+    SCRIPT_TEXT = 137;
+    SCRIPT_WAYPOINT = 138;
+    SKILL_DISCOVERY_TEMPLATE = 139;
+    SKILL_EXTRA_ITEM_TEMPLATE = 140;
+    SKILL_FISHING_BASE_LEVEL = 141;
+    SKINNING_LOOT_TEMPLATE = 142;
+    SOUND_ENTRIES = 143;
+    SPELL_AFFECT = 144;
+    SPELL_AREA = 145;
+    SPELL_BONUS_DATA = 146;
+    SPELL_CHAIN = 147;
+    SPELL_CHECK = 148;
+    SPELL_DISABLED = 149;
+    SPELL_EFFECT_MOD = 150;
+    SPELL_ELIXIR = 151;
+    SPELL_FACING = 152;
+    SPELL_GROUP = 153;
+    SPELL_GROUP_STACK_RULES = 154;
+    SPELL_LEARN_SPELL = 155;
+    SPELL_MOD = 156;
+    SPELL_PET_AURA = 157;
+    SPELL_PROC_EVENT = 158;
+    SPELL_PROC_ITEM_ENCHANT = 159;
+    SPELL_SCRIPT = 160;
+    SPELL_SCRIPT_TARGET = 161;
+    SPELL_TARGET_POSITION = 162;
+    SPELL_TEMPLATE = 163;
+    SPELL_THREAT = 164;
+    TAXI_PATH_TRANSITION = 165;
+    TRANSPORT = 166;
+    VARIABLES = 167;
 }
 
+
 message DatabaseRequest {
-    QueryType queryType = 1;
-    string queryParam1 = 2;
-    string queryParam2 = 3;
-    string queryParam3 = 4;
-    string queryParam4 = 5;
+    TableName table_name = 1; // Enum for selecting the table
+    repeated KeyValue key = 2; // List of key fields for multi-field keys
 }
 
 message DatabaseResponse {
-    repeated AreaTriggerTeleport areaTriggerTeleports = 1;
-    repeated CreatureGrouping creatureGroupings = 2;
-    repeated CreatureMovement creatureMovement = 3;
-    repeated CreatureMovementTemplate creatureMovementTemplate = 4;
-    repeated GameObject gameObjects = 5;
-    repeated Creature creatures = 6;
-    optional CreatureEquipTemplate creatureEquipTemplate = 7;
-    optional ItemTemplate itemTemplate = 8;
-    optional NpcVendorEntry npcVendorEntry = 9;
-    optional QuestTemplate questTemplate = 10;
-    optional CreatureTemplate creatureTemplate = 11;
+    TableName table_name = 1; // Enum indicating which table the response data is from
+    repeated Row rows = 2;    // List of rows, each represented as a map of key-value pairs
+
+    message Row {
+        repeated KeyValue fields = 1; // Each row consists of multiple key-value pairs (fields)
+    }
+    string error_message = 3; // Error message if the request failed
+}
+
+message KeyValue {
+    string key = 1;    // Field name (e.g., "spellId", "name")
+    string value = 2;  // Field value as a string; can be converted based on field type
+}
+
+message AreaTriggerBgEntrance {
+    uint32 id = 1; // Identifier
+    string name = 2; // Name of the area trigger
+    uint32 team = 3; // Team identifier
+    uint32 bg_template = 4; // Battleground template ID
+    float exit_map = 5; // Exit map ID
+    float exit_position_x = 6; // Exit position X coordinate
+    float exit_position_y = 7; // Exit position Y coordinate
+    float exit_position_z = 8; // Exit position Z coordinate
+    float exit_orientation = 9; // Exit orientation
+}
+
+message AreaTriggerInvolvedRelation {
+    uint32 id = 1; // Identifier
+    uint32 quest = 2; // Quest Identifier
+}
+
+message AreaTriggerTavern {
+    uint32 id = 1; // Identifier
+    string name = 2; // Tavern name
 }
 
 message AreaTriggerTeleport {
-    int32 id = 1;
-    string name = 2;
-    uint32 requiredLevel = 3;
-    int32 requiredItem = 4;
-    int32 requiredItem2 = 5;
-    int32 requiredQuestDone = 6;
-    uint32 targetMap = 7;
-    game.Position position = 8;
-    float targetOrientation = 9;
-    string statusFailedText = 10;
-    int32 conditionId = 11;
+    uint32 id = 1; // Identifier
+    uint32 patch = 2; // Patch version
+    string name = 3; // Name of the teleport trigger
+    uint32 required_level = 4; // Required level for teleport
+    uint32 required_item = 5; // Required item 1
+    uint32 required_item2 = 6; // Required item 2
+    uint32 required_quest_done = 7; // Required quest completed
+    int32 required_event = 8; // Required event
+    uint32 required_pvp_rank = 9; // Required PvP rank
+    uint32 required_team = 10; // Required team
+    string required_failed_text = 11; // Text for failed requirement
+    uint32 target_map = 12; // Target map ID
+    float target_position_x = 13; // Target position X
+    float target_position_y = 14; // Target position Y
+    float target_position_z = 15; // Target position Z
+    float target_orientation = 16; // Target orientation
+}
+
+message AreaTemplate {
+    uint32 entry = 1; // Entry ID
+    uint32 map_id = 2; // Map ID
+    uint32 zone_id = 3; // Zone ID
+    uint32 explore_flag = 4; // Exploration flag
+    uint32 flags = 5; // Area flags
+    int32 area_level = 6; // Area level
+    string name = 7; // Area name
+    uint32 team = 8; // Team ID (faction, alliance/horde)
+    uint32 liquid_type_id = 9; // Liquid type ID (water, lava, etc.)
+}
+
+message AuctionHouseBot {
+    int32 item = 1;      // ID of the item
+    int32 stack = 2;     // Stack size
+    int32 bid = 3;       // Bid price
+    int32 buyout = 4;    // Buyout price (immediate purchase)
+}
+
+message AutoBroadcast {
+    int32 delay = 1;          // Delay between broadcasts
+    int32 stringId = 2;       // ID of the string to broadcast
+    string comments = 3;      // Optional comments
+}
+
+message BattlegroundEvent {
+    int32 map = 1;           // Battleground map ID
+    uint32 event1 = 2;        // First event ID
+    uint32 event2 = 3;        // Second event ID
+    string description = 4;   // Description of the event
+}
+
+message BattlegroundTemplate {
+    uint32 id = 1;
+    uint32 patch = 2;
+    uint32 minPlayersPerTeam = 3;
+    uint32 maxPlayersPerTeam = 4;
+    uint32 minLvl = 5;
+    uint32 maxLvl = 6;
+    uint32 allianceWinSpell = 7;
+    uint32 allianceLoseSpell = 8;
+    uint32 hordeWinSpell = 9;
+    uint32 hordeLoseSpell = 10;
+    uint32 allianceStartLoc = 11;
+    float allianceStartO = 12;
+    uint32 hordeStartLoc = 13;
+    float hordeStartO = 14;
+}
+
+message BattlemasterEntry {
+    uint32 entry = 1;       // Entry of a creature
+    uint32 bg_template = 2; // Battleground template ID
+}
+
+message BroadcastText {
+    uint32 id = 1;                // Broadcast text ID
+    string maleText = 2;           // Male text
+    string femaleText = 3;         // Female text
+    uint32 sound = 4;              // Sound ID
+    uint32 type = 5;               // Type of the broadcast
+    uint32 language = 6;           // Language ID
+    uint32 emoteId0 = 7;           // First emote ID
+    uint32 emoteId1 = 8;           // Second emote ID
+    uint32 emoteId2 = 9;           // Third emote ID
+    uint32 emoteDelay0 = 10;       // Delay for first emote
+    uint32 emoteDelay1 = 11;       // Delay for second emote
+    uint32 emoteDelay2 = 12;       // Delay for third emote
+}
+
+message CinematicWaypoint {
+    int32 cinematic = 1;    // Identifier for the cinematic
+    int32 timer = 2;        // Timer value associated with the waypoint
+    float posx = 3;         // X position coordinate
+    float posy = 4;         // Y position coordinate
+    float posz = 5;         // Z position coordinate
+    string comment = 6;     // Optional comment
+}
+
+message Command {
+    string name = 1;       // Command name
+    uint32 security = 2;   // Security level required to use the command
+    string help = 3;       // Help description for the command
+    int32 flags = 4;       // Flags representing command-specific settings
+}
+
+message Condition {
+    uint32 condition_entry = 1;   // Unique identifier for the condition
+    int32 type = 2;              // Type of the condition
+    uint32 value1 = 3;            // Data field one for the condition
+    uint32 value2 = 4;            // Data field two for the condition
+    uint32 flags = 5;             // General condition flags
 }
 
 message Creature {
-    int64 guid = 1;  // Consistent ID type
-    string name = 2;
-    int32 id = 3;
-    int32 map = 4;
-    int32 zoneId = 5;
-    int32 areaId = 6;
-    game.Position position = 7;
-    float orientation = 8;
-    int32 spawnTimeSecsMin = 9;
-    int32 spawnTimeSecsMax = 10;
-    float spawnDist = 11;
-    int32 currentWaypointId = 12;
-    int32 spawnType = 13;
-    int32 respawnTime = 14;
-    int32 movementType = 15;
-    int32 wanderDistance = 16;
-    int32 searchRange = 17;
-    int32 equipmentId = 18;
-    string scriptName = 19;
-    string comments = 20;
-    int32 spawnMask = 21;
-    int32 modelId = 22;
-    int32 currentWaypoint = 23;
-    int32 curHealth = 24;
-    int32 curMana = 25;
-    int32 deathState = 26;
+    uint32 guid = 1;             // Global Unique Identifier
+    uint32 id = 2;               // Creature Identifier
+    uint32 map = 3;              // Map Identifier
+    uint32 modelid = 4;          // Model Identifier
+    uint32 equipment_id = 5;     // Equipment ID
+    float position_x = 6;        // X position
+    float position_y = 7;        // Y position
+    float position_z = 8;        // Z position
+    float orientation = 9;       // Orientation in radians
+    uint32 spawntimesecsmin = 10; // Min spawn time in seconds
+    uint32 spawntimesecsmax = 11; // Max spawn time in seconds
+    float spawndist = 12;        // Spawn distance
+    uint32 currentwaypoint = 13; // Current waypoint
+    uint32 curhealth = 14;       // Current health
+    uint32 curmana = 15;         // Current mana
+    uint32 deathState = 16;      // Death state (alive/dead)
+    uint32 movementType = 17;    // Movement type (walking, running, etc.)
+    uint32 spawnFlags = 18;      // Spawn flags
+    float visibilitymod = 19;    // Visibility modifier
+    uint32 patch_min = 20;       // Minimum patch level
+    uint32 patch_max = 21;       // Maximum patch level
+}
+
+message CreatureAddon {
+    uint32 guid = 1;            // Global Unique Identifier
+    uint32 patch = 2;           // Patch version
+    uint32 mount = 3;           // Mount ID
+    uint32 bytes1 = 4;          // Miscellaneous byte flags
+    uint32 b2_0_sheath = 5;     // Sheath state (weapons equipped or not)
+    uint32 b2_1_flags = 6;      // Additional creature flags
+    uint32 emote = 7;           // Current emote (e.g., waving, cheering)
+    uint32 moveflags = 8;       // Movement flags
+    string auras = 9;           // Active auras (as a text field containing aura data)
+}
+
+message CreatureAIEvent {
+    uint32 id = 1;                        // Identifier for the event
+    uint32 creature_id = 2;               // Creature Template Identifier
+    uint32 condition_id = 3;              // Condition ID from the conditions table
+    uint32 event_type = 4;                // Event Type (e.g., AI triggers)
+    uint32 event_inverse_phase_mask = 5;  // Phases in which the event will not trigger
+    uint32 event_chance = 6;              // Chance of the event triggering (0-100)
+    uint32 event_flags = 7;               // Flags that modify the event's behavior
+    int32 event_param1 = 8;               // Event parameter 1
+    int32 event_param2 = 9;               // Event parameter 2
+    int32 event_param3 = 10;              // Event parameter 3
+    int32 event_param4 = 11;              // Event parameter 4
+    uint32 action1_script = 12;           // Script executed by action 1
+    uint32 action2_script = 13;           // Script executed by action 2
+    uint32 action3_script = 14;           // Script executed by action 3
+    string comment = 15;                  // Description or comment about the event
+}
+
+message CreatureAIScript {
+    uint32 id = 1;                     // Unique Identifier for the script
+    uint32 delay = 2;                  // Delay before the command is executed (in milliseconds)
+    uint32 command = 3;                // The command to execute (defined by the script system)
+    uint32 datalong = 4;               // General-purpose data field 1 for the command
+    uint32 datalong2 = 5;              // General-purpose data field 2 for the command
+    uint32 datalong3 = 6;              // General-purpose data field 3 for the command
+    uint32 datalong4 = 7;              // General-purpose data field 4 for the command
+    uint32 target_param1 = 8;          // Parameter 1 for targeting logic
+    uint32 target_param2 = 9;          // Parameter 2 for targeting logic
+    uint32 target_type = 10;           // Specifies the target type (self, player, etc.)
+    uint32 data_flags = 11;            // Flags that modify the command or data fields
+    int32 dataint = 12;                // General-purpose data field 1 for integers
+    int32 dataint2 = 13;               // General-purpose data field 2 for integers
+    int32 dataint3 = 14;               // General-purpose data field 3 for integers
+    int32 dataint4 = 15;               // General-purpose data field 4 for integers
+    float x = 16;                      // X-coordinate for positioning logic
+    float y = 17;                      // Y-coordinate for positioning logic
+    float z = 18;                      // Z-coordinate for positioning logic
+    float o = 19;                      // Orientation angle for positioning logic
+    uint32 condition_id = 20;          // Condition ID linked to the conditions table
+    string comments = 21;              // Comments or description of the script
+}
+
+message CreatureBattleground {
+    uint32 guid = 1;          // Creature's Global Unique Identifier
+    uint32 event1 = 2;        // Main event identifier
+    uint32 event2 = 3;        // Sub-event identifier
 }
 
 message CreatureEquipTemplate {
-    int32 entry = 1;
-    int32 equipEntry1 = 2;
-    int32 equipEntry2 = 3;
-    int32 equipEntry3 = 4;
+    uint32 entry = 1;        // Unique entry identifier
+    uint32 patch = 2;        // Patch version associated with this equipment template
+    uint32 equipentry1 = 3;  // First equipment entry for the creature
+    uint32 equipentry2 = 4;  // Second equipment entry for the creature
+    uint32 equipentry3 = 5;  // Third equipment entry for the creature
 }
 
-message CreatureGrouping {
-    int64 leaderGuid = 1;  // Consistent ID type
-    int64 memberGuid = 2;  // Consistent ID type
+message CreatureEquipTemplateRaw {
+    uint32 entry = 1;         // Unique entry identifier
+    uint32 patch = 2;         // Patch version associated with this equipment template
+    uint32 equipmodel1 = 3;   // First equipment model entry for the creature
+    uint32 equipmodel2 = 4;   // Second equipment model entry for the creature
+    uint32 equipmodel3 = 5;   // Third equipment model entry for the creature
+    uint32 equipinfo1 = 6;    // Info related to the first equipment model
+    uint32 equipinfo2 = 7;    // Info related to the second equipment model
+    uint32 equipinfo3 = 8;    // Info related to the third equipment model
+    int32 equipslot1 = 9;     // Slot for the first piece of equipment
+    int32 equipslot2 = 10;    // Slot for the second piece of equipment
+    int32 equipslot3 = 11;    // Slot for the third piece of equipment
+}
+
+message CreatureGroup {
+    uint32 leaderGUID = 1;  // Leader's Global Unique Identifier
+    uint32 memberGUID = 2;  // Member's Global Unique Identifier
+    float dist = 3;         // Distance from the leader
+    float angle = 4;        // Angle relative to the leader
+    uint32 flags = 5;       // Group-specific flags for this member
+}
+
+message CreatureInvolvedRelation {
+    uint32 id = 1;        // Identifier for the creature
+    uint32 quest = 2;     // Quest Identifier the creature is involved with
+    uint32 patch = 3;     // Patch version for the creature relation
+}
+
+message CreatureLinking {
+    uint32 guid = 1;          // GUID of the linked (slave) creature
+    uint32 master_guid = 2;   // GUID of the master creature that triggers events
+    uint32 flag = 3;          // Describes the linking behavior (what should happen when)
+}
+
+message CreatureLinkingTemplate {
+    uint32 entry = 1;         // Entry of the slave creature (creature_template.entry)
+    uint32 map = 2;           // Map ID where the creatures are located
+    uint32 master_entry = 3;  // Entry of the master creature (creature_template.entry)
+    uint32 flag = 4;          // Describes what events should be triggered
+    uint32 search_range = 5;  // Range in which master and slave are linked (based on spawn coordinates)
+}
+
+message CreatureLootTemplate {
+    uint32 entry = 1;               // Entry 0 used for player insignia loot
+    uint32 item = 2;                // Item ID for the loot
+    float chance_or_quest_chance = 3; // Chance or quest-specific chance (as a percentage)
+    uint32 groupid = 4;             // Group ID for categorizing loot groups
+    int32 mincount_or_ref = 5;      // Minimum count or reference to another template
+    uint32 maxcount = 6;            // Maximum number of items in the loot
+    uint32 condition_id = 7;        // Condition ID for when this loot applies
+    uint32 patch_min = 8;           // Minimum patch version
+    uint32 patch_max = 9;           // Maximum patch version
+}
+
+message CreatureModelInfo {
+    uint32 modelid = 1;                // Model ID for the creature
+    float bounding_radius = 2;         // Bounding radius for the model
+    float combat_reach = 3;            // Combat reach (distance to hit)
+    uint32 gender = 4;                 // Gender of the model (0: male, 1: female, 2: neutral/unknown)
+    uint32 modelid_other_gender = 5;   // Model ID for the other gender
+    uint32 modelid_other_team = 6;     // Model ID for the other faction/team
 }
 
 message CreatureMovement {
-    int32 id = 1;
-    int32 point = 2;
-    game.Position position = 3;
-    float orientation = 4;
-    int32 waitTime = 5;
-    int32 scriptId = 6;
-    string comment = 7;
+    uint32 id = 1;                   // Creature GUID
+    uint32 point = 2;                // Movement waypoint index
+    float position_x = 3;            // X coordinate for the waypoint
+    float position_y = 4;            // Y coordinate for the waypoint
+    float position_z = 5;            // Z coordinate for the waypoint
+    uint32 waittime = 6;             // Wait time at the waypoint (in milliseconds)
+    uint32 script_id = 7;            // Script ID associated with the waypoint
+    int32 textid1 = 8;               // Text ID 1 associated with the waypoint
+    int32 textid2 = 9;               // Text ID 2 associated with the waypoint
+    int32 textid3 = 10;              // Text ID 3 associated with the waypoint
+    int32 textid4 = 11;              // Text ID 4 associated with the waypoint
+    int32 textid5 = 12;              // Text ID 5 associated with the waypoint
+    uint32 emote = 13;               // Emote ID to perform at the waypoint
+    uint32 spell = 14;               // Spell ID to cast at the waypoint
+    float orientation = 15;          // Orientation (facing direction) at the waypoint
+    uint32 model1 = 16;              // Model ID 1 associated with the waypoint
+    uint32 model2 = 17;              // Model ID 2 associated with the waypoint
+}
+
+message CreatureMovementScript {
+    uint32 id = 1;                   // Unique identifier for the script
+    uint32 delay = 2;                // Delay before executing the command
+    uint32 command = 3;              // Command type (movement, action, etc.)
+    uint32 datalong = 4;             // First data parameter for the command
+    uint32 datalong2 = 5;            // Second data parameter for the command
+    uint32 datalong3 = 6;            // Third data parameter for the command
+    uint32 datalong4 = 7;            // Fourth data parameter for the command
+    uint32 target_param1 = 8;        // First target parameter for the command
+    uint32 target_param2 = 9;        // Second target parameter for the command
+    uint32 target_type = 10;         // Type of target for the command (creature, player, etc.)
+    uint32 data_flags = 11;          // Flags for additional data modifiers
+    int32 dataint = 12;              // First integer data for command behavior
+    int32 dataint2 = 13;             // Second integer data for command behavior
+    int32 dataint3 = 14;             // Third integer data for command behavior
+    int32 dataint4 = 15;             // Fourth integer data for command behavior
+    float x = 16;                    // X coordinate for movement or action
+    float y = 17;                    // Y coordinate for movement or action
+    float z = 18;                    // Z coordinate for movement or action
+    float o = 19;                    // Orientation (facing direction)
+    uint32 condition_id = 20;        // Condition ID from conditions table
+    string comments = 21;            // Comment or description for the script
+}
+
+message CreatureMovementSpecial {
+    uint32 id = 1;                // Creature's unique identifier (GUID)
+    uint32 point = 2;             // Point in the movement path
+    float position_x = 3;         // X coordinate of the creature's position
+    float position_y = 4;         // Y coordinate of the creature's position
+    float position_z = 5;         // Z coordinate of the creature's position
+    uint32 waittime = 6;          // Time to wait before the next movement
+    uint32 script_id = 7;         // Script ID linked to movement events
+    uint32 textid1 = 8;           // First text ID for scripted events
+    uint32 textid2 = 9;           // Second text ID for scripted events
+    uint32 textid3 = 10;          // Third text ID for scripted events
+    uint32 textid4 = 11;          // Fourth text ID for scripted events
+    uint32 textid5 = 12;          // Fifth text ID for scripted events
+    uint32 emote = 13;            // Emote ID for the creature
+    uint32 spell = 14;            // Spell ID associated with the movement
+    float orientation = 15;       // Orientation (facing) of the creature
+    uint32 model1 = 16;           // First model ID for the creature
+    uint32 model2 = 17;           // Second model ID for the creature
 }
 
 message CreatureMovementTemplate {
-    int32 entry = 1;
-    int32 pathId = 2;
-    int32 point = 3;
-    game.Position position = 4;
-    float orientation = 5;
-    int32 waitTime = 6;
-    int32 scriptId = 7;
-    string comment = 8;
+    uint32 entry = 1;             // Creature entry ID
+    uint32 point = 2;             // Point in the movement path
+    float position_x = 3;         // X coordinate of the creature's position
+    float position_y = 4;         // Y coordinate of the creature's position
+    float position_z = 5;         // Z coordinate of the creature's position
+    uint32 waittime = 6;          // Time to wait before moving to the next point
+    uint32 script_id = 7;         // Script ID associated with this movement
+    uint32 textid1 = 8;           // First text event ID associated with the movement
+    uint32 textid2 = 9;           // Second text event ID associated with the movement
+    uint32 textid3 = 10;          // Third text event ID associated with the movement
+    uint32 textid4 = 11;          // Fourth text event ID associated with the movement
+    uint32 textid5 = 12;          // Fifth text event ID associated with the movement
+    uint32 emote = 13;            // Emote ID for the creature at this point
+    uint32 spell = 14;            // Spell ID associated with this movement
+    float orientation = 15;       // Orientation of the creature (facing direction in radians)
+    uint32 model1 = 16;           // First model ID for the creature
+    uint32 model2 = 17;           // Second model ID for the creature
 }
 
+message CreatureOnKillReputation {
+    uint32 creature_id = 1;         // Creature Identifier
+    int32 RewOnKillRepFaction1 = 2; // Reputation Faction 1 on kill
+    int32 RewOnKillRepFaction2 = 3; // Reputation Faction 2 on kill
+    int32 MaxStanding1 = 4;         // Max Standing for Faction 1
+    bool IsTeamAward1 = 5;          // Is this a team-wide award for Faction 1
+    int32 RewOnKillRepValue1 = 6;   // Reputation value awarded for Faction 1
+    int32 MaxStanding2 = 7;         // Max Standing for Faction 2
+    bool IsTeamAward2 = 8;          // Is this a team-wide award for Faction 2
+    int32 RewOnKillRepValue2 = 9;   // Reputation value awarded for Faction 2
+    bool TeamDependent = 10;        // Is reputation award team dependent
+}
+
+message CreatureQuestRelation {
+    uint32 id = 1;         // Identifier for the creature
+    uint32 quest = 2;      // Quest Identifier
+    uint32 patch = 3;      // Patch version for this relation
+}
+message CreatureSpell {
+    uint32 entry = 1;                 // Unique entry for the creature
+    string name = 2;                  // Name of the creature
+    uint32 spellId_1 = 3;             // First spell ID
+    uint32 probability_1 = 4;         // Probability for the first spell
+    uint32 castTarget_1 = 5;          // Cast target for the first spell
+    uint32 targetParam1_1 = 6;        // Target parameter 1 for the first spell
+    uint32 targetParam2_1 = 7;        // Target parameter 2 for the first spell
+    uint32 castFlags_1 = 8;           // Cast flags for the first spell
+    uint32 delayInitialMin_1 = 9;     // Initial minimum delay for the first spell
+    uint32 delayInitialMax_1 = 10;    // Initial maximum delay for the first spell
+    uint32 delayRepeatMin_1 = 11;     // Repeat minimum delay for the first spell
+    uint32 delayRepeatMax_1 = 12;     // Repeat maximum delay for the first spell
+    uint32 scriptId_1 = 13;           // Script ID for the first spell
+
+    // Repeat the fields for additional spells (spell 2 through 8)
+    uint32 spellId_2 = 14;
+    uint32 probability_2 = 15;
+    uint32 castTarget_2 = 16;
+    uint32 targetParam1_2 = 17;
+    uint32 targetParam2_2 = 18;
+    uint32 castFlags_2 = 19;
+    uint32 delayInitialMin_2 = 20;
+    uint32 delayInitialMax_2 = 21;
+    uint32 delayRepeatMin_2 = 22;
+    uint32 delayRepeatMax_2 = 23;
+    uint32 scriptId_2 = 24;
+
+    uint32 spellId_3 = 25;
+    uint32 probability_3 = 26;
+    uint32 castTarget_3 = 27;
+    uint32 targetParam1_3 = 28;
+    uint32 targetParam2_3 = 29;
+    uint32 castFlags_3 = 30;
+    uint32 delayInitialMin_3 = 31;
+    uint32 delayInitialMax_3 = 32;
+    uint32 delayRepeatMin_3 = 33;
+    uint32 delayRepeatMax_3 = 34;
+    uint32 scriptId_3 = 35;
+
+    uint32 spellId_4 = 36;
+    uint32 probability_4 = 37;
+    uint32 castTarget_4 = 38;
+    uint32 targetParam1_4 = 39;
+    uint32 targetParam2_4 = 40;
+    uint32 castFlags_4 = 41;
+    uint32 delayInitialMin_4 = 42;
+    uint32 delayInitialMax_4 = 43;
+    uint32 delayRepeatMin_4 = 44;
+    uint32 delayRepeatMax_4 = 45;
+    uint32 scriptId_4 = 46;
+
+    uint32 spellId_5 = 47;
+    uint32 probability_5 = 48;
+    uint32 castTarget_5 = 49;
+    uint32 targetParam1_5 = 50;
+    uint32 targetParam2_5 = 51;
+    uint32 castFlags_5 = 52;
+    uint32 delayInitialMin_5 = 53;
+    uint32 delayInitialMax_5 = 54;
+    uint32 delayRepeatMin_5 = 55;
+    uint32 delayRepeatMax_5 = 56;
+    uint32 scriptId_5 = 57;
+
+    uint32 spellId_6 = 58;
+    uint32 probability_6 = 59;
+    uint32 castTarget_6 = 60;
+    uint32 targetParam1_6 = 61;
+    uint32 targetParam2_6 = 62;
+    uint32 castFlags_6 = 63;
+    uint32 delayInitialMin_6 = 64;
+    uint32 delayInitialMax_6 = 65;
+    uint32 delayRepeatMin_6 = 66;
+    uint32 delayRepeatMax_6 = 67;
+    uint32 scriptId_6 = 68;
+
+    uint32 spellId_7 = 69;
+    uint32 probability_7 = 70;
+    uint32 castTarget_7 = 71;
+    uint32 targetParam1_7 = 72;
+    uint32 targetParam2_7 = 73;
+    uint32 castFlags_7 = 74;
+    uint32 delayInitialMin_7 = 75;
+    uint32 delayInitialMax_7 = 76;
+    uint32 delayRepeatMin_7 = 77;
+    uint32 delayRepeatMax_7 = 78;
+    uint32 scriptId_7 = 79;
+
+    uint32 spellId_8 = 80;
+    uint32 probability_8 = 81;
+    uint32 castTarget_8 = 82;
+    uint32 targetParam1_8 = 83;
+    uint32 targetParam2_8 = 84;
+    uint32 castFlags_8 = 85;
+    uint32 delayInitialMin_8 = 86;
+    uint32 delayInitialMax_8 = 87;
+    uint32 delayRepeatMin_8 = 88;
+    uint32 delayRepeatMax_8 = 89;
+    uint32 scriptId_8 = 90;
+}
+message CreatureSpellScript {
+    uint32 id = 1;                    // Script ID
+    uint32 delay = 2;                 // Delay in milliseconds before the command executes
+    uint32 command = 3;               // Command type identifier
+    uint32 datalong = 4;              // General data field (long format)
+    uint32 datalong2 = 5;             // Additional data field (long format)
+    uint32 datalong3 = 6;             // Additional data field (long format)
+    uint32 datalong4 = 7;             // Additional data field (long format)
+    uint32 target_param1 = 8;         // Target parameter 1
+    uint32 target_param2 = 9;         // Target parameter 2
+    uint32 target_type = 10;          // Target type identifier
+    uint32 data_flags = 11;           // Data flags
+    int32 dataint = 12;               // General data field (integer format)
+    int32 dataint2 = 13;              // Additional data field (integer format)
+    int32 dataint3 = 14;              // Additional data field (integer format)
+    int32 dataint4 = 15;              // Additional data field (integer format)
+    float x = 16;                     // X position coordinate
+    float y = 17;                     // Y position coordinate
+    float z = 18;                     // Z position coordinate
+    float o = 19;                     // Orientation of the creature
+    uint32 condition_id = 20;         // Condition ID from conditions table
+    string comments = 21;             // Comments related to the script
+}
 message CreatureTemplate {
-    int64 entry = 1;
-    string name = 2;
-    string subName = 3;
-    uint32 minLevel = 4;
-    uint32 maxLevel = 5;
-    int32 modelId1 = 6;
-    int32 modelId2 = 7;
-    int32 modelId3 = 8;
-    int32 modelId4 = 9;
-    int32 faction = 10;
-    float scale = 11;
-    uint32 family = 12;
-    uint32 creatureType = 13;
-    uint32 inhabitType = 14;
-    uint32 regenerateStats = 15;
-    uint32 racialLeader = 16;
-    int32 npcFlags = 17;
-    int32 unitFlags = 18;
-    int32 dynamicFlags = 19;
-    int32 extraFlags = 20;
-    int32 creatureTypeFlags = 21;
-    float speedWalk = 22;
-    float speedRun = 23;
-    int32 detection = 24;
-    int32 callForHelp = 25;
-    int32 pursuit = 26;
-    int32 leash = 27;
-    int32 timeout = 28;
-    uint32 unitClass = 29;
-    uint32 rank = 30;
-    float healthMultiplier = 31;
-    float powerMultiplier = 32;
-    float damageMultiplier = 33;
-    float damageVariance = 34;
-    float armorMultiplier = 35;
-    float experienceMultiplier = 36;
-    int32 minLevelHealth = 37;
-    int32 maxLevelHealth = 38;
-    int32 minLevelMana = 39;
-    int32 maxLevelMana = 40;
-    float minMeleeDmg = 41;
-    float maxMeleeDmg = 42;
-    float minRangedDmg = 43;
-    float maxRangedDmg = 44;
-    int32 armor = 45;
-    int32 meleeAttackPower = 46;
-    int32 rangedAttackPower = 47;
-    int32 meleeBaseAttackTime = 48;
-    int32 rangedBaseAttackTime = 49;
-    uint32 damageSchool = 50;
-    int32 minLootGold = 51;
-    int32 maxLootGold = 52;
-    int32 lootId = 53;
-    int32 pickpocketLootId = 54;
-    int32 skinningLootId = 55;
-    int32 killCredit1 = 56;
-    int32 killCredit2 = 57;
-    int32 mechanicImmuneMask = 58;
-    int32 schoolImmuneMask = 59;
-    map<uint32, uint32> resistances = 60;  // Reused Resistances
-    int32 petSpellDataId = 66;
-    uint32 movementType = 67;
-    uint32 trainerType = 68;
-    int32 trainerSpell = 69;
-    uint32 trainerClass = 70;
-    uint32 trainerRace = 71;
-    int32 trainerTemplateId = 72;
-    int32 vendorTemplateId = 73;
-    int32 gossipMenuId = 74;
-    int32 interactionPauseTimer = 75;
-    uint32 visibilityDistanceType = 76;
-    int32 corpseDecay = 77;
-    int32 spellList = 78;
-    int32 equipmentTemplateId = 79;
-    uint32 civilian = 80;
-    string aiName = 81;
-    string scriptName = 82;
+    uint32 entry = 1;                  // Unique entry for the creature
+    uint32 patch = 2;                  // Patch version for the creature
+    uint32 kill_credit_1 = 3;          // First kill credit identifier
+    uint32 kill_credit_2 = 4;          // Second kill credit identifier
+    uint32 model_id_1 = 5;             // First model ID
+    uint32 model_id_2 = 6;             // Second model ID
+    uint32 model_id_3 = 7;             // Third model ID
+    uint32 model_id_4 = 8;             // Fourth model ID
+    string name = 9;                   // Creature name
+    string subname = 10;               // Creature subname
+    uint32 gossip_menu_id = 11;        // Gossip menu ID
+    uint32 min_level = 12;             // Minimum level
+    uint32 max_level = 13;             // Maximum level
+    uint32 min_health = 14;            // Minimum health
+    uint32 max_health = 15;            // Maximum health
+    uint32 min_mana = 16;              // Minimum mana
+    uint32 max_mana = 17;              // Maximum mana
+    uint32 armor = 18;                 // Armor value
+    uint32 faction_A = 19;             // Faction ID for Alliance
+    uint32 faction_H = 20;             // Faction ID for Horde
+    uint32 npc_flag = 21;              // NPC flags
+    float speed_walk = 22;             // Walking speed
+    float speed_run = 23;              // Running speed
+    float scale = 24;                  // Scale value
+    uint32 rank = 25;                  // Creature rank
+    float min_dmg = 26;                // Minimum damage
+    float max_dmg = 27;                // Maximum damage
+    uint32 dmg_school = 28;            // Damage school type
+    uint32 attack_power = 29;          // Attack power
+    float dmg_multiplier = 30;         // Damage multiplier
+    uint32 base_attack_time = 31;      // Base attack time
+    uint32 range_attack_time = 32;     // Range attack time
+    uint32 unit_class = 33;            // Unit class
+    uint32 unit_flags = 34;            // Unit flags
+    uint32 dynamic_flags = 35;         // Dynamic flags
+    uint32 family = 36;                // Creature family
+    uint32 trainer_type = 37;          // Trainer type
+    uint32 trainer_spell = 38;         // Trainer spell ID
+    uint32 trainer_class = 39;         // Trainer class
+    uint32 trainer_race = 40;          // Trainer race
+    float min_ranged_dmg = 41;         // Minimum ranged damage
+    float max_ranged_dmg = 42;         // Maximum ranged damage
+    uint32 ranged_attack_power = 43;   // Ranged attack power
+    uint32 type = 44;                  // Creature type
+    uint32 type_flags = 45;            // Type flags
+    uint32 loot_id = 46;               // Loot template ID
+    uint32 pickpocket_loot = 47;       // Pickpocket loot ID
+    uint32 skin_loot = 48;             // Skinning loot ID
+    int32 resistance_1 = 49;          // Resistance 1 (Physical)
+    int32 resistance_2 = 50;          // Resistance 2 (Holy)
+    int32 resistance_3 = 51;          // Resistance 3 (Fire)
+    int32 resistance_4 = 52;          // Resistance 4 (Nature)
+    int32 resistance_5 = 53;          // Resistance 5 (Frost)
+    int32 resistance_6 = 54;          // Resistance 6 (Shadow)
+    uint32 spell_1 = 55;               // First spell ID
+    uint32 spell_2 = 56;               // Second spell ID
+    uint32 spell_3 = 57;               // Third spell ID
+    uint32 spell_4 = 58;               // Fourth spell ID
+    uint32 spells_template = 59;       // Spell template ID
+    uint32 pet_spell_data_id = 60;     // Pet spell data ID
+    uint32 min_gold = 61;              // Minimum gold drop
+    uint32 max_gold = 62;              // Maximum gold drop
+    string ai_name = 63;               // AI name
+    uint32 movement_type = 64;         // Movement type
+    uint32 inhabit_type = 65;          // Inhabit type
+    uint32 civilian = 66;              // Civilian flag
+    uint32 racial_leader = 67;         // Racial leader flag
+    uint32 regen_health = 68;          // Regeneration health flag
+    uint32 equipment_id = 69;          // Equipment template ID
+    uint32 trainer_id = 70;            // Trainer ID
+    uint32 vendor_id = 71;             // Vendor ID
+    uint32 mechanic_immune_mask = 72;  // Mechanic immune mask
+    uint32 school_immune_mask = 73;    // School immune mask
+    uint32 flags_extra = 74;           // Extra flags
+    string script_name = 75;           // Script name for custom behavior
+}
+message CreatureTemplateAddon {
+    uint32 entry = 1;                   // Creature entry ID
+    uint32 patch = 2;                   // Patch version
+    uint32 mount = 3;                   // Mount ID
+    uint32 bytes1 = 4;                  // Bytes1 field
+    uint32 b2_0_sheath = 5;             // Sheath state
+    uint32 b2_1_flags = 6;              // Flags associated with the creature
+    uint32 emote = 7;                   // Emote ID
+    uint32 moveflags = 8;               // Movement flags
+    string auras = 9;                   // Auras applied to the creature
+}
+
+message CustomText {
+    uint32 entry = 1;                   // Entry ID for the custom text
+    string content_default = 2;          // Default content (text)
+    string content_loc1 = 3;             // Localized content (language 1)
+    string content_loc2 = 4;             // Localized content (language 2)
+    string content_loc3 = 5;             // Localized content (language 3)
+    string content_loc4 = 6;             // Localized content (language 4)
+    string content_loc5 = 7;             // Localized content (language 5)
+    string content_loc6 = 8;             // Localized content (language 6)
+    string content_loc7 = 9;             // Localized content (language 7)
+    string content_loc8 = 10;            // Localized content (language 8)
+    uint32 sound = 11;                   // Sound ID
+    uint32 type = 12;                    // Type ID (defines the text type)
+    uint32 language = 13;                // Language ID for the text
+    uint32 emote = 14;                   // Emote associated with the text
+    string comment = 15;                 // Comment or description
+}
+
+message DisenchantLootTemplate {
+    uint32 entry = 1;                 // ID: recommended selection based on item level and quality
+    uint32 item = 2;                  // Item ID for the disenchant loot
+    float chance_or_quest_chance = 3; // Chance for the item to drop or quest-specific chance
+    uint32 groupid = 4;               // Group ID for the loot item
+    uint32 mincount_or_ref = 5;       // Minimum count or reference ID
+    uint32 maxcount = 6;              // Maximum count of the item
+    uint32 condition_id = 7;          // Condition ID for any requirements for the loot to drop
+    uint32 patch_min = 8;             // Minimum patch version in which this loot can drop
+    uint32 patch_max = 9;             // Maximum patch version in which this loot can drop
+}
+
+message EventScript {
+    uint32 id = 1;                    // Unique ID for the event script
+    uint32 delay = 2;                 // Delay before executing the event (in milliseconds)
+    uint32 command = 3;               // Command type for the event
+    uint32 datalong = 4;              // Data field for event-related data
+    uint32 datalong2 = 5;             // Secondary data field
+    uint32 datalong3 = 6;             // Tertiary data field
+    uint32 datalong4 = 7;             // Quaternary data field
+    uint32 target_param1 = 8;         // First parameter for the event target
+    uint32 target_param2 = 9;         // Second parameter for the event target
+    uint32 target_type = 10;          // Type of the event target
+    uint32 data_flags = 11;           // Flags related to event data
+    uint32 dataint = 12;              // Additional integer data for the event
+    uint32 dataint2 = 13;             // Secondary integer data
+    uint32 dataint3 = 14;             // Tertiary integer data
+    uint32 dataint4 = 15;             // Quaternary integer data
+    float x = 16;                     // X coordinate for the event
+    float y = 17;                     // Y coordinate for the event
+    float z = 18;                     // Z coordinate for the event
+    float o = 19;                     // Orientation value
+    uint32 condition_id = 20;         // Condition ID related to the event
+    string comments = 21;             // Comments or descriptions of the event
+}
+
+message ExplorationBaseXP {
+    uint32 level = 1;          // Character level
+    uint32 basexp = 2;         // Base experience points for exploration at the given level
+}
+
+message Faction {
+    uint32 id = 1;                       // Faction ID
+    int32 reputationListID = 2;          // Reputation list ID
+    uint32 baseRepRaceMask1 = 3;         // Base reputation for race mask 1
+    uint32 baseRepRaceMask2 = 4;         // Base reputation for race mask 2
+    uint32 baseRepRaceMask3 = 5;         // Base reputation for race mask 3
+    uint32 baseRepRaceMask4 = 6;         // Base reputation for race mask 4
+    uint32 baseRepClassMask1 = 7;        // Base reputation for class mask 1
+    uint32 baseRepClassMask2 = 8;        // Base reputation for class mask 2
+    uint32 baseRepClassMask3 = 9;        // Base reputation for class mask 3
+    uint32 baseRepClassMask4 = 10;       // Base reputation for class mask 4
+    int32 baseRepValue1 = 11;            // Base reputation value 1
+    int32 baseRepValue2 = 12;            // Base reputation value 2
+    int32 baseRepValue3 = 13;            // Base reputation value 3
+    int32 baseRepValue4 = 14;            // Base reputation value 4
+    uint32 reputationFlags1 = 15;        // Reputation flags 1
+    uint32 reputationFlags2 = 16;        // Reputation flags 2
+    uint32 reputationFlags3 = 17;        // Reputation flags 3
+    uint32 reputationFlags4 = 18;        // Reputation flags 4
+    uint32 team = 19;                    // Team ID
+    string name1 = 20;                   // Faction name in locale 1
+    string name2 = 21;                   // Faction name in locale 2
+    string name3 = 22;                   // Faction name in locale 3
+    string name4 = 23;                   // Faction name in locale 4
+    string name5 = 24;                   // Faction name in locale 5
+    string name6 = 25;                   // Faction name in locale 6
+    string name7 = 26;                   // Faction name in locale 7
+    string name8 = 27;                   // Faction name in locale 8
+    string description1 = 28;            // Faction description in locale 1
+    string description2 = 29;            // Faction description in locale 2
+    string description3 = 30;            // Faction description in locale 3
+    string description4 = 31;            // Faction description in locale 4
+    string description5 = 32;            // Faction description in locale 5
+    string description6 = 33;            // Faction description in locale 6
+    string description7 = 34;            // Faction description in locale 7
+    string description8 = 35;            // Faction description in locale 8
+}
+
+message FactionTemplate {
+    uint32 id = 1;                       // Unique ID for faction template
+    uint32 factionId = 2;                // Reference to faction ID
+    uint32 factionFlags = 3;             // Flags for faction properties
+    uint32 ourMask = 4;                  // Mask representing our faction's stance
+    uint32 friendlyMask = 5;             // Mask representing friendly factions
+    uint32 hostileMask = 6;              // Mask representing hostile factions
+    uint32 enemyFaction1 = 7;            // Enemy faction 1
+    uint32 enemyFaction2 = 8;            // Enemy faction 2
+    uint32 enemyFaction3 = 9;            // Enemy faction 3
+    uint32 enemyFaction4 = 10;           // Enemy faction 4
+    uint32 friendFaction1 = 11;          // Friendly faction 1
+    uint32 friendFaction2 = 12;          // Friendly faction 2
+    uint32 friendFaction3 = 13;          // Friendly faction 3
+    uint32 friendFaction4 = 14;          // Friendly faction 4
+}
+
+ message FishingLootTemplate {
+    uint32 entry = 1;                   // Entry ID, 0 is for junk loot on fishing fail
+    uint32 item = 2;                    // Item ID
+    float chanceOrQuestChance = 3;      // Loot drop chance or quest-specific drop chance
+    uint32 groupId = 4;                 // Group ID for loot grouping
+    uint32 minCountOrRef = 5;           // Minimum count of items or reference
+    uint32 maxCount = 6;                // Maximum count of items
+    uint32 conditionId = 7;             // Condition ID
+    uint32 patchMin = 8;                // Minimum patch version
+    uint32 patchMax = 9;                // Maximum patch version
+}
+
+message ForbiddenItem {
+    uint32 entry = 1;                  // Item entry ID
+    uint32 patch = 2;                  // Patch version
+    uint32 afterOrBefore = 3;          // Indicator of restriction (after/before certain patch)
 }
 
 message GameObject {
-    int64 guid = 1;  // Consistent ID type
-    int32 id = 2;
-    int32 map = 3;
-    uint32 spawnMask = 4;
-    game.Position position = 5;
-    float orientation = 6;
-    float rotation0 = 7;
-    float rotation1 = 8;
-    float rotation2 = 9;
-    float rotation3 = 10;
-    int32 spawnTimeSecsMin = 11;
-    int32 spawnTimeSecsMax = 12;
-    uint32 animProgress = 13;
-    uint32 state = 14;
+    uint32 guid = 1;              // Global Unique Identifier
+    uint32 id = 2;                // Gameobject Identifier
+    uint32 map = 3;               // Map Identifier
+    float position_x = 4;         // X position
+    float position_y = 5;         // Y position
+    float position_z = 6;         // Z position
+    float orientation = 7;        // Orientation of the game object
+    float rotation0 = 8;          // Rotation component 0
+    float rotation1 = 9;          // Rotation component 1
+    float rotation2 = 10;         // Rotation component 2
+    float rotation3 = 11;         // Rotation component 3
+    int32 spawntimesecsmin = 12;  // Minimum spawn time in seconds
+    int32 spawntimesecsmax = 13;  // Maximum spawn time in seconds
+    uint32 animprogress = 14;     // Animation progress (0-255)
+    uint32 state = 15;            // State of the game object
+    uint32 spawnFlags = 16;       // Flags related to spawning
+    float visibilitymod = 17;     // Modifier for visibility
+    uint32 patch_min = 18;        // Minimum patch version
+    uint32 patch_max = 19;        // Maximum patch version
+}
+
+message GameObjectBattleground {
+    uint32 guid = 1;              // GameObject's GUID
+    uint32 event1 = 2;            // Main event
+    uint32 event2 = 3;            // Sub event
+}
+
+message GameObjectInvolvedRelation {
+    uint32 id = 1;                // ID of the game object
+    uint32 quest = 2;             // Quest Identifier
+    uint32 patch = 3;             // Patch version
+}
+
+message GameObjectLootTemplate {
+    uint32 entry = 1;             // Entry ID for the game object
+    uint32 item = 2;              // Item ID
+    float chance_or_quest_chance = 3;  // Chance or Quest-related chance
+    uint32 groupid = 4;           // Group ID for the loot group
+    int32 mincount_or_ref = 5;    // Minimum count or reference
+    uint32 maxcount = 6;          // Maximum count
+    uint32 condition_id = 7;      // Condition ID to trigger the loot drop
+    uint32 patch_min = 8;         // Minimum patch version
+    uint32 patch_max = 9;         // Maximum patch version
+}
+
+message GameObjectQuestRelation {
+    uint32 id = 1;           // GameObject ID
+    uint32 quest = 2;        // Quest Identifier
+    uint32 patch = 3;        // Patch version related to the quest relation
+}
+
+message GameObjectRequirement {
+    uint32 guid = 1;         // Global Unique Identifier for the GameObject
+    uint32 reqType = 2;      // Type of requirement for the GameObject
+    uint32 reqGuid = 3;      // Identifier of the required GameObject
+}
+
+message GameObjectScript {
+    uint32 id = 1;              // Identifier for the script
+    uint32 delay = 2;           // Delay in seconds before execution
+    uint32 command = 3;         // Command to be executed
+    uint32 datalong = 4;        // Data field 1 for command parameters
+    uint32 datalong2 = 5;       // Data field 2 for command parameters
+    uint32 datalong3 = 6;       // Data field 3 for command parameters
+    uint32 datalong4 = 7;       // Data field 4 for command parameters
+    uint32 target_param1 = 8;   // Parameter for target selection (target 1)
+    uint32 target_param2 = 9;   // Parameter for target selection (target 2)
+    uint32 target_type = 10;    // Target type (self, target, etc.)
+    uint32 data_flags = 11;     // Flags for additional behavior
+    int32 dataint = 12;         // Additional data integer 1
+    int32 dataint2 = 13;        // Additional data integer 2
+    int32 dataint3 = 14;        // Additional data integer 3
+    int32 dataint4 = 15;        // Additional data integer 4
+    float x = 16;               // X coordinate for positional data
+    float y = 17;               // Y coordinate for positional data
+    float z = 18;               // Z coordinate for positional data
+    float o = 19;               // Orientation (rotation angle)
+    uint32 condition_id = 20;   // Condition ID for when the script will run
+    string comments = 21;       // Optional comments for the script
+}
+
+message GameObjectTemplate {
+    uint32 entry = 1;             // Unique entry ID for the game object
+    uint32 patch = 2;             // Patch version for the game object
+    uint32 type = 3;              // Type of the game object
+    uint32 displayId = 4;         // Display ID for visual representation
+    string name = 5;              // Name of the game object
+    uint32 faction = 6;           // Faction ID related to the game object
+    uint32 flags = 7;             // Flags indicating specific behaviors or states
+    float size = 8;               // Size of the game object
+    repeated uint32 data = 9;     // List of data fields (data0 through data23)
+    uint32 mingold = 10;          // Minimum gold provided
+    uint32 maxgold = 11;          // Maximum gold provided
+    string ScriptName = 12;       // Name of the script associated with the game object
+}
+
+message GameEvent {
+    uint32 entry = 1;                           // Unique entry for the game event
+    google.protobuf.Timestamp start_time = 2;   // Absolute start time in timestamp format
+    google.protobuf.Timestamp end_time = 3;     // Absolute end time in timestamp format
+    uint64 occurrence = 4;                      // Delay in minutes between occurrences of the event
+    uint64 length = 5;                          // Length in minutes of the event
+    uint32 holiday = 6;                         // Client-side holiday ID
+    string description = 7;                     // Description of the event
+    bool hardcoded = 8;                         // Whether the event is hardcoded
+    bool disabled = 9;                          // Whether the event is disabled
+    uint32 patch_min = 10;                      // Minimum patch version for the event
+    uint32 patch_max = 11;                      // Maximum patch version for the event
+}
+
+message GameEventCreature {
+    uint32 guid = 1;    // Global Unique Identifier for the creature
+    int32 event = 2;    // Event ID (negative values indicate removal during the event)
+}
+
+message GameEventCreatureData {
+    uint32 guid = 1;           // Global Unique Identifier for the creature
+    uint32 entry_id = 2;       // Entry ID for the creature
+    uint32 modelid = 3;        // Model ID for the creature
+    uint32 equipment_id = 4;   // Equipment ID for the creature
+    uint32 spell_start = 5;    // Spell ID that the creature starts with
+    uint32 spell_end = 6;      // Spell ID that the creature ends with
+    uint32 event = 7;          // Event ID this creature data is tied to
+}
+
+message GameEventGameObject {
+    uint32 guid = 1;     // Global Unique Identifier for the game object
+    int32 event = 2;     // Event ID for the game object, negative to remove during event
+}
+
+message GameEventMail {
+    int32 event = 1;              // Event ID, negative value for event stop, positive for event start
+    uint32 raceMask = 2;          // Race mask for which races this mail is sent to
+    uint32 quest = 3;             // Quest ID related to the mail
+    uint32 mailTemplateId = 4;    // Mail template ID used for this event
+    uint32 senderEntry = 5;       // Sender entry ID for the mail
+}
+
+message GameEventQuest {
+    uint32 quest = 1;       // Entry from quest_template
+    uint32 event = 2;       // Entry from game_event
+    uint32 patch = 3;       // Patch version
+}
+
+message GameGraveyardZone {
+    uint32 id = 1;          // ID for the graveyard zone
+    uint32 ghost_zone = 2;   // Zone ID where ghosts spawn
+    uint32 faction = 3;      // Faction ID (Horde/Alliance/Neutral)
+}
+
+message GameTele {
+    uint32 id = 1;             // Teleportation point unique ID
+    float position_x = 2;      // X coordinate for the teleportation point
+    float position_y = 3;      // Y coordinate for the teleportation point
+    float position_z = 4;      // Z coordinate for the teleportation point
+    float orientation = 5;     // Orientation of the player after teleportation
+    uint32 map = 6;            // Map ID where the teleportation point is located
+    string name = 7;           // Name of the teleportation point
+}
+
+message GameWeather {
+    uint32 zone = 1;              // The zone ID where the weather is applied
+    uint32 spring_rain_chance = 2;  // Chance of rain in spring (in percentage)
+    uint32 spring_snow_chance = 3;  // Chance of snow in spring (in percentage)
+    uint32 spring_storm_chance = 4; // Chance of a storm in spring (in percentage)
+    uint32 summer_rain_chance = 5;  // Chance of rain in summer (in percentage)
+    uint32 summer_snow_chance = 6;  // Chance of snow in summer (in percentage)
+    uint32 summer_storm_chance = 7; // Chance of a storm in summer (in percentage)
+    uint32 fall_rain_chance = 8;    // Chance of rain in fall (in percentage)
+    uint32 fall_snow_chance = 9;    // Chance of snow in fall (in percentage)
+    uint32 fall_storm_chance = 10;  // Chance of a storm in fall (in percentage)
+    uint32 winter_rain_chance = 11; // Chance of rain in winter (in percentage)
+    uint32 winter_snow_chance = 12; // Chance of snow in winter (in percentage)
+    uint32 winter_storm_chance = 13; // Chance of a storm in winter (in percentage)
+}
+
+message GMSubSurvey {
+    uint32 surveyId = 1;        // Identifier for the survey
+    uint32 subsurveyId = 2;     // Identifier for the sub-survey
+    uint32 rank = 3;            // Rank provided in the survey
+    string comment = 4;         // Comment provided by the player
+}
+
+message GMSurvey {
+    uint32 surveyId = 1;         // Identifier for the survey
+    uint32 guid = 2;             // Global Unique Identifier (GUID) of the player
+    uint32 mainSurvey = 3;       // Identifier for the main survey
+    string overallComment = 4;   // Overall comment or feedback provided in the survey
+    uint32 createTime = 5;       // Timestamp of when the survey was created
+}
+
+message GMTicket {
+    uint32 ticketId = 1;          // Unique identifier for the ticket
+    uint32 guid = 2;              // GUID of the player who created the ticket
+    string name = 3;              // Name of the ticket creator
+    string message = 4;           // Message content of the ticket
+    uint32 createTime = 5;        // Creation timestamp of the ticket
+    uint32 mapId = 6;             // Map identifier where the player was located
+    float posX = 7;               // X coordinate of the player's position when the ticket was created
+    float posY = 8;               // Y coordinate of the player's position
+    float posZ = 9;               // Z coordinate of the player's position
+    uint32 lastModifiedTime = 10; // Timestamp of the last modification to the ticket
+    uint32 closedBy = 11;         // Identifier of the admin who closed the ticket
+    uint32 assignedTo = 12;       // GUID of the admin the ticket is assigned to
+    string comment = 13;          // Comments added to the ticket
+    string response = 14;         // Response to the ticket
+    uint32 completed = 15;        // Whether the ticket is completed (0 = No, 1 = Yes)
+    uint32 escalated = 16;        // Whether the ticket was escalated (0 = No, 1 = Yes)
+    uint32 viewed = 17;           // Whether the ticket has been viewed (0 = No, 1 = Yes)
+    uint32 haveTicket = 18;       // Whether the player currently has an active ticket (0 = No, 1 = Yes)
+    uint32 ticketType = 19;       // Type of the ticket (0 for regular, etc.)
+    uint32 securityNeeded = 20;   // Level of security needed to handle the ticket
+}
+
+message GossipMenu {
+    uint32 entry = 1;          // The entry ID for the gossip menu
+    uint32 text_id = 2;        // The text ID associated with this gossip menu entry
+    uint32 condition_id = 3;   // The condition ID that determines if this gossip menu option is available
+}
+
+message GossipMenuOption {
+    uint32 menu_id = 1;                    // The gossip menu ID this option belongs to
+    uint32 id = 2;                         // The specific option ID within the gossip menu
+    uint32 option_icon = 3;                // Icon for the gossip option
+    string option_text = 4;                // The text displayed for the option
+    uint32 option_broadcast_text_id = 5;   // ID for broadcasting text associated with the option
+    uint32 option_id = 6;                  // Option ID (response type)
+    uint32 npc_option_npcflag = 7;         // Flags indicating the NPC type for this option
+    int32 action_menu_id = 8;             // The action menu ID to execute when selected
+    uint32 action_poi_id = 9;              // Point of interest ID associated with the action
+    uint32 action_script_id = 10;          // Script ID executed when this option is selected
+    uint32 box_coded = 11;                 // Indicates if the text box requires a code input
+    uint32 box_money = 12;                 // Money required for this option
+    string box_text = 13;                  // Text displayed in the text box
+    uint32 box_broadcast_text_id = 14;     // Broadcast text ID associated with the box
+    uint32 condition_id = 15;              // Condition ID to display or enable this option
+}
+
+message GossipScript {
+    uint32 id = 1;              // Unique identifier for the gossip script
+    uint32 delay = 2;           // Delay in seconds before the script executes
+    uint32 command = 3;         // Command type for the script
+    uint32 datalong = 4;        // First data field for additional script parameters
+    uint32 datalong2 = 5;       // Second data field for additional script parameters
+    uint32 datalong3 = 6;       // Third data field for additional script parameters
+    uint32 datalong4 = 7;       // Fourth data field for additional script parameters
+    uint32 target_param1 = 8;   // First target parameter for the script
+    uint32 target_param2 = 9;   // Second target parameter for the script
+    uint32 target_type = 10;    // Type of target for the script
+    uint32 data_flags = 11;     // Flags that modify the behavior of the script
+    int32 dataint = 12;         // First integer data field
+    int32 dataint2 = 13;        // Second integer data field
+    int32 dataint3 = 14;        // Third integer data field
+    int32 dataint4 = 15;        // Fourth integer data field
+    float x = 16;               // X coordinate for position-based scripts
+    float y = 17;               // Y coordinate for position-based scripts
+    float z = 18;               // Z coordinate for position-based scripts
+    float o = 19;               // Orientation for position-based scripts
+    uint32 condition_id = 20;   // Condition ID for determining when the script can run
+    string comments = 21;       // Optional comments for context or explanation
+}
+
+message InstanceBuffRemoval {
+    uint32 map_id = 1;       // The map ID where the aura will be removed
+    uint32 aura_id = 2;      // The aura ID to remove upon entering the map
+    bool enabled = 3;        // Whether aura removal is enabled or not
+    uint32 flags = 4;        // Flags defining conditions or behavior for aura removal
+    string comment = 5;      // Description or additional information regarding the removal
+}
+
+message InstanceCreatureKills {
+    uint32 map_id = 1;          // Map ID where the creature exists
+    uint32 creature_entry = 2;   // Entry ID of the creature that performed the kill
+    uint32 spell_entry = 3;      // Spell entry that caused the kill, 0 for melee or unknown
+    uint32 count = 4;            // Number of kills
+}
+
+message InstanceCustomCounter {
+    uint32 index = 1;  // Index as defined in InstanceStatistics.h
+    uint32 count = 2;  // The custom counter value
+}
+
+message InstanceWipe {
+    uint32 map_id = 1;          // Map ID where the creature exists
+    uint32 creature_entry = 2;   // Creature entry ID that the wipe occurred against
+    uint32 count = 3;           // Number of wipes against the creature
+}
+
+message ItemDisplayInfo {
+    int32 field0 = 1;          // Field representing some integer attribute (possibly ID or display type)
+    string field5 = 2;         // Field for additional display-related information (could be name, description, etc.)
+}
+
+message ItemEnchantmentTemplate {
+    uint32 entry = 1;     // Entry ID of the item that can have enchantments
+    uint32 ench = 2;      // Enchantment ID related to this item
+    float chance = 3;     // Chance of the enchantment being applied
+}
+
+message ItemLootTemplate {
+    uint32 entry = 1;              // Entry ID of the item for which this loot is defined
+    uint32 item = 2;               // ID of the item that can be looted
+    float ChanceOrQuestChance = 3; // Chance of the item dropping or being used in a quest
+    uint32 groupid = 4;            // Group ID for organizing loot drops
+    int32 mincountOrRef = 5;      // Minimum count or reference ID for the item
+    uint32 maxcount = 6;           // Maximum count of the item that can be looted
+    uint32 condition_id = 7;       // Condition ID for loot drop restrictions
+    uint32 patch_min = 8;          // Minimum patch where the loot is available
+    uint32 patch_max = 9;          // Maximum patch where the loot is available
+}
+
+message ItemRequiredTarget {
+    uint32 entry = 1;        // Entry ID of the item
+    uint32 type = 2;         // Type of target requirement
+    uint32 targetEntry = 3;  // Entry ID of the target required for the item to be used
 }
 
 message ItemTemplate {
-    int32 entry = 1;
-    int32 patch = 2;
-    int32 class = 3;
-    int32 subclass = 4;
-    string name = 5;
-    int32 displayId = 6;
-    int32 quality = 7;
-    int32 flags = 8;
-    int32 buyCount = 9;
-    int32 buyPrice = 10;
-    int32 sellPrice = 11;
-    int32 inventoryType = 12;
-    int32 allowableClass = 13;
-    int32 allowableRace = 14;
-    int32 itemLevel = 15;
-    int32 requiredLevel = 16;
-    int32 requiredSkill = 17;
-    int32 requiredSkillRank = 18;
-    int32 requiredSpell = 19;
-    int32 requiredHonorRank = 20;
-    int32 requiredCityRank = 21;
-    int32 requiredReputationFaction = 22;
-    int32 requiredReputationRank = 23;
-    int32 maxCount = 24;
-    int32 stackable = 25;
-    int32 containerSlots = 26;
-    map<uint32, uint32> stats = 27;  // Reused Stat instead of individual statType/statValue fields
-    float dmgMin1 = 47;
-    float dmgMax1 = 48;
-    int32 dmgType1 = 49;
-    float dmgMin2 = 50;
-    float dmgMax2 = 51;
-    int32 dmgType2 = 52;
-    float dmgMin3 = 53;
-    float dmgMax3 = 54;
-    int32 dmgType3 = 55;
-    float dmgMin4 = 56;
-    float dmgMax4 = 57;
-    int32 dmgType4 = 58;
-    float dmgMin5 = 59;
-    float dmgMax5 = 60;
-    int32 dmgType5 = 61;
-    int32 armor = 62;
-    map<uint32, uint32> resistances = 63;  // Reused Resistances
-    int32 delay = 69;
-    int32 ammoType = 70;
-    float rangedModRange = 71;
-    int32 spellId1 = 72;
-    int32 spellTrigger1 = 73;
-    int32 spellCharges1 = 74;
-    float spellPpmRate1 = 75;
-    int32 spellCooldown1 = 76;
-    int32 spellCategory1 = 77;
-    int32 spellCategoryCooldown1 = 78;
-    int32 spellId2 = 79;
-    int32 spellTrigger2 = 80;
-    int32 spellCharges2 = 81;
-    float spellPpmRate2 = 82;
-    int32 spellCooldown2 = 83;
-    int32 spellCategory2 = 84;
-    int32 spellCategoryCooldown2 = 85;
-    int32 spellId3 = 86;
-    int32 spellTrigger3 = 87;
-    int32 spellCharges3 = 88;
-    float spellPpmRate3 = 89;
-    int32 spellCooldown3 = 90;
-    int32 spellCategory3 = 91;
-    int32 spellCategoryCooldown3 = 92;
-    int32 spellId4 = 93;
-    int32 spellTrigger4 = 94;
-    int32 spellCharges4 = 95;
-    float spellPpmRate4 = 96;
-    int32 spellCooldown4 = 97;
-    int32 spellCategory4 = 98;
-    int32 spellCategoryCooldown4 = 99;
-    int32 spellId5 = 100;
-    int32 spellTrigger5 = 101;
-    int32 spellCharges5 = 102;
-    float spellPpmRate5 = 103;
-    int32 spellCooldown5 = 104;
-    int32 spellCategory5 = 105;
-    int32 spellCategoryCooldown5 = 106;
-    int32 bonding = 107;
-    string description = 108;
-    int32 pageText = 109;
-    int32 languageID = 110;
-    int32 pageMaterial = 111;
-    int32 startQuest = 112;
-    int32 lockId = 113;
-    int32 material = 114;
-    int32 sheath = 115;
-    int32 randomProperty = 116;
-    int32 block = 117;
-    int32 itemSet = 118;
-    int32 maxDurability = 119;
-    int32 area = 120;
-    int32 map = 121;
-    int32 bagFamily = 122;
-    string scriptName = 123;
-    int32 disenchantID = 124;
-    int32 foodType = 125;
-    int32 minMoneyLoot = 126;
-    int32 maxMoneyLoot = 127;
-    int32 duration = 128;
-    int32 extraFlags = 129;
-    int32 otherTeamEntry = 130;
+    uint32 entry = 1;                    // Unique item identifier
+    uint32 patch = 2;                    // Patch version for the item
+    uint32 class = 3;                    // Class of the item
+    uint32 subclass = 4;                 // Subclass of the item
+    string name = 5;                     // Name of the item
+    uint32 displayid = 6;                // Display ID
+    uint32 quality = 7;                  // Item quality
+    uint32 flags = 8;                    // Item flags
+    uint32 buyCount = 9;                 // Buy count
+    uint32 buyPrice = 10;                // Buy price
+    uint32 sellPrice = 11;               // Sell price
+    uint32 inventoryType = 12;           // Inventory type
+    int32 allowableClass = 13;           // Allowable classes
+    int32 allowableRace = 14;            // Allowable races
+    uint32 itemLevel = 15;               // Item level
+    uint32 requiredLevel = 16;           // Required level to use
+    uint32 requiredSkill = 17;           // Required skill
+    uint32 requiredSkillRank = 18;       // Required skill rank
+    uint32 requiredSpell = 19;           // Required spell to use
+    uint32 requiredHonorRank = 20;       // Required honor rank
+    uint32 requiredCityRank = 21;        // Required city rank
+    uint32 requiredReputationFaction = 22;// Required reputation faction
+    uint32 requiredReputationRank = 23;  // Required reputation rank
+    uint32 maxCount = 24;                // Max count in inventory
+    uint32 stackable = 25;               // Stackable count
+    uint32 containerSlots = 26;          // Container slots
+    repeated Stat stats = 27;            // Stats of the item
+    repeated Damage damages = 28;        // Damage attributes
+    uint32 armor = 29;                   // Armor value
+    Resistance resistances = 30;         // Resistances
+    uint32 delay = 31;                   // Delay between attacks (for weapons)
+    uint32 ammoType = 32;                // Ammo type
+    uint32 rangedModRange = 33;          // Ranged mod range
+    repeated Spell spells = 34;          // Associated spells
+    uint32 bonding = 35;                 // Bonding type
+    string description = 36;             // Item description
+    uint32 pageText = 37;                // Page text ID
+    uint32 languageID = 38;              // Language ID
+    uint32 pageMaterial = 39;            // Page material type
+    uint32 startQuest = 40;              // ID of the quest the item starts
+    uint32 lockID = 41;                  // Lock ID
+    int32 material = 42;                 // Material type
+    uint32 sheath = 43;                  // Sheath type
+    uint32 randomProperty = 44;          // Random property ID
+    uint32 block = 45;                   // Block value (for shields)
+    uint32 itemSet = 46;                 // Item set ID
+    uint32 maxDurability = 47;           // Maximum durability
+    uint32 area = 48;                    // Area restriction
+    uint32 map = 49;                     // Map restriction
+    uint32 bagFamily = 50;               // Bag family
+    string scriptName = 51;              // Script name associated with the item
+    uint32 disenchantID = 52;            // Disenchant ID
+    uint32 foodType = 53;                // Food type
+    uint32 minMoneyLoot = 54;            // Minimum money loot
+    uint32 maxMoneyLoot = 55;            // Maximum money loot
+    uint32 duration = 56;                // Duration of the item (in seconds)
+    uint32 extraFlags = 57;              // Extra flags
+    uint32 otherTeamEntry = 58;          // Entry for the other team version
 }
 
-message NpcVendorEntry {
-    int32 entry = 1;
-    int32 item = 2;
-    int32 maxCount = 3;
-    int32 incrTime = 4;
-    int32 slot = 5;
-    int32 conditionId = 6;
-    string comments = 7;
+// Nested message types for stats, damages, resistances, and spells
+message Stat {
+    uint32 type = 1;
+    int32 value = 2;
+}
+
+message Damage {
+    float min = 1;
+    float max = 2;
+    uint32 type = 3;
+}
+
+message Resistance {
+    uint32 holy = 1;
+    uint32 fire = 2;
+    uint32 nature = 3;
+    uint32 frost = 4;
+    uint32 shadow = 5;
+    uint32 arcane = 6;
+}
+
+message Spell {
+    uint32 spellID = 1;
+    uint32 trigger = 2;
+    int32 charges = 3;
+    float ppmRate = 4;
+    int32 cooldown = 5;
+    uint32 category = 6;
+    int32 categoryCooldown = 7;
+}
+
+message LocalesArea {
+    uint32 entry = 1;                     // Area entry ID
+    string nameLoc1 = 2;                  // Name in locale 1
+    string nameLoc2 = 3;                  // Name in locale 2
+    string nameLoc3 = 4;                  // Name in locale 3
+    string nameLoc4 = 5;                  // Name in locale 4
+    string nameLoc5 = 6;                  // Name in locale 5
+    string nameLoc6 = 7;                  // Name in locale 6
+    string nameLoc7 = 8;                  // Name in locale 7
+    string nameLoc8 = 9;                  // Name in locale 8
+}
+
+message LocalesBroadcastText {
+    uint32 id = 1;                            // Broadcast text ID
+    string maleTextLoc1 = 2;                  // Male text in locale 1
+    string maleTextLoc2 = 3;                  // Male text in locale 2
+    string maleTextLoc3 = 4;                  // Male text in locale 3
+    string maleTextLoc4 = 5;                  // Male text in locale 4
+    string maleTextLoc5 = 6;                  // Male text in locale 5
+    string maleTextLoc6 = 7;                  // Male text in locale 6
+    string maleTextLoc7 = 8;                  // Male text in locale 7
+    string maleTextLoc8 = 9;                  // Male text in locale 8
+    string femaleTextLoc1 = 10;               // Female text in locale 1
+    string femaleTextLoc2 = 11;               // Female text in locale 2
+    string femaleTextLoc3 = 12;               // Female text in locale 3
+    string femaleTextLoc4 = 13;               // Female text in locale 4
+    string femaleTextLoc5 = 14;               // Female text in locale 5
+    string femaleTextLoc6 = 15;               // Female text in locale 6
+    string femaleTextLoc7 = 16;               // Female text in locale 7
+    string femaleTextLoc8 = 17;               // Female text in locale 8
+    int32 verifiedBuild = 18;                 // Verified build version
+}
+
+message LocalesCreature {
+    uint32 entry = 1;                  // Creature Entry ID
+    string name_loc1 = 2;              // Creature name in locale 1
+    string name_loc2 = 3;              // Creature name in locale 2
+    string name_loc3 = 4;              // Creature name in locale 3
+    string name_loc4 = 5;              // Creature name in locale 4
+    string name_loc5 = 6;              // Creature name in locale 5
+    string name_loc6 = 7;              // Creature name in locale 6
+    string name_loc7 = 8;              // Creature name in locale 7
+    string name_loc8 = 9;              // Creature name in locale 8
+    string subname_loc1 = 10;          // Creature subname in locale 1
+    string subname_loc2 = 11;          // Creature subname in locale 2
+    string subname_loc3 = 12;          // Creature subname in locale 3
+    string subname_loc4 = 13;          // Creature subname in locale 4
+    string subname_loc5 = 14;          // Creature subname in locale 5
+    string subname_loc6 = 15;          // Creature subname in locale 6
+    string subname_loc7 = 16;          // Creature subname in locale 7
+    string subname_loc8 = 17;          // Creature subname in locale 8
+}
+
+message LocalesGameObject {
+    uint32 entry = 1;            // GameObject Entry ID
+    string name_loc1 = 2;        // GameObject name in locale 1
+    string name_loc2 = 3;        // GameObject name in locale 2
+    string name_loc3 = 4;        // GameObject name in locale 3
+    string name_loc4 = 5;        // GameObject name in locale 4
+    string name_loc5 = 6;        // GameObject name in locale 5
+    string name_loc6 = 7;        // GameObject name in locale 6
+    string name_loc7 = 8;        // GameObject name in locale 7
+    string name_loc8 = 9;        // GameObject name in locale 8
+}
+
+message LocalesGossipMenuOption {
+    uint32 menu_id = 1;          // Gossip Menu ID
+    uint32 id = 2;               // Option ID
+    string option_text_loc1 = 3;  // Option text in locale 1
+    string option_text_loc2 = 4;  // Option text in locale 2
+    string option_text_loc3 = 5;  // Option text in locale 3
+    string option_text_loc4 = 6;  // Option text in locale 4
+    string option_text_loc5 = 7;  // Option text in locale 5
+    string option_text_loc6 = 8;  // Option text in locale 6
+    string option_text_loc7 = 9;  // Option text in locale 7
+    string option_text_loc8 = 10; // Option text in locale 8
+    string box_text_loc1 = 11;    // Box text in locale 1
+    string box_text_loc2 = 12;    // Box text in locale 2
+    string box_text_loc3 = 13;    // Box text in locale 3
+    string box_text_loc4 = 14;    // Box text in locale 4
+    string box_text_loc5 = 15;    // Box text in locale 5
+    string box_text_loc6 = 16;    // Box text in locale 6
+    string box_text_loc7 = 17;    // Box text in locale 7
+    string box_text_loc8 = 18;    // Box text in locale 8
+}
+
+message LocalesItem {
+	uint32 entry = 1;            // Item Entry ID
+	string name_loc1 = 2;        // Item name in locale 1
+	string name_loc2 = 3;        // Item name in locale 2
+	string name_loc3 = 4;        // Item name in locale 3
+	string name_loc4 = 5;        // Item name in locale 4
+	string name_loc5 = 6;        // Item name in locale 5
+	string name_loc6 = 7;        // Item name in locale 6
+	string name_loc7 = 8;        // Item name in locale 7
+	string name_loc8 = 9;        // Item name in locale 8
+	string description_loc1 = 10;  // Item description in locale 1
+	string description_loc2 = 11;  // Item description in locale 2
+	string description_loc3 = 12;  // Item description in locale 3
+	string description_loc4 = 13;  // Item description in locale 4
+	string description_loc5 = 14;  // Item description in locale 5
+	string description_loc6 = 15;  // Item description in locale 6
+	string description_loc7 = 16;  // Item description in locale 7
+	string description_loc8 = 17;  // Item description in locale 8
+}
+
+message LocalesPageText {
+    uint32 entry = 1;          // Entry ID for the page text
+    string text_loc1 = 2;      // Text in locale 1
+    string text_loc2 = 3;      // Text in locale 2
+    string text_loc3 = 4;      // Text in locale 3
+    string text_loc4 = 5;      // Text in locale 4
+    string text_loc5 = 6;      // Text in locale 5
+    string text_loc6 = 7;      // Text in locale 6
+    string text_loc7 = 8;      // Text in locale 7
+    string text_loc8 = 9;      // Text in locale 8
+}
+
+message LocalesPointsOfInterest {
+    uint32 entry = 1;            // Entry ID for the point of interest
+    string icon_name_loc1 = 2;   // Icon name for locale 1
+    string icon_name_loc2 = 3;   // Icon name for locale 2
+    string icon_name_loc3 = 4;   // Icon name for locale 3
+    string icon_name_loc4 = 5;   // Icon name for locale 4
+    string icon_name_loc5 = 6;   // Icon name for locale 5
+    string icon_name_loc6 = 7;   // Icon name for locale 6
+    string icon_name_loc7 = 8;   // Icon name for locale 7
+    string icon_name_loc8 = 9;   // Icon name for locale 8
+}
+
+message LocalesQuest {
+    uint32 entry = 1;  // Entry ID of the quest
+    
+    // Title fields for different locales
+    string Title_loc1 = 2;  
+    string Title_loc2 = 3;
+    string Title_loc3 = 4;
+    string Title_loc4 = 5;
+    string Title_loc5 = 6;
+    string Title_loc6 = 7;
+    string Title_loc7 = 8;
+    string Title_loc8 = 9;
+
+    // Details fields for different locales
+    string Details_loc1 = 10;
+    string Details_loc2 = 11;
+    string Details_loc3 = 12;
+    string Details_loc4 = 13;
+    string Details_loc5 = 14;
+    string Details_loc6 = 15;
+    string Details_loc7 = 16;
+    string Details_loc8 = 17;
+
+    // Objectives fields for different locales
+    string Objectives_loc1 = 18;
+    string Objectives_loc2 = 19;
+    string Objectives_loc3 = 20;
+    string Objectives_loc4 = 21;
+    string Objectives_loc5 = 22;
+    string Objectives_loc6 = 23;
+    string Objectives_loc7 = 24;
+    string Objectives_loc8 = 25;
+
+    // OfferRewardText fields for different locales
+    string OfferRewardText_loc1 = 26;
+    string OfferRewardText_loc2 = 27;
+    string OfferRewardText_loc3 = 28;
+    string OfferRewardText_loc4 = 29;
+    string OfferRewardText_loc5 = 30;
+    string OfferRewardText_loc6 = 31;
+    string OfferRewardText_loc7 = 32;
+    string OfferRewardText_loc8 = 33;
+
+    // RequestItemsText fields for different locales
+    string RequestItemsText_loc1 = 34;
+    string RequestItemsText_loc2 = 35;
+    string RequestItemsText_loc3 = 36;
+    string RequestItemsText_loc4 = 37;
+    string RequestItemsText_loc5 = 38;
+    string RequestItemsText_loc6 = 39;
+    string RequestItemsText_loc7 = 40;
+    string RequestItemsText_loc8 = 41;
+
+    // EndText fields for different locales
+    string EndText_loc1 = 42;
+    string EndText_loc2 = 43;
+    string EndText_loc3 = 44;
+    string EndText_loc4 = 45;
+    string EndText_loc5 = 46;
+    string EndText_loc6 = 47;
+    string EndText_loc7 = 48;
+    string EndText_loc8 = 49;
+
+    // ObjectiveText1 fields for different locales
+    string ObjectiveText1_loc1 = 50;
+    string ObjectiveText1_loc2 = 51;
+    string ObjectiveText1_loc3 = 52;
+    string ObjectiveText1_loc4 = 53;
+    string ObjectiveText1_loc5 = 54;
+    string ObjectiveText1_loc6 = 55;
+    string ObjectiveText1_loc7 = 56;
+    string ObjectiveText1_loc8 = 57;
+
+    // ObjectiveText2 fields for different locales
+    string ObjectiveText2_loc1 = 58;
+    string ObjectiveText2_loc2 = 59;
+    string ObjectiveText2_loc3 = 60;
+    string ObjectiveText2_loc4 = 61;
+    string ObjectiveText2_loc5 = 62;
+    string ObjectiveText2_loc6 = 63;
+    string ObjectiveText2_loc7 = 64;
+    string ObjectiveText2_loc8 = 65;
+
+    // ObjectiveText3 fields for different locales
+    string ObjectiveText3_loc1 = 66;
+    string ObjectiveText3_loc2 = 67;
+    string ObjectiveText3_loc3 = 68;
+    string ObjectiveText3_loc4 = 69;
+    string ObjectiveText3_loc5 = 70;
+    string ObjectiveText3_loc6 = 71;
+    string ObjectiveText3_loc7 = 72;
+    string ObjectiveText3_loc8 = 73;
+
+    // ObjectiveText4 fields for different locales
+    string ObjectiveText4_loc1 = 74;
+    string ObjectiveText4_loc2 = 75;
+    string ObjectiveText4_loc3 = 76;
+    string ObjectiveText4_loc4 = 77;
+    string ObjectiveText4_loc5 = 78;
+    string ObjectiveText4_loc6 = 79;
+    string ObjectiveText4_loc7 = 80;
+    string ObjectiveText4_loc8 = 81;
+}
+
+message MailLootTemplate {
+    uint32 entry = 1;                    // Entry identifier for mail loot
+    uint32 item = 2;                     // Item identifier
+    float ChanceOrQuestChance = 3;       // Probability or quest chance
+    uint32 groupid = 4;                  // Group ID
+    int32 mincountOrRef = 5;             // Minimum count or reference
+    uint32 maxcount = 6;                 // Maximum count
+    uint32 condition_id = 7;             // Condition ID
+    uint32 patch_min = 8;                // Minimum patch version
+    uint32 patch_max = 9;                // Maximum patch version
+}
+
+message MangosString {
+    uint32 entry = 1; // Unique identifier for the string entry
+    string content_default = 2; // Default content of the string
+    string content_loc1 = 3; // Content for locale 1
+    string content_loc2 = 4; // Content for locale 2
+    string content_loc3 = 5; // Content for locale 3
+    string content_loc4 = 6; // Content for locale 4
+    string content_loc5 = 7; // Content for locale 5
+    string content_loc6 = 8; // Content for locale 6
+    string content_loc7 = 9; // Content for locale 7
+    string content_loc8 = 10; // Content for locale 8
+}
+
+message MapLootDisabled {
+    uint32 mapid = 1; // Identifier for the map
+    string comment = 2; // Optional comment for the map
+}
+
+message MapTemplate {
+    uint32 Entry = 1; // Unique identifier for the map entry
+    uint32 patch = 2; // Patch version of the map
+    uint32 Parent = 3; // Identifier for the parent map
+    uint32 MapType = 4; // Type of the map
+    uint32 LinkedZone = 5; // Linked zone identifier
+    uint32 LevelMin = 6; // Minimum level for the map
+    uint32 LevelMax = 7; // Maximum level for the map
+    uint32 MaxPlayers = 8; // Maximum number of players allowed
+    uint32 ResetDelay = 9; // Delay before the map resets
+    int32 GhostEntranceMap = 10; // Map ID for ghost entrance
+    float GhostEntranceX = 11; // X coordinate for ghost entrance
+    float GhostEntranceY = 12; // Y coordinate for ghost entrance
+    string MapName = 13; // Name of the map
+    string ScriptName = 14; // Script name associated with the map
+}
+
+message Migrations {
+    string id = 1; // Identifier for the migration
+}
+
+message NpcGossip {
+    uint32 npc_guid = 1; // Unique identifier for the NPC
+    uint32 textid = 2; // Identifier for the gossip text
+}
+
+message NpcText {
+    uint32 ID = 1; // Unique identifier for the NPC text entry
+    uint32 BroadcastTextID0 = 2; // Identifier for broadcast text 0
+    float Probability0 = 3; // Probability for broadcast text 0
+    uint32 BroadcastTextID1 = 4; // Identifier for broadcast text 1
+    float Probability1 = 5; // Probability for broadcast text 1
+    uint32 BroadcastTextID2 = 6; // Identifier for broadcast text 2
+    float Probability2 = 7; // Probability for broadcast text 2
+    uint32 BroadcastTextID3 = 8; // Identifier for broadcast text 3
+    float Probability3 = 9; // Probability for broadcast text 3
+    uint32 BroadcastTextID4 = 10; // Identifier for broadcast text 4
+    float Probability4 = 11; // Probability for broadcast text 4
+    uint32 BroadcastTextID5 = 12; // Identifier for broadcast text 5
+    float Probability5 = 13; // Probability for broadcast text 5
+    uint32 BroadcastTextID6 = 14; // Identifier for broadcast text 6
+    float Probability6 = 15; // Probability for broadcast text 6
+    uint32 BroadcastTextID7 = 16; // Identifier for broadcast text 7
+    float Probability7 = 17; // Probability for broadcast text 7
+}
+
+message NpcTrainer {
+    uint32 entry = 1; // Unique identifier for the NPC trainer
+    uint32 spell = 2; // Identifier for the spell offered by the trainer
+    uint32 spellcost = 3; // Cost of the spell
+    uint32 reqskill = 4; // Required skill for the spell
+    uint32 reqskillvalue = 5; // Required skill value for the spell
+    uint32 reqlevel = 6; // Required level to learn the spell
+}
+
+message NpcTrainerTemplate {
+    uint32 entry = 1; // Unique identifier for the NPC trainer template
+    uint32 spell = 2; // Identifier for the spell offered by the trainer
+    uint32 spellcost = 3; // Cost of the spell
+    uint32 reqskill = 4; // Required skill for the spell
+    uint32 reqskillvalue = 5; // Required skill value for the spell
+    uint32 reqlevel = 6; // Required level to learn the spell
+}
+
+message NpcVendor {
+    uint32 entry = 1; // Unique identifier for the NPC vendor
+    uint32 item = 2; // Identifier for the item sold by the vendor
+    uint32 maxcount = 3; // Maximum count of the item available
+    uint32 incrtime = 4; // Time interval for restocking the item
+}
+
+message NpcVendorTemplate {
+    uint32 entry = 1; // Unique identifier for the NPC vendor template
+    uint32 item = 2; // Identifier for the item sold by the vendor
+    uint32 maxcount = 3; // Maximum count of the item available
+    uint32 incrtime = 4; // Time interval for restocking the item
+}
+
+message PageText {
+    uint32 entry = 1; // Unique identifier for the page text entry
+    string text = 2; // Text content of the page
+    uint32 next_page = 3; // Identifier for the next page in the sequence
+}
+
+message PetCreateInfoSpell {
+    uint32 entry = 1; // Unique identifier for the pet creation entry
+    uint32 Spell1 = 2; // Identifier for the first spell
+    uint32 Spell2 = 3; // Identifier for the second spell
+    uint32 Spell3 = 4; // Identifier for the third spell
+    uint32 Spell4 = 5; // Identifier for the fourth spell
+}
+
+message PetLevelStats {
+    uint32 creature_entry = 1; // Unique identifier for the creature entry
+    uint32 level = 2; // Level of the pet
+    uint32 hp = 3; // Health points of the pet
+    uint32 mana = 4; // Mana points of the pet
+    uint32 armor = 5; // Armor value of the pet
+    uint32 str = 6; // Strength of the pet
+    uint32 agi = 7; // Agility of the pet
+    uint32 sta = 8; // Stamina of the pet
+    uint32 inte = 9; // Intelligence of the pet
+    uint32 spi = 10; // Spirit of the pet
+}
+
+message PetNameGeneration {
+    uint32 id = 1; // Unique identifier for the pet name entry
+    string word = 2; // Word used for generating the pet name
+    uint32 entry = 3; // Associated entry identifier
+    uint32 half = 4; // Indicates which half of the name this word represents
+}
+
+message PickpocketingLootTemplate {
+    uint32 entry = 1; // Unique identifier for the pickpocketing loot entry
+    uint32 item = 2; // Identifier for the item
+    float ChanceOrQuestChance = 3; // Chance or quest chance of the item being looted
+    uint32 groupid = 4; // Group ID for the loot
+    uint32 mincountOrRef = 5; // Minimum count or reference for the loot
+    uint32 maxcount = 6; // Maximum count of the item
+    uint32 condition_id = 7; // Condition ID for the loot
+    uint32 patch_min = 8; // Minimum patch version
+    uint32 patch_max = 9; // Maximum patch version
+}
+
+message PlayerBot {
+    uint64 char_guid = 1; // Unique identifier for the character GUID
+    uint32 chance = 2; // Chance value associated with the player bot
+    string comment = 3; // Optional comment for the player bot
+}
+
+message PlayerCreateInfo {
+    uint32 race = 1; // Race of the player
+    uint32 class = 2; // Class of the player
+    uint32 map = 3; // Map ID where the player starts
+    uint32 zone = 4; // Zone ID where the player starts
+    float position_x = 5; // X coordinate of the starting position
+    float position_y = 6; // Y coordinate of the starting position
+    float position_z = 7; // Z coordinate of the starting position
+    float orientation = 8; // Orientation of the player
+}
+
+message PlayerCreateInfoAction {
+    uint32 race = 1; // Race of the player
+    uint32 class = 2; // Class of the player
+    uint32 button = 3; // Button index for the action
+    uint32 action = 4; // Action identifier
+    uint32 type = 5; // Type of the action
+}
+
+message PlayerCreateInfoItem {
+    uint32 race = 1; // Race of the player
+    uint32 class = 2; // Class of the player
+    uint32 itemid = 3; // Item identifier
+    uint32 amount = 4; // Amount of the item
+}
+
+message PlayerCreateInfoSpell {
+    uint32 race = 1; // Race of the player
+    uint32 class = 2; // Class of the player
+    uint32 Spell = 3; // Spell identifier
+    string Note = 4; // Optional note about the spell
+}
+
+message PlayerClassLevelStats {
+    uint32 class = 1; // Class identifier
+    uint32 level = 2; // Level of the character
+    uint32 basehp = 3; // Base health points for the level
+    uint32 basemana = 4; // Base mana points for the level
+}
+
+message PlayerFactionChangeItems {
+    int32 alliance_id = 1; // Item identifier for the Alliance faction
+    int32 horde_id = 2; // Item identifier for the Horde faction
+    string comment = 3; // Description or comment for the faction change item
+}
+
+message PlayerFactionChangeMounts {
+    int32 RaceId = 1; // Race identifier
+    int32 MountNum = 2; // Mount number
+    int32 ItemEntry = 3; // Item identifier for the mount
+    string Comment = 4; // Description or comment about the mount
+}
+
+message PlayerFactionChangeQuests {
+    int32 alliance_id = 1; // Quest identifier for the Alliance faction
+    int32 horde_id = 2; // Quest identifier for the Horde faction
+    string comment = 3; // Description or comment about the faction change quest
+}
+
+message PlayerFactionChangeReputations {
+    int32 alliance_id = 1; // Reputation identifier for the Alliance faction
+    int32 horde_id = 2; // Reputation identifier for the Horde faction
+}
+
+message PlayerFactionChangeSpells {
+    int32 alliance_id = 1; // Spell identifier for the Alliance faction
+    int32 horde_id = 2; // Spell identifier for the Horde faction
+    string comment = 3; // Description or comment about the faction change spell
+}
+
+message PlayerLevelStats {
+    uint32 race = 1; // Race identifier
+    uint32 class = 2; // Class identifier
+    uint32 level = 3; // Level of the character
+    uint32 str = 4; // Strength stat
+    uint32 agi = 5; // Agility stat
+    uint32 sta = 6; // Stamina stat
+    uint32 inte = 7; // Intelligence stat
+    uint32 spi = 8; // Spirit stat
+}
+
+message PlayerXpForLevel {
+    uint32 lvl = 1; // Level of the character
+    uint32 xp_for_next_level = 2; // Experience required to reach the next level
+}
+
+message PointsOfInterest {
+    uint32 entry = 1; // Identifier for the point of interest
+    float x = 2; // X coordinate of the point
+    float y = 3; // Y coordinate of the point
+    uint32 icon = 4; // Icon identifier
+    uint32 flags = 5; // Flags related to the point
+    uint32 data = 6; // Additional data
+    string icon_name = 7; // Name of the icon
+}
+
+message PoolCreature {
+    uint32 guid = 1; // Unique identifier for the pool creature
+    uint32 pool_entry = 2; // Pool entry identifier
+    float chance = 3; // Chance of appearance
+    string description = 4; // Description of the pool creature
+    uint32 flags = 5; // Flags related to the pool creature (e.g., FLAG_SPAWN_ENABLE_IF_WORLD_POP_OVER_BLIZZLIKE)
+    uint32 patch_min = 6; // Minimum patch version
+    uint32 patch_max = 7; // Maximum patch version
+}
+
+message PoolCreatureTemplate {
+    uint32 id = 1; // Unique identifier for the pool creature template
+    uint32 pool_entry = 2; // Pool entry identifier
+    float chance = 3; // Chance of appearance
+    string description = 4; // Description of the pool creature template
+    uint32 flags = 5; // Flags related to the pool creature template (e.g., FLAG_SPAWN_ENABLE_IF_WORLD_POP_OVER_BLIZZLIKE)
+}
+
+message PoolGameObject {
+    uint32 guid = 1; // Unique identifier for the pool game object
+    uint32 pool_entry = 2; // Pool entry identifier
+    float chance = 3; // Chance of appearance
+    string description = 4; // Description of the pool game object
+    uint32 flags = 5; // Flags related to the pool game object (e.g., FLAG_SPAWN_ENABLE_IF_WORLD_POP_OVER_BLIZZLIKE)
+    uint32 patch_min = 6; // Minimum patch version
+    uint32 patch_max = 7; // Maximum patch version
+}
+
+message PoolGameObjectTemplate {
+    uint32 id = 1; // Unique identifier for the pool game object template
+    uint32 pool_entry = 2; // Pool entry identifier
+    float chance = 3; // Chance of appearance
+    string description = 4; // Description of the pool game object template
+    uint32 flags = 5; // Flags related to the pool game object template (e.g., FLAG_SPAWN_ENABLE_IF_WORLD_POP_OVER_BLIZZLIKE)
+}
+
+message PoolPool {
+    uint32 pool_id = 1; // Unique identifier for the pool
+    uint32 mother_pool = 2; // Identifier for the parent pool
+    float chance = 3; // Chance of appearance
+    string description = 4; // Description of the pool
+    uint32 flags = 5; // Flags related to the pool (e.g., FLAG_SPAWN_ENABLE_IF_WORLD_POP_OVER_BLIZZLIKE)
+}
+
+message PoolTemplate {
+    uint32 entry = 1; // Pool entry
+    uint32 max_limit = 2; // Max number of objects (0 means no limit)
+    string description = 3; // Description of the pool
+    uint32 flags = 4; // Flags related to the pool
+    uint32 instance = 5; // Instance identifier
+    uint32 patch_min = 6; // Minimum patch version
+    uint32 patch_max = 7; // Maximum patch version
+}
+
+message QuestEndScripts {
+    uint32 id = 1; // Script ID
+    uint32 delay = 2; // Delay before executing the script
+    uint32 command = 3; // Command to be executed
+    uint32 datalong = 4; // Data long parameter 1
+    uint32 datalong2 = 5; // Data long parameter 2
+    uint32 datalong3 = 6; // Data long parameter 3
+    uint32 datalong4 = 7; // Data long parameter 4
+    uint32 target_param1 = 8; // Target parameter 1
+    uint32 target_param2 = 9; // Target parameter 2
+    uint32 target_type = 10; // Target type
+    uint32 data_flags = 11; // Data flags
+    int32 dataint = 12; // Data integer 1
+    int32 dataint2 = 13; // Data integer 2
+    int32 dataint3 = 14; // Data integer 3
+    int32 dataint4 = 15; // Data integer 4
+    float x = 16; // X coordinate
+    float y = 17; // Y coordinate
+    float z = 18; // Z coordinate
+    float o = 19; // Orientation
+    uint32 condition_id = 20; // Condition ID
+    string comments = 21; // Comments about the script
+}
+
+message QuestGreeting {
+    uint32 entry = 1; // Quest entry ID
+    uint32 type = 2; // Greeting type
+    string content_default = 3; // Default content
+    string content_loc1 = 4; // Content for locale 1
+    string content_loc2 = 5; // Content for locale 2
+    string content_loc3 = 6; // Content for locale 3
+    string content_loc4 = 7; // Content for locale 4
+    string content_loc5 = 8; // Content for locale 5
+    string content_loc6 = 9; // Content for locale 6
+    string content_loc7 = 10; // Content for locale 7
+    string content_loc8 = 11; // Content for locale 8
+    uint32 emote = 12; // Emote ID
+    uint32 emote_delay = 13; // Emote delay in milliseconds
+}
+
+message QuestStartScripts {
+    uint32 id = 1; // Script ID
+    uint32 delay = 2; // Delay before script execution
+    uint32 command = 3; // Command to execute
+    uint32 datalong = 4; // Long data parameter
+    uint32 datalong2 = 5; // Second long data parameter
+    uint32 datalong3 = 6; // Third long data parameter
+    uint32 datalong4 = 7; // Fourth long data parameter
+    uint32 target_param1 = 8; // First target parameter
+    uint32 target_param2 = 9; // Second target parameter
+    uint32 target_type = 10; // Type of target
+    uint32 data_flags = 11; // Flags for data
+    int32 dataint = 12; // Integer data parameter
+    int32 dataint2 = 13; // Second integer data parameter
+    int32 dataint3 = 14; // Third integer data parameter
+    int32 dataint4 = 15; // Fourth integer data parameter
+    float x = 16; // X coordinate
+    float y = 17; // Y coordinate
+    float z = 18; // Z coordinate
+    float o = 19; // Orientation
+    uint32 condition_id = 20; // Condition ID
+    string comments = 21; // Comments or description
 }
 
 message QuestTemplate {
-    int32 entry = 1;
-    int32 method = 2;
-    int32 zoneOrSort = 3;
-    int32 minLevel = 4;
-    int32 maxLevel = 5;
-    int32 questLevel = 6;
-    int32 type = 7;
-    int32 requiredClasses = 8;
-    int32 requiredRaces = 9;
-    int32 requiredSkill = 10;
-    int32 requiredSkillValue = 11;
-    int32 requiredCondition = 12;
-    int32 repObjectiveFaction = 13;
-    int32 repObjectiveValue = 14;
-    int32 requiredMinRepFaction = 15;
-    int32 requiredMinRepValue = 16;
-    int32 requiredMaxRepFaction = 17;
-    int32 requiredMaxRepValue = 18;
-    int32 suggestedPlayers = 19;
-    int32 limitTime = 20;
-    int32 questFlags = 21;
-    int32 specialFlags = 22;
-    int32 prevQuestId = 23;
-    int32 nextQuestId = 24;
-    int32 exclusiveGroup = 25;
-    int32 breadcrumbForQuestId = 26;
-    int32 nextQuestInChain = 27;
-    int32 srcItemId = 28;
-    int32 srcItemCount = 29;
-    int32 srcSpell = 30;
-    string title = 31;
-    string details = 32;
-    string objectives = 33;
-    string offerRewardText = 34;
-    string requestItemsText = 35;
-    string endText = 36;
-    string objectiveText1 = 37;
-    string objectiveText2 = 38;
-    string objectiveText3 = 39;
-    string objectiveText4 = 40;
-    
-    // Keeping the unique identifiers and counts
-    int32 reqItemId1 = 41;
-    int32 reqItemId2 = 42;
-    int32 reqItemId3 = 43;
-    int32 reqItemId4 = 44;
-    int32 reqItemCount1 = 45;
-    int32 reqItemCount2 = 46;
-    int32 reqItemCount3 = 47;
-    int32 reqItemCount4 = 48;
-    
-    int32 reqSourceId1 = 49;
-    int32 reqSourceId2 = 50;
-    int32 reqSourceId3 = 51;
-    int32 reqSourceId4 = 52;
-    int32 reqSourceCount1 = 53;
-    int32 reqSourceCount2 = 54;
-    int32 reqSourceCount3 = 55;
-    int32 reqSourceCount4 = 56;
-    
-    int32 reqCreatureOrGOId1 = 57;
-    int32 reqCreatureOrGOId2 = 58;
-    int32 reqCreatureOrGOId3 = 59;
-    int32 reqCreatureOrGOId4 = 60;
-    int32 reqCreatureOrGOCount1 = 61;
-    int32 reqCreatureOrGOCount2 = 62;
-    int32 reqCreatureOrGOCount3 = 63;
-    int32 reqCreatureOrGOCount4 = 64;
-    
-    int32 reqSpellCast1 = 65;
-    int32 reqSpellCast2 = 66;
-    int32 reqSpellCast3 = 67;
-    int32 reqSpellCast4 = 68;
-    
-    int32 rawChoiceItemId1 = 69;
-    int32 rawChoiceItemId2 = 70;
-    int32 rawChoiceItemId3 = 71;
-    int32 rawChoiceItemId4 = 72;
-    int32 rawChoiceItemId5 = 73;
-    int32 rawChoiceItemId6 = 74;
-    int32 rawChoiceItemCount1 = 75;
-    int32 rawChoiceItemCount2 = 76;
-    int32 rawChoiceItemCount3 = 77;
-    int32 rawChoiceItemCount4 = 78;
-    int32 rawChoiceItemCount5 = 79;
-    int32 rawChoiceItemCount6 = 80;
-    
-    int32 rawItemId1 = 81;
-    int32 rawItemId2 = 82;
-    int32 rawItemId3 = 83;
-    int32 rawItemId4 = 84;
-    int32 rawItemCount1 = 85;
-    int32 rawItemCount2 = 86;
-    int32 rawItemCount3 = 87;
-    int32 rawItemCount4 = 88;
-    
-    int32 rawRepFaction1 = 89;
-    int32 rawRepFaction2 = 90;
-    int32 rawRepFaction3 = 91;
-    int32 rawRepFaction4 = 92;
-    int32 rawRepFaction5 = 93;
-    int32 rawRepValue1 = 94;
-    int32 rawRepValue2 = 95;
-    int32 rawRepValue3 = 96;
-    int32 rawRepValue4 = 97;
-    int32 rawRepValue5 = 98;
-    
-    int32 rawOrReqMoney = 99;
-    uint32 rawMoneyMaxLevel = 100;
-    int32 rawSpell = 101;
-    int32 rawSpellCast = 102;
-    int32 rawMailTemplateId = 103;
-    uint32 rawMailDelaySecs = 104;
-    int32 pointMapId = 105;
-    float pointX = 106;
-    float pointY = 107;
-    uint32 pointOpt = 108;
-    
-    int32 detailsEmote1 = 109;
-    int32 detailsEmote2 = 110;
-    int32 detailsEmote3 = 111;
-    int32 detailsEmote4 = 112;
-    int32 detailsEmoteDelay1 = 113;
-    int32 detailsEmoteDelay2 = 114;
-    int32 detailsEmoteDelay3 = 115;
-    int32 detailsEmoteDelay4 = 116;
-    
-    int32 incompleteEmote = 117;
-    int32 incompleteEmoteDelay = 118;
-    int32 completeEmote = 119;
-    int32 completeEmoteDelay = 120;
-    
-    int32 offerRewardEmote1 = 121;
-    int32 offerRewardEmote2 = 122;
-    int32 offerRewardEmote3 = 123;
-    int32 offerRewardEmote4 = 124;
-    int32 offerRewardEmoteDelay1 = 125;
-    int32 offerRewardEmoteDelay2 = 126;
-    int32 offerRewardEmoteDelay3 = 127;
-    int32 offerRewardEmoteDelay4 = 128;
-    
-    int32 startScript = 129;
-    int32 completeScript = 130;
+    uint32 entry = 1; // Unique identifier for the quest
+    uint32 patch = 2; // Patch version of the quest
+    uint32 method = 3; // Method of the quest (e.g., quest completion method)
+    int32 zone_or_sort = 4; // Zone or sort ID (can represent a zone or sorting group)
+    uint32 min_level = 5; // Minimum player level required for the quest
+    uint32 max_level = 6; // Maximum player level for the quest
+    uint32 quest_level = 7; // Level of the quest
+    uint32 type = 8; // Type of quest (e.g., normal, elite, dungeon, etc.)
+    uint32 required_classes = 9; // Required classes to start the quest
+    uint32 required_races = 10; // Required races to start the quest
+    uint32 required_skill = 11; // Required skill to start the quest
+    uint32 required_skill_value = 12; // Required skill value to start the quest
+    uint32 rep_objective_faction = 13; // Reputation objective faction ID
+    int32 rep_objective_value = 14; // Reputation objective value required
+    uint32 required_min_rep_faction = 15; // Minimum reputation faction required
+    int32 required_min_rep_value = 16; // Minimum reputation value required
+    uint32 required_max_rep_faction = 17; // Maximum reputation faction allowed
+    int32 required_max_rep_value = 18; // Maximum reputation value allowed
+    uint32 suggested_players = 19; // Suggested number of players for the quest
+    uint32 limit_time = 20; // Time limit for the quest in seconds
+    uint32 quest_flags = 21; // Quest flags (e.g., repeatable, daily, etc.)
+    uint32 special_flags = 22; // Special flags for the quest
+    int32 prev_quest_id = 23; // Previous quest in the chain
+    int32 next_quest_id = 24; // Next quest in the chain
+    int32 exclusive_group = 25; // Exclusive group identifier (mutually exclusive quests)
+    uint32 next_quest_in_chain = 26; // Next quest in the quest chain
+    uint32 src_item_id = 27; // Source item ID (if the quest gives an item)
+    uint32 src_item_count = 28; // Source item count
+    uint32 src_spell = 29; // Source spell ID related to the quest
+    string title = 30; // Quest title
+    string details = 31; // Quest details (description)
+    string objectives = 32; // Quest objectives
+    string offer_reward_text = 33; // Offer reward text
+    string request_items_text = 34; // Request items text
+    string end_text = 35; // End text when the quest is completed
+    string objective_text1 = 36; // First objective text
+    string objective_text2 = 37; // Second objective text
+    string objective_text3 = 38; // Third objective text
+    string objective_text4 = 39; // Fourth objective text
+    uint32 req_item_id1 = 40; // Required item ID 1
+    uint32 req_item_id2 = 41; // Required item ID 2
+    uint32 req_item_id3 = 42; // Required item ID 3
+    uint32 req_item_id4 = 43; // Required item ID 4
+    uint32 req_item_count1 = 44; // Required item count 1
+    uint32 req_item_count2 = 45; // Required item count 2
+    uint32 req_item_count3 = 46; // Required item count 3
+    uint32 req_item_count4 = 47; // Required item count 4
+    uint32 req_source_id1 = 48; // Required source ID 1
+    uint32 req_source_id2 = 49; // Required source ID 2
+    uint32 req_source_id3 = 50; // Required source ID 3
+    uint32 req_source_id4 = 51; // Required source ID 4
+    uint32 req_source_count1 = 52; // Required source count 1
+    uint32 req_source_count2 = 53; // Required source count 2
+    uint32 req_source_count3 = 54; // Required source count 3
+    uint32 req_source_count4 = 55; // Required source count 4
+    int32 req_creature_or_go_id1 = 56; // Required creature or game object ID 1
+    int32 req_creature_or_go_id2 = 57; // Required creature or game object ID 2
+    int32 req_creature_or_go_id3 = 58; // Required creature or game object ID 3
+    int32 req_creature_or_go_id4 = 59; // Required creature or game object ID 4
+    uint32 req_creature_or_go_count1 = 60; // Required creature or game object count 1
+    uint32 req_creature_or_go_count2 = 61; // Required creature or game object count 2
+    uint32 req_creature_or_go_count3 = 62; // Required creature or game object count 3
+    uint32 req_creature_or_go_count4 = 63; // Required creature or game object count 4
+    uint32 req_spell_cast1 = 64; // Required spell cast 1
+    uint32 req_spell_cast2 = 65; // Required spell cast 2
+    uint32 req_spell_cast3 = 66; // Required spell cast 3
+    uint32 req_spell_cast4 = 67; // Required spell cast 4
+    uint32 rew_choice_item_id1 = 68; // Reward choice item ID 1
+    uint32 rew_choice_item_id2 = 69; // Reward choice item ID 2
+    uint32 rew_choice_item_id3 = 70; // Reward choice item ID 3
+    uint32 rew_choice_item_id4 = 71; // Reward choice item ID 4
+    uint32 rew_choice_item_id5 = 72; // Reward choice item ID 5
+    uint32 rew_choice_item_id6 = 73; // Reward choice item ID 6
+    uint32 rew_choice_item_count1 = 74; // Reward choice item count 1
+    uint32 rew_choice_item_count2 = 75; // Reward choice item count 2
+    uint32 rew_choice_item_count3 = 76; // Reward choice item count 3
+    uint32 rew_choice_item_count4 = 77; // Reward choice item count 4
+    uint32 rew_choice_item_count5 = 78; // Reward choice item count 5
+    uint32 rew_choice_item_count6 = 79; // Reward choice item count 6
+    uint32 rew_item_id1 = 80; // Reward item ID 1
+    uint32 rew_item_id2 = 81; // Reward item ID 2
+    uint32 rew_item_id3 = 82; // Reward item ID 3
+    uint32 rew_item_id4 = 83; // Reward item ID 4
+    uint32 rew_item_count1 = 84; // Reward item count 1
+    uint32 rew_item_count2 = 85; // Reward item count 2
+    uint32 rew_item_count3 = 86; // Reward item count 3
+    uint32 rew_item_count4 = 87; // Reward item count 4
+    uint32 rew_rep_faction1 = 88; // Reward reputation faction ID 1
+    uint32 rew_rep_faction2 = 89; // Reward reputation faction ID 2
+    uint32 rew_rep_faction3 = 90; // Reward reputation faction ID 3
+    uint32 rew_rep_faction4 = 91; // Reward reputation faction ID 4
+    uint32 rew_rep_faction5 = 92; // Reward reputation faction ID 5
+    int32 rew_rep_value1 = 93; // Reward reputation value 1
+    int32 rew_rep_value2 = 94; // Reward reputation value 2
+    int32 rew_rep_value3 = 95; // Reward reputation value 3
+    int32 rew_rep_value4 = 96; // Reward reputation value 4
+    int32 rew_rep_value5 = 97; // Reward reputation value 5
+    int32 rew_or_req_money = 98; // Reward or required money
+    uint32 rew_money_max_level = 99; // Reward money at max level
+    uint32 rew_spell = 100; // Reward spell ID
+    uint32 rew_spell_cast = 101; // Reward spell cast ID
+    uint32 rew_mail_template_id = 102; // Reward mail template ID
+    uint32 rew_mail_delay_secs = 103; // Reward mail delay in seconds
+    uint32 point_map_id = 104; // Point map ID
+    float point_x = 105; // Point X coordinate
+    float point_y = 106; // Point Y coordinate
+    uint32 point_opt = 107; // Point option (optional parameters)
+    uint32 details_emote1 = 108; // Details emote 1
+    uint32 details_emote2 = 109; // Details emote 2
+    uint32 details_emote3 = 110; // Details emote 3
+    uint32 details_emote4 = 111; // Details emote 4
+    uint32 details_emote_delay1 = 112; // Details emote delay 1
+    uint32 details_emote_delay2 = 113; // Details emote delay 2
+    uint32 details_emote_delay3 = 114; // Details emote delay 3
+    uint32 details_emote_delay4 = 115; // Details emote delay 4
+    uint32 incomplete_emote = 116; // Incomplete quest emote
+    uint32 complete_emote = 117; // Complete quest emote
+    uint32 offer_reward_emote1 = 118; // Offer reward emote 1
+    uint32 offer_reward_emote2 = 119; // Offer reward emote 2
+    uint32 offer_reward_emote3 = 120; // Offer reward emote 3
+    uint32 offer_reward_emote4 = 121; // Offer reward emote 4
+    uint32 offer_reward_emote_delay1 = 122; // Offer reward emote delay 1
+    uint32 offer_reward_emote_delay2 = 123; // Offer reward emote delay 2
+    uint32 offer_reward_emote_delay3 = 124; // Offer reward emote delay 3
+    uint32 offer_reward_emote_delay4 = 125; // Offer reward emote delay 4
+    uint32 start_script = 126; // Start script ID
+    uint32 complete_script = 127; // Complete script ID
+}
+
+message ReferenceLootTemplate {
+    uint32 entry = 1; // Entry identifier for the loot template
+    uint32 item = 2; // Item identifier in the loot template
+    float chance_or_quest_chance = 3; // Chance or quest-related chance for the item
+    uint32 group_id = 4; // Group ID of the loot item
+    int32 min_count_or_ref = 5; // Minimum count of the item or reference entry
+    uint32 max_count = 6; // Maximum count of the item
+    uint32 condition_id = 7; // Condition ID associated with the item
+    uint32 patch_min = 8; // Minimum patch version where the item is available
+    uint32 patch_max = 9; // Maximum patch version where the item is available
+}
+
+message ReputationRewardRate {
+    uint32 faction = 1; // Faction identifier
+    float quest_rate = 2; // Rate at which reputation is gained from quests
+    float creature_rate = 3; // Rate at which reputation is gained from creatures
+    float spell_rate = 4; // Rate at which reputation is gained from spells
+}
+
+message ReputationSpilloverTemplate {
+    uint32 faction = 1; // Faction entry
+    uint32 faction1 = 2; // Faction to give spillover for
+    float rate_1 = 3; // The given reputation points * rate for faction 1
+    uint32 rank_1 = 4; // Max rank for faction 1, no spillover above this rank
+    uint32 faction2 = 5; // Faction 2 to give spillover for
+    float rate_2 = 6; // The given reputation points * rate for faction 2
+    uint32 rank_2 = 7; // Max rank for faction 2, no spillover above this rank
+    uint32 faction3 = 8; // Faction 3 to give spillover for
+    float rate_3 = 9; // The given reputation points * rate for faction 3
+    uint32 rank_3 = 10; // Max rank for faction 3, no spillover above this rank
+    uint32 faction4 = 11; // Faction 4 to give spillover for
+    float rate_4 = 12; // The given reputation points * rate for faction 4
+    uint32 rank_4 = 13; // Max rank for faction 4, no spillover above this rank
+}
+
+message ReservedName {
+    string name = 1; // Player reserved name, max length of 12 characters
+}
+
+message ScriptedAreatrigger {
+    uint32 entry = 1; // Unique identifier for the area trigger
+    string script_name = 2; // Script name associated with the area trigger, max length of 64 characters
+}
+
+message ScriptedEventId {
+    uint32 id = 1; // Unique identifier for the scripted event
+    string script_name = 2; // Script name associated with the event, max length of 64 characters
+}
+
+message ScriptEscortData {
+    uint32 creature_id = 1; // Unique identifier for the creature
+    uint32 quest = 2; // Quest associated with the escort event
+    uint32 escort_faction = 3; // Faction associated with the escort event
+}
+
+message ScriptText {
+    int32 entry = 1; // Unique identifier for the script text
+    string content_default = 2; // Default content text
+    string content_loc1 = 3; // Localized content for location 1
+    string content_loc2 = 4; // Localized content for location 2
+    string content_loc3 = 5; // Localized content for location 3
+    string content_loc4 = 6; // Localized content for location 4
+    string content_loc5 = 7; // Localized content for location 5
+    string content_loc6 = 8; // Localized content for location 6
+    string content_loc7 = 9; // Localized content for location 7
+    string content_loc8 = 10; // Localized content for location 8
+    uint32 sound = 11; // Sound ID associated with the text
+    uint32 type = 12; // Type of script text
+    uint32 language = 13; // Language ID for the text
+    uint32 emote = 14; // Emote ID linked to the text
+    string comment = 15; // Optional comment associated with the text
+}
+
+message ScriptWaypoint {
+    uint32 entry = 1; // Creature template entry
+    uint32 pointid = 2; // Unique identifier for the waypoint point
+    float location_x = 3; // X coordinate of the waypoint
+    float location_y = 4; // Y coordinate of the waypoint
+    float location_z = 5; // Z coordinate of the waypoint
+    uint32 waittime = 6; // Wait time at the waypoint in milliseconds
+    string point_comment = 7; // Optional comment for the waypoint
+}
+
+message SkillDiscoveryTemplate {
+    uint32 spell_id = 1; // SpellId of the discoverable spell
+    uint32 req_spell = 2; // Spell requirement for discovery
+    float chance = 3; // Chance to discover the spell
+}
+
+message SkillExtraItemTemplate {
+    uint32 spell_id = 1; // SpellId of the item creation spell
+    uint32 required_specialization = 2; // Specialization spell id
+    float additional_create_chance = 3; // Chance to create additional items
+    uint32 additional_max_num = 4; // Max number of additional items that can be created
+}
+
+message SkillFishingBaseLevel {
+    uint32 entry = 1; // Area identifier
+    int32 skill = 2; // Base skill level requirement
+}
+
+message SkinningLootTemplate {
+    uint32 entry = 1;  // Entry for the loot template
+    uint32 item = 2;  // Item identifier
+    float chance_or_quest_chance = 3;  // Chance or quest-specific chance
+    uint32 group_id = 4;  // Group ID
+    int32 min_count_or_ref = 5;  // Minimum count or reference
+    uint32 max_count = 6;  // Maximum count
+    uint32 condition_id = 7;  // Condition ID
+    uint32 patch_min = 8;  // Minimum patch version
+    uint32 patch_max = 9;  // Maximum patch version
+}
+
+message SoundEntries {
+    uint32 id = 1;  // Sound entry ID
+    string name = 2;  // Name of the sound entry
+}
+
+message SpellAffect {
+    uint32 entry = 1;           // Entry ID for the spell affect
+    uint32 effect_id = 2;       // Effect ID associated with the spell
+    uint64 spell_family_mask = 3;  // Spell family mask represented as a 64-bit unsigned integer
+}
+
+message SpellArea {
+    uint32 spell = 1;                    // Spell ID associated with the area
+    uint32 area = 2;                     // Area ID where the spell is active
+    uint32 quest_start = 3;              // Quest ID required to start the spell effect
+    uint32 quest_start_active = 4;       // Indicates if the quest is active (0 or 1)
+    uint32 quest_end = 5;                // Quest ID required to end the spell effect
+    uint32 aura_spell = 6;               // Aura spell ID associated with the area
+    uint32 racemask = 7;                 // Race mask for applicable races
+    uint32 gender = 8;                   // Gender restriction (0 = male, 1 = female, 2 = both)
+    uint32 autocast = 9;                 // Indicates if the spell autocasts (0 or 1)
+}
+
+message SpellBonusData {
+    uint32 entry = 1;                    // Spell entry ID
+    float direct_bonus = 2;              // Direct bonus value
+    float dot_bonus = 3;                 // Damage over time bonus value
+    float ap_bonus = 4;                  // Attack power bonus value
+    float ap_dot_bonus = 5;              // Attack power damage over time bonus value
+    string comments = 6;                 // Optional comments about the bonus
+}
+
+message SpellChain {
+    uint32 spell_id = 1;     // Unique ID of the spell
+    uint32 prev_spell = 2;   // Previous spell in the chain
+    uint32 first_spell = 3;  // First spell in the chain
+    int32 rank = 4;          // Rank of the spell in the chain
+    uint32 req_spell = 5;    // Required spell for the chain
+}
+
+message SpellCheck {
+    uint32 spellid = 1;               // Spell ID
+    int32 SpellFamilyName = 2;        // Family name of the spell
+    int64 SpellFamilyMask = 3;        // Family mask of the spell
+    int32 SpellIcon = 4;              // Icon associated with the spell
+    int32 SpellVisual = 5;            // Visual effect associated with the spell
+    int32 SpellCategory = 6;          // Category of the spell
+    int32 EffectType = 7;             // Type of effect the spell has
+    int32 EffectAura = 8;             // Aura effect of the spell
+    int32 EffectIdx = 9;              // Index of the spell effect
+    string Name = 10;                 // Name of the spell
+    string Code = 11;                 // Code related to the spell
+}
+
+message SpellDisabled {
+    uint32 entry = 1;  // Disabled spell entry ID
+}
+
+message SpellEffectMod {
+    uint32 id = 1;                      // ID of the spell effect modifier
+    uint32 effect_index = 2;             // Index of the effect
+    int32 effect = 3;                    // Effect type
+    int32 effect_die_sides = 4;          // Number of die sides for the effect
+    int32 effect_base_dice = 5;          // Base dice value
+    float effect_dice_per_level = 6;     // Dice per level
+    float effect_real_points_per_level = 7;  // Real points per level
+    int32 effect_base_points = 8;        // Base points of the effect
+    int32 effect_amplitude = 9;          // Amplitude of the effect
+    float effect_points_per_combo_point = 10; // Points per combo point
+    int32 effect_chain_target = 11;      // Chain target
+    float effect_multiple_value = 12;    // Multiplier value
+    int32 effect_mechanic = 13;          // Mechanic of the effect
+    int32 effect_implicit_target_a = 14; // Implicit target A
+    int32 effect_implicit_target_b = 15; // Implicit target B
+    int32 effect_radius_index = 16;      // Radius index
+    int32 effect_apply_aura_name = 17;   // Name of the applied aura
+    int32 effect_item_type = 18;         // Item type related to the effect
+    int32 effect_misc_value = 19;        // Miscellaneous value of the effect
+    int32 effect_trigger_spell = 20;     // Spell triggered by the effect
+    string comment = 21;                 // Comment or description
+}
+
+message SpellElixir {
+    uint32 entry = 1;     // SpellId of potion
+    uint32 mask = 2;      // Mask (0x1 battle, 0x2 guardian, 0x3 flask, 0x7 unstable flasks, 0xB shattrath flasks)
+}
+
+message SpellFacing {
+    uint32 entry = 1;                // Spell ID
+    uint32 facingcasterflag = 2;     // Flag for facing state, usually 1
+}
+
+message SpellGroup {
+    uint32 group_id = 1;         // Group identifier
+    uint32 group_spell_id = 2;   // Spell group identifier
+    uint32 spell_id = 3;         // Spell identifier
+}
+
+message SpellGroupStackRules {
+    uint32 group_id = 1;    // Group identifier
+    uint32 stack_rule = 2;  // Stack rule (default 1)
+}
+
+message SpellLearnSpell {
+    uint32 entry = 1;       // Entry identifier (e.g., item or trigger)
+    uint32 spell_id = 2;    // Spell ID to learn
+    uint32 active = 3;      // Indicates if the spell is active (default 1)
+}
+
+message SpellMod {
+    uint32 id = 1;                    // Unique identifier for the spell mod
+    int32 proc_chance = 2;            // Proc chance (default -1)
+    int32 proc_flags = 3;             // Proc flags (default -1)
+    int32 proc_charges = 4;           // Proc charges (default -1)
+    int32 duration_index = 5;         // Duration index (default -1)
+    int32 category = 6;               // Category (default -1)
+    int32 casting_time_index = 7;     // Casting time index (default -1)
+    int32 stack_amount = 8;           // Stack amount (default -1)
+    int32 spell_icon_id = 9;          // Spell icon ID (default -1)
+    int32 active_icon_id = 10;        // Active icon ID (default -1)
+    int32 mana_cost = 11;             // Mana cost (default -1)
+    int32 attributes = 12;            // Spell attributes (default -1)
+    int32 attributes_ex = 13;         // Extra attributes (default -1)
+    int32 attributes_ex2 = 14;        // Extra attributes 2 (default -1)
+    int32 attributes_ex3 = 15;        // Extra attributes 3 (default -1)
+    int32 attributes_ex4 = 16;        // Extra attributes 4 (default -1)
+    int32 custom = 17;                // Custom attribute (default 0)
+    int32 interrupt_flags = 18;       // Interrupt flags (default -1)
+    int32 aura_interrupt_flags = 19;  // Aura interrupt flags (default -1)
+    int32 channel_interrupt_flags = 20; // Channel interrupt flags (default -1)
+    int32 dispel = 21;                // Dispel type (default -1)
+    int32 stances = 22;               // Stances (default -1)
+    int32 stances_not = 23;           // Stances not allowed (default -1)
+    int32 spell_visual = 24;          // Spell visual (default -1)
+    int32 mana_cost_percentage = 25;  // Mana cost as a percentage (default -1)
+    int32 start_recovery_category = 26; // Start recovery category (default -1)
+    int32 start_recovery_time = 27;   // Start recovery time (default -1)
+    int32 max_affected_targets = 28;  // Max affected targets (default -1)
+    int32 max_target_level = 29;      // Max target level (default -1)
+    int32 dmg_class = 30;             // Damage class (default -1)
+    int32 range_index = 31;           // Range index (default -1)
+    int32 recovery_time = 32;         // Recovery time (default -1)
+    int32 category_recovery_time = 33; // Category recovery time (default -1)
+    int32 spell_family_name = 34;     // Spell family name (default -1)
+    uint64 spell_family_flags = 35;   // Spell family flags (default 0)
+    int32 mechanic = 36;              // Mechanic (default -1)
+    int32 equipped_item_class = 37;   // Equipped item class (default -1)
+    string comment = 38;              // Optional comment for the spell mod
+}
+
+message SpellPetAura {
+    uint32 spell = 1;                 // Dummy spell ID
+    uint32 pet = 2;                   // Pet ID (0 = all pets)
+    uint32 aura = 3;                  // Pet aura ID
+}
+
+message SpellProcEvent {
+    uint32 entry = 1;               // Entry ID of the spell proc event
+    uint32 school_mask = 2;         // School mask for the spell
+    uint32 spell_family_name = 3;   // Spell family name
+    uint64 spell_family_mask_0 = 4; // Spell family mask 0
+    uint64 spell_family_mask_1 = 5; // Spell family mask 1
+    uint64 spell_family_mask_2 = 6; // Spell family mask 2
+    uint32 proc_flags = 7;          // Proc flags
+    uint32 proc_ex = 8;             // Proc extra flags
+    float ppm_rate = 9;             // Proc per minute rate
+    float custom_chance = 10;       // Custom chance of proc
+    uint32 cooldown = 11;           // Cooldown in seconds
+}
+
+message SpellProcItemEnchant {
+    uint32 entry = 1;     // Entry ID of the item enchant
+    float ppm_rate = 2;   // Proc per minute rate
+}
+
+message SpellScript {
+    uint32 id = 1;                   // Spell script entry ID
+    uint32 delay = 2;                // Delay before execution
+    uint32 command = 3;              // Command to execute
+    uint32 datalong = 4;             // Long data field
+    uint32 datalong2 = 5;            // Second long data field
+    uint32 datalong3 = 6;            // Third long data field
+    uint32 datalong4 = 7;            // Fourth long data field
+    uint32 target_param1 = 8;        // Target parameter 1
+    uint32 target_param2 = 9;        // Target parameter 2
+    uint32 target_type = 10;         // Target type
+    uint32 data_flags = 11;          // Data flags
+    int32 dataint = 12;              // Integer data field
+    int32 dataint2 = 13;             // Second integer data field
+    int32 dataint3 = 14;             // Third integer data field
+    int32 dataint4 = 15;             // Fourth integer data field
+    float x = 16;                    // X coordinate
+    float y = 17;                    // Y coordinate
+    float z = 18;                    // Z coordinate
+    float o = 19;                    // Orientation
+    uint32 condition_id = 20;        // Condition ID
+    string comments = 21;            // Comments
+}
+
+message SpellScriptTarget {
+    uint32 entry = 1;          // Entry ID
+    uint32 type = 2;           // Type of target
+    uint32 targetEntry = 3;    // Target entry ID
+}
+
+message SpellTargetPosition {
+    uint32 id = 1;               // Identifier for the spell target position
+    uint32 target_map = 2;        // Map where the target is located
+    float target_position_x = 3;  // X-coordinate of the target position
+    float target_position_y = 4;  // Y-coordinate of the target position
+    float target_position_z = 5;  // Z-coordinate of the target position
+    float target_orientation = 6; // Orientation of the target
+}
+
+message SpellTemplate {
+    uint32 id = 1;
+    uint32 school = 2;
+    uint32 category = 3;
+    uint32 cast_ui = 4;
+    uint32 dispel = 5;
+    uint32 mechanic = 6;
+    uint64 attributes = 7;
+    uint32 attributes_ex = 8;
+    uint32 attributes_ex2 = 9;
+    uint32 attributes_ex3 = 10;
+    uint32 attributes_ex4 = 11;
+    uint32 stances = 12;
+    uint32 stances_not = 13;
+    uint32 targets = 14;
+    uint32 target_creature_type = 15;
+    uint32 requires_spell_focus = 16;
+    uint32 caster_aura_state = 17;
+    uint32 target_aura_state = 18;
+    uint32 casting_time_index = 19;
+    uint32 recovery_time = 20;
+    uint32 category_recovery_time = 21;
+    uint32 interrupt_flags = 22;
+    uint32 aura_interrupt_flags = 23;
+    uint32 channel_interrupt_flags = 24;
+    uint32 proc_flags = 25;
+    uint32 proc_chance = 26;
+    uint32 proc_charges = 27;
+    uint32 max_level = 28;
+    uint32 base_level = 29;
+    uint32 spell_level = 30;
+    uint32 duration_index = 31;
+    uint32 power_type = 32;
+    uint32 mana_cost = 33;
+    uint32 mana_cost_per_level = 34;
+    uint32 mana_per_second = 35;
+    uint32 mana_per_second_per_level = 36;
+    uint32 range_index = 37;
+    float speed = 38;
+    uint32 model_next_spell = 39;
+    uint32 stack_amount = 40;
+    uint32 totem1 = 41;
+    uint32 totem2 = 42;
+    uint32 reagent1 = 43;
+    uint32 reagent2 = 44;
+    uint32 reagent3 = 45;
+    uint32 reagent4 = 46;
+    uint32 reagent5 = 47;
+    uint32 reagent6 = 48;
+    uint32 reagent7 = 49;
+    uint32 reagent8 = 50;
+    uint32 reagent_count1 = 51;
+    uint32 reagent_count2 = 52;
+    uint32 reagent_count3 = 53;
+    uint32 reagent_count4 = 54;
+    uint32 reagent_count5 = 55;
+    uint32 reagent_count6 = 56;
+    uint32 reagent_count7 = 57;
+    uint32 reagent_count8 = 58;
+    int32 equipped_item_class = 59;
+    int32 equipped_item_sub_class_mask = 60;
+    int32 equipped_item_inventory_type_mask = 61;
+    uint32 effect1 = 62;
+    uint32 effect2 = 63;
+    uint32 effect3 = 64;
+    int32 effect_die_sides1 = 65;
+    int32 effect_die_sides2 = 66;
+    int32 effect_die_sides3 = 67;
+    int32 effect_base_dice1 = 68;
+    int32 effect_base_dice2 = 69;
+    int32 effect_base_dice3 = 70;
+    float effect_dice_per_level1 = 71;
+    float effect_dice_per_level2 = 72;
+    float effect_dice_per_level3 = 73;
+    float effect_real_points_per_level1 = 74;
+    float effect_real_points_per_level2 = 75;
+    float effect_real_points_per_level3 = 76;
+    int32 effect_base_points1 = 77;
+    int32 effect_base_points2 = 78;
+    int32 effect_base_points3 = 79;
+    uint32 effect_mechanic1 = 80;
+    uint32 effect_mechanic2 = 81;
+    uint32 effect_mechanic3 = 82;
+    uint32 effect_implicit_target_a1 = 83;
+    uint32 effect_implicit_target_a2 = 84;
+    uint32 effect_implicit_target_a3 = 85;
+    uint32 effect_implicit_target_b1 = 86;
+    uint32 effect_implicit_target_b2 = 87;
+    uint32 effect_implicit_target_b3 = 88;
+    uint32 effect_radius_index1 = 89;
+    uint32 effect_radius_index2 = 90;
+    uint32 effect_radius_index3 = 91;
+    uint32 effect_apply_aura_name1 = 92;
+    uint32 effect_apply_aura_name2 = 93;
+    uint32 effect_apply_aura_name3 = 94;
+    uint32 effect_amplitude1 = 95;
+    uint32 effect_amplitude2 = 96;
+    uint32 effect_amplitude3 = 97;
+    float effect_multiple_value1 = 98;
+    float effect_multiple_value2 = 99;
+    float effect_multiple_value3 = 100;
+    uint32 effect_chain_target1 = 101;
+    uint32 effect_chain_target2 = 102;
+    uint32 effect_chain_target3 = 103;
+    uint32 effect_item_type1 = 104;
+    uint32 effect_item_type2 = 105;
+    uint32 effect_item_type3 = 106;
+    int32 effect_misc_value1 = 107;
+    int32 effect_misc_value2 = 108;
+    int32 effect_misc_value3 = 109;
+    uint32 effect_trigger_spell1 = 110;
+    uint32 effect_trigger_spell2 = 111;
+    uint32 effect_trigger_spell3 = 112;
+    float effect_points_per_combo_point1 = 113;
+    float effect_points_per_combo_point2 = 114;
+    float effect_points_per_combo_point3 = 115;
+    uint32 spell_visual1 = 116;
+    uint32 spell_visual2 = 117;
+    uint32 spell_icon_id = 118;
+    uint32 active_icon_id = 119;
+    uint32 spell_priority = 120;
+    string name1 = 121;
+    string name2 = 122;
+    string name3 = 123;
+    string name4 = 124;
+    string name5 = 125;
+    string name6 = 126;
+    string name7 = 127;
+    string name8 = 128;
+    uint32 name_flags = 129;
+    string name_subtext1 = 130;
+    string name_subtext2 = 131;
+    string name_subtext3 = 132;
+    string name_subtext4 = 133;
+    string name_subtext5 = 134;
+    string name_subtext6 = 135;
+    string name_subtext7 = 136;
+    string name_subtext8 = 137;
+    uint32 name_subtext_flags = 138;
+    string description1 = 139;
+    string description2 = 140;
+    string description3 = 141;
+    string description4 = 142;
+    string description5 = 143;
+    string description6 = 144;
+    string description7 = 145;
+    string description8 = 146;
+    uint32 description_flags = 147;
+    string aura_description1 = 148;
+    string aura_description2 = 149;
+    string aura_description3 = 150;
+    string aura_description4 = 151;
+    string aura_description5 = 152;
+    string aura_description6 = 153;
+    string aura_description7 = 154;
+    string aura_description8 = 155;
+    uint32 aura_description_flags = 156;
+    uint32 mana_cost_percentage = 157;
+    uint32 start_recovery_category = 158;
+    uint32 start_recovery_time = 159;
+    uint32 max_target_level = 160;
+    uint32 spell_family_name = 161;
+    uint64 spell_family_flags = 162;
+    uint32 max_affected_targets = 163;
+    uint32 dmg_class = 164;
+    uint32 prevention_type = 165;
+    int32 stance_bar_order = 166;
+    float dmg_multiplier1 = 167;
+    float dmg_multiplier2 = 168;
+    float dmg_multiplier3 = 169;
+    uint32 min_faction_id = 170;
+    uint32 min_reputation = 171;
+    uint32 required_aura_vision = 172;
+}
+
+message SpellThreat {
+    uint32 entry = 1;          // Unique identifier for the spell entry
+    int32 threat = 2;          // Threat value associated with the spell
+    float multiplier = 3;      // Threat multiplier for damage/healing
+    float ap_bonus = 4;        // Additional threat bonus from attack power
+}
+
+message TaxiPathTransition {
+    uint32 in_path = 1;      // Incoming path identifier
+    uint32 out_path = 2;     // Outgoing path identifier
+    uint32 in_node = 3;      // Incoming node identifier
+    uint32 out_node = 4;     // Outgoing node identifier
+    string comment = 5;      // Optional comment
+}
+
+message Transport {
+    uint32 guid = 1;         // Unique identifier for the transport
+    uint32 entry = 2;        // Transport entry identifier
+    string name = 3;         // Name of the transport
+    uint32 period = 4;       // Period for transport movement or cycle
+}
+
+message Variables {
+    uint32 index = 1;   // Index for the variable
+    uint32 value = 2;   // Value associated with the variable
 }

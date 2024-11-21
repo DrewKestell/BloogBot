@@ -44,9 +44,11 @@ namespace BotRunner.Interfaces
         bool IsMoving => MovementFlags != MovementFlags.MOVEFLAG_NONE;
         bool IsSwimming => MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SWIMMING);
 
+        bool DismissBuff(string buffName);
         bool HasBuff(string buffName);
         bool HasDebuff(string debuffName);
         IEnumerable<ISpellEffect> GetDebuffs();
+        IEnumerable<ISpellEffect> GetBuffs();
 
         public string CurrentShapeshiftForm
         {

@@ -3,8 +3,10 @@ using ActivityForegroundMember.Mem;
 using ActivityForegroundMember.Objects;
 using BotRunner.Base;
 using BotRunner.Constants;
+using BotRunner.Frames;
 using BotRunner.Interfaces;
 using BotRunner.Models;
+using Communication;
 using System.Runtime.InteropServices;
 
 namespace ActivityForegroundMember.Game.Statics
@@ -22,12 +24,12 @@ namespace ActivityForegroundMember.Game.Statics
         public LoginStates LoginState => (LoginStates)Enum.Parse(typeof(LoginStates), MemoryManager.ReadString(Offsets.CharacterScreen.LoginState));
         private EnumerateVisibleObjectsCallbackVanilla CallbackDelegate;
         private nint callbackPtr;
-        private ActivityMemberState _characterState;
+        private ActivitySnapshot _characterState;
 
         public IList<WoWObject> Objects = [];
         internal IList<WoWObject> ObjectsBuffer = [];
 
-        public ObjectManager(IWoWEventHandler eventHandler, ActivityMemberState parProbe)
+        public ObjectManager(IWoWEventHandler eventHandler, ActivitySnapshot parProbe)
         {
             _characterState = parProbe;
 
@@ -396,6 +398,32 @@ namespace ActivityForegroundMember.Game.Statics
         }
 
         IList<IWoWObject> IObjectManager.Objects => throw new NotImplementedException();
+
+        public ILoginScreen LoginScreen => throw new NotImplementedException();
+
+        public IRealmSelectScreen RealmSelectScreen => throw new NotImplementedException();
+
+        public ICharacterSelectScreen CharacterSelectScreen => throw new NotImplementedException();
+
+        public IGossipFrame GossipFrame => throw new NotImplementedException();
+
+        public ILootFrame LootFrame => throw new NotImplementedException();
+
+        public IMerchantFrame MerchantFrame => throw new NotImplementedException();
+
+        public ICraftFrame CraftFrame => throw new NotImplementedException();
+
+        public IQuestFrame QuestFrame => throw new NotImplementedException();
+
+        public IQuestGreetingFrame QuestGreetingFrame => throw new NotImplementedException();
+
+        public ITaxiFrame TaxiFrame => throw new NotImplementedException();
+
+        public ITradeFrame TradeFrame => throw new NotImplementedException();
+
+        public ITrainerFrame TrainerFrame => throw new NotImplementedException();
+
+        public ITalentFrame TalentFrame => throw new NotImplementedException();
 
         public uint GetBagId(ulong itemGuid)
         {
@@ -892,7 +920,7 @@ namespace ActivityForegroundMember.Game.Statics
             Functions.LuaCall($"InviteByName('{characterName}')");
         }
 
-        public void Initialize(ActivityMemberState parProbe)
+        public void Initialize(ActivitySnapshot parProbe)
         {
             throw new NotImplementedException();
         }
@@ -923,6 +951,76 @@ namespace ActivityForegroundMember.Game.Statics
         }
 
         public IWoWUnit GetTarget(IWoWUnit woWUnit)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void InviteToGroup(ulong guid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void KickPlayer(ulong guid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DeclineGroupInvite()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DisbandGroup()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool HasPendingGroupInvite()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool HasLootRollWindow(int itemId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void LootPass(int itemId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void LootRollGreed(int itemId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void LootRollNeed(int itemId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AssignLoot(int itemId, ulong playerGuid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetGroupLoot(GroupLootSetting setting)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void PromoteLootManager(ulong playerGuid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void PromoteAssistant(ulong playerGuid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void PromoteLeader(ulong playerGuid)
         {
             throw new NotImplementedException();
         }

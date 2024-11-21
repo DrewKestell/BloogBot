@@ -11,6 +11,8 @@ namespace WoWSharpClient.Models
         public HighGuid Owner { get; set; } = new HighGuid(new byte[4], new byte[4]);
         public HighGuid Contained { get; internal set; } = new HighGuid(new byte[4], new byte[4]);
         public HighGuid GiftCreator { get; internal set; } = new HighGuid(new byte[4], new byte[4]);
+
+        public uint Quantity { get; set; }
         public uint StackCount { get; set; }
         public uint Duration { get; set; }
         public ItemDynFlags Flags { get; set; }
@@ -25,7 +27,8 @@ namespace WoWSharpClient.Models
         public ItemQuality Quality { get; set; } = ItemQuality.Poor;
         public uint DurabilityPercentage => (uint)((double)Durability / MaxDurability * 100);
         public bool IsCoins => false;
-        public IWoWItemCacheInfo Info { get; set; }
+
+        public ItemCacheInfo Info => throw new NotImplementedException();
 
         public void Use()
         {

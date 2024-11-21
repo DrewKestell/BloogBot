@@ -124,16 +124,6 @@ namespace ActivityForegroundMember.Objects
 
             return condition;
         }
-        public bool InLosWith(WoWUnit otherUnit)
-        {
-            Position newThisPosition = new(Position.X, Position.Y, Position.Z + Height);
-            Position newOtherPosition = new(otherUnit.Position.X, otherUnit.Position.Y, otherUnit.Position.Z + otherUnit.Height);
-
-            return newThisPosition.InLosWith(otherUnit.Position)
-                && Position.InLosWith(newOtherPosition)
-                && newThisPosition.InLosWith(newOtherPosition)
-                && Position.InLosWith(otherUnit.Position);
-        }
 
         public MovementFlags MovementFlags => (MovementFlags)MemoryManager.ReadInt(nint.Add(Pointer, MemoryAddresses.WoWUnit_MovementFlagsOffset));
 
@@ -270,6 +260,16 @@ namespace ActivityForegroundMember.Objects
             throw new NotImplementedException();
         }
 
+        public bool DismissBuff(string buffName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<ISpellEffect> GetBuffs()
+        {
+            throw new NotImplementedException();
+        }
+
         public bool IsImmobilized
         {
             get
@@ -295,5 +295,7 @@ namespace ActivityForegroundMember.Objects
         public uint FactionTemplate => throw new NotImplementedException();
 
         public uint TypeId => throw new NotImplementedException();
+
+        public NPCFlags NPCFlags => throw new NotImplementedException();
     }
 }

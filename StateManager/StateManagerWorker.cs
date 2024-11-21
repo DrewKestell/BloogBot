@@ -1,4 +1,5 @@
 using ActivityBackgroundMember;
+using Communication;
 using Microsoft.Extensions.Options;
 using StateManager.Listeners;
 using StateManager.Settings;
@@ -17,7 +18,7 @@ namespace StateManager
         private readonly ActivityMemberSocketListener _activityMemberSocketListener;
         private readonly StateManagerSocketListener _worldStateManagerSocketListener;
 
-        public IEnumerable<ActivityMember> CurrentActivityMemberList { get; private set; } = [];
+        public IEnumerable<ActivitySnapshot> CurrentActivityMemberList { get; private set; } = [];
 
         public StateManagerWorker(
             ILogger<StateManagerWorker> logger,
@@ -58,8 +59,7 @@ namespace StateManager
                 scope.ServiceProvider,
                 _loggerFactory,
                 _loggerFactory.CreateLogger<ActivityBackgroundMemberWorker>(),
-                _configuration,
-                Options.Create(new ActivityMember() { AccountName = accountName })
+                _configuration
             );
 
             _managedServices.Add(accountName, (service, tokenSource, Task.Run(async () => await service.StartAsync(tokenSource.Token))));
@@ -96,74 +96,22 @@ namespace StateManager
             _logger.LogInformation($"StateManagerServiceWorker has stopped.");
         }
 
-        private void OnActivityManagerUpdate(DataMessage dataMessage)
+        private void OnActivityManagerUpdate(AsyncRequest dataMessage)
         {
-            ActivityMemberState activityMemberState = dataMessage.ActivityMemberState;
-            ActivityMember? activityMember = CurrentActivityMemberList.FirstOrDefault(x => x.AccountName != activityMemberState.Member.AccountName);
+            //ActivityMemberState activityMemberState = dataMessage.ActivityMemberState;
+            //ActivityMember? activityMember = CurrentActivityMemberList.FirstOrDefault(x => x.AccountName != activityMemberState.Member.AccountName);
 
-            if (activityMember != null)
-            {
+            //if (activityMember != null)
+            //{
 
-            }
+            //}
 
-            _activityMemberSocketListener.SendMessageToClient(dataMessage.Id, CurrentActivityMemberList.First(x => x.AccountName == activityMemberState.Member.AccountName));
+            //_activityMemberSocketListener.SendMessageToClient(dataMessage.Id, CurrentActivityMemberList.First(x => x.AccountName == activityMemberState.Member.AccountName));
         }
 
-        private void OnWorldStateUpdate(DataMessage dataMessage)
+        private void OnWorldStateUpdate(AsyncRequest dataMessage)
         {
-            WorldStateUpdate worldStateUpdate = dataMessage.WorldStateUpdate;
-
-            if (worldStateUpdate.Action != ActivityAction.None)
-            {
-                _logger.LogInformation($"[OnWorldStateUpdate]Processing {worldStateUpdate.Action} {worldStateUpdate.Param1} {worldStateUpdate.Param2} {worldStateUpdate.Param3} {worldStateUpdate.Param4}");
-
-                int activityIndex = int.Parse(worldStateUpdate.Param1);
-                int activityMemberIndex = int.Parse(worldStateUpdate.Param2);
-
-                switch (worldStateUpdate.Action)
-                {
-                    case ActivityAction.AddActivityMember:
-                        StateManagerSettings.Instance.ActivityMemberPresets.Add(new ActivityMember());
-                        break;
-                    case ActivityAction.EditActivityMember:
-                        ActivityMember activityMemberPreset = StateManagerSettings.Instance.ActivityMemberPresets[activityMemberIndex];
-
-                        switch (worldStateUpdate.Param3)
-                        {
-                            case "BehaviorProfile":
-                                activityMemberPreset.BehaviorProfile = worldStateUpdate.Param4;
-                                break;
-                            case "AccountName":
-                                activityMemberPreset.AccountName = worldStateUpdate.Param4;
-                                break;
-                            case "ProgressionProfile":
-                                activityMemberPreset.ProgressionProfile = worldStateUpdate.Param4;
-                                break;
-                            case "InitialProfile":
-                                activityMemberPreset.InitialProfile = worldStateUpdate.Param4;
-                                break;
-                            case "EndStateProfile":
-                                activityMemberPreset.EndStateProfile = worldStateUpdate.Param4;
-                                break;
-                            case "Remove":
-                                StateManagerSettings.Instance.ActivityMemberPresets.RemoveAt(activityMemberIndex);
-                                break;
-                        }
-                        break;
-                    case ActivityAction.ApplyDesiredState:
-                        StateManagerSettings.Instance.SaveConfig();
-
-                        ApplyDesiredState();
-                        break;
-                }
-            }
-
-            List<ActivityMember> activities = StateManagerSettings.Instance.ActivityMemberPresets.Select(x => new ActivityMember() { Type = x.Type }).ToList();
-
-            WorldState responseMessage = new();
-            responseMessage.ActivityMembers.AddRange(StateManagerSettings.Instance.ActivityMemberPresets.Select(x => new ActivityMemberState() { Member = x }));
-
-            _worldStateManagerSocketListener.SendMessageToClient(dataMessage.Id, responseMessage);
+            //_worldStateManagerSocketListener.SendMessageToClient(dataMessage.Id, responseMessage);
         }
 
         private void ApplyDesiredState()

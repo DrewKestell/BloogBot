@@ -11,13 +11,13 @@ namespace PathfindingService.Client
             return SendMessage(new PathfindingRequest()
             {
                 MapId = mapId,
-                Start = new Common.Position()
+                Start = new Game.Position()
                 {
                     X = startPosition.X,
                     Y = startPosition.Y,
                     Z = startPosition.Z
                 },
-                End = new Common.Position()
+                End = new Game.Position()
                 {
                     X = endPosition.X,
                     Y = endPosition.Y,
@@ -33,13 +33,13 @@ namespace PathfindingService.Client
             List<Position> positions = [.. SendMessage(new PathfindingRequest()
             {
                 MapId = mapId,
-                Start = new Common.Position()
+                Start = new Game.Position()
                 {
                     X = startPosition.X,
                     Y = startPosition.Y,
                     Z = startPosition.Z
                 },
-                End = new Common.Position()
+                End = new Game.Position()
                 {
                     X = endPosition.X,
                     Y = endPosition.Y,

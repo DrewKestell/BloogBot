@@ -27,7 +27,7 @@ namespace ActivityForegroundMember.Objects
         public uint StackCount => (uint)MemoryManager.ReadInt(GetDescriptorPtr() + MemoryAddresses.WoWItem_StackCountOffset);
 
         private readonly ItemCacheInfo CacheInfo;
-        public IWoWItemCacheInfo Info => CacheInfo;
+        public ItemCacheInfo Info => CacheInfo;
 
         public void Use() => Functions.UseItem(Pointer);
 
@@ -49,5 +49,9 @@ namespace ActivityForegroundMember.Objects
         public bool IsCoins => false;
 
         public ItemDynFlags Flags { get; set; }
+
+        public uint Quantity => throw new NotImplementedException();
+
+        BotRunner.Interfaces.ItemCacheInfo IWoWItem.Info => throw new NotImplementedException();
     }
 }

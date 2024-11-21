@@ -1,4 +1,5 @@
 ﻿using BotRunner.Constants;
+using Communication;
 using Moq;
 using PathfindingService.Models;
 using WoWSharpClient.Handlers;
@@ -13,13 +14,13 @@ namespace WoWSharpClient.Tests.Handlers
         private readonly CharacterSelectHandler _characterSelectHandler;
         private readonly Mock<WoWSharpEventEmitter> _woWSharpEventEmitterMock;
         private readonly ObjectManager _objectManagerMock;
-        private readonly ActivityMemberState _activityMember;
+        private readonly ActivitySnapshot _activityMember;
 
         public CharacterSelectHandlerTests()
         {
             // Initialize your dependencies using mocks or stubs
             _woWSharpEventEmitterMock = new Mock<WoWSharpEventEmitter>();
-            _activityMember = new ActivityMemberState();
+            _activityMember = new ActivitySnapshot();
             _objectManagerMock = new ObjectManager(_woWSharpEventEmitterMock.Object, _activityMember);
 
             // Initialize ObjectUpdateHandler with mocked dependencies

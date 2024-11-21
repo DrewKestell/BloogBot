@@ -20,5 +20,10 @@ namespace ActivityForegroundMember.Objects
         // slot index starts at 0
         public ulong GetItemGuid(int slot) =>
             MemoryManager.ReadUlong(GetDescriptorPtr() + (MemoryAddresses.WoWItem_ContainerFirstItemOffset + slot * 8));
+
+        ulong IWoWContainer.GetItemGuid(int parSlot)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
