@@ -1,0 +1,3 @@
+[submodule "lib/docker-wow-vanilla"]
+	path = lib/docker-wow-vanilla
+	url = https://github.com/RagedUnicorn/docker-wow-vanilla.git
