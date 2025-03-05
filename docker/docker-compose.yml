@@ -1,0 +1,20 @@
+services:
+  mangoszero:
+    build: .
+    container_name: mangoszero-server
+    restart: no
+    ports:
+      - "3724:3724"
+      - "8085:8085"
+      - "3306:3306"
+      - "3443:3443"
+    volumes:
+      - ./game-data:/game-data  # Persistent game data (shared across multiple containers)
+      - ./db-data:/var/lib/mysql  # Database storage (deletable for reset)
+    environment:
+      - MYSQL_ROOT_PASSWORD=mangos
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=mangos
+      - MYSQL_DATABASE=mangos0
+    stdin_open: true
+    tty: true
