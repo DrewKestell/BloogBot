@@ -60,8 +60,9 @@ mysql -uroot -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSW
 mysql -uroot -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS mangos0;"
 mysql -uroot -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS character0;"
 mysql -uroot -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS realmd;"
-mysql -uroot -p${MYSQL_ROOT_PASSWORD} -e "CREATE USER IF NOT EXISTS 'mangos'@'%' IDENTIFIED BY 'mangos';"
-mysql -uroot -p${MYSQL_ROOT_PASSWORD} -e "GRANT ALL PRIVILEGES ON *.* TO 'mangos'@'%' WITH GRANT OPTION;"
+mysql -uroot -p${MYSQL_ROOT_PASSWORD} -e "CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';"
+mysql -uroot -p${MYSQL_ROOT_PASSWORD} -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;"
+mysql -uroot -p${MYSQL_ROOT_PASSWORD} -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;"
 mysql -uroot -p${MYSQL_ROOT_PASSWORD} -e "FLUSH PRIVILEGES;"
 
 # Create symbolic links for game data
@@ -72,6 +73,9 @@ ln -s /game-data/dbc /mangos/dbc
 
 # Run InstallDatabases.sh with expect to provide inputs and log output to a separate file
 /install/InstallDatabases.sh
+/install/UpdateDatabases.sh
+/install/InstallWorld.sh
+/install/UpdateWanIP.sh
 
 # Ensure necessary shared libraries are available
 ldconfig

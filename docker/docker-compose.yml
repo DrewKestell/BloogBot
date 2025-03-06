@@ -6,15 +6,24 @@ services:
     ports:
       - "3724:3724"
       - "8085:8085"
-      - "3306:3306"
       - "3443:3443"
     volumes:
-      - ./game-data:/game-data  # Persistent game data (shared across multiple containers)
-      - ./db-data:/var/lib/mysql  # Database storage (deletable for reset)
+      - ./game-data:/game-data
     environment:
+      - WAN_IP_ADDRESS=127.0.0.1
+      - DOCKER_HOST_IP=192.168.10.96
       - MYSQL_ROOT_PASSWORD=mangos
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=mangos
-      - MYSQL_DATABASE=mangos0
     stdin_open: true
     tty: true
+
+  database:
+    image: mysql:5.7
+    container_name: mangoszero-mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=mangos
+      - MYSQL_DATABASE=mangos
+    volumes:
+      - ./db-data:/var/lib/mysql
+    ports:
+      - "3306:3306"  # Expose MySQL for external access

@@ -10,7 +10,7 @@ RUN apt-get update && \
     tzdata gcc-10 g++-10 make cmake git \
     libmysqlclient-dev libssl-dev libboost-all-dev libace-dev \
     ninja-build wget libreadline-dev mysql-server liblua5.2-dev \
-    mysql-client dos2unix && \
+    mysql-client dos2unix net-tools iproute2 lsof && \
     rm -rf /var/lib/apt/lists/*
 
 # Set the timezone explicitly
@@ -61,11 +61,10 @@ RUN ln -s /usr/lib/x86_64-linux-gnu/liblua5.2.so /usr/lib/x86_64-linux-gnu/liblu
 # Copy configuration files to the correct location
 COPY mangosd.conf /mangos/etc/mangosd.conf
 COPY realmd.conf /mangos/etc/realmd.conf
+COPY console.conf /mangos/etc/console.conf
 
 # Expose necessary ports
 EXPOSE 3724 8085 3306 3443
 
 # Set CMD to run startup script
-#CMD ["/usr/local/bin/startup.sh"]
-
-CMD ["/bin/bash"]
+ENTRYPOINT ["/usr/local/bin/startup.sh"]
