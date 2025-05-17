@@ -12,7 +12,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotCommLayer", "BotCommLaye
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinProcessImports", "WinImports\WinProcessImports.csproj", "{5D05B147-35A8-4A10-906E-58C96E2504E4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ActivityForegroundMember", "ActivityForegroundMember\ActivityForegroundMember.csproj", "{AF4BA739-45FB-44CD-886C-B0125261FE5B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ForegroundBotRunner", "ForegroundBotRunner\ForegroundBotRunner.csproj", "{AF4BA739-45FB-44CD-886C-B0125261FE5B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StateManagerUI", "StateManagerUI\StateManagerUI.csproj", "{6DE7B8BF-F51F-49AD-B80D-E28733B86AE2}"
 EndProject
@@ -24,11 +24,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Exports", "Exports", "{2B5A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotRunner", "BotRunner\BotRunner.csproj", "{C268D63C-9278-480E-B708-CA55FE09EEA3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ActivityBackgroundMember", "ActivityBackgroundMember\ActivityBackgroundMember.csproj", "{8F71B962-6367-4050-8386-FACC8A7D8FB5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackgroundBotRunner", "BackgroundBotRunner\BackgroundBotRunner.csproj", "{8F71B962-6367-4050-8386-FACC8A7D8FB5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PathfindingService", "PathfindingService\PathfindingService.csproj", "{BC4B7495-6596-487C-865D-D9AE40A22BC5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StateManager", "StateManager\StateManager.csproj", "{DCC89D39-3CF9-4E38-87D7-F473DA500AD0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{905248D9-39DE-447E-962F-9FF023A2F8AC} = {905248D9-39DE-447E-962F-9FF023A2F8AC}
+		{A0659587-35F6-4F91-A65C-8DD264E4DCA1} = {A0659587-35F6-4F91-A65C-8DD264E4DCA1}
+		{AF4BA739-45FB-44CD-886C-B0125261FE5B} = {AF4BA739-45FB-44CD-886C-B0125261FE5B}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWSharpClient.Tests", "WoWSharpClient.Tests\WoWSharpClient.Tests.csproj", "{7A0B51C8-FD17-4627-B3BF-931904558D03}"
 EndProject
@@ -48,20 +53,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WWoW.Systems.AppHost", "WWo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WWoW.Systems.ServiceDefaults", "WWoW.Systems\WWoW.Systems.ServiceDefaults\WWoW.Systems.ServiceDefaults.csproj", "{7731A959-10DE-4F06-CBE3-2A9C0CE8B9C3}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{FD6CAA0A-66E7-4669-8815-52098426E9C3}"
-	ProjectSection(SolutionItems) = preProject
-		docker\console.conf = docker\console.conf
-		docker\docker-compose.yml = docker\docker-compose.yml
-		docker\Dockerfile = docker\Dockerfile
-		docker\InstallDatabases.sh = docker\InstallDatabases.sh
-		docker\InstallWorld.sh = docker\InstallWorld.sh
-		docker\mangosd.conf = docker\mangosd.conf
-		docker\realmd.conf = docker\realmd.conf
-		docker\startup.sh = docker\startup.sh
-		docker\UpdateDatabases.sh = docker\UpdateDatabases.sh
-		docker\UpdateWanIP.sh = docker\UpdateWanIP.sh
-		docker\wip.sh = docker\wip.sh
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameData.Core", "GameData.Core\GameData.Core.csproj", "{0CD771AA-583C-4037-93A4-1F5F472934A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -395,6 +387,22 @@ Global
 		{7731A959-10DE-4F06-CBE3-2A9C0CE8B9C3}.Release|x64.Build.0 = Release|Any CPU
 		{7731A959-10DE-4F06-CBE3-2A9C0CE8B9C3}.Release|x86.ActiveCfg = Release|Any CPU
 		{7731A959-10DE-4F06-CBE3-2A9C0CE8B9C3}.Release|x86.Build.0 = Release|Any CPU
+		{0CD771AA-583C-4037-93A4-1F5F472934A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CD771AA-583C-4037-93A4-1F5F472934A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CD771AA-583C-4037-93A4-1F5F472934A9}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{0CD771AA-583C-4037-93A4-1F5F472934A9}.Debug|Win32.Build.0 = Debug|Any CPU
+		{0CD771AA-583C-4037-93A4-1F5F472934A9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0CD771AA-583C-4037-93A4-1F5F472934A9}.Debug|x64.Build.0 = Debug|Any CPU
+		{0CD771AA-583C-4037-93A4-1F5F472934A9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0CD771AA-583C-4037-93A4-1F5F472934A9}.Debug|x86.Build.0 = Debug|Any CPU
+		{0CD771AA-583C-4037-93A4-1F5F472934A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CD771AA-583C-4037-93A4-1F5F472934A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CD771AA-583C-4037-93A4-1F5F472934A9}.Release|Win32.ActiveCfg = Release|Any CPU
+		{0CD771AA-583C-4037-93A4-1F5F472934A9}.Release|Win32.Build.0 = Release|Any CPU
+		{0CD771AA-583C-4037-93A4-1F5F472934A9}.Release|x64.ActiveCfg = Release|Any CPU
+		{0CD771AA-583C-4037-93A4-1F5F472934A9}.Release|x64.Build.0 = Release|Any CPU
+		{0CD771AA-583C-4037-93A4-1F5F472934A9}.Release|x86.ActiveCfg = Release|Any CPU
+		{0CD771AA-583C-4037-93A4-1F5F472934A9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -416,6 +424,7 @@ Global
 		{905248D9-39DE-447E-962F-9FF023A2F8AC} = {A34E454D-EDFF-4AE3-806D-F17D3E19FF66}
 		{90BF97BD-7BF3-47D3-A575-E9AD85FBE336} = {C359E65D-9D40-44E4-A256-4C75A6438CCA}
 		{7731A959-10DE-4F06-CBE3-2A9C0CE8B9C3} = {C359E65D-9D40-44E4-A256-4C75A6438CCA}
+		{0CD771AA-583C-4037-93A4-1F5F472934A9} = {2B5ADD00-9FA5-4839-A06C-21FA6C02FE8E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1D542335-5812-4666-9874-ACFCC515267C}

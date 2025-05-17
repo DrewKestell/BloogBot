@@ -37,10 +37,10 @@ namespace PromptHandlingService.Utilities
 
         public static List<string> SeparateBulletedList(string bulletedList)
         {
-            return bulletedList.Split("\n")
+            return [.. bulletedList.Split("\n")
                 .Where(x => x.StartsWith("-") || x.StartsWith("•"))
                 .Select(x => x.Replace("-", "").Replace("•", "").Trim())
-                .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+                .Where(x => !string.IsNullOrWhiteSpace(x))];
         }
     }
 }

@@ -1,13 +1,13 @@
-﻿using BotRunner.Constants;
-using WoWSharpClient.Manager;
+﻿
+using GameData.Core.Enums;
 
 namespace WoWSharpClient.Handlers
 {
-    public class StandStateHandler(WoWSharpEventEmitter woWSharpEventEmitter, ObjectManager objectManager)
+    public class StandStateHandler(WoWSharpObjectManager objectManager)
     {
-        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpEventEmitter;
-        private readonly ObjectManager _objectManager = objectManager;
-        public void HandleStandStateUpdate(Opcodes opcode, byte[] data)
+        private readonly WoWSharpEventEmitter _eventEmitter = objectManager.EventEmitter;
+        private readonly WoWSharpObjectManager _objectManager = objectManager;
+        public void HandleStandStateUpdate(Opcode opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
             try
@@ -22,7 +22,7 @@ namespace WoWSharpClient.Handlers
                 byte standState = reader.ReadByte();
 
                 // Process the stand state update as needed
-                _woWSharpEventEmitter.FireOnStandStateUpdate(standState);
+                _eventEmitter.FireOnStandStateUpdate(standState);
             }
             catch (EndOfStreamException e)
             {

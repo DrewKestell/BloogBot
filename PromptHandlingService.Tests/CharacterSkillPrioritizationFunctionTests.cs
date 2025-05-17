@@ -1,5 +1,5 @@
-using BotRunner.Constants;
-using PromptHandling.Predefined.CharacterSkills;
+using GameData.Core.Enums;
+using PromptHandlingService.Predefined.CharacterSkills;
 
 namespace PromptHandlingService.Tests
 {
@@ -8,7 +8,6 @@ namespace PromptHandlingService.Tests
         private readonly Uri _ollamaUri = new("http://localhost:11434");
         private const string ModelName = "deepseekr1:14b";
 
-        [Fact]
         public async Task GetPrioritizedCharacterSkill_ValidCharacterDescription_ReturnsPrioritizedSkill()
         {
             // Arrange

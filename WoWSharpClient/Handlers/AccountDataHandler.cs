@@ -1,20 +1,20 @@
-﻿using BotRunner.Constants;
-using WoWSharpClient.Manager;
+﻿
+using GameData.Core.Enums;
 
 namespace WoWSharpClient.Handlers
 {
-    public class AccountDataHandler(WoWSharpEventEmitter woWSharpEventEmitter, ObjectManager objectManager)
+    public class AccountDataHandler(WoWSharpObjectManager objectManager)
     {
-        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpEventEmitter;
-        private readonly ObjectManager _objectManager = objectManager;
-        public void HandleAccountData(Opcodes opcode, byte[] data)
+        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = objectManager.EventEmitter;
+        private readonly WoWSharpObjectManager _objectManager = objectManager;
+        public void HandleAccountData(Opcode opcode, byte[] data)
         {
             switch (opcode)
             {
-                case Opcodes.SMSG_ACCOUNT_DATA_TIMES:
+                case Opcode.SMSG_ACCOUNT_DATA_TIMES:
                     HandleAccountDataTimes(data);
                     break;
-                case Opcodes.SMSG_UPDATE_ACCOUNT_DATA:
+                case Opcode.SMSG_UPDATE_ACCOUNT_DATA:
                     HandleUpdateAccountData(data);
                     break;
                 default:

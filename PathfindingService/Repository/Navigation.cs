@@ -1,4 +1,4 @@
-﻿using PathfindingService.Models;
+﻿using GameData.Core.Models;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -97,27 +97,5 @@ namespace PathfindingService.Repository
 
             return cn == 1;
         }
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct XYZ
-    {
-        internal float X;
-        internal float Y;
-        internal float Z;
-
-        internal XYZ(float x, float y, float z)
-        {
-            X = x;
-            Y = y;
-            Z = z;
-        }
-    }
-
-    enum PointComparisonResult : byte
-    {
-        LeftOfLine,
-        OnLine,
-        RightOfLine
     }
 }

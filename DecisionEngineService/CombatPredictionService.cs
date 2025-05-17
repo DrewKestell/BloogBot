@@ -2,7 +2,7 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.ML;
 
-namespace DecisionEngine
+namespace DecisionEngineService
 {
     public class CombatPredictionService
     {

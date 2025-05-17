@@ -8,18 +8,19 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <OutputType>Library</OutputType>
     <BaseOutputPath>..\Bot</BaseOutputPath>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotRecast.Detour" Version="2024.2.3" />
-    <PackageReference Include="DotRecast.Recast" Version="2024.2.3" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-    <PackageReference Include="System.Text.Json" Version="8.0.4" />
+    <PackageReference Include="DotRecast.Detour" Version="2024.4.1" />
+    <PackageReference Include="DotRecast.Recast" Version="2024.4.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
+    <PackageReference Include="System.Text.Json" Version="9.0.4" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BotCommLayer\BotCommLayer.csproj" />
+    <ProjectReference Include="..\GameData.Core\GameData.Core.csproj" />
     <ProjectReference Include="..\WinImports\WinProcessImports.csproj" />
   </ItemGroup>
 

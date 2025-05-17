@@ -13,18 +13,19 @@ namespace StateManager.Settings
             {
                 if (_instance == null)
                 {
-                    LoadConfig();
+                    _instance = new StateManagerSettings();
+                    _instance.LoadConfig();
                 }
                 return _instance;
             }
         }
 
-        private static void LoadConfig()
+        private void LoadConfig()
         {
             string currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string WorldStateManagerSettingsFilePath = Path.Combine(currentFolder, "Settings\\StateManagerSettings.json");
 
-            _instance = JsonConvert.DeserializeObject<StateManagerSettings>(File.ReadAllText(WorldStateManagerSettingsFilePath));
+            CharacterDefinitions = JsonConvert.DeserializeObject<List<CharacterDefinition>>(File.ReadAllText(WorldStateManagerSettingsFilePath));
         }
 
         public void SaveConfig()
@@ -43,6 +44,6 @@ namespace StateManager.Settings
             }
         }
         private StateManagerSettings() { }
-        public List<ActivitySnapshot> ActivityMemberPresets { get; set; } = [];
+        public List<CharacterDefinition> CharacterDefinitions { get; private set; } = [];
     }
 }

@@ -1,5 +1,7 @@
-using ActivityBackgroundMember;
+using BackgroundBotRunner;
+using DecisionEngineService;
 using PathfindingService;
+using PromptHandlingService;
 
 namespace StateManager
 {
@@ -26,7 +28,9 @@ namespace StateManager
                 {
                     services.AddHostedService<StateManagerWorker>();
                     services.AddHostedService<PathfindingServiceWorker>();
-                    services.AddTransient<ActivityBackgroundMemberWorker>();
+                    services.AddHostedService<DecisionEngineWorker>();
+                    services.AddHostedService<PromptHandlingServiceWorker>();
+                    services.AddTransient<BackgroundBotWorker>();
                 });
     }
 }

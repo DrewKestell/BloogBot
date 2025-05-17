@@ -6,29 +6,16 @@ import "game.proto";
 
 message AsyncRequest {
     uint64 id = 1;
-    ActivitySnapshot activitySnapshots = 2;
-}
-
-message ActivitySnapshot {
-    uint32 timestamp = 1;
-    string accountName = 2;
-    game.WoWPlayer player = 3;
-    ActionMessage previousAction = 4;
-    ActionMessage currentAction = 5;
-    repeated game.WoWGameObject nearbyObjects = 6;
-    repeated game.WoWUnit nearbyUnits = 7;
+    oneof parameter {
+        ActivitySnapshot activity_snapshot = 2;
+        StateChangeRequest state_change = 3;
+    }
 }
 
 message ActionMessage {
     ActionType action_type = 1;
-    repeated ActionParameter parameters = 2;
-    ActionResult actionResult = 3;
-}
-
-enum ActionResult {
-	SUCCESS = 0;
-	FAILURE = 1;
-	IN_PROGRESS = 2;
+    repeated RequestParameter parameters = 2;
+    ResponseResult actionResult = 3;
 }
 
 enum ActionType {
@@ -91,7 +78,45 @@ enum ActionType {
     ENTER_WORLD = 56;
 }
 
-message ActionParameter {
+message ActionMap {
+    repeated ActionMessage actions = 1;
+}
+
+message StateChangeRequest {
+    StateChangeType change_type = 1;
+    RequestParameter request_parameter = 2;
+}
+
+message StateChangeResponse {
+    ResponseResult response = 1;
+}
+
+message CharacterDefinition {
+    string account_name = 1;
+    float openness = 2;
+    float conscientiousness = 3;
+    float extraversion = 4;
+    float agreeableness = 5;
+    float neuroticism = 6;
+    bool should_run = 7;
+}
+
+enum StateChangeType {
+    NAME = 0;
+    OPENNESS = 1;
+    CONSCIENTIOUSNESS = 2;
+    EXTRAVERSION = 3;
+    AGREEABLENESS = 4;
+    NEUROTICISM = 5;
+}
+
+enum ResponseResult {
+	SUCCESS = 0;
+	FAILURE = 1;
+	IN_PROGRESS = 2;
+}
+
+message RequestParameter {
     oneof parameter {
         float float_param = 1;
         int32 int_param = 2;
@@ -100,6 +125,12 @@ message ActionParameter {
     }
 }
 
-message ActionMap {
-    repeated ActionMessage actions = 1;
+message ActivitySnapshot {
+    uint32 timestamp = 1;
+    string accountName = 2;
+    game.WoWPlayer player = 3;
+    ActionMessage previousAction = 4;
+    ActionMessage currentAction = 5;
+    repeated game.WoWGameObject nearbyObjects = 6;
+    repeated game.WoWUnit nearbyUnits = 7;
 }

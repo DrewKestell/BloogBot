@@ -46,7 +46,7 @@ namespace PromptHandlingService.Predefined.GMCommands
         public string ConstructedCommand => _constructedCommand ?? throw new NullReferenceException("The GM Command has not been set. Call 'CompleteAsync' to set the command");
 
         // System prompt for AI-based functionality
-        protected override string SystemPrompt =>   "You are a World of Warcraft 1.12.1 GM command selector. " +
+        protected override string SystemPrompt => "You are a World of Warcraft 1.12.1 GM command selector. " +
                                                     "You interpret user requests into . " +
                                                     "Replace placeholders with known values. If a value is unknown or unclear, leave it as a placeholder. " +
                                                     "Ensure numeric placeholders do not contain any alphabetical characters. " +

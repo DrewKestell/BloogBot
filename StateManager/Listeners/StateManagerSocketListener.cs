@@ -4,7 +4,7 @@ using System.Reactive.Subjects;
 
 namespace StateManager.Listeners
 {
-    public class StateManagerSocketListener(string ipAddress, int port, ILogger<StateManagerSocketListener> logger) : ProtobufAsyncSocketServer<ActivitySnapshot>(ipAddress, port, logger)
+    public class StateManagerSocketListener(string ipAddress, int port, ILogger<StateManagerSocketListener> logger) : ProtobufAsyncSocketServer<StateChangeResponse>(ipAddress, port, logger)
     {
         public Subject<AsyncRequest> DataMessageSubject => _instanceObservable;
     }

@@ -1,5 +1,5 @@
 ﻿using BotCommLayer;
-using Game;
+using GameData.Core.Models;
 using Pathfinding;
 using PathfindingService.Repository;
 
@@ -9,12 +9,12 @@ namespace PathfindingService
     {
         protected override PathfindingResponse HandleRequest(PathfindingRequest payload)
         {
-            Models.Position startPosition = new(payload.Start.X, payload.Start.Y, payload.Start.Z);
-            Models.Position endPosition = new(payload.End.X, payload.End.Y, payload.End.Z);
-            Models.Position[] path = Navigation.CalculatePath(payload.MapId, startPosition, endPosition, payload.SmoothPath);
+            Position startPosition = new(payload.Start.X, payload.Start.Y, payload.Start.Z);
+            Position endPosition = new(payload.End.X, payload.End.Y, payload.End.Z);
+            Position[] path = Navigation.CalculatePath(payload.MapId, startPosition, endPosition, payload.SmoothPath);
 
-            IEnumerable<Position> convertedPath = path.Select(x =>
-                new Position()
+            IEnumerable<Game.Position> convertedPath = path.Select(x =>
+                new Game.Position()
                 {
                     X = x.X,
                     Y = x.Y,

@@ -1,14 +1,13 @@
-﻿using BotRunner.Constants;
-using BotRunner.Interfaces;
-using WoWSharpClient.Manager;
+﻿using GameData.Core.Enums;
+using GameData.Core.Interfaces;
 
 namespace WoWSharpClient.Handlers
 {
-    public class LoginHandler(WoWSharpEventEmitter woWSharpEventEmitter, ObjectManager objectManager)
+    public class LoginHandler(WoWSharpObjectManager objectManager)
     {
-        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpEventEmitter;
-        private readonly ObjectManager _objectManager = objectManager;
-        public void HandleLoginVerifyWorld(Opcodes opcode, byte[] data)
+        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = objectManager.EventEmitter;
+        private readonly WoWSharpObjectManager _objectManager = objectManager;
+        public void HandleLoginVerifyWorld(Opcode opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
             try

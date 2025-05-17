@@ -102,12 +102,12 @@ namespace DecisionEngineService
         private void AdjustWeights(ActivitySnapshot snapshot)
         {
             // Example learning: if currentAction succeeds, increase weights for similar actions
-            if (snapshot.CurrentAction.ActionResult == ActionResult.Success)
+            if (snapshot.CurrentAction.ActionResult == ResponseResult.Success)
             {
                 // Logic to increase weight for the current action type
                 _weights[(int)snapshot.CurrentAction.ActionType]++;
             }
-            else if (snapshot.CurrentAction.ActionResult == ActionResult.Failure)
+            else if (snapshot.CurrentAction.ActionResult == ResponseResult.Failure)
             {
                 // Decrease weight if the action failed
                 _weights[(int)snapshot.CurrentAction.ActionType]--;
@@ -129,7 +129,7 @@ namespace DecisionEngineService
                         {
                             ActionType = ActionType.CastSpell,
                             Parameters = {
-                                new ActionParameter { IntParam = 12345 } // Healing Spell ID
+                                new RequestParameter { IntParam = 12345 } // Healing Spell ID
                             }
                         }
                     }
@@ -146,7 +146,7 @@ namespace DecisionEngineService
                         {
                             ActionType = ActionType.CastSpell,
                             Parameters = {
-                                new ActionParameter { IntParam = 6789 } // AoE Spell ID
+                                new RequestParameter { IntParam = 6789 } // AoE Spell ID
                             }
                         }
                     }
@@ -161,9 +161,9 @@ namespace DecisionEngineService
                     {
                         ActionType = ActionType.Goto,
                         Parameters = {
-                            new ActionParameter { FloatParam = snapshot.Player.Unit.GameObject.Base.Position.X },
-                            new ActionParameter { FloatParam = snapshot.Player.Unit.GameObject.Base.Position.Y },
-                            new ActionParameter { FloatParam = snapshot.Player.Unit.GameObject.Base.Position.Z }
+                            new RequestParameter { FloatParam = snapshot.Player.Unit.GameObject.Base.Position.X },
+                            new RequestParameter { FloatParam = snapshot.Player.Unit.GameObject.Base.Position.Y },
+                            new RequestParameter { FloatParam = snapshot.Player.Unit.GameObject.Base.Position.Z }
                         }
                     }
                 }
@@ -197,7 +197,7 @@ namespace DecisionEngineService
                 while (reader.Read())
                 {
                     string weightsStr = reader.GetString(0);
-                    weights = weightsStr.Split(',').Select(float.Parse).ToList();
+                    weights = [.. weightsStr.Split(',').Select(float.Parse)];
                 }
             }
 

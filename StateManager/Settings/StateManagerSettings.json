@@ -1,12 +1,10 @@
-{
-  "ActivityMemberPresets": [
-    {
-      "Type": "PvPwarsongGulch19",
-      "BehaviorProfile": "Protection Warrior",
-      "AccountName": "OrWr1",
-      "ProgressionProfile": "WarriorBase",
-      "InitialProfile": "PvE14",
-      "EndStateProfile": "PvE14"
-    }
-  ]
-}
+[
+  {
+    "AccountName": "ORWR1",
+    "Openness": 1.0,
+    "Conscientiousness": 1.0,
+    "Extraversion": 1.0,
+    "Agreeablesness": 1.0,
+    "Neuroticsim": 1.0
+  }
+]

@@ -1,23 +1,22 @@
-﻿using BotRunner.Constants;
-using BotRunner.Interfaces;
-using PathfindingService.Models;
-using WoWSharpClient.Manager;
+﻿using GameData.Core.Enums;
+using GameData.Core.Interfaces;
+using GameData.Core.Models;
 using WoWSharpClient.Models;
 using WoWSharpClient.Utils;
 
 namespace WoWSharpClient.Handlers
 {
-    public class CharacterSelectHandler(WoWSharpEventEmitter woWSharpEventEmitter, ObjectManager objectManager)
+    public class CharacterSelectHandler(WoWSharpObjectManager objectManager)
     {
-        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpEventEmitter;
-        private readonly ObjectManager _objectManager = objectManager;
+        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = objectManager.EventEmitter;
+        private readonly WoWSharpObjectManager _objectManager = objectManager;
 
-        public void HandleCharEnum(Opcodes opcode, byte[] data)
+        public void HandleCharEnum(Opcode opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
             byte numChars = reader.ReadByte();
 
-            _objectManager.CharacterSelects.Clear();
+            _objectManager.CharacterSelectScreen.CharacterSelects.Clear();
 
             for (int i = 0; i < numChars; i++)
             {
@@ -47,7 +46,6 @@ namespace WoWSharpClient.Handlers
                     CharacterFlags = (CharacterFlags)reader.ReadUInt32(),
                     FirstLogin = (AtLoginFlags)reader.ReadByte(),
 
-
                     PetDisplayId = reader.ReadUInt32(),
                     PetLevel = reader.ReadUInt32(),
                     PetFamily = reader.ReadUInt32(),
@@ -67,31 +65,31 @@ namespace WoWSharpClient.Handlers
                 character.FirstBagInventoryType = reader.ReadByte();
 
                 // Add the parsed character to the character selection list
-                _objectManager.CharacterSelects.Add(character);
+                _objectManager.CharacterSelectScreen.CharacterSelects.Add(character);
             }
 
             // Trigger an event once the character list is loaded
             _woWSharpEventEmitter.FireOnCharacterListLoaded();
         }
 
-        public void HandleSetRestStart(Opcodes opcode, byte[] data)
+        public void HandleSetRestStart(Opcode opcode, byte[] data)
         {
             _woWSharpEventEmitter.FireOnSetRestStart();
         }
 
-        public void HandleCharCreate(Opcodes opcode, byte[] data)
+        public void HandleCharCreate(Opcode opcode, byte[] data)
         {
             var result = (CreateCharacterResult)data[0];
             _woWSharpEventEmitter.FireOnCharacterCreateResponse(new CharCreateResponse(result));
         }
 
-        public void HandleCharDelete(Opcodes opcode, byte[] data)
+        public void HandleCharDelete(Opcode opcode, byte[] data)
         {
             var result = (DeleteCharacterResult)data[0];
             _woWSharpEventEmitter.FireOnCharacterDeleteResponse(new CharDeleteResponse(result));
         }
 
-        public void HandleAddonInfo(Opcodes opcode, byte[] data)
+        public void HandleAddonInfo(Opcode opcode, byte[] data)
         {
             int index = 0;
             while (index < data.Length)
@@ -102,7 +100,7 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        public void HandleNameQueryResponse(Opcodes opcode, byte[] data)
+        public void HandleNameQueryResponse(Opcode opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
             var guid = ReaderUtils.ReadPackedGuid(reader);
@@ -111,7 +109,7 @@ namespace WoWSharpClient.Handlers
             var gender = (Gender)reader.ReadUInt32();
             var classId = (Class)reader.ReadUInt32();
 
-            var gameObject = (Player)_objectManager.GameObjects.First(x => x.Guid == guid);
+            var gameObject = (WoWPlayer)_objectManager.GameObjects.First(x => x.Guid == guid);
             gameObject.Name = name;
             gameObject.Race = race;
             gameObject.Gender = gender;

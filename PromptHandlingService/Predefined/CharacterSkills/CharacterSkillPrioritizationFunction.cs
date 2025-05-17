@@ -1,7 +1,6 @@
-﻿using PromptHandlingService;
-using System.Text;
+﻿using System.Text;
 
-namespace PromptHandling.Predefined.CharacterSkills
+namespace PromptHandlingService.Predefined.CharacterSkills
 {
     public class CharacterSkillPrioritizationFunction(IPromptRunner promptRunner) : PromptFunctionBase(promptRunner)
     {

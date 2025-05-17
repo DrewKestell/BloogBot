@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <BaseOutputPath>..\Bot</BaseOutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,7 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BotCommLayer\BotCommLayer.csproj" />
-    <ProjectReference Include="..\PathfindingService\PathfindingService.csproj" />
+    <ProjectReference Include="..\GameData.Core\GameData.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

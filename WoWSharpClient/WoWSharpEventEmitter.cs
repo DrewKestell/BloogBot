@@ -1,6 +1,6 @@
-﻿using BotRunner.Constants;
-using BotRunner.Interfaces;
-using PathfindingService.Models;
+﻿using GameData.Core.Enums;
+using GameData.Core.Interfaces;
+using GameData.Core.Models;
 
 namespace WoWSharpClient
 {

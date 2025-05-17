@@ -8,14 +8,23 @@
     <BaseOutputPath>..\Bot</BaseOutputPath>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <IsPublishable>False</IsPublishable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <IsPublishable>False</IsPublishable>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.8" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ActivityBackgroundMember\ActivityBackgroundMember.csproj" />
-    <ProjectReference Include="..\BotCommLayer\BotCommLayer.csproj" />
+    <ProjectReference Include="..\BackgroundBotRunner\BackgroundBotRunner.csproj" />
+    <ProjectReference Include="..\DecisionEngineService\DecisionEngineService.csproj" />
+    <ProjectReference Include="..\ForegroundBotRunner\ForegroundBotRunner.csproj" />
     <ProjectReference Include="..\PathfindingService\PathfindingService.csproj" />
   </ItemGroup>
 </Project>

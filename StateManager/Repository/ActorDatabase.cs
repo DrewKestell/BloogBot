@@ -1,4 +1,4 @@
-﻿using BotRunner.Constants;
+﻿using GameData.Core.Enums;
 using Microsoft.Data.Sqlite;
 using System.Text;
 
@@ -55,8 +55,8 @@ namespace StateManager.Repository
             { Class.Priest,     new[] { Skills.DISCIPLINE, Skills.HOLY, Skills.SHADOW } },
             { Class.Rogue,      new[] { Skills.ASSASSINATION, Skills.COMBAT, Skills.SUBTLETY } },
             { Class.Shaman,     new[] { Skills.ELEMENTAL_COMBAT, Skills.ENHANCEMENT, Skills.RESTORATION } }
-        }; 
-        
+        };
+
         private static readonly Dictionary<Skills, Role> SpecRoleFulfillment = new()
         {
             { Skills.BALANCE,           Role.DPS },

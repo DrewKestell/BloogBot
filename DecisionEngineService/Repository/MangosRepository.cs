@@ -4,7 +4,7 @@ using MySql.Data.MySqlClient;
 using MySql.Data.Types;
 using System.Data;
 
-namespace DatabaseDomain.Repository
+namespace DecisionEngineService.Repository
 {
     public class MangosRepository
     {
@@ -5440,7 +5440,8 @@ namespace DatabaseDomain.Repository
                     using MySqlDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {
-                        ReputationSpilloverTemplate spilloverTemplate = new(){
+                        ReputationSpilloverTemplate spilloverTemplate = new()
+                        {
                             Faction = reader.GetUInt16("faction"),
                             Faction1 = reader.GetUInt16("faction1"),
                             Rate1 = reader.GetFloat("rate_1"),
@@ -5766,7 +5767,7 @@ namespace DatabaseDomain.Repository
                         {
                             Entry = reader.GetUInt32("entry"),
                             Skill = reader.GetInt32("skill")
-                        }; 
+                        };
                         fishingBaseLevels.Add(fishingBaseLevel);
                     }
                 }

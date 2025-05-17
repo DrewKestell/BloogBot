@@ -1,17 +1,15 @@
-﻿using BotRunner.Constants;
+﻿using GameData.Core.Enums;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using WoWSharpClient.Manager;
 using WowSrp.Header;
 
 namespace WoWSharpClient.Client
 {
-    internal class WorldClient(WoWSharpEventEmitter woWSharpEventEmitter, ObjectManager objectManager) : IDisposable
+    internal class WorldClient(WoWSharpEventEmitter woWSharpEventEmitter, OpCodeDispatcher opCodeDispatcher) : IDisposable
     {
         private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpEventEmitter;
-        private readonly ObjectManager _objectManager = objectManager;
-        private readonly OpCodeDispatcher _opCodeDispatcher = new(woWSharpEventEmitter, objectManager);
+        private readonly OpCodeDispatcher _opCodeDispatcher = opCodeDispatcher;
         private readonly bool _hasReceivedCharListReply;
 
         private IPAddress _ipAddress = IPAddress.Loopback;
@@ -29,6 +27,8 @@ namespace WoWSharpClient.Client
         {
             _client?.Close();
         }
+
+        public bool IsConnected => _client != null && _client.Connected;
 
         public void Connect(string username, IPAddress ipAddress, byte[] sessionKey, int port = 8085)
         {
@@ -70,8 +70,8 @@ namespace WoWSharpClient.Client
                 return;
             }
 
-            ushort size = BitConverter.ToUInt16(header.Take(2).Reverse().ToArray(), 0);
-            ushort opcode = BitConverter.ToUInt16(header.Skip(2).Take(2).ToArray(), 0);
+            ushort size = BitConverter.ToUInt16([.. header.Take(2).Reverse()], 0);
+            ushort opcode = BitConverter.ToUInt16([.. header.Skip(2).Take(2)], 0);
 
             byte[] serverSeed = reader.ReadBytes(size - sizeof(ushort));
             if (serverSeed.Length < 4)
@@ -90,7 +90,7 @@ namespace WoWSharpClient.Client
                 using var memoryStream = new MemoryStream();
                 using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
 
-                uint opcode = (uint)Opcodes.CMSG_AUTH_SESSION; // Opcode for CMSG_AUTH_SESSION
+                uint opcode = (uint)Opcode.CMSG_AUTH_SESSION; // Opcode for CMSG_AUTH_SESSION
                 uint build = 5875; // Revision of the client
                 uint serverId = 1; // Server ID, this value may vary
                 uint clientSeed = (uint)new Random().Next(int.MinValue, int.MaxValue); // Generate a random client seed
@@ -134,7 +134,7 @@ namespace WoWSharpClient.Client
             {
                 using var memoryStream = new MemoryStream();
                 using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
-                byte[] header = _vanillaEncryption.CreateClientHeader(4, (uint)Opcodes.CMSG_CHAR_ENUM);
+                byte[] header = _vanillaEncryption.CreateClientHeader(4, (uint)Opcode.CMSG_CHAR_ENUM);
                 writer.Write(header); // Packet size: 4 (big-endian)
 
                 writer.Flush();
@@ -157,7 +157,7 @@ namespace WoWSharpClient.Client
                 {
                     using var memoryStream = new MemoryStream();
                     using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
-                    byte[] header = _vanillaEncryption.CreateClientHeader(96, (uint)Opcodes.CMSG_PING);
+                    byte[] header = _vanillaEncryption.CreateClientHeader(96, (uint)Opcode.CMSG_PING);
                     writer.Write(header); // Opcode: CMSG_PING
                     writer.Write(sequenceId);
                     writer.Write(_lastPingTime); // Last ping time
@@ -180,9 +180,45 @@ namespace WoWSharpClient.Client
             {
                 using var memoryStream = new MemoryStream();
                 using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
-                byte[] header = _vanillaEncryption.CreateClientHeader(12, (uint)Opcodes.CMSG_PLAYER_LOGIN);
+                byte[] header = _vanillaEncryption.CreateClientHeader(12, (uint)Opcode.CMSG_PLAYER_LOGIN);
                 writer.Write(header); // Opcode: CMSG_PLAYER_LOGIN
                 writer.Write(characterGuid); // Character GUID
+
+                writer.Flush();
+                byte[] packetData = memoryStream.ToArray();
+                _stream.Write(packetData, 0, packetData.Length);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_PLAYER_LOGIN: {ex}");
+            }
+        }
+        public void SendCMSGCreateCharacter(string name,
+                                            Race race,
+                                            Class clazz,
+                                            Gender gender,
+                                            byte skin,
+                                            byte face,
+                                            byte hairStyle,
+                                            byte hairColor,
+                                            byte facialHair)
+        {
+            try
+            {
+                using var memoryStream = new MemoryStream();
+                using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
+                byte[] header = _vanillaEncryption.CreateClientHeader((uint)(4 + name.Length + 10), (uint)Opcode.CMSG_CHAR_CREATE);
+                writer.Write(header); // Opcode: CMSG_CHAR_CREATE
+                writer.Write(Encoding.UTF8.GetBytes(name + "\0")); // Character name
+                writer.Write((byte)race);
+                writer.Write((byte)clazz);
+                writer.Write((byte)gender);
+                writer.Write((byte)1); // Skin
+                writer.Write((byte)1); // Face
+                writer.Write((byte)1); // Hair Style
+                writer.Write((byte)1); // Hair Color
+                writer.Write((byte)1); // Facial Hair
+                writer.Write((byte)1); // Outfit Id
 
                 writer.Flush();
                 byte[] packetData = memoryStream.ToArray();
@@ -199,7 +235,7 @@ namespace WoWSharpClient.Client
             {
                 using var memoryStream = new MemoryStream();
                 using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
-                byte[] header = _vanillaEncryption.CreateClientHeader(12 + ((uint)message.Length + 1) + ((uint)(type == ChatMsg.CHAT_MSG_WHISPER || type == ChatMsg.CHAT_MSG_CHANNEL ? destinationName.Length + 1 : 0)), (uint)Opcodes.CMSG_MESSAGECHAT);
+                byte[] header = _vanillaEncryption.CreateClientHeader(12 + ((uint)message.Length + 1) + (uint)(type == ChatMsg.CHAT_MSG_WHISPER || type == ChatMsg.CHAT_MSG_CHANNEL ? destinationName.Length + 1 : 0), (uint)Opcode.CMSG_MESSAGECHAT);
                 writer.Write(header); // Opcode: CMSG_MESSAGECHAT
                 writer.Write((uint)type); // Chat message type
                 writer.Write((uint)language); // Language
@@ -223,7 +259,7 @@ namespace WoWSharpClient.Client
             }
         }
 
-        public void SendCMSGTypeQuery(Opcodes opcode, ulong guid)
+        public void SendCMSGTypeQuery(Opcode opcode, ulong guid)
         {
             try
             {
@@ -266,7 +302,7 @@ namespace WoWSharpClient.Client
                     body = PacketManager.Read(reader, (int)(headerData.Size - sizeof(ushort))); // Adjust based on actual header size
 
                     // Dispatch the packet to the appropriate handler
-                    _opCodeDispatcher.Dispatch((Opcodes)headerData.Opcode, body);
+                    _opCodeDispatcher.Dispatch((Opcode)headerData.Opcode, body);
                 }
                 catch (Exception ex)
                 {

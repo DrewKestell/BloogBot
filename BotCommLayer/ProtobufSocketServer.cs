@@ -15,6 +15,8 @@ namespace BotCommLayer
 
         public ProtobufSocketServer(string ipAddress, int port, ILogger logger)
         {
+            _logger = logger;
+
             _server = new TcpListener(IPAddress.Parse(ipAddress), port);
             _server.Start();
             _isRunning = true;
@@ -35,7 +37,7 @@ namespace BotCommLayer
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error: {ex}");
+                    _logger.LogError($"Error: {ex}");
                 }
             }
         }

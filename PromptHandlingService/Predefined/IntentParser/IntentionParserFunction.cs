@@ -1,5 +1,4 @@
 ﻿using Communication;
-using Newtonsoft.Json;
 
 namespace PromptHandlingService.Predefined.IntentParser
 {

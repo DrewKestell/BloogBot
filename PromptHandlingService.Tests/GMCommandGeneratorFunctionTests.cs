@@ -6,7 +6,6 @@ namespace PromptHandlingService.Tests
     {
         private readonly IPromptRunner _ollamaPromptRunner = fixture.OllamaPromptRunner;
 
-        [Fact]
         public async Task GetGMCommands_LevelUpCommand_ReturnsCorrectGMCommand()
         {
             // Create a sample CharacterDescription object for testing
@@ -22,7 +21,6 @@ namespace PromptHandlingService.Tests
             Assert.Equal(".character level [$playername] 60", result);
         }
 
-        [Fact]
         public async Task GetGMCommands_SetCharacterMoney_ReturnsMoneyCommand()
         {
             // Arrange
@@ -38,7 +36,6 @@ namespace PromptHandlingService.Tests
             Assert.Equal(".modify money 1000000", result);
         }
 
-        [Fact]
         public async Task GetGMCommands_InvalidCommand_ReturnsErrorMessage()
         {
             // Arrange
@@ -54,7 +51,6 @@ namespace PromptHandlingService.Tests
             Assert.Equal("Error: Invalid GM Command", result);
         }
 
-        [Fact]
         public async Task GetGMCommands_LearnAllSpells_ReturnsLearnAllMyClassCommand()
         {
             // Arrange
@@ -70,7 +66,6 @@ namespace PromptHandlingService.Tests
             Assert.Equal(".learn all_myclass", result);
         }
 
-        [Fact]
         public async Task GetGMCommands_ResetTalents_ReturnsResetTalentsCommand()
         {
             // Arrange
@@ -86,7 +81,6 @@ namespace PromptHandlingService.Tests
             Assert.Equal(".reset talents [Playername]", result);
         }
 
-        [Fact]
         public async Task GetGMCommands_ModifyFactionReputation_ReturnsModifyFactionCommand()
         {
             // Arrange
@@ -102,7 +96,6 @@ namespace PromptHandlingService.Tests
             Assert.Equal(".modify rep 530 exalted", result);
         }
 
-        [Fact]
         public async Task GetGMCommands_GoToCoordinates_ReturnsGoCommand()
         {
             // Arrange

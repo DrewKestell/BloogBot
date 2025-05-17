@@ -1,12 +1,12 @@
 ﻿using Database;
-using DatabaseDomain.Repository;
+using DecisionEngineService.Repository;
 using Google.Protobuf.WellKnownTypes;
 
 namespace PromptHandlingService.Tests
 {
     public class MangosRepositoryTest
     {
-        [Fact]
+
         public void TestGetAreaTriggerBgEntrances()
         {
             int count = MangosRepository.GetRowCountForTable("areatrigger_bg_entrance");
@@ -25,7 +25,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(4.813f, areaTriggerBgEntrances[0].ExitOrientation);
         }
 
-        [Fact]
+
         public void TestGetAreaTriggerInvolvedRelations()
         {
             int count = MangosRepository.GetRowCountForTable("areatrigger_involvedrelation");
@@ -37,7 +37,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(6421u, areaTriggerInvolvedRelations[0].Quest);
         }
 
-        [Fact]
+
         public void TestGetAreaTriggerTaverns()
         {
             int count = MangosRepository.GetRowCountForTable("areatrigger_tavern");
@@ -49,7 +49,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal("Westfall - Sentinel Hill Inn", areaTriggerTaverns[0].Name);
         }
 
-        [Fact]
+
         public void TestGetAreaTriggerTeleports()
         {
             int count = MangosRepository.GetRowCountForTable("areatrigger_teleport");
@@ -75,7 +75,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0.00117f, areaTriggerTeleports[0].TargetOrientation);
         }
 
-        [Fact]
+
         public void TestGetAreaTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("area_template");
@@ -94,7 +94,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, areaTemplates[0].LiquidTypeId);
         }
 
-        [Fact]
+
         public void TestGetAuctionHouseBots()
         {
             int count = MangosRepository.GetRowCountForTable("auctionhousebot");
@@ -108,7 +108,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(5000, autoHouseBot[0].Buyout);
         }
 
-        [Fact]
+
         public void TestGetAutoBroadcasts()
         {
             int count = MangosRepository.GetRowCountForTable("autobroadcast");
@@ -117,7 +117,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(count, autoBroadcasts.Count);
         }
 
-        [Fact]
+
         public void TestGetBattlegroundEvents()
         {
             int count = MangosRepository.GetRowCountForTable("battleground_events");
@@ -131,7 +131,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal("Alliance Flag", battlegroundEvent[0].Description);
         }
 
-        [Fact]
+
         public void TestGetBattlegroundTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("battleground_template");
@@ -155,7 +155,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(2.27452f, (double)battlegroundTemplates[0].HordeStartO);
         }
 
-        [Fact]
+
         public void TestGetBattlemasterEntries()
         {
             int count = MangosRepository.GetRowCountForTable("battlemaster_entry");
@@ -167,7 +167,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(1u, battlemasterEntries[0].BgTemplate);
         }
 
-        [Fact]
+
         public void TestGetBroadcastTexts()
         {
             int count = MangosRepository.GetRowCountForTable("broadcast_text");
@@ -189,7 +189,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, broadcastTexts[0].EmoteDelay2);
         }
 
-        [Fact]
+
         public void TestGetCinematicWaypoints()
         {
             int count = MangosRepository.GetRowCountForTable("cinematic_waypoints");
@@ -205,7 +205,6 @@ namespace PromptHandlingService.Tests
             Assert.Equal("Humains start", cinematicWaypoints[0].Comment);
         }
 
-        [Fact]
         public void TestGetCommands()
         {
             int count = MangosRepository.GetRowCountForTable("command");
@@ -218,7 +217,6 @@ namespace PromptHandlingService.Tests
             Assert.Equal("Syntax: .wareffortget \"[ResourceName]\"", commands[0].Help);
         }
 
-        [Fact]
         public void TestGetConditions()
         {
             int count = MangosRepository.GetRowCountForTable("conditions");
@@ -233,7 +231,6 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, conditions[0].Flags);
         }
 
-        [Fact]
         public void TestGetCreatures()
         {
             int count = MangosRepository.GetRowCountForTable("creature");
@@ -264,7 +261,6 @@ namespace PromptHandlingService.Tests
             Assert.Equal(10u, creatures[0].PatchMax);
         }
 
-        [Fact]
         public void TestGetCreatureAddons()
         {
             int count = MangosRepository.GetRowCountForTable("creature_addon");
@@ -283,7 +279,6 @@ namespace PromptHandlingService.Tests
             Assert.Equal("1244", creatureAddons[0].Auras);
         }
 
-        [Fact]
         public void TestGetCreatureAIEvents()
         {
             int count = MangosRepository.GetRowCountForTable("creature_ai_events");
@@ -308,7 +303,6 @@ namespace PromptHandlingService.Tests
             Assert.Equal("Syndicate Footpad - Flee at 15% HP", creatureAIEvents[0].Comment);
         }
 
-        [Fact]
         public void TestGetCreatureBattlegrounds()
         {
             int count = MangosRepository.GetRowCountForTable("creature_battleground");
@@ -321,7 +315,6 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, creatureBattlegrounds[0].Event2);
         }
 
-        [Fact]
         public void TestGetCreatureEquipTemplate()
         {
             int count = MangosRepository.GetRowCountForTable("creature_equip_template");
@@ -336,7 +329,6 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, creatureEquipTemplates[0].Equipentry3);
         }
 
-        [Fact]
         public void TestGetCreatureEquipTemplateRaws()
         {
             int count = MangosRepository.GetRowCountForTable("creature_equip_template_raw");
@@ -357,7 +349,6 @@ namespace PromptHandlingService.Tests
             Assert.Equal(26, creatureEquipTemplateRaws[0].Equipslot3);
         }
 
-        [Fact]
         public void TestGetCreatureAIScripts()
         {
             int count = MangosRepository.GetRowCountForTable("creature_ai_scripts");
@@ -387,7 +378,6 @@ namespace PromptHandlingService.Tests
             Assert.Equal("Kobold Vermin - Say Text", creatureAIScripts[0].Comments);
         }
 
-        [Fact]
         public void TestGetCreatureInvolvedRelations()
         {
             int count = MangosRepository.GetRowCountForTable("creature_involvedrelation");
@@ -400,7 +390,6 @@ namespace PromptHandlingService.Tests
             Assert.Equal(33u, creatureInvolvedRelations[0].Quest);
         }
 
-        [Fact]
         public void TestGetCreatureLinkings()
         {
             int count = MangosRepository.GetRowCountForTable("creature_linking");
@@ -413,7 +402,6 @@ namespace PromptHandlingService.Tests
             Assert.Equal(3073u, creatureLinkings[0].Flag);
         }
 
-        [Fact]
         public void TestGetCreatureLinkingTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("creature_linking_template");
@@ -428,7 +416,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, creatureLinkingTemplates[0].SearchRange);
         }
 
-        [Fact]
+
         public void TestGetCreatureLootTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("creature_loot_template");
@@ -447,7 +435,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(10u, creatureLootTemplates[0].PatchMax);
         }
 
-        [Fact]
+
         public void TestGetCreatureModelInfos()
         {
             int count = MangosRepository.GetRowCountForTable("creature_model_info");
@@ -463,7 +451,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, creatureModelInfos[0].ModelidOtherTeam);
         }
 
-        [Fact]
+
         public void TestGetCreatureMovements()
         {
             int count = MangosRepository.GetRowCountForTable("creature_movement");
@@ -492,7 +480,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, creatureMovements[0].Model2);
         }
 
-        [Fact]
+
         public void TestGetCreatureMovementScripts()
         {
             int count = MangosRepository.GetRowCountForTable("creature_movement_scripts");
@@ -523,7 +511,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(" set run Wandering Eye of Kilrogg", creatureMovementScripts[0].Comments);
         }
 
-        [Fact]
+
         public void TestGetCreatureMovementSpecials()
         {
             int count = MangosRepository.GetRowCountForTable("creature_movement_special");
@@ -532,7 +520,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(count, creatureMovementSpecials.Count);
         }
 
-        [Fact]
+
         public void TestGetCreatureMovementTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("creature_movement_template");
@@ -559,7 +547,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, creatureMovementTemplates[0].Model2);
         }
 
-        [Fact]
+
         public void TestGetCreatureOnKillReputations()
         {
             int count = MangosRepository.GetRowCountForTable("creature_onkill_reputation");
@@ -579,7 +567,7 @@ namespace PromptHandlingService.Tests
             Assert.False(creatureOnKillReputations[0].TeamDependent);
         }
 
-        [Fact]
+
         public void TestGetCreatureQuestRelations()
         {
             int count = MangosRepository.GetRowCountForTable("creature_questrelation");
@@ -592,7 +580,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, creatureQuestRelations[0].Patch);
         }
 
-        [Fact]
+
         public void TestGetCreatureSpells()
         {
             int count = MangosRepository.GetRowCountForTable("creature_spells");
@@ -708,7 +696,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, creatureSpells[0].ScriptId8);
         }
 
-        [Fact]
+
         public void TestGetCreatureSpellsScripts()
         {
             int count = MangosRepository.GetRowCountForTable("creature_spells_scripts");
@@ -739,7 +727,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal("Azuregos - Arcane Vacuum - Say Text", creatureSpellsScripts[0].Comments);
         }
 
-        [Fact]
+
         public void TestGetCreatureTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("creature_template");
@@ -823,7 +811,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(32898u, creatureTemplates[0].FlagsExtra);
             Assert.Equal(string.Empty, creatureTemplates[0].ScriptName);
         }
-        [Fact]
+
         public void TestGetCreatureTemplateAddons()
         {
             int count = MangosRepository.GetRowCountForTable("creature_template_addon");
@@ -841,7 +829,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, creatureTemplateAddons[0].Moveflags);
             Assert.Equal(string.Empty, creatureTemplateAddons[0].Auras); // Example auras, adjust as needed
         }
-        [Fact]
+
         public void TestGetCustomTexts()
         {
             int count = MangosRepository.GetRowCountForTable("custom_texts");
@@ -850,7 +838,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(count, customTexts.Count);
         }
 
-        [Fact]
+
         public void TestGetDisenchantLootTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("disenchant_loot_template");
@@ -868,7 +856,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, disenchantLootTemplates[0].PatchMin);
             Assert.Equal(10u, disenchantLootTemplates[0].PatchMax);
         }
-        [Fact]
+
         public void TestGetEventScripts()
         {
             int count = MangosRepository.GetRowCountForTable("event_scripts");
@@ -898,7 +886,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, eventScripts[0].ConditionId);
             Assert.Equal(string.Empty, eventScripts[0].Comments);
         }
-        [Fact]
+
         public void TestGetExplorationBaseXPs()
         {
             int count = MangosRepository.GetRowCountForTable("exploration_basexp");
@@ -912,7 +900,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(59u, explorationBaseXPs[59].Level); // Assuming levels go up to 60
             Assert.Equal(640u, explorationBaseXPs[59].Basexp); // Example XP for level 60
         }
-        [Fact]
+
         public void TestGetFactions()
         {
             int count = MangosRepository.GetRowCountForTable("faction");
@@ -956,7 +944,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(string.Empty, factions[0].Description7);
             Assert.Equal(string.Empty, factions[0].Description8);
         }
-        [Fact]
+
         public void TestGetFactionTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("faction_template");
@@ -980,7 +968,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, factionTemplates[0].FriendFaction4);
         }
 
-        [Fact]
+
         public void TestGetFishingLootTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("fishing_loot_template");
@@ -999,7 +987,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(10u, fishingLootTemplates[0].PatchMax);
         }
 
-        [Fact]
+
         public void TestGetForbiddenItems()
         {
             int count = MangosRepository.GetRowCountForTable("forbidden_items");
@@ -1011,7 +999,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(6u, forbiddenItems[0].Patch);
             Assert.Equal(1u, forbiddenItems[0].AfterOrBefore);
         }
-        [Fact]
+
         public void TestGetGameObjects()
         {
             int count = MangosRepository.GetRowCountForTable("gameobject");
@@ -1039,7 +1027,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, gameObjects[0].PatchMin);
             Assert.Equal(10u, gameObjects[0].PatchMax);
         }
-        [Fact]
+
         public void TestGetGameObjectBattlegrounds()
         {
             int count = MangosRepository.GetRowCountForTable("gameobject_battleground");
@@ -1051,7 +1039,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(96u, gameObjectBattlegrounds[0].Event1);
             Assert.Equal(0u, gameObjectBattlegrounds[0].Event2);
         }
-        [Fact]
+
         public void TestGetGameObjectInvolvedRelations()
         {
             int count = MangosRepository.GetRowCountForTable("gameobject_involvedrelation");
@@ -1063,7 +1051,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(94u, relations[0].Quest);
             Assert.Equal(0u, relations[0].Patch);
         }
-        [Fact]
+
         public void TestGetGameObjectLootTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("gameobject_loot_template");
@@ -1081,7 +1069,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, lootTemplates[0].PatchMin);
             Assert.Equal(10u, lootTemplates[0].PatchMax);
         }
-        [Fact]
+
         public void TestGetGameObjectQuestRelations()
         {
             int count = MangosRepository.GetRowCountForTable("gameobject_questrelation");
@@ -1093,7 +1081,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(248u, questRelations[0].Quest);
             Assert.Equal(0u, questRelations[0].Patch);
         }
-        [Fact]
+
         public void TestGetGameObjectRequirements()
         {
             int count = MangosRepository.GetRowCountForTable("gameobject_requirement");
@@ -1105,7 +1093,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(1u, requirements[0].ReqType);
             Assert.Equal(15536u, requirements[0].ReqGuid);
         }
-        [Fact]
+
         public void TestGetGameObjectScripts()
         {
             int count = MangosRepository.GetRowCountForTable("gameobject_scripts");
@@ -1135,7 +1123,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, scripts[0].ConditionId);
             Assert.Equal("Ouverture Grille Ombrecroc cellule ashcrombe", scripts[0].Comments);
         }
-        [Fact]
+
         public void TestGetGameObjectTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("gameobject_template");
@@ -1180,7 +1168,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, gameObjectTemplates[0].Data[22]);
             Assert.Equal(0u, gameObjectTemplates[0].Data[23]);
         }
-        [Fact]
+
         public void TestGetGameEvents()
         {
             int count = MangosRepository.GetRowCountForTable("game_event");
@@ -1200,7 +1188,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(9u, gameEvents[0].PatchMin);
             Assert.Equal(10u, gameEvents[0].PatchMax);
         }
-        [Fact]
+
         public void TestGetGameEventCreatures()
         {
             int count = MangosRepository.GetRowCountForTable("game_event_creature");
@@ -1211,7 +1199,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(37u, gameEventCreatures[0].Guid);
             Assert.Equal(159, gameEventCreatures[0].Event);
         }
-        [Fact]
+
         public void TestGetGameEventCreatureDatas()
         {
             int count = MangosRepository.GetRowCountForTable("game_event_creature_data");
@@ -1227,7 +1215,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, gameEventCreatureDataList[0].SpellEnd);
             Assert.Equal(27u, gameEventCreatureDataList[0].Event);
         }
-        [Fact]
+
         public void TestGetGameEventGameObjects()
         {
             int count = MangosRepository.GetRowCountForTable("game_event_gameobject");
@@ -1238,7 +1226,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(1u, gameEventGameObjectList[0].Guid);
             Assert.Equal(1, gameEventGameObjectList[0].Event);
         }
-        [Fact]
+
         public void TestGetGameEventQuests()
         {
             int count = MangosRepository.GetRowCountForTable("game_event_quest");
@@ -1250,7 +1238,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(10u, gameEventQuestList[0].Event);
             Assert.Equal(2u, gameEventQuestList[0].Patch);
         }
-        [Fact]
+
         public void TestGetGameGraveyardZones()
         {
             int count = MangosRepository.GetRowCountForTable("game_graveyard_zone");
@@ -1262,7 +1250,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(1u, gameGraveyardZones[0].GhostZone);
             Assert.Equal(469u, gameGraveyardZones[0].Faction);
         }
-        [Fact]
+
         public void TestGetGameTeles()
         {
             int count = MangosRepository.GetRowCountForTable("game_tele");
@@ -1278,7 +1266,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, gameTeles[0].Map);
             Assert.Equal("RuinsOfAndorhal", gameTeles[0].Name);
         }
-        [Fact]
+
         public void TestGetGameWeathers()
         {
             int count = MangosRepository.GetRowCountForTable("game_weather");
@@ -1286,7 +1274,7 @@ namespace PromptHandlingService.Tests
 
             Assert.Equal(count, gameWeathers.Count);
         }
-        [Fact]
+
         public void TestGetGMSubSurveys()
         {
             int count = MangosRepository.GetRowCountForTable("gm_subsurveys");
@@ -1294,7 +1282,7 @@ namespace PromptHandlingService.Tests
 
             Assert.Equal(count, gmSubSurveys.Count);
         }
-        [Fact]
+
         public void TestGetGMSurveys()
         {
             int count = MangosRepository.GetRowCountForTable("gm_surveys");
@@ -1302,7 +1290,7 @@ namespace PromptHandlingService.Tests
 
             Assert.Equal(count, gmSurveys.Count);
         }
-        [Fact]
+
         public void TestGetGMTickets()
         {
             int count = MangosRepository.GetRowCountForTable("gm_tickets");
@@ -1310,7 +1298,7 @@ namespace PromptHandlingService.Tests
 
             Assert.Equal(count, gmTickets.Count);
         }
-        [Fact]
+
         public void TestGetGossipMenus()
         {
             int count = MangosRepository.GetRowCountForTable("gossip_menu");
@@ -1322,7 +1310,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(564u, gossipMenus[0].TextId);
             Assert.Equal(90u, gossipMenus[0].ConditionId);
         }
-        [Fact]
+
         public void TestGetGossipMenuOptions()
         {
             int count = MangosRepository.GetRowCountForTable("gossip_menu_option");
@@ -1346,7 +1334,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, gossipMenuOptions[0].BoxBroadcastTextId);
             Assert.Equal(0u, gossipMenuOptions[0].ConditionId);
         }
-        [Fact]
+
         public void TestGetGossipScripts()
         {
             int count = MangosRepository.GetRowCountForTable("gossip_scripts");
@@ -1376,7 +1364,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, gossipScripts[0].ConditionId);
             Assert.Equal("Azuregos - Set Faction to Enemy", gossipScripts[0].Comments);
         }
-        [Fact]
+
         public void TestGetInstanceBuffRemovals()
         {
             int count = MangosRepository.GetRowCountForTable("instance_buff_removal");
@@ -1384,7 +1372,7 @@ namespace PromptHandlingService.Tests
 
             Assert.Equal(count, instanceBuffRemovals.Count);
         }
-        [Fact]
+
         public void TestGetInstanceCreatureKills()
         {
             int count = MangosRepository.GetRowCountForTable("instance_creature_kills");
@@ -1392,7 +1380,7 @@ namespace PromptHandlingService.Tests
 
             Assert.Equal(count, instanceCreatureKills.Count);
         }
-        [Fact]
+
         public void TestGetInstanceCustomCounters()
         {
             int count = MangosRepository.GetRowCountForTable("instance_custom_counters");
@@ -1400,7 +1388,7 @@ namespace PromptHandlingService.Tests
 
             Assert.Equal(count, instanceCustomCounters.Count);
         }
-        [Fact]
+
         public void TestGetInstanceWipes()
         {
             int count = MangosRepository.GetRowCountForTable("instance_wipes");
@@ -1408,7 +1396,7 @@ namespace PromptHandlingService.Tests
 
             Assert.Equal(count, instanceWipes.Count);
         }
-        [Fact]
+
         public void TestGetItemDisplayInfo()
         {
             int count = MangosRepository.GetRowCountForTable("item_display_info");
@@ -1419,7 +1407,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(220, itemDisplayInfos[0].Field0);
             Assert.Equal("INV_Robe_02", itemDisplayInfos[0].Field5); // Example value
         }
-        [Fact]
+
         public void TestGetItemEnchantmentTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("item_enchantment_template");
@@ -1431,7 +1419,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(5u, enchantmentTemplates[0].Ench);
             Assert.Equal(4.53f, enchantmentTemplates[0].Chance);
         }
-        [Fact]
+
         public void TestGetItemLootTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("item_loot_template");
@@ -1449,7 +1437,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, lootTemplates[0].PatchMin);
             Assert.Equal(10u, lootTemplates[0].PatchMax);
         }
-        [Fact]
+
         public void TestGetItemRequiredTargets()
         {
             int count = MangosRepository.GetRowCountForTable("item_required_target");
@@ -1461,7 +1449,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(1u, requiredTargets[0].Type);
             Assert.Equal(2530u, requiredTargets[0].TargetEntry);
         }
-        [Fact]
+
         public void TestGetItemTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("item_template");
@@ -1597,7 +1585,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0.0f, itemTemplates[4].Spells[4].PpmRate);
             Assert.Equal(0, itemTemplates[4].Spells[4].Cooldown);
         }
-        [Fact]
+
         public void TestGetLocalesArea()
         {
             int count = MangosRepository.GetRowCountForTable("locales_area");
@@ -1615,7 +1603,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(string.Empty, localesAreas[0].NameLoc7);
             Assert.Equal("Дун Морог", localesAreas[0].NameLoc8);
         }
-        [Fact]
+
         public void TestGetLocalesBroadcastTexts()
         {
             int count = MangosRepository.GetRowCountForTable("locales_broadcast_text");
@@ -1642,7 +1630,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(string.Empty, broadcastTexts[0].FemaleTextLoc8);
             Assert.Equal(18019, broadcastTexts[0].VerifiedBuild);
         }
-        [Fact]
+
         public void TestGetLocalesCreatures()
         {
             int count = MangosRepository.GetRowCountForTable("locales_creature");
@@ -1669,7 +1657,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(string.Empty, creatures[0].SubnameLoc7);
             Assert.Equal(string.Empty, creatures[0].SubnameLoc8);
         }
-        [Fact]
+
         public void TestGetLocalesGameObjects()
         {
             int count = MangosRepository.GetRowCountForTable("locales_gameobject");
@@ -1687,7 +1675,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal("Estatua de león antigua", gameObjects[0].NameLoc7);
             Assert.Equal("Статуя старого льва", gameObjects[0].NameLoc8);
         }
-        [Fact]
+
         public void TestGetLocalesGossipMenuOptions()
         {
             int count = MangosRepository.GetRowCountForTable("locales_gossip_menu_option");
@@ -1715,7 +1703,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(string.Empty, gossipMenuOptions[0].BoxTextLoc7);
             Assert.Equal(string.Empty, gossipMenuOptions[0].BoxTextLoc8);
         }
-        [Fact]
+
         public void TestGetLocalesItems()
         {
             int count = MangosRepository.GetRowCountForTable("locales_item");
@@ -1742,7 +1730,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(string.Empty, localesItems[0].DescriptionLoc7);
             Assert.Equal(string.Empty, localesItems[0].DescriptionLoc8);
         }
-        [Fact]
+
         public void TestGetLocalesPageTexts()
         {
             int count = MangosRepository.GetRowCountForTable("locales_page_text");
@@ -1760,7 +1748,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(string.Empty, localesPageTexts[0].TextLoc7);
             Assert.Equal("Здравствуй, Морган!\r\n\r\nДела в Златоземье идут бойко, так бойко, что у меня не было времени отправить тебе товар! \r\n\r\nЯ нанял человека, который принесет эту записку, доставить тебе пачку больших восковых свечей (тех, что кобольды обычно носят на голове). \r\n\r\nБудь добр, отблагодари этого человека и заплати ему как следует.", localesPageTexts[0].TextLoc8);
         }
-        [Fact]
+
         public void TestGetLocalesPointsOfInterest()
         {
             int count = MangosRepository.GetRowCountForTable("locales_points_of_interest");
@@ -1778,7 +1766,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(string.Empty, pointsOfInterest[0].IconNameLoc7);
             Assert.Equal("Таверна \"Гордость льва\"", pointsOfInterest[0].IconNameLoc8);
         }
-        [Fact]
+
         public void TestGetLocalesQuest()
         {
             int count = MangosRepository.GetRowCountForTable("locales_quest");
@@ -1860,7 +1848,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(string.Empty, localesQuests[0].ObjectiveText4Loc7);
             Assert.Equal(string.Empty, localesQuests[0].ObjectiveText4Loc8);
         }
-        [Fact]
+
         public void TestGetMailLootTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("mail_loot_template");
@@ -1878,7 +1866,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, lootTemplates[0].PatchMin);
             Assert.Equal(10u, lootTemplates[0].PatchMax);
         }
-        [Fact]
+
         public void TestGetMangosStrings()
         {
             int count = MangosRepository.GetRowCountForTable("mangos_string");
@@ -1897,7 +1885,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(string.Empty, mangosStrings[0].ContentLoc7);
             Assert.Equal(string.Empty, mangosStrings[0].ContentLoc8);
         }
-        [Fact]
+
         public void TestGetMapTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("map_template");
@@ -1920,7 +1908,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal("Eastern Kingdoms", mapTemplates[0].MapName);
             Assert.Equal(string.Empty, mapTemplates[0].ScriptName);
         }
-        [Fact]
+
         public void TestGetMigrations()
         {
             int count = MangosRepository.GetRowCountForTable("migrations");
@@ -1931,7 +1919,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal("20180129213805", migrations[0]);
             Assert.Equal("20180201170354", migrations[1]);
         }
-        [Fact]
+
         public void TestGetNpcGossips()
         {
             int count = MangosRepository.GetRowCountForTable("npc_gossip");
@@ -1942,7 +1930,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(29u, npcGossips[0].NpcGuid);  // Adjust this value based on your NPC data
             Assert.Equal(5054u, npcGossips[0].Textid);    // Adjust this value based on your NPC data
         }
-        [Fact]
+
         public void TestGetNpcTexts()
         {
             int count = MangosRepository.GetRowCountForTable("npc_text");
@@ -1957,7 +1945,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, npcTexts[0].BroadcastTextID1);
             Assert.Equal(0.0f, npcTexts[0].Probability1);
         }
-        [Fact]
+
         public void TestGetNpcTrainers()
         {
             int count = MangosRepository.GetRowCountForTable("npc_trainer");
@@ -1973,7 +1961,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, npcTrainers[0].Reqskillvalue);
             Assert.Equal(54u, npcTrainers[0].Reqlevel);
         }
-        [Fact]
+
         public void TestGetNpcTrainerTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("npc_trainer_template");
@@ -1989,7 +1977,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, npcTrainerTemplates[0].Reqskillvalue);
             Assert.Equal(40u, npcTrainerTemplates[0].Reqlevel);
         }
-        [Fact]
+
         public void TestGetNpcVendors()
         {
             int count = MangosRepository.GetRowCountForTable("npc_vendor");
@@ -2003,7 +1991,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, npcVendors[0].Maxcount);
             Assert.Equal(0u, npcVendors[0].Incrtime);
         }
-        [Fact]
+
         public void TestGetNpcVendorTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("npc_vendor_template");
@@ -2017,7 +2005,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, npcVendorTemplates[0].Maxcount);
             Assert.Equal(0u, npcVendorTemplates[0].Incrtime);
         }
-        [Fact]
+
         public void TestGetPageText()
         {
             int count = MangosRepository.GetRowCountForTable("page_text");
@@ -2029,7 +2017,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(15u, pageTexts[0].Entry);  // Adjust this value based on your expected data
             Assert.Equal("Hello Morgan,\r\n\r\nBusiness in Goldshire is brisk, so brisk that I haven't had time to send you any shipments!  \r\n\r\nI commissioned the person bearing this note to bring you a package of large wax candles (you know, the ones the Kobolds like to wear on their heads?). \r\n\r\nPlease give this person our thanks, and fair payment.", pageTexts[0].Text);  // Example text, adjust as needed
         }
-        [Fact]
+
         public void TestGetPetCreateInfoSpells()
         {
             int count = MangosRepository.GetRowCountForTable("petcreateinfo_spell");
@@ -2044,7 +2032,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, petCreateInfoSpells[0].Spell3);  // Example spell ID, adjust as needed
             Assert.Equal(0u, petCreateInfoSpells[0].Spell4);  // Example spell ID, adjust as needed
         }
-        [Fact]
+
         public void TestGetPetLevelStats()
         {
             int count = MangosRepository.GetRowCountForTable("pet_levelstats");
@@ -2064,7 +2052,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(20u, petLevelStats[0].Inte); // Example Intellect, adjust as needed
             Assert.Equal(20u, petLevelStats[0].Spi); // Example Spirit, adjust as needed
         }
-        [Fact]
+
         public void TestGetPetNameGenerations()
         {
             int count = MangosRepository.GetRowCountForTable("pet_name_generation");
@@ -2086,7 +2074,7 @@ namespace PromptHandlingService.Tests
 
             // Continue testing other entries based on your data
         }
-        [Fact]
+
         public void TestGetPickpocketingLoots()
         {
             int count = MangosRepository.GetRowCountForTable("pickpocketing_loot_template");
@@ -2107,7 +2095,7 @@ namespace PromptHandlingService.Tests
 
             // Continue testing other entries based on your data
         }
-        [Fact]
+
         public void TestGetPlayerBots()
         {
             int count = MangosRepository.GetRowCountForTable("playerbot");
@@ -2115,7 +2103,7 @@ namespace PromptHandlingService.Tests
 
             Assert.Equal(count, playerBots.Count);
         }
-        [Fact]
+
         public void TestGetPlayerCreateInfo()
         {
             int count = MangosRepository.GetRowCountForTable("playercreateinfo");
@@ -2133,7 +2121,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(83.53f, playerCreateInfos[0].PositionZ, 2); // Example position Z, adjust as needed
             Assert.Equal(0.00f, playerCreateInfos[0].Orientation, 2); // Example orientation, adjust as needed
         }
-        [Fact]
+
         public void TestGetPlayerCreateInfoActions()
         {
             int count = MangosRepository.GetRowCountForTable("playercreateinfo_action");
@@ -2148,7 +2136,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(117u, playerCreateInfoActions[0].Action); // Example action, adjust as needed
             Assert.Equal(128u, playerCreateInfoActions[0].Type); // Example type, adjust as needed
         }
-        [Fact]
+
         public void TestGetPlayerCreateInfoItems()
         {
             int count = MangosRepository.GetRowCountForTable("playercreateinfo_item");
@@ -2156,7 +2144,7 @@ namespace PromptHandlingService.Tests
 
             Assert.Equal(count, playerCreateInfoItems.Count);
         }
-        [Fact]
+
         public void TestGetPlayerCreateInfoSpells()
         {
             int count = MangosRepository.GetRowCountForTable("playercreateinfo_spell");
@@ -2170,7 +2158,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(78u, playerCreateInfoSpells[0].Spell); // Example spell ID, adjust as needed
             Assert.Equal("Heroic Strike", playerCreateInfoSpells[0].Note); // Example note, adjust as needed
         }
-        [Fact]
+
         public void TestGetPlayerClassLevelStats()
         {
             int count = MangosRepository.GetRowCountForTable("player_classlevelstats");
@@ -2184,7 +2172,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(20u, classLevelStats[0].Basehp);  // Example base HP, adjust as needed
             Assert.Equal(0u, classLevelStats[0].Basemana);  // Example base mana, adjust as needed
         }
-        [Fact]
+
         public void TestGetPlayerFactionChangeItems()
         {
             int count = MangosRepository.GetRowCountForTable("player_factionchange_items");
@@ -2197,7 +2185,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(15197, factionChangeItems[0].HordeId);  // Example Horde ID, adjust as needed
             Assert.Equal("Scout's Tabard - Private's Tabard", factionChangeItems[0].Comment);  // Example comment, adjust as needed
         }
-        [Fact]
+
         public void TestGetPlayerFactionChangeMounts()
         {
             int count = MangosRepository.GetRowCountForTable("player_factionchange_mounts");
@@ -2212,7 +2200,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(2414, factionChangeMounts[0].ItemEntry);  // Example ItemEntry, adjust as needed
             Assert.Equal("Pinto", factionChangeMounts[0].Comment);  // Example Comment, adjust as needed
         }
-        [Fact]
+
         public void TestGetPlayerFactionChangeQuests()
         {
             int count = MangosRepository.GetRowCountForTable("player_factionchange_quests");
@@ -2226,7 +2214,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(27, factionChangeQuests[0].HordeId);  // Example HordeId, adjust as needed
             Assert.Equal("A Lesson to Learn", factionChangeQuests[0].Comment);  // Example Comment, adjust as needed
         }
-        [Fact]
+
         public void TestGetPlayerFactionChangeReputations()
         {
             int count = MangosRepository.GetRowCountForTable("player_factionchange_reputations");
@@ -2239,7 +2227,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(47, factionChangeReputations[0].AllianceId);  // Example AllianceId, adjust as needed
             Assert.Equal(530, factionChangeReputations[0].HordeId);  // Example HordeId, adjust as needed
         }
-        [Fact]
+
         public void TestGetPlayerFactionChangeSpells()
         {
             int count = MangosRepository.GetRowCountForTable("player_factionchange_spells");
@@ -2253,7 +2241,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(6654, factionChangeSpells[0].HordeId);  // Example HordeId, adjust as needed
             Assert.Equal(string.Empty, factionChangeSpells[0].Comment);  // Example comment, adjust as needed
         }
-        [Fact]
+
         public void TestGetPlayerLevelStats()
         {
             int count = MangosRepository.GetRowCountForTable("player_levelstats");
@@ -2272,7 +2260,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(20u, levelStats[0].Inte);  // Example Intellect, adjust as needed
             Assert.Equal(21u, levelStats[0].Spi);  // Example Spirit, adjust as needed
         }
-        [Fact]
+
         public void TestGetPlayerXpForLevel()
         {
             int count = MangosRepository.GetRowCountForTable("player_xp_for_level");
@@ -2285,7 +2273,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(1u, xpForLevels[0].Lvl);  // Example level, adjust as needed
             Assert.Equal(400u, xpForLevels[0].XpForNextLevel);  // Example XP for next level, adjust as needed
         }
-        [Fact]
+
         public void TestGetPointsOfInterest()
         {
             int count = MangosRepository.GetRowCountForTable("points_of_interest");
@@ -2303,7 +2291,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, pointsOfInterest[0].Data);  // Example data, adjust as needed
             Assert.Equal("Lion's Pride Inn", pointsOfInterest[0].IconName);  // Example icon name, adjust as needed
         }
-        [Fact]
+
         public void TestGetPoolCreatures()
         {
             int count = MangosRepository.GetRowCountForTable("pool_creature");
@@ -2321,7 +2309,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, poolCreatures[0].PatchMin);  // Example patch min, adjust as needed
             Assert.Equal(10u, poolCreatures[0].PatchMax);  // Example patch max, adjust as needed
         }
-        [Fact]
+
         public void TestGetPoolCreatureTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("pool_creature_template");
@@ -2337,7 +2325,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal("Minion of Omen", poolCreatureTemplates[0].Description);  // Example description, adjust as needed
             Assert.Equal(0u, poolCreatureTemplates[0].Flags);  // Example flags, adjust as needed
         }
-        [Fact]
+
         public void TestGetPoolGameObjects()
         {
             int count = MangosRepository.GetRowCountForTable("pool_gameobject");
@@ -2355,7 +2343,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, poolGameObjects[0].PatchMin);  // Example patch min, adjust as needed
             Assert.Equal(10u, poolGameObjects[0].PatchMax);  // Example patch max, adjust as needed
         }
-        [Fact]
+
         public void TestGetPoolGameObjectTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("pool_gameobject_template");
@@ -2371,7 +2359,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal("Patch of Elemental Water", poolGameObjectTemplates[0].Description);  // Example description, adjust as needed
             Assert.Equal(0u, poolGameObjectTemplates[0].Flags);  // Example flags value, adjust as needed
         }
-        [Fact]
+
         public void TestGetPoolPools()
         {
             int count = MangosRepository.GetRowCountForTable("pool_pool");
@@ -2387,7 +2375,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal("BRD : Warder Stilgiss", poolPools[0].Description);  // Example Description, adjust as needed
             Assert.Equal(0u, poolPools[0].Flags);  // Example Flags value, adjust as needed
         }
-        [Fact]
+
         public void TestGetPoolTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("pool_template");
@@ -2405,7 +2393,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, poolTemplates[0].PatchMin);  // Example PatchMin value, adjust as needed
             Assert.Equal(10u, poolTemplates[0].PatchMax);  // Example PatchMax value, adjust as needed
         }
-        [Fact]
+
         public void TestGetQuestEndScripts()
         {
             int count = MangosRepository.GetRowCountForTable("quest_end_scripts");
@@ -2422,7 +2410,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, questEndScripts[0].TargetType);  // Example TargetType, adjust as needed
             Assert.Equal(string.Empty, questEndScripts[0].Comments);  // Example Comment, adjust as needed
         }
-        [Fact]
+
         public void TestGetQuestGreeting()
         {
             int count = MangosRepository.GetRowCountForTable("quest_greeting");
@@ -2441,7 +2429,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(1u, firstQuestGreeting.Emote);
             Assert.Equal(0u, firstQuestGreeting.EmoteDelay);
         }
-        [Fact]
+
         public void TestGetQuestStartScripts()
         {
             int count = MangosRepository.GetRowCountForTable("quest_start_scripts");
@@ -2473,7 +2461,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, firstQuestStartScript.ConditionId);
             Assert.Equal("Quest Cave Mushrooms, Say 2nd Line", firstQuestStartScript.Comments);
         }
-        [Fact]
+
         public void TestGetQuestTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("quest_template");
@@ -2612,7 +2600,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, firstQuestTemplate.CompleteScript);
         }
 
-        [Fact]
+
         public void TestGetReferenceLootTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("reference_loot_template");
@@ -2635,7 +2623,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, firstLootTemplate.PatchMin);             // Replace with expected patch_min value
             Assert.Equal(10u, firstLootTemplate.PatchMax);             // Replace with expected patch_max value
         }
-        [Fact]
+
         public void TestGetReputationRewardRates()
         {
             int count = MangosRepository.GetRowCountForTable("reputation_reward_rate");
@@ -2645,7 +2633,7 @@ namespace PromptHandlingService.Tests
             // Assert - Adjust this value based on your expected data size
             Assert.Equal(count, reputationRewardRates.Count); // Replace with the expected number of spillover templates
         }
-        [Fact]
+
         public void TestGetReputationSpilloverTemplate()
         {
             int count = MangosRepository.GetRowCountForTable("reputation_spillover_template");
@@ -2672,7 +2660,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(1.0f, firstSpilloverTemplate.Rate4);         // Replace with expected rate_4 value
             Assert.Equal(7u, firstSpilloverTemplate.Rank4);           // Replace with expected rank_4 value
         }
-        [Fact]
+
         public void TestGetReservedNames()
         {
             int count = MangosRepository.GetRowCountForTable("reserved_name");
@@ -2687,7 +2675,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal("Administrato", reservedNames[1]);  // Replace with the actual expected name
             Assert.Equal("Blizzard", reservedNames[2]); // Replace with the actual expected name
         }
-        [Fact]
+
         public void TestGetScriptedAreaTriggers()
         {
             int count = MangosRepository.GetRowCountForTable("scripted_areatrigger");
@@ -2703,7 +2691,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(522u, firstTrigger.Entry);              // Replace with expected entry value
             Assert.Equal("at_twiggy_flathead", firstTrigger.ScriptName); // Replace with expected script name
         }
-        [Fact]
+
         public void TestGetScriptedEvents()
         {
             int count = MangosRepository.GetRowCountForTable("scripted_event_id");
@@ -2719,7 +2707,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(8420u, firstEvent.Id);                    // Replace with expected id value
             Assert.Equal("event_dreadsteed_ritual_start", firstEvent.ScriptName);   // Replace with expected script name
         }
-        [Fact]
+
         public void TestGetScriptEscortData()
         {
             int count = MangosRepository.GetRowCountForTable("script_escort_data");
@@ -2736,7 +2724,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(4322u, firstEscortData.Quest);            // Replace with expected quest value
             Assert.Equal(11u, firstEscortData.EscortFaction);    // Replace with expected escort_faction value
         }
-        [Fact]
+
         public void TestGetScriptTexts()
         {
             int count = MangosRepository.GetRowCountForTable("script_texts");
@@ -2764,7 +2752,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, firstScriptText.Language);                          // Replace with expected language value
             Assert.Equal(0u, firstScriptText.Emote);                             // Replace with expected emote value
         }
-        [Fact]
+
         public void TestGetScriptWaypoints()
         {
             int count = MangosRepository.GetRowCountForTable("script_waypoint");
@@ -2782,7 +2770,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, firstWaypoint.Waittime);
             Assert.Equal(string.Empty, firstWaypoint.PointComment);
         }
-        [Fact]
+
         public void TestGetSkillDiscoveryTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("skill_discovery_template");
@@ -2790,7 +2778,7 @@ namespace PromptHandlingService.Tests
 
             Assert.Equal(count, skillDiscoveries.Count);
         }
-        [Fact]
+
         public void TestGetSkillExtraItemTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("skill_extra_item_template");
@@ -2798,7 +2786,7 @@ namespace PromptHandlingService.Tests
 
             Assert.Equal(count, skillExtraItems.Count);
         }
-        [Fact]
+
         public void TestGetSkillFishingBaseLevels()
         {
             int count = MangosRepository.GetRowCountForTable("skill_fishing_base_level");
@@ -2811,7 +2799,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(1u, firstFishingBaseLevel.Entry);
             Assert.Equal(-70, firstFishingBaseLevel.Skill);
         }
-        [Fact]
+
         public void TestGetSkinningLootTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("skinning_loot_template");
@@ -2831,7 +2819,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, firstLootTemplate.PatchMin);
             Assert.Equal(10u, firstLootTemplate.PatchMax);
         }
-        [Fact]
+
         public void TestGetSoundEntries()
         {
             int count = MangosRepository.GetRowCountForTable("sound_entries");
@@ -2844,7 +2832,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(3u, firstSoundEntry.Id);
             Assert.Equal("Invisibility Impact", firstSoundEntry.Name);
         }
-        [Fact]
+
         public void TestGetSpellAffect()
         {
             int count = MangosRepository.GetRowCountForTable("spell_affect");
@@ -2858,7 +2846,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, firstSpellAffect.EffectId);
             Assert.Equal(12714007uL, firstSpellAffect.SpellFamilyMask);
         }
-        [Fact]
+
         public void TestGetSpellAreas()
         {
             int count = MangosRepository.GetRowCountForTable("spell_area");
@@ -2878,7 +2866,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(2u, firstSpellArea.Gender);
             Assert.Equal(0u, firstSpellArea.Autocast);
         }
-        [Fact]
+
         public void TestGetSpellBonusData()
         {
             int count = MangosRepository.GetRowCountForTable("spell_bonus_data");
@@ -2895,7 +2883,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0.0f, firstSpellBonusData.ApDotBonus);
             Assert.Equal("Mage - Blizzard", firstSpellBonusData.Comments);
         }
-        [Fact]
+
         public void TestGetSpellChain()
         {
             int count = MangosRepository.GetRowCountForTable("spell_chain");
@@ -2911,7 +2899,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(1, firstSpellChain.Rank);
             Assert.Equal(0u, firstSpellChain.ReqSpell);
         }
-        [Fact]
+
         public void TestGetSpellCheck()
         {
             int count = MangosRepository.GetRowCountForTable("spell_check");
@@ -2933,7 +2921,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal("Demonic Sacrifice", firstSpellCheck.Name);
             Assert.Equal("Spell::EffectInstaKill", firstSpellCheck.Code);
         }
-        [Fact]
+
         public void TestGetDisabledSpells()
         {
             int count = MangosRepository.GetRowCountForTable("spell_disabled");
@@ -2947,7 +2935,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(27661u, disabledSpells[3]);
             Assert.Equal(30003u, disabledSpells[4]);
         }
-        [Fact]
+
         public void TestGetSpellEffectMods()
         {
             int count = MangosRepository.GetRowCountForTable("spell_effect_mod");
@@ -2979,7 +2967,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(-1, firstEffectMod.EffectTriggerSpell);
             Assert.Equal(string.Empty, firstEffectMod.Comment);
         }
-        [Fact]
+
         public void TestGetSpellElixirs()
         {
             int count = MangosRepository.GetRowCountForTable("spell_elixir");
@@ -2992,7 +2980,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(17624u, firstElixir.Entry);
             Assert.Equal(0u, firstElixir.Mask);
         }
-        [Fact]
+
         public void TestGetSpellFacings()
         {
             int count = MangosRepository.GetRowCountForTable("spell_facing");
@@ -3005,7 +2993,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(53u, firstFacing.Entry);
             Assert.Equal(1u, firstFacing.Facingcasterflag);
         }
-        [Fact]
+
         public void TestGetSpellGroups()
         {
             int count = MangosRepository.GetRowCountForTable("spell_group");
@@ -3019,7 +3007,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, firstGroup.GroupSpellId);
             Assert.Equal(18125u, firstGroup.SpellId);
         }
-        [Fact]
+
         public void TestGetSpellGroupStackRules()
         {
             int count = MangosRepository.GetRowCountForTable("spell_group_stack_rules");
@@ -3032,7 +3020,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(1001u, firstRule.GroupId);
             Assert.Equal(1u, firstRule.StackRule);
         }
-        [Fact]
+
         public void TestGetSpellLearnSpells()
         {
             int count = MangosRepository.GetRowCountForTable("spell_learn_spell");
@@ -3046,7 +3034,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(8681u, firstLearnSpell.SpellId);
             Assert.Equal(1u, firstLearnSpell.Active);
         }
-        [Fact]
+
         public void TestGetSpellMods()
         {
             int count = MangosRepository.GetRowCountForTable("spell_mod");
@@ -3095,7 +3083,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(-1, firstSpellMod.EquippedItemClass);
             Assert.Equal(string.Empty, firstSpellMod.Comment);
         }
-        [Fact]
+
         public void TestGetSpellPetAuras()
         {
             int count = MangosRepository.GetRowCountForTable("spell_pet_auras");
@@ -3109,7 +3097,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, firstSpellPetAura.Pet);
             Assert.Equal(25228u, firstSpellPetAura.Aura);
         }
-        [Fact]
+
         public void TestGetSpellProcEvents()
         {
             int count = MangosRepository.GetRowCountForTable("spell_proc_event");
@@ -3131,7 +3119,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0.0f, firstSpellProcEvent.CustomChance);
             Assert.Equal(3u, firstSpellProcEvent.Cooldown);
         }
-        [Fact]
+
         public void TestGetSpellProcItemEnchants()
         {
             int count = MangosRepository.GetRowCountForTable("spell_proc_item_enchant");
@@ -3144,7 +3132,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(8034u, firstItemEnchant.Entry);
             Assert.Equal(9.0f, firstItemEnchant.PpmRate);
         }
-        [Fact]
+
         public void TestGetSpellScripts()
         {
             int count = MangosRepository.GetRowCountForTable("spell_scripts");
@@ -3176,7 +3164,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, firstSpellScript.ConditionId);
             Assert.Equal("Create object : Essence flamboyante enchâssée", firstSpellScript.Comments);
         }
-        [Fact]
+
         public void TestGetSpellScriptTargets()
         {
             int count = MangosRepository.GetRowCountForTable("spell_script_target");
@@ -3190,7 +3178,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(1u, firstTarget.Type);
             Assert.Equal(15263u, firstTarget.TargetEntry);
         }
-        [Fact]
+
         public void TestGetSpellTargetPositions()
         {
             int count = MangosRepository.GetRowCountForTable("spell_target_position");
@@ -3207,7 +3195,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(51.29f, firstTargetPosition.TargetPositionZ);
             Assert.Equal(4.74f, firstTargetPosition.TargetOrientation);
         }
-        [Fact]
+
         public void TestGetSpellTemplates()
         {
             int count = MangosRepository.GetRowCountForTable("spell_template");
@@ -3390,7 +3378,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(0u, firstSpellTemplate.MinReputation);
             Assert.Equal(0u, firstSpellTemplate.RequiredAuraVision);
         }
-        [Fact]
+
         public void TestGetSpellThreats()
         {
             int count = MangosRepository.GetRowCountForTable("spell_threat");
@@ -3405,7 +3393,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(1.0f, firstSpellThreat.Multiplier);
             Assert.Equal(0.0f, firstSpellThreat.ApBonus);
         }
-        [Fact]
+
         public void TestGetTaxiPathTransitions()
         {
             int count = MangosRepository.GetRowCountForTable("taxi_path_transitions");
@@ -3421,7 +3409,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal(1u, firstTransition.OutNode);
             Assert.Equal("Everlook, Winterspring -> Valormok, Azshara -> Splintertree Post, Ashenvale", firstTransition.Comment);
         }
-        [Fact]
+
         public void TestGetTransports()
         {
             int count = MangosRepository.GetRowCountForTable("transports");
@@ -3436,7 +3424,7 @@ namespace PromptHandlingService.Tests
             Assert.Equal("Ratchet and Booty Bay", firstTransport.Name);
             Assert.Equal(350818u, firstTransport.Period);
         }
-        [Fact]
+
         public void TestGetVariables()
         {
             int count = MangosRepository.GetRowCountForTable("variables");

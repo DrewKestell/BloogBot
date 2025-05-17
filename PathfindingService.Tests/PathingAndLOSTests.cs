@@ -1,4 +1,4 @@
-using PathfindingService.Models;
+using GameData.Core.Models;
 using PathfindingService.Repository;
 using System.Numerics;
 

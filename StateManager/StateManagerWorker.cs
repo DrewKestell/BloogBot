@@ -1,7 +1,8 @@
-using ActivityBackgroundMember;
+using BackgroundBotRunner;
 using Communication;
-using Microsoft.Extensions.Options;
+using StateManager.Clients;
 using StateManager.Listeners;
+using StateManager.Repository;
 using StateManager.Settings;
 
 namespace StateManager
@@ -13,12 +14,12 @@ namespace StateManager
         private readonly IConfiguration _configuration;
         private readonly IServiceProvider _serviceProvider;
 
-        private readonly Dictionary<string, (IHostedService Service, CancellationTokenSource TokenSource, Task asyncTask)> _managedServices = [];
-
-        private readonly ActivityMemberSocketListener _activityMemberSocketListener;
+        private readonly CharacterStateSocketListener _activityMemberSocketListener;
         private readonly StateManagerSocketListener _worldStateManagerSocketListener;
 
-        public IEnumerable<ActivitySnapshot> CurrentActivityMemberList { get; private set; } = [];
+        private readonly MangosSOAPClient _mangosSOAPClient;
+
+        private readonly Dictionary<string, (IHostedService Service, CancellationTokenSource TokenSource, Task asyncTask)> _managedServices = [];
 
         public StateManagerWorker(
             ILogger<StateManagerWorker> logger,
@@ -31,13 +32,16 @@ namespace StateManager
             _serviceProvider = serviceProvider;
             _configuration = configuration;
 
-            _activityMemberSocketListener = new ActivityMemberSocketListener(
-                configuration["ActivityMemberListener:IpAddress"],
-                int.Parse(configuration["ActivityMemberListener:Port"]),
-                _loggerFactory.CreateLogger<ActivityMemberSocketListener>()
+            _mangosSOAPClient = new MangosSOAPClient(configuration["MangosSOAP:IpAddress"]);
+
+            _activityMemberSocketListener = new CharacterStateSocketListener(
+                StateManagerSettings.Instance.CharacterDefinitions,
+                configuration["CharacterStateListener:IpAddress"],
+                int.Parse(configuration["CharacterStateListener:Port"]),
+                _loggerFactory.CreateLogger<CharacterStateSocketListener>()
             );
 
-            _logger.LogInformation($"Started ActivityMemberListener| {configuration["ActivityMemberListener:IpAddress"]}:{configuration["ActivityMemberListener:Port"]}");
+            _logger.LogInformation($"Started ActivityMemberListener| {configuration["CharacterStateListener:IpAddress"]}:{configuration["CharacterStateListener:Port"]}");
 
             _worldStateManagerSocketListener = new StateManagerSocketListener(
                 configuration["StateManagerListener:IpAddress"],
@@ -47,18 +51,16 @@ namespace StateManager
 
             _logger.LogInformation($"Started StateManagerListener| {configuration["StateManagerListener:IpAddress"]}:{configuration["StateManagerListener:Port"]}");
 
-            _activityMemberSocketListener.DataMessageSubject.Subscribe(OnActivityManagerUpdate);
             _worldStateManagerSocketListener.DataMessageSubject.Subscribe(OnWorldStateUpdate);
         }
 
-        public void StartManagedService(string accountName)
+        public void StartBackgroundBotWorker(string accountName)
         {
             var scope = _serviceProvider.CreateScope();
             var tokenSource = new CancellationTokenSource();
-            var service = ActivatorUtilities.CreateInstance<ActivityBackgroundMemberWorker>(
+            var service = ActivatorUtilities.CreateInstance<BackgroundBotWorker>(
                 scope.ServiceProvider,
                 _loggerFactory,
-                _loggerFactory.CreateLogger<ActivityBackgroundMemberWorker>(),
                 _configuration
             );
 
@@ -81,13 +83,13 @@ namespace StateManager
         {
             _logger.LogInformation($"StateManagerServiceWorker is running.");
 
-            stoppingToken.Register(() =>
-                _logger.LogInformation($"StateManagerServiceWorker is stopping."));
+            stoppingToken.Register(() => _logger.LogInformation($"StateManagerServiceWorker is stopping."));
 
             while (!stoppingToken.IsCancellationRequested)
             {
                 // Here you can add logic to start/stop services based on certain conditions.
-                await Task.Delay(10000, stoppingToken);
+                await ApplyDesiredWorkerState();
+                await Task.Delay(100, stoppingToken);
             }
 
             foreach (var (Service, TokenSource, Task) in _managedServices.Values)
@@ -96,29 +98,38 @@ namespace StateManager
             _logger.LogInformation($"StateManagerServiceWorker has stopped.");
         }
 
-        private void OnActivityManagerUpdate(AsyncRequest dataMessage)
-        {
-            //ActivityMemberState activityMemberState = dataMessage.ActivityMemberState;
-            //ActivityMember? activityMember = CurrentActivityMemberList.FirstOrDefault(x => x.AccountName != activityMemberState.Member.AccountName);
-
-            //if (activityMember != null)
-            //{
-
-            //}
-
-            //_activityMemberSocketListener.SendMessageToClient(dataMessage.Id, CurrentActivityMemberList.First(x => x.AccountName == activityMemberState.Member.AccountName));
-        }
-
         private void OnWorldStateUpdate(AsyncRequest dataMessage)
         {
-            //_worldStateManagerSocketListener.SendMessageToClient(dataMessage.Id, responseMessage);
+            StateChangeRequest stateChange = dataMessage.StateChange;
+
+            if (stateChange != null)
+            {
+
+            }
+
+            StateChangeResponse stateChangeResponse = new();
+            _worldStateManagerSocketListener.SendMessageToClient(dataMessage.Id, stateChangeResponse);
         }
 
-        private void ApplyDesiredState()
+        private async Task<bool> ApplyDesiredWorkerState()
         {
-            for (int i = 0; i < StateManagerSettings.Instance.ActivityMemberPresets.Count; i++)
-                if (!CurrentActivityMemberList.Any(x => x.AccountName == StateManagerSettings.Instance.ActivityMemberPresets[i].AccountName))
-                    StartManagedService(StateManagerSettings.Instance.ActivityMemberPresets[i].AccountName);
+            for (int i = 0; i < StateManagerSettings.Instance.CharacterDefinitions.Count; i++)
+                if (!_managedServices.ContainsKey(StateManagerSettings.Instance.CharacterDefinitions[i].AccountName))
+                {
+                    if (!ReamldRepository.CheckIfAccountExists(StateManagerSettings.Instance.CharacterDefinitions[i].AccountName))
+                    {
+                        await _mangosSOAPClient.CreateAccountAsync(StateManagerSettings.Instance.CharacterDefinitions[i].AccountName);
+
+                        await Task.Delay(100);
+
+                        await _mangosSOAPClient.SetGMLevelAsync(StateManagerSettings.Instance.CharacterDefinitions[i].AccountName, 3);
+                    }
+                    StartBackgroundBotWorker(StateManagerSettings.Instance.CharacterDefinitions[i].AccountName);
+
+                    await Task.Delay(500);
+                }
+
+            return true;
         }
     }
 }

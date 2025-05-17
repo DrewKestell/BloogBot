@@ -1,4 +1,5 @@
-﻿using BotRunner.Interfaces;
+﻿using GameData.Core.Enums;
+using GameData.Core.Interfaces;
 
 namespace BotRunner.Constants
 {
@@ -8,16 +9,16 @@ namespace BotRunner.Constants
         public IObjectManager ObjectManager { get; } = objectManager;
         public IWoWEventHandler WoWEventHandler { get; } = woWEventHandler;
 
-        public async Task<List<(Action, List<object>)>> GetNextActionsWithParamsAsync()
+        public async Task<List<(CharacterAction, List<object>)>> GetNextActionsWithParamsAsync()
         {
             // Example response from the decision engine
             // This would be generated dynamically based on the game's state
-            List<(Action, List<object>)> actionMap =
+            List<(CharacterAction, List<object>)> actionMap =
             [
-                ( Action.GoTo, new List<object> { "HerbNodeLocation" } ),
-                ( Action.InteractWith, new List<object> { "HerbNode" } ),
-                ( Action.GoTo, new List<object> { "OreNodeLocation" } ),
-                ( Action.InteractWith, new List<object> { "OreNode" } )
+                ( CharacterAction.GoTo, new List<object> { "HerbNodeLocation" } ),
+                ( CharacterAction.InteractWith, new List<object> { "HerbNode" } ),
+                ( CharacterAction.GoTo, new List<object> { "OreNodeLocation" } ),
+                ( CharacterAction.InteractWith, new List<object> { "OreNode" } )
             ];
 
             return actionMap;

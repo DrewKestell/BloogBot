@@ -22,7 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Client\" />
     <Folder Include="Predefined\NewFolder\" />
   </ItemGroup>
 </Project>
