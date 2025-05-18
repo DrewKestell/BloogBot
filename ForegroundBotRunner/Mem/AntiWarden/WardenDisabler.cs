@@ -181,11 +181,11 @@ namespace ForegroundBotRunner.Mem.AntiWarden
         private static void DisableWardenInternal(nint _)
         {
             Console.WriteLine("[WARDEN] DisableWardenHook called.");
-            Console.WriteLine($"[WARDEN] WardenPtr = {_} (0x{_.ToString("X")})");
+            Console.WriteLine($"[WARDEN] WardenPtr = {_} (0x{_:X})");
             if (_ != nint.Zero)
             {
                 var wardenBaseAddr = MemoryManager.ReadIntPtr(_);
-                Console.WriteLine($"[WARDEN] DisableWardenHook found WardenBaseAddress = {wardenBaseAddr} (0x{wardenBaseAddr.ToString("X")})");
+                Console.WriteLine($"[WARDEN] DisableWardenHook found WardenBaseAddress = {wardenBaseAddr} (0x{wardenBaseAddr:X})");
                 //InitializeWardenPageScanHook(wardenBaseAddr);
                 //InitializeWardenMemScanHook(wardenBaseAddr);
             }
@@ -246,7 +246,7 @@ namespace ForegroundBotRunner.Mem.AntiWarden
             MemoryManager.InjectAssembly("WardenPageScanHook", (uint)pageScanPtr, "JMP 0x" + wardenPageScanDetourPtr.ToString("X"));
 
             wardenPageScanFunPtr = pageScanPtr;
-            Console.WriteLine($"[WARDEN] PageScan Hooked! WardenModulePtr=0x{wardenModuleStart.ToString("X")} OriginalPageScanFunPtr=0x{pageScanPtr.ToString("X")} DetourFunPtr=0x{wardenPageScanDetourPtr.ToString("X")}");
+            Console.WriteLine($"[WARDEN] PageScan Hooked! WardenModulePtr=0x{wardenModuleStart:X} OriginalPageScanFunPtr=0x{pageScanPtr:X} DetourFunPtr=0x{wardenPageScanDetourPtr:X}");
         }
 
         private static void WardenPageScanHook(nint readBase, int readOffset, nint writeTo)
@@ -259,7 +259,7 @@ namespace ForegroundBotRunner.Mem.AntiWarden
             var hacksWithinRange = HackManager.Hacks.Where(h => h.IsWithinScanRange(readByteFrom, 1));
 
             foreach (var hack in hacksWithinRange)
-                Console.WriteLine($"[WARDEN PageScan] Disabling {hack.Name} at {hack.Address.ToString("X")}");
+                Console.WriteLine($"[WARDEN PageScan] Disabling {hack.Name} at {hack.Address:X}");
 
             foreach (var hack in hacksWithinRange)
                 HackManager.DisableHack(hack);
@@ -322,7 +322,7 @@ namespace ForegroundBotRunner.Mem.AntiWarden
             MemoryManager.InjectAssembly("WardenMemScanHook", (uint)memScanPtr, "JMP 0x" + wardenMemScanDetourPtr.ToString("X"));
 
             wardenMemScanFunPtr = memScanPtr;
-            Console.WriteLine($"[WARDEN] MemScan Hooked! WardenModulePtr={wardenModuleStart.ToString("X")} OriginalMemScanFunPtr=0x{memScanPtr.ToString("X")} DetourFunPtr=0x{wardenMemScanDetourPtr.ToString("X")}");
+            Console.WriteLine($"[WARDEN] MemScan Hooked! WardenModulePtr={wardenModuleStart:X} OriginalMemScanFunPtr=0x{memScanPtr:X} DetourFunPtr=0x{wardenMemScanDetourPtr:X}");
         }
 
         private static void WardenMemScanHook(nint addr, int size, nint bufferStart)
@@ -337,7 +337,7 @@ namespace ForegroundBotRunner.Mem.AntiWarden
                     .Where(i => i.Address.ToInt32() <= nint.Add(addr, size).ToInt32() && i.Address.ToInt32() >= addr.ToInt32());
 
                 foreach (var hack in hacksWithinRange)
-                    Console.WriteLine($"[WARDEN MemoryScan] Disabling {hack.Name} at {hack.Address.ToString("X")}");
+                    Console.WriteLine($"[WARDEN MemoryScan] Disabling {hack.Name} at {hack.Address:X}");
 
                 foreach (var hack in hacksWithinRange)
                     HackManager.DisableHack(hack);

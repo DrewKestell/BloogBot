@@ -28,6 +28,18 @@ namespace WoWSharpClient
         public event EventHandler<OnUiMessageArgs> OnUiMessage;
         public event EventHandler<OnUiMessageArgs> OnSystemMessage;
         public event EventHandler<OnUiMessageArgs> OnSkillMessage;
+        public event EventHandler<CharacterActionArgs> OnCharacterJumpStart;
+        public event EventHandler<CharacterActionArgs> OnCharacterFallLand;
+        public event EventHandler<CharacterActionArgs> OnCharacterStartForward;
+        public event EventHandler<CharacterActionArgs> OnCharacterMoveStop;
+        public event EventHandler<CharacterActionArgs> OnCharacterStartStrafeLeft;
+        public event EventHandler<CharacterActionArgs> OnCharacterStartStrafeRight;
+        public event EventHandler<CharacterActionArgs> OnCharacterStopStrafe;
+        public event EventHandler<CharacterActionArgs> OnCharacterStartTurnLeft;
+        public event EventHandler<CharacterActionArgs> OnCharacterStartTurnRight;
+        public event EventHandler<CharacterActionArgs> OnCharacterStopTurn;
+        public event EventHandler<CharacterActionArgs> OnCharacterSetFacing;
+        public event EventHandler<CharacterActionArgs> OnCharacterStartBackwards;
         public event EventHandler<EventArgs> OnBlockParryDodge;
         public event EventHandler<EventArgs> OnParry;
         public event EventHandler<EventArgs> OnSlamReady;
@@ -153,5 +165,17 @@ namespace WoWSharpClient
         public void FireOnSpellLogMiss(uint spellId, ulong casterGUID, ulong targetGUID, uint missReason) => FireEvent(OnSpellLogMiss);
         public void FireOnWorldStatesInit(List<WorldState> worldStates) => OnWorldStatesInit?.Invoke(this, worldStates);
         public void FireOnSetRestStart() => FireEvent(OnSetRestStart);
+        public void FireOnCharacterJumpStart(ulong guid) => OnCharacterJumpStart?.Invoke(this, new CharacterActionArgs(guid));
+        internal void FireOnCharacterFallLand(ulong guid) => OnCharacterFallLand?.Invoke(this, new CharacterActionArgs(guid));
+        internal void FireOnCharacterStartForward(ulong guid) => OnCharacterStartForward?.Invoke(this, new CharacterActionArgs(guid));
+        internal void FireOnCharacterMoveStop(ulong guid) => OnCharacterMoveStop?.Invoke(this, new CharacterActionArgs(guid));
+        internal void FireOnCharacterStartStrafeLeft(ulong guid) => OnCharacterStartStrafeLeft?.Invoke(this, new CharacterActionArgs(guid));
+        internal void FireOnCharacterStartStrafeRight(ulong guid) => OnCharacterStartStrafeRight?.Invoke(this, new CharacterActionArgs(guid));
+        internal void FireOnCharacterStopStrafe(ulong guid) => OnCharacterStopStrafe?.Invoke(this, new CharacterActionArgs(guid));
+        internal void FireOnCharacterStartTurnLeft(ulong guid) => OnCharacterStartTurnLeft?.Invoke(this, new CharacterActionArgs(guid));
+        internal void FireOnCharacterStartTurnRight(ulong guid) => OnCharacterStartTurnRight?.Invoke(this, new CharacterActionArgs(guid));
+        internal void FireOnCharacterStopTurn(ulong guid) => OnCharacterStopTurn?.Invoke(this, new CharacterActionArgs(guid));
+        internal void FireOnCharacterSetFacing(ulong guid) => OnCharacterSetFacing?.Invoke(this, new CharacterActionArgs(guid));
+        internal void FireOnCharacterStartBackwards(ulong guid) => OnCharacterStartBackwards?.Invoke(this, new CharacterActionArgs(guid));
     }
 }

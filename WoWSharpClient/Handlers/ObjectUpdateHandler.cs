@@ -4,6 +4,7 @@ using GameData.Core.Models;
 using System.Collections;
 using WoWSharpClient.Client;
 using WoWSharpClient.Models;
+using WoWSharpClient.Parsers;
 using WoWSharpClient.Utils;
 using static GameData.Core.Enums.UpdateFields;
 
@@ -26,28 +27,36 @@ namespace WoWSharpClient.Handlers
 
             for (int i = 0; i < objectCount; i++)
                 ParseNextUpdate(reader);
+            //Console.WriteLine($"[HandleUpdateObject] [{objectCount}] {reader.BaseStream.Position} {reader.BaseStream.Length}");
         }
 
         private void ParseNextUpdate(BinaryReader reader)
         {
             var updateType = (ObjectUpdateType)reader.ReadByte();
-            switch (updateType)
+            try
             {
-                case ObjectUpdateType.CREATE_OBJECT:
-                case ObjectUpdateType.CREATE_OBJECT2:
-                    ReadCreateObjectBlock(reader);
-                    break;
-                case ObjectUpdateType.MOVEMENT:
-                    ParseMovementUpdate(reader);
-                    break;
-                case ObjectUpdateType.PARTIAL:
-                    ParsePartialUpdate(reader);
-                    break;
-                case ObjectUpdateType.OUT_OF_RANGE_OBJECTS:
-                    ParseOutOfRangeObjects(reader);
-                    break;
-                default:
-                    throw new Exception($"Unhandled update type: {updateType}");
+                switch (updateType)
+                {
+                    case ObjectUpdateType.CREATE_OBJECT:
+                    case ObjectUpdateType.CREATE_OBJECT2:
+                        ReadCreateObjectBlock(reader);
+                        break;
+                    case ObjectUpdateType.MOVEMENT:
+                        ParseMovementUpdate(reader);
+                        break;
+                    case ObjectUpdateType.PARTIAL:
+                        ParsePartialUpdate(reader);
+                        break;
+                    case ObjectUpdateType.OUT_OF_RANGE_OBJECTS:
+                        ParseOutOfRangeObjects(reader);
+                        break;
+                    default:
+                        throw new Exception($"Unhandled update type: {updateType}");
+                }
+            }
+            catch (Exception ex)
+            {
+                //Console.WriteLine($"[{updateType}] {ex}");
             }
         }
 
@@ -56,8 +65,8 @@ namespace WoWSharpClient.Handlers
             var guid = ReaderUtils.ReadPackedGuid(reader);
             var objectType = (WoWObjectType)reader.ReadByte();
 
-            Console.WriteLine($"[ReadCreateObjectBlock] Packed GUID: {guid}");
-            Console.WriteLine($"[ReadCreateObjectBlock] Object Type: {objectType}");
+            //Console.WriteLine($"[ReadCreateObjectBlock] Packed GUID: {guid}");
+            //Console.WriteLine($"[ReadCreateObjectBlock] Object Type: {objectType}");
             WoWObject woWObject = CreateWoWObject(objectType, guid);
 
             ReadMovementUpdateBlock(reader, woWObject);
@@ -71,28 +80,28 @@ namespace WoWSharpClient.Handlers
         {
             ObjectUpdateFlags updateFlags = (ObjectUpdateFlags)reader.ReadByte();
 
-            Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags {updateFlags}");
+            //Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags {updateFlags}");
             if (updateFlags.HasFlag(ObjectUpdateFlags.UPDATEFLAG_LIVING))
             {
-                Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags.UPDATEFLAG_LIVING");
-                ParseUnitMovementInfo(reader, (WoWUnit)woWObject);
+                //Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags.UPDATEFLAG_LIVING");
+                MovementParser.ParseMovementBlock(reader, (WoWUnit)woWObject);
             }
             else if ((updateFlags & ObjectUpdateFlags.UPDATEFLAG_HAS_POSITION) != 0)
             {
-                Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags.UPDATEFLAG_HAS_POSITION");
+                //Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags.UPDATEFLAG_HAS_POSITION");
                 ParseObjectPositionInfo(reader, woWObject);
             }
 
             if (updateFlags.HasFlag(ObjectUpdateFlags.UPDATEFLAG_HIGHGUID))
             {
                 uint highGuid = reader.ReadUInt32();
-                Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags.UPDATEFLAG_HIGHGUID {highGuid}");
+                //Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags.UPDATEFLAG_HIGHGUID {highGuid}");
             }
 
             if ((updateFlags & ObjectUpdateFlags.UPDATEFLAG_ALL) != 0)
             {
                 uint all1 = reader.ReadUInt32();
-                Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags.UPDATEFLAG_ALL {all1}");
+                //Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags.UPDATEFLAG_ALL {all1}");
             }
 
             if (updateFlags.HasFlag(ObjectUpdateFlags.UPDATEFLAG_FULLGUID))
@@ -101,180 +110,15 @@ namespace WoWSharpClient.Handlers
                 byte[] targetGuidByteArray = BitConverter.GetBytes(victimGuid);
                 ((WoWUnit)woWObject).TargetHighGuid.HighGuidValue = [.. targetGuidByteArray.Take(4)];
                 ((WoWUnit)woWObject).TargetHighGuid.LowGuidValue = [.. targetGuidByteArray.Skip(4).Take(4)];
-                Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags.UPDATEFLAG_FULLGUID {victimGuid}");
+                //Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags.UPDATEFLAG_FULLGUID {victimGuid}");
             }
 
             if (updateFlags.HasFlag(ObjectUpdateFlags.UPDATEFLAG_TRANSPORT))
             {
                 woWObject.LastUpdated = reader.ReadUInt32();
-                Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags.UPDATEFLAG_TRANSPORT {woWObject.LastUpdated}");
+                //Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags.UPDATEFLAG_TRANSPORT {woWObject.LastUpdated}");
             }
         }
-
-        private void ParseMovementUpdate(BinaryReader reader)
-        {
-            var guid = ReaderUtils.ReadPackedGuid(reader);
-            Console.WriteLine($"[ParseMovementUpdate] ReadPackedGuid {guid}");
-            ParseUnitMovementInfo(reader, _objectManager.Units.FirstOrDefault(x => x.Guid == guid) as WoWUnit);
-        }
-        private void ParsePartialUpdate(BinaryReader reader)
-        {
-
-            // Now safely read the GUID
-            ulong guid = ReaderUtils.ReadPackedGuid(reader);
-            Console.WriteLine($"[ParsePartialUpdate] ReadPackedGuid: {guid:X}");
-
-            var obj = _objectManager.Objects.FirstOrDefault(x => x.Guid == guid) as WoWObject;
-            if (obj == null)
-            {
-                Console.WriteLine($"[ParsePartialUpdate] WARNING: No object found with GUID {guid:X}");
-                return;
-            }
-
-            ReadValuesUpdateBlock(reader, obj);
-        }
-        private void ParseOutOfRangeObjects(BinaryReader reader)
-        {
-            uint count = reader.ReadUInt32();
-            for (int j = 0; j < count; j++)
-            {
-                var guid = ReaderUtils.ReadPackedGuid(reader);
-                Console.WriteLine($"[ParseMovementUpdate] ReadPackedGuid {guid}");
-                _objectManager.Objects.Remove(_objectManager.Objects.First(x => x.Guid == guid));
-            }
-        }
-        private static void ParseUnitMovementInfo(BinaryReader reader, WoWUnit currentUnit)
-        {
-            ReadMovementHeader(reader, currentUnit);
-            ReadPositionAndFacing(reader, currentUnit);
-
-            if (currentUnit.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_ONTRANSPORT))
-                ReadTransportData(reader, currentUnit);
-
-            if (currentUnit.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SWIMMING))
-                ReadSwimPitch(reader, currentUnit);
-
-            if (!currentUnit.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_ONTRANSPORT))
-                currentUnit.FallTime = reader.ReadSingle();
-
-            if (currentUnit.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLING))
-                ReadJumpData(reader, currentUnit);
-
-            if (currentUnit.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SPLINE_ELEVATION))
-                currentUnit.SplineElevation = reader.ReadSingle();
-
-            ReadSpeeds(reader, currentUnit);
-
-            if (currentUnit.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SPLINE_ENABLED))
-                ReadSplineData(reader, currentUnit);
-        }
-        private static void ReadMovementHeader(BinaryReader reader, WoWUnit unit)
-        {
-            unit.MovementFlags = (MovementFlags)reader.ReadUInt32();
-            unit.LastUpdated = reader.ReadUInt32();
-            Console.WriteLine($"[MovementHeader] Flags: {unit.MovementFlags}, LastUpdated: {unit.LastUpdated}");
-        }
-        private static void ReadPositionAndFacing(BinaryReader reader, WoWUnit unit)
-        {
-            unit.Position.X = reader.ReadSingle();
-            unit.Position.Y = reader.ReadSingle();
-            unit.Position.Z = reader.ReadSingle();
-            unit.Facing = reader.ReadSingle();
-
-            Console.WriteLine($"[Position] X:{unit.Position.X}, Y:{unit.Position.Y}, Z:{unit.Position.Z}, Facing:{unit.Facing}");
-        }
-        private static void ReadTransportData(BinaryReader reader, WoWUnit unit)
-        {
-            unit.TransportGuid = BitConverter.ToUInt64(reader.ReadBytes(4));
-            unit.TransportOffset.X = reader.ReadSingle();
-            unit.TransportOffset.Y = reader.ReadSingle();
-            unit.TransportOffset.Z = reader.ReadSingle();
-            unit.TransportOrientation = reader.ReadSingle();
-            unit.TransportLastUpdated = reader.ReadUInt32();
-
-            Console.WriteLine($"[Transport] Guid:{unit.TransportGuid}, Offset:{unit.TransportOffset}, Orientation:{unit.TransportOrientation}, Updated:{unit.TransportLastUpdated}");
-        }
-        private static void ReadSwimPitch(BinaryReader reader, WoWUnit unit)
-        {
-            unit.SwimPitch = reader.ReadSingle();
-            Console.WriteLine($"[SwimPitch] {unit.SwimPitch}");
-        }
-        private static void ReadJumpData(BinaryReader reader, WoWUnit unit)
-        {
-            unit.JumpVerticalSpeed = reader.ReadSingle();
-            unit.JumpSinAngle = reader.ReadSingle();
-            unit.JumpCosAngle = reader.ReadSingle();
-            unit.JumpHorizontalSpeed = reader.ReadSingle();
-
-            Console.WriteLine($"[JumpData] VSpeed:{unit.JumpVerticalSpeed}, Sin:{unit.JumpSinAngle}, Cos:{unit.JumpCosAngle}, HSpeed:{unit.JumpHorizontalSpeed}");
-        }
-        private static void ReadSpeeds(BinaryReader reader, WoWUnit unit)
-        {
-            unit.WalkSpeed = reader.ReadSingle();
-            unit.RunSpeed = reader.ReadSingle();
-            unit.RunBackSpeed = reader.ReadSingle();
-            unit.SwimSpeed = reader.ReadSingle();
-            unit.SwimBackSpeed = reader.ReadSingle();
-            unit.TurnRate = reader.ReadSingle();
-
-            Console.WriteLine($"[Speeds] Walk:{unit.WalkSpeed}, Run:{unit.RunSpeed}, RunBack:{unit.RunBackSpeed}, Swim:{unit.SwimSpeed}, SwimBack:{unit.SwimBackSpeed}, Turn:{unit.TurnRate}");
-        }
-        private static void ReadSplineData(BinaryReader reader, WoWUnit unit)
-        {
-            SplineFlags flags = (SplineFlags)reader.ReadUInt32();
-            unit.SplineFlags = flags;
-            Console.WriteLine($"[Spline] Flags: {flags}");
-
-            if (flags.HasFlag(SplineFlags.FinalPoint))
-            {
-                float x = reader.ReadSingle();
-                float y = reader.ReadSingle();
-                float z = reader.ReadSingle();
-                unit.SplineFinalPoint = new Position(x, y, z);
-                Console.WriteLine($"[Spline] FinalPoint: X:{x}, Y:{y}, Z:{z}");
-            }
-            else if (flags.HasFlag(SplineFlags.FinalTarget))
-            {
-                ulong targetGuid = reader.ReadUInt64();
-                unit.SplineTargetGuid = targetGuid;
-                Console.WriteLine($"[Spline] FinalTarget: {targetGuid:X}");
-            }
-            else if (flags.HasFlag(SplineFlags.FinalOrientation))
-            {
-                float angle = reader.ReadSingle();
-                unit.SplineFinalOrientation = angle;
-                Console.WriteLine($"[Spline] FinalOrientation: {angle}");
-            }
-
-            unit.SplineTimePassed = reader.ReadInt32();
-            unit.SplineDuration = reader.ReadInt32();
-            unit.SplineId = reader.ReadUInt32();
-
-            Console.WriteLine($"[Spline] TimePassed:{unit.SplineTimePassed}, Duration:{unit.SplineDuration}, Id:{unit.SplineId}");
-
-            uint nodeCount = reader.ReadUInt32();
-            unit.SplineNodes = new List<Position>((int)nodeCount);
-
-            Console.WriteLine($"[Spline] NodeCount: {nodeCount}");
-
-            for (int i = 0; i < nodeCount; i++)
-            {
-                float x = reader.ReadSingle();
-                float y = reader.ReadSingle();
-                float z = reader.ReadSingle();
-                var node = new Position(x, y, z);
-                unit.SplineNodes.Add(node);
-                Console.WriteLine($"[Spline] Node[{i}]: X:{x}, Y:{y}, Z:{z}");
-            }
-
-            float finalX = reader.ReadSingle();
-            float finalY = reader.ReadSingle();
-            float finalZ = reader.ReadSingle();
-            unit.SplineFinalDestination = new Position(finalX, finalY, finalZ);
-
-            Console.WriteLine($"[Spline] FinalDestination: X:{finalX}, Y:{finalY}, Z:{finalZ}");
-        }
-
 
         private static void ParseObjectPositionInfo(BinaryReader reader, WoWObject obj)
         {
@@ -285,8 +129,34 @@ namespace WoWSharpClient.Handlers
             obj.Position = new Position(posX, posY, posZ);
             obj.Facing = reader.ReadSingle();
 
-            Console.WriteLine($"[ParseObjectPositionInfo] Position {obj.Position}");
-            Console.WriteLine($"[ParseObjectPositionInfo] Facing {obj.Facing}");
+            //Console.WriteLine($"[ParseObjectPositionInfo] Position {obj.Position}");
+            //Console.WriteLine($"[ParseObjectPositionInfo] Facing {obj.Facing}");
+        }
+
+        private void ParseMovementUpdate(BinaryReader reader)
+        {
+            var guid = ReaderUtils.ReadPackedGuid(reader);
+            //Console.WriteLine($"[ParseMovementUpdate] ReadPackedGuid {guid}");
+            MovementParser.ParseMovementInfo(reader, (WoWUnit)_objectManager.Objects.First(x => x.Guid == guid));
+        }
+        private void ParsePartialUpdate(BinaryReader reader)
+        {
+
+            // Now safely read the GUID
+            ulong guid = ReaderUtils.ReadPackedGuid(reader);
+            //Console.WriteLine($"[ParsePartialUpdate] ReadPackedGuid: {guid:X}");
+
+            ReadValuesUpdateBlock(reader, _objectManager.Objects.First(x => x.Guid == guid) as WoWObject);
+        }
+        private void ParseOutOfRangeObjects(BinaryReader reader)
+        {
+            uint count = reader.ReadUInt32();
+            for (int j = 0; j < count; j++)
+            {
+                var guid = ReaderUtils.ReadPackedGuid(reader);
+                //Console.WriteLine($"[ParseMovementUpdate] ReadPackedGuid {guid}");
+                _objectManager.Objects.Remove(_objectManager.Objects.First(x => x.Guid == guid));
+            }
         }
 
         private static void ReadValuesUpdateBlock(BinaryReader reader, WoWObject @object)
@@ -297,8 +167,8 @@ namespace WoWSharpClient.Handlers
             // Parse the update mask
             byte[] updateMask = reader.ReadBytes(blockCount * 4);
 
-            Console.WriteLine($"[ReadValuesUpdateBlock] blockCount {blockCount}");
-            Console.WriteLine($"[ReadValuesUpdateBlock] updateMask {BitConverter.ToString(updateMask)}");
+            //Console.WriteLine($"[ReadValuesUpdateBlock] blockCount {blockCount}");
+            //Console.WriteLine($"[ReadValuesUpdateBlock] updateMask {BitConverter.ToString(updateMask)}");
             BitArray updateMaskBits = new(updateMask);
 
             for (int i = 0; i < updateMaskBits.Length; i++)
@@ -353,31 +223,33 @@ namespace WoWSharpClient.Handlers
                 if (field == EObjectFields.OBJECT_FIELD_GUID)
                 {
                     @object.HighGuid.LowGuidValue = reader.ReadBytes(4);
-                    Console.WriteLine($"[ReadObjectField] LowGuidValue {BitConverter.ToString(@object.HighGuid.LowGuidValue)}");
+                    //Console.WriteLine($"[ReadObjectField] LowGuidValue {BitConverter.ToString(@object.HighGuid.LowGuidValue)}");
                 }
                 else
                 {
                     @object.HighGuid.HighGuidValue = reader.ReadBytes(4);
-                    Console.WriteLine($"[ReadObjectField] HighGuidValue {BitConverter.ToString(@object.HighGuid.HighGuidValue)}");
+                    //Console.WriteLine($"[ReadObjectField] HighGuidValue {BitConverter.ToString(@object.HighGuid.HighGuidValue)}");
                 }
             }
             else if (field == EObjectFields.OBJECT_FIELD_TYPE)
             {
-                Console.WriteLine($"[ReadObjectField] OBJECT_FIELD_TYPE {(WoWObjectType)reader.ReadUInt32()}");
+                var objectType = (WoWObjectType)reader.ReadUInt32();
+                //Console.WriteLine($"[ReadObjectField] OBJECT_FIELD_TYPE {objectType}");
             }
             else if (field == EObjectFields.OBJECT_FIELD_ENTRY)
             {
                 @object.Entry = reader.ReadUInt32();
-                Console.WriteLine($"[ReadObjectField] OBJECT_FIELD_ENTRY {@object.Entry}");
+                //Console.WriteLine($"[ReadObjectField] OBJECT_FIELD_ENTRY {@object.Entry}");
             }
             else if (field == EObjectFields.OBJECT_FIELD_SCALE_X)
             {
                 @object.ScaleX = reader.ReadSingle();
-                Console.WriteLine($"[ReadObjectField] OBJECT_FIELD_SCALE_X {@object.ScaleX}");
+                //Console.WriteLine($"[ReadObjectField] OBJECT_FIELD_SCALE_X {@object.ScaleX}");
             }
             else if (field == EObjectFields.OBJECT_FIELD_PADDING)
             {
-                Console.WriteLine($"[ReadObjectField] OBJECT_FIELD_PADDING {reader.ReadUInt32()}");
+                uint padding = reader.ReadUInt32();
+                //Console.WriteLine($"[ReadObjectField] OBJECT_FIELD_PADDING {padding}");
             }
         }
         private static void ReadGameObjectField(BinaryReader reader, WoWGameObject @object, EGameObjectFields field)
@@ -387,63 +259,63 @@ namespace WoWSharpClient.Handlers
                 if (field == EGameObjectFields.OBJECT_FIELD_CREATED_BY)
                 {
                     @object.CreatedBy.LowGuidValue = reader.ReadBytes(4);
-                    Console.WriteLine($"[ReadGameObjectField] OBJECT_FIELD_CREATED_BY.LowGuidValue {BitConverter.ToString(@object.CreatedBy.LowGuidValue)}");
+                    //Console.WriteLine($"[ReadGameObjectField] OBJECT_FIELD_CREATED_BY.LowGuidValue {BitConverter.ToString(@object.CreatedBy.LowGuidValue)}");
                 }
                 else
                 {
                     @object.CreatedBy.HighGuidValue = reader.ReadBytes(4);
-                    Console.WriteLine($"[ReadGameObjectField] OBJECT_FIELD_CREATED_BY.HighGuidValue {BitConverter.ToString(@object.CreatedBy.HighGuidValue)}");
+                    //Console.WriteLine($"[ReadGameObjectField] OBJECT_FIELD_CREATED_BY.HighGuidValue {BitConverter.ToString(@object.CreatedBy.HighGuidValue)}");
                 }
             }
             else if (field == EGameObjectFields.GAMEOBJECT_DISPLAYID)
             {
                 @object.DisplayId = reader.ReadUInt32();
-                Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_DISPLAYID {@object.DisplayId}");
+                //Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_DISPLAYID {@object.DisplayId}");
             }
             else if (field == EGameObjectFields.GAMEOBJECT_FLAGS)
             {
                 @object.Flags = reader.ReadUInt32();
-                Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_FLAGS {@object.Flags}");
+                //Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_FLAGS {@object.Flags}");
             }
             else if (field < EGameObjectFields.GAMEOBJECT_STATE)
             {
                 @object.Rotation[field - EGameObjectFields.GAMEOBJECT_ROTATION] = reader.ReadSingle();
-                Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_ROTATION {field - EGameObjectFields.GAMEOBJECT_ROTATION} {@object.Rotation[field - EGameObjectFields.GAMEOBJECT_ROTATION]}");
+                //Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_ROTATION {field - EGameObjectFields.GAMEOBJECT_ROTATION} {@object.Rotation[field - EGameObjectFields.GAMEOBJECT_ROTATION]}");
             }
             else if (field == EGameObjectFields.GAMEOBJECT_STATE)
             {
                 @object.GoState = (GOState)reader.ReadUInt32();
-                Console.WriteLine($"[ReadGameObjectField] GoState {@object.GoState}");
+                //Console.WriteLine($"[ReadGameObjectField] GoState {@object.GoState}");
             }
             else if (field == EGameObjectFields.GAMEOBJECT_POS_X)
             {
                 @object.Position.X = reader.ReadSingle();
-                Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_POS_X {@object.Position.X}");
+                //Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_POS_X {@object.Position.X}");
             }
             else if (field == EGameObjectFields.GAMEOBJECT_POS_Y)
             {
                 @object.Position.Y = reader.ReadSingle();
-                Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_POS_Y {@object.Position.Y}");
+                //Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_POS_Y {@object.Position.Y}");
             }
             else if (field == EGameObjectFields.GAMEOBJECT_POS_Z)
             {
                 @object.Position.Z = reader.ReadSingle();
-                Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_POS_Z {@object.Position.Z}");
+                //Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_POS_Z {@object.Position.Z}");
             }
             else if (field == EGameObjectFields.GAMEOBJECT_FACING)
             {
                 @object.Facing = reader.ReadSingle();
-                Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_FACING {@object.Facing}");
+                //Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_FACING {@object.Facing}");
             }
             else if (field == EGameObjectFields.GAMEOBJECT_DYN_FLAGS)
             {
                 @object.DynamicFlags = (DynamicFlags)reader.ReadUInt32();
-                Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_DYN_FLAGS {@object.DynamicFlags}");
+                //Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_DYN_FLAGS {@object.DynamicFlags}");
             }
             else if (field == EGameObjectFields.GAMEOBJECT_FACTION)
             {
                 @object.FactionTemplate = reader.ReadUInt32();
-                Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_FACTION {@object.FactionTemplate}");
+                //Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_FACTION {@object.FactionTemplate}");
             }
             else if (field == EGameObjectFields.GAMEOBJECT_TYPE_ID)
                 @object.TypeId = reader.ReadUInt32();
@@ -1026,7 +898,7 @@ namespace WoWSharpClient.Handlers
             if (_objectManager.Objects.Any(x => x.Guid == guid))
             {
                 wowObject = (WoWObject)_objectManager.Objects.First(x => x.Guid == guid);
-                Console.WriteLine($"[CreateWoWObject] Object {objectType}:{guid} already exists");
+                //Console.WriteLine($"[CreateWoWObject] Object {objectType}:{guid} already exists");
             }
             else
             {
@@ -1044,7 +916,7 @@ namespace WoWSharpClient.Handlers
                     _ => throw new NotImplementedException()
                 };
                 _objectManager.Objects.Add(wowObject);
-                Console.WriteLine($"[CreateWoWObject] Object {objectType}:{guid} created new");
+                //Console.WriteLine($"[CreateWoWObject] Object {objectType}:{guid} created new");
             }
             return wowObject;
         }

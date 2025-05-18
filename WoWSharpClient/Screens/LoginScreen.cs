@@ -45,7 +45,8 @@ namespace WoWSharpClient.Screens
     public class CharacterSelectScreen(WoWClient woWClient) : ICharacterSelectScreen
     {
         public bool IsOpen => true;
-        public bool HasReceivedCharacterList { get; set; } 
+        public bool HasEnteredWorld { get; set; }
+        public bool HasReceivedCharacterList { get; set; }
         public void RefreshCharacterListFromServer()
         {
             woWClient.RefreshCharacterSelects();
@@ -64,6 +65,7 @@ namespace WoWSharpClient.Screens
         public void EnterWorld(ulong characterGuid)
         {
             woWClient.EnterWorld(characterGuid);
+            HasEnteredWorld = true;
         }
         public List<CharacterSelect> CharacterSelects { get; } = [];
     }

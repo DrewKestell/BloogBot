@@ -56,7 +56,7 @@ namespace WoWSharpClient.Handlers
             }
             catch (EndOfStreamException e)
             {
-                Console.WriteLine($"Error reading world states: {e}");
+                //Console.WriteLine($"Error reading world states: {e}");
             }
         }
     }

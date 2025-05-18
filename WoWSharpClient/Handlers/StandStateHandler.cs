@@ -26,11 +26,11 @@ namespace WoWSharpClient.Handlers
             }
             catch (EndOfStreamException e)
             {
-                Console.WriteLine($"Error reading stand state update packet: {e.Message}");
+                //Console.WriteLine($"Error reading stand state update packet: {e.Message}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Unexpected error: {ex.Message}");
+                //Console.WriteLine($"Unexpected error: {ex.Message}");
             }
         }
     }

@@ -8,7 +8,7 @@ namespace GameData.Core.Models
         public string Name { get; set; } = string.Empty;
         public Race Race { get; set; }
         public Class Class { get; set; }
-        public byte Gender { get; set; }
+        public Gender Gender { get; set; }
         public byte Skin { get; set; }
         public byte Face { get; set; }
         public byte HairStyle { get; set; }

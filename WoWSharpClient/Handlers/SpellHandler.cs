@@ -19,7 +19,7 @@ namespace WoWSharpClient.Handlers
                     ushort spellID = reader.ReadUInt16();
                     short unknown = reader.ReadInt16(); // Possible additional data
 
-                    //Console.WriteLine($"Spell ID: {spellID}, Unknown: {unknown}");
+                    ////Console.WriteLine($"Spell ID: {spellID}, Unknown: {unknown}");
                 }
 
                 ushort cooldownCount = reader.ReadUInt16();
@@ -33,14 +33,14 @@ namespace WoWSharpClient.Handlers
                     uint cooldownCategoryTime = reader.ReadUInt32();
 
                     string cooldownCategoryTimeStr = cooldownCategoryTime >> 31 != 0 ? "Infinite" : (cooldownCategoryTime & 0x7FFFFFFF).ToString();
-                    //Console.WriteLine($"Cooldown Spell ID: {cooldownSpellID}, Cooldown Time: {cooldownTime}, Cooldown Category Time: {cooldownCategoryTimeStr}");
+                    ////Console.WriteLine($"Cooldown Spell ID: {cooldownSpellID}, Cooldown Time: {cooldownTime}, Cooldown Category Time: {cooldownCategoryTimeStr}");
                 }
 
                 eventEmitter.FireOnInitialSpellsLoaded(); // Trigger event or further processing
             }
             catch (EndOfStreamException e)
             {
-                Console.WriteLine($"Error reading initial spells: {e.Message}");
+                //Console.WriteLine($"Error reading initial spells: {e.Message}");
             }
         }
 
@@ -58,7 +58,7 @@ namespace WoWSharpClient.Handlers
             }
             catch (EndOfStreamException e)
             {
-                Console.WriteLine($"Error reading spell log miss: {e}");
+                //Console.WriteLine($"Error reading spell log miss: {e}");
             }
         }
 
@@ -75,7 +75,7 @@ namespace WoWSharpClient.Handlers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error handling SMSG_SPELL_GO: {ex.Message}");
+                //Console.WriteLine($"Error handling SMSG_SPELL_GO: {ex.Message}");
             }
         }
     }

@@ -32,7 +32,7 @@ namespace WoWSharpClient.Tests.Handlers
             _characterSelectHandler.HandleCharEnum(opcode, data);
 
             // Verify that 10 characters were parsed and added to the ObjectManager
-            Assert.Equal(10, _objectManager.CharacterSelects.Count);
+            Assert.Equal(10, _objectManager.CharacterSelectScreen.CharacterSelects.Count);
 
             // Define expected values for assertions (these values are hypothetical, replace them with the correct expected values)
             var expectedCharacters = new List<CharacterSelect>
@@ -111,7 +111,7 @@ namespace WoWSharpClient.Tests.Handlers
 
             foreach (var expectedCharacter in expectedCharacters)
             {
-                var parsedCharacter = _objectManager.CharacterSelects.First(o => o.Guid == expectedCharacter.Guid);
+                var parsedCharacter = _objectManager.CharacterSelectScreen.CharacterSelects.First(o => o.Guid == expectedCharacter.Guid);
                 Assert.NotNull(parsedCharacter);
 
                 Assert.Equal(expectedCharacter.Name, parsedCharacter.Name);

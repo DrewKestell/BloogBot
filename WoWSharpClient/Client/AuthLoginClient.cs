@@ -39,7 +39,7 @@ namespace WoWSharpClient.Client
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[LoginClient] {ex}");
+                //Console.WriteLine($"[LoginClient] {ex}");
             }
         }
 
@@ -106,19 +106,19 @@ namespace WoWSharpClient.Client
                     {
                         uint pinGridSeed = BitConverter.ToUInt32(packet, 119);
                         byte[] pinSalt = [.. packet.Skip(123).Take(16)];
-                        Console.WriteLine($"Two-Factor Authentication Enabled");
+                        //Console.WriteLine($"Two-Factor Authentication Enabled");
                     }
 
                     SendLogonProof(serverPublicKey, generator, largeSafePrime, salt, crcSalt);
                 }
                 else
                 {
-                    Console.WriteLine($"[LoginClient] Unexpected opcode or result received in AUTH_CHALLENGE response. [OpCode:{opcode:X2}] [Result:{result}]");
+                    //Console.WriteLine($"[LoginClient] Unexpected opcode or result received in AUTH_CHALLENGE response. [OpCode:{opcode:X2}] [Result:{result}]");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[LoginClient] An error occurred: {ex}");
+                //Console.WriteLine($"[LoginClient] An error occurred: {ex}");
             }
         }
 
@@ -145,12 +145,12 @@ namespace WoWSharpClient.Client
                 byte[] packetData = memoryStream.ToArray();
                 _stream.Write(packetData, 0, packetData.Length);
 
-                Console.WriteLine($"[LoginClient] Sending logon proof to server for username {_username}");
+                //Console.WriteLine($"[LoginClient] Sending logon proof to server for username {_username}");
                 ReceiveAuthProofLogonResponse();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[LoginClient] An error occurred while sending logon proof: {ex}");
+                //Console.WriteLine($"[LoginClient] An error occurred while sending logon proof: {ex}");
             }
         }
 
@@ -163,7 +163,7 @@ namespace WoWSharpClient.Client
 
                 if (header.Length < 2)
                 {
-                    Console.WriteLine($"[LoginClient] Received incomplete AUTH_PROOF response packet.");
+                    //Console.WriteLine($"[LoginClient] Received incomplete AUTH_PROOF response packet.");
                 }
 
                 byte opcode = header[0];
@@ -171,11 +171,11 @@ namespace WoWSharpClient.Client
 
                 if (opcode == 0x01 && result == ResponseCode.RESPONSE_SUCCESS) // CMD_AUTH_LOGON_PROOF and SUCCESS
                 {
-                    Console.WriteLine($"[LoginClient] Authentication succeeded with opcode {opcode:X} and result code {result}");
+                    //Console.WriteLine($"[LoginClient] Authentication succeeded with opcode {opcode:X} and result code {result}");
                     byte[] body = reader.ReadBytes(24);
                     if (body.Length < 24)
                     {
-                        Console.WriteLine("[LoginClient] Received incomplete success AUTH_PROOF response packet.");
+                        //Console.WriteLine("[LoginClient] Received incomplete success AUTH_PROOF response packet.");
                     }
                     byte[] serverProof = [.. body.Take(20)];
                     _serverProof = serverProof;
@@ -193,13 +193,13 @@ namespace WoWSharpClient.Client
                 }
                 else
                 {
-                    Console.WriteLine($"[LoginClient] Authentication failed with opcode {opcode:X} and result code {result}");
+                    //Console.WriteLine($"[LoginClient] Authentication failed with opcode {opcode:X} and result code {result}");
                     _woWSharpEventEmitter.FireOnLoginFailure();
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[LoginClient] An error occurred while receiving AUTH_PROOF response: {ex}");
+                //Console.WriteLine($"[LoginClient] An error occurred while receiving AUTH_PROOF response: {ex}");
                 _woWSharpEventEmitter.FireOnLoginFailure();
             }
         }
@@ -220,7 +220,7 @@ namespace WoWSharpClient.Client
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[LoginClient] An error occurred while sending realm list request: {ex}");
+                //Console.WriteLine($"[LoginClient] An error occurred while sending realm list request: {ex}");
             }
         }
 
@@ -264,12 +264,12 @@ namespace WoWSharpClient.Client
                 }
                 else
                 {
-                    Console.WriteLine("[LoginClient] Unexpected opcode received in REALM_LIST response.");
+                    //Console.WriteLine("[LoginClient] Unexpected opcode received in REALM_LIST response.");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[LoginClient] An error occurred while receiving REALM_LIST response: {ex}");
+                //Console.WriteLine($"[LoginClient] An error occurred while receiving REALM_LIST response: {ex}");
             }
 
             return list;

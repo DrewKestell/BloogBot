@@ -26,7 +26,7 @@ namespace WoWSharpClient.Handlers
                     Name = ReaderUtils.ReadCString(reader),
                     Race = (Race)reader.ReadByte(),
                     Class = (Class)reader.ReadByte(),
-                    Gender = reader.ReadByte(),
+                    Gender = (Gender)reader.ReadByte(),
 
                     Skin = reader.ReadByte(),
                     Face = reader.ReadByte(),
@@ -96,24 +96,40 @@ namespace WoWSharpClient.Handlers
             {
                 byte addonType = data[index++];
                 // Handle addon information here if necessary
-                //Console.WriteLine($"Addon Info: {addonType:X2}");
+                ////Console.WriteLine($"Addon Info: {addonType:X2}");
             }
         }
 
         public void HandleNameQueryResponse(Opcode opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
-            var guid = ReaderUtils.ReadPackedGuid(reader);
+            var guid = reader.ReadUInt64();
             var name = ReaderUtils.ReadCString(reader);
+            var realm = ReaderUtils.ReadCString(reader);
             var race = (Race)reader.ReadUInt32();
             var gender = (Gender)reader.ReadUInt32();
             var classId = (Class)reader.ReadUInt32();
 
-            var gameObject = (WoWPlayer)_objectManager.GameObjects.First(x => x.Guid == guid);
-            gameObject.Name = name;
-            gameObject.Race = race;
-            gameObject.Gender = gender;
-            gameObject.Class = classId;
+            var gameObject = (WoWPlayer)_objectManager.GameObjects.FirstOrDefault(x => x.Guid == guid);
+
+            if (gameObject != null)
+            {
+                gameObject.Name = name;
+                gameObject.Race = race;
+                gameObject.Gender = gender;
+                gameObject.Class = classId;
+            }
+            else
+            {
+                var characterSelect = _objectManager.CharacterSelectScreen.CharacterSelects.FirstOrDefault(x => x.Guid == guid);
+                if (characterSelect != null)
+                {
+                    characterSelect.Name = name;
+                    characterSelect.Race = race;
+                    characterSelect.Gender = gender;
+                    characterSelect.Class = classId;
+                }
+            }
         }
     }
 }

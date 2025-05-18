@@ -18,7 +18,7 @@ namespace WoWSharpClient.Handlers
                     HandleUpdateAccountData(data);
                     break;
                 default:
-                    Console.WriteLine($"Unhandled AccountData opcode: {opcode}");
+                    //Console.WriteLine($"Unhandled AccountData opcode: {opcode}");
                     break;
             }
         }
@@ -26,13 +26,13 @@ namespace WoWSharpClient.Handlers
         private void HandleAccountDataTimes(byte[] data)
         {
             // Parse and handle SMSG_ACCOUNT_DATA_TIMES packet data here
-            //Console.WriteLine("Handling SMSG_ACCOUNT_DATA_TIMES");
+            ////Console.WriteLine("Handling SMSG_ACCOUNT_DATA_TIMES");
         }
 
         private void HandleUpdateAccountData(byte[] data)
         {
             // Parse and handle SMSG_UPDATE_ACCOUNT_DATA packet data here
-            //Console.WriteLine("Handling SMSG_UPDATE_ACCOUNT_DATA");
+            ////Console.WriteLine("Handling SMSG_UPDATE_ACCOUNT_DATA");
         }
     }
 }

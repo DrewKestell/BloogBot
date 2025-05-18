@@ -10,6 +10,7 @@ namespace WoWSharpClient
         private readonly Task _runnerTask;
         private readonly WoWSharpEventEmitter _woWSharpEventEmitter;
         private readonly ObjectUpdateHandler _objectUpdateHandler;
+        private readonly MovementHandler _movementHandler;
         private readonly AccountDataHandler _accountDataHandler;
         private readonly ChatHandler _chatHandlerHandler;
         private readonly CharacterSelectHandler _characterHandler;
@@ -22,14 +23,15 @@ namespace WoWSharpClient
         {
             _woWSharpEventEmitter = objectManager.EventEmitter;
 
-            _objectUpdateHandler = new ObjectUpdateHandler(objectManager);
-            _accountDataHandler = new AccountDataHandler(objectManager);
-            _chatHandlerHandler = new ChatHandler(objectManager);
-            _characterHandler = new CharacterSelectHandler(objectManager);
-            _loginHandler = new LoginHandler(objectManager);
-            _spellHandler = new SpellHandler(objectManager);
-            _standStateHandler = new StandStateHandler(objectManager);
-            _worldStateHandler = new WorldStateHandler(objectManager);
+            _objectUpdateHandler = new(objectManager);
+            _movementHandler = new(objectManager);
+            _accountDataHandler = new(objectManager);
+            _chatHandlerHandler = new(objectManager);
+            _characterHandler = new(objectManager);
+            _loginHandler = new(objectManager);
+            _spellHandler = new(objectManager);
+            _standStateHandler = new(objectManager);
+            _worldStateHandler = new(objectManager);
 
             _queue = new Queue<Action>();
             _runnerTask = Runner();
@@ -43,6 +45,46 @@ namespace WoWSharpClient
 
             _handlers[Opcode.SMSG_UPDATE_OBJECT] = _objectUpdateHandler.HandleUpdateObject;
             _handlers[Opcode.SMSG_COMPRESSED_UPDATE_OBJECT] = _objectUpdateHandler.HandleUpdateObject;
+
+            _handlers[Opcode.SMSG_COMPRESSED_MOVES] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_MOVE_FEATHER_FALL] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_MOVE_KNOCK_BACK] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_MOVE_LAND_WALK] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_MOVE_NORMAL_FALL] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_MOVE_SET_FLIGHT] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_MOVE_SET_HOVER] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_MOVE_UNSET_FLIGHT] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_MOVE_UNSET_HOVER] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_MOVE_WATER_WALK] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_FORCE_MOVE_ROOT] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_FORCE_MOVE_UNROOT] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_SPLINE_MOVE_FEATHER_FALL] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_SPLINE_MOVE_LAND_WALK] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_SPLINE_MOVE_NORMAL_FALL] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_SPLINE_MOVE_ROOT] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_SPLINE_MOVE_SET_HOVER] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_SPLINE_MOVE_SET_RUN_MODE] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_SPLINE_MOVE_SET_WALK_MODE] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_SPLINE_MOVE_START_SWIM] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_SPLINE_MOVE_STOP_SWIM] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_SPLINE_MOVE_UNROOT] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_SPLINE_MOVE_UNSET_HOVER] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_SPLINE_MOVE_WATER_WALK] = _movementHandler.HandleUpdateMovement;
+
+            _handlers[Opcode.MSG_MOVE_TIME_SKIPPED] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.MSG_MOVE_JUMP] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.MSG_MOVE_FALL_LAND] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.MSG_MOVE_START_FORWARD] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.MSG_MOVE_START_BACKWARD] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.MSG_MOVE_STOP] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.MSG_MOVE_START_STRAFE_LEFT] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.MSG_MOVE_START_STRAFE_RIGHT] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.MSG_MOVE_STOP_STRAFE] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.MSG_MOVE_START_TURN_LEFT] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.MSG_MOVE_START_TURN_RIGHT] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.MSG_MOVE_STOP_TURN] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.MSG_MOVE_SET_FACING] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.MSG_MOVE_HEARTBEAT] = _movementHandler.HandleUpdateMovement;
 
             _handlers[Opcode.SMSG_ACCOUNT_DATA_TIMES] = _accountDataHandler.HandleAccountData;
             _handlers[Opcode.SMSG_UPDATE_ACCOUNT_DATA] = _accountDataHandler.HandleAccountData;
@@ -78,6 +120,7 @@ namespace WoWSharpClient
             {
                 //Console.ForegroundColor = ConsoleColor.Red;
                 //Console.WriteLine($"Unhandled opcode: {opcode} {BitConverter.ToString(data)}");
+                Console.WriteLine($"Unhandled opcode: {opcode} byte[{data.Length}]");
             }
         }
         public static void GenerateTestFile(Opcode opcode, byte[] data)
@@ -98,11 +141,11 @@ namespace WoWSharpClient
                 // Write the byte array to the file
                 File.WriteAllBytes(filePath, data);
 
-                Console.WriteLine($"Test file generated: {filePath}");
+                //Console.WriteLine($"Test file generated: {filePath}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error generating test file: {ex.Message}");
+                //Console.WriteLine($"Error generating test file: {ex.Message}");
             }
         }
 
@@ -119,7 +162,7 @@ namespace WoWSharpClient
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine($"Error in OpCodeDispatcher.Runner: {e}\n");
+                        //Console.WriteLine($"Error in OpCodeDispatcher.Runner: {e}\n");
                     }
                 }
                 await Task.Delay(50);
@@ -131,7 +174,7 @@ namespace WoWSharpClient
             if (body.Length < 4)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("[WorldClient] Incomplete SMSG_AUTH_RESPONSE packet.");
+                //Console.WriteLine("[WorldClient] Incomplete SMSG_AUTH_RESPONSE packet.");
                 return;
             }
 

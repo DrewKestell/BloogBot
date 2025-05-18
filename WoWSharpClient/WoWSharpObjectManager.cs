@@ -34,12 +34,34 @@ namespace WoWSharpClient
             _eventEmitter.OnCharacterListLoaded += EventEmitter_OnCharacterListLoaded;
             _eventEmitter.OnChatMessage += EventEmitter_OnChatMessage;
             _eventEmitter.OnGameObjectCreated += EventEmitter_OnGameObjectCreated;
+            _eventEmitter.OnCharacterJumpStart += EventEmitter_OnCharacterJumpStart;
+            _eventEmitter.OnCharacterFallLand += EventEmitter_OnCharacterFallLand;
+            _eventEmitter.OnCharacterSetFacing += EventEmitter_OnCharacterSetFacing;
 
             _woWClient = new(ipAddress, this);
 
             _loginScreen = new(_woWClient);
             _realmScreen = new(_woWClient);
+
             _characterSelectScreen = new(_woWClient);
+        }
+
+        private void EventEmitter_OnCharacterSetFacing(object? sender, CharacterActionArgs e)
+        {
+            WoWUnit unit = (WoWUnit)Objects.First(x => x.Guid == e.Guid);
+            //Console.WriteLine($"{unit.Name} set facing {unit.Facing}");
+        }
+
+        private void EventEmitter_OnCharacterFallLand(object? sender, CharacterActionArgs e)
+        {
+            WoWUnit unit = (WoWUnit)Objects.First(x => x.Guid == e.Guid);
+            //Console.WriteLine($"{unit.Name} landed");
+        }
+
+        private void EventEmitter_OnCharacterJumpStart(object? sender, CharacterActionArgs e)
+        {
+            WoWUnit unit = (WoWUnit)Objects.First(x => x.Guid == e.Guid);
+            //Console.WriteLine($"{unit.Name} jump start");
         }
 
         private void EventEmitter_OnCharacterListLoaded(object? sender, EventArgs e)
@@ -52,7 +74,11 @@ namespace WoWSharpClient
             _characterSelectScreen.RefreshCharacterListFromServer();
         }
 
-        private void EventEmitter_OnGameObjectCreated(object? sender, GameObjectCreatedArgs e) => _woWClient.SendNameQuery(e.Guid);
+        private void EventEmitter_OnGameObjectCreated(object? sender, GameObjectCreatedArgs e)
+        {
+            ////Console.WriteLine($"Created GameObject with guid {e.Guid}");
+            _woWClient.SendNameQuery(e.Guid);
+        }
         private void EventEmitter_OnChatMessage(object? sender, ChatMessageArgs e)
         {
             Console.ResetColor();
@@ -125,13 +151,13 @@ namespace WoWSharpClient
             }
             sb.Append(e.Text);
 
-            Console.WriteLine(sb.ToString());
+            ////Console.WriteLine(sb.ToString());
         }
 
         private void EventEmitter_OnLoginFailure(object? sender, EventArgs e)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("[Main]Failed to login to WoW server");
+            ////Console.WriteLine("[Main]Failed to login to WoW server");
             _woWClient.Dispose();
         }
         private void EventEmitter_OnWorldSessionEnd(object? sender, EventArgs e)

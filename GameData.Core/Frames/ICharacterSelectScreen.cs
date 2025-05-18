@@ -6,6 +6,7 @@ namespace GameData.Core.Frames
     public interface ICharacterSelectScreen
     {
         bool IsOpen { get; }
+        bool HasEnteredWorld { get; }
         bool HasReceivedCharacterList { get; set; }
         void CreateCharacter(
             string name,

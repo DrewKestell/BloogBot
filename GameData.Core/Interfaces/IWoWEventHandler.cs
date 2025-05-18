@@ -166,4 +166,8 @@ namespace GameData.Core.Interfaces
         public readonly ulong Guid = guid;
         public readonly WoWObjectType ObjectType = objectType;
     }
+    public class CharacterActionArgs(ulong guid)
+    {
+        public readonly ulong Guid = guid;
+    }
 }

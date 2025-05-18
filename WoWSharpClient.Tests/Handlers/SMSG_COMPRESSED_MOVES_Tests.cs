@@ -10,5 +10,7 @@ namespace WoWSharpClient.Tests.Handlers
         private readonly Mock<WoWSharpEventEmitter> _woWSharpEventEmitterMock;
         private readonly WoWSharpObjectManager _objectManagerMock;
         private readonly ActivitySnapshot _activityMember;
+
+
     }
 }

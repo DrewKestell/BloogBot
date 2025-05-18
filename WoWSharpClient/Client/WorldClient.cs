@@ -50,7 +50,7 @@ namespace WoWSharpClient.Client
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                //Console.WriteLine(ex);
             }
         }
 
@@ -66,7 +66,7 @@ namespace WoWSharpClient.Client
 
             if (header.Length < 4)
             {
-                Console.WriteLine($"[WorldClient] Received incomplete SMSG_AUTH_CHALLENGE header.");
+                //Console.WriteLine($"[WorldClient] Received incomplete SMSG_AUTH_CHALLENGE header.");
                 return;
             }
 
@@ -76,7 +76,7 @@ namespace WoWSharpClient.Client
             byte[] serverSeed = reader.ReadBytes(size - sizeof(ushort));
             if (serverSeed.Length < 4)
             {
-                Console.WriteLine($"[WorldClient] Incomplete SMSG_AUTH_CHALLENGE packet.");
+                //Console.WriteLine($"[WorldClient] Incomplete SMSG_AUTH_CHALLENGE packet.");
                 return;
             }
 
@@ -124,7 +124,7 @@ namespace WoWSharpClient.Client
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_AUTH_SESSION: {ex}");
+                //Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_AUTH_SESSION: {ex}");
             }
         }
 
@@ -144,7 +144,7 @@ namespace WoWSharpClient.Client
             }
             catch (Exception ex)
             {
-                Console.WriteLine("An error occurred while sending CMSG_CHAR_ENUM: " + ex.Message);
+                //Console.WriteLine("An error occurred while sending CMSG_CHAR_ENUM: " + ex.Message);
             }
         }
         private async Task SendCMSGPing()
@@ -168,7 +168,7 @@ namespace WoWSharpClient.Client
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("[WorldClient] An error occurred while sending CMSG_PING: " + ex.Message);
+                    //Console.WriteLine("[WorldClient] An error occurred while sending CMSG_PING: " + ex.Message);
                 }
                 sequenceId++;
                 await Task.Delay(30000);
@@ -190,7 +190,7 @@ namespace WoWSharpClient.Client
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_PLAYER_LOGIN: {ex}");
+                //Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_PLAYER_LOGIN: {ex}");
             }
         }
         public void SendCMSGCreateCharacter(string name,
@@ -210,9 +210,9 @@ namespace WoWSharpClient.Client
                 byte[] header = _vanillaEncryption.CreateClientHeader((uint)(4 + name.Length + 10), (uint)Opcode.CMSG_CHAR_CREATE);
                 writer.Write(header); // Opcode: CMSG_CHAR_CREATE
                 writer.Write(Encoding.UTF8.GetBytes(name + "\0")); // Character name
-                writer.Write((byte)race);
-                writer.Write((byte)clazz);
-                writer.Write((byte)gender);
+                writer.Write((byte)race); // Race
+                writer.Write((byte)clazz); // Class
+                writer.Write((byte)gender); // Gender
                 writer.Write((byte)1); // Skin
                 writer.Write((byte)1); // Face
                 writer.Write((byte)1); // Hair Style
@@ -226,7 +226,7 @@ namespace WoWSharpClient.Client
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_PLAYER_LOGIN: {ex}");
+                //Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_PLAYER_LOGIN: {ex}");
             }
         }
         public void SendCMSGMessageChat(ChatMsg type, Language language, string destinationName, string message)
@@ -255,7 +255,7 @@ namespace WoWSharpClient.Client
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_MESSAGECHAT: {ex}");
+                //Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_MESSAGECHAT: {ex}");
             }
         }
 
@@ -275,7 +275,7 @@ namespace WoWSharpClient.Client
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_MESSAGECHAT: {ex}");
+                //Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_MESSAGECHAT: {ex}");
             }
         }
         private async Task HandleNetworkMessagesAsync()
@@ -306,7 +306,7 @@ namespace WoWSharpClient.Client
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[WorldClient][HandleNetworkMessages] An error occurred while handling network messages: {ex} {BitConverter.ToString(body)}");
+                    //Console.WriteLine($"[WorldClient][HandleNetworkMessages] An error occurred while handling network messages: {ex} {BitConverter.ToString(body)}");
                 }
             }
             await Task.Delay(10);

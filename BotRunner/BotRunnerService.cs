@@ -17,7 +17,6 @@ namespace BotRunner
         private ActivitySnapshot _activitySnapshot;
 
         private Task _asyncBotTaskRunnerTask;
-        private Task _asyncServerFeedbackTask;
 
         private IBehaviourTreeNode _behaviorTree;
 
@@ -57,13 +56,20 @@ namespace BotRunner
                                 {
                                     if (_objectManager.CharacterSelectScreen.CharacterSelects.Count > 0)
                                     {
-                                        _behaviorTree = BuildEnterWorldSequence(_objectManager.CharacterSelectScreen.CharacterSelects[0].Guid);
+                                        if (_objectManager.CharacterSelectScreen.HasEnteredWorld)
+                                        {
+
+                                        }
+                                        else
+                                        {
+                                            _behaviorTree = BuildEnterWorldSequence(_objectManager.CharacterSelectScreen.CharacterSelects[0].Guid);
+                                        }
                                     }
                                     else
                                     {
 
                                         Class @class = WoWNameGenerator.ParseClassCode(_activitySnapshot.AccountName.Substring(2, 2));
-                                        Race race = WoWNameGenerator.ParseRaceCode(_activitySnapshot.AccountName.Substring(0, 2));
+                                        Race race = WoWNameGenerator.ParseRaceCode(_activitySnapshot.AccountName[..2]);
                                         Gender gender = WoWNameGenerator.DetermineGender(@class);
 
                                         _behaviorTree = BuildCreateCharacterSequence(
@@ -88,7 +94,7 @@ namespace BotRunner
                             }
                             else
                             {
-
+                                _behaviorTree = BuildRealmSelectionSequence();
                             }
                         }
                         else
@@ -110,6 +116,7 @@ namespace BotRunner
                 }
             }
         }
+
         private IBehaviourTreeNode BuildBehaviorTreeFromActions(List<(CharacterAction, List<object>)> actionMap)
         {
             var builder = new BehaviourTreeBuilder();
@@ -1225,8 +1232,9 @@ namespace BotRunner
                 })
             .End()
             .Build();
+
         /// <summary>
-        /// Sequence to log the bot into the game.
+        /// Sequence to log the bot into the server to get a session key.
         /// </summary>
         /// <param name="username">The bot's username.</param>
         /// <param name="password">The bot's password.</param>
@@ -1245,15 +1253,25 @@ namespace BotRunner
                     return BehaviourTreeStatus.Success;
                 })
 
-                // Wait in server queue if necessary
-                .Condition("In Server Queue", time => true)
-                .Do("Wait In Queue", time =>
+                // Select the first available realm
+                .Condition("Waiting in queue", time => _objectManager.LoginScreen.IsLoggedIn)
+                .Do("Select Realm", time =>
                 {
                     if (_objectManager.LoginScreen.QueuePosition > 0)
                         return BehaviourTreeStatus.Running;
                     return BehaviourTreeStatus.Success;
                 })
+            .End()
+            .Build();
 
+        /// <summary>
+        /// Sequence to log the bot into the server to get a session key.
+        /// </summary>
+        /// <param name="username">The bot's username.</param>
+        /// <param name="password">The bot's password.</param>
+        /// <returns>IBehaviourTreeNode that manages the login process.</returns>
+        private IBehaviourTreeNode BuildRealmSelectionSequence() => new BehaviourTreeBuilder()
+            .Sequence("Realm Selection Sequence")
                 // Select the first available realm
                 .Condition("On Realm Selection Screen", time => _objectManager.RealmSelectScreen.IsOpen && _objectManager.LoginScreen.IsLoggedIn)
                 .Do("Select Realm", time =>
@@ -1265,6 +1283,7 @@ namespace BotRunner
                 })
             .End()
             .Build();
+
         /// <summary>
         /// Sequence to log the bot out of the game.
         /// </summary>
