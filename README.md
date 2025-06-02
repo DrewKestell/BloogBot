@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # BloogBot Project Overview
+=======
+# BloogBot Project Overview (Root README)
+>>>>>>> a3cfe7c (Update README.md)
 
 **BloogBot** is a modular **World of Warcraft bot** framework designed for developers to extend and customize. It operates by injecting a .NET bot into the WoW game client, enabling automated gameplay on legacy WoW versions (Vanilla 1.12.1, TBC 2.4.3, WotLK 3.3.5). This project is composed of several components, each handling a different aspect of the bot’s functionality. This overview will describe the architecture at a high level and provide links to detailed documentation for each part.
 
