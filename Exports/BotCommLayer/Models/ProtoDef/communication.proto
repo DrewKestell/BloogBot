@@ -1,0 +1,136 @@
+﻿syntax = "proto3";
+
+package communication;
+
+import "game.proto";
+
+message AsyncRequest {
+    uint64 id = 1;
+    oneof parameter {
+        ActivitySnapshot activity_snapshot = 2;
+        StateChangeRequest state_change = 3;
+    }
+}
+
+message ActionMessage {
+    ActionType action_type = 1;
+    repeated RequestParameter parameters = 2;
+    ResponseResult actionResult = 3;
+}
+
+enum ActionType {
+    WAIT = 0;
+    GOTO = 1;
+    INTERACT_WITH = 2;
+    SELECT_GOSSIP = 3;
+    SELECT_TAXI_NODE = 4;
+    ACCEPT_QUEST = 5;
+    DECLINE_QUEST = 6;
+    SELECT_REWARD = 7;
+    COMPLETE_QUEST = 8;
+    TRAIN_SKILL = 9;
+    TRAIN_TALENT = 10;
+    OFFER_TRADE = 11;
+    OFFER_GOLD = 12;
+    OFFER_ITEM = 13;
+    ACCEPT_TRADE = 14;
+    DECLINE_TRADE = 15;
+    ENCHANT_TRADE = 16;
+    LOCKPICK_TRADE = 17;
+    PROMOTE_LEADER = 18;
+    PROMOTE_ASSISTANT = 19;
+    PROMOTE_LOOT_MANAGER = 20;
+    SET_GROUP_LOOT = 21;
+    ASSIGN_LOOT = 22;
+    LOOT_ROLL_NEED = 23;
+    LOOT_ROLL_GREED = 24;
+    LOOT_PASS = 25;
+    SEND_GROUP_INVITE = 26;
+    ACCEPT_GROUP_INVITE = 27;
+    DECLINE_GROUP_INVITE = 28;
+    KICK_PLAYER = 29;
+    LEAVE_GROUP = 30;
+    DISBAND_GROUP = 31;
+    START_MELEE_ATTACK = 32;
+    START_RANGED_ATTACK = 33;
+    START_WAND_ATTACK = 34;
+    STOP_ATTACK = 35;
+    CAST_SPELL = 36;
+    STOP_CAST = 37;
+    USE_ITEM = 38;
+    EQUIP_ITEM = 39;
+    UNEQUIP_ITEM = 40;
+    DESTROY_ITEM = 41;
+    MOVE_ITEM = 42;
+    SPLIT_STACK = 43;
+    BUY_ITEM = 44;
+    BUYBACK_ITEM = 45;
+    SELL_ITEM = 46;
+    REPAIR_ITEM = 47;
+    REPAIR_ALL_ITEMS = 48;
+    DISMISS_BUFF = 49;
+    RESURRECT = 50;
+    CRAFT = 51;
+    LOGIN = 52;
+    LOGOUT = 53;
+    CREATE_CHARACTER = 54;
+    DELETE_CHARACTER = 55;
+    ENTER_WORLD = 56;
+}
+
+message ActionMap {
+    repeated ActionMessage actions = 1;
+}
+
+message StateChangeRequest {
+    StateChangeType change_type = 1;
+    RequestParameter request_parameter = 2;
+}
+
+message StateChangeResponse {
+    ResponseResult response = 1;
+}
+
+message CharacterDefinition {
+    string account_name = 1;
+    float openness = 2;
+    float conscientiousness = 3;
+    float extraversion = 4;
+    float agreeableness = 5;
+    float neuroticism = 6;
+    bool should_run = 7;
+}
+
+enum StateChangeType {
+    NAME = 0;
+    OPENNESS = 1;
+    CONSCIENTIOUSNESS = 2;
+    EXTRAVERSION = 3;
+    AGREEABLENESS = 4;
+    NEUROTICISM = 5;
+}
+
+enum ResponseResult {
+	SUCCESS = 0;
+	FAILURE = 1;
+	IN_PROGRESS = 2;
+}
+
+message RequestParameter {
+    oneof parameter {
+        float float_param = 1;
+        int32 int_param = 2;
+        int64 long_param = 3;
+        string string_param = 4;
+    }
+}
+
+message ActivitySnapshot {
+    uint32 timestamp = 1;
+    string accountName = 2;
+    game.WoWPlayer player = 3;
+    ActionMessage previousAction = 4;
+    ActionMessage currentAction = 5;
+    repeated game.WoWGameObject nearbyObjects = 6;
+    repeated game.WoWUnit nearbyUnits = 7;
+}

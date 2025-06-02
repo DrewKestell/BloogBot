@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WoWSlimClient": {
+      "commandName": "Project",
+      "commandLineArgs": "-a ORWR1"
+    }
+  }
+}

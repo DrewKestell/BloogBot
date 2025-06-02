@@ -1,0 +1,380 @@
+﻿using GameData.Core.Enums;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using WowSrp.Header;
+
+namespace WoWSharpClient.Client
+{
+    internal class WorldClient(WoWSharpEventEmitter woWSharpEventEmitter, OpCodeDispatcher opCodeDispatcher) : IDisposable
+    {
+        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpEventEmitter;
+        private readonly OpCodeDispatcher _opCodeDispatcher = opCodeDispatcher;
+        private readonly bool _hasReceivedCharListReply;
+
+        private IPAddress _ipAddress = IPAddress.Loopback;
+        private int _port = 0;
+
+        private TcpClient? _client = null;
+        private VanillaDecryption _vanillaDecryption;
+        private VanillaEncryption _vanillaEncryption;
+        private NetworkStream _stream = null;
+        private Task _asyncListener;
+        private readonly uint _lastPingTime;
+
+        public void Dispose()
+        {
+            _client?.Close();
+        }
+
+        public bool IsConnected => _client != null && _client.Connected;
+
+        public void Connect(string username, IPAddress ipAddress, byte[] sessionKey, int port = 8085)
+        {
+            try
+            {
+                _ipAddress = ipAddress;
+                _port = port;
+
+                _vanillaDecryption = new VanillaDecryption(sessionKey);
+                _vanillaEncryption = new VanillaEncryption(sessionKey);
+
+                _client?.Close();
+                _client = new TcpClient(AddressFamily.InterNetwork);
+                _client.Connect(_ipAddress, _port);
+
+                _stream = _client.GetStream();
+
+                HandleAuthChallenge(username, sessionKey);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
+        public void HandleAuthChallenge(string username, byte[] sessionKey)
+        {
+            using var reader = new BinaryReader(_stream, Encoding.UTF8, true);
+            byte[] header = reader.ReadBytes(4);
+
+            if (header.Length < 4)
+            {
+                Console.WriteLine($"[WorldClient] Received incomplete SMSG_AUTH_CHALLENGE header.");
+                return;
+            }
+
+            ushort size = BitConverter.ToUInt16([.. header.Take(2).Reverse()], 0);
+            ushort opcode = BitConverter.ToUInt16([.. header.Skip(2).Take(2)], 0);
+
+            byte[] serverSeed = reader.ReadBytes(size - sizeof(ushort));
+            if (serverSeed.Length < 4)
+            {
+                Console.WriteLine($"[WorldClient] Incomplete SMSG_AUTH_CHALLENGE packet.");
+                return;
+            }
+
+            SendCMSGAuthSession(username, serverSeed, sessionKey);
+        }
+
+        private void SendCMSGAuthSession(string username, byte[] serverSeed, byte[] sessionKey)
+        {
+            try
+            {
+                using var memoryStream = new MemoryStream();
+                using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
+
+                uint opcode = (uint)Opcode.CMSG_AUTH_SESSION; // Opcode for CMSG_AUTH_SESSION
+                uint build = 5875; // Revision of the client
+                uint serverId = 1; // Server ID, this value may vary
+                uint clientSeed = (uint)new Random().Next(int.MinValue, int.MaxValue); // Generate a random client seed
+
+                byte[] clientProof = PacketManager.GenerateClientProof(username, clientSeed, serverSeed, sessionKey); // Generate the client proof
+
+                byte[] decompressedAddonInfo = PacketManager.GenerateAddonInfo(); // Generate addon info
+
+                byte[] compressedAddonInfo = PacketManager.Compress(decompressedAddonInfo); // Compress the addon info
+
+                uint decompressedAddonInfoSize = (uint)decompressedAddonInfo.Length;
+
+                ushort packetSize = (ushort)(4 + 4 + 4 + username.Length + 1 + 4 + clientProof.Length + 4 + compressedAddonInfo.Length);
+
+                writer.Write(BitConverter.GetBytes(packetSize).Reverse().ToArray()); // Packet size (big-endian)
+                writer.Write(opcode); // Opcode (little-endian)
+                writer.Write(build); // Client build
+                writer.Write(serverId); // Server ID
+                writer.Write(Encoding.UTF8.GetBytes(username)); // Username
+                writer.Write((byte)0); // Null terminator for username
+                writer.Write(clientSeed); // Client seed
+                writer.Write(clientProof); // Client proof
+                writer.Write(decompressedAddonInfoSize); // Decompressed addon info size
+                writer.Write(compressedAddonInfo);
+
+                writer.Flush();
+                byte[] packetData = memoryStream.ToArray();
+                _stream.Write(packetData, 0, packetData.Length);
+
+                _asyncListener = Task.Run(HandleNetworkMessagesAsync);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_AUTH_SESSION: {ex}");
+            }
+        }
+
+        public void SendCMSGCharEnum()
+        {
+            try
+            {
+                using var memoryStream = new MemoryStream();
+                using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
+                byte[] header = _vanillaEncryption.CreateClientHeader(4, (uint)Opcode.CMSG_CHAR_ENUM);
+                writer.Write(header); // Packet size: 4 (big-endian)
+
+                writer.Flush();
+                byte[] packetData = memoryStream.ToArray();
+
+                _stream.Write(packetData, 0, packetData.Length);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("An error occurred while sending CMSG_CHAR_ENUM: " + ex.Message);
+            }
+        }
+        public void SendCMSGPing(uint sequence)
+        {
+            try
+            {
+                using var memoryStream = new MemoryStream();
+                using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
+                byte[] header = _vanillaEncryption.CreateClientHeader(12, (uint)Opcode.CMSG_PING);
+                writer.Write(header); // Opcode: CMSG_PING
+                writer.Write((uint)0); // Ping
+                writer.Write((uint)0); // Latency
+
+                writer.Flush();
+                byte[] packetData = memoryStream.ToArray();
+                _stream.Write(packetData, 0, packetData.Length);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("[WorldClient] An error occurred while sending CMSG_PING: " + ex.Message);
+            }
+        }
+        public void SendCMSGPlayerLogin(ulong characterGuid)
+        {
+            try
+            {
+                using var memoryStream = new MemoryStream();
+                using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
+                byte[] header = _vanillaEncryption.CreateClientHeader(12, (uint)Opcode.CMSG_PLAYER_LOGIN);
+                writer.Write(header); // Opcode: CMSG_PLAYER_LOGIN
+                writer.Write(characterGuid); // Character GUID
+
+                writer.Flush();
+                byte[] packetData = memoryStream.ToArray();
+                _stream.Write(packetData, 0, packetData.Length);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_PLAYER_LOGIN: {ex}");
+            }
+        }
+        public void SendCMSGCreateCharacter(string name,
+                                            Race race,
+                                            Class clazz,
+                                            Gender gender,
+                                            byte skin,
+                                            byte face,
+                                            byte hairStyle,
+                                            byte hairColor,
+                                            byte facialHair)
+        {
+            try
+            {
+                using var memoryStream = new MemoryStream();
+                using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
+                byte[] header = _vanillaEncryption.CreateClientHeader((uint)(4 + name.Length + 10), (uint)Opcode.CMSG_CHAR_CREATE);
+                writer.Write(header); // Opcode: CMSG_CHAR_CREATE
+                writer.Write(Encoding.UTF8.GetBytes(name + "\0")); // Character name
+                writer.Write((byte)race); // Race
+                writer.Write((byte)clazz); // Class
+                writer.Write((byte)gender); // Gender
+                writer.Write((byte)1); // Skin
+                writer.Write((byte)1); // Face
+                writer.Write((byte)1); // Hair Style
+                writer.Write((byte)1); // Hair Color
+                writer.Write((byte)1); // Facial Hair
+                writer.Write((byte)1); // Outfit Id
+
+                writer.Flush();
+                byte[] packetData = memoryStream.ToArray();
+                _stream.Write(packetData, 0, packetData.Length);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_PLAYER_LOGIN: {ex}");
+            }
+        }
+        public void SendCMSGMessageChat(ChatMsg type, Language language, string destinationName, string message)
+        {
+            try
+            {
+                using var memoryStream = new MemoryStream();
+                using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
+                byte[] header = _vanillaEncryption.CreateClientHeader(12 + ((uint)message.Length + 1) + (uint)(type == ChatMsg.CHAT_MSG_WHISPER || type == ChatMsg.CHAT_MSG_CHANNEL ? destinationName.Length + 1 : 0), (uint)Opcode.CMSG_MESSAGECHAT);
+                writer.Write(header); // Opcode: CMSG_MESSAGECHAT
+                writer.Write((uint)type); // Chat message type
+                writer.Write((uint)language); // Language
+
+                if (type == ChatMsg.CHAT_MSG_WHISPER || type == ChatMsg.CHAT_MSG_CHANNEL)
+                {
+                    writer.Write(Encoding.UTF8.GetBytes(destinationName));
+                    writer.Write((byte)0); // Null terminator
+                }
+
+                writer.Write(Encoding.UTF8.GetBytes(message)); // Message
+                writer.Write((byte)0); // Null terminator
+
+                writer.Flush();
+                byte[] packetData = memoryStream.ToArray();
+                _stream.Write(packetData, 0, packetData.Length);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_MESSAGECHAT: {ex}");
+            }
+        }
+
+        public void SendCMSGTypeQuery(Opcode opcode, ulong guid)
+        {
+            try
+            {
+                using var memoryStream = new MemoryStream();
+                using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
+                byte[] header = _vanillaEncryption.CreateClientHeader(12, (uint)opcode);
+                writer.Write(header);
+                writer.Write(guid);
+
+                writer.Flush();
+                byte[] packetData = memoryStream.ToArray();
+                _stream.Write(packetData, 0, packetData.Length);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_MESSAGECHAT: {ex}");
+            }
+        }
+        public void SendMSGMoveWorldportAck()
+        {
+            try
+            {
+                using var memoryStream = new MemoryStream();
+                using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
+                byte[] header = _vanillaEncryption.CreateClientHeader(4, (uint)Opcode.MSG_MOVE_WORLDPORT_ACK);
+                writer.Write(header);
+
+                writer.Flush();
+                byte[] packetData = memoryStream.ToArray();
+                _stream.Write(packetData, 0, packetData.Length);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_MESSAGECHAT: {ex}");
+            }
+        }
+
+        public void SendCMSGSetActiveMover(ulong guid)
+        {
+            try
+            {
+                using var memoryStream = new MemoryStream();
+                using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
+                byte[] header = _vanillaEncryption.CreateClientHeader(12, (uint)Opcode.CMSG_SET_ACTIVE_MOVER);
+                writer.Write(header);
+                writer.Write(guid);
+
+                writer.Flush();
+                byte[] packetData = memoryStream.ToArray();
+                _stream.Write(packetData, 0, packetData.Length);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_MESSAGECHAT: {ex}");
+            }
+        }
+
+        public void SendMSGMove(Opcode opcode, byte[] movementInfo)
+        {
+            try
+            {
+                using var memoryStream = new MemoryStream();
+                using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
+                byte[] header = _vanillaEncryption.CreateClientHeader((uint)(4 + movementInfo.Length), (uint)opcode);
+                writer.Write(header);
+                writer.Write(movementInfo);
+
+                writer.Flush();
+                byte[] packetData = memoryStream.ToArray();
+                _stream.Write(packetData, 0, packetData.Length);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_MESSAGECHAT: {ex}");
+            }
+        }
+
+        public void SendMSGPacked(Opcode opcode, byte[] payload)
+        {
+            try
+            {
+                using var memoryStream = new MemoryStream();
+                using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
+                byte[] header = _vanillaEncryption.CreateClientHeader((uint)(4 + payload.Length), (uint)opcode);
+                writer.Write(header);
+                writer.Write(payload);
+
+                writer.Flush();
+                byte[] packetData = memoryStream.ToArray();
+                _stream.Write(packetData, 0, packetData.Length);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WorldClient] An error occurred while sending CMSG_MESSAGECHAT: {ex}");
+            }
+        }
+        private async Task HandleNetworkMessagesAsync()
+        {
+            _woWSharpEventEmitter.FireOnWorldSessionStart();
+            using var reader = new BinaryReader(_stream, Encoding.UTF8, true);
+            byte[] body = [];
+            while (true) // Loop to continuously read messages
+            {
+                try
+                {
+                    // Read the header first to determine the size and opcode
+                    byte[] header = PacketManager.Read(reader, 4); // Adjust size if header structure is different
+                    if (header.Length == 0)
+                    {
+
+                        _woWSharpEventEmitter.FireOnWorldSessionEnd();
+                        break; // Exit if we cannot read a full header
+                    }
+
+                    HeaderData headerData = _vanillaDecryption.ReadServerHeader(header);
+
+                    // Read the packet body
+                    body = PacketManager.Read(reader, (int)(headerData.Size - sizeof(ushort))); // Adjust based on actual header size
+
+                    // Dispatch the packet to the appropriate handler
+                    _opCodeDispatcher.Dispatch((Opcode)headerData.Opcode, body);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[WorldClient][HandleNetworkMessages] An error occurred while handling network messages: {ex} {BitConverter.ToString(body)}");
+                }
+            }
+            await Task.Delay(10);
+        }
+    }
+}

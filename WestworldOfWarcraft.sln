@@ -2,58 +2,60 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Loader", "Loader\Loader.vcxproj", "{C817858E-0656-4211-934B-C672998EDDB3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Loader", "Exports\Loader\Loader.vcxproj", "{C817858E-0656-4211-934B-C672998EDDB3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FastCall", "FastCall\FastCall.vcxproj", "{DB2443BF-7C7E-4E62-BF95-304280073190}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FastCall", "Exports\FastCall\FastCall.vcxproj", "{DB2443BF-7C7E-4E62-BF95-304280073190}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Navigation", "Navigation\Navigation.vcxproj", "{8E623BB1-1B7B-4F8E-A051-72F53A9AB620}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Navigation", "Exports\Navigation\Navigation.vcxproj", "{8E623BB1-1B7B-4F8E-A051-72F53A9AB620}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotCommLayer", "BotCommLayer\BotCommLayer.csproj", "{1E5EEA92-FCD2-4F7F-9CE8-ECE67214173B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotCommLayer", "Exports\BotCommLayer\BotCommLayer.csproj", "{1E5EEA92-FCD2-4F7F-9CE8-ECE67214173B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinProcessImports", "WinImports\WinProcessImports.csproj", "{5D05B147-35A8-4A10-906E-58C96E2504E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinProcessImports", "Exports\WinImports\WinProcessImports.csproj", "{5D05B147-35A8-4A10-906E-58C96E2504E4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ForegroundBotRunner", "ForegroundBotRunner\ForegroundBotRunner.csproj", "{AF4BA739-45FB-44CD-886C-B0125261FE5B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ForegroundBotRunner", "Services\ForegroundBotRunner\ForegroundBotRunner.csproj", "{AF4BA739-45FB-44CD-886C-B0125261FE5B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StateManagerUI", "StateManagerUI\StateManagerUI.csproj", "{6DE7B8BF-F51F-49AD-B80D-E28733B86AE2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StateManagerUI", "UI\StateManagerUI\StateManagerUI.csproj", "{6DE7B8BF-F51F-49AD-B80D-E28733B86AE2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWSharpClient", "WoWSharpClient\WoWSharpClient.csproj", "{0E823F6A-007F-4FAF-9819-B561347525EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWSharpClient", "Exports\WoWSharpClient\WoWSharpClient.csproj", "{0E823F6A-007F-4FAF-9819-B561347525EC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{A34E454D-EDFF-4AE3-806D-F17D3E19FF66}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Exports", "Exports", "{2B5ADD00-9FA5-4839-A06C-21FA6C02FE8E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotRunner", "BotRunner\BotRunner.csproj", "{C268D63C-9278-480E-B708-CA55FE09EEA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotRunner", "Exports\BotRunner\BotRunner.csproj", "{C268D63C-9278-480E-B708-CA55FE09EEA3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackgroundBotRunner", "BackgroundBotRunner\BackgroundBotRunner.csproj", "{8F71B962-6367-4050-8386-FACC8A7D8FB5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackgroundBotRunner", "Services\BackgroundBotRunner\BackgroundBotRunner.csproj", "{8F71B962-6367-4050-8386-FACC8A7D8FB5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PathfindingService", "PathfindingService\PathfindingService.csproj", "{BC4B7495-6596-487C-865D-D9AE40A22BC5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PathfindingService", "Services\PathfindingService\PathfindingService.csproj", "{BC4B7495-6596-487C-865D-D9AE40A22BC5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StateManager", "StateManager\StateManager.csproj", "{DCC89D39-3CF9-4E38-87D7-F473DA500AD0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StateManager", "Services\StateManager\StateManager.csproj", "{DCC89D39-3CF9-4E38-87D7-F473DA500AD0}"
 	ProjectSection(ProjectDependencies) = postProject
 		{905248D9-39DE-447E-962F-9FF023A2F8AC} = {905248D9-39DE-447E-962F-9FF023A2F8AC}
 		{A0659587-35F6-4F91-A65C-8DD264E4DCA1} = {A0659587-35F6-4F91-A65C-8DD264E4DCA1}
 		{AF4BA739-45FB-44CD-886C-B0125261FE5B} = {AF4BA739-45FB-44CD-886C-B0125261FE5B}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWSharpClient.Tests", "WoWSharpClient.Tests\WoWSharpClient.Tests.csproj", "{7A0B51C8-FD17-4627-B3BF-931904558D03}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWSharpClient.Tests", "Tests\WoWSharpClient.Tests\WoWSharpClient.Tests.csproj", "{7A0B51C8-FD17-4627-B3BF-931904558D03}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UI", "UI", "{C359E65D-9D40-44E4-A256-4C75A6438CCA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PathfindingService.Tests", "PathfindingService.Tests\PathfindingService.Tests.csproj", "{5C5793DF-5E7C-4872-BED4-D17CEDAE827A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PathfindingService.Tests", "Tests\PathfindingService.Tests\PathfindingService.Tests.csproj", "{5C5793DF-5E7C-4872-BED4-D17CEDAE827A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DecisionEngineService", "DecisionEngineService\DecisionEngineService.csproj", "{A0659587-35F6-4F91-A65C-8DD264E4DCA1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DecisionEngineService", "Services\DecisionEngineService\DecisionEngineService.csproj", "{A0659587-35F6-4F91-A65C-8DD264E4DCA1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PromptHandlingService", "PromptHandlingService\PromptHandlingService.csproj", "{905248D9-39DE-447E-962F-9FF023A2F8AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PromptHandlingService", "Services\PromptHandlingService\PromptHandlingService.csproj", "{905248D9-39DE-447E-962F-9FF023A2F8AC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotRunner.Tests", "BotRunner.Tests\BotRunner.Tests.csproj", "{FB12FBE4-CEAA-422F-AC23-A32D26B0ABF7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotRunner.Tests", "Tests\BotRunner.Tests\BotRunner.Tests.csproj", "{FB12FBE4-CEAA-422F-AC23-A32D26B0ABF7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PromptHandlingService.Tests", "PromptHandlingService.Tests\PromptHandlingService.Tests.csproj", "{58BB5A51-5928-4A83-9400-AC1C62EA446B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PromptHandlingService.Tests", "Tests\PromptHandlingService.Tests\PromptHandlingService.Tests.csproj", "{58BB5A51-5928-4A83-9400-AC1C62EA446B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WWoW.Systems.AppHost", "WWoW.Systems\WWoW.Systems.AppHost\WWoW.Systems.AppHost.csproj", "{90BF97BD-7BF3-47D3-A575-E9AD85FBE336}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WWoW.Systems.AppHost", "UI\WWoW.Systems\WWoW.Systems.AppHost\WWoW.Systems.AppHost.csproj", "{90BF97BD-7BF3-47D3-A575-E9AD85FBE336}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WWoW.Systems.ServiceDefaults", "WWoW.Systems\WWoW.Systems.ServiceDefaults\WWoW.Systems.ServiceDefaults.csproj", "{7731A959-10DE-4F06-CBE3-2A9C0CE8B9C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WWoW.Systems.ServiceDefaults", "UI\WWoW.Systems\WWoW.Systems.ServiceDefaults\WWoW.Systems.ServiceDefaults.csproj", "{7731A959-10DE-4F06-CBE3-2A9C0CE8B9C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameData.Core", "GameData.Core\GameData.Core.csproj", "{0CD771AA-583C-4037-93A4-1F5F472934A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameData.Core", "Exports\GameData.Core\GameData.Core.csproj", "{0CD771AA-583C-4037-93A4-1F5F472934A9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -420,8 +422,12 @@ Global
 		{8F71B962-6367-4050-8386-FACC8A7D8FB5} = {A34E454D-EDFF-4AE3-806D-F17D3E19FF66}
 		{BC4B7495-6596-487C-865D-D9AE40A22BC5} = {A34E454D-EDFF-4AE3-806D-F17D3E19FF66}
 		{DCC89D39-3CF9-4E38-87D7-F473DA500AD0} = {A34E454D-EDFF-4AE3-806D-F17D3E19FF66}
+		{7A0B51C8-FD17-4627-B3BF-931904558D03} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{5C5793DF-5E7C-4872-BED4-D17CEDAE827A} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{A0659587-35F6-4F91-A65C-8DD264E4DCA1} = {A34E454D-EDFF-4AE3-806D-F17D3E19FF66}
 		{905248D9-39DE-447E-962F-9FF023A2F8AC} = {A34E454D-EDFF-4AE3-806D-F17D3E19FF66}
+		{FB12FBE4-CEAA-422F-AC23-A32D26B0ABF7} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{58BB5A51-5928-4A83-9400-AC1C62EA446B} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{90BF97BD-7BF3-47D3-A575-E9AD85FBE336} = {C359E65D-9D40-44E4-A256-4C75A6438CCA}
 		{7731A959-10DE-4F06-CBE3-2A9C0CE8B9C3} = {C359E65D-9D40-44E4-A256-4C75A6438CCA}
 		{0CD771AA-583C-4037-93A4-1F5F472934A9} = {2B5ADD00-9FA5-4839-A06C-21FA6C02FE8E}
