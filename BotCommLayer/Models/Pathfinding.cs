@@ -24,22 +24,42 @@ namespace Pathfinding {
     static PathfindingReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "ChFwYXRoZmluZGluZy5wcm90bxILcGF0aGZpbmRpbmcaCmdhbWUucHJvdG8i",
-            "cwoSUGF0aGZpbmRpbmdSZXF1ZXN0Eg0KBW1hcElkGAEgASgNEh0KBXN0YXJ0",
-            "GAIgASgLMg4uZ2FtZS5Qb3NpdGlvbhIbCgNlbmQYAyABKAsyDi5nYW1lLlBv",
-            "c2l0aW9uEhIKCnNtb290aFBhdGgYBCABKAgiMwoTUGF0aGZpbmRpbmdSZXNw",
-            "b25zZRIcCgRwYXRoGAEgAygLMg4uZ2FtZS5Qb3NpdGlvbmIGcHJvdG8z"));
+            "ChFwYXRoZmluZGluZy5wcm90bxILcGF0aGZpbmRpbmcaCmdhbWUucHJvdG8a",
+            "Hmdvb2dsZS9wcm90b2J1Zi93cmFwcGVycy5wcm90byLoAQoSUGF0aGZpbmRp",
+            "bmdSZXF1ZXN0EjkKDHJlcXVlc3RfdHlwZRgBIAEoDjIjLnBhdGhmaW5kaW5n",
+            "LlBhdGhmaW5kaW5nUmVxdWVzdFR5cGUSKwoFbWFwSWQYAiABKAsyHC5nb29n",
+            "bGUucHJvdG9idWYuVUludDMyVmFsdWUSHQoFc3RhcnQYAyABKAsyDi5nYW1l",
+            "LlBvc2l0aW9uEhsKA2VuZBgEIAEoCzIOLmdhbWUuUG9zaXRpb24SLgoKc21v",
+            "b3RoUGF0aBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5Cb29sVmFsdWUinQEK",
+            "E1BhdGhmaW5kaW5nUmVzcG9uc2USOgoNcmVzcG9uc2VfdHlwZRgBIAEoDjIj",
+            "LnBhdGhmaW5kaW5nLlBhdGhmaW5kaW5nUmVxdWVzdFR5cGUSHAoEcGF0aBgC",
+            "IAMoCzIOLmdhbWUuUG9zaXRpb24SLAoHel9wb2ludBgDIAEoCzIbLmdvb2ds",
+            "ZS5wcm90b2J1Zi5GbG9hdFZhbHVlKj0KFlBhdGhmaW5kaW5nUmVxdWVzdFR5",
+            "cGUSCAoEUEFUSBAAEgwKCERJU1RBTkNFEAESCwoHWl9DSEVDSxACYgZwcm90",
+            "bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Game.GameReflection.Descriptor, },
-          new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PathfindingRequest), global::Pathfinding.PathfindingRequest.Parser, new[]{ "MapId", "Start", "End", "SmoothPath" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PathfindingResponse), global::Pathfinding.PathfindingResponse.Parser, new[]{ "Path" }, null, null, null, null)
+          new pbr::FileDescriptor[] { global::Game.GameReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.WrappersReflection.Descriptor, },
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Pathfinding.PathfindingRequestType), }, null, new pbr::GeneratedClrTypeInfo[] {
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PathfindingRequest), global::Pathfinding.PathfindingRequest.Parser, new[]{ "RequestType", "MapId", "Start", "End", "SmoothPath" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PathfindingResponse), global::Pathfinding.PathfindingResponse.Parser, new[]{ "ResponseType", "Path", "ZPoint" }, null, null, null, null)
           }));
     }
     #endregion
 
   }
+  #region Enums
+  public enum PathfindingRequestType {
+    [pbr::OriginalName("PATH")] Path = 0,
+    [pbr::OriginalName("DISTANCE")] Distance = 1,
+    [pbr::OriginalName("Z_CHECK")] ZCheck = 2,
+  }
+
+  #endregion
+
   #region Messages
+  /// <summary>
+  /// Top-level request with a oneof block
+  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class PathfindingRequest : pb::IMessage<PathfindingRequest>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -75,10 +95,11 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public PathfindingRequest(PathfindingRequest other) : this() {
-      mapId_ = other.mapId_;
+      requestType_ = other.requestType_;
+      MapId = other.MapId;
       start_ = other.start_ != null ? other.start_.Clone() : null;
       end_ = other.end_ != null ? other.end_.Clone() : null;
-      smoothPath_ = other.smoothPath_;
+      SmoothPath = other.SmoothPath;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -88,20 +109,37 @@ namespace Pathfinding {
       return new PathfindingRequest(this);
     }
 
-    /// <summary>Field number for the "mapId" field.</summary>
-    public const int MapIdFieldNumber = 1;
-    private uint mapId_;
+    /// <summary>Field number for the "request_type" field.</summary>
+    public const int RequestTypeFieldNumber = 1;
+    private global::Pathfinding.PathfindingRequestType requestType_ = global::Pathfinding.PathfindingRequestType.Path;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint MapId {
+    public global::Pathfinding.PathfindingRequestType RequestType {
+      get { return requestType_; }
+      set {
+        requestType_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "mapId" field.</summary>
+    public const int MapIdFieldNumber = 2;
+    private static readonly pb::FieldCodec<uint?> _single_mapId_codec = pb::FieldCodec.ForStructWrapper<uint>(18);
+    private uint? mapId_;
+    /// <summary>
+    /// Wrap primitives to preserve "unset" state
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint? MapId {
       get { return mapId_; }
       set {
         mapId_ = value;
       }
     }
 
+
     /// <summary>Field number for the "start" field.</summary>
-    public const int StartFieldNumber = 2;
+    public const int StartFieldNumber = 3;
     private global::Game.Position start_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -113,7 +151,7 @@ namespace Pathfinding {
     }
 
     /// <summary>Field number for the "end" field.</summary>
-    public const int EndFieldNumber = 3;
+    public const int EndFieldNumber = 4;
     private global::Game.Position end_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -125,16 +163,18 @@ namespace Pathfinding {
     }
 
     /// <summary>Field number for the "smoothPath" field.</summary>
-    public const int SmoothPathFieldNumber = 4;
-    private bool smoothPath_;
+    public const int SmoothPathFieldNumber = 5;
+    private static readonly pb::FieldCodec<bool?> _single_smoothPath_codec = pb::FieldCodec.ForStructWrapper<bool>(42);
+    private bool? smoothPath_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool SmoothPath {
+    public bool? SmoothPath {
       get { return smoothPath_; }
       set {
         smoothPath_ = value;
       }
     }
+
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -151,6 +191,7 @@ namespace Pathfinding {
       if (ReferenceEquals(other, this)) {
         return true;
       }
+      if (RequestType != other.RequestType) return false;
       if (MapId != other.MapId) return false;
       if (!object.Equals(Start, other.Start)) return false;
       if (!object.Equals(End, other.End)) return false;
@@ -162,10 +203,11 @@ namespace Pathfinding {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (MapId != 0) hash ^= MapId.GetHashCode();
+      if (RequestType != global::Pathfinding.PathfindingRequestType.Path) hash ^= RequestType.GetHashCode();
+      if (mapId_ != null) hash ^= MapId.GetHashCode();
       if (start_ != null) hash ^= Start.GetHashCode();
       if (end_ != null) hash ^= End.GetHashCode();
-      if (SmoothPath != false) hash ^= SmoothPath.GetHashCode();
+      if (smoothPath_ != null) hash ^= SmoothPath.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -184,21 +226,23 @@ namespace Pathfinding {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (MapId != 0) {
+      if (RequestType != global::Pathfinding.PathfindingRequestType.Path) {
         output.WriteRawTag(8);
-        output.WriteUInt32(MapId);
+        output.WriteEnum((int) RequestType);
+      }
+      if (mapId_ != null) {
+        _single_mapId_codec.WriteTagAndValue(output, MapId);
       }
       if (start_ != null) {
-        output.WriteRawTag(18);
+        output.WriteRawTag(26);
         output.WriteMessage(Start);
       }
       if (end_ != null) {
-        output.WriteRawTag(26);
+        output.WriteRawTag(34);
         output.WriteMessage(End);
       }
-      if (SmoothPath != false) {
-        output.WriteRawTag(32);
-        output.WriteBool(SmoothPath);
+      if (smoothPath_ != null) {
+        _single_smoothPath_codec.WriteTagAndValue(output, SmoothPath);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -210,21 +254,23 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (MapId != 0) {
+      if (RequestType != global::Pathfinding.PathfindingRequestType.Path) {
         output.WriteRawTag(8);
-        output.WriteUInt32(MapId);
+        output.WriteEnum((int) RequestType);
+      }
+      if (mapId_ != null) {
+        _single_mapId_codec.WriteTagAndValue(ref output, MapId);
       }
       if (start_ != null) {
-        output.WriteRawTag(18);
+        output.WriteRawTag(26);
         output.WriteMessage(Start);
       }
       if (end_ != null) {
-        output.WriteRawTag(26);
+        output.WriteRawTag(34);
         output.WriteMessage(End);
       }
-      if (SmoothPath != false) {
-        output.WriteRawTag(32);
-        output.WriteBool(SmoothPath);
+      if (smoothPath_ != null) {
+        _single_smoothPath_codec.WriteTagAndValue(ref output, SmoothPath);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -236,8 +282,11 @@ namespace Pathfinding {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (MapId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MapId);
+      if (RequestType != global::Pathfinding.PathfindingRequestType.Path) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) RequestType);
+      }
+      if (mapId_ != null) {
+        size += _single_mapId_codec.CalculateSizeWithTag(MapId);
       }
       if (start_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Start);
@@ -245,8 +294,8 @@ namespace Pathfinding {
       if (end_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(End);
       }
-      if (SmoothPath != false) {
-        size += 1 + 1;
+      if (smoothPath_ != null) {
+        size += _single_smoothPath_codec.CalculateSizeWithTag(SmoothPath);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -260,8 +309,13 @@ namespace Pathfinding {
       if (other == null) {
         return;
       }
-      if (other.MapId != 0) {
-        MapId = other.MapId;
+      if (other.RequestType != global::Pathfinding.PathfindingRequestType.Path) {
+        RequestType = other.RequestType;
+      }
+      if (other.mapId_ != null) {
+        if (mapId_ == null || other.MapId != 0) {
+          MapId = other.MapId;
+        }
       }
       if (other.start_ != null) {
         if (start_ == null) {
@@ -275,8 +329,10 @@ namespace Pathfinding {
         }
         End.MergeFrom(other.End);
       }
-      if (other.SmoothPath != false) {
-        SmoothPath = other.SmoothPath;
+      if (other.smoothPath_ != null) {
+        if (smoothPath_ == null || other.SmoothPath != false) {
+          SmoothPath = other.SmoothPath;
+        }
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -294,25 +350,35 @@ namespace Pathfinding {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            MapId = input.ReadUInt32();
+            RequestType = (global::Pathfinding.PathfindingRequestType) input.ReadEnum();
             break;
           }
           case 18: {
+            uint? value = _single_mapId_codec.Read(input);
+            if (mapId_ == null || value != 0) {
+              MapId = value;
+            }
+            break;
+          }
+          case 26: {
             if (start_ == null) {
               Start = new global::Game.Position();
             }
             input.ReadMessage(Start);
             break;
           }
-          case 26: {
+          case 34: {
             if (end_ == null) {
               End = new global::Game.Position();
             }
             input.ReadMessage(End);
             break;
           }
-          case 32: {
-            SmoothPath = input.ReadBool();
+          case 42: {
+            bool? value = _single_smoothPath_codec.Read(input);
+            if (smoothPath_ == null || value != false) {
+              SmoothPath = value;
+            }
             break;
           }
         }
@@ -331,25 +397,35 @@ namespace Pathfinding {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            MapId = input.ReadUInt32();
+            RequestType = (global::Pathfinding.PathfindingRequestType) input.ReadEnum();
             break;
           }
           case 18: {
+            uint? value = _single_mapId_codec.Read(ref input);
+            if (mapId_ == null || value != 0) {
+              MapId = value;
+            }
+            break;
+          }
+          case 26: {
             if (start_ == null) {
               Start = new global::Game.Position();
             }
             input.ReadMessage(Start);
             break;
           }
-          case 26: {
+          case 34: {
             if (end_ == null) {
               End = new global::Game.Position();
             }
             input.ReadMessage(End);
             break;
           }
-          case 32: {
-            SmoothPath = input.ReadBool();
+          case 42: {
+            bool? value = _single_smoothPath_codec.Read(ref input);
+            if (smoothPath_ == null || value != false) {
+              SmoothPath = value;
+            }
             break;
           }
         }
@@ -359,6 +435,9 @@ namespace Pathfinding {
 
   }
 
+  /// <summary>
+  /// Top-level response with corresponding union-type structure
+  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class PathfindingResponse : pb::IMessage<PathfindingResponse>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -394,7 +473,9 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public PathfindingResponse(PathfindingResponse other) : this() {
+      responseType_ = other.responseType_;
       path_ = other.path_.Clone();
+      ZPoint = other.ZPoint;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -404,16 +485,45 @@ namespace Pathfinding {
       return new PathfindingResponse(this);
     }
 
+    /// <summary>Field number for the "response_type" field.</summary>
+    public const int ResponseTypeFieldNumber = 1;
+    private global::Pathfinding.PathfindingRequestType responseType_ = global::Pathfinding.PathfindingRequestType.Path;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Pathfinding.PathfindingRequestType ResponseType {
+      get { return responseType_; }
+      set {
+        responseType_ = value;
+      }
+    }
+
     /// <summary>Field number for the "path" field.</summary>
-    public const int PathFieldNumber = 1;
+    public const int PathFieldNumber = 2;
     private static readonly pb::FieldCodec<global::Game.Position> _repeated_path_codec
-        = pb::FieldCodec.ForMessage(10, global::Game.Position.Parser);
+        = pb::FieldCodec.ForMessage(18, global::Game.Position.Parser);
     private readonly pbc::RepeatedField<global::Game.Position> path_ = new pbc::RepeatedField<global::Game.Position>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public pbc::RepeatedField<global::Game.Position> Path {
       get { return path_; }
     }
+
+    /// <summary>Field number for the "z_point" field.</summary>
+    public const int ZPointFieldNumber = 3;
+    private static readonly pb::FieldCodec<float?> _single_zPoint_codec = pb::FieldCodec.ForStructWrapper<float>(26);
+    private float? zPoint_;
+    /// <summary>
+    /// To distinguish 0.0 from unset
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float? ZPoint {
+      get { return zPoint_; }
+      set {
+        zPoint_ = value;
+      }
+    }
+
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -430,7 +540,9 @@ namespace Pathfinding {
       if (ReferenceEquals(other, this)) {
         return true;
       }
+      if (ResponseType != other.ResponseType) return false;
       if(!path_.Equals(other.path_)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseNullableSingleEqualityComparer.Equals(ZPoint, other.ZPoint)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -438,7 +550,9 @@ namespace Pathfinding {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
+      if (ResponseType != global::Pathfinding.PathfindingRequestType.Path) hash ^= ResponseType.GetHashCode();
       hash ^= path_.GetHashCode();
+      if (zPoint_ != null) hash ^= pbc::ProtobufEqualityComparers.BitwiseNullableSingleEqualityComparer.GetHashCode(ZPoint);
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -457,7 +571,14 @@ namespace Pathfinding {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
+      if (ResponseType != global::Pathfinding.PathfindingRequestType.Path) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) ResponseType);
+      }
       path_.WriteTo(output, _repeated_path_codec);
+      if (zPoint_ != null) {
+        _single_zPoint_codec.WriteTagAndValue(output, ZPoint);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -468,7 +589,14 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (ResponseType != global::Pathfinding.PathfindingRequestType.Path) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) ResponseType);
+      }
       path_.WriteTo(ref output, _repeated_path_codec);
+      if (zPoint_ != null) {
+        _single_zPoint_codec.WriteTagAndValue(ref output, ZPoint);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -479,7 +607,13 @@ namespace Pathfinding {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
+      if (ResponseType != global::Pathfinding.PathfindingRequestType.Path) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) ResponseType);
+      }
       size += path_.CalculateSize(_repeated_path_codec);
+      if (zPoint_ != null) {
+        size += _single_zPoint_codec.CalculateSizeWithTag(ZPoint);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -492,7 +626,15 @@ namespace Pathfinding {
       if (other == null) {
         return;
       }
+      if (other.ResponseType != global::Pathfinding.PathfindingRequestType.Path) {
+        ResponseType = other.ResponseType;
+      }
       path_.Add(other.path_);
+      if (other.zPoint_ != null) {
+        if (zPoint_ == null || other.ZPoint != 0F) {
+          ZPoint = other.ZPoint;
+        }
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -508,8 +650,19 @@ namespace Pathfinding {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case 8: {
+            ResponseType = (global::Pathfinding.PathfindingRequestType) input.ReadEnum();
+            break;
+          }
+          case 18: {
             path_.AddEntriesFrom(input, _repeated_path_codec);
+            break;
+          }
+          case 26: {
+            float? value = _single_zPoint_codec.Read(input);
+            if (zPoint_ == null || value != 0F) {
+              ZPoint = value;
+            }
             break;
           }
         }
@@ -527,8 +680,19 @@ namespace Pathfinding {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case 8: {
+            ResponseType = (global::Pathfinding.PathfindingRequestType) input.ReadEnum();
+            break;
+          }
+          case 18: {
             path_.AddEntriesFrom(ref input, _repeated_path_codec);
+            break;
+          }
+          case 26: {
+            float? value = _single_zPoint_codec.Read(ref input);
+            if (zPoint_ == null || value != 0F) {
+              ZPoint = value;
+            }
             break;
           }
         }

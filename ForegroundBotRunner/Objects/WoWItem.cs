@@ -29,22 +29,22 @@ namespace ForegroundBotRunner.Objects
 
         public void Use() => Functions.UseItem(Pointer);
 
-        public void Loot()
+        public static void Loot()
         {
 
         }
 
-        public ItemQuality Quality => ItemQuality.Common;
+        public static ItemQuality Quality => ItemQuality.Common;
 
         public uint Durability => (uint)MemoryManager.ReadInt(GetDescriptorPtr() + MemoryAddresses.WoWItem_DurabilityOffset);
 
         public uint DurabilityPercentage => (uint)((double)Durability / MaxDurability * 100);
 
-        public uint MaxDurability => 0;
+        public static uint MaxDurability => 0;
 
-        public uint RequiredLevel => 1;
+        public static uint RequiredLevel => 1;
 
-        public bool IsCoins => false;
+        public static bool IsCoins => false;
 
         public ItemDynFlags Flags { get; set; }
 

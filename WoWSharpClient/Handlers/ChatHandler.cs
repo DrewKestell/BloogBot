@@ -84,7 +84,7 @@ namespace WoWSharpClient.Handlers
             }
             catch (EndOfStreamException e)
             {
-                //Console.WriteLine($"Error reading chat message: {e.Message}");
+                Console.WriteLine($"Error reading chat message: {e.Message}");
             }
         }
     }

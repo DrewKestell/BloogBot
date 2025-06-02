@@ -1,4 +1,5 @@
-﻿using GameData.Core.Enums;
+﻿using BotRunner.Clients;
+using GameData.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Moq;
 using WoWSharpClient.Handlers;
@@ -10,12 +11,14 @@ namespace WoWSharpClient.Tests.Handlers
     {
         private readonly ObjectUpdateHandler _objectUpdateHandler;
         private readonly WoWSharpObjectManager _objectManager;
+        private readonly Mock<PathfindingClient> _pathfindingClientMock;
         private readonly Mock<Logger<WoWSharpObjectManager>> _logger = new();
 
         public SMSG_UPDATE_OBJECT_Tests()
         {
+            _pathfindingClientMock = new Mock<PathfindingClient>();
             // Initialize your dependencies using mocks or stubs
-            _objectManager = new("127.0.0.1", _logger.Object);
+            _objectManager = new("127.0.0.1", _pathfindingClientMock.Object, _logger.Object);
 
             // Initialize ObjectUpdateHandler with mocked dependencies
             _objectUpdateHandler = new ObjectUpdateHandler(_objectManager);

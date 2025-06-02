@@ -33,5 +33,31 @@ namespace WoWSharpClient.Models
         {
             throw new NotImplementedException();
         }
+
+        public override WoWObject Clone()
+        {
+            var clone = new WoWCorpse(this.HighGuid, this.ObjectType);
+            clone.CopyFrom(this);
+            return clone;
+        }
+
+        public override void CopyFrom(WoWObject sourceBase)
+        {
+            base.CopyFrom(sourceBase);
+
+            if (sourceBase is not WoWCorpse source)
+                return;
+
+            OwnerGuid = source.OwnerGuid;
+            GhostTime = source.GhostTime;
+            Type = source.Type;
+            Angle = source.Angle;
+            CorpseFlags = source.CorpseFlags;
+            Guild = source.Guild;
+
+            Array.Copy(source.Items, Items, Items.Length);
+            Array.Copy(source.Bytes1, Bytes1, Bytes1.Length);
+            Array.Copy(source.Bytes2, Bytes2, Bytes2.Length);
+        }
     }
 }

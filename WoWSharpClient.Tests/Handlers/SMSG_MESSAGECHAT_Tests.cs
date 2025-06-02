@@ -1,4 +1,5 @@
-﻿using GameData.Core.Enums;
+﻿using BotRunner.Clients;
+using GameData.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Moq;
 using WoWSharpClient.Handlers;
@@ -10,11 +11,13 @@ namespace WoWSharpClient.Tests.Handlers
     {
         private readonly ChatHandler _chatHandler;
         private readonly WoWSharpObjectManager _objectManager;
+        private readonly Mock<PathfindingClient> _pathfindingClientMock;
         private readonly Mock<Logger<WoWSharpObjectManager>> _logger = new();
 
         public SMSG_MESSAGECHAT_Tests()
         {
-            _objectManager = new("127.0.0.1", _logger.Object);
+            _pathfindingClientMock = new Mock<PathfindingClient>();
+            _objectManager = new("127.0.0.1", _pathfindingClientMock.Object, _logger.Object);
 
             _chatHandler = new ChatHandler(_objectManager);
         }

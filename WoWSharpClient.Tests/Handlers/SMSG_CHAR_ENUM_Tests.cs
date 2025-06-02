@@ -1,4 +1,5 @@
-﻿using GameData.Core.Enums;
+﻿using BotRunner.Clients;
+using GameData.Core.Enums;
 using GameData.Core.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -11,12 +12,14 @@ namespace WoWSharpClient.Tests.Handlers
     {
         private readonly CharacterSelectHandler _characterSelectHandler;
         private readonly WoWSharpObjectManager _objectManager;
+        private readonly Mock<PathfindingClient> _pathfindingClientMock;
         private readonly Mock<Logger<WoWSharpObjectManager>> _logger = new();
 
         public SMSG_CHAR_ENUM_Tests()
         {
+            _pathfindingClientMock = new Mock<PathfindingClient>();
             // Initialize your dependencies using mocks or stubs
-            _objectManager = new WoWSharpObjectManager("127.0.0.1", _logger.Object);
+            _objectManager = new WoWSharpObjectManager("127.0.0.1", _pathfindingClientMock.Object, _logger.Object);
 
             // Initialize ObjectUpdateHandler with mocked dependencies
             _characterSelectHandler = new CharacterSelectHandler(_objectManager);

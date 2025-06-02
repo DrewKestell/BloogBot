@@ -4,7 +4,7 @@ using GameData.Core.Models;
 
 namespace WoWSharpClient.Models
 {
-    public class WoWLocalPet(HighGuid highGuid, WoWObjectType objectType = WoWObjectType.Unit) : WoWUnit(highGuid, objectType), IWoWLocalPet
+    public class WoWLocalPet(HighGuid highGuid, WoWObjectType objectType = WoWObjectType.Unit) : WoWUnit(highGuid, objectType), IWoWLocalPet, ICloneable
     {
         public void Attack()
         {
@@ -29,6 +29,10 @@ namespace WoWSharpClient.Models
         public bool IsHappy()
         {
             throw new NotImplementedException();
+        }
+        public object Clone()
+        {
+            return MemberwiseClone();
         }
     }
 }

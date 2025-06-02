@@ -14,7 +14,12 @@ namespace WoWSharpClient.Client
 
         private bool _isLoggedIn;
         public bool IsLoggedIn => _isLoggedIn;
-
+        private uint _movementCounter = 0;
+        public uint MovementCounter => _movementCounter;
+        public void ResetMovementCounter()
+        {
+            _movementCounter = 0;
+        }
         public void Dispose()
         {
             _loginClient?.Dispose();
@@ -35,9 +40,7 @@ namespace WoWSharpClient.Client
             try
             {
                 if (!_loginClient.IsConnected)
-                {
                     ConnectToLoginServer();
-                }
 
                 _loginClient.Login(username, password);
             }
@@ -49,8 +52,6 @@ namespace WoWSharpClient.Client
             _isLoggedIn = true;
         }
 
-        private void Instance_OnPlayerInit(object? sender, EventArgs e) => StartServerPing();
-
         public List<Realm> GetRealmList() => _loginClient.GetRealmList();
         public void SelectRealm(Realm realm) => _worldClient.Connect(_loginClient.Username, _ipAddress, _loginClient.SessionKey, realm.AddressPort);
 
@@ -58,8 +59,16 @@ namespace WoWSharpClient.Client
         public void SendCharacterCreate(string name, Race race, Class clazz, Gender gender, byte skin, byte face, byte hairStyle, byte hairColor, byte facialHair)
             => _worldClient.SendCMSGCreateCharacter(name, race, clazz, gender, skin, face, hairStyle, hairColor, facialHair);
         public void EnterWorld(ulong guid) => _worldClient.SendCMSGPlayerLogin(guid);
-        private void StartServerPing() => _worldClient.StartServerPing();
         public void SendChatMessage(ChatMsg chatMsgType, Language orcish, string destination, string text) => _worldClient.SendCMSGMessageChat(chatMsgType, orcish, destination, text);
         public void SendNameQuery(ulong guid) => _worldClient.SendCMSGTypeQuery(Opcode.CMSG_NAME_QUERY, guid);
+        public void SendMoveWorldPortAcknowledge() => _worldClient.SendMSGMoveWorldportAck();
+        public void SendSetActiveMover(ulong guid) => _worldClient.SendCMSGSetActiveMover(guid);
+        internal void SendMovementOpcode(Opcode opcode, byte[] movementInfo)
+        {
+            _worldClient.SendMSGMove(opcode, movementInfo);
+            _movementCounter++;
+        }
+        internal void SendMSGPacked(Opcode opcode, byte[] payload) => _worldClient.SendMSGPacked(opcode, payload);
+        internal void SendPing() => _worldClient.SendCMSGPing(_movementCounter);
     }
 }

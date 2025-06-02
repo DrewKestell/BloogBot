@@ -142,7 +142,7 @@ namespace ForegroundBotRunner.Objects
 
         public virtual CreatureRank CreatureRank => (CreatureRank)Functions.GetCreatureRank(Pointer);
 
-        public ISpell GetSpellById(int spellId)
+        public static ISpell GetSpellById(int spellId)
         {
             var spellsBasePtr = MemoryManager.ReadIntPtr(0x00C0D788);
             var spellPtr = MemoryManager.ReadIntPtr(spellsBasePtr + spellId * 4);
@@ -195,7 +195,7 @@ namespace ForegroundBotRunner.Objects
             }
         }
 
-        public IEnumerable<ISpellEffect> GetDebuffs(LuaTarget target)
+        public static IEnumerable<ISpellEffect> GetDebuffs(LuaTarget target)
         {
             var debuffs = new List<SpellEffect>();
 
@@ -223,7 +223,7 @@ namespace ForegroundBotRunner.Objects
 
         public bool HasDebuff(string name) => Debuffs.Any(a => a.Name == name);
 
-        public bool IsFacing(IWoWUnit position)
+        public static bool IsFacing(IWoWUnit position)
         {
             return true;
         }
@@ -233,7 +233,7 @@ namespace ForegroundBotRunner.Objects
             return true;
         }
 
-        public bool InLosWith(IWoWUnit position)
+        public static bool InLosWith(IWoWUnit position)
         {
             return true;
         }
@@ -437,5 +437,7 @@ namespace ForegroundBotRunner.Objects
         public float SplineElevation => throw new NotImplementedException();
 
         public uint MovementFlags2 => throw new NotImplementedException();
+
+        public IWoWGameObject Transport { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
     }
 }

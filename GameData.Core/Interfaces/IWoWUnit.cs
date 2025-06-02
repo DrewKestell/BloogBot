@@ -93,7 +93,25 @@ namespace GameData.Core.Interfaces
         HighGuid SummonedBy { get; }
         HighGuid Persuaded { get; }
         HighGuid ChannelObject { get; }
-
+        ulong TransportGuid { get; }
+        float TransportOrientation { get; }
+        float SwimPitch { get; }
+        float JumpVerticalSpeed { get; }
+        float JumpSinAngle { get; }
+        float JumpCosAngle { get; }
+        float JumpHorizontalSpeed { get; }
+        float SplineElevation { get; }
+        uint TransportLastUpdated { get; }
+        SplineFlags SplineFlags { get; set; }
+        Position SplineFinalPoint { get; set; }
+        ulong SplineTargetGuid { get; set; }
+        float SplineFinalOrientation { get; set; }
+        int SplineTimePassed { get; set; }
+        int SplineDuration { get; set; }
+        uint SplineId { get; set; }
+        List<Position> SplineNodes { get; set; }
+        Position SplineFinalDestination { get; set; }
+        IWoWGameObject Transport { get; set; }
         bool IsCasting => UnitFlags.HasFlag(UnitFlags.UNIT_FLAG_IN_COMBAT);
         bool IsChanneling => UnitFlags.HasFlag(UnitFlags.UNIT_FLAG_IN_COMBAT);
         bool IsInCombat => UnitFlags.HasFlag(UnitFlags.UNIT_FLAG_IN_COMBAT);
@@ -107,7 +125,6 @@ namespace GameData.Core.Interfaces
         bool DismissBuff(string buffName);
         bool HasBuff(string buffName);
         bool HasDebuff(string debuffName);
-        float GetFacingForPosition(Position targetPos);
         IEnumerable<ISpellEffect> GetDebuffs();
         IEnumerable<ISpellEffect> GetBuffs();
         public string CurrentShapeshiftForm

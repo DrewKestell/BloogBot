@@ -9,7 +9,7 @@ namespace BotRunner.Constants
         public IObjectManager ObjectManager { get; } = objectManager;
         public IWoWEventHandler WoWEventHandler { get; } = woWEventHandler;
 
-        public async Task<List<(CharacterAction, List<object>)>> GetNextActionsWithParamsAsync()
+        public static async Task<List<(CharacterAction, List<object>)>> GetNextActionsWithParamsAsync()
         {
             // Example response from the decision engine
             // This would be generated dynamically based on the game's state

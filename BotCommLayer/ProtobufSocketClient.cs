@@ -1,5 +1,6 @@
 ﻿using Google.Protobuf;
 using Microsoft.Extensions.Logging;
+using System.Net;
 using System.Net.Sockets;
 
 namespace BotCommLayer
@@ -11,41 +12,60 @@ namespace BotCommLayer
         private readonly TcpClient _client;
         private readonly NetworkStream _stream;
         private readonly ILogger _logger;
+        private readonly object _lock = new();
 
         public ProtobufSocketClient(string ipAddress, int port, ILogger logger)
         {
-            _client = new TcpClient(ipAddress, port);
-            _stream = _client.GetStream();
             _logger = logger;
+            _client = new TcpClient();
+            _client.Connect(IPAddress.Parse(ipAddress), port);
+            _stream = _client.GetStream();
+            _stream.ReadTimeout = 5000;
+            _stream.WriteTimeout = 5000;
         }
 
-        protected TResponse SendMessage(TRequest request)
+        public TResponse SendMessage(TRequest request)
         {
-            byte[] messageBytes = request.ToByteArray();
-            byte[] length = BitConverter.GetBytes(messageBytes.Length);
+            lock (_lock)
+            {
+                try
+                {
+                    byte[] messageBytes = request.ToByteArray();
+                    byte[] length = BitConverter.GetBytes(messageBytes.Length);
 
-            // Send the length of the message
-            _stream.Write(length, 0, length.Length);
+                    _stream.Write(length);
+                    _stream.Write(messageBytes);
 
-            // Send the message itself
-            _stream.Write(messageBytes, 0, messageBytes.Length);
+                    byte[] lengthBuffer = new byte[4];
+                    ReadExact(_stream, lengthBuffer);
+                    int responseLength = BitConverter.ToInt32(lengthBuffer, 0);
 
-            // Receive the length of the response
-            byte[] lengthBuffer = new byte[4];
-            int bytesRead = _stream.Read(lengthBuffer, 0, lengthBuffer.Length);
-            if (bytesRead == 0) throw new Exception("Connection closed");
+                    byte[] buffer = new byte[responseLength];
+                    ReadExact(_stream, buffer);
 
-            int responseLength = BitConverter.ToInt32(lengthBuffer, 0);
+                    TResponse response = new();
+                    response.MergeFrom(buffer);
 
-            // Receive the response
-            byte[] buffer = new byte[responseLength];
-            bytesRead = _stream.Read(buffer, 0, buffer.Length);
-            if (bytesRead == 0) throw new Exception("Connection closed");
+                    return response;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Error sending message: {ex}");
+                    throw;
+                }
+            }
+        }
 
-            // Deserialize the response
-            TResponse response = new();
-            response.MergeFrom(buffer);
-            return response;
+        private static void ReadExact(NetworkStream stream, byte[] buffer)
+        {
+            int totalRead = 0;
+            while (totalRead < buffer.Length)
+            {
+                int bytesRead = stream.Read(buffer, totalRead, buffer.Length - totalRead);
+                if (bytesRead == 0)
+                    throw new IOException("Unexpected EOF while reading stream.");
+                totalRead += bytesRead;
+            }
         }
 
         public void Close()

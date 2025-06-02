@@ -25,6 +25,7 @@ namespace GameData.Core.Interfaces
         bool IsFacing(Position position);
         bool IsFacing(IWoWObject objc);
         bool IsBehind(IWoWObject target);
+
         string Name { get; }
     }
 }

@@ -27,7 +27,6 @@ namespace WoWSharpClient.Handlers
 
             for (int i = 0; i < objectCount; i++)
                 ParseNextUpdate(reader);
-            //Console.WriteLine($"[HandleUpdateObject] [{objectCount}] {reader.BaseStream.Position} {reader.BaseStream.Length}");
         }
 
         private void ParseNextUpdate(BinaryReader reader)
@@ -56,7 +55,7 @@ namespace WoWSharpClient.Handlers
             }
             catch (Exception ex)
             {
-                //Console.WriteLine($"[{updateType}] {ex}");
+                Console.WriteLine($"[{updateType}] {ex}");
             }
         }
 
@@ -65,43 +64,31 @@ namespace WoWSharpClient.Handlers
             var guid = ReaderUtils.ReadPackedGuid(reader);
             var objectType = (WoWObjectType)reader.ReadByte();
 
-            //Console.WriteLine($"[ReadCreateObjectBlock] Packed GUID: {guid}");
-            //Console.WriteLine($"[ReadCreateObjectBlock] Object Type: {objectType}");
-            WoWObject woWObject = CreateWoWObject(objectType, guid);
+            ObjectUpdate woWObjectUpdate = CreateWoWObject(objectType, guid);
 
-            ReadMovementUpdateBlock(reader, woWObject);
-            ReadValuesUpdateBlock(reader, woWObject);
+            ReadMovementUpdateBlock(reader, woWObjectUpdate.Object);
+            ReadValuesUpdateBlock(reader, woWObjectUpdate.Object);
 
-            if (woWObject.ObjectType != WoWObjectType.Player)
-                _eventEmitter.FireOnGameObjectCreated(new GameObjectCreatedArgs(guid, woWObject.ObjectType));
+            _objectManager.QueueUpdate(woWObjectUpdate);
         }
 
         private static void ReadMovementUpdateBlock(BinaryReader reader, WoWObject woWObject)
         {
             ObjectUpdateFlags updateFlags = (ObjectUpdateFlags)reader.ReadByte();
 
-            //Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags {updateFlags}");
             if (updateFlags.HasFlag(ObjectUpdateFlags.UPDATEFLAG_LIVING))
-            {
-                //Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags.UPDATEFLAG_LIVING");
-                MovementParser.ParseMovementBlock(reader, (WoWUnit)woWObject);
-            }
+                MovementPacketHandler.ParseMovementBlock(reader, (WoWUnit)woWObject);
             else if ((updateFlags & ObjectUpdateFlags.UPDATEFLAG_HAS_POSITION) != 0)
-            {
-                //Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags.UPDATEFLAG_HAS_POSITION");
                 ParseObjectPositionInfo(reader, woWObject);
-            }
 
             if (updateFlags.HasFlag(ObjectUpdateFlags.UPDATEFLAG_HIGHGUID))
             {
                 uint highGuid = reader.ReadUInt32();
-                //Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags.UPDATEFLAG_HIGHGUID {highGuid}");
             }
 
             if ((updateFlags & ObjectUpdateFlags.UPDATEFLAG_ALL) != 0)
             {
                 uint all1 = reader.ReadUInt32();
-                //Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags.UPDATEFLAG_ALL {all1}");
             }
 
             if (updateFlags.HasFlag(ObjectUpdateFlags.UPDATEFLAG_FULLGUID))
@@ -110,14 +97,10 @@ namespace WoWSharpClient.Handlers
                 byte[] targetGuidByteArray = BitConverter.GetBytes(victimGuid);
                 ((WoWUnit)woWObject).TargetHighGuid.HighGuidValue = [.. targetGuidByteArray.Take(4)];
                 ((WoWUnit)woWObject).TargetHighGuid.LowGuidValue = [.. targetGuidByteArray.Skip(4).Take(4)];
-                //Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags.UPDATEFLAG_FULLGUID {victimGuid}");
             }
 
             if (updateFlags.HasFlag(ObjectUpdateFlags.UPDATEFLAG_TRANSPORT))
-            {
                 woWObject.LastUpdated = reader.ReadUInt32();
-                //Console.WriteLine($"[ReadMovementUpdateBlock] ObjectUpdateFlags.UPDATEFLAG_TRANSPORT {woWObject.LastUpdated}");
-            }
         }
 
         private static void ParseObjectPositionInfo(BinaryReader reader, WoWObject obj)
@@ -128,24 +111,17 @@ namespace WoWSharpClient.Handlers
 
             obj.Position = new Position(posX, posY, posZ);
             obj.Facing = reader.ReadSingle();
-
-            //Console.WriteLine($"[ParseObjectPositionInfo] Position {obj.Position}");
-            //Console.WriteLine($"[ParseObjectPositionInfo] Facing {obj.Facing}");
         }
 
         private void ParseMovementUpdate(BinaryReader reader)
         {
             var guid = ReaderUtils.ReadPackedGuid(reader);
-            //Console.WriteLine($"[ParseMovementUpdate] ReadPackedGuid {guid}");
-            MovementParser.ParseMovementInfo(reader, (WoWUnit)_objectManager.Objects.First(x => x.Guid == guid));
+            MovementPacketHandler.ParseMovementInfo(reader, (WoWUnit)_objectManager.Objects.First(x => x.Guid == guid));
         }
         private void ParsePartialUpdate(BinaryReader reader)
         {
-
             // Now safely read the GUID
             ulong guid = ReaderUtils.ReadPackedGuid(reader);
-            //Console.WriteLine($"[ParsePartialUpdate] ReadPackedGuid: {guid:X}");
-
             ReadValuesUpdateBlock(reader, _objectManager.Objects.First(x => x.Guid == guid) as WoWObject);
         }
         private void ParseOutOfRangeObjects(BinaryReader reader)
@@ -154,8 +130,7 @@ namespace WoWSharpClient.Handlers
             for (int j = 0; j < count; j++)
             {
                 var guid = ReaderUtils.ReadPackedGuid(reader);
-                //Console.WriteLine($"[ParseMovementUpdate] ReadPackedGuid {guid}");
-                _objectManager.Objects.Remove(_objectManager.Objects.First(x => x.Guid == guid));
+                _objectManager.QueueUpdate(new() { Type = ObjectUpdateOperation.Remove, Object = (WoWObject)_objectManager.Objects.First(x => x.Guid == guid) });
             }
         }
 
@@ -167,8 +142,6 @@ namespace WoWSharpClient.Handlers
             // Parse the update mask
             byte[] updateMask = reader.ReadBytes(blockCount * 4);
 
-            //Console.WriteLine($"[ReadValuesUpdateBlock] blockCount {blockCount}");
-            //Console.WriteLine($"[ReadValuesUpdateBlock] updateMask {BitConverter.ToString(updateMask)}");
             BitArray updateMaskBits = new(updateMask);
 
             for (int i = 0; i < updateMaskBits.Length; i++)
@@ -221,35 +194,21 @@ namespace WoWSharpClient.Handlers
             if (field <= EObjectFields.OBJECT_FIELD_GUID + 0x01)
             {
                 if (field == EObjectFields.OBJECT_FIELD_GUID)
-                {
                     @object.HighGuid.LowGuidValue = reader.ReadBytes(4);
-                    //Console.WriteLine($"[ReadObjectField] LowGuidValue {BitConverter.ToString(@object.HighGuid.LowGuidValue)}");
-                }
                 else
-                {
                     @object.HighGuid.HighGuidValue = reader.ReadBytes(4);
-                    //Console.WriteLine($"[ReadObjectField] HighGuidValue {BitConverter.ToString(@object.HighGuid.HighGuidValue)}");
-                }
             }
             else if (field == EObjectFields.OBJECT_FIELD_TYPE)
             {
                 var objectType = (WoWObjectType)reader.ReadUInt32();
-                //Console.WriteLine($"[ReadObjectField] OBJECT_FIELD_TYPE {objectType}");
             }
             else if (field == EObjectFields.OBJECT_FIELD_ENTRY)
-            {
                 @object.Entry = reader.ReadUInt32();
-                //Console.WriteLine($"[ReadObjectField] OBJECT_FIELD_ENTRY {@object.Entry}");
-            }
             else if (field == EObjectFields.OBJECT_FIELD_SCALE_X)
-            {
                 @object.ScaleX = reader.ReadSingle();
-                //Console.WriteLine($"[ReadObjectField] OBJECT_FIELD_SCALE_X {@object.ScaleX}");
-            }
             else if (field == EObjectFields.OBJECT_FIELD_PADDING)
             {
                 uint padding = reader.ReadUInt32();
-                //Console.WriteLine($"[ReadObjectField] OBJECT_FIELD_PADDING {padding}");
             }
         }
         private static void ReadGameObjectField(BinaryReader reader, WoWGameObject @object, EGameObjectFields field)
@@ -257,66 +216,30 @@ namespace WoWSharpClient.Handlers
             if (field <= EGameObjectFields.OBJECT_FIELD_CREATED_BY + 0x01)
             {
                 if (field == EGameObjectFields.OBJECT_FIELD_CREATED_BY)
-                {
                     @object.CreatedBy.LowGuidValue = reader.ReadBytes(4);
-                    //Console.WriteLine($"[ReadGameObjectField] OBJECT_FIELD_CREATED_BY.LowGuidValue {BitConverter.ToString(@object.CreatedBy.LowGuidValue)}");
-                }
                 else
-                {
                     @object.CreatedBy.HighGuidValue = reader.ReadBytes(4);
-                    //Console.WriteLine($"[ReadGameObjectField] OBJECT_FIELD_CREATED_BY.HighGuidValue {BitConverter.ToString(@object.CreatedBy.HighGuidValue)}");
-                }
             }
             else if (field == EGameObjectFields.GAMEOBJECT_DISPLAYID)
-            {
                 @object.DisplayId = reader.ReadUInt32();
-                //Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_DISPLAYID {@object.DisplayId}");
-            }
             else if (field == EGameObjectFields.GAMEOBJECT_FLAGS)
-            {
                 @object.Flags = reader.ReadUInt32();
-                //Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_FLAGS {@object.Flags}");
-            }
             else if (field < EGameObjectFields.GAMEOBJECT_STATE)
-            {
                 @object.Rotation[field - EGameObjectFields.GAMEOBJECT_ROTATION] = reader.ReadSingle();
-                //Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_ROTATION {field - EGameObjectFields.GAMEOBJECT_ROTATION} {@object.Rotation[field - EGameObjectFields.GAMEOBJECT_ROTATION]}");
-            }
             else if (field == EGameObjectFields.GAMEOBJECT_STATE)
-            {
                 @object.GoState = (GOState)reader.ReadUInt32();
-                //Console.WriteLine($"[ReadGameObjectField] GoState {@object.GoState}");
-            }
             else if (field == EGameObjectFields.GAMEOBJECT_POS_X)
-            {
                 @object.Position.X = reader.ReadSingle();
-                //Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_POS_X {@object.Position.X}");
-            }
             else if (field == EGameObjectFields.GAMEOBJECT_POS_Y)
-            {
                 @object.Position.Y = reader.ReadSingle();
-                //Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_POS_Y {@object.Position.Y}");
-            }
             else if (field == EGameObjectFields.GAMEOBJECT_POS_Z)
-            {
                 @object.Position.Z = reader.ReadSingle();
-                //Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_POS_Z {@object.Position.Z}");
-            }
             else if (field == EGameObjectFields.GAMEOBJECT_FACING)
-            {
                 @object.Facing = reader.ReadSingle();
-                //Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_FACING {@object.Facing}");
-            }
             else if (field == EGameObjectFields.GAMEOBJECT_DYN_FLAGS)
-            {
                 @object.DynamicFlags = (DynamicFlags)reader.ReadUInt32();
-                //Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_DYN_FLAGS {@object.DynamicFlags}");
-            }
             else if (field == EGameObjectFields.GAMEOBJECT_FACTION)
-            {
                 @object.FactionTemplate = reader.ReadUInt32();
-                //Console.WriteLine($"[ReadGameObjectField] GAMEOBJECT_FACTION {@object.FactionTemplate}");
-            }
             else if (field == EGameObjectFields.GAMEOBJECT_TYPE_ID)
                 @object.TypeId = reader.ReadUInt32();
             else if (field == EGameObjectFields.GAMEOBJECT_LEVEL)
@@ -892,33 +815,29 @@ namespace WoWSharpClient.Handlers
             else if (field <= EContainerFields.CONTAINER_FIELD_SLOT_LAST)
                 @object.Slots[field - EContainerFields.CONTAINER_FIELD_SLOT_1] = reader.ReadUInt32();
         }
-        private WoWObject CreateWoWObject(WoWObjectType objectType, ulong guid)
+        private ObjectUpdate CreateWoWObject(WoWObjectType objectType, ulong guid)
         {
-            WoWObject wowObject;
+            ObjectUpdate wowObjectUpdate;
             if (_objectManager.Objects.Any(x => x.Guid == guid))
-            {
-                wowObject = (WoWObject)_objectManager.Objects.First(x => x.Guid == guid);
-                //Console.WriteLine($"[CreateWoWObject] Object {objectType}:{guid} already exists");
-            }
+                wowObjectUpdate = new(){ Type = ObjectUpdateOperation.Update, Object = (WoWObject)_objectManager.Objects.First(x => x.Guid == guid) };
             else
             {
                 byte[] guidBytes = BitConverter.GetBytes(guid);
-                wowObject = objectType switch
+                WoWObject wowObject = objectType switch
                 {
                     WoWObjectType.None => new WoWObject(new HighGuid([.. guidBytes.Take(4)], [.. guidBytes.Skip(4)])),
                     WoWObjectType.Item => new WoWItem(new HighGuid([.. guidBytes.Take(4)], [.. guidBytes.Skip(4)])),
                     WoWObjectType.Container => new WoWContainer(new HighGuid([.. guidBytes.Take(4)], [.. guidBytes.Skip(4)])),
                     WoWObjectType.Unit => new WoWUnit(new HighGuid([.. guidBytes.Take(4)], [.. guidBytes.Skip(4)])),
-                    WoWObjectType.Player => new WoWPlayer(new HighGuid([.. guidBytes.Take(4)], [.. guidBytes.Skip(4)])),
+                    WoWObjectType.Player => _objectManager.PlayerGuid.FullGuid == guid ? (WoWPlayer)_objectManager.Player : new WoWPlayer(new HighGuid([.. guidBytes.Take(4)], [.. guidBytes.Skip(4)])),
                     WoWObjectType.GameObj => new WoWGameObject(new HighGuid([.. guidBytes.Take(4)], [.. guidBytes.Skip(4)])),
                     WoWObjectType.DynamicObj => new WoWDynamicObject(new HighGuid([.. guidBytes.Take(4)], [.. guidBytes.Skip(4)])),
                     WoWObjectType.Corpse => new WoWCorpse(new HighGuid([.. guidBytes.Take(4)], [.. guidBytes.Skip(4)])),
                     _ => throw new NotImplementedException()
                 };
-                _objectManager.Objects.Add(wowObject);
-                //Console.WriteLine($"[CreateWoWObject] Object {objectType}:{guid} created new");
+                wowObjectUpdate = new() { Type = ObjectUpdateOperation.Add, Object = wowObject };
             }
-            return wowObject;
+            return wowObjectUpdate;
         }
     }
 }

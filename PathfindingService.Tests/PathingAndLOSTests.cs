@@ -6,6 +6,7 @@ namespace PathfindingService.Tests
 {
     public class PathingAndLOSTests
     {
+        private readonly Navigation _navigation = new();
         [Fact]
         public void CalculatePath_ShouldReturnValidPath()
         {
@@ -16,7 +17,7 @@ namespace PathfindingService.Tests
             bool pathSmoothing = false;
 
             // Act
-            var path = Navigation.CalculatePath(mapId, start, end, pathSmoothing);
+            var path = _navigation.CalculatePath(mapId, start, end, pathSmoothing);
 
             // Assert
             Assert.NotNull(path);
@@ -27,7 +28,6 @@ namespace PathfindingService.Tests
         public void HasMapLineOfSight_ShouldReturnTrue()
         {
             // Arrange
-            uint mapId = 1u;
             Vector3 start = new(100f, 200f, 300f);
             Vector3 end = new(150f, 250f, 300f);
 

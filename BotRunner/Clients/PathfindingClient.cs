@@ -5,55 +5,64 @@ using Pathfinding;
 
 namespace BotRunner.Clients
 {
-    public class PathfindingClient(string ipAddress, int port, ILogger logger) : ProtobufSocketClient<PathfindingRequest, PathfindingResponse>(ipAddress, port, logger)
+    public class PathfindingClient(string ipAddress, int port, ILogger logger)
+        : ProtobufSocketClient<PathfindingRequest, PathfindingResponse>(ipAddress, port, logger)
     {
-        public Position[] GetPath(uint mapId, Position startPosition, Position endPosition, bool smoothPath)
+        public Position[] GetPath(uint mapId, Position start, Position end, bool smoothPath)
         {
-            return [.. SendMessage(new PathfindingRequest()
+            var response = SendMessage(new PathfindingRequest
             {
+                RequestType = PathfindingRequestType.Path,
                 MapId = mapId,
-                Start = new Game.Position()
-                {
-                    X = startPosition.X,
-                    Y = startPosition.Y,
-                    Z = startPosition.Z
-                },
-                End = new Game.Position()
-                {
-                    X = endPosition.X,
-                    Y = endPosition.Y,
-                    Z = endPosition.Z
-                },
+                Start = start.ToProto(),
+                End = end.ToProto(),
                 SmoothPath = smoothPath
-            }).Path.Select(pos => new Position(pos.X, pos.Y, pos.Z))];
+            });
+
+            return response.Path
+                .Select(p => new Position(p.X, p.Y, p.Z))
+                .ToArray() ?? [];
         }
 
-        public float GetPathingDistance(uint mapId, Position startPosition, Position endPosition, bool smoothPath)
+        public float GetPathingDistance(uint mapId, Position start, Position end, bool smoothPath)
         {
-            float distance = 0f;
-            List<Position> positions = [.. SendMessage(new PathfindingRequest()
+            var response = SendMessage(new PathfindingRequest
             {
+                RequestType = PathfindingRequestType.Distance,
                 MapId = mapId,
-                Start = new Game.Position()
-                {
-                    X = startPosition.X,
-                    Y = startPosition.Y,
-                    Z = startPosition.Z
-                },
-                End = new Game.Position()
-                {
-                    X = endPosition.X,
-                    Y = endPosition.Y,
-                    Z = endPosition.Z
-                },
+                Start = start.ToProto(),
+                End = end.ToProto(),
                 SmoothPath = smoothPath
-            }).Path.Select(pos => new Position(pos.X, pos.Y, pos.Z))];
+            });
 
-            for (int i = 0; i < positions.Count - 1; i++)
-            {
-                distance += positions[i].DistanceTo(positions[i + 1]);
-            }
-            return distance;
+            // FloatValue was flattened to float?, so just use the float directly
+            return response.ZPoint.HasValue ? response.ZPoint.Value : 0f;
         }
+
+        public float GetGroundZ(uint mapId, Position position)
+        {
+            var response = SendMessage(new PathfindingRequest
+            {
+                RequestType = PathfindingRequestType.ZCheck,
+                MapId = mapId,
+                Start = position.ToProto(),
+                End = position.ToProto(),
+                SmoothPath = true
+            });
+
+            return response.ZPoint.Value;
+        }
+    }
+
+    public static class ProtoInteropExtensions
+    {
+        public static Game.Position ToProto(this XYZ xyz) =>
+            new() { X = xyz.X, Y = xyz.Y, Z = xyz.Z };
+
+        public static XYZ ToXYZ(this Position p) =>
+            new(p.X, p.Y, p.Z);
+
+        public static Game.Position ToProto(this Position p) =>
+            new() { X = p.X, Y = p.Y, Z = p.Z };
     }
 }

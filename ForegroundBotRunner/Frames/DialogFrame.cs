@@ -20,7 +20,7 @@ namespace ForegroundBotRunner.Frames
 
         public IList<DialogOption> DialogOptions { get; } = [];
 
-        public void CloseDialogFrame() => Functions.LuaCall("CloseGossip()");
+        public static void CloseDialogFrame() => Functions.LuaCall("CloseGossip()");
 
         public void SelectFirstGossipOfType(DialogType type)
         {

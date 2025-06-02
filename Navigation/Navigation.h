@@ -8,39 +8,35 @@
 class XYZ
 {
 public:
-	float X;
-	float Y;
-	float Z;
+    float X;
+    float Y;
+    float Z;
 
-	XYZ()
-	{
-		X = 0;
-		Y = 0; 
-		Z = 0;
-	}
+    XYZ() : X(0), Y(0), Z(0) {}
 
-	XYZ(double X, double Y, double Z)
-	{
-		this->X = (float)X;
-		this->Y = (float)Y;
-		this->Z = (float)Z;
-	}
+    XYZ(double X, double Y, double Z)
+    {
+        this->X = static_cast<float>(X);
+        this->Y = static_cast<float>(Y);
+        this->Z = static_cast<float>(Z);
+    }
 };
 
 class Navigation
 {
 public:
-	static Navigation* GetInstance();
-	void Initialize();
-	void Release();
-	XYZ* CalculatePath(unsigned int mapId, XYZ start, XYZ end, bool straightPath, int* length);
-	void FreePathArr(XYZ* length);
+    static Navigation* GetInstance();
+    void Initialize();
+    void Release(); 
+    bool RaycastToWmoMesh(unsigned int mapId, float startX, float startY, float startZ, float endX, float endY, float endZ, float* hitX, float* hitY, float* hitZ);
+    XYZ* CalculatePath(unsigned int mapId, XYZ start, XYZ end, bool straightPath, int* length);
+    void FreePathArr(XYZ* length);
     std::string GetMmapsPath();
 
 private:
-	void InitializeMapsForContinent(MMAP::MMapManager* manager, unsigned int mapId);
-	static Navigation* s_singletonInstance;
-	XYZ* currentPath;
+    void InitializeMapsForContinent(MMAP::MMapManager* manager, unsigned int mapId);
+    static Navigation* s_singletonInstance;
+    XYZ* currentPath;
 };
 
 #endif

@@ -6,7 +6,6 @@ namespace GameData.Core.Frames
     public interface ICharacterSelectScreen
     {
         bool IsOpen { get; }
-        bool HasEnteredWorld { get; }
         bool HasReceivedCharacterList { get; set; }
         void CreateCharacter(
             string name,
@@ -19,7 +18,6 @@ namespace GameData.Core.Frames
             byte hairColor,
             byte miscAttribute);
         void DeleteCharacter(ulong characterGuid);
-        void EnterWorld(ulong characterGuid);
         List<CharacterSelect> CharacterSelects { get; }
         void RefreshCharacterListFromServer();
     }

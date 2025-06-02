@@ -1,5 +1,5 @@
-﻿
-using GameData.Core.Enums;
+﻿using GameData.Core.Enums;
+using System.Text;
 
 namespace WoWSharpClient.Handlers
 {
@@ -7,6 +7,9 @@ namespace WoWSharpClient.Handlers
     {
         private readonly WoWSharpEventEmitter _woWSharpEventEmitter = objectManager.EventEmitter;
         private readonly WoWSharpObjectManager _objectManager = objectManager;
+
+        private readonly uint[] _accountDataTimestamps = new uint[8];
+
         public void HandleAccountData(Opcode opcode, byte[] data)
         {
             switch (opcode)
@@ -18,21 +21,64 @@ namespace WoWSharpClient.Handlers
                     HandleUpdateAccountData(data);
                     break;
                 default:
-                    //Console.WriteLine($"Unhandled AccountData opcode: {opcode}");
+                    Console.WriteLine($"Unhandled AccountData opcode: {opcode}");
                     break;
             }
         }
 
         private void HandleAccountDataTimes(byte[] data)
         {
-            // Parse and handle SMSG_ACCOUNT_DATA_TIMES packet data here
-            ////Console.WriteLine("Handling SMSG_ACCOUNT_DATA_TIMES");
+            if (data.Length < 36)
+            {
+                Console.WriteLine("Invalid SMSG_ACCOUNT_DATA_TIMES packet size.");
+                return;
+            }
+
+            uint serverTime = BitConverter.ToUInt32(data, 0);
+            for (int i = 0; i < 8; i++)
+            {
+                _accountDataTimestamps[i] = BitConverter.ToUInt32(data, 4 + i * 4);
+            }
+
+            for (int i = 0; i < 8; i++)
+            {
+                //Console.WriteLine($"[AccountDataTimes] Type {i}: Timestamp = {_accountDataTimestamps[i]}");
+            }
+
+            //_woWSharpEventEmitter.Emit("AccountDataTimesReceived", _accountDataTimestamps);
         }
 
-        private void HandleUpdateAccountData(byte[] data)
+        private static void HandleUpdateAccountData(byte[] data)
         {
-            // Parse and handle SMSG_UPDATE_ACCOUNT_DATA packet data here
-            ////Console.WriteLine("Handling SMSG_UPDATE_ACCOUNT_DATA");
+            if (data.Length < 16)
+            {
+                Console.WriteLine("Invalid SMSG_UPDATE_ACCOUNT_DATA packet size.");
+                return;
+            }
+
+            uint guid = BitConverter.ToUInt32(data, 0); // Often unused in 1.12.1
+            uint type = BitConverter.ToUInt32(data, 4);
+            uint timestamp = BitConverter.ToUInt32(data, 8);
+            uint size = BitConverter.ToUInt32(data, 12);
+
+            if (data.Length < 16 + size)
+            {
+                Console.WriteLine($"SMSG_UPDATE_ACCOUNT_DATA: Declared size {size} exceeds actual packet size.");
+                return;
+            }
+
+            byte[] payload = new byte[size];
+            Array.Copy(data, 16, payload, 0, size);
+
+            // For debugging: try to render as UTF-8 if possible
+            string debugData = Encoding.UTF8.GetString(payload).Trim('\0');
+
+            //_woWSharpEventEmitter.FireOnAccountDataUpdated("AccountDataUpdated", new
+            //{
+            //    Type = type,
+            //    Timestamp = timestamp,
+            //    Data = payload
+            //});
         }
     }
 }

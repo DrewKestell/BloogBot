@@ -2,7 +2,7 @@
 
 namespace GameData.Core.Models
 {
-    public class ItemCacheEntry
+    public class ItemCacheEntry(nint address)
     {
         internal ItemClass ItemClass;
 
@@ -15,12 +15,7 @@ namespace GameData.Core.Models
         internal int RequiredLevel;
 
         internal int MaxDurability;
-        private nint address;
-
-        public ItemCacheEntry(nint address)
-        {
-            this.address = address;
-        }
+        private readonly nint address = address;
 
         internal string Name { get; set; } = string.Empty;
     }

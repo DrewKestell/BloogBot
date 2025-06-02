@@ -1,11 +1,79 @@
 ﻿using GameData.Core.Enums;
 using GameData.Core.Models;
 using WoWSharpClient.Models;
+using WoWSharpClient.Utils;
 
 namespace WoWSharpClient.Parsers
 {
-    public static class MovementParser
+    public static class MovementPacketHandler
     {
+        public static byte[] BuildMoveTeleportAckPayload(ulong guid, uint movementCounter, uint timestamp)
+        {
+            using var ms = new MemoryStream();
+            using var writer = new BinaryWriter(ms);
+
+            writer.Write(guid);
+            writer.Write(movementCounter);
+            writer.Write(timestamp);
+
+            return ms.ToArray();
+        }
+        public static byte[] BuildMovementInfoBuffer(WoWLocalPlayer player, uint timestamp)
+        {
+            using var ms = new MemoryStream();
+            using var writer = new BinaryWriter(ms);
+
+            // Movement flags
+            writer.Write((uint)player.MovementFlags);
+
+            // Timestamp
+            writer.Write(timestamp);
+
+            // Position
+            writer.Write(player.Position.X);
+            writer.Write(player.Position.Y);
+            writer.Write(player.Position.Z);
+
+            // Orientation (facing)
+            writer.Write(player.Facing);
+
+            // If ON_TRANSPORT: write transport data
+            if (player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_ONTRANSPORT) && player.Transport != null)
+            {
+                writer.Write(player.Transport.Guid); // 64-bit GUID
+                writer.Write(player.Transport.Position.X);
+                writer.Write(player.Transport.Position.Y);
+                writer.Write(player.Transport.Position.Z);
+                writer.Write(player.Transport.Facing);
+                writer.Write(timestamp); // uint32
+            }
+
+            // If SWIMMING: write pitch
+            if (player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SWIMMING))
+            {
+                writer.Write(player.SwimPitch);
+            }
+
+            // Fall time (always written)
+            writer.Write(player.FallTime);
+
+            // If JUMPING: write jump velocity and angles
+            if (player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLING))
+            {
+                writer.Write(player.JumpVerticalSpeed);
+                writer.Write(player.JumpCosAngle);
+                writer.Write(player.JumpSinAngle);
+                writer.Write(player.JumpHorizontalSpeed);
+            }
+
+            // If SPLINE_ELEVATION: write elevation float
+            if (player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SPLINE_ELEVATION))
+            {
+                writer.Write(player.SplineElevation);
+            }
+
+            return ms.ToArray();
+        }
         public static void ParseMovementBlock(BinaryReader reader, WoWUnit currentUnit)
         {
             ReadMovementHeader(reader, currentUnit);
@@ -54,7 +122,6 @@ namespace WoWSharpClient.Parsers
         {
             unit.MovementFlags = (MovementFlags)reader.ReadUInt32();
             unit.LastUpdated = reader.ReadUInt32();
-            //Console.WriteLine($"[MovementHeader] Flags: {unit.MovementFlags}, LastUpdated: {unit.LastUpdated}");
         }
         private static void ReadPositionAndFacing(BinaryReader reader, WoWUnit unit)
         {
@@ -62,8 +129,6 @@ namespace WoWSharpClient.Parsers
             unit.Position.Y = reader.ReadSingle();
             unit.Position.Z = reader.ReadSingle();
             unit.Facing = reader.ReadSingle();
-
-            //Console.WriteLine($"[Position] X:{unit.Position.X}, Y:{unit.Position.Y}, Z:{unit.Position.Z}, Facing:{unit.Facing}");
         }
         private static void ReadTransportData(BinaryReader reader, WoWUnit unit)
         {
@@ -73,13 +138,10 @@ namespace WoWSharpClient.Parsers
             unit.TransportOffset.Z = reader.ReadSingle();
             unit.TransportOrientation = reader.ReadSingle();
             unit.TransportLastUpdated = reader.ReadUInt32();
-
-            //Console.WriteLine($"[Transport] Guid:{unit.TransportGuid}, Offset:{unit.TransportOffset}, Orientation:{unit.TransportOrientation}, Updated:{unit.TransportLastUpdated}");
         }
         private static void ReadSwimPitch(BinaryReader reader, WoWUnit unit)
         {
             unit.SwimPitch = reader.ReadSingle();
-            //Console.WriteLine($"[SwimPitch] {unit.SwimPitch}");
         }
         private static void ReadJumpData(BinaryReader reader, WoWUnit unit)
         {
@@ -87,8 +149,6 @@ namespace WoWSharpClient.Parsers
             unit.JumpSinAngle = reader.ReadSingle();
             unit.JumpCosAngle = reader.ReadSingle();
             unit.JumpHorizontalSpeed = reader.ReadSingle();
-
-            //Console.WriteLine($"[JumpData] VSpeed:{unit.JumpVerticalSpeed}, Sin:{unit.JumpSinAngle}, Cos:{unit.JumpCosAngle}, HSpeed:{unit.JumpHorizontalSpeed}");
         }
         private static void ReadSpeeds(BinaryReader reader, WoWUnit unit)
         {
@@ -98,14 +158,11 @@ namespace WoWSharpClient.Parsers
             unit.SwimSpeed = reader.ReadSingle();
             unit.SwimBackSpeed = reader.ReadSingle();
             unit.TurnRate = reader.ReadSingle();
-
-            //Console.WriteLine($"[Speeds] Walk:{unit.WalkSpeed}, Run:{unit.RunSpeed}, RunBack:{unit.RunBackSpeed}, Swim:{unit.SwimSpeed}, SwimBack:{unit.SwimBackSpeed}, Turn:{unit.TurnRate}");
         }
         private static void ReadSplineData(BinaryReader reader, WoWUnit unit)
         {
             SplineFlags flags = (SplineFlags)reader.ReadUInt32();
             unit.SplineFlags = flags;
-            //Console.WriteLine($"[Spline] Flags: {flags}");
 
             if (flags.HasFlag(SplineFlags.FinalPoint))
             {
@@ -113,31 +170,24 @@ namespace WoWSharpClient.Parsers
                 float y = reader.ReadSingle();
                 float z = reader.ReadSingle();
                 unit.SplineFinalPoint = new Position(x, y, z);
-                //Console.WriteLine($"[Spline] FinalPoint: X:{x}, Y:{y}, Z:{z}");
             }
             else if (flags.HasFlag(SplineFlags.FinalTarget))
             {
                 ulong targetGuid = reader.ReadUInt64();
                 unit.SplineTargetGuid = targetGuid;
-                //Console.WriteLine($"[Spline] FinalTarget: {targetGuid:X}");
             }
             else if (flags.HasFlag(SplineFlags.FinalOrientation))
             {
                 float angle = reader.ReadSingle();
                 unit.SplineFinalOrientation = angle;
-                //Console.WriteLine($"[Spline] FinalOrientation: {angle}");
             }
 
             unit.SplineTimePassed = reader.ReadInt32();
             unit.SplineDuration = reader.ReadInt32();
             unit.SplineId = reader.ReadUInt32();
 
-            //Console.WriteLine($"[Spline] TimePassed:{unit.SplineTimePassed}, Duration:{unit.SplineDuration}, Id:{unit.SplineId}");
-
             uint nodeCount = reader.ReadUInt32();
-            unit.SplineNodes = new List<Position>((int)nodeCount);
-
-            //Console.WriteLine($"[Spline] NodeCount: {nodeCount}");
+            unit.SplineNodes = [];
 
             for (int i = 0; i < nodeCount; i++)
             {
@@ -146,15 +196,26 @@ namespace WoWSharpClient.Parsers
                 float z = reader.ReadSingle();
                 var node = new Position(x, y, z);
                 unit.SplineNodes.Add(node);
-                //Console.WriteLine($"[Spline] Node[{i}]: X:{x}, Y:{y}, Z:{z}");
             }
 
             float finalX = reader.ReadSingle();
             float finalY = reader.ReadSingle();
             float finalZ = reader.ReadSingle();
             unit.SplineFinalDestination = new Position(finalX, finalY, finalZ);
+        }
 
-            //Console.WriteLine($"[Spline] FinalDestination: X:{finalX}, Y:{finalY}, Z:{finalZ}");
+        internal static byte[] BuildForceMoveAck(WoWLocalPlayer player, uint movementCounter, uint timestamp)
+        {
+            using var ms = new MemoryStream();
+            using var writer = new BinaryWriter(ms);
+
+            // Pack the GUID
+            ReaderUtils.WritePackedGuid(writer, player.Guid);
+            writer.Write(movementCounter);
+            // Timestamp
+            writer.Write(BuildMovementInfoBuffer(player, timestamp));
+
+            return ms.ToArray();
         }
     }
 }

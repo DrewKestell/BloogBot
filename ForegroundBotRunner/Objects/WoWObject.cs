@@ -213,7 +213,7 @@ namespace ForegroundBotRunner.Objects
             rightClickObjectFunction(Pointer, 0);
         }
 
-        protected nint GetDescriptorPtr() => MemoryManager.ReadIntPtr(nint.Add(Pointer, MemoryAddresses.WoWObject_DescriptorOffset));
+        public nint GetDescriptorPtr() => MemoryManager.ReadIntPtr(nint.Add(Pointer, MemoryAddresses.WoWObject_DescriptorOffset));
 
         public bool IsFacing(Position position)
         {

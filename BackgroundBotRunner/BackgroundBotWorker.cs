@@ -14,7 +14,7 @@ namespace BackgroundBotRunner
         private readonly PathfindingClient _pathfindingClient;
         private readonly CharacterStateUpdateClient _characterStateUpdateClient;
 
-        private BotRunnerService _botRunner;
+        private readonly BotRunnerService _botRunner;
 
         private CancellationToken _stoppingToken;
 
@@ -27,7 +27,7 @@ namespace BackgroundBotRunner
             _pathfindingClient = new PathfindingClient(configuration["PathfindingService:IpAddress"], int.Parse(configuration["PathfindingService:Port"]), loggerFactory.CreateLogger<PathfindingClient>());
             _characterStateUpdateClient = new CharacterStateUpdateClient(configuration["CharacterStateListener:IpAddress"], int.Parse(configuration["CharacterStateListener:Port"]), loggerFactory.CreateLogger<CharacterStateUpdateClient>());
 
-            _botRunner = new BotRunnerService(new WoWSharpObjectManager(configuration["RealmEndpoint:IpAddress"], loggerFactory.CreateLogger<WoWSharpObjectManager>()), _characterStateUpdateClient, _pathfindingClient);
+            _botRunner = new BotRunnerService(new WoWSharpObjectManager(configuration["RealmEndpoint:IpAddress"], _pathfindingClient, loggerFactory.CreateLogger<WoWSharpObjectManager>()), _characterStateUpdateClient, _pathfindingClient);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

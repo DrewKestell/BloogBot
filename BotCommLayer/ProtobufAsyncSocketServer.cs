@@ -12,7 +12,7 @@ namespace BotCommLayer
         private readonly TcpListener _server;
         private bool _isRunning;
         private readonly ILogger _logger;
-        private Dictionary<ulong, TcpClient> _clients;
+        private readonly Dictionary<ulong, TcpClient> _clients;
         protected Subject<AsyncRequest> _instanceObservable;
 
         public ProtobufAsyncSocketServer(string ipAddress, int port, ILogger logger)

@@ -4,6 +4,27 @@ namespace WoWSharpClient.Utils
 {
     public static class ReaderUtils
     {
+        public static void WritePackedGuid(BinaryWriter writer, ulong guid)
+        {
+            byte mask = 0;
+            List<byte> nonZeroBytes = [];
+
+            for (int i = 0; i < 8; i++)
+            {
+                byte part = (byte)((guid >> (i * 8)) & 0xFF);
+                if (part != 0)
+                {
+                    mask |= (byte)(1 << i);
+                    nonZeroBytes.Add(part);
+                }
+            }
+
+            writer.Write(mask);
+            foreach (byte b in nonZeroBytes)
+            {
+                writer.Write(b);
+            }
+        }
         public static ulong ReadPackedGuid(BinaryReader reader)
         {
             ulong guid = 0;

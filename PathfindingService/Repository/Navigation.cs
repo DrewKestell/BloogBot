@@ -7,95 +7,188 @@ namespace PathfindingService.Repository
     public unsafe class Navigation
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        delegate XYZ* CalculatePathDelegate(
-            uint mapId,
-            XYZ start,
-            XYZ end,
-            bool straightPath,
-            out int length);
+        private delegate XYZ* CalculatePathDelegate(uint mapId, XYZ start, XYZ end, bool straightPath, out int length);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        delegate void FreePathArr(XYZ* pathArr);
+        private delegate void FreePathArrDelegate(XYZ* pathArr);
 
-        static CalculatePathDelegate calculatePath;
-        static FreePathArr freePathArr;
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate bool VMAP_IsInLineOfSightDelegate(uint mapId, float x1, float y1, float z1, float x2, float y2, float z2);
 
-        static Navigation()
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate float VMAP_GetHeightDelegate(uint mapId, float x, float y, float z, float maxSearchDist);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate bool VMAP_GetObjectHitPosDelegate(uint mapId, float x1, float y1, float z1, float x2, float y2, float z2, out float hitX, out float hitY, out float hitZ, float modifyDist);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate bool VMAP_GetAreaInfoDelegate(uint mapId, float x, float y, float z, out uint flags, out int adtId, out int rootId, out int groupId);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate bool VMAP_GetLocationInfoDelegate(uint mapId, float x, float y, float z, out float floorZ);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate bool VMAP_GetLiquidLevelDelegate(uint mapId, float x, float y, float z, byte reqLiquidType, out float level, out float floor, out uint type);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate bool VMAP_DebugTest(uint mapId, float x, float y, float z);
+
+        readonly object _mMapLock = new();
+        readonly object _vMapLock = new();
+
+        readonly CalculatePathDelegate calculatePath;
+        readonly FreePathArrDelegate freePathArr;
+        readonly VMAP_IsInLineOfSightDelegate isInLineOfSight;
+        readonly VMAP_GetHeightDelegate getHeight;
+        readonly VMAP_GetObjectHitPosDelegate getObjectHitPos;
+        readonly VMAP_GetAreaInfoDelegate getAreaInfo;
+        readonly VMAP_GetLocationInfoDelegate getLocationInfo;
+        readonly VMAP_GetLiquidLevelDelegate getLiquidLevel;
+
+        readonly AdtGroundZLoader _adtGroundZLoader;
+
+        public Navigation()
         {
             var currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var mapsPath = $"{currentFolder}\\Navigation.dll";
+            var dllPath = Path.Combine(currentFolder!, "Navigation.dll");
 
-            var navProcPtr = WinProcessImports.WinProcessImports.LoadLibrary(mapsPath);
-            int v = Marshal.GetLastWin32Error();
+            var navProcPtr = WinProcessImports.LoadLibrary(dllPath);
+            if (navProcPtr == IntPtr.Zero)
+                throw new Exception("Failed to load Navigation.dll");
 
-            var calculatePathPtr = WinProcessImports.WinProcessImports.GetProcAddress(navProcPtr, "CalculatePath");
-            calculatePath = Marshal.GetDelegateForFunctionPointer<CalculatePathDelegate>(calculatePathPtr);
+            _adtGroundZLoader = new AdtGroundZLoader();
 
-            var freePathPtr = WinProcessImports.WinProcessImports.GetProcAddress(navProcPtr, "FreePathArr");
-            freePathArr = Marshal.GetDelegateForFunctionPointer<FreePathArr>(freePathPtr);
+            calculatePath = Marshal.GetDelegateForFunctionPointer<CalculatePathDelegate>(WinProcessImports.GetProcAddress(navProcPtr, "CalculatePath"));
+            freePathArr = Marshal.GetDelegateForFunctionPointer<FreePathArrDelegate>(WinProcessImports.GetProcAddress(navProcPtr, "FreePathArr"));
+            isInLineOfSight = Marshal.GetDelegateForFunctionPointer<VMAP_IsInLineOfSightDelegate>(WinProcessImports.GetProcAddress(navProcPtr, "VMAP_IsInLineOfSight"));
+            getHeight = Marshal.GetDelegateForFunctionPointer<VMAP_GetHeightDelegate>(WinProcessImports.GetProcAddress(navProcPtr, "VMAP_GetHeight"));
+            getObjectHitPos = Marshal.GetDelegateForFunctionPointer<VMAP_GetObjectHitPosDelegate>(WinProcessImports.GetProcAddress(navProcPtr, "VMAP_GetObjectHitPos"));
+            getAreaInfo = Marshal.GetDelegateForFunctionPointer<VMAP_GetAreaInfoDelegate>(WinProcessImports.GetProcAddress(navProcPtr, "VMAP_GetAreaInfo"));
+            getLocationInfo = Marshal.GetDelegateForFunctionPointer<VMAP_GetLocationInfoDelegate>(WinProcessImports.GetProcAddress(navProcPtr, "VMAP_GetLocationInfo"));
+            getLiquidLevel = Marshal.GetDelegateForFunctionPointer<VMAP_GetLiquidLevelDelegate>(WinProcessImports.GetProcAddress(navProcPtr, "VMAP_GetLiquidLevel"));
         }
 
-        static public float DistanceViaPath(uint mapId, Position start, Position end)
+        private bool IsValidZ(float z) => !float.IsNaN(z) && z > -200000.0f;
+
+        public float GetFloorZ(uint mapId, Position pos)
         {
-            var distance = 0f;
-            var path = CalculatePath(mapId, start, end, false);
-            for (var i = 0; i < path.Length - 1; i++)
-                distance += path[i].DistanceTo(path[i + 1]);
-            return distance;
+            var result = QueryZ(mapId, pos);
+            return result.FloorZ;
         }
 
-        static public Position[] CalculatePath(uint mapId, Position start, Position end, bool straightPath)
+        public ZQueryResult QueryZ(uint mapId, Position pos)
         {
-            var ret = calculatePath(mapId, start.ToXYZ(), end.ToXYZ(), straightPath, out int length);
-            var list = new Position[length];
-            for (var i = 0; i < length; i++)
-            {
-                list[i] = new Position(ret[i]);
-            }
-            freePathArr(ret);
-            return list;
-        }
+            var rayStart = new Position(pos.X, pos.Y, pos.Z + 50.0f);
+            var rayEnd = new Position(pos.X, pos.Y, pos.Z - 500.0f);
 
-        static public Position GetNextWaypoint(uint mapId, Position start, Position end, bool straightPath)
-        {
-            var path = CalculatePath(mapId, start, end, straightPath);
-            if (path.Length <= 1)
-            {
-                Console.WriteLine($"Problem building path for mapId \"{mapId}\". Make sure the \"mmaps\" directory contains the required mmap and tile-files. Returning destination as next waypoint...");
-                return end;
-            }
+            float raycastZ = float.NaN;
+            float locationZ = float.NaN;
+            float terrainZ = float.NaN;
+            float adtZ = float.NaN;
 
-            return path[1];
-        }
+            if (TryGetObjectHitPos(mapId, rayStart, rayEnd, out Position hit, 0.0f))
+                raycastZ = hit.Z;
 
-        // if p0 and p1 make a line, this method calculates whether point p2 is leftOf, on, or rightOf that line
-        static PointComparisonResult IsLeft(Position p0, Position p1, Position p2)
-        {
-            var result = (p1.X - p0.Y) * (p2.Y - p0.Y) - (p2.X - p0.X) * (p1.Y - p0.Y);
+            terrainZ = GetHeight(mapId, pos, 100.0f);
 
-            if (result < 0)
-                return PointComparisonResult.RightOfLine;
-            else if (result > 0)
-                return PointComparisonResult.LeftOfLine;
+            adtZ = _adtGroundZLoader.GetGroundZ((int)mapId, pos.X, pos.Y, pos.Z);
+
+            if (TryGetLocationInfo(mapId, pos, out float locZ))
+                locationZ = locZ;
+
+            float finalZ = float.NaN;
+            float maxWalkableDiff = 5.0f; // Tweakable threshold for walkable surface proximity
+
+            if (IsValidZ(locationZ) && Math.Abs(pos.Z - locationZ) < maxWalkableDiff)
+                finalZ = locationZ;
+            else if (IsValidZ(terrainZ) && Math.Abs(pos.Z - terrainZ) < maxWalkableDiff)
+                finalZ = terrainZ;
+            else if (IsValidZ(raycastZ) && raycastZ < pos.Z && Math.Abs(pos.Z - raycastZ) < 15.0f)
+                finalZ = raycastZ;
             else
-                return PointComparisonResult.OnLine;
-        }
+                finalZ = adtZ;
 
-        static public bool IsPositionInsidePolygon(Position point, Position[] polygon)
-        {
-            var cn = 0;
-
-            for (var i = 0; i < polygon.Length - 1; i++)
+            return new ZQueryResult
             {
-                if (((polygon[i].Y <= point.Y) && (polygon[i + 1].Y > point.Y)) || ((polygon[i].Y > point.Y) && (polygon[i + 1].Y <= point.Y)))
-                {
-                    var vt = (float)(point.Y - polygon[i].Y) / (polygon[i + 1].Y - polygon[i].Y);
-                    if (point.X < polygon[i].X + vt * (polygon[i + 1].X - polygon[i].X))
-                        ++cn;
-                }
-            }
-
-            return cn == 1;
+                FloorZ = finalZ + 0.5f,
+                RaycastZ = raycastZ,
+                TerrainZ = terrainZ,
+                AdtZ = adtZ,
+                LocationZ = locationZ
+            };
         }
+
+
+        public Position[] CalculatePath(uint mapId, Position start, Position end, bool straightPath)
+        {
+            lock (_mMapLock)
+            {
+                var ret = calculatePath(mapId, start.ToXYZ(), end.ToXYZ(), straightPath, out int length);
+                var list = new Position[length];
+                for (var i = 0; i < length; i++)
+                    list[i] = new Position(ret[i]);
+                freePathArr(ret);
+                return list;
+            }
+        }
+
+        public bool IsInLineOfSight(uint mapId, Position a, Position b)
+        {
+            lock (_vMapLock)
+            {
+                return isInLineOfSight(mapId, a.X, a.Y, a.Z, b.X, b.Y, b.Z);
+            }
+        }
+
+        public float GetHeight(uint mapId, Position pos, float maxDist)
+        {
+            lock (_vMapLock)
+            {
+                return getHeight(mapId, pos.X, pos.Y, pos.Z, maxDist);
+            }
+        }
+
+        public bool TryGetObjectHitPos(uint mapId, Position a, Position b, out Position hit, float modifyDist)
+        {
+            lock (_vMapLock)
+            {
+                bool result = getObjectHitPos(mapId, a.X, a.Y, a.Z, b.X, b.Y, b.Z, out float x, out float y, out float z, modifyDist);
+                hit = new Position(x, y, z);
+                return result;
+            }
+        }
+
+        public bool TryGetLocationInfo(uint mapId, Position pos, out float z)
+        {
+            lock (_vMapLock)
+            {
+                return getLocationInfo(mapId, pos.X, pos.Y, pos.Z, out z);
+            }
+        }
+
+        public bool TryGetAreaInfo(uint mapId, Position pos, out uint flags, out int adtId, out int rootId, out int groupId)
+        {
+            lock (_vMapLock)
+            {
+                return getAreaInfo(mapId, pos.X, pos.Y, pos.Z, out flags, out adtId, out rootId, out groupId);
+            }
+        }
+
+        public bool TryGetLiquidLevel(uint mapId, Position pos, byte reqLiquid, out float level, out float floor, out uint type)
+        {
+            lock (_vMapLock)
+            {
+                return getLiquidLevel(mapId, pos.X, pos.Y, pos.Z, reqLiquid, out level, out floor, out type);
+            }
+        }
+    }
+
+    public struct ZQueryResult
+    {
+        public float FloorZ;
+        public float RaycastZ;
+        public float TerrainZ;
+        public float AdtZ;
+        public float LocationZ;
     }
 }

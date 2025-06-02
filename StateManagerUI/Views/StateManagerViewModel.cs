@@ -12,7 +12,7 @@ namespace StateManagerUI.Views
         private Timer? _statusPollTimer;
         private readonly TimeSpan _pollInterval = TimeSpan.FromSeconds(10);
 
-        private Dictionary<CharacterDefinition, CharacterDefinition> _characterStates = [];
+        private readonly Dictionary<CharacterDefinition, CharacterDefinition> _characterStates = [];
 
         public ICommand LocalStateManagerLoadCommand { get; } = new CommandHandler(
             () =>
@@ -72,7 +72,7 @@ namespace StateManagerUI.Views
             }
         }
 
-        private async Task<bool> CheckPortStatus(int port, int timeoutMs = 1000)
+        private static async Task<bool> CheckPortStatus(int port, int timeoutMs = 1000)
         {
             try
             {

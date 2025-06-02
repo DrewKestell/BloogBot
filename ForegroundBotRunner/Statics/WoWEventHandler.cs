@@ -719,22 +719,22 @@ namespace ForegroundBotRunner.Statics
             OnTrainerShow?.Invoke(this, new EventArgs());
         }
 
-        private void LOOT_HANDLE(LootState parState)
+        private static void LOOT_HANDLE(LootState parState)
         {
 
         }
 
-        private void TAXIMAP_OPENED()
+        private static void TAXIMAP_OPENED()
         {
 
         }
 
-        private void GOSSIP_SHOW()
+        private static void GOSSIP_SHOW()
         {
 
         }
 
-        private void MERCHANT_HANDLE(MerchantState parState)
+        private static void MERCHANT_HANDLE(MerchantState parState)
         {
 
         }

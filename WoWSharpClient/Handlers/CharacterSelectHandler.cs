@@ -89,14 +89,14 @@ namespace WoWSharpClient.Handlers
             _woWSharpEventEmitter.FireOnCharacterDeleteResponse(new CharDeleteResponse(result));
         }
 
-        public void HandleAddonInfo(Opcode opcode, byte[] data)
+        public static void HandleAddonInfo(Opcode opcode, byte[] data)
         {
             int index = 0;
             while (index < data.Length)
             {
                 byte addonType = data[index++];
                 // Handle addon information here if necessary
-                ////Console.WriteLine($"Addon Info: {addonType:X2}");
+                //Console.WriteLine($"Addon Info: {addonType:X2}");
             }
         }
 
@@ -110,7 +110,7 @@ namespace WoWSharpClient.Handlers
             var gender = (Gender)reader.ReadUInt32();
             var classId = (Class)reader.ReadUInt32();
 
-            var gameObject = (WoWPlayer)_objectManager.GameObjects.FirstOrDefault(x => x.Guid == guid);
+            var gameObject = (WoWPlayer)((IObjectManager)_objectManager).GameObjects.FirstOrDefault(x => x.Guid == guid);
 
             if (gameObject != null)
             {

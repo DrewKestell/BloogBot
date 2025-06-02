@@ -5,26 +5,79 @@ using PathfindingService.Repository;
 
 namespace PathfindingService
 {
-    public class PathfindingSocketServer(string ipAddress, int port, ILogger logger) : ProtobufSocketServer<PathfindingRequest, PathfindingResponse>(ipAddress, port, logger)
+    public class PathfindingSocketServer(string ipAddress, int port, ILogger logger)
+        : ProtobufSocketServer<PathfindingRequest, PathfindingResponse>(ipAddress, port, logger)
     {
+        private readonly Navigation _navigation = new();
         protected override PathfindingResponse HandleRequest(PathfindingRequest payload)
         {
-            Position startPosition = new(payload.Start.X, payload.Start.Y, payload.Start.Z);
-            Position endPosition = new(payload.End.X, payload.End.Y, payload.End.Z);
-            Position[] path = Navigation.CalculatePath(payload.MapId, startPosition, endPosition, payload.SmoothPath);
+            PathfindingResponse response = new() { ResponseType = payload.RequestType };
 
-            IEnumerable<Game.Position> convertedPath = path.Select(x =>
-                new Game.Position()
+            if (payload.MapId == null)
+            {
+                logger.LogWarning("Missing MapId in request.");
+                return response;
+            }
+
+            if (payload.Start == null || payload.End == null)
+            {
+                logger.LogWarning("Missing start or end position.");
+                return response;
+            }
+
+            bool useSmoothing = payload.SmoothPath ?? false;
+
+            try
+            {
+                switch (payload.RequestType)
                 {
-                    X = x.X,
-                    Y = x.Y,
-                    Z = x.Z
-                }
-             );
+                    case PathfindingRequestType.Path:
+                        {
+                            var start = new Position(payload.Start.ToXYZ());
+                            var end = new Position(payload.End.ToXYZ());
+                            var path = _navigation.CalculatePath(payload.MapId.Value, start, end, useSmoothing);
 
-            PathfindingResponse response = new();
-            response.Path.AddRange(convertedPath);
+                            response.Path.AddRange(path.Select(p => p.ToXYZ().ToProto()));
+                            break;
+                        }
+
+                    case PathfindingRequestType.Distance:
+                        {
+                            var start = new Position(payload.Start.ToXYZ());
+                            var end = new Position(payload.End.ToXYZ());
+                            var path = _navigation.CalculatePath(payload.MapId.Value, start, end, useSmoothing);
+
+                            float totalDistance = 0f;
+                            for (int i = 0; i < path.Length - 1; i++)
+                                totalDistance += path[i].DistanceTo(path[i + 1]);
+
+                            response.ZPoint = totalDistance;
+                            break;
+                        }
+
+                    case PathfindingRequestType.ZCheck:
+                        {
+                            var sample = new Position(payload.Start.ToXYZ());
+                            response.ZPoint = _navigation.GetFloorZ(payload.MapId.Value, sample);
+                            break;
+                        }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"[PathfindingSocketServer] Error during request handling: {ex.Message}\n{ex.StackTrace}");
+            }
+
             return response;
         }
+    }
+
+    public static class ProtoInteropExtensions
+    {
+        public static Game.Position ToProto(this XYZ xyz) =>
+            new() { X = xyz.X, Y = xyz.Y, Z = xyz.Z };
+
+        public static XYZ ToXYZ(this Game.Position p) =>
+            new(p.X, p.Y, p.Z);
     }
 }

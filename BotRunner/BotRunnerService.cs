@@ -56,9 +56,29 @@ namespace BotRunner
                                 {
                                     if (_objectManager.CharacterSelectScreen.CharacterSelects.Count > 0)
                                     {
-                                        if (_objectManager.CharacterSelectScreen.HasEnteredWorld)
+                                        if (_objectManager.HasEnteredWorld)
                                         {
+                                            if (_objectManager.Players.Any(x => x.Name == "Dallawha"))
+                                            {
+                                                IWoWUnit woWUnit = _objectManager.Units.First(x => x.Name == "Dallawha");
 
+                                                if (_pathfindingClient.GetPathingDistance(_objectManager.MapId, _objectManager.Player.Position, woWUnit.Position, true) > 10)
+                                                {
+                                                    Position[] positions = _pathfindingClient.GetPath(_objectManager.MapId, _objectManager.Player.Position, woWUnit.Position, true);
+
+                                                    if (positions.Length > 0)
+                                                        _objectManager.MoveToward(positions[1]);
+                                                }
+                                                else
+                                                {
+                                                    _objectManager.Face(new Position(woWUnit.Position.ToXYZ()));
+                                                    _objectManager.StopAllMovement();
+                                                }
+                                            }
+                                            else
+                                            {
+                                                _behaviorTree = BuildWaitSequence(0);
+                                            }
                                         }
                                         else
                                         {
@@ -314,7 +334,7 @@ namespace BotRunner
 
             return builder.Build();
         }
-        private IBehaviourTreeNode BuildWaitSequence(float duration) => new BehaviourTreeBuilder()
+        private static IBehaviourTreeNode BuildWaitSequence(float duration) => new BehaviourTreeBuilder()
                 .Sequence("Wait Sequence")
                     .Do("Wait", time => BehaviourTreeStatus.Success)
                 .End()
@@ -337,10 +357,10 @@ namespace BotRunner
                         if (_objectManager.Player.Position.DistanceTo(new Position(x, y, z)) < 1)
                             return BehaviourTreeStatus.Success;
                         else
-                            _objectManager.Player.MoveToward(new Position(x, y, z), f);
+                            _objectManager.MoveToward(new Position(x, y, z), f);
                     }
                     else
-                        _objectManager.Player.SetFacing(f);
+                        _objectManager.SetFacing(f);
 
                     return BehaviourTreeStatus.Running;
                 })
@@ -380,7 +400,7 @@ namespace BotRunner
                 {
                     if (_objectManager.Player.TargetGuid == 0)
                     {
-                        _objectManager.Player.SetTarget(guid);
+                        _objectManager.SetTarget(guid);
                     }
                     return BehaviourTreeStatus.Success;
                 })
@@ -573,7 +593,7 @@ namespace BotRunner
                 // Disable all auto-attacks
                 .Do("Stop All Auto-Attacks", time =>
                 {
-                    _objectManager.Player.StopAttack();
+                    _objectManager.StopAttack();
                     return BehaviourTreeStatus.Success;
                 })
             .End()
@@ -590,12 +610,12 @@ namespace BotRunner
                 .Splice(CheckForTarget(targetGuid))
 
                 // Ensure the bot has enough resources to cast the spell
-                .Condition("Can Cast Spell", time => _objectManager.Player.CanCastSpell(spellId, targetGuid))
+                .Condition("Can Cast Spell", time => _objectManager.CanCastSpell(spellId, targetGuid))
 
                 // Cast the spell
                 .Do("Cast Spell", time =>
                 {
-                    _objectManager.Player.CastSpell(spellId);
+                    _objectManager.CastSpell(spellId);
                     return BehaviourTreeStatus.Success;
                 })
             .End()
@@ -612,7 +632,7 @@ namespace BotRunner
                 // Stop the current spell cast
                 .Do("Stop Spell Cast", time =>
                 {
-                    _objectManager.Player.StopCasting();
+                    _objectManager.StopCasting();
                     return BehaviourTreeStatus.Success;
                 })
             .End()
@@ -629,7 +649,7 @@ namespace BotRunner
                 // Perform the resurrection action
                 .Do("Resurrect", time =>
                 {
-                    _objectManager.Player.AcceptResurrect();
+                    _objectManager.AcceptResurrect();
                     return BehaviourTreeStatus.Success;
                 })
             .End()
@@ -687,7 +707,7 @@ namespace BotRunner
                 .Condition("Trade Window Valid", time => _objectManager.TradeFrame.IsOpen)
 
                 // Ensure the bot has the item and quantity to offer
-                .Condition("Has Item to Offer", time => _objectManager.Player.GetContainedItem(bagId, slotId).Quantity >= quantity)
+                .Condition("Has Item to Offer", time => _objectManager.GetContainedItem(bagId, slotId).Quantity >= quantity)
 
                 // Offer the item in the trade window
                 .Do("Offer Item", time =>
@@ -1028,12 +1048,12 @@ namespace BotRunner
         private IBehaviourTreeNode BuildUseItemSequence(int fromBag, int fromSlot, ulong targetGuid) => new BehaviourTreeBuilder()
             .Sequence("Use Item Sequence")
                 // Ensure the bot has the item available to use
-                .Condition("Has Item", time => _objectManager.Player.GetContainedItem(fromBag, fromSlot) != null)
+                .Condition("Has Item", time => _objectManager.GetContainedItem(fromBag, fromSlot) != null)
 
                 // Use the item on the target (or self if target is null)
                 .Do("Use Item", time =>
                 {
-                    _objectManager.Player.UseItem(fromBag, fromSlot, targetGuid);
+                    _objectManager.UseItem(fromBag, fromSlot, targetGuid);
                     return BehaviourTreeStatus.Success;
                 })
             .End()
@@ -1049,13 +1069,13 @@ namespace BotRunner
         private IBehaviourTreeNode BuildMoveItemSequence(int fromBag, int fromSlot, int quantity, int toBag, int toSlot) => new BehaviourTreeBuilder()
             .Sequence("Move Item Sequence")
                 // Ensure the bot has the item in the source slot
-                .Condition("Has Item to Move", time => _objectManager.Player.GetContainedItem(fromBag, fromSlot).Quantity >= quantity)
+                .Condition("Has Item to Move", time => _objectManager.GetContainedItem(fromBag, fromSlot).Quantity >= quantity)
 
                 // Move the item to the destination slot
                 .Do("Move Item", time =>
                 {
-                    _objectManager.Player.PickupContainedItem(fromBag, fromSlot, quantity);
-                    _objectManager.Player.PlaceItemInContainer(toBag, toSlot);
+                    _objectManager.PickupContainedItem(fromBag, fromSlot, quantity);
+                    _objectManager.PlaceItemInContainer(toBag, toSlot);
                     return BehaviourTreeStatus.Success;
                 })
             .End()
@@ -1070,12 +1090,12 @@ namespace BotRunner
         private IBehaviourTreeNode BuildDestroyItemSequence(int bagId, int slotId, int quantity) => new BehaviourTreeBuilder()
             .Sequence("Destroy Item Sequence")
                 // Ensure the bot has the item and quantity available to destroy
-                .Condition("Has Item to Destroy", time => _objectManager.Player.GetContainedItem(bagId, slotId) != null)
+                .Condition("Has Item to Destroy", time => _objectManager.GetContainedItem(bagId, slotId) != null)
 
                 // Destroy the item
                 .Do("Destroy Item", time =>
                 {
-                    _objectManager.Player.DestroyItemInContainer(bagId, slotId, quantity);
+                    _objectManager.DestroyItemInContainer(bagId, slotId, quantity);
                     return BehaviourTreeStatus.Success;
                 })
             .End()
@@ -1089,12 +1109,12 @@ namespace BotRunner
         private IBehaviourTreeNode BuildEquipItemSequence(int bag, int slot) => new BehaviourTreeBuilder()
             .Sequence("Equip Item Sequence")
                 // Ensure the bot has the item to equip
-                .Condition("Has Item", time => _objectManager.Player.GetContainedItem(bag, slot) != null)
+                .Condition("Has Item", time => _objectManager.GetContainedItem(bag, slot) != null)
 
                 // Equip the item into the designated equipment slot
                 .Do("Equip Item", time =>
                 {
-                    _objectManager.Player.EquipItem(bag, slot);
+                    _objectManager.EquipItem(bag, slot);
                     return BehaviourTreeStatus.Success;
                 })
             .End()
@@ -1110,12 +1130,12 @@ namespace BotRunner
         private IBehaviourTreeNode BuildEquipItemSequence(int bag, int slot, EquipSlot equipSlot) => new BehaviourTreeBuilder()
             .Sequence("Equip Item Sequence")
                 // Ensure the bot has the item to equip
-                .Condition("Has Item", time => _objectManager.Player.GetContainedItem(bag, slot) != null)
+                .Condition("Has Item", time => _objectManager.GetContainedItem(bag, slot) != null)
 
                 // Equip the item into the designated equipment slot
                 .Do("Equip Item", time =>
                 {
-                    _objectManager.Player.EquipItem(bag, slot, equipSlot);
+                    _objectManager.EquipItem(bag, slot, equipSlot);
                     return BehaviourTreeStatus.Success;
                 })
             .End()
@@ -1128,12 +1148,12 @@ namespace BotRunner
         private IBehaviourTreeNode BuildUnequipItemSequence(EquipSlot equipSlot) => new BehaviourTreeBuilder()
             .Sequence("Unequip Item Sequence")
                 // Ensure there is an item in the specified equipment slot
-                .Condition("Has Item Equipped", time => _objectManager.Player.GetEquippedItem(equipSlot) != null)
+                .Condition("Has Item Equipped", time => _objectManager.GetEquippedItem(equipSlot) != null)
 
                 // Unequip the item from the specified equipment slot
                 .Do("Unequip Item", time =>
                 {
-                    _objectManager.Player.UnequipItem(equipSlot);
+                    _objectManager.UnequipItem(equipSlot);
                     return BehaviourTreeStatus.Success;
                 })
             .End()
@@ -1150,12 +1170,12 @@ namespace BotRunner
         private IBehaviourTreeNode BuildSplitStackSequence(int bag, int slot, int quantity, int destinationBag, int destinationSlot) => new BehaviourTreeBuilder()
             .Sequence("Split Stack Sequence")
                 // Ensure the bot has the stack of items available
-                .Condition("Has Item Stack", time => _objectManager.Player.GetContainedItem(bag, slot).Quantity >= quantity)
+                .Condition("Has Item Stack", time => _objectManager.GetContainedItem(bag, slot).Quantity >= quantity)
 
                 // Split the stack into the destination slot
                 .Do("Split Stack", time =>
                 {
-                    _objectManager.Player.SplitStack(bag, slot, quantity, destinationBag, destinationSlot);
+                    _objectManager.SplitStack(bag, slot, quantity, destinationBag, destinationSlot);
                     return BehaviourTreeStatus.Success;
                 })
             .End()
@@ -1296,7 +1316,7 @@ namespace BotRunner
                 // Perform the logout action
                 .Do("Log Out", time =>
                 {
-                    _objectManager.Player.Logout();
+                    _objectManager.Logout();
                     return BehaviourTreeStatus.Success;
                 })
             .End()
@@ -1355,7 +1375,7 @@ namespace BotRunner
                 // Enter the world with the specified character
                 .Do("Enter World", time =>
                 {
-                    _objectManager.CharacterSelectScreen.EnterWorld(characterGuid);
+                    _objectManager.EnterWorld(characterGuid);
                     return BehaviourTreeStatus.Success;
                 })
             .End()

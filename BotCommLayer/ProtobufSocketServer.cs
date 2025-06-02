@@ -16,12 +16,14 @@ namespace BotCommLayer
         public ProtobufSocketServer(string ipAddress, int port, ILogger logger)
         {
             _logger = logger;
-
             _server = new TcpListener(IPAddress.Parse(ipAddress), port);
             _server.Start();
             _isRunning = true;
 
-            Thread serverThread = new(Run);
+            Thread serverThread = new(Run)
+            {
+                IsBackground = true
+            };
             serverThread.Start();
         }
 
@@ -32,67 +34,72 @@ namespace BotCommLayer
                 try
                 {
                     TcpClient client = _server.AcceptTcpClient();
-                    Thread clientThread = new(() => HandleClient(client));
-                    clientThread.Start();
+                    ThreadPool.QueueUserWorkItem(_ => HandleClient(client));
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Error: {ex}");
+                    _logger.LogError($"Server error: {ex}");
                 }
             }
         }
 
+        /// <summary>
+        /// Override this method to provide logic for handling requests.
+        /// Remember: if your message uses wrapper types, you must check for null.
+        /// </summary>
         protected virtual TResponse HandleRequest(TRequest request)
         {
-            Console.WriteLine(request.Descriptor.Name); // Get the name of the message type
-            // Implement request handling logic and generate response
-            // Example:
+            _logger.LogWarning("Base HandleRequest called — override this method.");
             return new TResponse();
         }
 
         private void HandleClient(TcpClient client)
         {
-            NetworkStream stream = client.GetStream();
-            while (true)
+            using NetworkStream stream = client.GetStream();
+            try
             {
-                try
+                while (_isRunning && client.Connected)
                 {
-                    // Read the length of the incoming message
+                    // Read incoming message length
                     byte[] lengthBuffer = new byte[4];
-                    int bytesRead = stream.Read(lengthBuffer, 0, lengthBuffer.Length);
-                    if (bytesRead == 0) break;
-
+                    ReadExact(stream, lengthBuffer);
                     int length = BitConverter.ToInt32(lengthBuffer, 0);
 
-                    // Read the message itself
+                    // Read message payload
                     byte[] buffer = new byte[length];
-                    bytesRead = stream.Read(buffer, 0, buffer.Length);
-                    if (bytesRead == 0) break;
+                    ReadExact(stream, buffer);
 
-                    // Deserialize the request
+                    // Deserialize request
                     TRequest request = new();
                     request.MergeFrom(buffer);
 
-                    // Process
+                    // Handle request -> get response
                     TResponse response = HandleRequest(request);
 
-                    // Serialize the response
+                    // Serialize response
                     byte[] responseBytes = response.ToByteArray();
                     byte[] responseLength = BitConverter.GetBytes(responseBytes.Length);
 
-                    // Send the length of the response message
-                    stream.Write(responseLength, 0, responseLength.Length);
-
-                    // Send the response message
-                    stream.Write(responseBytes, 0, responseBytes.Length);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Client Error: {ex}");
-                    break;
+                    stream.Write(responseLength);
+                    stream.Write(responseBytes);
                 }
             }
-            client.Close();
+            catch (Exception ex)
+            {
+                _logger.LogWarning($"Client connection closed or error occurred: {ex.Message}");
+            }
+        }
+
+        private static void ReadExact(NetworkStream stream, byte[] buffer)
+        {
+            int totalRead = 0;
+            while (totalRead < buffer.Length)
+            {
+                int bytesRead = stream.Read(buffer, totalRead, buffer.Length - totalRead);
+                if (bytesRead == 0)
+                    throw new IOException("Unexpected EOF");
+                totalRead += bytesRead;
+            }
         }
 
         public void Stop()

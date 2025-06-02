@@ -6,7 +6,7 @@ namespace StateManager.Repository
 {
     public class ActorDatabase
     {
-        private string connectionString;
+        private readonly string connectionString;
 
         // Races, Classes, and Professions Definitions
         private static readonly Dictionary<Race, Class[]> ClassesByRace = new()

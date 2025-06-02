@@ -11,6 +11,11 @@ namespace ForegroundBotRunner.Statics
 {
     public class ObjectManager : IObjectManager
     {
+        // LUA SCRIPTS
+        private const string WandLuaScript = "if IsCurrentAction(72) == nil then CastSpellByName('Shoot') end";
+        private const string TurnOffWandLuaScript = "if IsCurrentAction(72) ~= nil then CastSpellByName('Shoot') end";
+        private const string AutoAttackLuaScript = "if IsCurrentAction(72) == nil then CastSpellByName('Attack') end";
+        private const string TurnOffAutoAttackLuaScript = "if IsCurrentAction(72) ~= nil then CastSpellByName('Attack') end";
         private const int OBJECT_TYPE_OFFSET = 0x14;
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
@@ -20,13 +25,22 @@ namespace ForegroundBotRunner.Statics
         private volatile bool _ingame1 = true;
         private readonly bool _ingame2 = true;
         public LoginStates LoginState => (LoginStates)Enum.Parse(typeof(LoginStates), MemoryManager.ReadString(Offsets.CharacterScreen.LoginState));
-        private EnumerateVisibleObjectsCallbackVanilla CallbackDelegate;
-        private nint callbackPtr;
-        private ActivitySnapshot _characterState;
-
-        public IEnumerable<WoWObject> Objects = [];
+        private readonly EnumerateVisibleObjectsCallbackVanilla CallbackDelegate;
+        private readonly nint callbackPtr;
+        private readonly ActivitySnapshot _characterState;
+        public IEnumerable<IWoWObject> Objects
+        {
+            get
+            {
+                lock (_objectsLock)
+                {
+                    return [.. ObjectsBuffer.Cast<IWoWObject>()]; // safe snapshot
+                }
+            }
+        }
         internal IList<WoWObject> ObjectsBuffer = [];
 
+        private readonly object _objectsLock = new();
         public ObjectManager(IWoWEventHandler eventHandler, ActivitySnapshot parProbe)
         {
             _characterState = parProbe;
@@ -57,6 +71,7 @@ namespace ForegroundBotRunner.Statics
         public ulong SkullTargetGuid => MemoryManager.ReadUlong((nint)Offsets.RaidIcon.Skull, true);
 
         public bool IsLoggedIn => _ingame1 && _ingame2 && MemoryManager.ReadByte(0xB4B424) == 1;
+        public bool HasEnteredWorld { get; set; }
 
         public void AntiAfk() => MemoryManager.WriteInt(MemoryAddresses.LastHardwareAction, Environment.TickCount);
 
@@ -195,7 +210,7 @@ namespace ForegroundBotRunner.Statics
         // https://vanilla-wow.fandom.com/wiki/API_GetTalentInfo
         // tab index is 1, 2 or 3
         // talentIndex is counter left to right, top to bottom, starting at 1
-        public sbyte GetTalentRank(int tabIndex, int talentIndex)
+        public static sbyte GetTalentRank(int tabIndex, int talentIndex)
         {
             var results = Functions.LuaCallWithResult($"{{0}}, {{1}}, {{2}}, {{3}}, {{4}} = GetTalentInfo({tabIndex},{talentIndex})");
 
@@ -205,7 +220,7 @@ namespace ForegroundBotRunner.Statics
             return -1;
         }
 
-        public void PickupInventoryItem(int inventorySlot)
+        public static void PickupInventoryItem(int inventorySlot)
         {
             Functions.LuaCall($"PickupInventoryItem({inventorySlot})");
         }
@@ -222,10 +237,14 @@ namespace ForegroundBotRunner.Statics
 
         public void SetRaidTarget(IWoWUnit target, TargetMarker targetMarker)
         {
-            Player.SetTarget(target.Guid);
+            SetTarget(target.Guid);
             Functions.LuaCall($"SetRaidTarget('target', {targetMarker})");
         }
 
+        public void SetTarget(ulong guid)
+        {
+            Functions.SetTarget(guid);
+        }
         public void AcceptGroupInvite()
         {
             ThreadSynchronizer.RunOnMainThread(() =>
@@ -245,7 +264,7 @@ namespace ForegroundBotRunner.Statics
             Functions.LuaCall($"AutoEquipCursorItem()");
             Functions.LuaCall($"StaticPopup1Button1:Click()");
         }
-        public void EnterWorld()
+        public void EnterWorld(ulong characterGuid)
         {
             const string str = "if CharSelectEnterWorldButton ~= nil then CharSelectEnterWorldButton:Click()  end";
             Functions.LuaCall(str);
@@ -258,8 +277,8 @@ namespace ForegroundBotRunner.Statics
 
         public string GlueDialogText => Functions.LuaCallWithResult("{0} = GlueDialogText:GetText()")[0];
 
-        public int MaxCharacterCount => MemoryManager.ReadInt(0x00B42140);
-        public void ResetLogin()
+        public static int MaxCharacterCount => MemoryManager.ReadInt(0x00B42140);
+        public static void ResetLogin()
         {
             Functions.LuaCall("arg1 = 'ESCAPE' GlueDialog_OnKeyDown()");
             Functions.LuaCall("if RealmListCancelButton ~= nil then if RealmListCancelButton:IsVisible() then RealmListCancelButton:Click(); end end ");
@@ -359,7 +378,7 @@ namespace ForegroundBotRunner.Statics
             var freeSlots = 0;
             for (var i = 0; i < 16; i++)
             {
-                var tmpSlotGuid = Player.GetBackpackItemGuid(i);
+                var tmpSlotGuid = GetBackpackItemGuid(i);
                 if (tmpSlotGuid == 0) freeSlots++;
             }
             var bagGuids = new List<ulong>();
@@ -383,7 +402,7 @@ namespace ForegroundBotRunner.Statics
             return freeSlots;
         }
 
-        public int EmptyBagSlots
+        public static int EmptyBagSlots
         {
             get
             {
@@ -395,7 +414,7 @@ namespace ForegroundBotRunner.Statics
             }
         }
 
-        ILoginScreen LoginScreen => throw new NotImplementedException();
+        ILoginScreen IObjectManager.LoginScreen => throw new NotImplementedException();
 
         IRealmSelectScreen IObjectManager.RealmSelectScreen => throw new NotImplementedException();
 
@@ -422,10 +441,6 @@ namespace ForegroundBotRunner.Statics
         ITalentFrame IObjectManager.TalentFrame => throw new NotImplementedException();
 
         public List<CharacterSelect> CharacterSelects => throw new NotImplementedException();
-
-        ILoginScreen IObjectManager.LoginScreen => LoginScreen;
-
-        IList<IWoWObject> IObjectManager.Objects => throw new NotImplementedException();
 
         public uint GetBagId(ulong itemGuid)
         {
@@ -483,7 +498,7 @@ namespace ForegroundBotRunner.Statics
 
         public IWoWItem GetEquippedItem(EquipSlot slot)
         {
-            var guid = Player.GetEquippedItemGuid(slot);
+            var guid = GetEquippedItemGuid(slot);
             if (guid == 0) return null;
             return Items.FirstOrDefault(i => i.Guid == guid);
         }
@@ -549,7 +564,7 @@ namespace ForegroundBotRunner.Statics
                 case 1:
                     ulong itemGuid = 0;
                     if (parSlot < 16 && parSlot >= 0)
-                        itemGuid = Player.GetBackpackItemGuid(parSlot);
+                        itemGuid = GetBackpackItemGuid(parSlot);
                     return itemGuid == 0 ? null : Items.FirstOrDefault(i => i.Guid == itemGuid);
 
                 case 2:
@@ -621,7 +636,6 @@ namespace ForegroundBotRunner.Statics
 
                 ObjectsBuffer.Clear();
                 Functions.EnumerateVisibleObjects(callbackPtr, 0);
-                Objects = new List<WoWObject>(ObjectsBuffer);
 
                 if (Player != null)
                 {
@@ -639,14 +653,57 @@ namespace ForegroundBotRunner.Statics
                     if (!petFound)
                         Pet = null;
 
-                    Player.RefreshSpells();
-                    Player.RefreshSkills();
+                    RefreshSpells();
+                    RefreshSkills();
                 }
 
                 UpdateProbe();
             });
         }
 
+        public void RefreshSpells()
+        {
+            ((LocalPlayer)Player).PlayerSpells.Clear();
+            for (var i = 0; i < 1024; i++)
+            {
+                var currentSpellId = MemoryManager.ReadInt(MemoryAddresses.LocalPlayerSpellsBase + 4 * i);
+                if (currentSpellId == 0) break;
+
+                string name;
+                var spellsBasePtr = MemoryManager.ReadIntPtr(0x00C0D788);
+                var spellPtr = MemoryManager.ReadIntPtr(spellsBasePtr + currentSpellId * 4);
+
+                var spellNamePtr = MemoryManager.ReadIntPtr(spellPtr + 0x1E0);
+                name = MemoryManager.ReadString(spellNamePtr);
+
+                if (((LocalPlayer)Player).PlayerSpells.TryGetValue(name, out int[]? value))
+                    ((LocalPlayer)Player).PlayerSpells[name] =
+                    [.. value, currentSpellId];
+                else
+                    ((LocalPlayer)Player).PlayerSpells.Add(name, [currentSpellId]);
+            }
+        }
+
+        public void RefreshSkills()
+        {
+            ((LocalPlayer)Player).PlayerSkills.Clear();
+            var skillPtr1 = MemoryManager.ReadIntPtr(nint.Add(((LocalPlayer)Player).Pointer, 8));
+            var skillPtr2 = nint.Add(skillPtr1, 0xB38);
+
+            var maxSkills = MemoryManager.ReadInt(0x00B700B4);
+            for (var i = 0; i < maxSkills + 12; i++)
+            {
+                var curPointer = nint.Add(skillPtr2, i * 12);
+
+                var id = (Skills)MemoryManager.ReadShort(curPointer);
+                if (!Enum.IsDefined(typeof(Skills), id))
+                {
+                    continue;
+                }
+
+                ((LocalPlayer)Player).PlayerSkills.Add((short)id);
+            }
+        }
         // EnumerateVisibleObjects callback has the parameter order swapped between Vanilla and other client versions.
         private int CallbackVanilla(int filter, ulong guid)
         {
@@ -917,9 +974,150 @@ namespace ForegroundBotRunner.Statics
             Functions.LuaCall("ConvertToRaid()");
         }
 
-        public void InviteToGroup(string characterName)
+        public static void InviteToGroup(string characterName)
         {
             Functions.LuaCall($"InviteByName('{characterName}')");
+        }
+        public ulong GetBackpackItemGuid(int slot) => MemoryManager.ReadUlong(((LocalPlayer)Player).GetDescriptorPtr() + (MemoryAddresses.LocalPlayer_BackpackFirstItemOffset + slot * 8));
+
+        public ulong GetEquippedItemGuid(EquipSlot slot) => MemoryManager.ReadUlong(nint.Add(((LocalPlayer)Player).Pointer, MemoryAddresses.LocalPlayer_EquipmentFirstItemOffset + ((int)slot - 1) * 0x8));
+
+
+        public void StartMeleeAttack()
+        {
+            if (!Player.IsCasting && (Player.Class == Class.Warlock || Player.Class == Class.Mage || Player.Class == Class.Priest))
+            {
+                Functions.LuaCall(WandLuaScript);
+            }
+            else if (Player.Class != Class.Hunter)
+            {
+                Functions.LuaCall(AutoAttackLuaScript);
+            }
+        }
+
+        public void DoEmote(Emote emote)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DoEmote(TextEmote emote)
+        {
+            throw new NotImplementedException();
+        }
+
+        public uint GetManaCost(string healingTouch)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void StartRangedAttack()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void StopAttack()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsSpellReady(string spellName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CastSpell(string spellName, int rank = -1, bool castOnSelf = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CastSpell(uint spellId, int rank = -1, bool castOnSelf = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void StartWandAttack()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void MoveToward(Position position, float facing)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void StopCasting()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CastSpell(int spellId, int rank = -1, bool castOnSelf = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool CanCastSpell(int spellId, ulong targetGuid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UseItem(int bagId, int slotId, ulong targetGuid = 0)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IWoWItem GetContainedItem(int bagSlot, int slotId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<IWoWItem> GetContainedItems()
+        {
+            throw new NotImplementedException();
+        }
+
+        public uint GetBagGuid(EquipSlot equipSlot)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void PickupContainedItem(int bagSlot, int slotId, int quantity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void PlaceItemInContainer(int bagSlot, int slotId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DestroyItemInContainer(int bagSlot, int slotId, int quantity = -1)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Logout()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SplitStack(int bag, int slot, int quantity, int destinationBag, int destinationSlot)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void EquipItem(int bagSlot, int slotId, EquipSlot? equipSlot = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UnequipItem(EquipSlot slot)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AcceptResurrect()
+        {
+            throw new NotImplementedException();
         }
 
         public void Initialize(ActivitySnapshot parProbe)
@@ -1026,5 +1224,49 @@ namespace ForegroundBotRunner.Statics
         {
             throw new NotImplementedException();
         }
+        public void SetFacing(float facing)
+        {
+            Functions.SetFacing(nint.Add(((LocalPlayer)Player).Pointer, MemoryAddresses.LocalPlayer_SetFacingOffset), facing);
+            Functions.SendMovementUpdate(((LocalPlayer)Player).Pointer, (int)Opcode.MSG_MOVE_SET_FACING);
+        }
+        // the client will NOT send a packet to the server if a key is already pressed, so you're safe to spam this
+        public void StartMovement(ControlBits bits)
+        {
+            if (bits == ControlBits.Nothing)
+                return;
+
+            Functions.SetControlBit((int)bits, 1, Environment.TickCount);
+        }
+
+        public void StopAllMovement()
+        {
+            if (Player.MovementFlags != MovementFlags.MOVEFLAG_NONE)
+            {
+                var bits = ControlBits.Front | ControlBits.Back | ControlBits.Left | ControlBits.Right | ControlBits.StrafeLeft | ControlBits.StrafeRight;
+
+                StopMovement(bits);
+            }
+        }
+
+        public void StopMovement(ControlBits bits)
+        {
+            if (bits == ControlBits.Nothing)
+                return;
+
+            Functions.SetControlBit((int)bits, 0, Environment.TickCount);
+        }
+
+        public void Jump()
+        {
+            StopMovement(ControlBits.Jump);
+            StartMovement(ControlBits.Jump);
+        }
+
+        public static void Stand() => Functions.LuaCall("DoEmote(\"STAND\")");
+
+        public void ReleaseCorpse() => Functions.ReleaseCorpse(((LocalPlayer)Player).Pointer);
+
+        public void RetrieveCorpse() => Functions.RetrieveCorpse();
+
     }
 }

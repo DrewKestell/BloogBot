@@ -34,6 +34,37 @@ namespace WoWSharpClient.Models
         {
 
         }
-        // Other properties and methods can be added here as needed
+
+        public override WoWObject Clone()
+        {
+            var clone = new WoWItem(this.HighGuid, this.ObjectType);
+            clone.CopyFrom(this);
+            return clone;
+        }
+
+        public override void CopyFrom(WoWObject sourceBase)
+        {
+            base.CopyFrom(sourceBase);
+
+            if (sourceBase is not WoWItem source)
+                return;
+
+            ItemId = source.ItemId;
+            Quantity = source.Quantity;
+            StackCount = source.StackCount;
+            MaxDurability = source.MaxDurability;
+            RequiredLevel = source.RequiredLevel;
+            Durability = source.Durability;
+            Duration = source.Duration;
+            PropertySeed = source.PropertySeed;
+            RandomPropertiesId = source.RandomPropertiesId;
+            ItemTextId = source.ItemTextId;
+            IsCoins = source.IsCoins;
+            ItemDynamicFlags = source.ItemDynamicFlags;
+            Quality = source.Quality;
+
+            Array.Copy(source.SpellCharges, SpellCharges, SpellCharges.Length);
+            Array.Copy(source.Enchantments, Enchantments, Enchantments.Length);
+        }
     }
 }

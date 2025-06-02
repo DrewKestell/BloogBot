@@ -170,4 +170,10 @@ namespace GameData.Core.Interfaces
     {
         public readonly ulong Guid = guid;
     }
+    public class RequiresAcknowledgementArgs(ulong guid, uint counter)
+    {
+        public ulong Guid { get; } = guid;
+        public uint Counter { get; } = counter;
+    }
+
 }

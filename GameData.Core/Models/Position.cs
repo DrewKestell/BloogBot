@@ -63,18 +63,56 @@ namespace GameData.Core.Models
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct XYZ
+    public readonly struct XYZ(float x, float y, float z)
     {
-        internal float X;
-        internal float Y;
-        internal float Z;
+        public readonly float X = x;
+        public readonly float Y = y;
+        public readonly float Z = z;
+    }
 
-        internal XYZ(float x, float y, float z)
-        {
-            X = x;
-            Y = y;
-            Z = z;
-        }
+    [StructLayout(LayoutKind.Sequential)]
+    public struct TriangleStruct
+    {
+        public XYZ A;
+        public XYZ B;
+        public XYZ C;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct PolygonDataStruct
+    {
+        public TriangleStruct Triangle;
+        public XYZ Normal;
+        public SurfaceTag Tag;
+        public float Elevation;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RaycastHitStruct
+    {
+        [MarshalAs(UnmanagedType.I1)] // bool in C++
+        public bool Hit;
+        public XYZ Point;
+        public XYZ Normal;
+        public SurfaceTag Tag;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CapsuleSweepRequestStruct
+    {
+        public XYZ BaseCenter;
+        public float Height;
+        public float Radius;
+        public XYZ MotionVector;
+    }
+    public enum SurfaceTag
+    {
+        Unknown = 0,
+        Walkable,
+        Water,
+        Lava,
+        Slippery,
+        Climbable
     }
 
     public enum PointComparisonResult : byte

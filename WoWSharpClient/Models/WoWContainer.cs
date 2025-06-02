@@ -14,5 +14,23 @@ namespace WoWSharpClient.Models
         {
             throw new NotImplementedException();
         }
+
+        public override WoWObject Clone()
+        {
+            var clone = new WoWContainer(this.HighGuid, this.ObjectType);
+            clone.CopyFrom(this);
+            return clone;
+        }
+
+        public override void CopyFrom(WoWObject sourceBase)
+        {
+            base.CopyFrom(sourceBase);
+
+            if (sourceBase is not WoWContainer source)
+                return;
+
+            NumOfSlots = source.NumOfSlots;
+            Array.Copy(source.Slots, Slots, Slots.Length);
+        }
     }
 }

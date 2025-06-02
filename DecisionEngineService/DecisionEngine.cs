@@ -5,9 +5,9 @@ namespace DecisionEngineService
 {
     public class DecisionEngine
     {
-        private MLModel _model;
-        private SQLiteDatabase _db;
-        private string _binFileDirectory;
+        private readonly MLModel _model;
+        private readonly SQLiteDatabase _db;
+        private readonly string _binFileDirectory;
         private FileSystemWatcher _fileWatcher;
 
         public DecisionEngine(string binFileDirectory, SQLiteDatabase db)
@@ -44,12 +44,12 @@ namespace DecisionEngineService
             File.Delete(filePath); // Clean up after processing
         }
 
-        public List<ActionMap> GetNextActions(ActivitySnapshot snapshot)
+        public static List<ActionMap> GetNextActions(ActivitySnapshot snapshot)
         {
-            return _model.Predict(snapshot);
+            return MLModel.Predict(snapshot);
         }
 
-        private List<ActivitySnapshot> ReadBinFile(string filePath)
+        private static List<ActivitySnapshot> ReadBinFile(string filePath)
         {
             List<ActivitySnapshot> snapshots = [];
             using (var stream = new FileStream(filePath, FileMode.Open))
@@ -75,21 +75,16 @@ namespace DecisionEngineService
         }
     }
 
-    public class MLModel
+    public class MLModel(List<float> initialWeights)
     {
-        private List<float> _weights;
-
-        public MLModel(List<float> initialWeights)
-        {
-            _weights = initialWeights;
-        }
+        private readonly List<float> _weights = initialWeights;
 
         public void LearnFromSnapshot(ActivitySnapshot snapshot)
         {
             AdjustWeights(snapshot);
         }
 
-        public List<ActionMap> Predict(ActivitySnapshot snapshot)
+        public static List<ActionMap> Predict(ActivitySnapshot snapshot)
         {
             return GenerateActionMap(snapshot);
         }
@@ -114,7 +109,7 @@ namespace DecisionEngineService
             }
         }
 
-        private List<ActionMap> GenerateActionMap(ActivitySnapshot snapshot)
+        private static List<ActionMap> GenerateActionMap(ActivitySnapshot snapshot)
         {
             List<ActionMap> actionMaps = [];
 

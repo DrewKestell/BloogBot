@@ -5,7 +5,7 @@ namespace WoWSharpClient.Client
 {
     public class PacketParser
     {
-        public List<WoWPlayer> ParseCharacterDataPacket(byte[] data)
+        public static List<WoWPlayer> ParseCharacterDataPacket(byte[] data)
         {
             var players = new List<WoWPlayer>();
 
@@ -37,7 +37,7 @@ namespace WoWSharpClient.Client
             return players;
         }
 
-        private string ReadString(BinaryReader reader)
+        private static string ReadString(BinaryReader reader)
         {
             var result = new List<byte>();
             byte b;

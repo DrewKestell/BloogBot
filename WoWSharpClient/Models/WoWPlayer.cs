@@ -93,5 +93,82 @@ namespace WoWSharpClient.Models
         {
 
         }
+        public override WoWPlayer Clone()
+        {
+            var clone = new WoWPlayer(this.HighGuid, this.ObjectType);
+            clone.CopyFrom(this);
+            return clone;
+        }
+
+        public override void CopyFrom(WoWObject sourceBase)
+        {
+            base.CopyFrom(sourceBase);
+
+            if (sourceBase is not WoWPlayer source) return;
+
+            Race = source.Race;
+            Class = source.Class;
+            Gender = source.Gender;
+            IsDrinking = source.IsDrinking;
+            IsEating = source.IsEating;
+            PlayerFlags = source.PlayerFlags;
+            GuildId = source.GuildId;
+            GuildRank = source.GuildRank;
+            GuildTimestamp = source.GuildTimestamp;
+            Farsight = source.Farsight;
+            XP = source.XP;
+            NextLevelXP = source.NextLevelXP;
+            CharacterPoints1 = source.CharacterPoints1;
+            CharacterPoints2 = source.CharacterPoints2;
+            TrackCreatures = source.TrackCreatures;
+            TrackResources = source.TrackResources;
+            BlockPercentage = source.BlockPercentage;
+            DodgePercentage = source.DodgePercentage;
+            ParryPercentage = source.ParryPercentage;
+            CritPercentage = source.CritPercentage;
+            RangedCritPercentage = source.RangedCritPercentage;
+            RestStateExperience = source.RestStateExperience;
+            Coinage = source.Coinage;
+            AmmoId = source.AmmoId;
+            SelfResSpell = source.SelfResSpell;
+            PvpMedals = source.PvpMedals;
+            SessionKills = source.SessionKills;
+            YesterdayKills = source.YesterdayKills;
+            LastWeekKills = source.LastWeekKills;
+            ThisWeekKills = source.ThisWeekKills;
+            ThisWeekContribution = source.ThisWeekContribution;
+            LifetimeHonorableKills = source.LifetimeHonorableKills;
+            LifetimeDishonorableKills = source.LifetimeDishonorableKills;
+            WatchedFactionIndex = source.WatchedFactionIndex;
+
+            Array.Copy(source.Bytes, Bytes, Bytes.Length);
+            Array.Copy(source.Bytes3, Bytes3, Bytes3.Length);
+            Array.Copy(source.Inventory, Inventory, Inventory.Length);
+            Array.Copy(source.PackSlots, PackSlots, PackSlots.Length);
+            Array.Copy(source.BankSlots, BankSlots, BankSlots.Length);
+            Array.Copy(source.BankBagSlots, BankBagSlots, BankBagSlots.Length);
+            Array.Copy(source.VendorBuybackSlots, VendorBuybackSlots, VendorBuybackSlots.Length);
+            Array.Copy(source.KeyringSlots, KeyringSlots, KeyringSlots.Length);
+            Array.Copy(source.ExploredZones, ExploredZones, ExploredZones.Length);
+            Array.Copy(source.StatBonusesPos, StatBonusesPos, StatBonusesPos.Length);
+            Array.Copy(source.StatBonusesNeg, StatBonusesNeg, StatBonusesNeg.Length);
+            Array.Copy(source.ResistBonusesPos, ResistBonusesPos, ResistBonusesPos.Length);
+            Array.Copy(source.ResistBonusesNeg, ResistBonusesNeg, ResistBonusesNeg.Length);
+            Array.Copy(source.ModDamageDonePos, ModDamageDonePos, ModDamageDonePos.Length);
+            Array.Copy(source.ModDamageDoneNeg, ModDamageDoneNeg, ModDamageDoneNeg.Length);
+            Array.Copy(source.ModDamageDonePct, ModDamageDonePct, ModDamageDonePct.Length);
+            Array.Copy(source.BuybackPrices, BuybackPrices, BuybackPrices.Length);
+            Array.Copy(source.BuybackTimestamps, BuybackTimestamps, BuybackTimestamps.Length);
+            Array.Copy(source.CombatRating, CombatRating, CombatRating.Length);
+
+            //for (int i = 0; i < QuestLog.Length; i++)
+            //    QuestLog[i] = source.QuestLog[i].Clone();
+
+            //for (int i = 0; i < VisibleItems.Length; i++)
+            //    VisibleItems[i] = (IWoWItem)source.VisibleItems[i].Clone();
+
+            //for (int i = 0; i < SkillInfo.Length; i++)
+            //    SkillInfo[i] = source.SkillInfo[i].Clone();
+        }
     }
 }

@@ -141,7 +141,7 @@ namespace DecisionEngineService
         }
 
         // Method to combine new data with existing data
-        private IDataView CombineWithExistingData(IDataView newData)
+        private static IDataView CombineWithExistingData(IDataView newData)
         {
             // Load existing data if needed and combine with newData
             // Assuming the existing data is stored in a format you can load

@@ -43,7 +43,7 @@ namespace GameData.Core.Models
             StrTarget = ReadString(reader);
         }
 
-        private string ReadString(BinaryReader reader)
+        private static string ReadString(BinaryReader reader)
         {
             if (reader.BaseStream.Position >= reader.BaseStream.Length)
             {

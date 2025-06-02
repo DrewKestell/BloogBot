@@ -58,6 +58,10 @@ namespace WoWSharpClient
             _handlers[Opcode.SMSG_MOVE_WATER_WALK] = _movementHandler.HandleUpdateMovement;
             _handlers[Opcode.SMSG_FORCE_MOVE_ROOT] = _movementHandler.HandleUpdateMovement;
             _handlers[Opcode.SMSG_FORCE_MOVE_UNROOT] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_FORCE_RUN_SPEED_CHANGE] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_FORCE_RUN_BACK_SPEED_CHANGE] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_FORCE_SWIM_SPEED_CHANGE] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.SMSG_FORCE_SWIM_BACK_SPEED_CHANGE] = _movementHandler.HandleUpdateMovement;
             _handlers[Opcode.SMSG_SPLINE_MOVE_FEATHER_FALL] = _movementHandler.HandleUpdateMovement;
             _handlers[Opcode.SMSG_SPLINE_MOVE_LAND_WALK] = _movementHandler.HandleUpdateMovement;
             _handlers[Opcode.SMSG_SPLINE_MOVE_NORMAL_FALL] = _movementHandler.HandleUpdateMovement;
@@ -71,6 +75,8 @@ namespace WoWSharpClient
             _handlers[Opcode.SMSG_SPLINE_MOVE_UNSET_HOVER] = _movementHandler.HandleUpdateMovement;
             _handlers[Opcode.SMSG_SPLINE_MOVE_WATER_WALK] = _movementHandler.HandleUpdateMovement;
 
+            _handlers[Opcode.MSG_MOVE_TELEPORT] = _movementHandler.HandleUpdateMovement;
+            _handlers[Opcode.MSG_MOVE_TELEPORT_ACK] = _movementHandler.HandleUpdateMovement;
             _handlers[Opcode.MSG_MOVE_TIME_SKIPPED] = _movementHandler.HandleUpdateMovement;
             _handlers[Opcode.MSG_MOVE_JUMP] = _movementHandler.HandleUpdateMovement;
             _handlers[Opcode.MSG_MOVE_FALL_LAND] = _movementHandler.HandleUpdateMovement;
@@ -92,7 +98,7 @@ namespace WoWSharpClient
             _handlers[Opcode.SMSG_MESSAGECHAT] = _chatHandlerHandler.HandleServerChatMessage;
 
             _handlers[Opcode.SMSG_CHAR_ENUM] = _characterHandler.HandleCharEnum;
-            _handlers[Opcode.SMSG_ADDON_INFO] = _characterHandler.HandleAddonInfo;
+            _handlers[Opcode.SMSG_ADDON_INFO] = CharacterSelectHandler.HandleAddonInfo;
             _handlers[Opcode.SMSG_NAME_QUERY_RESPONSE] = _characterHandler.HandleNameQueryResponse;
 
             _handlers[Opcode.SMSG_LOGIN_VERIFY_WORLD] = _loginHandler.HandleLoginVerifyWorld;
@@ -105,22 +111,19 @@ namespace WoWSharpClient
 
             _handlers[Opcode.SMSG_INIT_WORLD_STATES] = _worldStateHandler.HandleInitWorldStates;
             _handlers[Opcode.SMSG_SET_REST_START] = _worldStateHandler.HandleInitWorldStates;
-            // Add more handlers as needed
         }
 
         public void Dispatch(Opcode opcode, byte[] data)
         {
             //GenerateTestFile(opcode, data);
-
+            //Console.WriteLine($"Opcode: {opcode}");
             if (_handlers.TryGetValue(opcode, out var handler))
             {
                 _queue.Enqueue(() => handler(opcode, data));
             }
             else
             {
-                //Console.ForegroundColor = ConsoleColor.Red;
-                //Console.WriteLine($"Unhandled opcode: {opcode} {BitConverter.ToString(data)}");
-                Console.WriteLine($"Unhandled opcode: {opcode} byte[{data.Length}]");
+                //Console.WriteLine($"Unhandled opcode: {opcode} byte[{data.Length}]");
             }
         }
         public static void GenerateTestFile(Opcode opcode, byte[] data)
@@ -162,7 +165,7 @@ namespace WoWSharpClient
                     }
                     catch (Exception e)
                     {
-                        //Console.WriteLine($"Error in OpCodeDispatcher.Runner: {e}\n");
+                        Console.WriteLine($"Error in OpCodeDispatcher.Runner: {e}\n");
                     }
                 }
                 await Task.Delay(50);
@@ -174,7 +177,6 @@ namespace WoWSharpClient
             if (body.Length < 4)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                //Console.WriteLine("[WorldClient] Incomplete SMSG_AUTH_RESPONSE packet.");
                 return;
             }
 

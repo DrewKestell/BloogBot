@@ -28,7 +28,7 @@ namespace StateManager.Settings
             CharacterDefinitions = JsonConvert.DeserializeObject<List<CharacterDefinition>>(File.ReadAllText(WorldStateManagerSettingsFilePath));
         }
 
-        public void SaveConfig()
+        public static void SaveConfig()
         {
             try
             {

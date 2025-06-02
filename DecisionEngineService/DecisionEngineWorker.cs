@@ -1,13 +1,8 @@
 namespace DecisionEngineService
 {
-    public class DecisionEngineWorker : BackgroundService
+    public class DecisionEngineWorker(ILogger<DecisionEngineWorker> logger) : BackgroundService
     {
-        private readonly ILogger<DecisionEngineWorker> _logger;
-
-        public DecisionEngineWorker(ILogger<DecisionEngineWorker> logger)
-        {
-            _logger = logger;
-        }
+        private readonly ILogger<DecisionEngineWorker> _logger = logger;
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
