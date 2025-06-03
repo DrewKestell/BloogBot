@@ -9,27 +9,30 @@ namespace ForegroundBotRunner.Objects
 {
     public class LocalPlayer : WoWPlayer, IWoWLocalPlayer
     {
-        internal LocalPlayer(
-            nint pointer,
-            HighGuid guid,
-            WoWObjectType objectType)
+        internal LocalPlayer(nint pointer, HighGuid guid, WoWObjectType objectType)
             : base(pointer, guid, objectType) { }
 
         public readonly IDictionary<string, int[]> PlayerSpells = new Dictionary<string, int[]>();
         public readonly List<int> PlayerSkills = [];
         public new ulong TargetGuid => MemoryManager.ReadUlong(Offsets.Player.TargetGuid, true);
 
-        public static bool TargetInMeleeRange => Functions.LuaCallWithResult("{0} = CheckInteractDistance(\"target\", 3)")[0] == "1";
+        public static bool TargetInMeleeRange =>
+            Functions.LuaCallWithResult("{0} = CheckInteractDistance(\"target\", 3)")[0] == "1";
 
         public new Class Class => (Class)MemoryManager.ReadByte(MemoryAddresses.LocalPlayerClass);
-        public new Race Race => Enum.GetValues(typeof(Race))
+        public new Race Race =>
+            Enum.GetValues(typeof(Race))
                 .Cast<Race>()
-            .FirstOrDefault(v => v.GetDescription() == Functions.LuaCallWithResult("{0} = UnitRace('player')")[0]);
+                .FirstOrDefault(v =>
+                    v.GetDescription() == Functions.LuaCallWithResult("{0} = UnitRace('player')")[0]
+                );
 
-        public Position CorpsePosition => new(
-            MemoryManager.ReadFloat(MemoryAddresses.LocalPlayerCorpsePositionX),
-            MemoryManager.ReadFloat(MemoryAddresses.LocalPlayerCorpsePositionY),
-            MemoryManager.ReadFloat(MemoryAddresses.LocalPlayerCorpsePositionZ));
+        public Position CorpsePosition =>
+            new(
+                MemoryManager.ReadFloat(MemoryAddresses.LocalPlayerCorpsePositionX),
+                MemoryManager.ReadFloat(MemoryAddresses.LocalPlayerCorpsePositionY),
+                MemoryManager.ReadFloat(MemoryAddresses.LocalPlayerCorpsePositionZ)
+            );
 
         public string CurrentStance
         {
@@ -90,14 +93,16 @@ namespace ForegroundBotRunner.Objects
             }
         }
 
-        public bool IsDiseased => GetDebuffs(LuaTarget.Player).Any(t => t.Type == EffectType.Disease);
+        public bool IsDiseased =>
+            GetDebuffs(LuaTarget.Player).Any(t => t.Type == EffectType.Disease);
 
         public bool IsCursed => GetDebuffs(LuaTarget.Player).Any(t => t.Type == EffectType.Curse);
 
-        public bool IsPoisoned => GetDebuffs(LuaTarget.Player).Any(t => t.Type == EffectType.Poison);
+        public bool IsPoisoned =>
+            GetDebuffs(LuaTarget.Player).Any(t => t.Type == EffectType.Poison);
 
-        public bool HasMagicDebuff => GetDebuffs(LuaTarget.Player).Any(t => t.Type == EffectType.Magic);
-
+        public bool HasMagicDebuff =>
+            GetDebuffs(LuaTarget.Player).Any(t => t.Type == EffectType.Magic);
 
         public int GetSpellId(string spellName, int rank = -1)
         {
@@ -129,14 +134,16 @@ namespace ForegroundBotRunner.Objects
             if (parId >= MemoryManager.ReadUint(0x00C0D780 + 0xC) || parId <= 0)
                 return 0;
 
-            var entryPtr = MemoryManager.ReadIntPtr((nint)(uint)(MemoryManager.ReadUint(0x00C0D780 + 8) + parId * 4));
+            var entryPtr = MemoryManager.ReadIntPtr(
+                (nint)(uint)(MemoryManager.ReadUint(0x00C0D780 + 8) + parId * 4)
+            );
             return MemoryManager.ReadInt(entryPtr + 0x0080);
-
         }
 
         public bool KnowsSpell(string name) => PlayerSpells.ContainsKey(name);
 
-        public bool MainhandIsEnchanted => Functions.LuaCallWithResult("{0} = GetWeaponEnchantInfo()")[0] == "1";
+        public bool MainhandIsEnchanted =>
+            Functions.LuaCallWithResult("{0} = GetWeaponEnchantInfo()")[0] == "1";
 
         public bool CanRiposte
         {
@@ -144,7 +151,9 @@ namespace ForegroundBotRunner.Objects
             {
                 if (PlayerSpells.ContainsKey("Riposte"))
                 {
-                    var results = Functions.LuaCallWithResult("{0}, {1} = IsUsableSpell('Riposte')");
+                    var results = Functions.LuaCallWithResult(
+                        "{0}, {1} = IsUsableSpell('Riposte')"
+                    );
                     if (results.Length > 0)
                         return results[0] == "1";
                     else
@@ -161,5 +170,7 @@ namespace ForegroundBotRunner.Objects
         public bool IsAutoAttacking => throw new NotImplementedException();
 
         public bool CanResurrect => throw new NotImplementedException();
+        public bool InBattleground => throw new NotImplementedException();
+        public bool HasQuestTargets => throw new NotImplementedException();
     }
 }

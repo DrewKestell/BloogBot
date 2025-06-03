@@ -19,8 +19,14 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWSharpClient", "Exports\WoWSharpClient\WoWSharpClient.csproj", "{0E823F6A-007F-4FAF-9819-B561347525EC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{A34E454D-EDFF-4AE3-806D-F17D3E19FF66}"
+	ProjectSection(SolutionItems) = preProject
+		Services\README.md = Services\README.md
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Exports", "Exports", "{2B5ADD00-9FA5-4839-A06C-21FA6C02FE8E}"
+	ProjectSection(SolutionItems) = preProject
+		Exports\README.md = Exports\README.md
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotRunner", "Exports\BotRunner\BotRunner.csproj", "{C268D63C-9278-480E-B708-CA55FE09EEA3}"
 EndProject
@@ -56,6 +62,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameData.Core", "Exports\GameData.Core\GameData.Core.csproj", "{0CD771AA-583C-4037-93A4-1F5F472934A9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BloogBot.AI", "BloogBot.AI\BloogBot.AI.csproj", "{58CD6FF8-8AAD-455A-86FA-8678FB8C8C4A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -405,6 +413,22 @@ Global
 		{0CD771AA-583C-4037-93A4-1F5F472934A9}.Release|x64.Build.0 = Release|Any CPU
 		{0CD771AA-583C-4037-93A4-1F5F472934A9}.Release|x86.ActiveCfg = Release|Any CPU
 		{0CD771AA-583C-4037-93A4-1F5F472934A9}.Release|x86.Build.0 = Release|Any CPU
+		{58CD6FF8-8AAD-455A-86FA-8678FB8C8C4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58CD6FF8-8AAD-455A-86FA-8678FB8C8C4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58CD6FF8-8AAD-455A-86FA-8678FB8C8C4A}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{58CD6FF8-8AAD-455A-86FA-8678FB8C8C4A}.Debug|Win32.Build.0 = Debug|Any CPU
+		{58CD6FF8-8AAD-455A-86FA-8678FB8C8C4A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{58CD6FF8-8AAD-455A-86FA-8678FB8C8C4A}.Debug|x64.Build.0 = Debug|Any CPU
+		{58CD6FF8-8AAD-455A-86FA-8678FB8C8C4A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{58CD6FF8-8AAD-455A-86FA-8678FB8C8C4A}.Debug|x86.Build.0 = Debug|Any CPU
+		{58CD6FF8-8AAD-455A-86FA-8678FB8C8C4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58CD6FF8-8AAD-455A-86FA-8678FB8C8C4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58CD6FF8-8AAD-455A-86FA-8678FB8C8C4A}.Release|Win32.ActiveCfg = Release|Any CPU
+		{58CD6FF8-8AAD-455A-86FA-8678FB8C8C4A}.Release|Win32.Build.0 = Release|Any CPU
+		{58CD6FF8-8AAD-455A-86FA-8678FB8C8C4A}.Release|x64.ActiveCfg = Release|Any CPU
+		{58CD6FF8-8AAD-455A-86FA-8678FB8C8C4A}.Release|x64.Build.0 = Release|Any CPU
+		{58CD6FF8-8AAD-455A-86FA-8678FB8C8C4A}.Release|x86.ActiveCfg = Release|Any CPU
+		{58CD6FF8-8AAD-455A-86FA-8678FB8C8C4A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -431,6 +455,7 @@ Global
 		{90BF97BD-7BF3-47D3-A575-E9AD85FBE336} = {C359E65D-9D40-44E4-A256-4C75A6438CCA}
 		{7731A959-10DE-4F06-CBE3-2A9C0CE8B9C3} = {C359E65D-9D40-44E4-A256-4C75A6438CCA}
 		{0CD771AA-583C-4037-93A4-1F5F472934A9} = {2B5ADD00-9FA5-4839-A06C-21FA6C02FE8E}
+		{58CD6FF8-8AAD-455A-86FA-8678FB8C8C4A} = {A34E454D-EDFF-4AE3-806D-F17D3E19FF66}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1D542335-5812-4666-9874-ACFCC515267C}

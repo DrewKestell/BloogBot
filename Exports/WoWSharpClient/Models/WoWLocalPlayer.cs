@@ -4,7 +4,9 @@ using GameData.Core.Models;
 
 namespace WoWSharpClient.Models
 {
-    public class WoWLocalPlayer(HighGuid highGuid, WoWObjectType objectType = WoWObjectType.Player) : WoWPlayer(highGuid, objectType), IWoWLocalPlayer
+    public class WoWLocalPlayer(HighGuid highGuid, WoWObjectType objectType = WoWObjectType.Player)
+        : WoWPlayer(highGuid, objectType),
+            IWoWLocalPlayer
     {
         public Position CorpsePosition => throw new NotImplementedException();
         public bool InGhostForm => throw new NotImplementedException();
@@ -20,6 +22,8 @@ namespace WoWSharpClient.Models
         public uint Copper => throw new NotImplementedException();
         public bool IsAutoAttacking => throw new NotImplementedException();
         public bool CanResurrect => throw new NotImplementedException();
+        public bool InBattleground => throw new NotImplementedException();
+        public bool HasQuestTargets => throw new NotImplementedException();
 
         public override WoWLocalPlayer Clone()
         {
