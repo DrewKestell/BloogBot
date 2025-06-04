@@ -56,23 +56,8 @@ namespace GameData.Core.Interfaces
                 SetFacing((float)(Math.PI * 2) + Player.Facing);
                 return;
             }
-            SetFacing(GetFacingForPosition(pos));
+            SetFacing(Player.GetFacingForPosition(pos));
             return;
-        }
-
-        // Nat added this to see if he could test out the cleave radius which is larger than that isFacing radius
-        public bool IsInCleave(Position position) => Math.Abs(GetFacingForPosition(position) - Player.Facing) < 3f;
-        public float GetFacingForPosition(Position position)
-        {
-            var f = (float)Math.Atan2(position.Y - Player.Position.Y, position.X - Player.Position.X);
-            if (f < 0.0f)
-                f += (float)Math.PI * 2.0f;
-            else
-            {
-                if (f > (float)Math.PI * 2)
-                    f -= (float)Math.PI * 2.0f;
-            }
-            return f;
         }
         public void MoveToward(Position pos)
         {
@@ -93,7 +78,6 @@ namespace GameData.Core.Interfaces
 
             StopMovement(bits);
         }
-
         public IEnumerable<IWoWGameObject> GameObjects => Objects.OfType<IWoWGameObject>();
         public IEnumerable<IWoWUnit> Units => Objects.OfType<IWoWUnit>();
         public IEnumerable<IWoWPlayer> Players => Objects.OfType<IWoWPlayer>();

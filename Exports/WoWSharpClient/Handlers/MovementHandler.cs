@@ -12,6 +12,7 @@ namespace WoWSharpClient.Handlers
     {
         private readonly WoWSharpEventEmitter _eventEmitter = objectManager.EventEmitter;
         private readonly WoWSharpObjectManager _objectManager = objectManager;
+
         public void HandleUpdateMovement(Opcode opcode, byte[] data)
         {
             if (opcode == Opcode.SMSG_COMPRESSED_MOVES)
@@ -29,93 +30,102 @@ namespace WoWSharpClient.Handlers
             }
             else
             {
-                switch (opcode)
+                try
                 {
-                    case Opcode.MSG_MOVE_TELEPORT:
-                        _eventEmitter.FireOnTeleport(ParseAcknowledgementPacket(reader));
-                        break;
-                    case Opcode.MSG_MOVE_TELEPORT_ACK:
-                        ulong guid = ReaderUtils.ReadPackedGuid(reader);
-                        uint movementCounter = reader.ReadUInt32();
-                        MovementPacketHandler.ParseMovementInfo(reader, (WoWUnit)_objectManager.Objects.First(x => x.Guid == guid));
+                    switch (opcode)
+                    {
+                        case Opcode.MSG_MOVE_TELEPORT:
+                            _eventEmitter.FireOnTeleport(ParseAcknowledgementPacket(reader));
+                            break;
+                        case Opcode.MSG_MOVE_TELEPORT_ACK:
+                            ulong guid = ReaderUtils.ReadPackedGuid(reader);
+                            uint movementCounter = reader.ReadUInt32();
+                            MovementInfoUpdate movementUpdateData = MovementPacketHandler.ParseMovementInfo(reader);
 
-                        _eventEmitter.FireOnTeleport(new RequiresAcknowledgementArgs(guid, movementCounter));
-                        break;
-                    case Opcode.SMSG_FORCE_MOVE_ROOT:
-                        _eventEmitter.FireOnForceMoveRoot(ParseGuidCounterPacket(reader));
-                        break;
-                    case Opcode.SMSG_FORCE_MOVE_UNROOT:
-                        _eventEmitter.FireOnForceMoveUnroot(ParseGuidCounterPacket(reader));
-                        break;
-                    case Opcode.SMSG_FORCE_RUN_SPEED_CHANGE:
-                        _eventEmitter.FireOnForceRunSpeedChange(ParseGuidCounterPacket(reader));
-                        break;
-                    case Opcode.SMSG_FORCE_RUN_BACK_SPEED_CHANGE:
-                        _eventEmitter.FireOnForceRunBackSpeedChange(ParseGuidCounterPacket(reader));
-                        break;
-                    case Opcode.SMSG_FORCE_SWIM_SPEED_CHANGE:
-                        _eventEmitter.FireOnForceSwimSpeedChange(ParseGuidCounterPacket(reader));
-                        break;
-                    case Opcode.SMSG_MOVE_KNOCK_BACK:
-                        _eventEmitter.FireOnForceMoveKnockBack(ParseGuidCounterPacket(reader));
-                        break;
-                    case Opcode.MSG_MOVE_TIME_SKIPPED:
-                        _eventEmitter.FireOnMoveTimeSkipped(ParseGuidCounterPacket(reader));
-                        break;
-                    case Opcode.MSG_MOVE_JUMP:
-                        _eventEmitter.FireOnCharacterJumpStart(ParseMessageMove(reader));
-                        break;
-                    case Opcode.MSG_MOVE_FALL_LAND:
-                        _eventEmitter.FireOnCharacterFallLand(ParseMessageMove(reader));
-                        break;
-                    case Opcode.MSG_MOVE_START_FORWARD:
-                        _eventEmitter.FireOnCharacterStartForward(ParseMessageMove(reader));
-                        break;
-                    case Opcode.MSG_MOVE_STOP:
-                        _eventEmitter.FireOnCharacterMoveStop(ParseMessageMove(reader));
-                        break;
-                    case Opcode.MSG_MOVE_START_STRAFE_LEFT:
-                        _eventEmitter.FireOnCharacterStartStrafeLeft(ParseMessageMove(reader));
-                        break;
-                    case Opcode.MSG_MOVE_START_STRAFE_RIGHT:
-                        _eventEmitter.FireOnCharacterStartStrafeRight(ParseMessageMove(reader));
-                        break;
-                    case Opcode.MSG_MOVE_STOP_STRAFE:
-                        _eventEmitter.FireOnCharacterStopStrafe(ParseMessageMove(reader));
-                        break;
-                    case Opcode.MSG_MOVE_START_TURN_LEFT:
-                        _eventEmitter.FireOnCharacterStartTurnLeft(ParseMessageMove(reader));
-                        break;
-                    case Opcode.MSG_MOVE_START_TURN_RIGHT:
-                        _eventEmitter.FireOnCharacterStartTurnRight(ParseMessageMove(reader));
-                        break;
-                    case Opcode.MSG_MOVE_STOP_TURN:
-                        _eventEmitter.FireOnCharacterStopTurn(ParseMessageMove(reader));
-                        break;
-                    case Opcode.MSG_MOVE_SET_FACING:
-                        _eventEmitter.FireOnCharacterSetFacing(ParseMessageMove(reader));
-                        break;
-                    case Opcode.MSG_MOVE_START_BACKWARD:
-                        _eventEmitter.FireOnCharacterStartBackwards(ParseMessageMove(reader));
-                        break;
-                    case Opcode.MSG_MOVE_HEARTBEAT:
-                        ParseMessageMove(reader);
-                        break;
-                    default:
-                        Console.WriteLine($"{opcode} not handled");
-                        break;
+                            //_objectManager.QueueUpdate(new(guid, ObjectUpdateOperation.Update, WoWObjectType.Player, movementUpdateData, []));
+
+                            _eventEmitter.FireOnTeleport(new RequiresAcknowledgementArgs(guid, movementCounter));
+                            break;
+                        case Opcode.SMSG_FORCE_MOVE_ROOT:
+                            _eventEmitter.FireOnForceMoveRoot(ParseGuidCounterPacket(reader));
+                            break;
+                        case Opcode.SMSG_FORCE_MOVE_UNROOT:
+                            _eventEmitter.FireOnForceMoveUnroot(ParseGuidCounterPacket(reader));
+                            break;
+                        case Opcode.SMSG_FORCE_RUN_SPEED_CHANGE:
+                            _eventEmitter.FireOnForceRunSpeedChange(ParseGuidCounterPacket(reader));
+                            break;
+                        case Opcode.SMSG_FORCE_RUN_BACK_SPEED_CHANGE:
+                            _eventEmitter.FireOnForceRunBackSpeedChange(ParseGuidCounterPacket(reader));
+                            break;
+                        case Opcode.SMSG_FORCE_SWIM_SPEED_CHANGE:
+                            _eventEmitter.FireOnForceSwimSpeedChange(ParseGuidCounterPacket(reader));
+                            break;
+                        case Opcode.SMSG_MOVE_KNOCK_BACK:
+                            _eventEmitter.FireOnForceMoveKnockBack(ParseGuidCounterPacket(reader));
+                            break;
+                        case Opcode.MSG_MOVE_TIME_SKIPPED:
+                            _eventEmitter.FireOnMoveTimeSkipped(ParseGuidCounterPacket(reader));
+                            break;
+                        case Opcode.MSG_MOVE_JUMP:
+                            _eventEmitter.FireOnCharacterJumpStart(ParseMessageMove(reader));
+                            break;
+                        case Opcode.MSG_MOVE_FALL_LAND:
+                            _eventEmitter.FireOnCharacterFallLand(ParseMessageMove(reader));
+                            break;
+                        case Opcode.MSG_MOVE_START_FORWARD:
+                            _eventEmitter.FireOnCharacterStartForward(ParseMessageMove(reader));
+                            break;
+                        case Opcode.MSG_MOVE_STOP:
+                            _eventEmitter.FireOnCharacterMoveStop(ParseMessageMove(reader));
+                            break;
+                        case Opcode.MSG_MOVE_START_STRAFE_LEFT:
+                            _eventEmitter.FireOnCharacterStartStrafeLeft(ParseMessageMove(reader));
+                            break;
+                        case Opcode.MSG_MOVE_START_STRAFE_RIGHT:
+                            _eventEmitter.FireOnCharacterStartStrafeRight(ParseMessageMove(reader));
+                            break;
+                        case Opcode.MSG_MOVE_STOP_STRAFE:
+                            _eventEmitter.FireOnCharacterStopStrafe(ParseMessageMove(reader));
+                            break;
+                        case Opcode.MSG_MOVE_START_TURN_LEFT:
+                            _eventEmitter.FireOnCharacterStartTurnLeft(ParseMessageMove(reader));
+                            break;
+                        case Opcode.MSG_MOVE_START_TURN_RIGHT:
+                            _eventEmitter.FireOnCharacterStartTurnRight(ParseMessageMove(reader));
+                            break;
+                        case Opcode.MSG_MOVE_STOP_TURN:
+                            _eventEmitter.FireOnCharacterStopTurn(ParseMessageMove(reader));
+                            break;
+                        case Opcode.MSG_MOVE_SET_FACING:
+                            _eventEmitter.FireOnCharacterSetFacing(ParseMessageMove(reader));
+                            break;
+                        case Opcode.MSG_MOVE_START_BACKWARD:
+                            _eventEmitter.FireOnCharacterStartBackwards(ParseMessageMove(reader));
+                            break;
+                        case Opcode.MSG_MOVE_HEARTBEAT:
+                            ParseMessageMove(reader);
+                            break;
+                        default:
+                            Console.WriteLine($"{opcode} not handled");
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[MovementHandler] {ex}");
                 }
             }
         }
-
         private RequiresAcknowledgementArgs ParseAcknowledgementPacket(BinaryReader reader)
         {
-            var guid = ReaderUtils.ReadPackedGuid(reader);
+            var packedGuid = ReaderUtils.ReadPackedGuid(reader);
             var counter = reader.ReadUInt32();
 
-            MovementPacketHandler.ParseMovementInfo(reader, (WoWUnit)_objectManager.Objects.First(x => x.Guid == guid));
+            MovementInfoUpdate movementData = MovementPacketHandler.ParseMovementInfo(reader);
+            _objectManager.QueueUpdate(new ObjectStateUpdate(packedGuid, ObjectUpdateOperation.Update, WoWObjectType.Player, movementData, []));
 
-            return new(guid, counter);
+            return new(packedGuid, counter);
         }
 
         private static RequiresAcknowledgementArgs ParseGuidCounterPacket(BinaryReader reader)
@@ -129,95 +139,85 @@ namespace WoWSharpClient.Handlers
         private ulong ParseMessageMove(BinaryReader reader)
         {
             var packedGuid = ReaderUtils.ReadPackedGuid(reader);
-            WoWUnit woWUnit = (WoWUnit)_objectManager.Objects.First(x => x.Guid == packedGuid);
 
-            MovementPacketHandler.ParseMovementInfo(reader, woWUnit);
+            // Parse raw movement data
+            var movementData = MovementPacketHandler.ParseMovementInfo(reader);
+
+            // Queue an update for the object's movement
+            _objectManager.QueueUpdate(new ObjectStateUpdate(packedGuid, ObjectUpdateOperation.Update, WoWObjectType.None, movementData, []));
 
             return packedGuid;
         }
 
-        private static void ParseSplineSetRunSpeed(BinaryReader reader)
-        {
-            var packedGuid = ReaderUtils.ReadPackedGuid(reader);
-            var packedSpeed = reader.ReadSingle();
-        }
-
-        private void ParseMonsterMoveTransport(BinaryReader reader)
-        {
-            var packedGuid = ReaderUtils.ReadPackedGuid(reader);
-            var packedTransportGuid = ReaderUtils.ReadPackedGuid(reader);
-
-            ParseMonsterMove(reader, packedGuid);
-        }
-
         private void ParseCompressedMove(BinaryReader reader)
         {
-            var size = reader.ReadByte();
+            reader.ReadByte(); // size
             var compressedOpCode = (Opcode)reader.ReadUInt16();
-            var guid = ReaderUtils.ReadPackedGuid(reader); // DO NOT read again in sub-method
+            var guid = ReaderUtils.ReadPackedGuid(reader);
 
             switch (compressedOpCode)
             {
-                case Opcode.SMSG_SPLINE_SET_RUN_SPEED:
-                    ParseSplineSetRunSpeed(reader);
-                    break;
                 case Opcode.SMSG_MONSTER_MOVE:
-                    ParseMonsterMove(reader, guid); // pass guid
+                    var moveData = ParseMonsterMove(reader);
+                    _objectManager.QueueUpdate(new ObjectStateUpdate(guid, ObjectUpdateOperation.Update, WoWObjectType.Unit, moveData, []));
                     break;
                 case Opcode.SMSG_MONSTER_MOVE_TRANSPORT:
-                    ParseMonsterMoveTransport(reader);
+                    ReaderUtils.ReadPackedGuid(reader); // skip transport guid
+                    moveData = ParseMonsterMove(reader);
+                    _objectManager.QueueUpdate(new ObjectStateUpdate(guid, ObjectUpdateOperation.Update, WoWObjectType.Unit, moveData, []));
+                    break;
+                case Opcode.SMSG_SPLINE_SET_RUN_SPEED:
+                    ReaderUtils.ReadPackedGuid(reader);
+                    reader.ReadSingle();
                     break;
             }
         }
 
-        private void ParseMonsterMove(BinaryReader reader, ulong guid)
+        private static MovementInfoUpdate ParseMonsterMove(BinaryReader reader)
         {
-            WoWUnit woWUnit = new(new HighGuid(guid));
-            if (_objectManager.Objects.FirstOrDefault(x => x.Guid == guid) is WoWUnit existingUnit)
-                woWUnit = existingUnit;
+            MovementInfoUpdate data = new()
+            {
+                X = reader.ReadSingle(),
+                Y = reader.ReadSingle(),
+                Z = reader.ReadSingle(),
+                MovementBlockUpdate = new()
+                {
+                    SplineId = reader.ReadUInt32(),
+                    SplineType = (SplineType)reader.ReadByte()
+                }
+            };
 
-            float x = reader.ReadSingle();
-            float y = reader.ReadSingle();
-            float z = reader.ReadSingle();
-
-            var splineId = reader.ReadUInt32();
-            var splineType = (SplineType)reader.ReadByte();
-
-            switch (splineType)
+            switch (data.MovementBlockUpdate.SplineType)
             {
                 case SplineType.FacingTarget:
-                    var targetGuid = reader.ReadUInt64();
+                    data.MovementBlockUpdate.FacingTargetGuid = reader.ReadUInt64();
                     break;
                 case SplineType.FacingAngle:
-                    var angle = reader.ReadSingle();
+                    data.MovementBlockUpdate.FacingAngle = reader.ReadSingle();
                     break;
                 case SplineType.FacingSpot:
                     float fx = reader.ReadSingle();
                     float fy = reader.ReadSingle();
                     float fz = reader.ReadSingle();
+                    data.MovementBlockUpdate.FacingSpot = new Position(fx, fy, fz);
                     break;
             }
 
-            if (splineType != SplineType.Stop)
+            if (data.MovementBlockUpdate.SplineType != SplineType.Stop)
             {
-                var splineFlags = (SplineFlags)reader.ReadUInt32();
-                var timestamp = reader.ReadUInt32();
+                data.MovementBlockUpdate.SplineFlags = (SplineFlags)reader.ReadUInt32();
+                data.MovementBlockUpdate.SplineTimestamp = reader.ReadUInt32();
 
                 uint splineCount = reader.ReadUInt32();
-
-                // First uncompressed point
                 float firstX = reader.ReadSingle();
                 float firstY = reader.ReadSingle();
                 float firstZ = reader.ReadSingle();
 
-                var splinePoints = new List<Position> { new(firstX, firstY, firstZ) };
+                data.MovementBlockUpdate.SplinePoints.Add(new Position(firstX, firstY, firstZ));
 
-                // Packed deltas — usually signed 11/11/10 bits
                 for (int i = 1; i < splineCount; i++)
                 {
                     uint packed = reader.ReadUInt32();
-
-                    // Interpret as SIGNED deltas from previous point
                     int dx = SignExtend(packed & 0x7FF, 11);
                     int dy = SignExtend((packed >> 11) & 0x7FF, 11);
                     int dz = SignExtend((packed >> 22) & 0x3FF, 10);
@@ -226,9 +226,11 @@ namespace WoWSharpClient.Handlers
                     float py = firstY + dy / 4.0f;
                     float pz = firstZ + dz / 4.0f;
 
-                    splinePoints.Add(new Position(px, py, pz));
+                    data.MovementBlockUpdate.SplinePoints.Add(new Position(px, py, pz));
                 }
             }
+
+            return data;
         }
 
         private static int SignExtend(uint value, int bits)

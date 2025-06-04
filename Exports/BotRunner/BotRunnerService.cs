@@ -71,7 +71,8 @@ namespace BotRunner
                                                 }
                                                 else
                                                 {
-                                                    _objectManager.Face(new Position(woWUnit.Position.ToXYZ()));
+                                                    if (!_objectManager.Player.IsFacing(woWUnit))
+                                                        _objectManager.Face(woWUnit.Position);
                                                     _objectManager.StopAllMovement();
                                                 }
                                             }
@@ -1339,7 +1340,7 @@ namespace BotRunner
                     var gender = (Gender)parameters[2];
                     var characterClass = (Class)parameters[3];
 
-                    _objectManager.CharacterSelectScreen.CreateCharacter(name, race, gender, characterClass, 0, 0, 0, 0, 0);
+                    _objectManager.CharacterSelectScreen.CreateCharacter(name, race, gender, characterClass, 0, 0, 0, 0, 0, 0);
                     return BehaviourTreeStatus.Success;
                 })
             .End()

@@ -39,7 +39,7 @@ namespace WoWSharpClient.Client
             }
             catch (Exception ex)
             {
-                //Console.WriteLine($"[LoginClient] {ex}");
+                Console.WriteLine($"[LoginClient] {ex}");
             }
         }
 

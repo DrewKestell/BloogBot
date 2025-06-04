@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\BotRunner\BotRunner.csproj" />
     <ProjectReference Include="..\BotCommLayer\BotCommLayer.csproj" />
     <ProjectReference Include="..\BotRunner\BotRunner.csproj" />
     <ProjectReference Include="..\GameData.Core\GameData.Core.csproj" />

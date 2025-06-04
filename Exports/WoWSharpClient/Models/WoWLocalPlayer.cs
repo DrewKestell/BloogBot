@@ -19,8 +19,8 @@ namespace WoWSharpClient.Models
         public bool MainhandIsEnchanted => throw new NotImplementedException();
         public uint Copper => throw new NotImplementedException();
         public bool IsAutoAttacking => throw new NotImplementedException();
-        public bool CanResurrect => throw new NotImplementedException(); 
-        
+        public bool CanResurrect => throw new NotImplementedException();
+
         public override WoWLocalPlayer Clone()
         {
             var clone = new WoWLocalPlayer(this.HighGuid, this.ObjectType);

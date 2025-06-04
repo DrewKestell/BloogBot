@@ -50,12 +50,14 @@ namespace WoWSharpClient.Models
             Array.Copy(source.Rotation, Rotation, Rotation.Length);
         }
 
-        public Position GetPointBehindUnit(float distance) => throw new NotImplementedException();
-        public bool InLosWith(Position position) => throw new NotImplementedException();
-        public bool InLosWith(IWoWObject objc) => throw new NotImplementedException();
-        public void Interact() => throw new NotImplementedException();
-        public bool IsBehind(IWoWObject target) => throw new NotImplementedException();
-        public bool IsFacing(Position position) => throw new NotImplementedException();
-        public bool IsFacing(IWoWObject objc) => throw new NotImplementedException();
+        public Position GetPointBehindUnit(float distance)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Interact()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -50,9 +50,9 @@ namespace WoWSharpClient.Screens
         {
             woWClient.RefreshCharacterSelects();
         }
-        public void CreateCharacter(string name, Race race, Gender gender, Class @class, byte skinColor, byte face, byte hairStyle, byte hairColor, byte facialHair)
+        public void CreateCharacter(string name, Race race, Gender gender, Class @class, byte skinColor, byte face, byte hairStyle, byte hairColor, byte facialHair, byte outfitId)
         {
-            woWClient.SendCharacterCreate(name, race, @class, gender, skinColor, face, hairStyle, hairColor, facialHair);
+            woWClient.SendCharacterCreate(name, race, @class, gender, skinColor, face, hairStyle, hairColor, facialHair, outfitId);
             HasReceivedCharacterList = false;
         }
 

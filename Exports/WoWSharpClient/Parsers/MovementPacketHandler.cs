@@ -74,134 +74,155 @@ namespace WoWSharpClient.Parsers
 
             return ms.ToArray();
         }
-        public static void ParseMovementBlock(BinaryReader reader, WoWUnit currentUnit)
+        public static MovementInfoUpdate ParseMovementBlock(BinaryReader reader)
         {
-            ReadMovementHeader(reader, currentUnit);
-            ReadPositionAndFacing(reader, currentUnit);
-
-            if (currentUnit.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_ONTRANSPORT))
-                ReadTransportData(reader, currentUnit);
-
-            if (currentUnit.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SWIMMING))
-                ReadSwimPitch(reader, currentUnit);
-
-            if (!currentUnit.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_ONTRANSPORT))
-                currentUnit.FallTime = reader.ReadSingle();
-
-            if (currentUnit.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLING))
-                ReadJumpData(reader, currentUnit);
-
-            if (currentUnit.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SPLINE_ELEVATION))
-                currentUnit.SplineElevation = reader.ReadSingle();
-
-            ReadSpeeds(reader, currentUnit);
-
-            if (currentUnit.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SPLINE_ENABLED))
-                ReadSplineData(reader, currentUnit);
-        }
-        public static void ParseMovementInfo(BinaryReader reader, WoWUnit currentUnit)
-        {
-            ReadMovementHeader(reader, currentUnit);
-            ReadPositionAndFacing(reader, currentUnit);
-
-            if (currentUnit.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_ONTRANSPORT))
-                ReadTransportData(reader, currentUnit);
-
-            if (currentUnit.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SWIMMING))
-                ReadSwimPitch(reader, currentUnit);
-
-            currentUnit.FallTime = reader.ReadSingle();
-
-            if (currentUnit.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLING))
-                ReadJumpData(reader, currentUnit);
-
-            if (currentUnit.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SPLINE_ELEVATION))
-                currentUnit.SplineElevation = reader.ReadSingle();
-        }
-        private static void ReadMovementHeader(BinaryReader reader, WoWUnit unit)
-        {
-            unit.MovementFlags = (MovementFlags)reader.ReadUInt32();
-            unit.LastUpdated = reader.ReadUInt32();
-        }
-        private static void ReadPositionAndFacing(BinaryReader reader, WoWUnit unit)
-        {
-            unit.Position.X = reader.ReadSingle();
-            unit.Position.Y = reader.ReadSingle();
-            unit.Position.Z = reader.ReadSingle();
-            unit.Facing = reader.ReadSingle();
-        }
-        private static void ReadTransportData(BinaryReader reader, WoWUnit unit)
-        {
-            unit.TransportGuid = BitConverter.ToUInt64(reader.ReadBytes(4));
-            unit.TransportOffset.X = reader.ReadSingle();
-            unit.TransportOffset.Y = reader.ReadSingle();
-            unit.TransportOffset.Z = reader.ReadSingle();
-            unit.TransportOrientation = reader.ReadSingle();
-            unit.TransportLastUpdated = reader.ReadUInt32();
-        }
-        private static void ReadSwimPitch(BinaryReader reader, WoWUnit unit)
-        {
-            unit.SwimPitch = reader.ReadSingle();
-        }
-        private static void ReadJumpData(BinaryReader reader, WoWUnit unit)
-        {
-            unit.JumpVerticalSpeed = reader.ReadSingle();
-            unit.JumpSinAngle = reader.ReadSingle();
-            unit.JumpCosAngle = reader.ReadSingle();
-            unit.JumpHorizontalSpeed = reader.ReadSingle();
-        }
-        private static void ReadSpeeds(BinaryReader reader, WoWUnit unit)
-        {
-            unit.WalkSpeed = reader.ReadSingle();
-            unit.RunSpeed = reader.ReadSingle();
-            unit.RunBackSpeed = reader.ReadSingle();
-            unit.SwimSpeed = reader.ReadSingle();
-            unit.SwimBackSpeed = reader.ReadSingle();
-            unit.TurnRate = reader.ReadSingle();
-        }
-        private static void ReadSplineData(BinaryReader reader, WoWUnit unit)
-        {
-            SplineFlags flags = (SplineFlags)reader.ReadUInt32();
-            unit.SplineFlags = flags;
-
-            if (flags.HasFlag(SplineFlags.FinalPoint))
+            var data = new MovementInfoUpdate()
             {
-                float x = reader.ReadSingle();
-                float y = reader.ReadSingle();
-                float z = reader.ReadSingle();
-                unit.SplineFinalPoint = new Position(x, y, z);
-            }
-            else if (flags.HasFlag(SplineFlags.FinalTarget))
+                MovementFlags = (MovementFlags)reader.ReadUInt32(),
+                LastUpdated = reader.ReadUInt32(),
+
+                X = reader.ReadSingle(),
+                Y = reader.ReadSingle(),
+                Z = reader.ReadSingle(),
+
+                Facing = reader.ReadSingle(),
+
+                MovementBlockUpdate = new MovementBlockUpdate()
+            };
+
+            if (data.HasTransport)
             {
-                ulong targetGuid = reader.ReadUInt64();
-                unit.SplineTargetGuid = targetGuid;
-            }
-            else if (flags.HasFlag(SplineFlags.FinalOrientation))
-            {
-                float angle = reader.ReadSingle();
-                unit.SplineFinalOrientation = angle;
+                data.TransportGuid = BitConverter.ToUInt64(reader.ReadBytes(4));
+                float tx = reader.ReadSingle();
+                float ty = reader.ReadSingle();
+                float tz = reader.ReadSingle();
+                data.TransportOffset = new Position(tx, ty, tz);
+                data.TransportOrientation = reader.ReadSingle();
+                data.TransportLastUpdated = reader.ReadUInt32();
             }
 
-            unit.SplineTimePassed = reader.ReadInt32();
-            unit.SplineDuration = reader.ReadInt32();
-            unit.SplineId = reader.ReadUInt32();
-
-            uint nodeCount = reader.ReadUInt32();
-            unit.SplineNodes = [];
-
-            for (int i = 0; i < nodeCount; i++)
+            if (data.IsSwimming)
             {
-                float x = reader.ReadSingle();
-                float y = reader.ReadSingle();
-                float z = reader.ReadSingle();
-                var node = new Position(x, y, z);
-                unit.SplineNodes.Add(node);
+                data.SwimPitch = reader.ReadSingle();
             }
 
-            float finalX = reader.ReadSingle();
-            float finalY = reader.ReadSingle();
-            float finalZ = reader.ReadSingle();
-            unit.SplineFinalDestination = new Position(finalX, finalY, finalZ);
+            if (!data.HasTransport)
+                data.FallTime = reader.ReadSingle();
+
+            if (data.IsFalling)
+            {
+                data.JumpVerticalSpeed = reader.ReadSingle();
+                data.JumpSinAngle = reader.ReadSingle();
+                data.JumpCosAngle = reader.ReadSingle();
+                data.JumpHorizontalSpeed = reader.ReadSingle();
+            }
+
+            if (data.HasSplineElevation)
+            {
+                data.SplineElevation = reader.ReadSingle();
+            }
+
+            // Read Speeds
+            data.MovementBlockUpdate.WalkSpeed = reader.ReadSingle();
+            data.MovementBlockUpdate.RunSpeed = reader.ReadSingle();
+            data.MovementBlockUpdate.RunBackSpeed = reader.ReadSingle();
+            data.MovementBlockUpdate.SwimSpeed = reader.ReadSingle();
+            data.MovementBlockUpdate.SwimBackSpeed = reader.ReadSingle();
+            data.MovementBlockUpdate.TurnRate = reader.ReadSingle();
+
+            if (data.HasSpline)
+            {
+                SplineFlags flags = (SplineFlags)reader.ReadUInt32();
+                data.MovementBlockUpdate.SplineFlags = flags;
+
+                if (flags.HasFlag(SplineFlags.FinalPoint))
+                {
+                    float x = reader.ReadSingle();
+                    float y = reader.ReadSingle();
+                    float z = reader.ReadSingle();
+                    data.MovementBlockUpdate.SplineFinalPoint = new Position(x, y, z);
+                }
+                else if (flags.HasFlag(SplineFlags.FinalTarget))
+                {
+                    data.MovementBlockUpdate.SplineTargetGuid = reader.ReadUInt64();
+                }
+                else if (flags.HasFlag(SplineFlags.FinalOrientation))
+                {
+                    data.MovementBlockUpdate.SplineFinalOrientation = reader.ReadSingle();
+                }
+
+                data.MovementBlockUpdate.SplineTimePassed = reader.ReadInt32();
+                data.MovementBlockUpdate.SplineDuration = reader.ReadInt32();
+                data.MovementBlockUpdate.SplineId = reader.ReadUInt32();
+
+                uint nodeCount = reader.ReadUInt32();
+                var splineNodes = new List<Position>();
+
+                for (int i = 0; i < nodeCount; i++)
+                {
+                    float x = reader.ReadSingle();
+                    float y = reader.ReadSingle();
+                    float z = reader.ReadSingle();
+                    splineNodes.Add(new Position(x, y, z));
+                }
+
+                data.MovementBlockUpdate.SplineNodes = splineNodes;
+
+                float finalX = reader.ReadSingle();
+                float finalY = reader.ReadSingle();
+                float finalZ = reader.ReadSingle();
+                data.MovementBlockUpdate.SplineFinalDestination = new Position(finalX, finalY, finalZ);
+            }
+
+            return data;
+        }
+
+        public static MovementInfoUpdate ParseMovementInfo(BinaryReader reader)
+        {
+            var data = new MovementInfoUpdate()
+            {
+                MovementFlags = (MovementFlags)reader.ReadUInt32(),
+                LastUpdated = reader.ReadUInt32(),
+
+                X = reader.ReadSingle(),
+                Y = reader.ReadSingle(),
+                Z = reader.ReadSingle(),
+
+                Facing = reader.ReadSingle()
+            };
+
+            if (data.HasTransport)
+            {
+                data.TransportGuid = BitConverter.ToUInt64(reader.ReadBytes(4));
+                float tx = reader.ReadSingle();
+                float ty = reader.ReadSingle();
+                float tz = reader.ReadSingle();
+                data.TransportOffset = new Position(tx, ty, tz);
+                data.TransportOrientation = reader.ReadSingle();
+                data.TransportLastUpdated = reader.ReadUInt32();
+            }
+
+            if (data.IsSwimming)
+            {
+                data.SwimPitch = reader.ReadSingle();
+            }
+
+            data.FallTime = reader.ReadSingle();
+
+            if (data.IsFalling)
+            {
+                data.JumpVerticalSpeed = reader.ReadSingle();
+                data.JumpCosAngle = reader.ReadSingle();
+                data.JumpSinAngle = reader.ReadSingle();
+                data.JumpHorizontalSpeed = reader.ReadSingle();
+            }
+
+            if (data.HasSplineElevation)
+            {
+                data.SplineElevation = reader.ReadSingle();
+            }
+
+            return data;
         }
 
         internal static byte[] BuildForceMoveAck(WoWLocalPlayer player, uint movementCounter, uint timestamp)

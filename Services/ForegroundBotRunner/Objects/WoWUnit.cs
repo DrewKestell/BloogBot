@@ -223,32 +223,7 @@ namespace ForegroundBotRunner.Objects
 
         public bool HasDebuff(string name) => Debuffs.Any(a => a.Name == name);
 
-        public static bool IsFacing(IWoWUnit position)
-        {
-            return true;
-        }
-
-        public bool InLosWith(Position position)
-        {
-            return true;
-        }
-
-        public static bool InLosWith(IWoWUnit position)
-        {
-            return true;
-        }
-
         public IEnumerable<ISpellEffect> GetDebuffs()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsFacing(IWoWGameObject objc)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool InLosWith(IWoWGameObject objc)
         {
             throw new NotImplementedException();
         }
@@ -312,13 +287,9 @@ namespace ForegroundBotRunner.Objects
 
         public uint AuraState => throw new NotImplementedException();
 
-        public uint BaseAttackTime => throw new NotImplementedException();
+        public float BaseAttackTime => throw new NotImplementedException();
 
-        public uint BaseAttackTime1 => throw new NotImplementedException();
-
-        public uint OffhandAttackTime => throw new NotImplementedException();
-
-        public uint OffhandAttackTime1 => throw new NotImplementedException();
+        public float OffhandAttackTime => throw new NotImplementedException();
 
         public uint NativeDisplayId => throw new NotImplementedException();
 

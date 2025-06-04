@@ -1,5 +1,6 @@
 ﻿using GameData.Core.Enums;
 using WoWSharpClient.Handlers;
+using WoWSharpClient.Utils;
 
 namespace WoWSharpClient
 {
@@ -34,14 +35,16 @@ namespace WoWSharpClient
             _worldStateHandler = new(objectManager);
 
             _queue = new Queue<Action>();
-            _runnerTask = Runner();
 
             RegisterHandlers();
+
+            _runnerTask = Runner();
         }
 
         private void RegisterHandlers()
         {
             _handlers[Opcode.SMSG_AUTH_RESPONSE] = HandleAuthResponse;
+            _handlers[Opcode.SMSG_CLIENT_CONTROL_UPDATE] = HandleSMSGClientControlUpdate;
 
             _handlers[Opcode.SMSG_UPDATE_OBJECT] = _objectUpdateHandler.HandleUpdateObject;
             _handlers[Opcode.SMSG_COMPRESSED_UPDATE_OBJECT] = _objectUpdateHandler.HandleUpdateObject;
@@ -115,8 +118,6 @@ namespace WoWSharpClient
 
         public void Dispatch(Opcode opcode, byte[] data)
         {
-            //GenerateTestFile(opcode, data);
-            //Console.WriteLine($"Opcode: {opcode}");
             if (_handlers.TryGetValue(opcode, out var handler))
             {
                 _queue.Enqueue(() => handler(opcode, data));
@@ -126,32 +127,6 @@ namespace WoWSharpClient
                 //Console.WriteLine($"Unhandled opcode: {opcode} byte[{data.Length}]");
             }
         }
-        public static void GenerateTestFile(Opcode opcode, byte[] data)
-        {
-            try
-            {
-                // Create a directory for the opcode if it doesn't exist
-                string opcodeDirectory = Path.Combine(Directory.GetCurrentDirectory(), opcode.ToString());
-                if (!Directory.Exists(opcodeDirectory))
-                {
-                    Directory.CreateDirectory(opcodeDirectory);
-                }
-
-                // Create a unique filename based on the current timestamp
-                string fileName = $"{DateTime.Now:yyyyMMdd_HHmmssfff}.bin";
-                string filePath = Path.Combine(opcodeDirectory, fileName);
-
-                // Write the byte array to the file
-                File.WriteAllBytes(filePath, data);
-
-                //Console.WriteLine($"Test file generated: {filePath}");
-            }
-            catch (Exception ex)
-            {
-                //Console.WriteLine($"Error generating test file: {ex.Message}");
-            }
-        }
-
         private async Task Runner()
         {
             while (true)
@@ -184,6 +159,17 @@ namespace WoWSharpClient
 
             if (result != (uint)ResponseCode.AUTH_OK) // AUTH_OK
                 _woWSharpEventEmitter.FireOnWorldSessionEnd();
+        }
+
+        public void HandleSMSGClientControlUpdate(Opcode opCode, byte[] payload)
+        {
+            BinaryReader reader = new(new MemoryStream(payload));
+            ulong guid = ReaderUtils.ReadPackedGuid(reader);
+            bool canControl = reader.ReadByte() != 0;
+            Console.WriteLine($"[WorldClient] SMSG_CLIENT_CONTROL_UPDATE: GUID=0x{guid:X}, CanControl={canControl}");
+
+            // Respond with movement or heartbeat to indicate readiness
+            _woWSharpEventEmitter.FireOnClientControlUpdate();
         }
     }
 }

@@ -12,11 +12,7 @@ namespace GameData.Core.Frames
             Race race,
             Gender gender,
             Class @class,
-            byte skinColor,
-            byte face,
-            byte hairStyle,
-            byte hairColor,
-            byte miscAttribute);
+            byte skinColor, byte face, byte hairStyle, byte hairColor, byte facialHair, byte outfitId);
         void DeleteCharacter(ulong characterGuid);
         List<CharacterSelect> CharacterSelects { get; }
         void RefreshCharacterListFromServer();

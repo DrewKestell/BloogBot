@@ -41,7 +41,7 @@ namespace WoWSharpClient.Models
 
         public ulong TransportGuid { get; set; }
         public IWoWGameObject Transport { get; set; } = new WoWGameObject(new HighGuid(new byte[4], new byte[4]));
-        public Position TransportOffset { get; private set; } = new(0, 0, 0);
+        public Position TransportOffset { get; set; } = new(0, 0, 0);
         public float TransportOrientation { get; set; }
         public float SwimPitch { get; set; }
 
@@ -73,10 +73,10 @@ namespace WoWSharpClient.Models
         public uint[] AuraApplications { get; } = new uint[12];
         public uint AuraState { get; set; }
 
-        public uint BaseAttackTime { get; set; }
-        public uint BaseAttackTime1 { get; set; }
-        public uint OffhandAttackTime { get; set; }
-        public uint OffhandAttackTime1 { get; set; }
+        public float BaseAttackTime { get; set; }
+        public float BaseAttackTime1 { get; set; }
+        public float OffhandAttackTime { get; set; }
+        public float OffhandAttackTime1 { get; set; }
 
         public float BoundingRadius { get; set; }
         public float CombatReach { get; set; }
@@ -129,6 +129,11 @@ namespace WoWSharpClient.Models
 
         public List<Spell> Buffs { get; } = [];
         public List<Spell> Debuffs { get; } = [];
+        public float FacingAngle { get; internal set; }
+        public SplineType SplineType { get; internal set; }
+        public Position FacingSpot { get; internal set; } = new Position(0, 0, 0);
+        public uint SplineTimestamp { get; internal set; }
+        public List<Position> SplinePoints { get; internal set; } = [];
 
         public override WoWUnit Clone()
         {
@@ -247,31 +252,6 @@ namespace WoWSharpClient.Models
         }
 
         public void Interact()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool InLosWith(Position position)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool InLosWith(IWoWObject objc)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsFacing(Position position)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsFacing(IWoWObject objc)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsBehind(IWoWObject target)
         {
             throw new NotImplementedException();
         }

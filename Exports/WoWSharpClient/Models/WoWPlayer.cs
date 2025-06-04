@@ -88,6 +88,10 @@ namespace WoWSharpClient.Models
         public uint LifetimeDishonorableKills { get; set; }
         public uint WatchedFactionIndex { get; set; }
         public uint[] CombatRating { get; } = new uint[20];
+        public byte[] PlayerBytes { get; internal set; }
+        public byte[] PlayerBytes2 { get; internal set; }
+        public byte[] PlayerBytes3 { get; internal set; }
+        public byte[] FieldBytes2 { get; internal set; }
 
         public void OfferTrade()
         {

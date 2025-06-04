@@ -214,35 +214,5 @@ namespace ForegroundBotRunner.Objects
         }
 
         public nint GetDescriptorPtr() => MemoryManager.ReadIntPtr(nint.Add(Pointer, MemoryAddresses.WoWObject_DescriptorOffset));
-
-        public bool IsFacing(Position position)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool InLosWith(Position position)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsFacing(IWoWObject objc)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool InLosWith(IWoWObject objc)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsBehind(IWoWUnit unit)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsBehind(IWoWObject target)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

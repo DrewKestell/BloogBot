@@ -4,7 +4,7 @@ using GameData.Core.Models;
 
 namespace WoWSharpClient.Models
 {
-    public class WoWItem(HighGuid highGuid, WoWObjectType objectType = WoWObjectType.Item) : WoWGameObject(highGuid, objectType), IWoWItem
+    public class WoWItem(HighGuid highGuid, WoWObjectType objectType = WoWObjectType.Item) : WoWObject(highGuid, objectType), IWoWItem
     {
         public uint ItemId { get; set; }
         public uint Quantity { get; set; }
@@ -25,6 +25,10 @@ namespace WoWSharpClient.Models
         public HighGuid Owner { get; } = new HighGuid(new byte[4], new byte[4]);
         public HighGuid Contained { get; } = new HighGuid(new byte[4], new byte[4]);
         public HighGuid GiftCreator { get; } = new HighGuid(new byte[4], new byte[4]);
+
+        public string Name { get; set; } = string.Empty;
+
+        public HighGuid CreatedBy { get; set; } = new HighGuid(new byte[4], new byte[4]);
 
         public void Use()
         {

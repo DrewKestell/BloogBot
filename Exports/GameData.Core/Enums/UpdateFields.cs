@@ -2,7 +2,7 @@
 {
     public class UpdateFields
     {
-        public enum EObjectFields
+        public enum EObjectFields : uint
         {
             OBJECT_FIELD_GUID = 0x00, // Size:2
             OBJECT_FIELD_TYPE = 0x02, // Size:1
@@ -12,7 +12,7 @@
             OBJECT_END = 0x06,
         }
 
-        public enum EItemFields
+        public enum EItemFields : uint
         {
             ITEM_FIELD_OWNER = EObjectFields.OBJECT_END + 0x00, // Size:2
             ITEM_FIELD_CONTAINED = EObjectFields.OBJECT_END + 0x02, // Size:2
@@ -35,7 +35,7 @@
             ITEM_END = EObjectFields.OBJECT_END + 0x2A,
         }
 
-        public enum EContainerFields
+        public enum EContainerFields : uint
         {
             CONTAINER_FIELD_NUM_SLOTS = EItemFields.ITEM_END + 0x00, // Size:1
             CONTAINER_ALIGN_PAD = EItemFields.ITEM_END + 0x01, // Size:1
@@ -49,7 +49,7 @@
          * \see Object::HasFlag
          * \todo Document this properly!
          */
-        public enum EUnitFields
+        public enum EUnitFields : uint
         {
             UNIT_FIELD_CHARM = 0x00 + EObjectFields.OBJECT_END, // Size:2
             UNIT_FIELD_SUMMON = 0x02 + EObjectFields.OBJECT_END, // Size:2
@@ -97,8 +97,8 @@
             UNIT_FIELD_AURAAPPLICATIONS = 0x6b + EObjectFields.OBJECT_END, // Size:12
             UNIT_FIELD_AURAAPPLICATIONS_LAST = 0x76 + EObjectFields.OBJECT_END,
             UNIT_FIELD_AURASTATE = 0x77 + EObjectFields.OBJECT_END, // Size:1
-            UNIT_FIELD_BASEATTACKTIME = 0x78 + EObjectFields.OBJECT_END, // Size:2
-            UNIT_FIELD_OFFHANDATTACKTIME = 0x79 + EObjectFields.OBJECT_END, // Size:2
+            UNIT_FIELD_BASEATTACKTIME = 0x78 + EObjectFields.OBJECT_END, // Size:1
+            UNIT_FIELD_OFFHANDATTACKTIME = 0x79 + EObjectFields.OBJECT_END, // Size:1
             UNIT_FIELD_RANGEDATTACKTIME = 0x7a + EObjectFields.OBJECT_END, // Size:1
             UNIT_FIELD_BOUNDINGRADIUS = 0x7b + EObjectFields.OBJECT_END, // Size:1
             UNIT_FIELD_COMBATREACH = 0x7c + EObjectFields.OBJECT_END, // Size:1
@@ -251,7 +251,7 @@
 
             PLAYER_END = 0x446 + UNIT_END
         }
-        public enum EGameObjectFields
+        public enum EGameObjectFields : uint
         {
             OBJECT_FIELD_CREATED_BY = EObjectFields.OBJECT_END + 0x00,
             GAMEOBJECT_DISPLAYID = EObjectFields.OBJECT_END + 0x02,
@@ -272,7 +272,7 @@
             GAMEOBJECT_END = EObjectFields.OBJECT_END + 0x14,
         }
 
-        public enum EDynamicObjectFields
+        public enum EDynamicObjectFields : uint
         {
             DYNAMICOBJECT_CASTER = EObjectFields.OBJECT_END + 0x00,
             DYNAMICOBJECT_BYTES = EObjectFields.OBJECT_END + 0x02,
@@ -286,7 +286,7 @@
             DYNAMICOBJECT_END = EObjectFields.OBJECT_END + 0x0A,
         }
 
-        public enum ECorpseFields
+        public enum ECorpseFields : uint
         {
             CORPSE_FIELD_OWNER = EObjectFields.OBJECT_END + 0x00,
             CORPSE_FIELD_FACING = EObjectFields.OBJECT_END + 0x02,

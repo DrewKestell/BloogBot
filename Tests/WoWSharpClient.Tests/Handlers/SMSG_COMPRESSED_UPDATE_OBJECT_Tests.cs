@@ -150,7 +150,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item1.Position.Z);
             Assert.Equal(0f, item1.Facing);
             Assert.Equal(0u, item1.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item1.DynamicFlags);
             Assert.Equal((uint)0, item1.ItemId);
             Assert.Equal((ulong)150, item1.Owner.FullGuid);
             Assert.Equal((ulong)150, item1.Contained.FullGuid);
@@ -181,7 +180,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item2.Position.Z);
             Assert.Equal(0f, item2.Facing);
             Assert.Equal(0u, item2.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item2.DynamicFlags);
             Assert.Equal((uint)0, item2.ItemId);
             Assert.Equal((ulong)150, item2.Owner.FullGuid);
             Assert.Equal((ulong)150, item2.Contained.FullGuid);
@@ -212,7 +210,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item3.Position.Z);
             Assert.Equal(0f, item3.Facing);
             Assert.Equal(0u, item3.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item3.DynamicFlags);
             Assert.Equal((uint)0, item3.ItemId);
             Assert.Equal((ulong)150, item3.Owner.FullGuid);
             Assert.Equal((ulong)150, item3.Contained.FullGuid);
@@ -243,7 +240,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item4.Position.Z);
             Assert.Equal(0f, item4.Facing);
             Assert.Equal(0u, item4.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item4.DynamicFlags);
             Assert.Equal((uint)0, item4.ItemId);
             Assert.Equal((ulong)150, item4.Owner.FullGuid);
             Assert.Equal((ulong)150, item4.Contained.FullGuid);
@@ -274,7 +270,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item5.Position.Z);
             Assert.Equal(0f, item5.Facing);
             Assert.Equal(0u, item5.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item5.DynamicFlags);
             Assert.Equal((uint)0, item5.ItemId);
             Assert.Equal((ulong)150, item5.Owner.FullGuid);
             Assert.Equal((ulong)150, item5.Contained.FullGuid);
@@ -305,7 +300,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item6.Position.Z);
             Assert.Equal(0f, item6.Facing);
             Assert.Equal(0u, item6.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item6.DynamicFlags);
             Assert.Equal((uint)0, item6.ItemId);
             Assert.Equal((ulong)150, item6.Owner.FullGuid);
             Assert.Equal((ulong)150, item6.Contained.FullGuid);
@@ -336,7 +330,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item7.Position.Z);
             Assert.Equal(0f, item7.Facing);
             Assert.Equal(0u, item7.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item7.DynamicFlags);
             Assert.Equal((uint)0, item7.ItemId);
             Assert.Equal((ulong)150, item7.Owner.FullGuid);
             Assert.Equal((ulong)150, item7.Contained.FullGuid);
@@ -367,7 +360,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item8.Position.Z);
             Assert.Equal(0f, item8.Facing);
             Assert.Equal(0u, item8.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item8.DynamicFlags);
             Assert.Equal((uint)0, item8.ItemId);
             Assert.Equal((ulong)150, item8.Owner.FullGuid);
             Assert.Equal((ulong)150, item8.Contained.FullGuid);
@@ -398,7 +390,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item9.Position.Z);
             Assert.Equal(0f, item9.Facing);
             Assert.Equal(0u, item9.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item9.DynamicFlags);
             Assert.Equal((uint)0, item9.ItemId);
             Assert.Equal((ulong)150, item9.Owner.FullGuid);
             Assert.Equal((ulong)150, item9.Contained.FullGuid);
@@ -429,7 +420,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item10.Position.Z);
             Assert.Equal(0f, item10.Facing);
             Assert.Equal(0u, item10.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item10.DynamicFlags);
             Assert.Equal((uint)0, item10.ItemId);
             Assert.Equal((ulong)150, item10.Owner.FullGuid);
             Assert.Equal((ulong)150, item10.Contained.FullGuid);
@@ -460,7 +450,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item11.Position.Z);
             Assert.Equal(0f, item11.Facing);
             Assert.Equal(0u, item11.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item11.DynamicFlags);
             Assert.Equal((uint)0, item11.ItemId);
             Assert.Equal((ulong)150, item11.Owner.FullGuid);
             Assert.Equal((ulong)150, item11.Contained.FullGuid);
@@ -491,7 +480,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item12.Position.Z);
             Assert.Equal(0f, item12.Facing);
             Assert.Equal(0u, item12.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item12.DynamicFlags);
             Assert.Equal((uint)0, item12.ItemId);
             Assert.Equal((ulong)150, item12.Owner.FullGuid);
             Assert.Equal((ulong)150, item12.Contained.FullGuid);
@@ -522,7 +510,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item13.Position.Z);
             Assert.Equal(0f, item13.Facing);
             Assert.Equal(0u, item13.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item13.DynamicFlags);
             Assert.Equal((uint)0, item13.ItemId);
             Assert.Equal((ulong)150, item13.Owner.FullGuid);
             Assert.Equal((ulong)150, item13.Contained.FullGuid);
@@ -553,7 +540,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item14.Position.Z);
             Assert.Equal(0f, item14.Facing);
             Assert.Equal(0u, item14.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item14.DynamicFlags);
             Assert.Equal((uint)0, item14.ItemId);
             Assert.Equal((ulong)150, item14.Owner.FullGuid);
             Assert.Equal((ulong)150, item14.Contained.FullGuid);
@@ -584,7 +570,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item15.Position.Z);
             Assert.Equal(0f, item15.Facing);
             Assert.Equal(0u, item15.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item15.DynamicFlags);
             Assert.Equal((uint)0, item15.ItemId);
             Assert.Equal((ulong)150, item15.Owner.FullGuid);
             Assert.Equal((ulong)150, item15.Contained.FullGuid);
@@ -615,7 +600,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item16.Position.Z);
             Assert.Equal(0f, item16.Facing);
             Assert.Equal(0u, item16.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item16.DynamicFlags);
             Assert.Equal((uint)0, item16.ItemId);
             Assert.Equal((ulong)150, item16.Owner.FullGuid);
             Assert.Equal((ulong)150, item16.Contained.FullGuid);
@@ -646,7 +630,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item17.Position.Z);
             Assert.Equal(0f, item17.Facing);
             Assert.Equal(0u, item17.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item17.DynamicFlags);
             Assert.Equal((uint)0, item17.ItemId);
             Assert.Equal((ulong)150, item17.Owner.FullGuid);
             Assert.Equal((ulong)150, item17.Contained.FullGuid);
@@ -677,7 +660,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item18.Position.Z);
             Assert.Equal(0f, item18.Facing);
             Assert.Equal(0u, item18.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item18.DynamicFlags);
             Assert.Equal((uint)0, item18.ItemId);
             Assert.Equal((ulong)150, item18.Owner.FullGuid);
             Assert.Equal((ulong)150, item18.Contained.FullGuid);
@@ -708,7 +690,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item19.Position.Z);
             Assert.Equal(0f, item19.Facing);
             Assert.Equal(0u, item19.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item19.DynamicFlags);
             Assert.Equal((uint)0, item19.ItemId);
             Assert.Equal((ulong)150, item19.Owner.FullGuid);
             Assert.Equal((ulong)150, item19.Contained.FullGuid);
@@ -739,7 +720,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, container20.Position.Z);
             Assert.Equal(0f, container20.Facing);
             Assert.Equal(0u, container20.LastUpdated);
-            Assert.Equal(DynamicFlags.None, container20.DynamicFlags);
             Assert.Equal((uint)0, container20.ItemId);
             Assert.Equal((ulong)150, container20.Owner.FullGuid);
             Assert.Equal((ulong)150, container20.Contained.FullGuid);
@@ -771,7 +751,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item21.Position.Z);
             Assert.Equal(0f, item21.Facing);
             Assert.Equal(0u, item21.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item21.DynamicFlags);
             Assert.Equal((uint)0, item21.ItemId);
             Assert.Equal((ulong)150, item21.Owner.FullGuid);
             Assert.Equal((ulong)4611686018427396374, item21.Contained.FullGuid);
@@ -802,7 +781,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, container22.Position.Z);
             Assert.Equal(0f, container22.Facing);
             Assert.Equal(0u, container22.LastUpdated);
-            Assert.Equal(DynamicFlags.None, container22.DynamicFlags);
             Assert.Equal((uint)0, container22.ItemId);
             Assert.Equal((ulong)150, container22.Owner.FullGuid);
             Assert.Equal((ulong)150, container22.Contained.FullGuid);
@@ -834,7 +812,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item23.Position.Z);
             Assert.Equal(0f, item23.Facing);
             Assert.Equal(0u, item23.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item23.DynamicFlags);
             Assert.Equal((uint)0, item23.ItemId);
             Assert.Equal((ulong)150, item23.Owner.FullGuid);
             Assert.Equal((ulong)4611686018427402438, item23.Contained.FullGuid);
@@ -865,7 +842,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, container24.Position.Z);
             Assert.Equal(0f, container24.Facing);
             Assert.Equal(0u, container24.LastUpdated);
-            Assert.Equal(DynamicFlags.None, container24.DynamicFlags);
             Assert.Equal((uint)0, container24.ItemId);
             Assert.Equal((ulong)150, container24.Owner.FullGuid);
             Assert.Equal((ulong)150, container24.Contained.FullGuid);
@@ -897,7 +873,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item25.Position.Z);
             Assert.Equal(0f, item25.Facing);
             Assert.Equal(0u, item25.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item25.DynamicFlags);
             Assert.Equal((uint)0, item25.ItemId);
             Assert.Equal((ulong)150, item25.Owner.FullGuid);
             Assert.Equal((ulong)4611686018427402439, item25.Contained.FullGuid);
@@ -928,7 +903,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, container26.Position.Z);
             Assert.Equal(0f, container26.Facing);
             Assert.Equal(0u, container26.LastUpdated);
-            Assert.Equal(DynamicFlags.None, container26.DynamicFlags);
             Assert.Equal((uint)0, container26.ItemId);
             Assert.Equal((ulong)150, container26.Owner.FullGuid);
             Assert.Equal((ulong)150, container26.Contained.FullGuid);
@@ -960,7 +934,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item27.Position.Z);
             Assert.Equal(0f, item27.Facing);
             Assert.Equal(0u, item27.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item27.DynamicFlags);
             Assert.Equal((uint)0, item27.ItemId);
             Assert.Equal((ulong)150, item27.Owner.FullGuid);
             Assert.Equal((ulong)4611686018427402440, item27.Contained.FullGuid);
@@ -991,7 +964,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item28.Position.Z);
             Assert.Equal(0f, item28.Facing);
             Assert.Equal(0u, item28.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item28.DynamicFlags);
             Assert.Equal((uint)0, item28.ItemId);
             Assert.Equal((ulong)150, item28.Owner.FullGuid);
             Assert.Equal((ulong)150, item28.Contained.FullGuid);
@@ -1022,7 +994,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0, item29.Position.Z);
             Assert.Equal(0f, item29.Facing);
             Assert.Equal(0u, item29.LastUpdated);
-            Assert.Equal(DynamicFlags.None, item29.DynamicFlags);
             Assert.Equal((uint)0, item29.ItemId);
             Assert.Equal((ulong)150, item29.Owner.FullGuid);
             Assert.Equal((ulong)150, item29.Contained.FullGuid);

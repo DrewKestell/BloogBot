@@ -110,7 +110,7 @@ namespace WoWSharpClient.Handlers
             var gender = (Gender)reader.ReadUInt32();
             var classId = (Class)reader.ReadUInt32();
 
-            var gameObject = (WoWPlayer)((IObjectManager)_objectManager).GameObjects.FirstOrDefault(x => x.Guid == guid);
+            var gameObject = (WoWPlayer)_objectManager.Objects.First(x => x.Guid == guid);
 
             if (gameObject != null)
             {

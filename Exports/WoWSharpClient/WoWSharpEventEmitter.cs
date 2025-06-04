@@ -16,6 +16,7 @@ namespace WoWSharpClient
         public event EventHandler OnSpellLogMiss;
         public event EventHandler OnSpellGo;
         public event EventHandler OnSetRestStart;
+        public event EventHandler OnClientControlUpdate;
         public event EventHandler<WorldInfo> OnLoginVerifyWorld;
         public event EventHandler<byte> OnStandStateUpdate;
         public event EventHandler LevelUp;
@@ -193,5 +194,7 @@ namespace WoWSharpClient
         internal void FireOnForceMoveKnockBack(RequiresAcknowledgementArgs requiresAcknowledgementArgs) => OnForceMoveKnockBack?.Invoke(this, requiresAcknowledgementArgs);
         internal void FireOnMoveTimeSkipped(RequiresAcknowledgementArgs requiresAcknowledgementArgs) => OnForceTimeSkipped?.Invoke(this, requiresAcknowledgementArgs);
         internal void FireOnTeleport(RequiresAcknowledgementArgs requiresAcknowledgementArgs) => OnTeleport?.Invoke(this, requiresAcknowledgementArgs);
+
+        internal void FireOnClientControlUpdate() => FireEvent(OnClientControlUpdate);
     }
 }

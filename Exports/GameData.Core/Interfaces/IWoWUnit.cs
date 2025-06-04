@@ -32,10 +32,8 @@ namespace GameData.Core.Interfaces
         uint[] AuraLevels { get; }
         uint[] AuraApplications { get; }
         uint AuraState { get; }
-        uint BaseAttackTime { get; }
-        uint BaseAttackTime1 { get; }
-        uint OffhandAttackTime { get; }
-        uint OffhandAttackTime1 { get; }
+        float BaseAttackTime { get; }
+        float OffhandAttackTime { get; }
         float BoundingRadius { get; }
         float CombatReach { get; }
         uint NativeDisplayId { get; }
