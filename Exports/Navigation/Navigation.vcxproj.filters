@@ -31,7 +31,7 @@
     <ClCompile Include="..\Navigation\Detour\Source\DetourNode.cpp">
       <Filter>Source Files\Detour</Filter>
     </ClCompile>
-    <ClCompile Include="VMapManager.cpp">
+    <ClCompile Include="VMapWorldManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BIH.cpp">
@@ -58,6 +58,21 @@
     <ClCompile Include="Table.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DynamicTree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjectModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RegularGrid.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WmoLiquid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VMapFileUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Navigation\MoveMap.h">
@@ -72,7 +87,7 @@
     <ClInclude Include="..\Navigation\Navigation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VMapManager.h">
+    <ClInclude Include="VMapWorldManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IVMapManager.h">
@@ -103,6 +118,45 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Table.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjectModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DBCStructure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DBCEnums.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Path.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedDefines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BIHWrap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Duration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsQuery.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VMapFileUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WmoLiquid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GroupModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

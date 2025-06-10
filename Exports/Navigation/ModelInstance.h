@@ -28,13 +28,11 @@
 #include <cstdio>
 #include <string>
 #include "Vec3Ray.h"
+#include "PhysicsQuery.h"
 
 namespace VMAP
 {
     class WorldModel;
-    struct AreaInfo;
-    struct LocationInfo;
-
     /**
      * @brief Enumeration for model flags.
      */
@@ -127,7 +125,7 @@ namespace VMAP
          * @param pStopAtFirstHit Whether to stop at the first hit.
          * @return bool True if an intersection is found, false otherwise.
          */
-        bool intersectRay(const Ray& pRay, float& pMaxDist, bool pStopAtFirstHit) const;
+        bool intersectRay(Ray const& pRay, float& pMaxDist, bool pStopAtFirstHit, bool ignoreM2Model) const;
 
         /**
          * @brief Retrieves area information for a given position.
@@ -167,7 +165,7 @@ namespace VMAP
          *
          * @return WorldModel* Pointer to the world model.
          */
-        WorldModel* const getWorldModel();
+        Model* const getWorldModel();
 #endif
     };
 } // namespace VMAP

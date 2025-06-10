@@ -181,14 +181,13 @@ public:
      * @param stopAtFirst Whether to stop at the first intersection.
      */
     template<typename RayCallback>
-    void intersectRay(const Ray& r, RayCallback& intersectCallback, float& maxDist, bool stopAtFirst = false) const
+    void intersectRay(Ray const& r, RayCallback& intersectCallback, float& maxDist, bool stopAtFirst = false, bool ignoreM2Model = false) const
     {
         float intervalMin = -1.f;
         float intervalMax = -1.f;
         Vec3 const& org = r.origin();
         Vec3 const& dir = r.direction();
         Vec3 const& invDir = r.invDirection();
-
         for (int i = 0; i < 3; ++i)
         {
             if (fuzzyNe(dir[i], 0.0f))
@@ -196,38 +195,27 @@ public:
                 float t1 = (bounds.low()[i] - org[i]) * invDir[i];
                 float t2 = (bounds.high()[i] - org[i]) * invDir[i];
                 if (t1 > t2)
-                {
                     std::swap(t1, t2);
-                }
                 if (t1 > intervalMin)
-                {
                     intervalMin = t1;
-                }
                 if (t2 < intervalMax || intervalMax < 0.f)
-                {
                     intervalMax = t2;
-                }
                 // intervalMax can only become smaller for other axis,
                 //  and intervalMin only larger respectively, so stop early
                 if (intervalMax <= 0 || intervalMin >= maxDist)
-                {
                     return;
-                }
             }
         }
 
         if (intervalMin > intervalMax)
-        {
             return;
-        }
-
         intervalMin = std::max(intervalMin, 0.f);
         intervalMax = std::min(intervalMax, maxDist);
 
-        unsigned int offsetFront[3]{};
-        unsigned int offsetBack[3]{};
-        unsigned int offsetFront3[3]{};
-        unsigned int offsetBack3[3]{};
+        unsigned int offsetFront[3];
+        unsigned int offsetBack[3];
+        unsigned int offsetFront3[3];
+        unsigned int offsetBack3[3];
         // compute custom offsets from direction sign bit
 
         for (int i = 0; i < 3; ++i)
@@ -251,10 +239,9 @@ public:
             while (true)
             {
                 unsigned int tn = tree[node];
-                unsigned int axis = (tn & (3 << 30)) >> 30;
-                bool BVH2 = tn & (1 << 29);
+                unsigned int axis = (tn >> 30) & 3;
+                bool const BVH2 = tn & (1 << 29);
                 int offset = tn & ~(7 << 29);
-
                 if (!BVH2)
                 {
                     if (axis < 3)
@@ -264,10 +251,7 @@ public:
                         float tb = (intBitsToFloat(tree[node + offsetBack[axis]]) - org[axis]) * invDir[axis];
                         // ray passes between clip zones
                         if (tf < intervalMin && tb > intervalMax)
-                        {
                             break;
-                        }
-
                         int back = offset + offsetBack3[axis];
                         node = back;
                         // ray passes through far node only
@@ -276,7 +260,6 @@ public:
                             intervalMin = (tb >= intervalMin) ? tb : intervalMin;
                             continue;
                         }
-
                         node = offset + offsetFront3[axis]; // front
                         // ray passes through near node only
                         if (tb > intervalMax)
@@ -300,11 +283,8 @@ public:
                         int n = tree[node + 1];
                         while (n > 0)
                         {
-                            bool hit = intersectCallback(r, objects[offset], maxDist, stopAtFirst);
-                            if (stopAtFirst && hit)
-                            {
-                                return;
-                            }
+                            bool hit = intersectCallback(r, objects[offset], maxDist, stopAtFirst, ignoreM2Model);
+                            if (stopAtFirst && hit) return;
                             --n;
                             ++offset;
                         }
@@ -314,45 +294,33 @@ public:
                 else
                 {
                     if (axis > 2)
-                    {
-                        return;  // should not happen
-                    }
-
+                        return; // should not happen
                     float tf = (intBitsToFloat(tree[node + offsetFront[axis]]) - org[axis]) * invDir[axis];
                     float tb = (intBitsToFloat(tree[node + offsetBack[axis]]) - org[axis]) * invDir[axis];
                     node = offset;
                     intervalMin = (tf >= intervalMin) ? tf : intervalMin;
                     intervalMax = (tb <= intervalMax) ? tb : intervalMax;
-
                     if (intervalMin > intervalMax)
-                    {
                         break;
-                    }
                     continue;
                 }
             } // traversal loop
-
             do
             {
                 // stack is empty?
                 if (stackPos == 0)
-                {
                     return;
-                }
                 // move back up the stack
                 --stackPos;
                 intervalMin = stack[stackPos].tnear;
                 if (maxDist < intervalMin)
-                {
                     continue;
-                }
                 node = stack[stackPos].node;
                 intervalMax = stack[stackPos].tfar;
                 break;
             } while (true);
         }
     }
-
     /**
      * @brief Intersects a point with the BIH.
      *

@@ -4,7 +4,7 @@ using WoWSharpClient.Utils;
 
 namespace WoWSharpClient
 {
-    internal class OpCodeDispatcher
+    public class OpCodeDispatcher
     {
         private readonly Dictionary<Opcode, Action<Opcode, byte[]>> _handlers = [];
         private readonly Queue<Action> _queue;
@@ -166,7 +166,6 @@ namespace WoWSharpClient
             BinaryReader reader = new(new MemoryStream(payload));
             ulong guid = ReaderUtils.ReadPackedGuid(reader);
             bool canControl = reader.ReadByte() != 0;
-            Console.WriteLine($"[WorldClient] SMSG_CLIENT_CONTROL_UPDATE: GUID=0x{guid:X}, CanControl={canControl}");
 
             // Respond with movement or heartbeat to indicate readiness
             _woWSharpEventEmitter.FireOnClientControlUpdate();

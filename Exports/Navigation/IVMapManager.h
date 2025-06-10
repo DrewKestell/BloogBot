@@ -120,7 +120,7 @@ namespace VMAP
          * @param z2
          * @return bool
          */
-        virtual bool isInLineOfSight(unsigned int pMapId, float x1, float y1, float z1, float x2, float y2, float z2) = 0;
+        virtual bool isInLineOfSight(unsigned int pMapId, float x1, float y1, float z1, float x2, float y2, float z2, bool ignoreM2Model) = 0;
         /**
          * @brief
          *

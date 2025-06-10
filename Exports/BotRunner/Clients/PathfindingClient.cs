@@ -8,49 +8,136 @@ namespace BotRunner.Clients
     public class PathfindingClient(string ipAddress, int port, ILogger logger)
         : ProtobufSocketClient<PathfindingRequest, PathfindingResponse>(ipAddress, port, logger)
     {
-        public Position[] GetPath(uint mapId, Position start, Position end, bool smoothPath)
+        public Position[] GetPath(uint mapId, Position start, Position end, bool smoothPath = false)
         {
-            var response = SendMessage(new PathfindingRequest
+            var request = new PathfindingRequest
             {
-                RequestType = PathfindingRequestType.Path,
-                MapId = mapId,
-                Start = start.ToProto(),
-                End = end.ToProto(),
-                SmoothPath = smoothPath
-            });
+                Path = new PathRequest
+                {
+                    MapId = mapId,
+                    Start = start.ToProto(),
+                    End = end.ToProto(),
+                    SmoothPath = smoothPath
+                }
+            };
 
-            return response.Path
+            var response = SendMessage(request);
+
+            if (response.PayloadCase == PathfindingResponse.PayloadOneofCase.Error)
+                throw new Exception(response.Error.Message);
+
+            return response.Path.Path
                 .Select(p => new Position(p.X, p.Y, p.Z))
-                .ToArray() ?? [];
+                .ToArray();
         }
 
-        public float GetPathingDistance(uint mapId, Position start, Position end, bool smoothPath)
+        public float GetPathingDistance(uint mapId, Position start, Position end)
         {
-            var response = SendMessage(new PathfindingRequest
+            var request = new PathfindingRequest
             {
-                RequestType = PathfindingRequestType.Distance,
-                MapId = mapId,
-                Start = start.ToProto(),
-                End = end.ToProto(),
-                SmoothPath = smoothPath
-            });
+                Distance = new DistanceRequest
+                {
+                    MapId = mapId,
+                    Start = start.ToProto(),
+                    End = end.ToProto()
+                }
+            };
 
-            // FloatValue was flattened to float?, so just use the float directly
-            return response.ZPoint.HasValue ? response.ZPoint.Value : 0f;
+            var response = SendMessage(request);
+
+            if (response.PayloadCase == PathfindingResponse.PayloadOneofCase.Error)
+                throw new Exception(response.Error.Message);
+
+            return response.Distance.Distance;
         }
 
-        public float GetGroundZ(uint mapId, Position position)
+        public ZQueryResult GetZQuery(uint mapId, Position position)
         {
-            var response = SendMessage(new PathfindingRequest
+            var request = new PathfindingRequest
             {
-                RequestType = PathfindingRequestType.ZCheck,
-                MapId = mapId,
-                Start = position.ToProto(),
-                End = position.ToProto(),
-                SmoothPath = true
-            });
+                ZQuery = new ZQueryRequest
+                {
+                    MapId = mapId,
+                    Position = position.ToProto()
+                }
+            };
 
-            return response.ZPoint.Value;
+            var response = SendMessage(request);
+
+            if (response.PayloadCase == PathfindingResponse.PayloadOneofCase.Error)
+                throw new Exception(response.Error.Message);
+
+            // Maps directly to proto-generated ZQueryResult
+            var z = response.ZQuery.ZResult;
+            return new ZQueryResult
+            {
+                FloorZ = z.FloorZ,
+                RaycastZ = z.RaycastZ,
+                TerrainZ = z.TerrainZ,
+                AdtZ = z.AdtZ,
+                LocationZ = z.LocationZ
+            };
+        }
+
+        public bool IsInLineOfSight(uint mapId, Position from, Position to)
+        {
+            var request = new PathfindingRequest
+            {
+                LosQuery = new LOSRequest
+                {
+                    MapId = mapId,
+                    From = from.ToProto(),
+                    To = to.ToProto()
+                }
+            };
+
+            var response = SendMessage(request);
+
+            if (response.PayloadCase == PathfindingResponse.PayloadOneofCase.Error)
+                throw new Exception(response.Error.Message);
+
+            return response.LosQuery.IsInLos;
+        }
+
+        public (uint Flags, int AdtId, int RootId, int GroupId) GetAreaInfo(uint mapId, Position position)
+        {
+            var request = new PathfindingRequest
+            {
+                AreaInfo = new AreaInfoRequest
+                {
+                    MapId = mapId,
+                    Position = position.ToProto()
+                }
+            };
+
+            var response = SendMessage(request);
+
+            if (response.PayloadCase == PathfindingResponse.PayloadOneofCase.Error)
+                throw new Exception(response.Error.Message);
+
+            var a = response.AreaInfo;
+            return (a.AreaFlags, a.AdtId, a.RootId, a.GroupId);
+        }
+
+        public (float Level, float Floor, uint Type) GetLiquidLevel(uint mapId, Position position, byte liquidType)
+        {
+            var request = new PathfindingRequest
+            {
+                LiquidLevel = new LiquidLevelRequest
+                {
+                    MapId = mapId,
+                    Position = position.ToProto(),
+                    ReqLiquidType = liquidType
+                }
+            };
+
+            var response = SendMessage(request);
+
+            if (response.PayloadCase == PathfindingResponse.PayloadOneofCase.Error)
+                throw new Exception(response.Error.Message);
+
+            var l = response.LiquidLevel;
+            return (l.Level, l.Floor, l.Type);
         }
     }
 
@@ -59,7 +146,7 @@ namespace BotRunner.Clients
         public static Game.Position ToProto(this XYZ xyz) =>
             new() { X = xyz.X, Y = xyz.Y, Z = xyz.Z };
 
-        public static XYZ ToXYZ(this Position p) =>
+        public static XYZ ToXYZ(this Game.Position p) =>
             new(p.X, p.Y, p.Z);
 
         public static Game.Position ToProto(this Position p) =>

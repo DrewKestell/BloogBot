@@ -8,7 +8,7 @@ using WoWSharpClient.Utils;
 
 namespace WoWSharpClient.Handlers
 {
-    internal class MovementHandler(WoWSharpObjectManager objectManager)
+    public class MovementHandler(WoWSharpObjectManager objectManager)
     {
         private readonly WoWSharpEventEmitter _eventEmitter = objectManager.EventEmitter;
         private readonly WoWSharpObjectManager _objectManager = objectManager;

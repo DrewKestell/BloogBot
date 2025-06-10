@@ -1,27 +1,3 @@
-/**
- * MaNGOS is a full featured server for World of Warcraft, supporting
- * the following clients: 1.12.x, 2.4.3, 3.3.5a, 4.3.4a and 5.4.8
- *
- * Copyright (C) 2005-2025 MaNGOS <https://www.getmangos.eu>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- * World of Warcraft, and all World of Warcraft or Warcraft art, images,
- * and lore are copyrighted by Blizzard Entertainment, Inc.
- */
-
 #ifndef _VMAPMANAGER2_H
 #define _VMAPMANAGER2_H
 
@@ -29,6 +5,8 @@
 #include "UnorderedMapSet.h"
 #include "Vec3Ray.h"
 #include "MapTree.h"
+#include "TileAssembler.h"
+#include "DynamicTree.h"
 
 #define MAP_FILENAME_EXTENSION2 ".vmtree"
 
@@ -44,8 +22,8 @@
 
 namespace VMAP
 {
+    enum class VMOFormat { Unknown, WMO, M2 };
     class StaticMapTree;
-    class WorldModel;
 
     /**
      * @brief Class to manage a model and its reference count.
@@ -60,13 +38,13 @@ namespace VMAP
         /**
          * @brief Sets the model.
          *
-         * @param model Pointer to the WorldModel.
+         * @param model Pointer to the Model.
          */
         void setModel(WorldModel* model) { iModel = model; }
         /**
          * @brief Gets the model.
          *
-         * @return WorldModel* Pointer to the WorldModel.
+         * @return Model* Pointer to the Model.
          */
         WorldModel* getModel() { return iModel; }
         /**
@@ -80,7 +58,7 @@ namespace VMAP
          */
         int decRefCount() { return --iRefCount; }
     protected:
-        WorldModel* iModel; /**< Pointer to the WorldModel. */
+        WorldModel* iModel; /**< Pointer to the Model. */
         int iRefCount; /**< Reference count for the model. */
     };
 
@@ -195,7 +173,7 @@ namespace VMAP
          * @param z2 The z-coordinate of the second point.
          * @return bool True if there is a line of sight, false otherwise.
          */
-        bool isInLineOfSight(unsigned int pMapId, float x1, float y1, float z1, float x2, float y2, float z2) override;
+        bool isInLineOfSight(unsigned int pMapId, float x1, float y1, float z1, float x2, float y2, float z2, bool ignoreM2Model) override;
         /**
          * @brief Gets the hit position of an object in the line of sight.
          *
@@ -268,9 +246,10 @@ namespace VMAP
          * @param basepath The base path to the model files.
          * @param filename The name of the model file.
          * @param flags The flags for the model.
-         * @return WorldModel* The acquired model instance.
+         * @return Model* The acquired model instance.
          */
-        WorldModel* acquireModelInstance(const std::string& basepath, const std::string& filename, unsigned int flags = 0);
+        WorldModel* acquireUniversalModelInstance(const std::string& basepath, const std::string& rawFilename, unsigned int flags);
+
         /**
          * @brief Releases a model instance.
          *
@@ -303,7 +282,6 @@ namespace VMAP
 
         static VMapManager2* Instance();
         void Initialize();
-        void Release(); 
         static void DestroyInstance();
         /**
          * @brief Function pointer to check if VMAP is disabled for a specific entry and flags.
@@ -311,13 +289,24 @@ namespace VMAP
         typedef bool(*IsVMAPDisabledForFn)(unsigned int entry, uint8_t flags);
         IsVMAPDisabledForFn IsVMAPDisabledForPtr;
     private:
-        static VMapManager2* _instance;
+        std::unordered_map<std::string, std::vector<std::string>> _modelFileIndex;
+        std::unordered_set<std::string> _modelFilesIndexed;
+        std::unordered_set<std::string> _visitedRefs; // For recursive/loop safety
+        std::string _basePath; // Store VMAP path for index lookups
+
+        void buildModelFileIndex(const std::string& basePath);
+        WorldModel* loadModelByReference(const std::string& ref, unsigned int flags);
+        void loadSubmodelsRecursively(WorldModel* model, unsigned int flags);
+
+        static VMapManager2* _instance; 
+        DynamicMapTree _dynamicTree;
 
         // (Optional, but good practice to enforce singleton semantics)
         VMapManager2(const VMapManager2&) = delete;
         VMapManager2(VMapManager2&&) = delete;
         VMapManager2& operator=(const VMapManager2&) = delete;
         VMapManager2& operator=(VMapManager2&&) = delete;
+
 #ifdef MMAP_GENERATOR
     public:
         /**
