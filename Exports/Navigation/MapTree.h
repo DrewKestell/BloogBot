@@ -26,28 +26,14 @@
 #define MANGOS_H_MAPTREE
 
 #include "UnorderedMapSet.h"
+#include "PhysicsQuery.h"
 #include "BIH.h"
 
 namespace VMAP
 {
-    class ModelInstance;
-    class GroupModel;
     class VMapManager2;
 
-    /**
-     * @brief Structure to hold location information.
-     */
-    struct LocationInfo
-    {
-        /**
-         * @brief Default constructor for LocationInfo.
-         */
-        LocationInfo() : hitInstance(0), hitModel(0), ground_Z(-finf()) {};
-        const ModelInstance* hitInstance; /**< Pointer to the hit model instance. */
-        const GroupModel* hitModel; /**< Pointer to the hit group model. */
-        float ground_Z; /**< Ground Z coordinate. */
-    };
-
+    
     /**
      * @brief Class representing a static map tree.
      */
@@ -83,7 +69,7 @@ namespace VMAP
          * @param pStopAtFirstHit Whether to stop at the first hit.
          * @return bool True if an intersection is found, false otherwise.
          */
-        bool getIntersectionTime(const Ray& pRay, float& pMaxDist, bool pStopAtFirstHit) const;
+        bool getIntersectionTime(Ray const& pRay, float& pMaxDist, bool pStopAtFirstHit, bool ignoreM2Model) const;
         // bool containsLoadedMapTile(unsigned int pTileIdent) const { return(iLoadedMapTiles.containsKey(pTileIdent)); }
     public:
         /**
@@ -143,7 +129,7 @@ namespace VMAP
          * @param pos2 The ending position.
          * @return bool True if there is a line of sight, false otherwise.
          */
-        bool isInLineOfSight(const Vec3& pos1, const Vec3& pos2) const;
+        bool isInLineOfSight(Vec3 const& pos1, Vec3 const& pos2, bool ignoreM2Model) const;
         /**
          * @brief Checks if an object is hit when moving from pos1 to pos2.
          *
@@ -225,35 +211,9 @@ namespace VMAP
          * @return unsigned int The number of loaded tiles.
          */
         unsigned int numLoadedTiles() const { return iLoadedTiles.size(); }
-
-#ifdef MMAP_GENERATOR
-    public:
-        /**
-         * @brief Retrieves model instances.
-         *
-         * @param models Pointer to the model instances.
-         * @param count The number of model instances.
-         */
-        void getModelInstances(ModelInstance*& models, unsigned int& count);
-#endif
     };
 
-    /**
-     * @brief Structure to hold area information.
-     */
-    struct AreaInfo
-    {
-        /**
-         * @brief Default constructor for AreaInfo.
-         */
-        AreaInfo() : result(false), ground_Z(-finf()), flags(0), adtId(0), rootId(0), groupId(0) {}
-        bool result; /**< Flag indicating if the area information is valid. */
-        float ground_Z; /**< Ground Z coordinate. */
-        unsigned int flags; /**< Area flags. */
-        int adtId; /**< ADT ID. */
-        int rootId; /**< Root ID. */
-        int groupId; /**< Group ID. */
-    };
+    
 } // namespace VMAP
 
 #endif // MANGOS_H_MAPTREE

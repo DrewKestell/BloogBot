@@ -5,8 +5,9 @@
 
 namespace VMAP
 {
-    const char VMAP_MAGIC[] = "VMAP_4.0";                       /**< used in final vmap files */
-    const char GAMEOBJECT_MODELS[] = "temp_gameobject_models";  /**< TODO */
+    char const VMAP_MAGIC[] = "VMAP_7.0";                   // used in final vmap files
+    char const RAW_VMAP_MAGIC[] = "VMAPs05";                // used in extracted vmap files with raw data
+    char const GAMEOBJECT_MODELS[] = "temp_gameobject_models";
 }
 
 #include <assert.h>

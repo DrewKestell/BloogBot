@@ -8,8 +8,19 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <BaseOutputPath>..\Bot</BaseOutputPath>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
+    <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Data\terrain.MPQ" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Data\terrain.MPQ">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />

@@ -289,3 +289,4 @@ raidMemberBotSettings.json
 # vcpkg
 */vcpkg_installed/
 Debug/vc143.idb
+Tests/PathfindingService.Tests/Data/terrain.MPQ

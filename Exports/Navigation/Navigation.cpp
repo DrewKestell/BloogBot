@@ -24,6 +24,11 @@ Navigation* Navigation::GetInstance()
 void Navigation::Initialize()
 {
 	dtAllocSetCustom(dtCustomAlloc, dtCustomFree);
+
+	MMAP::MMapManager* manager = MMAP::MMapFactory::createOrGetMMapManager();
+
+	InitializeMapsForContinent(manager, 0);
+	InitializeMapsForContinent(manager, 1);
 }
 
 void Navigation::Release()
@@ -60,72 +65,85 @@ XYZ* Navigation::CalculatePath(unsigned int mapId, XYZ start, XYZ end, bool stra
 	return pathArr;
 }
 
-bool Navigation::RaycastToWmoMesh(unsigned int mapId, float startX, float startY, float startZ, float endX, float endY, float endZ, float* hitX, float* hitY, float* hitZ)
+bool Navigation::RaycastToWmoMesh(unsigned int mapId, float startX, float startY, float startZ,
+    float endX, float endY, float endZ,
+    float* hitX, float* hitY, float* hitZ)
 {
-	MMAP::MMapManager* manager = MMAP::MMapFactory::createOrGetMMapManager();
-	InitializeMapsForContinent(manager, mapId);
+    MMAP::MMapManager* manager = MMAP::MMapFactory::createOrGetMMapManager();
+    InitializeMapsForContinent(manager, mapId);
 
-	const dtNavMesh* mesh = manager->GetNavMesh(mapId);
-	const dtNavMeshQuery* query = manager->GetNavMeshQuery(mapId, 0);
+    const dtNavMesh* mesh = manager->GetNavMesh(mapId);
+    const dtNavMeshQuery* query = manager->GetNavMeshQuery(mapId, 0);
 
-	if (!mesh || !query)
-	{
-		printf("[Raycast] Failed to acquire mesh or query for mapId %u\n", mapId);
-		return false;
-	}
+    if (!mesh || !query)
+    {
+        return false;
+    }
 
-	float start[3] = { startX, startZ, startY };
-	float end[3] = { endX, endZ, endY };
-	float extents[3];
-	dtQueryFilter filter;
-	filter.setIncludeFlags(0xFFFF);
+    // Detour navmeshes use (X, Y, Z) = (X, Z, Y) in WoW coordinates.
+    float start[3] = { startX, startZ, startY };
+    float end[3] = { endX,   endZ,   endY };
+    float extents[3];
+    dtQueryFilter filter;
+    filter.setIncludeFlags(0xFFFF);
 
-	const float expansions[][3] = {
-		{0.5f, 10.0f, 0.5f},
-		{1.0f, 20.0f, 1.0f},
-		{1.5f, 40.0f, 1.5f},
-		{2.0f, 80.0f, 2.0f},
-		{2.5f, 160.0f, 2.5f}
-	};
+    const float expansions[][3] = {
+        {0.5f, 10.0f, 0.5f},
+        {1.0f, 20.0f, 1.0f},
+        {1.5f, 40.0f, 1.5f},
+        {2.0f, 80.0f, 2.0f},
+        {2.5f, 160.0f, 2.5f}
+    };
 
-	dtPolyRef startRef = 0;
-	float nearest[3] = { 0.0f, 0.0f, 0.0f };
-	dtStatus nearestStatus = 0;
+    dtPolyRef startRef = 0;
+    float nearest[3] = { 0.0f, 0.0f, 0.0f };
+    dtStatus nearestStatus = 0;
+    bool foundPoly = false;
+    for (size_t i = 0; i < sizeof(expansions) / sizeof(expansions[0]); ++i)
+    {
+        memcpy(extents, expansions[i], sizeof(extents));
+        nearestStatus = query->findNearestPoly(start, extents, &filter, &startRef, nearest);
+        if (!dtStatusFailed(nearestStatus) && startRef != 0) {
+            foundPoly = true;
+            break;
+        }
+    }
+    if (!foundPoly) {
+        return false;
+    }
 
-	for (const auto& e : expansions)
-	{
-		memcpy(extents, e, sizeof(extents));
+    // If possible, print details about the polygon itself
+    const dtMeshTile* tile = nullptr;
+    const dtPoly* poly = nullptr;
+    mesh->getTileAndPolyByRef(startRef, &tile, &poly);
+    if (tile && poly) {
+        for (unsigned int i = 0; i < poly->vertCount; ++i) {
+            const unsigned short vi = poly->verts[i];
+            const float* v = &tile->verts[vi * 3];
+        }
+    }
 
-		nearestStatus = query->findNearestPoly(start, extents, &filter, &startRef, nearest);
-		if (!dtStatusFailed(nearestStatus) && startRef != 0)
-			break;
-	}
+    dtRaycastHit hit;
+    memset(&hit, 0, sizeof(hit));
+    dtStatus rayStatus = query->raycast(startRef, start, end, &filter, DT_RAYCAST_USE_COSTS, &hit);
 
-	if (dtStatusFailed(nearestStatus) || startRef == 0)
-	{
-		return false;
-	}
+    if (!dtStatusFailed(rayStatus) && hit.t >= 0.0f && hit.t < 1.0f && !isnan(hit.t))
+    {
+        float intersection[3];
+        dtVlerp(intersection, start, end, hit.t);
+        *hitX = intersection[0];
+        *hitY = intersection[2];
+        *hitZ = intersection[1];
 
-	dtRaycastHit hit;
-	dtStatus rayStatus = query->raycast(startRef, start, end, &filter, DT_RAYCAST_USE_COSTS, &hit);
-	if (dtStatusFailed(rayStatus))
-	{
-		return false;
-	}
+        return true;
+    }
 
-	if (hit.t >= 1.0f || hit.t < 0.0f || isnan(hit.t))
-	{
-		return false;
-	}
+    // If the raycast didn't hit, but we have a valid poly, use nearest[2] as Z
+    *hitX = nearest[0];
+    *hitY = nearest[2];
+    *hitZ = nearest[1];
 
-	float intersection[3];
-	dtVlerp(intersection, start, end, hit.t);
-
-	*hitX = intersection[0];
-	*hitY = intersection[2];
-	*hitZ = intersection[1];
-
-	return true;
+    return true;
 }
 
 

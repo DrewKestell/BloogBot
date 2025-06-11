@@ -23,6 +23,8 @@
  */
 
 #include "ModelInstance.h"
+#include "PhysicsQuery.h"
+#include "GroupModel.h"
 #include "WorldModel.h"
 #include "MapTree.h"
 #include "VMapDefinitions.h"
@@ -50,32 +52,27 @@ namespace VMAP
      * @param pStopAtFirstHit Whether to stop at the first hit.
      * @return true if an intersection is found, false otherwise.
      */
-    bool ModelInstance::intersectRay(const Ray& pRay, float& pMaxDist, bool pStopAtFirstHit) const
+    bool ModelInstance::intersectRay(Ray const& pRay, float& pMaxDist, bool pStopAtFirstHit, bool ignoreM2Model) const
     {
         if (!iModel)
         {
-#ifdef VMAP_DEBUG
-            DEBUG_LOG("<object not loaded>");
-#endif
             return false;
         }
         float time = pRay.intersectionTime(iBound);
         if (time == finf())
         {
-#ifdef VMAP_DEBUG
-            DEBUG_LOG("Ray does not hit '%s'", name.c_str());
-#endif
             return false;
         }
-        // Child bounds are defined in object space:
+        // child bounds are defined in object space:
         Vec3 p = iInvRot * (pRay.origin() - iPos) * iInvScale;
         Ray modRay(p, iInvRot * pRay.direction());
         float distance = pMaxDist * iInvScale;
-        bool hit = iModel->IntersectRay(modRay, distance, pStopAtFirstHit);
+        bool hit = iModel->IntersectRay(modRay, distance, pStopAtFirstHit, ignoreM2Model);
         if (hit)
         {
             distance *= iScale;
             pMaxDist = distance;
+            //printf("LoS HIT ! Flags 0x%x (%s)", flags, name.c_str());
         }
         return hit;
     }
@@ -204,49 +201,88 @@ namespace VMAP
      */
     bool ModelSpawn::ReadFromFile(FILE* rf, ModelSpawn& spawn)
     {
-        unsigned int check = 0, nameLen;
-        check += fread(&spawn.flags, sizeof(unsigned int), 1, rf);
-        // EoF?
-        if (!check)
-        {
-            if (ferror(rf))
-            {
-                ERROR_LOG("Error reading ModelSpawn!");
-            }
+        unsigned int flags = 0;
+        unsigned short adtId = 0;
+        unsigned int ID = 0;
+        Vec3 iPos, iRot;
+        float iScale = 0;
+        AABox iBound;
+
+        if (fread(&flags, sizeof(unsigned int), 1, rf) != 1) {
+            std::cout << "[ModelSpawn] Failed to read flags" << std::endl;
             return false;
         }
-        check += fread(&spawn.adtId, sizeof(unsigned short), 1, rf);
-        check += fread(&spawn.ID, sizeof(unsigned int), 1, rf);
-        check += fread(&spawn.iPos, sizeof(float), 3, rf);
-        check += fread(&spawn.iRot, sizeof(float), 3, rf);
-        check += fread(&spawn.iScale, sizeof(float), 1, rf);
-        bool has_bound = (spawn.flags & MOD_HAS_BOUND);
-        if (has_bound) // Only WMOs have bound in MPQ, only available after computation
-        {
+
+        if (fread(&adtId, sizeof(unsigned short), 1, rf) != 1) {
+            std::cout << "[ModelSpawn] Failed to read adtId" << std::endl;
+            return false;
+        }
+
+        if (fread(&ID, sizeof(unsigned int), 1, rf) != 1) {
+            std::cout << "[ModelSpawn] Failed to read ID" << std::endl;
+            return false;
+        }
+
+        if (fread(&iPos, sizeof(float), 3, rf) != 3) {
+            std::cout << "[ModelSpawn] Failed to read position" << std::endl;
+            return false;
+        }
+
+        if (fread(&iRot, sizeof(float), 3, rf) != 3) {
+            std::cout << "[ModelSpawn] Failed to read rotation" << std::endl;
+            return false;
+        }
+
+        if (fread(&iScale, sizeof(float), 1, rf) != 1) {
+            std::cout << "[ModelSpawn] Failed to read scale" << std::endl;
+            return false;
+        }
+
+        bool has_bound = (flags & MOD_HAS_BOUND);
+        if (has_bound) {
             Vec3 bLow, bHigh;
-            check += fread(&bLow, sizeof(float), 3, rf);
-            check += fread(&bHigh, sizeof(float), 3, rf);
-            spawn.iBound = AABox(bLow, bHigh);
+            if (fread(&bLow, sizeof(float), 3, rf) != 3) {
+                std::cout << "[ModelSpawn] Failed to read bound low" << std::endl;
+                return false;
+            }
+            if (fread(&bHigh, sizeof(float), 3, rf) != 3) {
+                std::cout << "[ModelSpawn] Failed to read bound high" << std::endl;
+                return false;
+            }
+            iBound = AABox(bLow, bHigh);
         }
-        check += fread(&nameLen, sizeof(unsigned int), 1, rf);
-        if (check != unsigned int(has_bound ? 17 : 11))
-        {
-            ERROR_LOG("Error reading ModelSpawn!");
+        else {
+            iBound = AABox();
+        }
+
+        unsigned int nameLen = 0;
+        if (fread(&nameLen, sizeof(unsigned int), 1, rf) != 1) {
+            std::cout << "[ModelSpawn] Failed to read nameLen" << std::endl;
             return false;
         }
-        char nameBuff[500];
-        if (nameLen > 500) // File names should never be that long, must be file error
-        {
-            ERROR_LOG("Error reading ModelSpawn, file name too long!");
+
+        if (nameLen == 0 || nameLen > 4096) {
+            std::cout << "[ModelSpawn] Error: suspicious file name length: " << nameLen << std::endl;
             return false;
         }
-        check = fread(nameBuff, sizeof(char), nameLen, rf);
-        if (check != nameLen)
-        {
-            ERROR_LOG("Error reading name string of ModelSpawn!");
+
+        std::vector<char> nameBuff(nameLen);
+        if (fread(nameBuff.data(), sizeof(char), nameLen, rf) != nameLen) {
+            std::cout << "[ModelSpawn] Error reading model name string!" << std::endl;
             return false;
         }
-        spawn.name = std::string(nameBuff, nameLen);
+        std::string modelName(nameBuff.begin(), nameBuff.end());
+
+        // Assign fields only after full read
+        spawn.flags = flags;
+        spawn.adtId = adtId;
+        spawn.ID = ID;
+        spawn.iPos = iPos;
+        spawn.iRot = iRot;
+        spawn.iScale = iScale;
+        spawn.iBound = iBound;
+        spawn.name = modelName;
+
         return true;
     }
 

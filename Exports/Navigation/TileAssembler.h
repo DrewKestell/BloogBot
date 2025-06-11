@@ -100,56 +100,7 @@ namespace VMAP
      * @brief Map of map data
      */
     typedef std::map<unsigned int, MapSpawns*> MapData;
-
-    /**
-     * @brief Structure to hold raw group model data
-     */
-    struct GroupModel_Raw
-    {
-        unsigned int mogpflags; /**< Flags for the group model */
-        unsigned int GroupWMOID; /**< ID of the group WMO */
-        AABox bounds; /**< Bounding box of the group model */
-        unsigned int liquidflags; /**< Flags for the liquid */
-        std::vector<MeshTriangle> triangles; /**< Triangles in the group model */
-        std::vector<Vec3> vertexArray; /**< Vertex array of the group model */
-        class WmoLiquid* liquid; /**< Pointer to the WMO liquid */
-
-        /**
-         * @brief Constructor to initialize member variables
-         */
-        GroupModel_Raw() : mogpflags(0), GroupWMOID(0), liquidflags(0), liquid(nullptr) {}
-        /**
-         * @brief Destructor to clean up resources
-         */
-        ~GroupModel_Raw();
-
-        /**
-         * @brief Reads the group model data from a file
-         *
-         * @param f The file to read from
-         * @return bool True if successful, false otherwise
-         */
-        bool Read(FILE* f);
-    };
-
-    /**
-     * @brief Structure to hold raw world model data
-     */
-    struct WorldModel_Raw
-    {
-        unsigned int RootWMOID; /**< ID of the root WMO */
-        std::vector<GroupModel_Raw> groupsArray; /**< Array of group models */
-
-        /**
-         * @brief Reads the world model data from a file
-         *
-         * @param path The path to the file
-         * @param RAW_VMAP_MAGIC The validation string to verify the file header
-         * @return bool True if successful, false otherwise
-         */
-        bool Read(const char* path, const char* RAW_VMAP_MAGIC);
-    };
-
+    
     /**
      * @brief Class to assemble tiles from raw data
      */
@@ -211,14 +162,6 @@ namespace VMAP
          * @param RAW_VMAP_MAGIC The validation string to verify the file header
          */
         void exportGameobjectModels(const char* RAW_VMAP_MAGIC);
-        /**
-         * @brief Converts a raw file to a different format
-         *
-         * @param pModelFilename The name of the model file
-         * @param RAW_VMAP_MAGIC The validation string to verify the file header
-         * @return bool True if successful, false otherwise
-         */
-        bool convertRawFile(const std::string& pModelFilename, const char* RAW_VMAP_MAGIC) const;
         /**
          * @brief Sets the model name filter method
          *

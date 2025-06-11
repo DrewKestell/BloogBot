@@ -1,4 +1,4 @@
-#include "VMapManager.h"
+#include "VMapWorldManager.h"
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -15,35 +15,33 @@ using namespace VMAP;
 
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
-VMapManager::VMapManager(const std::string& dataDir)
+VMapWorldManager::VMapWorldManager(const std::string& dataDir)
     : _dataPath(dataDir)
 {
 }
 
-VMapManager::~VMapManager()
+VMapWorldManager::~VMapWorldManager()
 {
-    for (auto& entry : _loadedMaps)
-    {
-        if (entry.second)
-        {
-            entry.second->unloadMap(entry.first);
-            delete entry.second;
-        }
-    }
+    // unique_ptr handles all cleanup!
     _loadedMaps.clear();
 }
 
-bool VMapManager::LoadMap(unsigned int mapId)
+bool VMapWorldManager::LoadMap(unsigned int mapId)
 {
     if (_loadedMaps.find(mapId) != _loadedMaps.end())
         return true;
 
-    VMapManager2* manager = new VMapManager2();
-    _loadedMaps[mapId] = manager;
+    auto manager = std::make_unique<VMapManager2>();
+    if (!manager) {
+        std::cerr << "[VMapWorldManager] Failed to allocate VMapManager2!" << std::endl;
+        return false;
+    }
+
+    _loadedMaps[mapId] = std::move(manager);
     return true;
 }
 
-bool VMapManager::LoadTile(unsigned int mapId, int tileX, int tileY)
+bool VMapWorldManager::LoadTile(unsigned int mapId, int tileX, int tileY)
 {
     auto it = _loadedMaps.find(mapId);
     if (it == _loadedMaps.end())
@@ -53,25 +51,27 @@ bool VMapManager::LoadTile(unsigned int mapId, int tileX, int tileY)
         it = _loadedMaps.find(mapId);
     }
 
-    VMapManager2* manager = it->second;
+    VMapManager2* manager = it->second.get();
     VMAPLoadResult result = manager->loadMap(_dataPath.c_str(), mapId, tileX, tileY);
+    if (result != VMAP_LOAD_RESULT_OK) {
+        std::cerr << "[VMapWorldManager] Failed to load tile " << tileX << "," << tileY << " for map " << mapId << std::endl;
+    }
     return result == VMAP_LOAD_RESULT_OK;
 }
 
-bool VMapManager::UnloadMap(unsigned int mapId)
+bool VMapWorldManager::UnloadMap(unsigned int mapId)
 {
     auto it = _loadedMaps.find(mapId);
     if (it != _loadedMaps.end())
     {
         it->second->unloadMap(mapId);
-        delete it->second;
         _loadedMaps.erase(it);
         return true;
     }
     return false;
 }
 
-bool VMapManager::Raycast(unsigned int mapId,
+bool VMapWorldManager::Raycast(unsigned int mapId,
     float startX, float startY, float startZ,
     float endX, float endY, float endZ,
     float& hitZ)
@@ -91,7 +91,7 @@ bool VMapManager::Raycast(unsigned int mapId,
     return false;
 }
 
-std::string VMapManager::GetVmapsPath()
+std::string VMapWorldManager::GetVmapsPath()
 {
     WCHAR DllPath[MAX_PATH] = { 0 };
     GetModuleFileNameW((HINSTANCE)&__ImageBase, DllPath, _countof(DllPath));
@@ -103,7 +103,7 @@ std::string VMapManager::GetVmapsPath()
     return pathToVmap;
 }
 
-void VMapManager::InitializeMapsForContinent(unsigned int mapId)
+void VMapWorldManager::InitializeMapsForContinent(unsigned int mapId)
 {
     if (_initializedMaps.contains(mapId))
         return;

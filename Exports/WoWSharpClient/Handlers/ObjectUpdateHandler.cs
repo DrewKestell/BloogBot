@@ -118,17 +118,6 @@ namespace WoWSharpClient.Handlers
 
             var update = new ObjectStateUpdate(guid, ObjectUpdateOperation.Update, WoWObjectType.None, null, []);
 
-            // Capture pre-parse buffer for debugging
-            var stream = reader.BaseStream;
-            long preReadPosition = stream.Position;
-
-            // Let's assume we want to peek the next 64 bytes (you can increase if needed)
-            byte[] peekBytes = new byte[64];
-            int bytesRead = stream.Read(peekBytes, 0, peekBytes.Length);
-            stream.Position = preReadPosition; // Rewind so ReadValuesUpdateBlock works as normal
-
-            Console.WriteLine($"[ParsePartialUpdate] Next {bytesRead} bytes before parsing: {BitConverter.ToString(peekBytes, 0, bytesRead)}");
-
             ReadValuesUpdateBlock(reader, update);
 
             _objectManager.QueueUpdate(update);

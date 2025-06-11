@@ -5,7 +5,11 @@ Vec3::Vec3(float x_, float y_, float z_) : x(x_), y(y_), z(z_) {}
 Vec3::Vec3(const float* arr)
     : x(arr[0]), y(arr[1]), z(arr[2]) {
 }
-
+bool Vec3::isWithin(const Vec3& min, const Vec3& max) const {
+    return (x >= min.x && x <= max.x) &&
+        (y >= min.y && y <= max.y) &&
+        (z >= min.z && z <= max.z);
+}
 
 bool Vec3::operator==(const Vec3& rhs) const { return fuzzyEq(x, rhs.x) && fuzzyEq(y, rhs.y) && fuzzyEq(z, rhs.z); }
 bool Vec3::operator!=(const Vec3& rhs) const { return !(*this == rhs); }
@@ -41,6 +45,9 @@ int Vec3::primaryAxis() const {
 Vec3 Vec3::min(const Vec3& other) const { return Vec3(std::min(x, other.x), std::min(y, other.y), std::min(z, other.z)); }
 Vec3 Vec3::max(const Vec3& other) const { return Vec3(std::max(x, other.x), std::max(y, other.y), std::max(z, other.z)); }
 Vec3 Vec3::zero() { return Vec3(0, 0, 0); }
+Vec3 Vec3::up() { return Vec3(0, 0, 1); }
+Vec3 Vec3::down() { return Vec3(0, 0, -1); }
+
 Vec3 operator*(float s, const Vec3& v) { return Vec3(s * v.x, s * v.y, s * v.z); }
 
 Matrix3::Matrix3() {
@@ -143,10 +150,6 @@ AABox::AABox(const Vec3& min_, const Vec3& max_) : min(min_), max(max_) {}
 void AABox::set(const Vec3& min_, const Vec3& max_) { min = min_; max = max_; }
 Vec3 AABox::center() const { return (min + max) * 0.5f; }
 Vec3 AABox::extent() const { return (max - min) * 0.5f; }
-Vec3& AABox::low() { return min; }
-const Vec3& AABox::low() const { return min; }
-Vec3& AABox::high() { return max; }
-const Vec3& AABox::high() const { return max; }
 bool AABox::contains(const Vec3& p) const {
     return (p.x >= min.x && p.x <= max.x &&
         p.y >= min.y && p.y <= max.y &&
@@ -181,4 +184,19 @@ AABox& AABox::operator+=(const Vec3& offset) {
     min += offset;
     max += offset;
     return *this;
+}
+
+Vec3 Quat::operator*(const Vec3& v) const {
+    Quat vq(0, v.x, v.y, v.z);
+    Quat rq = (*this) * vq * this->conjugate();
+    return Vec3(rq.x, rq.y, rq.z);
+}
+
+Quat Quat::operator*(const Quat& rhs) const {
+    return Quat(
+        w * rhs.w - x * rhs.x - y * rhs.y - z * rhs.z,
+        w * rhs.x + x * rhs.w + y * rhs.z - z * rhs.y,
+        w * rhs.y - x * rhs.z + y * rhs.w + z * rhs.x,
+        w * rhs.z + x * rhs.y - y * rhs.x + z * rhs.w
+    );
 }

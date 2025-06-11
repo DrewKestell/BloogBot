@@ -62,7 +62,7 @@ namespace BotRunner
                                             {
                                                 IWoWUnit woWUnit = _objectManager.Units.First(x => x.Name == "Dallawha");
 
-                                                if (_pathfindingClient.GetPathingDistance(_objectManager.MapId, _objectManager.Player.Position, woWUnit.Position, true) > 10)
+                                                if (_pathfindingClient.GetPathingDistance(_objectManager.MapId, _objectManager.Player.Position, woWUnit.Position) > 10)
                                                 {
                                                     Position[] positions = _pathfindingClient.GetPath(_objectManager.MapId, _objectManager.Player.Position, woWUnit.Position, true);
 
@@ -110,7 +110,7 @@ namespace BotRunner
                                 }
                                 else
                                 {
-
+                                    _behaviorTree = BuildRequestCharacterSequence();
                                 }
                             }
                             else
@@ -1318,6 +1318,24 @@ namespace BotRunner
                 .Do("Log Out", time =>
                 {
                     _objectManager.Logout();
+                    return BehaviourTreeStatus.Success;
+                })
+            .End()
+            .Build();
+        /// <summary>
+        /// Sequence to create a new character with specified name, race, and class.
+        /// </summary>
+        /// <param name="parameters">A list containing the name, race, and class of the new character.</param>
+        /// <returns>IBehaviourTreeNode that manages creating the character.</returns>
+        private IBehaviourTreeNode BuildRequestCharacterSequence() => new BehaviourTreeBuilder()
+            .Sequence("Create Character Sequence")
+                // Ensure the bot is on the character creation screen
+                .Condition("On Character Creation Screen", time => _objectManager.CharacterSelectScreen.IsOpen)
+
+                // Create the new character with the specified details
+                .Do("Request Character List", time =>
+                {
+                    _objectManager.CharacterSelectScreen.RefreshCharacterListFromServer();
                     return BehaviourTreeStatus.Success;
                 })
             .End()

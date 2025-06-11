@@ -345,23 +345,22 @@ bool BIH::WriteToFile(FILE* wf) const
  */
 bool BIH::ReadFromFile(FILE* rf)
 {
-    unsigned int treeSize;
     Vec3 lo, hi;
-    unsigned int check = 0, count = 0;
+    unsigned int treeSize = 0, count = 0;
 
-    // Read bounds, tree size, tree data, and object count from file
-    check += fread(&lo, sizeof(float), 3, rf);
-    check += fread(&hi, sizeof(float), 3, rf);
+    if (fread(&lo, sizeof(float), 3, rf) != 3) return false;
+    if (fread(&hi, sizeof(float), 3, rf) != 3) return false;
     bounds = AABox(lo, hi);
-    check += fread(&treeSize, sizeof(unsigned int), 1, rf);
-    tree.resize(treeSize);
-    check += fread(&tree[0], sizeof(unsigned int), treeSize, rf);
-    check += fread(&count, sizeof(unsigned int), 1, rf);
-    objects.resize(count);
-    check += fread(&objects[0], sizeof(unsigned int), count, rf);
 
-    // Return true if all reads were successful
-    return check == (3 + 3 + 2 + treeSize + count);
+    if (fread(&treeSize, sizeof(unsigned int), 1, rf) != 1) return false;
+    tree.resize(treeSize);
+    if (treeSize && fread(tree.data(), sizeof(unsigned int), treeSize, rf) != treeSize) return false;
+
+    if (fread(&count, sizeof(unsigned int), 1, rf) != 1) return false;
+    objects.resize(count);
+    if (count && fread(objects.data(), sizeof(unsigned int), count, rf) != count) return false;
+
+    return true;
 }
 
 /**

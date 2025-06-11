@@ -1,72 +1,38 @@
-/**
- * MaNGOS is a full featured server for World of Warcraft, supporting
- * the following clients: 1.12.x, 2.4.3, 3.3.5a, 4.3.4a and 5.4.8
- *
- * Copyright (C) 2005-2025 MaNGOS <https://www.getmangos.eu>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- * World of Warcraft, and all World of Warcraft or Warcraft art, images,
- * and lore are copyrighted by Blizzard Entertainment, Inc.
- */
-
-#include <string.h>
-#include "Vec3Ray.h"
-#include "WorldModel.h"
-#include "MapTree.h"
+﻿#include "WorldModel.h"
+#include <cmath>
+#include <limits>
+#include <algorithm>
+#include <iostream>
+#include <memory>
+#include <iomanip>
+#include <sstream>
+#include <vector>
+#include "PhysicsQuery.h"
+#include "TileAssembler.h"
 #include "VMapDefinitions.h"
+#include "MapTree.h"
+#include "GroupModel.h"
+#include "WmoLiquid.h"
 
-enum ModelFlags
+template<> struct BoundsTrait<VMAP::GroupModel>
 {
-    MOD_M2 = 1
-};
-
-// General template declaration
-template<typename T>
-struct BoundsTrait;
-
-// Specialization for VMAP::GroupModel
-template<>
-struct BoundsTrait<VMAP::GroupModel>
-{
-    static void getBounds(const VMAP::GroupModel& obj, AABox& out)
+    static void getBounds(VMAP::GroupModel const& obj, AABox& out)
     {
-        out = obj.GetBound(); // Assumes GroupModel has a GetBounds() method returning AABox
+        out = obj.GetBound();
     }
 };
-namespace VMAP
-{
-    /**
-     * @brief Checks if a ray intersects with a triangle.
-     *
-     * @param tri The triangle to check.
-     * @param points Iterator to the vertices of the triangle.
-     * @param ray The ray to check.
-     * @param distance The distance to the intersection.
-     * @return bool True if the ray intersects, false otherwise.
-     */
-    static bool IntersectTriangle(const MeshTriangle& tri, std::vector<Vec3>::const_iterator points, const Ray& ray, float& distance)
+
+namespace VMAP {
+    bool IntersectTriangle(MeshTriangle const& tri, std::vector<Vec3>::const_iterator points, Ray const& ray, float& distance)
     {
-        static const float EPS = 1e-5f;
+        static float const EPS = 1e-5f;
 
         // See RTR2 ch. 13.7 for the algorithm.
 
-        const Vec3 e1 = points[tri.idx1] - points[tri.idx0];
-        const Vec3 e2 = points[tri.idx2] - points[tri.idx0];
-        const Vec3 p(ray.direction().cross(e2));
-        const float a = e1.dot(p);
+        Vec3 const e1 = points[tri.idx1] - points[tri.idx0];
+        Vec3 const e2 = points[tri.idx2] - points[tri.idx0];
+        Vec3 const p(ray.direction().cross(e2));
+        float const a = e1.dot(p);
 
         if (fabs(a) < EPS)
         {
@@ -74,9 +40,9 @@ namespace VMAP
             return false;
         }
 
-        const float f = 1.0f / a;
-        const Vec3 s(ray.origin() - points[tri.idx0]);
-        const float u = f * s.dot(p);
+        float const f = 1.0f / a;
+        Vec3 const s(ray.origin() - points[tri.idx0]);
+        float const u = f * s.dot(p);
 
         if ((u < 0.0f) || (u > 1.0f))
         {
@@ -84,8 +50,8 @@ namespace VMAP
             return false;
         }
 
-        const Vec3 q(s.cross(e1));
-        const float v = f * ray.direction().dot(q);
+        Vec3 const q(s.cross(e1));
+        float const v = f * ray.direction().dot(q);
 
         if ((v < 0.0f) || ((u + v) > 1.0f))
         {
@@ -93,7 +59,7 @@ namespace VMAP
             return false;
         }
 
-        const float t = f * e2.dot(q);
+        float const t = f * e2.dot(q);
 
         if ((t > 0.0f) && (t < distance))
         {
@@ -109,674 +75,117 @@ namespace VMAP
         // This hit is after the previous hit, so ignore it
         return false;
     }
+    // --- Model implementation ---
 
-    /**
-     * @brief Functor to calculate the bounding box of a triangle.
-     */
-    class TriBoundFunc
-    {
-    public:
-        /**
-         * @brief Constructor for TriBoundFunc.
-         *
-         * @param vert Vector of vertices.
-         */
-        TriBoundFunc(std::vector<Vec3>& vert) : vertices(vert.begin()) {}
-        /**
-         * @brief Calculates the bounding box of a triangle.
-         *
-         * @param tri The triangle to calculate the bounding box for.
-         * @param out The calculated bounding box.
-         */
-        void operator()(const MeshTriangle& tri, AABox& out) const
-        {
-            Vec3 lo = vertices[tri.idx0];
-            Vec3 hi = lo;
+    WorldModel::WorldModel() : RootWMOID(0), modelFlags(0) {}
 
-            lo = (lo.min(vertices[tri.idx1])).min(vertices[tri.idx2]);
-            hi = (hi.max(vertices[tri.idx1])).max(vertices[tri.idx2]);
-
-            out = AABox(lo, hi);
-        }
-    protected:
-        const std::vector<Vec3>::const_iterator vertices;
-    };
-
-    // ===================== WmoLiquid ==================================
-
-    /**
-     * @brief Constructor for WmoLiquid.
-     *
-     * @param width Width of the liquid area.
-     * @param height Height of the liquid area.
-     * @param corner The lower corner of the liquid area.
-     * @param type The type of the liquid.
-     */
-    WmoLiquid::WmoLiquid(unsigned int width, unsigned int height, const Vec3& corner, unsigned int type) :
-        iTilesX(width), iTilesY(height), iCorner(corner), iType(type)
-    {
-        iHeight = new float[(width + 1) * (height + 1)];
-        iFlags = new uint8_t[width * height];
+    WorldModel::WorldModel(const std::vector<Vec3>& verts, const std::vector<MeshTriangle>& tris)
+        : vertices(verts), triangles(tris) {
+        computeBounds();
     }
 
-    /**
-     * @brief Copy constructor for WmoLiquid.
-     *
-     * @param other The WmoLiquid to copy from.
-     */
-    WmoLiquid::WmoLiquid(const WmoLiquid& other) : iHeight(NULL), iFlags(NULL)
-    {
-        *this = other;                                      // use assignment operator defined below
+    void WorldModel::computeBounds() {
+        if (vertices.empty()) {
+            bound = AABox(Vec3(0, 0, 0), Vec3(0, 0, 0));
+            return;
+        }
+        Vec3 vmin = vertices[0], vmax = vertices[0];
+        for (const auto& v : vertices) {
+            vmin = vmin.min(v);
+            vmax = vmax.max(v);
+        }
+        bound = AABox(vmin, vmax);
     }
 
-    /**
-     * @brief Destructor for WmoLiquid.
-     */
-    WmoLiquid::~WmoLiquid()
+    bool WorldModel::RayIntersectsTriangle(const Vec3& orig, const Vec3& dir,
+        const Vec3& v0, const Vec3& v1, const Vec3& v2, float& t)
     {
-        delete[] iHeight;
-        delete[] iFlags;
-    }
-
-    /**
-     * @brief Assignment operator for WmoLiquid.
-     *
-     * @param other The WmoLiquid to assign from.
-     * @return WmoLiquid& Reference to the assigned WmoLiquid.
-     */
-    WmoLiquid& WmoLiquid::operator=(const WmoLiquid& other)
-    {
-        if (this == &other)
-        {
-            return *this;
-        }
-
-        iTilesX = other.iTilesX;
-        iTilesY = other.iTilesY;
-        iCorner = other.iCorner;
-        iType = other.iType;
-        delete[] iHeight;
-        delete[] iFlags;
-
-        if (other.iHeight)
-        {
-            iHeight = new float[(iTilesX + 1) * (iTilesY + 1)];
-            memcpy(iHeight, other.iHeight, (iTilesX + 1) * (iTilesY + 1) * sizeof(float));
-        }
-        else
-        {
-            iHeight = NULL;
-        }
-        if (other.iFlags)
-        {
-            iFlags = new uint8_t[iTilesX * iTilesY];
-            memcpy(iFlags, other.iFlags, iTilesX * iTilesY * sizeof(uint8_t));
-        }
-        else
-        {
-            iFlags = NULL;
-        }
-
-        return *this;
-    }
-
-    /**
-     * @brief Gets the liquid height at a specific position.
-     *
-     * @param pos The position to check.
-     * @param liqHeight The liquid height at the position.
-     * @return bool True if the liquid height was retrieved, false otherwise.
-     */
-    bool WmoLiquid::GetLiquidHeight(const Vec3& pos, float& liqHeight) const
-    {
-        float tx_f = (pos.x - iCorner.x) / LIQUID_TILE_SIZE;
-        unsigned int tx = unsigned int(tx_f);
-        if (tx_f < 0.0f || tx >= iTilesX)
-        {
+        const float EPSILON = 1e-6f;
+        Vec3 edge1 = v1 - v0;
+        Vec3 edge2 = v2 - v0;
+        Vec3 h = dir.cross(edge2);
+        float a = edge1.dot(h);
+        if (std::fabs(a) < EPSILON)
             return false;
-        }
-        float ty_f = (pos.y - iCorner.y) / LIQUID_TILE_SIZE;
-        unsigned int ty = unsigned int(ty_f);
-        if (ty_f < 0.0f || ty >= iTilesY)
-        {
+        float f = 1.0f / a;
+        Vec3 s = orig - v0;
+        float u = f * s.dot(h);
+        if (u < 0.0f || u > 1.0f)
             return false;
-        }
-
-        // check if tile shall be used for liquid level
-        // checking for 0x08 *might* be enough, but disabled tiles always are 0x?F:
-        if ((iFlags[tx + ty * iTilesX] & 0x0F) == 0x0F)
-        {
+        Vec3 q = s.cross(edge1);
+        float v = f * dir.dot(q);
+        if (v < 0.0f || u + v > 1.0f)
             return false;
-        }
-
-        // (dx, dy) coordinates inside tile, in [0,1]^2
-        float dx = tx_f - (float)tx;
-        float dy = ty_f - (float)ty;
-
-        /* Tesselate tile to two triangles (not sure if client does it exactly like this)
-
-            ^ dy
-            |
-          1 x---------x (1,1)
-            | (b)   / |
-            |     /   |
-            |   /     |
-            | /   (a) |
-            x---------x---> dx
-          0           1
-        */
-        const unsigned int rowOffset = iTilesX + 1;
-        if (dx > dy) // case (a)
-        {
-            float sx = iHeight[tx + 1 + ty * rowOffset] - iHeight[tx + ty * rowOffset];
-            float sy = iHeight[tx + 1 + (ty + 1) * rowOffset] - iHeight[tx + 1 + ty * rowOffset];
-            liqHeight = iHeight[tx + ty * rowOffset] + dx * sx + dy * sy;
-        }
-        else // case (b)
-        {
-            float sx = iHeight[tx + 1 + (ty + 1) * rowOffset] - iHeight[tx + (ty + 1) * rowOffset];
-            float sy = iHeight[tx + (ty + 1) * rowOffset] - iHeight[tx + ty * rowOffset];
-            liqHeight = iHeight[tx + ty * rowOffset] + dx * sx + dy * sy;
-        }
-        return true;
-    }
-
-    /**
-     * @brief Gets the file size of the liquid data.
-     *
-     * @return unsigned int The file size of the liquid data.
-     */
-    unsigned int WmoLiquid::GetFileSize() const
-    {
-        return 2 * sizeof(unsigned int) +
-            sizeof(Vec3) +
-            (iTilesX + 1) * (iTilesY + 1) * sizeof(float) +
-            iTilesX * iTilesY;
-    }
-
-    /**
-     * @brief Writes the liquid data to a file.
-     *
-     * @param wf The file to write to.
-     * @return bool True if the write was successful, false otherwise.
-     */
-    bool WmoLiquid::WriteToFile(FILE* wf) const
-    {
-        bool result = true;
-        if (result && fwrite(&iTilesX, sizeof(unsigned int), 1, wf) != 1)
-        {
-            result = false;
-        }
-        if (result && fwrite(&iTilesY, sizeof(unsigned int), 1, wf) != 1)
-        {
-            result = false;
-        }
-        if (result && fwrite(&iCorner, sizeof(Vec3), 1, wf) != 1)
-        {
-            result = false;
-        }
-        if (result && fwrite(&iType, sizeof(unsigned int), 1, wf) != 1)
-        {
-            result = false;
-        }
-        unsigned int size = (iTilesX + 1) * (iTilesY + 1);
-        if (result && fwrite(iHeight, sizeof(float), size, wf) != size)
-        {
-            result = false;
-        }
-        size = iTilesX * iTilesY;
-        if (result && fwrite(iFlags, sizeof(uint8_t), size, wf) != size)
-        {
-            result = false;
-        }
-        return result;
-    }
-
-    /**
-     * @brief Reads the liquid data from a file.
-     *
-     * @param rf The file to read from.
-     * @param out The WmoLiquid to read into.
-     * @return bool True if the read was successful, false otherwise.
-     */
-    bool WmoLiquid::ReadFromFile(FILE* rf, WmoLiquid*& out)
-    {
-        bool result = true;
-        WmoLiquid* liquid = new WmoLiquid();
-        if (result && fread(&liquid->iTilesX, sizeof(unsigned int), 1, rf) != 1)
-        {
-            result = false;
-        }
-        if (result && fread(&liquid->iTilesY, sizeof(unsigned int), 1, rf) != 1)
-        {
-            result = false;
-        }
-        if (result && fread(&liquid->iCorner, sizeof(Vec3), 1, rf) != 1)
-        {
-            result = false;
-        }
-        if (result && fread(&liquid->iType, sizeof(unsigned int), 1, rf) != 1)
-        {
-            result = false;
-        }
-        unsigned int size = (liquid->iTilesX + 1) * (liquid->iTilesY + 1);
-        liquid->iHeight = new float[size];
-        if (result && fread(liquid->iHeight, sizeof(float), size, rf) != size)
-        {
-            result = false;
-        }
-        size = liquid->iTilesX * liquid->iTilesY;
-        liquid->iFlags = new uint8_t[size];
-        if (result && fread(liquid->iFlags, sizeof(uint8_t), size, rf) != size)
-        {
-            result = false;
-        }
-        if (!result)
-        {
-            delete liquid;
-        }
-        else
-        {
-            out = liquid;
-        }
-        return result;
-    }
-
-    /**
-     * @brief Copy constructor for GroupModel.
-     *
-     * @param other The GroupModel to copy from.
-     */
-    GroupModel::GroupModel(const GroupModel& other) :
-        iBound(other.iBound), iMogpFlags(other.iMogpFlags), iGroupWMOID(other.iGroupWMOID),
-        vertices(other.vertices), triangles(other.triangles), meshTree(other.meshTree), iLiquid(0)
-    {
-        if (other.iLiquid)
-        {
-            iLiquid = new WmoLiquid(*other.iLiquid);
-        }
-    }
-
-    /**
-     * @brief Passes mesh data to the object and creates the BIH.
-     *
-     * @param vert Vector of vertices.
-     * @param tri Vector of triangles.
-     */
-    void GroupModel::SetMeshData(std::vector<Vec3>& vert, std::vector<MeshTriangle>& tri)
-    {
-        vertices.swap(vert);
-        triangles.swap(tri);
-        TriBoundFunc bFunc(vertices);
-        meshTree.build(triangles, bFunc);
-    }
-
-    /**
-     * @brief Writes the group model data to a file.
-     *
-     * @param wf The file to write to.
-     * @return bool True if the write was successful, false otherwise.
-     */
-    bool GroupModel::WriteToFile(FILE* wf)
-    {
-        bool result = true;
-        unsigned int chunkSize, count;
-
-        if (result && fwrite(&iBound, sizeof(AABox), 1, wf) != 1)
-        {
-            result = false;
-        }
-        if (result && fwrite(&iMogpFlags, sizeof(unsigned int), 1, wf) != 1)
-        {
-            result = false;
-        }
-        if (result && fwrite(&iGroupWMOID, sizeof(unsigned int), 1, wf) != 1)
-        {
-            result = false;
-        }
-
-        // write vertices
-        if (result && fwrite("VERT", 1, 4, wf) != 4)
-        {
-            result = false;
-        }
-        count = vertices.size();
-        chunkSize = sizeof(unsigned int) + sizeof(Vec3) * count;
-        if (result && fwrite(&chunkSize, sizeof(unsigned int), 1, wf) != 1)
-        {
-            result = false;
-        }
-        if (result && fwrite(&count, sizeof(unsigned int), 1, wf) != 1)
-        {
-            result = false;
-        }
-        if (!count) // models without (collision) geometry end here, unsure if they are useful
-        {
-            return result;
-        }
-        if (result && fwrite(&vertices[0], sizeof(Vec3), count, wf) != count)
-        {
-            result = false;
-        }
-
-        // write triangle mesh
-        if (result && fwrite("TRIM", 1, 4, wf) != 4)
-        {
-            result = false;
-        }
-        count = triangles.size();
-        chunkSize = sizeof(unsigned int) + sizeof(MeshTriangle) * count;
-        if (result && fwrite(&chunkSize, sizeof(unsigned int), 1, wf) != 1)
-        {
-            result = false;
-        }
-        if (result && fwrite(&count, sizeof(unsigned int), 1, wf) != 1)
-        {
-            result = false;
-        }
-        if (count)
-        {
-            if (result && fwrite(&triangles[0], sizeof(MeshTriangle), count, wf) != count)
-            {
-                result = false;
-            }
-        }
-
-        // write mesh BIH
-        if (result && fwrite("MBIH", 1, 4, wf) != 4)
-        {
-            result = false;
-        }
-        if (result)
-        {
-            result = meshTree.WriteToFile(wf);
-        }
-
-        // write liquid data
-        if (result && fwrite("LIQU", 1, 4, wf) != 4)
-        {
-            result = false;
-        }
-        chunkSize = iLiquid ? iLiquid->GetFileSize() : 0;
-        if (result && fwrite(&chunkSize, sizeof(unsigned int), 1, wf) != 1)
-        {
-            result = false;
-        }
-        if (chunkSize)
-        {
-            if (result)
-            {
-                result = iLiquid->WriteToFile(wf);
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * @brief Reads the group model data from a file.
-     *
-     * @param rf The file to read from.
-     * @return bool True if the read was successful, false otherwise.
-     */
-    bool GroupModel::ReadFromFile(FILE* rf)
-    {
-        char chunk[8];
-        bool result = true;
-        unsigned int chunkSize = 0;
-        unsigned int count = 0;
-        triangles.clear();
-        vertices.clear();
-        delete iLiquid;
-        iLiquid = 0;
-
-        // Read bounding box
-        if (result && fread(&iBound, sizeof(AABox), 1, rf) != 1)
-        {
-            result = false;
-        }
-        // Read model flags
-        if (result && fread(&iMogpFlags, sizeof(unsigned int), 1, rf) != 1)
-        {
-            result = false;
-        }
-        // Read group WMO ID
-        if (result && fread(&iGroupWMOID, sizeof(unsigned int), 1, rf) != 1)
-        {
-            result = false;
-        }
-
-        // Read vertices
-        if (result && !readChunk(rf, chunk, "VERT", 4))
-        {
-            result = false;
-        }
-        if (result && fread(&chunkSize, sizeof(unsigned int), 1, rf) != 1)
-        {
-            result = false;
-        }
-        if (result && fread(&count, sizeof(unsigned int), 1, rf) != 1)
-        {
-            result = false;
-        }
-        if (!count) // models without (collision) geometry end here, unsure if they are useful
-        {
-            return result;
-        }
-        if (result)
-        {
-            vertices.resize(count);
-        }
-        if (result && fread(&vertices[0], sizeof(Vec3), count, rf) != count)
-        {
-            result = false;
-        }
-
-        // Read triangle mesh
-        if (result && !readChunk(rf, chunk, "TRIM", 4))
-        {
-            result = false;
-        }
-        if (result && fread(&chunkSize, sizeof(unsigned int), 1, rf) != 1)
-        {
-            result = false;
-        }
-        if (result && fread(&count, sizeof(unsigned int), 1, rf) != 1)
-        {
-            result = false;
-        }
-        if (count)
-        {
-            if (result)
-            {
-                triangles.resize(count);
-            }
-            if (result && fread(&triangles[0], sizeof(MeshTriangle), count, rf) != count)
-            {
-                result = false;
-            }
-        }
-
-        // Read mesh BIH
-        if (result && !readChunk(rf, chunk, "MBIH", 4))
-        {
-            result = false;
-        }
-        if (result)
-        {
-            result = meshTree.ReadFromFile(rf);
-        }
-
-        // Read liquid data
-        if (result && !readChunk(rf, chunk, "LIQU", 4))
-        {
-            result = false;
-        }
-        if (result && fread(&chunkSize, sizeof(unsigned int), 1, rf) != 1)
-        {
-            result = false;
-        }
-        if (result && chunkSize > 0)
-        {
-            result = WmoLiquid::ReadFromFile(rf, iLiquid);
-        }
-        return result;
-    }
-
-    /**
-     * @brief Callback structure for ray intersection with group model.
-     */
-    struct GModelRayCallback
-    {
-        GModelRayCallback(const std::vector<MeshTriangle>& tris, const std::vector<Vec3>& vert) :
-            vertices(vert.begin()), triangles(tris.begin()), hit(false) {
-        }
-        bool operator()(const Ray& ray, unsigned int entry, float& distance, bool /*pStopAtFirstHit*/)
-        {
-            bool result = IntersectTriangle(triangles[entry], vertices, ray, distance);
-            if (result)
-            {
-                hit = true;
-            }
-            return hit;
-        }
-        std::vector<Vec3>::const_iterator vertices;
-        std::vector<MeshTriangle>::const_iterator triangles;
-        bool hit;
-    };
-
-    /**
-     * @brief Checks if a ray intersects with the group model.
-     *
-     * @param ray The ray to check.
-     * @param distance The distance to the intersection.
-     * @param stopAtFirstHit Whether to stop at the first hit.
-     * @return bool True if the ray intersects, false otherwise.
-     */
-    bool GroupModel::IntersectRay(const Ray& ray, float& distance, bool stopAtFirstHit) const
-    {
-        if (triangles.empty())
-        {
-            return false;
-        }
-
-        GModelRayCallback callback(triangles, vertices);
-        meshTree.intersectRay(ray, callback, distance, stopAtFirstHit);
-        return callback.hit;
-    }
-
-    /**
-     * @brief Checks if a position is inside the object.
-     *
-     * @param pos The position to check.
-     * @param down The direction vector.
-     * @param z_dist The distance to the intersection.
-     * @return bool True if the position is inside the object, false otherwise.
-     */
-    bool GroupModel::IsInsideObject(const Vec3& pos, const Vec3& down, float& z_dist) const
-    {
-        if (triangles.empty() || !iBound.contains(pos))
-        {
-            return false;
-        }
-
-        Vec3 rPos = pos - 0.1f * down;
-        float dist = finf();
-        Ray ray(rPos, down);
-        bool hit = IntersectRay(ray, dist, false);
-        if (hit)
-        {
-            z_dist = dist - 0.1f;
-        }
-        return hit;
-    }
-
-    /**
-     * @brief Gets the liquid level at a specific position.
-     *
-     * @param pos The position to check.
-     * @param liqHeight The liquid height at the position.
-     * @return bool True if the liquid level was retrieved, false otherwise.
-     */
-    bool GroupModel::GetLiquidLevel(const Vec3& pos, float& liqHeight) const
-    {
-        if (iLiquid)
-        {
-            return iLiquid->GetLiquidHeight(pos, liqHeight);
+        float tTmp = f * edge2.dot(q);
+        if (tTmp > EPSILON) {
+            t = tTmp;
+            return true;
         }
         return false;
     }
 
-    /**
-     * @brief Gets the type of the liquid.
-     *
-     * @return unsigned int The type of the liquid.
-     */
-    unsigned int GroupModel::GetLiquidType() const
+    bool WorldModel::RayIntersectsTriangleWithBarycentric(
+        const Vec3& orig, const Vec3& dir,
+        const Vec3& v0, const Vec3& v1, const Vec3& v2,
+        float& t, float& u, float& v)
     {
-        if (iLiquid)
-        {
-            return iLiquid->GetType();
+        const float EPSILON = 1e-6f;
+        Vec3 edge1 = v1 - v0;
+        Vec3 edge2 = v2 - v0;
+        Vec3 h = dir.cross(edge2);
+        float a = edge1.dot(h);
+        if (std::fabs(a) < EPSILON)
+            return false;
+        float f = 1.0f / a;
+        Vec3 s = orig - v0;
+        u = f * s.dot(h);
+        if (u < 0.0f || u > 1.0f)
+            return false;
+        Vec3 q = s.cross(edge1);
+        v = f * dir.dot(q);
+        if (v < 0.0f || u + v > 1.0f)
+            return false;
+        float tTmp = f * edge2.dot(q);
+        if (tTmp > EPSILON) {
+            t = tTmp;
+            return true;
         }
-        return 0;
+        return false;
     }
-
-    /**
-     * @brief Passes group models to WorldModel and creates the BIH.
-     *
-     * @param models Vector of group models.
-     */
-    void WorldModel::SetGroupModels(std::vector<GroupModel>& models)
-    {
-        groupModels.swap(models);
-        groupTree.build(groupModels, BoundsTrait<GroupModel>::getBounds, 1);
-    }
-
-    /**
-     * @brief Callback structure for ray intersection with world model.
-     */
+    
     struct WModelRayCallBack
     {
-        WModelRayCallBack(const std::vector<GroupModel>& mod) : models(mod.begin()), hit(false) {}
-        bool operator()(const Ray& ray, unsigned int entry, float& distance, bool pStopAtFirstHit)
+        WModelRayCallBack(std::vector<GroupModel> const& mod) : models(mod.begin()), hit(false) {}
+        bool operator()(Ray const& ray, unsigned int entry, float& distance, bool pStopAtFirstHit, bool ignoreM2Model)
         {
-            bool result = models[entry].IntersectRay(ray, distance, pStopAtFirstHit);
-            if (result)
-            {
-                hit = true;
-            }
+            bool result = models[entry].IntersectRay(ray, distance, pStopAtFirstHit, ignoreM2Model);
+            if (result)  hit = true;
             return hit;
         }
         std::vector<GroupModel>::const_iterator models;
         bool hit;
     };
 
-    /**
-     * @brief Checks if a ray intersects with the world model.
-     *
-     * @param ray The ray to check.
-     * @param distance The distance to the intersection.
-     * @param stopAtFirstHit Whether to stop at the first hit.
-     * @return bool True if the ray intersects, false otherwise.
-     */
-    bool WorldModel::IntersectRay(const Ray& ray, float& distance, bool stopAtFirstHit) const
+    bool WorldModel::IntersectRay(Ray const& ray, float& distance, bool stopAtFirstHit, bool ignoreM2Model) const
     {
-        // M2 models are not taken into account for LoS calculation
-        // if (Flags & MOD_M2)
-        //    return false;
-        //
+        if (ignoreM2Model && (modelFlags & MOD_M2))
+            return false;
+
+        // small M2 workaround, maybe better make separate class with virtual intersection funcs
+        // in any case, there's no need to use a bound tree if we only have one submodel
+        if (groupModels.size() == 1)
+            return groupModels[0].IntersectRay(ray, distance, stopAtFirstHit, ignoreM2Model);
+
         WModelRayCallBack isc(groupModels);
-        groupTree.intersectRay(ray, isc, distance, stopAtFirstHit);
+        groupTree.intersectRay(ray, isc, distance, stopAtFirstHit, ignoreM2Model);
         return isc.hit;
     }
 
-    /**
-     * @brief Callback structure for area information retrieval.
-     */
+
     class WModelAreaCallback
     {
     public:
-        WModelAreaCallback(const std::vector<GroupModel>& vals, const Vec3& down) :
+        WModelAreaCallback(std::vector<GroupModel> const& vals, Vec3 const& down) :
             prims(vals.begin()), hit(vals.end()), minVol(finf()), zDist(finf()), zVec(down) {
         }
         std::vector<GroupModel>::const_iterator prims;
@@ -784,233 +193,433 @@ namespace VMAP
         float minVol;
         float zDist;
         Vec3 zVec;
-        void operator()(const Vec3& point, unsigned int entry)
+        void operator()(Vec3 const& point, unsigned int entry)
         {
             float group_Z;
+            // float pVol = prims[entry].GetBound().volume();
+            // if (pVol < minVol)
+            //{
+            /* if (prims[entry].iBound.contains(point)) */
             if (prims[entry].IsInsideObject(point, zVec, group_Z))
             {
+                // minVol = pVol;
+                // hit = prims + entry;
                 if (group_Z < zDist)
                 {
                     zDist = group_Z;
                     hit = prims + entry;
                 }
+#ifdef VMAP_DEBUG
+                GroupModel const& gm = prims[entry];
+                printf("%10u %8X %7.3f,%7.3f,%7.3f | %7.3f,%7.3f,%7.3f | z=%f, p_z=%f\n", gm.GetWmoID(), gm.GetMogpFlags(),
+                    gm.GetBound().low().x, gm.GetBound().low().y, gm.GetBound().low().z,
+                    gm.GetBound().high().x, gm.GetBound().high().y, gm.GetBound().high().z, group_Z, point.z);
+#endif
             }
+            //}
+            // std::cout << "trying to intersect '" << prims[entry].name << "'\n";
         }
     };
 
-    /**
-     * @brief Gets area information at a specific position.
-     *
-     * @param p The position to check.
-     * @param down The direction vector.
-     * @param dist The distance to the intersection.
-     * @param info The area information.
-     * @return bool True if area information was retrieved, false otherwise.
-     */
-    bool WorldModel::GetAreaInfo(const Vec3& p, const Vec3& down, float& dist, AreaInfo& info) const
-    {
-        if (groupModels.empty())
-        {
-            return false;
+    bool WorldModel::GetAreaInfo(const Vec3& p, const Vec3& dir, float& dist, struct AreaInfo& info) const {
+        float closest = std::numeric_limits<float>::infinity();
+        int hitTri = -1;
+        float ground_Z = -std::numeric_limits<float>::infinity();
+        for (size_t i = 0; i < triangles.size(); ++i) {
+            const auto& tri = triangles[i];
+            float t, u, v;
+            if (RayIntersectsTriangleWithBarycentric(p, dir,
+                vertices[tri.idx0], vertices[tri.idx1], vertices[tri.idx2], t, u, v)) {
+                if (t < closest) {
+                    closest = t;
+                    hitTri = static_cast<int>(i);
+                    Vec3 hit = p + dir * t;
+                    if (hit.z > ground_Z)
+                        ground_Z = hit.z;
+                }
+            }
         }
-
-        WModelAreaCallback callback(groupModels, down);
-        groupTree.intersectPoint(p, callback);
-        if (callback.hit != groupModels.end())
-        {
-            info.rootId = RootWMOID;
-            info.groupId = callback.hit->GetWmoID();
-            info.flags = callback.hit->GetMogpFlags();
-            info.result = true;
-            dist = callback.zDist;
+        if (hitTri != -1) {
+            dist = closest;
+            info.ground_Z = ground_Z;
             return true;
         }
         return false;
     }
 
-    /**
-     * @brief Gets location information at a specific position.
-     *
-     * @param p The position to check.
-     * @param down The direction vector.
-     * @param dist The distance to the intersection.
-     * @param info The location information.
-     * @return bool True if location information was retrieved, false otherwise.
-     */
-    bool WorldModel::GetLocationInfo(const Vec3& p, const Vec3& down, float& dist, LocationInfo& info) const
-    {
-        if (groupModels.empty())
-        {
-            return false;
+    bool WorldModel::GetLocationInfo(const Vec3& p, const Vec3& dir, float& dist, struct LocationInfo& info) const {
+        float closest = std::numeric_limits<float>::infinity();
+        const MeshTriangle* hitTri = nullptr;
+        Vec3 hitPoint;
+        float ground_Z = -std::numeric_limits<float>::infinity();
+        for (const auto& tri : triangles) {
+            float t, u, v;
+            if (RayIntersectsTriangleWithBarycentric(p, dir,
+                vertices[tri.idx0], vertices[tri.idx1], vertices[tri.idx2], t, u, v)) {
+                if (t < closest) {
+                    closest = t;
+                    hitTri = &tri;
+                    hitPoint = p + dir * t;
+                    if (hitPoint.z > ground_Z)
+                        ground_Z = hitPoint.z;
+                }
+            }
         }
-
-        WModelAreaCallback callback(groupModels, down);
-        groupTree.intersectPoint(p, callback);
-        if (callback.hit != groupModels.end())
-        {
-            info.hitModel = &(*callback.hit);
-            dist = callback.zDist;
+        if (hitTri) {
+            dist = closest;
+            info.ground_Z = ground_Z;
             return true;
         }
         return false;
     }
 
-    /**
-     * @brief Gets the contact point at a specific position.
-     *
-     * @param point The position to check.
-     * @param dir The direction vector.
-     * @param dist The distance to the intersection.
-     * @return bool True if a contact point was found, false otherwise.
-     */
-    bool WorldModel::GetContactPoint(const Vec3& point, const Vec3& dir, float& dist) const
-    {
-        if (groupModels.empty())
-        {
-            return false;
-        }
-
-        WModelAreaCallback callback(groupModels, dir);
-        groupTree.intersectPoint(point, callback);
-        if (callback.hit != groupModels.end())
-        {
-            dist = callback.zDist;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @brief Writes the world model data to a file.
-     *
-     * @param filename The file to write to.
-     * @return bool True if the write was successful, false otherwise.
-     */
-    bool WorldModel::WriteFile(const std::string& filename)
-    {
-        FILE* wf = fopen(filename.c_str(), "wb");
-        if (!wf)
-        {
-            return false;
-        }
-
-        unsigned int chunkSize, count;
-        bool result = fwrite(VMAP_MAGIC, 1, 8, wf) == 8;
-        if (result && fwrite("WMOD", 1, 4, wf) != 4)
-        {
-            result = false;
-        }
-        chunkSize = sizeof(unsigned int) + sizeof(unsigned int);
-        if (result && fwrite(&chunkSize, sizeof(unsigned int), 1, wf) != 1)
-        {
-            result = false;
-        }
-        if (result && fwrite(&RootWMOID, sizeof(unsigned int), 1, wf) != 1)
-        {
-            result = false;
-        }
-
-        // write group models
-        count = groupModels.size();
-        if (count)
-        {
-            if (result && fwrite("GMOD", 1, 4, wf) != 4)
-            {
-                result = false;
-            }
-            // chunkSize = sizeof(unsigned int)+ sizeof(GroupModel)*count;
-            // if (result && fwrite(&chunkSize, sizeof(unsigned int), 1, wf) != 1) result = false;
-            if (result && fwrite(&count, sizeof(unsigned int), 1, wf) != 1)
-            {
-                result = false;
-            }
-            for (unsigned int i = 0; i < groupModels.size() && result; ++i)
-            {
-                result = groupModels[i].WriteToFile(wf);
-            }
-
-            // write group BIH
-            if (result && fwrite("GBIH", 1, 4, wf) != 4)
-            {
-                result = false;
-            }
-            if (result)
-            {
-                result = groupTree.WriteToFile(wf);
-            }
-        }
-
-        fclose(wf);
-        return result;
-    }
-
-    /**
-     * @brief Reads the world model data from a file.
-     *
-     * @param filename The file to read from.
-     * @return bool True if the read was successful, false otherwise.
-     */
     bool WorldModel::ReadFile(const std::string& filename)
     {
-        FILE* rf = fopen(filename.c_str(), "rb");
-        if (!rf)
+        FileHandle rf(fopen(filename.c_str(), "rb"));
+        if (!rf) return false;
+
+        char magic[8] = { 0 };
+        if (fread(magic, 1, 8, rf.get()) != 8) return false;
+        if (strncmp(magic, RAW_VMAP_MAGIC, 8) != 0) return false;
+
+        // Try to read as M2 (single mesh/doodad) first:
+        long start = ftell(rf.get());
+        unsigned int nVertices = 0, nofgroups = 0;
+        if (fread(&nVertices, sizeof(unsigned int), 1, rf.get()) != 1) return false;
+        if (fread(&nofgroups, sizeof(unsigned int), 1, rf.get()) != 1) return false;
+
+        if (nofgroups == 1) // Treat as M2 doodad (extractor always sets 1 group for m2)
         {
-            return false;
+            // Skip 3x unsigned int: rootwmoid, flags, groupid
+            unsigned int unused[3];
+            if (fread(unused, sizeof(unsigned int), 3, rf.get()) != 3) return false;
+
+            // Skip 6x float: bounding box
+            float bbox[6];
+            if (fread(bbox, sizeof(float), 6, rf.get()) != 6) return false;
+            bound = AABox(Vec3(bbox[0], bbox[1], bbox[2]), Vec3(bbox[3], bbox[4], bbox[5]));
+
+            // Skip liquidflags
+            unsigned int liquidflags;
+            if (fread(&liquidflags, sizeof(unsigned int), 1, rf.get()) != 1) return false;
+
+            // "GRP "
+            char grpChunk[5] = { 0 };
+            if (fread(grpChunk, 1, 4, rf.get()) != 4) return false;
+            if (strncmp(grpChunk, "GRP ", 4) != 0) return false;
+
+            int groupChunkSize = 0;
+            unsigned int branches = 0;
+            if (fread(&groupChunkSize, sizeof(int), 1, rf.get()) != 1) return false;
+            if (fread(&branches, sizeof(unsigned int), 1, rf.get()) != 1) return false;
+            for (unsigned int b = 0; b < branches; ++b) {
+                unsigned int indexes = 0;
+                if (fread(&indexes, sizeof(unsigned int), 1, rf.get()) != 1) return false;
+            }
+
+            // Read INDX chunk
+            unsigned int nIndexes = 0;
+            if (fread(&nIndexes, sizeof(unsigned int), 1, rf.get()) != 1) return false;
+            char indxChunk[5] = { 0 };
+            if (fread(indxChunk, 1, 4, rf.get()) != 4) return false;
+            if (strncmp(indxChunk, "INDX", 4) != 0) return false;
+            int indxChunkSize = 0;
+            if (fread(&indxChunkSize, sizeof(int), 1, rf.get()) != 1) return false;
+            unsigned int nIndexesCheck = 0;
+            if (fread(&nIndexesCheck, sizeof(unsigned int), 1, rf.get()) != 1) return false;
+            if (nIndexesCheck != nIndexes) return false;
+
+            std::vector<unsigned short> indices(nIndexes);
+            if (nIndexes > 0 && fread(indices.data(), sizeof(unsigned short), nIndexes, rf.get()) != nIndexes) return false;
+
+            // Read VERT chunk
+            char vertChunk[5] = { 0 };
+            if (fread(vertChunk, 1, 4, rf.get()) != 4) return false;
+            if (strncmp(vertChunk, "VERT", 4) != 0) return false;
+            int vertChunkSize = 0;
+            if (fread(&vertChunkSize, sizeof(int), 1, rf.get()) != 1) return false;
+            unsigned int nVerticesCheck = 0;
+            if (fread(&nVerticesCheck, sizeof(unsigned int), 1, rf.get()) != 1) return false;
+            if (nVerticesCheck != nVertices) return false;
+
+            std::vector<Vec3> vertexArray(nVertices);
+            if (nVertices > 0 && fread(vertexArray.data(), sizeof(float) * 3, nVertices, rf.get()) != nVertices) return false;
+
+            // Store mesh data
+            vertices = vertexArray;
+            triangles.clear();
+            for (unsigned int i = 0; i + 2 < nIndexes; i += 3)
+                triangles.emplace_back(indices[i], indices[i + 1], indices[i + 2]);
+
+            // Build mesh BIH
+            if (!triangles.empty()) {
+                auto getTriangleBounds = [this](const MeshTriangle& tri, AABox& out) {
+                    const Vec3& v0 = vertices[tri.idx0];
+                    const Vec3& v1 = vertices[tri.idx1];
+                    const Vec3& v2 = vertices[tri.idx2];
+                    Vec3 minV = v0.min(v1).min(v2);
+                    Vec3 maxV = v0.max(v1).max(v2);
+                    out = AABox(minV, maxV);
+                    };
+                groupTree.build(triangles, getTriangleBounds);
+            }
+            else {
+                groupTree = BIH();
+            }
+            return true;
         }
 
-        bool result = true;
+        // Fallback: WMO multi-group loader (call your raw group loader)
+        fseek(rf.get(), start, SEEK_SET);
+        VMAP::WorldModel_Raw raw;
+        if (!raw.Read(filename.c_str(), RAW_VMAP_MAGIC)) return false;
+        RootWMOID = raw.RootWMOID;
+        groupModels.clear();
+        groupModels.reserve(raw.groupsArray.size());
+        for (const auto& rawGroup : raw.groupsArray) {
+            GroupModel group;
+            if (!group.ReadFromRaw(rawGroup)) return false;
+            groupModels.push_back(std::move(group));
+        }
+        return true;
+    }
+
+    bool WorldModel::ReadM2VmoFile(const std::string& filename)
+    {
+        FileHandle rf(fopen(filename.c_str(), "rb"));
+        if (!rf) return false;
+
+        char magic[8] = { 0 };
+        CHUNK_FAIL_CHECK(fread(magic, 1, 8, rf.get()) == 8, "magic header");
+        CHUNK_FAIL_CHECK(strncmp(magic, RAW_VMAP_MAGIC, 8) == 0, "not RAW vmap");
+
+        unsigned int nVertices = 0, nofGroups = 0;
+        CHUNK_FAIL_CHECK(fread(&nVertices, sizeof(unsigned int), 1, rf.get()) == 1, "nVertices");
+        CHUNK_FAIL_CHECK(fread(&nofGroups, sizeof(unsigned int), 1, rf.get()) == 1, "nofGroups");
+
+        // skip unused header fields (rootwmoid, flags, groupid, bbox, liquidflags)
+        CHUNK_FAIL_CHECK(fseek(rf.get(), 3 * sizeof(unsigned int) + 6 * sizeof(float) + sizeof(unsigned int), SEEK_CUR) == 0, "header skip");
+
+        // "GRP "
+        char grpChunk[5] = { 0 };
+        CHUNK_FAIL_CHECK(fread(grpChunk, 1, 4, rf.get()) == 4, "GRP chunk id");
+        CHUNK_FAIL_CHECK(strncmp(grpChunk, "GRP ", 4) == 0, "GRP chunk");
+
+        int groupChunkSize = 0; unsigned int branches = 0;
+        CHUNK_FAIL_CHECK(fread(&groupChunkSize, sizeof(int), 1, rf.get()) == 1, "groupChunkSize");
+        CHUNK_FAIL_CHECK(fread(&branches, sizeof(unsigned int), 1, rf.get()) == 1, "branches");
+        for (unsigned int b = 0; b < branches; ++b) {
+            unsigned int indexes = 0;
+            CHUNK_FAIL_CHECK(fread(&indexes, sizeof(unsigned int), 1, rf.get()) == 1, "branch indexes");
+        }
+
+        // "INDX" chunk
+        char indxChunk[5] = { 0 };
+        CHUNK_FAIL_CHECK(fread(indxChunk, 1, 4, rf.get()) == 4, "INDX chunk id");
+        CHUNK_FAIL_CHECK(strncmp(indxChunk, "INDX", 4) == 0, "INDX chunk");
+
+        int indxChunkSize = 0; unsigned int nIndexes = 0;
+        CHUNK_FAIL_CHECK(fread(&indxChunkSize, sizeof(int), 1, rf.get()) == 1, "indxChunkSize");
+        CHUNK_FAIL_CHECK(fread(&nIndexes, sizeof(unsigned int), 1, rf.get()) == 1, "nIndexes");
+
+        std::vector<unsigned short> indices(nIndexes);
+        if (nIndexes > 0)
+            CHUNK_FAIL_CHECK(fread(indices.data(), sizeof(unsigned short), nIndexes, rf.get()) == nIndexes, "indices");
+
+        // "VERT" chunk
+        char vertChunk[5] = { 0 };
+        CHUNK_FAIL_CHECK(fread(vertChunk, 1, 4, rf.get()) == 4, "VERT chunk id");
+        CHUNK_FAIL_CHECK(strncmp(vertChunk, "VERT", 4) == 0, "VERT chunk");
+
+        int vertChunkSize = 0; unsigned int nVerticesCheck = 0;
+        CHUNK_FAIL_CHECK(fread(&vertChunkSize, sizeof(int), 1, rf.get()) == 1, "vertChunkSize");
+        CHUNK_FAIL_CHECK(fread(&nVerticesCheck, sizeof(unsigned int), 1, rf.get()) == 1, "nVerticesCheck");
+        CHUNK_FAIL_CHECK(nVerticesCheck == nVertices, "vertex count mismatch");
+
+        std::vector<Vec3> vertexArray(nVertices);
+        if (nVertices > 0)
+            CHUNK_FAIL_CHECK(fread(vertexArray.data(), sizeof(float) * 3, nVertices, rf.get()) == nVertices, "vertices");
+
+        vertices = vertexArray;
+        triangles.clear();
+        for (unsigned int i = 0; i + 2 < nIndexes; i += 3)
+            triangles.emplace_back(indices[i], indices[i + 1], indices[i + 2]);
+
+        // Build BIH if needed
+        if (!triangles.empty()) {
+            auto getTriangleBounds = [this](const MeshTriangle& tri, AABox& out) {
+                const Vec3& v0 = vertices[tri.idx0];
+                const Vec3& v1 = vertices[tri.idx1];
+                const Vec3& v2 = vertices[tri.idx2];
+                Vec3 minV = v0.min(v1).min(v2);
+                Vec3 maxV = v0.max(v1).max(v2);
+                out = AABox(minV, maxV);
+                };
+            groupTree.build(triangles, getTriangleBounds);
+        }
+        else {
+            groupTree = BIH();
+        }
+        return true;
+    }
+
+    // --- GroupModel implementation ---
+
+    GroupModel::GroupModel() : iMogpFlags(0), iGroupWMOID(0) {}
+    GroupModel::GroupModel(const GroupModel& other)
+        : iBound(other.iBound), iMogpFlags(other.iMogpFlags), iGroupWMOID(other.iGroupWMOID),
+        vertices(other.vertices), triangles(other.triangles) {
+    }
+    GroupModel::GroupModel(unsigned int mogpFlags, unsigned int groupWMOID, const AABox& bound)
+        : iBound(bound), iMogpFlags(mogpFlags), iGroupWMOID(groupWMOID) {
+    }
+
+
+    GroupModel::~GroupModel() { delete iLiquid; }
+
+    void GroupModel::SetMeshData(std::vector<Vec3>& vert, std::vector<MeshTriangle>& tri) {
+        vertices.swap(vert);
+        triangles.swap(tri);
+        // Optionally recompute bounds here if needed
+    }
+    struct GModelRayCallback
+    {
+        GModelRayCallback(std::vector<MeshTriangle> const& tris, std::vector<Vec3> const& vert) :
+            vertices(vert.begin()), triangles(tris.begin()), hit(0) {
+        }
+        bool operator()(Ray const& ray, unsigned int entry, float& distance, bool /*pStopAtFirstHit*/, bool /*ignoreM2Model*/)
+        {
+            bool result = IntersectTriangle(triangles[entry], vertices, ray, distance);
+            if (result)  ++hit;
+            return hit;
+        }
+        std::vector<Vec3>::const_iterator vertices;
+        std::vector<MeshTriangle>::const_iterator triangles;
+        unsigned int hit;
+    };
+
+    bool GroupModel::IntersectRay(Ray const& ray, float& distance, bool stopAtFirstHit, bool ignoreM2Model) const
+    {
+        if (triangles.empty())
+            return false;
+        GModelRayCallback callback(triangles, vertices);
+        meshTree.intersectRay(ray, callback, distance, stopAtFirstHit, ignoreM2Model);
+        return callback.hit;
+    }
+
+    bool GroupModel::IsInsideObject(const Vec3& pos, const Vec3& down, float& z_dist) const {
+        float minDist = std::numeric_limits<float>::infinity();
+        bool found = false;
+        for (const auto& tri : triangles) {
+            float t, u, v;
+            if (WorldModel::RayIntersectsTriangleWithBarycentric(
+                pos, down,
+                vertices[tri.idx0], vertices[tri.idx1], vertices[tri.idx2], t, u, v)) {
+                if (t < minDist) {
+                    minDist = t;
+                    found = true;
+                }
+            }
+        }
+        if (found) {
+            z_dist = minDist;
+            return true;
+        }
+        return false;
+    }
+    
+    bool GroupModel::ReadFromFile(FILE* rf)
+    {
+        char chunk[5] = { 0 };
         unsigned int chunkSize = 0;
         unsigned int count = 0;
-        char chunk[8];                          // Ignore the added magic header
-        if (!readChunk(rf, chunk, VMAP_MAGIC, 8))
-        {
-            result = false;
+        bool result = true;
+
+        triangles.clear();
+        vertices.clear();
+        delete iLiquid; iLiquid = nullptr;
+
+        // Bounding box, flags, group id
+        CHUNK_FAIL_CHECK(fread(&iBound, sizeof(AABox), 1, rf) == 1, "AABox");
+        CHUNK_FAIL_CHECK(fread(&iMogpFlags, sizeof(unsigned int), 1, rf) == 1, "MOGP flags");
+        CHUNK_FAIL_CHECK(fread(&iGroupWMOID, sizeof(unsigned int), 1, rf) == 1, "GroupWMOID");
+
+        // "VERT" chunk
+        CHUNK_FAIL_CHECK(fread(chunk, 1, 4, rf) == 4, "VERT chunk id");
+        CHUNK_FAIL_CHECK(strncmp(chunk, "VERT", 4) == 0, "VERT chunk");
+        CHUNK_FAIL_CHECK(fread(&chunkSize, sizeof(unsigned int), 1, rf) == 1, "VERT chunk size");
+        CHUNK_FAIL_CHECK(fread(&count, sizeof(unsigned int), 1, rf) == 1, "VERT count");
+        if (count > 0) {
+            vertices.resize(count);
+            CHUNK_FAIL_CHECK(fread(vertices.data(), sizeof(Vec3), count, rf) == count, "VERT data");
         }
 
-        if (result && !readChunk(rf, chunk, "WMOD", 4))
-        {
-            result = false;
-        }
-        if (result && fread(&chunkSize, sizeof(unsigned int), 1, rf) != 1)
-        {
-            result = false;
-        }
-        if (result && fread(&RootWMOID, sizeof(unsigned int), 1, rf) != 1)
-        {
-            result = false;
+        // "TRIM" chunk
+        CHUNK_FAIL_CHECK(fread(chunk, 1, 4, rf) == 4, "TRIM chunk id");
+        CHUNK_FAIL_CHECK(strncmp(chunk, "TRIM", 4) == 0, "TRIM chunk");
+        CHUNK_FAIL_CHECK(fread(&chunkSize, sizeof(unsigned int), 1, rf) == 1, "TRIM chunk size");
+        CHUNK_FAIL_CHECK(fread(&count, sizeof(unsigned int), 1, rf) == 1, "TRIM count");
+        if (count > 0) {
+            triangles.resize(count);
+            CHUNK_FAIL_CHECK(fread(triangles.data(), sizeof(MeshTriangle), count, rf) == count, "TRIM data");
         }
 
-        // read group models
-        if (result && readChunk(rf, chunk, "GMOD", 4))
-        {
-            // if (fread(&chunkSize, sizeof(unsigned int), 1, rf) != 1) result = false;
+        // "MBIH" chunk
+        CHUNK_FAIL_CHECK(fread(chunk, 1, 4, rf) == 4, "MBIH chunk id");
+        CHUNK_FAIL_CHECK(strncmp(chunk, "MBIH", 4) == 0, "MBIH chunk");
+        CHUNK_FAIL_CHECK(meshTree.ReadFromFile(rf), "MBIH data");
 
-            if (result && fread(&count, sizeof(unsigned int), 1, rf) != 1)
-            {
-                result = false;
-            }
-            if (result)
-            {
-                groupModels.resize(count);
-            }
-            // if (result && fread(&groupModels[0], sizeof(GroupModel), count, rf) != count) result = false;
-            for (unsigned int i = 0; i < count && result; ++i)
-            {
-                result = groupModels[i].ReadFromFile(rf);
-            }
-
-            // read group BIH
-            if (result && !readChunk(rf, chunk, "GBIH", 4))
-            {
-                result = false;
-            }
-            if (result)
-            {
-                result = groupTree.ReadFromFile(rf);
-            }
+        // Optional "LIQU" chunk
+        if (fread(chunk, 1, 4, rf) == 4 && strncmp(chunk, "LIQU", 4) == 0) {
+            CHUNK_FAIL_CHECK(fread(&chunkSize, sizeof(unsigned int), 1, rf) == 1, "LIQU chunk size");
+            if (chunkSize > 0)
+                CHUNK_FAIL_CHECK(WmoLiquid::ReadFromFile(rf, iLiquid), "LIQU data");
         }
+        // else: LIQU is absent, no problem.
 
-        fclose(rf);
-        return result;
+        return true;
     }
-}
+
+    bool GroupModel::ReadFromRaw(const VMAP::GroupModel_Raw& raw)
+    {
+        iBound = raw.bounds;
+        iMogpFlags = raw.mogpflags;
+        iGroupWMOID = raw.GroupWMOID;
+        vertices = raw.vertexArray;
+        triangles = raw.triangles;
+
+        // Clean up any previous liquid
+        if (iLiquid) {
+            delete iLiquid;
+            iLiquid = nullptr;
+        }
+
+        // Copy liquid data if present
+        if (raw.liquid) {
+            // Deep copy via copy constructor (ensure WmoLiquid has proper copy ctor)
+            iLiquid = new WmoLiquid(*raw.liquid);
+        }
+
+        // Rebuild BIH over the group mesh triangles (if non-empty)
+        if (!vertices.empty() && !triangles.empty()) {
+            // Lambda or functor for bounds:
+            auto getTriangleBounds = [this](const MeshTriangle& tri, AABox& out) {
+                const Vec3& v0 = vertices[tri.idx0];
+                const Vec3& v1 = vertices[tri.idx1];
+                const Vec3& v2 = vertices[tri.idx2];
+                Vec3 minV = v0.min(v1).min(v2);
+                Vec3 maxV = v0.max(v1).max(v2);
+                out = AABox(minV, maxV);
+                };
+            meshTree.build(triangles, getTriangleBounds);
+        }
+        else {
+            // If no geometry, clear tree
+            meshTree = BIH();
+        }
+
+        // All done
+        return true;
+    }
+
+} // namespace VMAP

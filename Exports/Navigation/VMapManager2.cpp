@@ -27,19 +27,30 @@
 #include <sstream>
 #include <filesystem>
 #include <iostream> // Optional, for debugging output
+#include <fstream>
 
 #include "VMapManager2.h"
 #include "Vec3Ray.h"
 #include "MapTree.h"
+#include "GroupModel.h"
 #include "ModelInstance.h"
-#include "WorldModel.h"
 #include "VMapDefinitions.h"
+#include "GameObjectModel.h"
 
 #define LOG_DEBUG(msg) std::cout << "[DEBUG] " << msg << std::endl
 #define LOG_WARN(msg)  std::cerr << "[WARN] " << msg << std::endl
 #define LOG_ERROR(msg) std::cerr << "[ERROR] " << msg << std::endl
 
 namespace fs = std::filesystem;
+
+static std::string getModelKey(const std::string& rawFilename) {
+	// Remove all extensions (e.g., ".wmo.vmo" -> "name", ".m2.vmo" -> "name")
+	fs::path p(rawFilename);
+	std::string name = p.stem().string();
+	if (fs::path(name).extension() == ".wmo" || fs::path(name).extension() == ".m2")
+		name = fs::path(name).stem().string();
+	return name;
+}
 
 namespace VMAP
 {
@@ -75,69 +86,125 @@ namespace VMAP
 			delete i->second.getModel();
 		}
 	}
-
-	VMapManager2* VMapManager2::_instance = nullptr;
-
+	
 	VMapManager2* VMapManager2::Instance()
 	{
 		if (!_instance)
-		{
-			_instance = new VMapManager2(&VMAP::DefaultIsVMAPDisabledForPtr);
+			_instance = new VMapManager2(DefaultIsVMAPDisabledForPtr);
+		return _instance;
+	}
+
+	VMapManager2* VMapManager2::_instance = nullptr;
+
+	enum VMOType { VMO_WMO, VMO_M2, VMO_Unknown };
+
+	VMOType detectVMOType(const std::string& filepath) {
+		FILE* f = fopen(filepath.c_str(), "rb");
+		if (!f) { return VMO_Unknown; }
+		char magic[8] = { 0 };
+		if (fread(magic, 1, 8, f) != 8) { fclose(f); return VMO_Unknown; }
+		if (strncmp(magic, "RAWVMAP", 8) != 0) { fclose(f); return VMO_Unknown; }
+		uint32_t vertexCount = 0, groupCount = 0;
+		if (fread(&vertexCount, sizeof(uint32_t), 1, f) != 1 ||
+			fread(&groupCount, sizeof(uint32_t), 1, f) != 1) {
+			std::cerr << "[VMAP][Detect] Could not read counts in: " << filepath << std::endl;
+			fclose(f); return VMO_Unknown;
 		}
 
-		return _instance;
+		fclose(f);
+		if (groupCount == 1) return VMO_M2;
+		if (groupCount > 1) return VMO_WMO;
+		return VMO_Unknown;
 	}
 
 	void VMapManager2::Initialize()
 	{
 		const std::string basePath = "./vmaps";
 
-		for (const auto& entry : fs::directory_iterator(basePath))
-		{
+		// --- Step 1: Static Map Tiles (unchanged) ---
+		for (const auto& entry : fs::directory_iterator(basePath)) {
 			const fs::path& path = entry.path();
 			if (!fs::is_regular_file(path))
 				continue;
-
-			if (path.extension() == ".vmtree")
-			{
-				std::string filename = path.stem().string(); // e.g., "451" from "451.vmtree"
-
-				try
-				{
+			if (path.extension() == ".vmtree") {
+				std::string filename = path.stem().string();
+				try {
 					unsigned int mapId = std::stoul(filename);
-					for (int tileX = 0; tileX < 64; ++tileX)
-					{
-						for (int tileY = 0; tileY < 64; ++tileY)
-						{
-							if (StaticMapTree::CanLoadMap(basePath, mapId, tileX, tileY))
-							{
-								VMAPLoadResult result = loadMap(basePath.c_str(), mapId, tileX, tileY);
-								if (result != VMAP_LOAD_RESULT_OK)
-								{
-									std::cerr << "Failed to load VMAP tile (" << tileX << "," << tileY << ") for mapId: " << mapId << std::endl;
-								}
+					for (int tileX = 0; tileX < 64; ++tileX) {
+						for (int tileY = 0; tileY < 64; ++tileY) {
+							if (StaticMapTree::CanLoadMap(basePath, mapId, tileX, tileY)) {
+								loadMap(basePath.c_str(), mapId, tileX, tileY);
 							}
 						}
 					}
 				}
-				catch (const std::exception&)
-				{
-					std::cerr << "Skipping file (invalid map ID): " << filename << "\n";
+				catch (const std::exception& e) {
+					std::cerr << "[VMAP][Static][Exception] Skipping invalid .vmtree file: " << filename << " (" << e.what() << ")" << std::endl;
 				}
 			}
 		}
+
+		// --- Step 2: Only load RAWVMAP model files as exported by this toolchain ---
+		for (const auto& entry : fs::directory_iterator(basePath)) {
+			const fs::path& path = entry.path();
+			if (!fs::is_regular_file(path))
+				continue;
+
+			// Only consider .vmo, .wmo.vmo, .m2.vmo extensions (the actual file extensions written by vmangos exporters)
+			std::string ext = path.extension().string();
+			if (ext != ".vmo" && ext != ".wmo.vmo" && ext != ".m2.vmo")
+				continue;
+
+			// Check for RAWVMAP magic
+			std::ifstream file(path, std::ios::binary);
+			char magic[8] = { 0 };
+			if (!file.read(magic, 8) || std::strncmp(magic, "RAWVMAP", 8) != 0)
+				continue; // Skip non-RAWVMAP files
+
+			// Use the filename as the key, without double extension (so: foo.m2, bar.wmo, etc)
+			std::string modelName = path.stem().string();
+
+			WorldModel* model = acquireUniversalModelInstance(basePath, modelName, 0);
+			if (!model) {
+				std::cerr << "[VMAP][Dynamic][Error] Failed to parse RAWVMAP model: " << path.string() << std::endl;
+				continue;
+			}
+
+			GameObjectModel obj;
+			obj.name = modelName;
+			obj.iModel = model;
+			obj.iModelBound = model->bound;
+			obj.iPos = Vec3(0.0f, 0.0f, 0.0f);
+			obj.iQuat = Quat::identity();
+			obj.iScale = 1.0f;
+			obj.iInvScale = 1.0f;
+
+			// Compute transformed bounds for dynamic tree (if needed)
+			const Vec3 min = obj.iModelBound.min;
+			const Vec3 max = obj.iModelBound.max;
+			Vec3 corners[8] = {
+				Vec3(min.x, min.y, min.z), Vec3(max.x, min.y, min.z),
+				Vec3(min.x, max.y, min.z), Vec3(max.x, max.y, min.z),
+				Vec3(min.x, min.y, max.z), Vec3(max.x, min.y, max.z),
+				Vec3(min.x, max.y, max.z), Vec3(max.x, max.y, max.z)
+			};
+			Vec3 initialCorner = obj.iQuat * corners[0] + obj.iPos;
+			AABox transformed;
+			transformed.set(initialCorner, initialCorner);
+			for (int i = 1; i < 8; ++i) {
+				Vec3 corner = obj.iQuat * corners[i] + obj.iPos;
+				transformed.merge(corner);
+			}
+			obj.iBound = transformed;
+
+			_dynamicTree.insert(obj);
+		}
+
+		_dynamicTree.balance();
 	}
 
-	void VMapManager2::Release()
-	{
-		// Clean up all maps and models
-		for (auto& pair : iInstanceMapTrees)
-			delete pair.second;
-		iInstanceMapTrees.clear();
-
-		iLoadedModelFiles.clear(); // relies on ManagedModel cleanup
-
-		DestroyInstance(); // destroys singleton instance
+	void VMapManager2::loadSubmodelsRecursively(WorldModel* model, unsigned int flags) {
+		// All subgroups already loaded; nothing to do unless you add doodad/external refs
 	}
 
 	void VMapManager2::DestroyInstance()
@@ -191,9 +258,11 @@ namespace VMAP
 	VMAPLoadResult VMapManager2::loadMap(const char* pBasePath, unsigned int pMapId, int x, int y)
 	{
 		VMAPLoadResult result = VMAP_LOAD_RESULT_IGNORED;
+
 		if (isMapLoadingEnabled())
 		{
-			if (_loadMap(pMapId, pBasePath, x, y))
+			bool loaded = _loadMap(pMapId, pBasePath, x, y);
+			if (loaded)
 			{
 				result = VMAP_LOAD_RESULT_OK;
 			}
@@ -202,6 +271,7 @@ namespace VMAP
 				result = VMAP_LOAD_RESULT_ERROR;
 			}
 		}
+
 		return result;
 	}
 
@@ -214,40 +284,34 @@ namespace VMAP
 	 * @param tileY The y-coordinate of the tile.
 	 * @return bool True if the tile was loaded successfully, false otherwise.
 	 */
-	bool VMapManager2::_loadMap(unsigned int mapId, const std::string& basePath, unsigned int tileX, unsigned int tileY)
+	bool VMapManager2::_loadMap(unsigned int pMapId, const std::string& basePath, unsigned int tileX, unsigned int tileY)
 	{
-		auto instanceTree = iInstanceMapTrees.find(mapId);
-		bool isNewTree = false;
+		auto instanceTree = iInstanceMapTrees.find(pMapId);
 
+		// Create StaticMapTree if this is the first tile for this mapId
 		if (instanceTree == iInstanceMapTrees.end())
 		{
-			std::string mapFileName = getMapFileName(mapId);
+			std::string mapFileName = getMapFileName(pMapId);
 
-			StaticMapTree* newTree = new StaticMapTree(mapId, basePath);
+			StaticMapTree* newTree = new StaticMapTree(pMapId, basePath);
 			if (!newTree->InitMap(mapFileName, this))
 			{
 				delete newTree;
 				return false;
 			}
 
-			instanceTree = iInstanceMapTrees.insert({ mapId, newTree }).first;
-			isNewTree = true;
+			instanceTree = iInstanceMapTrees.insert({ pMapId, newTree }).first;
 		}
 
-		StaticMapTree* tree = instanceTree->second;
-
-		if (!tree)
+		if (!instanceTree->second)
 		{
-			std::cerr << "[VMAP][Error] instanceTree->second is NULL after insert for mapId=" << mapId << std::endl;
 			return false;
 		}
 
-		bool result = tree->LoadMapTile(tileX, tileY, this);
+		bool result = instanceTree->second->LoadMapTile(tileX, tileY, this);
 
 		return result;
 	}
-
-
 
 	/**
 	 * @brief Unloads a map.
@@ -301,13 +365,9 @@ namespace VMAP
 	 * @param z2 The z-coordinate of the second point.
 	 * @return bool True if there is a line of sight, false otherwise.
 	 */
-	bool VMapManager2::isInLineOfSight(unsigned int pMapId, float x1, float y1, float z1, float x2, float y2, float z2)
+	bool VMapManager2::isInLineOfSight(unsigned int pMapId, float x1, float y1, float z1, float x2, float y2, float z2, bool ignoreM2Model)
 	{
-		if (!isLineOfSightCalcEnabled() || IsVMAPDisabledForPtr(pMapId, VMAP_DISABLE_LOS))
-		{
-			return true;
-		}
-
+		if (!isLineOfSightCalcEnabled()) return true;
 		bool result = true;
 		InstanceTreeMap::iterator instanceTree = iInstanceMapTrees.find(pMapId);
 		if (instanceTree != iInstanceMapTrees.end())
@@ -315,9 +375,7 @@ namespace VMAP
 			Vec3 pos1 = convertPositionToInternalRep(x1, y1, z1);
 			Vec3 pos2 = convertPositionToInternalRep(x2, y2, z2);
 			if (pos1 != pos2)
-			{
-				result = instanceTree->second->isInLineOfSight(pos1, pos2);
-			}
+				result = instanceTree->second->isInLineOfSight(pos1, pos2, ignoreM2Model);
 		}
 		return result;
 	}
@@ -348,34 +406,42 @@ namespace VMAP
 		outY = y2;
 		outZ = z2;
 
+		float tempX = x2, tempY = y2, tempZ = z2;
+		bool resultStatic = false, resultDynamic = false;
+
 		if (!isLineOfSightCalcEnabled() || (IsVMAPDisabledForPtr && IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_LOS)))
-		{
-			std::cout << "[VMAP][HitPos] LOS disabled for mapId=" << mapId << std::endl;
 			return false;
-		}
 
 		auto instanceTree = iInstanceMapTrees.find(mapId);
-		if (instanceTree == iInstanceMapTrees.end() || !instanceTree->second)
+		if (instanceTree != iInstanceMapTrees.end() && instanceTree->second)
 		{
-			std::cout << "[VMAP][HitPos] No tree found for mapId=" << mapId << std::endl;
-			return false;
+			Vec3 pos1 = convertPositionToInternalRep(x1, y1, z1);
+			Vec3 pos2 = convertPositionToInternalRep(x2, y2, z2);
+			Vec3 resultPos;
+
+			if (instanceTree->second->getObjectHitPos(pos1, pos2, resultPos, modifyDist))
+			{
+				Vec3 finalPos = convertPositionToInternalRep(resultPos.x, resultPos.y, resultPos.z);
+				tempX = finalPos.x;
+				tempY = finalPos.y;
+				tempZ = finalPos.z;
+				outX = tempX;
+				outY = tempY;
+				outZ = tempZ;
+				resultStatic = true;
+			}
 		}
 
-		Vec3 pos1 = convertPositionToInternalRep(x1, y1, z1);
-		Vec3 pos2 = convertPositionToInternalRep(x2, y2, z2);
-
-		Vec3 resultPos;
-		bool result = instanceTree->second->getObjectHitPos(pos1, pos2, resultPos, modifyDist);
-
-		if (result)
+		// Check dynamic tree, using updated dest from static if applicable
+		if (_dynamicTree.getObjectHitPos(x1, y1, z1, outX, outY, outZ, tempX, tempY, tempZ, modifyDist))
 		{
-			Vec3 finalPos = convertPositionToInternalRep(resultPos.x, resultPos.y, resultPos.z);
-			outX = finalPos.x;
-			outY = finalPos.y;
-			outZ = finalPos.z;
+			outX = tempX;
+			outY = tempY;
+			outZ = tempZ;
+			resultDynamic = true;
 		}
 
-		return result;
+		return resultStatic || resultDynamic;
 	}
 
 	/**
@@ -388,30 +454,22 @@ namespace VMAP
 	 * @param maxSearchDist The maximum search distance.
 	 * @return float The height at the position, or VMAP_INVALID_HEIGHT_VALUE if no height is available.
 	 */
-	float VMapManager2::getHeight(unsigned int mapId, float x, float y, float z, float maxSearchDist)
+	float VMapManager2::getHeight(unsigned int pMapId, float x, float y, float z, float maxSearchDist)
 	{
-		float height = VMAP_INVALID_HEIGHT_VALUE;
-		if (isHeightCalcEnabled() && !IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_HEIGHT))
+		float height = VMAP_INVALID_HEIGHT_VALUE;           // no height
+		if (isHeightCalcEnabled())
 		{
-			auto instanceTree = iInstanceMapTrees.find(mapId);
+			InstanceTreeMap::iterator instanceTree = iInstanceMapTrees.find(pMapId);
 			if (instanceTree != iInstanceMapTrees.end())
 			{
 				Vec3 pos = convertPositionToInternalRep(x, y, z);
 				height = instanceTree->second->getHeight(pos, maxSearchDist);
-
-				if (height >= finf())
-					height = VMAP_INVALID_HEIGHT_VALUE;
-			}
-			else
-			{
-				std::cout << "[VMAP][Height] No instance tree for mapId=" << mapId << std::endl;
+				if (!(height < finf()))
+				{
+					height = VMAP_INVALID_HEIGHT_VALUE;     // no height
+				}
 			}
 		}
-		else
-		{
-			std::cout << "[VMAP][Height] Height disabled for mapId=" << mapId << std::endl;
-		}
-
 		return height;
 	}
 
@@ -460,8 +518,6 @@ namespace VMAP
 	 */
 	bool VMapManager2::GetLiquidLevel(unsigned int mapId, float x, float y, float z, uint8_t reqLiquidType, float& level, float& floor, unsigned int& type) const
 	{
-		std::cout << "[VMAP][Liquid] Query at (" << x << ", " << y << ", " << z << ") mapId=" << mapId << " reqType=" << (int)reqLiquidType << std::endl;
-
 		if (!IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_LIQUIDSTATUS))
 		{
 			auto instanceTree = iInstanceMapTrees.find(mapId);
@@ -474,8 +530,6 @@ namespace VMAP
 					floor = info.ground_Z;
 					type = info.hitModel->GetLiquidType();
 
-					std::cout << "[VMAP][Liquid] Liquid type = " << type << ", floorZ = " << floor << std::endl;
-
 					if (reqLiquidType && !(type & reqLiquidType))
 					{
 						std::cout << "[VMAP][Liquid] Liquid type mismatch. Required: " << (int)reqLiquidType << ", Found: " << type << std::endl;
@@ -484,7 +538,6 @@ namespace VMAP
 
 					if (info.hitInstance->GetLiquidLevel(pos, info, level))
 					{
-						std::cout << "[VMAP][Liquid] Liquid level = " << level << std::endl;
 						return true;
 					}
 
@@ -504,33 +557,75 @@ namespace VMAP
 		return false;
 	}
 
+	static VMOFormat DetectVMOFormat(const std::string& filepath)
+	{
+		std::ifstream file(filepath, std::ios::binary);
+		if (!file)
+			return VMOFormat::Unknown;
+
+		char chunkID[5] = { 0 };
+		file.read(chunkID, 4);
+
+		if (std::strncmp(chunkID, "GRP ", 4) == 0 || std::strncmp(chunkID, "MAIN", 4) == 0)
+			return VMOFormat::WMO;
+
+		if (std::strncmp(chunkID, "MD20", 4) == 0 || std::strncmp(chunkID, "MOGP", 4) == 0)
+			return VMOFormat::M2;
+
+		return VMOFormat::Unknown;
+	}
 	/**
 	 * @brief Acquires a model instance.
 	 *
 	 * @param basepath The base path to the model files.
 	 * @param filename The name of the model file.
 	 * @param flags The flags for the model.
-	 * @return WorldModel* The acquired model instance.
+	 * @return Model* The acquired model instance.
 	 */
-	WorldModel* VMapManager2::acquireModelInstance(const std::string& basepath, const std::string& filename, unsigned int flags/* Only used when creating the model */)
+	WorldModel* VMapManager2::acquireUniversalModelInstance(const std::string& basepath, const std::string& rawFilename, unsigned int flags)
 	{
-		ModelFileMap::iterator model = iLoadedModelFiles.find(filename);
-		if (model == iLoadedModelFiles.end())
-		{
-			WorldModel* worldmodel = new WorldModel();
-			if (!worldmodel->ReadFile(basepath + filename + ".vmo"))
-			{
-				ERROR_LOG("VMapManager2: could not load '%s%s.vmo'!", basepath.c_str(), filename.c_str());
-				delete worldmodel;
-				return NULL;
-			}
-			DEBUG_FILTER_LOG(LOG_FILTER_MAP_LOADING, "VMapManager2: loading file '%s%s'.", basepath.c_str(), filename.c_str());
-			worldmodel->Flags = flags;
-			model = iLoadedModelFiles.insert(std::pair<std::string, ManagedModel>(filename, ManagedModel())).first;
-			model->second.setModel(worldmodel);
+		std::string modelKey = getModelKey(rawFilename);
+
+		auto it = iLoadedModelFiles.find(modelKey);
+		if (it != iLoadedModelFiles.end()) {
+			it->second.incRefCount();
+			return it->second.getModel();
 		}
-		model->second.incRefCount();
-		return model->second.getModel();
+
+		fs::path base = fs::path(basepath);
+		std::vector<std::string> candidates = {
+			modelKey + ".wmo.vmo",
+			modelKey + ".m2.vmo",
+			modelKey + ".vmo"
+		};
+
+		std::string foundPath;
+		VMOType foundType = VMO_Unknown;
+		for (const std::string& c : candidates) {
+			fs::path tryPath = base / c;
+			if (fs::exists(tryPath)) {
+				VMOType t = detectVMOType(tryPath.string());
+				if (t != VMO_Unknown) {
+					foundPath = tryPath.string();
+					foundType = t;
+					break;
+				}
+			}
+		}
+
+		if (foundPath.empty() || foundType == VMO_Unknown) {
+			return nullptr;
+		}
+
+		std::unique_ptr<WorldModel> model = std::make_unique<WorldModel>();
+		model->Flags = flags;
+		if (!model->ReadFile(foundPath)) {
+			std::cerr << "[VMAP][Universal][Error] Failed to parse model: " << foundPath << std::endl;
+			return nullptr;
+		}
+		iLoadedModelFiles[modelKey].setModel(model.release());
+		iLoadedModelFiles[modelKey].incRefCount();
+		return iLoadedModelFiles[modelKey].getModel();
 	}
 
 	/**
@@ -567,4 +662,58 @@ namespace VMAP
 	{
 		return StaticMapTree::CanLoadMap(std::string(pBasePath), pMapId, x, y);
 	}
+
+	void VMapManager2::buildModelFileIndex(const std::string& basePath) {
+		if (_modelFilesIndexed.count(basePath))
+			return; // Already indexed
+
+		_basePath = basePath;
+		_modelFileIndex.clear();
+
+		for (const auto& entry : fs::directory_iterator(basePath)) {
+			if (!fs::is_regular_file(entry.path())) continue;
+			std::string fname = entry.path().filename().string();
+			std::string base = fs::path(fname).stem().string();
+			_modelFileIndex[base].push_back(fname);
+		}
+		_modelFilesIndexed.insert(basePath);
+		std::cout << "[VMAP][Flat] Indexed " << _modelFileIndex.size() << " unique basenames in: " << basePath << std::endl;
+	}
+
+	WorldModel* VMapManager2::loadModelByReference(const std::string& ref, unsigned int flags) {
+		std::string basename = fs::path(ref).stem().string();
+
+		// Prevent infinite recursion
+		if (_visitedRefs.count(basename)) return iLoadedModelFiles.count(basename) ? iLoadedModelFiles[basename].getModel() : nullptr;
+		_visitedRefs.insert(basename);
+
+		// Check already loaded
+		if (iLoadedModelFiles.count(basename)) {
+			return iLoadedModelFiles[basename].getModel();
+		}
+		// Search for any file with matching basename
+		auto it = _modelFileIndex.find(basename);
+		if (it == _modelFileIndex.end()) {
+			std::cerr << "[VMAP][Flat][Error] Could not find model for reference: " << ref << std::endl;
+			return nullptr;
+		}
+		for (const auto& candidate : it->second) {
+			std::string fullPath = (fs::path(_basePath) / candidate).string();
+			VMOType t = detectVMOType(fullPath);
+			if (t != VMO_Unknown) {
+				std::unique_ptr<WorldModel> model = std::make_unique<WorldModel>();
+				model->Flags = flags;
+				if (model->ReadFile(fullPath)) {
+					iLoadedModelFiles[basename].setModel(model.release());
+					iLoadedModelFiles[basename].incRefCount();
+					std::cout << "[VMAP][Flat] Loaded model: " << fullPath << std::endl;
+					loadSubmodelsRecursively(iLoadedModelFiles[basename].getModel(), flags);
+					return iLoadedModelFiles[basename].getModel();
+				}
+			}
+		}
+		std::cerr << "[VMAP][Flat][Error] No valid model loaded for reference: " << ref << std::endl;
+		return nullptr;
+	}
+
 } // namespace VMAP
