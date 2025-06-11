@@ -118,6 +118,8 @@ namespace WoWSharpClient
 
         public void Dispatch(Opcode opcode, byte[] data)
         {
+            Console.WriteLine($"[OpcodeDispatcher] Received code: {opcode} byte[{data.Length}]");
+
             if (_handlers.TryGetValue(opcode, out var handler))
             {
                 _queue.Enqueue(() => handler(opcode, data));

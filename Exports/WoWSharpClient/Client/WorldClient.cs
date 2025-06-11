@@ -78,7 +78,7 @@ namespace WoWSharpClient.Client
 
         private void SendPacket(byte[] packetData, Opcode opcode)
         {
-            //Console.WriteLine($"[WorldClient] Sending packet: {opcode} ({packetData.Length} bytes)");
+            Console.WriteLine($"[WorldClient] Sending packet: {opcode} ({packetData.Length} bytes)");
             _stream.Write(packetData, 0, packetData.Length);
         }
 
@@ -138,7 +138,7 @@ namespace WoWSharpClient.Client
         {
             using var ms = new MemoryStream();
             using var writer = new BinaryWriter(ms);
-            var header = _vanillaEncryption.CreateClientHeader(12, (uint)Opcode.CMSG_PING);
+            var header = _vanillaEncryption.CreateClientHeader(14, (uint)Opcode.CMSG_PING);
             writer.Write(header);
             writer.Write(sequence);
             writer.Write((uint)0);

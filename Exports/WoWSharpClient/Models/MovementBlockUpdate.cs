@@ -3,6 +3,25 @@ using GameData.Core.Models;
 
 namespace WoWSharpClient.Models
 {
+    enum MovementChangeType
+    {
+        INVALID,
+
+        ROOT,
+        WATER_WALK,
+        SET_HOVER,
+        FEATHER_FALL,
+
+        SPEED_CHANGE_WALK,
+        SPEED_CHANGE_RUN,
+        SPEED_CHANGE_RUN_BACK,
+        SPEED_CHANGE_SWIM,
+        SPEED_CHANGE_SWIM_BACK,
+        RATE_CHANGE_TURN,
+
+        TELEPORT,
+        KNOCK_BACK
+    };
     public class MovementBlockUpdate
     {
         // Speeds

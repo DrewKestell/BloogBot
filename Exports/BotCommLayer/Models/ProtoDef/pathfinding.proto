@@ -12,10 +12,6 @@ message PathfindingRequest {
     oneof payload {
         PathRequest path = 1;
         DistanceRequest distance = 2;
-        ZQueryRequest z_query = 3;
-        LOSRequest los_query = 4;
-        AreaInfoRequest area_info = 5;
-        LiquidLevelRequest liquid_level = 6;
     }
 }
 
@@ -32,28 +28,6 @@ message DistanceRequest {
     game.Position end = 3;
 }
 
-message ZQueryRequest {
-    uint32 map_id = 1;
-    game.Position position = 2;
-}
-
-message LOSRequest {
-    uint32 map_id = 1;
-    game.Position from = 2;
-    game.Position to = 3;
-}
-
-message AreaInfoRequest {
-    uint32 map_id = 1;
-    game.Position position = 2;
-}
-
-message LiquidLevelRequest {
-    uint32 map_id = 1;
-    game.Position position = 2;
-    uint32 req_liquid_type = 3;
-}
-
 // ----------------------------
 // Responses
 // ----------------------------
@@ -62,10 +36,6 @@ message PathfindingResponse {
     oneof payload {
         PathResponse path = 1;
         DistanceResponse distance = 2;
-        ZQueryResponse z_query = 3;
-        LOSResponse los_query = 4;
-        AreaInfoResponse area_info = 5;
-        LiquidLevelResponse liquid_level = 6;
         Error error = 99;
     }
 }
@@ -78,45 +48,6 @@ message DistanceResponse {
     float distance = 1;
 }
 
-message ZQueryResponse {
-    ZQueryResult z_result = 1;
-}
-
-message LOSResponse {
-    bool is_in_los = 1;
-}
-
-message AreaInfoResponse {
-    uint32 area_flags = 1;
-    int32 adt_id = 2;
-    int32 root_id = 3;
-    int32 group_id = 4;
-}
-
-message LiquidLevelResponse {
-    float level = 1;
-    float floor = 2;
-    uint32 type = 3;
-}
-
 message Error {
     string message = 1;
-}
-
-// ----------------------------
-// ZQueryResult Type
-// ----------------------------
-
-/// <summary>
-/// Returns *all* possible Zs at a position, plus the most "canonical" ground Z.
-/// </summary>
-message ZQueryResult {
-    float floor_z = 1;     // Most reliable ground Z for this position.
-    float raycast_z = 2;   // VMAP object collision (e.g. bridge, building)
-    float terrain_z = 3;   // VMAP terrain Z (collision mesh)
-    float adt_z = 4;       // ADT terrain Z (raw ground, fallback)
-    float location_z = 5;  // VMAP LocationInfo (WMO floor, etc)
-    float water_level = 6;
-    bool is_in_water = 7;
-
 }
