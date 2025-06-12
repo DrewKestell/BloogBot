@@ -134,11 +134,21 @@ namespace WoWSharpClient.Client
             SendPacket(ms.ToArray(), Opcode.CMSG_CHAR_ENUM);
         }
 
+        public void SendCMSGQueryTime()
+        {
+            using var ms = new MemoryStream();
+            using var writer = new BinaryWriter(ms);
+            var header = _vanillaEncryption.CreateClientHeader(4, (uint)Opcode.CMSG_QUERY_TIME);
+            writer.Write(header);
+            writer.Flush();
+            SendPacket(ms.ToArray(), Opcode.CMSG_QUERY_TIME);
+        }
+
         public void SendCMSGPing(uint sequence)
         {
             using var ms = new MemoryStream();
             using var writer = new BinaryWriter(ms);
-            var header = _vanillaEncryption.CreateClientHeader(14, (uint)Opcode.CMSG_PING);
+            var header = _vanillaEncryption.CreateClientHeader(12, (uint)Opcode.CMSG_PING);
             writer.Write(header);
             writer.Write(sequence);
             writer.Write((uint)0);
@@ -190,13 +200,13 @@ namespace WoWSharpClient.Client
             SendPacket(ms.ToArray(), Opcode.CMSG_MESSAGECHAT);
         }
 
-        public void SendMSGMoveWorldportAck()
+        public void SendMSGMoveWorldportAck(uint timestamp)
         {
             using var ms = new MemoryStream();
             using var writer = new BinaryWriter(ms);
             var header = _vanillaEncryption.CreateClientHeader(8, (uint)Opcode.MSG_MOVE_WORLDPORT_ACK);
             writer.Write(header);
-            writer.Write((uint)0); // Teleport acknowledgement ID or timestamp placeholder
+            writer.Write(timestamp); // Teleport acknowledgement ID or timestamp placeholder
             writer.Flush();
             SendPacket(ms.ToArray(), Opcode.MSG_MOVE_WORLDPORT_ACK);
         }

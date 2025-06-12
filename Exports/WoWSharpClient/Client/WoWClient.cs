@@ -1,5 +1,6 @@
 ﻿using GameData.Core.Enums;
 using GameData.Core.Models;
+using Microsoft.VisualBasic;
 using System.Net;
 
 namespace WoWSharpClient.Client
@@ -13,16 +14,7 @@ namespace WoWSharpClient.Client
 
         private bool _isLoggedIn;
         public bool IsLoggedIn => _isLoggedIn;
-        private uint _movementCounter = 0;
-        private uint _pingCounter = 1;
-        public uint GetNextMovementCounter()
-        {
-            return _movementCounter++;
-        }
-        public void ResetMovementCounter()
-        {
-            _movementCounter = 0;
-        }
+        private uint _pingCounter = 0;
         public void Dispose()
         {
             _loginClient?.Dispose();
@@ -64,17 +56,17 @@ namespace WoWSharpClient.Client
         public void EnterWorld(ulong guid) => _worldClient.SendCMSGPlayerLogin(guid);
         public void SendChatMessage(ChatMsg chatMsgType, Language orcish, string destination, string text) => _worldClient.SendCMSGMessageChat(chatMsgType, orcish, destination, text);
         public void SendNameQuery(ulong guid) => _worldClient.SendCMSGNameTypeQuery(Opcode.CMSG_NAME_QUERY, guid);
-        public void SendMoveWorldPortAcknowledge() => _worldClient.SendMSGMoveWorldportAck();
+        public void SendMoveWorldPortAcknowledge(uint timestamp) => _worldClient.SendMSGMoveWorldportAck(timestamp);
         public void SendSetActiveMover(ulong guid) => _worldClient.SendCMSGSetActiveMover(guid);
         internal void SendMovementOpcode(Opcode opcode, byte[] movementInfo)
         {
             _worldClient.SendMSGMove(opcode, movementInfo);
-            _movementCounter++;
         }
         internal void SendMSGPacked(Opcode opcode, byte[] payload)
         {
             _worldClient.SendMSGPacked(opcode, payload);
         }
         internal void SendPing() => _worldClient.SendCMSGPing(_pingCounter++);
+        internal void QueryTime() => _worldClient.SendCMSGQueryTime();
     }
 }

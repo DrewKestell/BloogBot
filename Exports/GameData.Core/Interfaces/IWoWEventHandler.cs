@@ -89,6 +89,12 @@ namespace GameData.Core.Interfaces
         public uint StateId { get; set; }
         public uint StateValue { get; set; }
     }
+    public class OnSetTimeSpeedArgs(uint serverTime, float timescale)
+    {
+        public uint ServerTime { get; set; } = serverTime;
+        public float TimeScale { get; set; } = timescale;
+    }
+
     public class OnLootArgs(int itemId, string itemName, int count) : EventArgs
     {
         public int ItemId { get; } = itemId;

@@ -2650,7 +2650,30 @@ namespace GameData.Core.Enums
         MOVEFLAG_ROOT = 0x08000000,               // used for flight paths
         MOVEFLAG_WATERWALKING = 0x10000000,               // prevent unit from falling through water
         MOVEFLAG_SAFE_FALL = 0x20000000,               // active rogue safe fall spell (passive)
-        MOVEFLAG_HOVER = 0x40000000
+        MOVEFLAG_HOVER = 0x40000000,
+        
+        // Masks (not transmitted, just logical helpers)
+        MOVEFLAG_MASK_MOVING =
+            MOVEFLAG_FORWARD |
+            MOVEFLAG_BACKWARD |
+            MOVEFLAG_STRAFE_LEFT |
+            MOVEFLAG_STRAFE_RIGHT |
+            MOVEFLAG_PITCH_UP |
+            MOVEFLAG_PITCH_DOWN |
+            MOVEFLAG_FALLING |
+            MOVEFLAG_FALLINGFAR |
+            MOVEFLAG_SPLINE_ELEVATION,
+
+        MOVEFLAG_MASK_XZ =
+            MOVEFLAG_FORWARD |
+            MOVEFLAG_BACKWARD |
+            MOVEFLAG_STRAFE_LEFT |
+            MOVEFLAG_STRAFE_RIGHT,
+
+        MOVEFLAG_MASK_MOVING_OR_TURN =
+            MOVEFLAG_MASK_MOVING |
+            MOVEFLAG_TURN_LEFT |
+            MOVEFLAG_TURN_RIGHT
     }
     [Flags]
     public enum MovementFlags2 : ushort

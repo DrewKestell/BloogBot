@@ -82,6 +82,7 @@ namespace WoWSharpClient.Models
         public ulong TargetGuid { get; set; }
         public uint HighGuid { get; set; }
         public uint UpdateAll { get; set; }
+        public uint MovementCounter { get; set; }
 
         public MovementFlags MovementFlags { get; set; }
         public uint LastUpdated { get; set; }

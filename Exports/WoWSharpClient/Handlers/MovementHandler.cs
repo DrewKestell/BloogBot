@@ -41,6 +41,7 @@ namespace WoWSharpClient.Handlers
                             ulong guid = ReaderUtils.ReadPackedGuid(reader);
                             uint movementCounter = reader.ReadUInt32();
                             MovementInfoUpdate movementUpdateData = MovementPacketHandler.ParseMovementInfo(reader);
+                            movementUpdateData.MovementCounter = movementCounter;
 
                             _eventEmitter.FireOnTeleport(new RequiresAcknowledgementArgs(guid, movementCounter));
                             break;
@@ -130,6 +131,8 @@ namespace WoWSharpClient.Handlers
             var counter = reader.ReadUInt32();
 
             MovementInfoUpdate movementData = MovementPacketHandler.ParseMovementInfo(reader);
+            movementData.MovementCounter = counter;
+
             _objectManager.QueueUpdate(new ObjectStateUpdate(packedGuid, ObjectUpdateOperation.Update, WoWObjectType.Player, movementData, []));
 
             return new(packedGuid, counter);
@@ -162,7 +165,7 @@ namespace WoWSharpClient.Handlers
             var compressedOpCode = (Opcode)reader.ReadUInt16();
             var guid = ReaderUtils.ReadPackedGuid(reader);
 
-            Console.WriteLine($"[MovementHandler] {compressedOpCode}");
+            //Console.WriteLine($"[MovementHandler] {compressedOpCode}");
             switch (compressedOpCode)
             {
                 case Opcode.SMSG_MONSTER_MOVE:

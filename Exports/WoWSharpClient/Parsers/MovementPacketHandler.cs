@@ -18,7 +18,7 @@ namespace WoWSharpClient.Parsers
 
             return ms.ToArray();
         }
-        public static byte[] BuildMovementInfoBuffer(WoWLocalPlayer player, uint timestamp)
+        public static byte[] BuildMovementInfoBuffer(WoWLocalPlayer player)
         {
             using var ms = new MemoryStream();
             using var writer = new BinaryWriter(ms);
@@ -27,7 +27,7 @@ namespace WoWSharpClient.Parsers
             writer.Write((uint)player.MovementFlags);
 
             // Timestamp
-            writer.Write(timestamp);
+            writer.Write(player.LastUpdated);
 
             // Position
             writer.Write(player.Position.X);
@@ -45,7 +45,7 @@ namespace WoWSharpClient.Parsers
                 writer.Write(player.Transport.Position.Y);
                 writer.Write(player.Transport.Position.Z);
                 writer.Write(player.Transport.Facing);
-                writer.Write(timestamp); // uint32
+                writer.Write(player.TransportLastUpdated); // uint32
             }
 
             // If SWIMMING: write pitch
@@ -225,7 +225,7 @@ namespace WoWSharpClient.Parsers
             return data;
         }
 
-        internal static byte[] BuildForceMoveAck(WoWLocalPlayer player, uint movementCounter, uint timestamp)
+        internal static byte[] BuildForceMoveAck(WoWLocalPlayer player, uint movementCounter)
         {
             using var ms = new MemoryStream();
             using var writer = new BinaryWriter(ms);
@@ -234,7 +234,7 @@ namespace WoWSharpClient.Parsers
             ReaderUtils.WritePackedGuid(writer, player.Guid);
             writer.Write(movementCounter);
             // Timestamp
-            writer.Write(BuildMovementInfoBuffer(player, timestamp));
+            writer.Write(BuildMovementInfoBuffer(player));
 
             return ms.ToArray();
         }
