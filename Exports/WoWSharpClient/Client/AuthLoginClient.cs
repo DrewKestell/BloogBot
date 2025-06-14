@@ -28,6 +28,7 @@ namespace WoWSharpClient.Client
         public byte[] ServerProof => _serverProof;
         public byte[] SessionKey => _srpClient.SessionKey;
         public bool IsConnected => _client != null && _client.Connected;
+
         public void Connect()
         {
             try
@@ -62,22 +63,22 @@ namespace WoWSharpClient.Client
             writer.Write((byte)0x01); // Patch Version: 1
             writer.Write((ushort)0x16F3); // Build: 5875 (little-endian)
 
-            writer.Write(Encoding.UTF8.GetBytes("68x\0")); // Platform: "\0x86" (actual bytes are "68x\0")
-            writer.Write(Encoding.UTF8.GetBytes("niW\0")); // OS: "\0Win" (actual bytes are "niW\0")
-            writer.Write(Encoding.UTF8.GetBytes("BGne")); // Locale: "enGB" (actual bytes are "BGne")
+            writer.Write(Encoding.UTF8.GetBytes("68x\0")); // Platform: "68x\0"
+            writer.Write(Encoding.UTF8.GetBytes("niW\0")); // OS: "niW\0"
+            writer.Write(Encoding.UTF8.GetBytes("BGne")); // Locale: "enGB"
 
-            writer.Write((uint)60); // Timezone Bias: 60 (UTC+1, little-endian)
-            writer.Write((uint)0x0100007F); // Client IP: 127.0.0.1 (little-endian)
+            writer.Write((uint)60); // Timezone Bias
+            writer.Write((uint)0x0100007F); // Client IP
 
             writer.Write((byte)_username.Length); // Username length
-            writer.Write(Encoding.UTF8.GetBytes(_username.ToUpper())); // Username
+            writer.Write(Encoding.UTF8.GetBytes(_username.ToUpper()));
 
             writer.Flush();
             byte[] packetData = memoryStream.ToArray();
 
-            _woWSharpEventEmitter.FireOnHandshakeBegin();
+            Console.WriteLine($"[AuthLoginClient] -> CMD_AUTH_LOGON_CHALLENGE [{packetData.Length}]");
 
-            // Send the packet
+            _woWSharpEventEmitter.FireOnHandshakeBegin();
             _stream.Write(packetData, 0, packetData.Length);
 
             ReceiveAuthLogonChallengeServer();
@@ -90,10 +91,12 @@ namespace WoWSharpClient.Client
                 using var reader = new BinaryReader(_stream, Encoding.UTF8, true);
                 byte[] packet = reader.ReadBytes(119); // Adjust length if necessary
 
+                Console.WriteLine($"[AuthLoginClient] <- CMD_AUTH_LOGON_CHALLENGE [{packet.Length}]");
+
                 byte opcode = packet[0];
                 ResponseCode result = (ResponseCode)packet[2];
 
-                if (opcode == 0x00 && result == ResponseCode.RESPONSE_SUCCESS) // CMD_AUTH_LOGON_CHALLENGE and SUCCESS
+                if (opcode == 0x00 && result == ResponseCode.RESPONSE_SUCCESS)
                 {
                     byte[] serverPublicKey = [.. packet.Skip(3).Take(32)];
                     byte generator = packet[36];
@@ -106,19 +109,18 @@ namespace WoWSharpClient.Client
                     {
                         uint pinGridSeed = BitConverter.ToUInt32(packet, 119);
                         byte[] pinSalt = [.. packet.Skip(123).Take(16)];
-                        //Console.WriteLine($"Two-Factor Authentication Enabled");
                     }
 
                     SendLogonProof(serverPublicKey, generator, largeSafePrime, salt, crcSalt);
                 }
                 else
                 {
-                    //Console.WriteLine($"[LoginClient] Unexpected opcode or result received in AUTH_CHALLENGE response. [OpCode:{opcode:X2}] [Result:{result}]");
+                    Console.WriteLine($"[AuthLoginClient] Unexpected AUTH_CHALLENGE response: opcode {opcode:X2}, result {result}");
                 }
             }
             catch (Exception ex)
             {
-                //Console.WriteLine($"[LoginClient] An error occurred: {ex}");
+                Console.WriteLine($"[AuthLoginClient] Error in ReceiveAuthLogonChallengeServer: {ex}");
             }
         }
 
@@ -137,20 +139,20 @@ namespace WoWSharpClient.Client
                 writer.Write(_srpClientChallenge.ClientProof);
                 writer.Write(crcHash);
 
-                writer.Write((byte)0x00); // Num keys: 0
-                writer.Write((byte)0x00); // Two factor enabled: false
+                writer.Write((byte)0x00); // Num keys
+                writer.Write((byte)0x00); // 2FA disabled
 
                 writer.Flush();
-
                 byte[] packetData = memoryStream.ToArray();
-                _stream.Write(packetData, 0, packetData.Length);
 
-                //Console.WriteLine($"[LoginClient] Sending logon proof to server for username {_username}");
+                Console.WriteLine($"[AuthLoginClient] -> CMD_AUTH_LOGON_PROOF [{packetData.Length}]");
+
+                _stream.Write(packetData, 0, packetData.Length);
                 ReceiveAuthProofLogonResponse();
             }
             catch (Exception ex)
             {
-                //Console.WriteLine($"[LoginClient] An error occurred while sending logon proof: {ex}");
+                Console.WriteLine($"[LoginClient] Error in SendLogonProof: {ex}");
             }
         }
 
@@ -161,30 +163,24 @@ namespace WoWSharpClient.Client
                 using var reader = new BinaryReader(_stream, Encoding.UTF8, true);
                 byte[] header = reader.ReadBytes(2);
 
+                Console.WriteLine($"[AuthLoginClient] <- CMD_AUTH_LOGON_PROOF [{header.Length}]");
+
                 if (header.Length < 2)
-                {
-                    //Console.WriteLine($"[LoginClient] Received incomplete AUTH_PROOF response packet.");
-                }
+                    return;
 
                 byte opcode = header[0];
                 ResponseCode result = (ResponseCode)header[1];
 
-                if (opcode == 0x01 && result == ResponseCode.RESPONSE_SUCCESS) // CMD_AUTH_LOGON_PROOF and SUCCESS
+                if (opcode == 0x01 && result == ResponseCode.RESPONSE_SUCCESS)
                 {
-                    //Console.WriteLine($"[LoginClient] Authentication succeeded with opcode {opcode:X} and result code {result}");
                     byte[] body = reader.ReadBytes(24);
-                    if (body.Length < 24)
-                    {
-                        //Console.WriteLine("[LoginClient] Received incomplete success AUTH_PROOF response packet.");
-                    }
+
                     byte[] serverProof = [.. body.Take(20)];
                     _serverProof = serverProof;
 
                     var verificationResult = _srpClientChallenge.VerifyServerProof(serverProof);
                     if (!verificationResult.HasValue)
-                    {
                         _woWSharpEventEmitter.FireOnLoginFailure();
-                    }
                     else
                     {
                         _srpClient = verificationResult.Value;
@@ -193,13 +189,13 @@ namespace WoWSharpClient.Client
                 }
                 else
                 {
-                    //Console.WriteLine($"[LoginClient] Authentication failed with opcode {opcode:X} and result code {result}");
+                    Console.WriteLine($"[AuthLoginClient] Failed AUTH_PROOF response: opcode {opcode:X2}, result {result}");
                     _woWSharpEventEmitter.FireOnLoginFailure();
                 }
             }
             catch (Exception ex)
             {
-                //Console.WriteLine($"[LoginClient] An error occurred while receiving AUTH_PROOF response: {ex}");
+                Console.WriteLine($"[AuthLoginClient] Error in ReceiveAuthProofLogonResponse: {ex}");
                 _woWSharpEventEmitter.FireOnLoginFailure();
             }
         }
@@ -210,20 +206,22 @@ namespace WoWSharpClient.Client
             {
                 using var memoryStream = new MemoryStream();
                 using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, true);
-                writer.Write((ushort)0x10); // Packet size: 16 (big-endian)
-                writer.Write((ushort)0x10); // Opcode: REALM_LIST (little-endian)
-                writer.Write((ushort)0x00); // Padding (little-endian)
+                writer.Write((ushort)0x10); // Size
+                writer.Write((ushort)0x10); // Opcode
+                writer.Write((ushort)0x00); // Padding
 
                 writer.Flush();
                 byte[] packetData = memoryStream.ToArray();
+
+                Console.WriteLine($"[AuthLoginClient] -> CMD_REALM_LIST ({packetData.Length} bytes)");
+
                 _stream.Write(packetData, 0, packetData.Length);
             }
             catch (Exception ex)
             {
-                //Console.WriteLine($"[LoginClient] An error occurred while sending realm list request: {ex}");
+                Console.WriteLine($"[LoginClient] Error in SendRealmListRequest: {ex}");
             }
         }
-
         public List<Realm> GetRealmList()
         {
             List<Realm> list = [];
@@ -274,10 +272,6 @@ namespace WoWSharpClient.Client
 
             return list;
         }
-
-        public void Dispose()
-        {
-
-        }
+        public void Dispose() { }
     }
 }

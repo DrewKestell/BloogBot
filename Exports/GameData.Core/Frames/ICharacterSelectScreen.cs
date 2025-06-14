@@ -7,6 +7,7 @@ namespace GameData.Core.Frames
     {
         bool IsOpen { get; }
         bool HasReceivedCharacterList { get; set; }
+        bool HasRequestedCharacterList { get; set; }
         void CreateCharacter(
             string name,
             Race race,

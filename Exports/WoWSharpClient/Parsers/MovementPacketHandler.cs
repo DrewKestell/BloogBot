@@ -18,62 +18,53 @@ namespace WoWSharpClient.Parsers
 
             return ms.ToArray();
         }
-        public static byte[] BuildMovementInfoBuffer(WoWLocalPlayer player)
+        public static byte[] BuildMovementInfoBuffer(WoWLocalPlayer p, uint ctimeMs)
         {
-            using var ms = new MemoryStream();
-            using var writer = new BinaryWriter(ms);
+            using var ms = new MemoryStream(64);        // worst-case 64 B
+            using var w = new BinaryWriter(ms);
 
-            // Movement flags
-            writer.Write((uint)player.MovementFlags);
+            /* 1. fixed 28-byte core */
+            w.Write((uint)p.MovementFlags);
+            w.Write(ctimeMs);                          // client time (ctime)
+            w.Write(p.Position.X);
+            w.Write(p.Position.Y);
+            w.Write(p.Position.Z);
+            w.Write(p.Facing);
+            w.Write(p.FallTime);
 
-            // Timestamp
-            writer.Write(player.LastUpdated);
-
-            // Position
-            writer.Write(player.Position.X);
-            writer.Write(player.Position.Y);
-            writer.Write(player.Position.Z);
-
-            // Orientation (facing)
-            writer.Write(player.Facing);
-
-            // If ON_TRANSPORT: write transport data
-            if (player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_ONTRANSPORT) && player.Transport != null)
+            /* 2-a. transport block – exactly what the core expects */
+            if (p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_ONTRANSPORT) &&
+                p.Transport is { } t)
             {
-                writer.Write(player.Transport.Guid); // 64-bit GUID
-                writer.Write(player.Transport.Position.X);
-                writer.Write(player.Transport.Position.Y);
-                writer.Write(player.Transport.Position.Z);
-                writer.Write(player.Transport.Facing);
-                writer.Write(player.TransportLastUpdated); // uint32
+                w.Write(t.Guid);                       // uint64
+                w.Write(t.Position.X);
+                w.Write(t.Position.Y);
+                w.Write(t.Position.Z);
+                w.Write(t.Facing);                     // float
+                /* no seat-timestamp here – core doesn’t read it */
             }
 
-            // If SWIMMING: write pitch
-            if (player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SWIMMING))
+            /* 2-b. swim-pitch (4 B) */
+            if (p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SWIMMING))
+                w.Write(p.SwimPitch);
+
+            /* 3. jump block – just the four floats the core wants */
+            if (p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLING))
             {
-                writer.Write(player.SwimPitch);
+                w.Write(p.JumpVerticalSpeed);          // zspeed
+                w.Write(p.JumpCosAngle);               // cos
+                w.Write(p.JumpSinAngle);               // sin
+                w.Write(p.JumpHorizontalSpeed);        // xyspeed
+                /* no startPos or duplicate time */
             }
 
-            // Fall time (always written)
-            writer.Write(player.FallTime);
+            /* 4. spline elevation (4 B) */
+            if (p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SPLINE_ELEVATION))
+                w.Write(p.SplineElevation);
 
-            // If JUMPING: write jump velocity and angles
-            if (player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLING))
-            {
-                writer.Write(player.JumpVerticalSpeed);
-                writer.Write(player.JumpCosAngle);
-                writer.Write(player.JumpSinAngle);
-                writer.Write(player.JumpHorizontalSpeed);
-            }
-
-            // If SPLINE_ELEVATION: write elevation float
-            if (player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SPLINE_ELEVATION))
-            {
-                writer.Write(player.SplineElevation);
-            }
-
-            return ms.ToArray();
+            return ms.ToArray();                       // variable-length buffer
         }
+
         public static MovementInfoUpdate ParseMovementBlock(BinaryReader reader)
         {
             var data = new MovementInfoUpdate()
@@ -225,7 +216,7 @@ namespace WoWSharpClient.Parsers
             return data;
         }
 
-        internal static byte[] BuildForceMoveAck(WoWLocalPlayer player, uint movementCounter)
+        internal static byte[] BuildForceMoveAck(WoWLocalPlayer player, uint movementCounter, uint timestamp)
         {
             using var ms = new MemoryStream();
             using var writer = new BinaryWriter(ms);
@@ -234,7 +225,7 @@ namespace WoWSharpClient.Parsers
             ReaderUtils.WritePackedGuid(writer, player.Guid);
             writer.Write(movementCounter);
             // Timestamp
-            writer.Write(BuildMovementInfoBuffer(player));
+            writer.Write(BuildMovementInfoBuffer(player, timestamp));
 
             return ms.ToArray();
         }

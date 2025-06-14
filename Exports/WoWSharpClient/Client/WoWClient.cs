@@ -1,6 +1,5 @@
 ﻿using GameData.Core.Enums;
 using GameData.Core.Models;
-using Microsoft.VisualBasic;
 using System.Net;
 
 namespace WoWSharpClient.Client
@@ -56,7 +55,7 @@ namespace WoWSharpClient.Client
         public void EnterWorld(ulong guid) => _worldClient.SendCMSGPlayerLogin(guid);
         public void SendChatMessage(ChatMsg chatMsgType, Language orcish, string destination, string text) => _worldClient.SendCMSGMessageChat(chatMsgType, orcish, destination, text);
         public void SendNameQuery(ulong guid) => _worldClient.SendCMSGNameTypeQuery(Opcode.CMSG_NAME_QUERY, guid);
-        public void SendMoveWorldPortAcknowledge(uint timestamp) => _worldClient.SendMSGMoveWorldportAck(timestamp);
+        public void SendMoveWorldPortAcknowledge() => _worldClient.SendMSGMoveWorldportAck();
         public void SendSetActiveMover(ulong guid) => _worldClient.SendCMSGSetActiveMover(guid);
         internal void SendMovementOpcode(Opcode opcode, byte[] movementInfo)
         {

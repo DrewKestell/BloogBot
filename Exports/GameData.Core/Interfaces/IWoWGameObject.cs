@@ -1,7 +1,5 @@
-﻿using Game;
-using GameData.Core.Enums;
+﻿using GameData.Core.Enums;
 using GameData.Core.Models;
-using System.Numerics;
 using Position = GameData.Core.Models.Position;
 
 namespace GameData.Core.Interfaces

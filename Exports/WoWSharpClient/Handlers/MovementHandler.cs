@@ -71,6 +71,14 @@ namespace WoWSharpClient.Handlers
                             ulong splineWalkGuid = ReaderUtils.ReadPackedGuid(reader);
                             Console.WriteLine($"{splineWalkGuid} Now walking");
                             break;
+                        case Opcode.SMSG_SPLINE_MOVE_ROOT:
+                            ulong splineMoveRootGuid = ReaderUtils.ReadPackedGuid(reader);
+                            Console.WriteLine($"{splineMoveRootGuid} Now rooted");
+                            break;
+                        case Opcode.SMSG_SPLINE_MOVE_UNROOT:
+                            ulong splineMoveUnrootGuid = ReaderUtils.ReadPackedGuid(reader);
+                            Console.WriteLine($"{splineMoveUnrootGuid} Now unrooted");
+                            break;
                         case Opcode.MSG_MOVE_TIME_SKIPPED:
                             _eventEmitter.FireOnMoveTimeSkipped(ParseGuidCounterPacket(reader));
                             break;

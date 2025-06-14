@@ -200,13 +200,12 @@ namespace WoWSharpClient.Client
             SendPacket(ms.ToArray(), Opcode.CMSG_MESSAGECHAT);
         }
 
-        public void SendMSGMoveWorldportAck(uint timestamp)
+        public void SendMSGMoveWorldportAck()
         {
             using var ms = new MemoryStream();
             using var writer = new BinaryWriter(ms);
-            var header = _vanillaEncryption.CreateClientHeader(8, (uint)Opcode.MSG_MOVE_WORLDPORT_ACK);
+            var header = _vanillaEncryption.CreateClientHeader(4, (uint)Opcode.MSG_MOVE_WORLDPORT_ACK);
             writer.Write(header);
-            writer.Write(timestamp); // Teleport acknowledgement ID or timestamp placeholder
             writer.Flush();
             SendPacket(ms.ToArray(), Opcode.MSG_MOVE_WORLDPORT_ACK);
         }
@@ -224,6 +223,7 @@ namespace WoWSharpClient.Client
 
         public void SendMSGMove(Opcode opcode, byte[] movementInfo)
         {
+            Console.WriteLine($"[SendMSGMove] {opcode} {BitConverter.ToString(movementInfo)}");
             using var ms = new MemoryStream();
             using var writer = new BinaryWriter(ms);
             var header = _vanillaEncryption.CreateClientHeader((uint)(4 + movementInfo.Length), (uint)opcode);

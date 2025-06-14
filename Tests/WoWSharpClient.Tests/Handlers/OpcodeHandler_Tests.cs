@@ -2,7 +2,6 @@ using BotRunner.Clients;
 using GameData.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Moq;
-using WoWSharpClient;
 using WoWSharpClient.Handlers;
 using WoWSharpClient.Tests.Util;
 

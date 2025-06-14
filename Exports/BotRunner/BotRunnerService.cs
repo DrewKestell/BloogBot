@@ -110,7 +110,8 @@ namespace BotRunner
                                 }
                                 else
                                 {
-                                    _behaviorTree = BuildRequestCharacterSequence();
+                                    if (!_objectManager.CharacterSelectScreen.HasRequestedCharacterList)
+                                        _behaviorTree = BuildRequestCharacterSequence();
                                 }
                             }
                             else
