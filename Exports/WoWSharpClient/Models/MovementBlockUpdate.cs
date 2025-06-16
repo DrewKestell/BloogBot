@@ -105,7 +105,7 @@ namespace WoWSharpClient.Models
 
         // Fall / Jump Info
         public float FallTime { get; set; }
-        public bool IsFalling => MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLING);
+        public bool IsFalling => MovementFlags.HasFlag(MovementFlags.MOVEFLAG_JUMPING);
         public float? JumpVerticalSpeed { get; set; }
         public float? JumpSinAngle { get; set; }
         public float? JumpCosAngle { get; set; }

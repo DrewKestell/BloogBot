@@ -43,7 +43,6 @@ namespace WoWSharpClient
 
         private bool _isInControl = false;
         private bool _isBeingTeleported = true;
-        private bool _hasMovementQueued = false;
 
         public WoWSharpObjectManager(string ipAddress, PathfindingClient pathfindingClient, ILogger<WoWSharpObjectManager> logger)
         {
@@ -65,6 +64,7 @@ namespace WoWSharpClient
             _eventEmitter.OnTeleport += EventEmitter_OnTeleport;
             _eventEmitter.OnClientControlUpdate += EventEmitter_OnClientControlUpdate;
             _eventEmitter.OnSetTimeSpeed += EventEmitter_OnSetTimeSpeed;
+            _eventEmitter.OnSpellGo += EventEmitter_OnSpellGo;
 
             _woWClient = new(ipAddress, this);
 
@@ -73,15 +73,18 @@ namespace WoWSharpClient
             _characterSelectScreen = new(_woWClient);
 
             _pathfindingClient = pathfindingClient;
+        }
 
-            _worldTimeTracker = new WorldTimeTracker();
+        private void EventEmitter_OnSpellGo(object? sender, EventArgs e)
+        {
+
         }
 
         private void EventEmitter_OnClientControlUpdate(object? sender, EventArgs e)
         {
             _isInControl = true;
             _isBeingTeleported = false;
-
+            ((WoWLocalPlayer)Player).MovementFlags = MovementFlags.MOVEFLAG_JUMPING;
             Console.WriteLine($"[OnClientControlUpdate]{Player.Position}");
         }
 
@@ -108,25 +111,18 @@ namespace WoWSharpClient
         private void EventEmitter_OnSetTimeSpeed(object? sender, OnSetTimeSpeedArgs e)
         {
             _woWClient.QueryTime();
-
-            _worldTimeTracker.OnServerTimeSync(e.ServerTime);
-
+        }
+        public void StartGameLoop()
+        {
             _gameLoopTimer = new Timer(50);
             _gameLoopTimer.Elapsed += OnGameLoopTick;
             _gameLoopTimer.AutoReset = true;
             _gameLoopTimer.Start();
-
-            //_woWClient.SendSetActiveMover(PlayerGuid.FullGuid);
-
-            _isInControl = true;
-            _isBeingTeleported = false;
         }
-
         private void SendMovementHeartbeat()
         {
             var buffer = MovementPacketHandler.BuildMovementInfoBuffer((WoWLocalPlayer)Player, _worldTimeTracker.NowMS);
             _woWClient.SendMovementOpcode(Opcode.MSG_MOVE_HEARTBEAT, buffer);
-            _hasMovementQueued = false;
         }
         public void EnterWorld(ulong characterGuid)
         {
@@ -138,7 +134,10 @@ namespace WoWSharpClient
 
         private readonly Queue<ObjectStateUpdate> _pendingUpdates = new();
 
-        public void QueueUpdate(ObjectStateUpdate update) => _pendingUpdates.Enqueue(update);
+        public void QueueUpdate(ObjectStateUpdate update)
+        {
+            _pendingUpdates.Enqueue(update);
+        }
         public void ProcessUpdates()
         {
             while (_pendingUpdates.Count > 0)
@@ -157,12 +156,20 @@ namespace WoWSharpClient
                                 ApplyMovementData((WoWUnit)newObject, update.MovementData);
 
                             if (newObject is WoWPlayer)
+                            {
                                 _woWClient.SendNameQuery(update.Guid);
 
+                                if (newObject is WoWLocalPlayer)
+                                {
+                                    //_woWClient.SendMovementOpcode(Opcode.CMSG_MOVE_TIME_SKIPPED, [.. BitConverter.GetBytes(PlayerGuid.FullGuid), .. BitConverter.GetBytes(20)]);
+                                    _woWClient.SendMovementOpcode(Opcode.MSG_MOVE_START_FORWARD, MovementPacketHandler.BuildMovementInfoBuffer((WoWLocalPlayer)Player, _worldTimeTracker.NowMS));
+                                }
+                            }
                             break;
 
                         case ObjectUpdateOperation.Update:
                             var index = _objects.FindIndex(o => o.Guid == update.Guid);
+                            Console.WriteLine($"Updating Object: {update.Guid}");
                             if (index != -1)
                             {
                                 var obj = _objects[index];
@@ -171,9 +178,6 @@ namespace WoWSharpClient
                                 if (update.MovementData != null && obj is WoWUnit or WoWPlayer or WoWLocalPlayer)
                                 {
                                     ApplyMovementData((WoWUnit)obj, update.MovementData);
-
-                                    if (obj is WoWLocalPlayer localPlayer)
-                                        SendMovementHeartbeat();
                                 }
                             }
                             break;
@@ -942,10 +946,8 @@ namespace WoWSharpClient
 
         public void SetFacing(float facing)
         {
-            if (!_isInControl || _isBeingTeleported || _hasMovementQueued)
-                return;
-
-            _hasMovementQueued = true;
+            //if (!_isInControl || _isBeingTeleported)
+            //    return;
 
             ((WoWPlayer)Player).Facing = facing;
             _woWClient.SendMovementOpcode(Opcode.MSG_MOVE_SET_FACING, MovementPacketHandler.BuildMovementInfoBuffer((WoWLocalPlayer)Player, _worldTimeTracker.NowMS));
@@ -953,9 +955,6 @@ namespace WoWSharpClient
 
         public void StartMovement(ControlBits bits)
         {
-            if (_isBeingTeleported || !_isInControl || _hasMovementQueued)
-                return;
-
             _controlBits = bits;
             var player = (WoWLocalPlayer)Player;
             Opcode opcode = Opcode.MSG_MOVE_STOP;
@@ -1003,15 +1002,14 @@ namespace WoWSharpClient
 
                 case ControlBits.Jump:
                     opcode = Opcode.MSG_MOVE_JUMP;
-                    newFlags |= MovementFlags.MOVEFLAG_FALLING;
+                    newFlags |= MovementFlags.MOVEFLAG_JUMPING;
                     break;
             }
 
             var buffer = MovementPacketHandler.BuildMovementInfoBuffer(player, _worldTimeTracker.NowMS);
-            Console.WriteLine($"[Movement] Start: Opcode={opcode}, Flags={newFlags}");
+            //Console.WriteLine($"[Movement] Start: Opcode={opcode}, Flags={newFlags}");
 
-            _hasMovementQueued = true;
-            //_woWClient.SendMovementOpcode(opcode, buffer);
+            _woWClient.SendMovementOpcode(opcode, buffer);
         }
 
         public void StopMovement(ControlBits bits)
@@ -1021,15 +1019,14 @@ namespace WoWSharpClient
             Opcode opcode = Opcode.MSG_MOVE_STOP;
 
             var buffer = MovementPacketHandler.BuildMovementInfoBuffer(player, _worldTimeTracker.NowMS);
-            Console.WriteLine($"[Movement] Stop: Opcode={opcode}, Flags={player.MovementFlags}");
+            //Console.WriteLine($"[Movement] Stop: Opcode={opcode}, Flags={player.MovementFlags}");
 
-            _hasMovementQueued = true;
-            //_woWClient.SendMovementOpcode(opcode, buffer);
+            _woWClient.SendMovementOpcode(opcode, buffer);
         }
         private void CheckAndAcknowledgeSpeedChange(WoWLocalPlayer player, MovementBlockUpdate mbu)
         {
-            if (mbu.WalkSpeed != player.WalkSpeed)
-                _woWClient.SendSetActiveMover(PlayerGuid.FullGuid);
+            //if (mbu.WalkSpeed != player.WalkSpeed)
+            //    _woWClient.SendSetActiveMover(PlayerGuid.FullGuid);
             //    SendAck(Opcode.CMSG_FORCE_WALK_SPEED_CHANGE_ACK, MovementChangeType.SPEED_CHANGE_WALK, mbu.WalkSpeed);
 
             //if (mbu.RunSpeed != player.RunSpeed)
@@ -1066,7 +1063,12 @@ namespace WoWSharpClient
             Player.Position.Y = e.PositionY;
             Player.Position.Z = e.PositionZ;
 
-            //_woWClient.SendMoveWorldPortAcknowledge();
+            _worldTimeTracker = new WorldTimeTracker();
+
+            _woWClient.SendMoveWorldPortAcknowledge();
+            _woWClient.SendSetActiveMover(PlayerGuid.FullGuid);
+
+            StartGameLoop();
         }
 
         private void EventEmitter_OnCharacterListLoaded(object? sender, EventArgs e)

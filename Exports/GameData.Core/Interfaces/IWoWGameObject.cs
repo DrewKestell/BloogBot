@@ -21,7 +21,7 @@ namespace GameData.Core.Interfaces
         bool TappedByOther => DynamicFlags.HasFlag(DynamicFlags.Tapped) && !DynamicFlags.HasFlag(DynamicFlags.TappedByMe);
         Position GetPointBehindUnit(float distance);
         void Interact();
-        public bool IsFacing(Position position) => Math.Abs(GetFacingForPosition(position) - Facing) < 0.05f;
+        public bool IsFacing(Position position) => Math.Abs(GetFacingForPosition(position) - Facing) < 0.1f;
 
         public bool IsFacing(IWoWObject obj) => obj != null && IsFacing(obj.Position);
 

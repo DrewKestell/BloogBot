@@ -3,7 +3,7 @@ namespace WoWSharpClient.Utils
 {
     public class WorldTimeTracker
     {
-        private readonly Stopwatch _realTime = new();
+        private readonly Stopwatch _realTime = Stopwatch.StartNew();
         private uint _startTimeMs;
 
         /// <summary>

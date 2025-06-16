@@ -20,49 +20,54 @@ namespace WoWSharpClient.Parsers
         }
         public static byte[] BuildMovementInfoBuffer(WoWLocalPlayer p, uint ctimeMs)
         {
-            using var ms = new MemoryStream(64);        // worst-case 64 B
+            using var ms = new MemoryStream();
             using var w = new BinaryWriter(ms);
 
-            /* 1. fixed 28-byte core */
             w.Write((uint)p.MovementFlags);
-            w.Write(ctimeMs);                          // client time (ctime)
+            w.Write(ctimeMs);
+
             w.Write(p.Position.X);
             w.Write(p.Position.Y);
             w.Write(p.Position.Z);
+
             w.Write(p.Facing);
+
+            // Transport block
+            if ((p.MovementFlags & MovementFlags.MOVEFLAG_ONTRANSPORT) != 0 && p.Transport != null)
+            {
+                w.Write(p.Transport.Guid);
+
+                w.Write(p.Transport.Position.X);
+                w.Write(p.Transport.Position.Y);
+                w.Write(p.Transport.Position.Z);
+
+                w.Write(p.Transport.Facing);
+            }
+
+            // Swim pitch
+            if ((p.MovementFlags & MovementFlags.MOVEFLAG_SWIMMING) != 0)
+            {
+                w.Write(p.SwimPitch);
+            }
+
             w.Write(p.FallTime);
 
-            /* 2-a. transport block – exactly what the core expects */
-            if (p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_ONTRANSPORT) &&
-                p.Transport is { } t)
+            // Jump block
+            if ((p.MovementFlags & MovementFlags.MOVEFLAG_JUMPING) != 0)
             {
-                w.Write(t.Guid);                       // uint64
-                w.Write(t.Position.X);
-                w.Write(t.Position.Y);
-                w.Write(t.Position.Z);
-                w.Write(t.Facing);                     // float
-                /* no seat-timestamp here – core doesn’t read it */
+                w.Write(p.JumpVerticalSpeed);
+                w.Write(p.JumpCosAngle);
+                w.Write(p.JumpSinAngle);
+                w.Write(p.JumpHorizontalSpeed);
             }
 
-            /* 2-b. swim-pitch (4 B) */
-            if (p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SWIMMING))
-                w.Write(p.SwimPitch);
-
-            /* 3. jump block – just the four floats the core wants */
-            if (p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLING))
+            // Spline Elevation
+            if ((p.MovementFlags & MovementFlags.MOVEFLAG_SPLINE_ELEVATION) != 0)
             {
-                w.Write(p.JumpVerticalSpeed);          // zspeed
-                w.Write(p.JumpCosAngle);               // cos
-                w.Write(p.JumpSinAngle);               // sin
-                w.Write(p.JumpHorizontalSpeed);        // xyspeed
-                /* no startPos or duplicate time */
-            }
-
-            /* 4. spline elevation (4 B) */
-            if (p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SPLINE_ELEVATION))
                 w.Write(p.SplineElevation);
+            }
 
-            return ms.ToArray();                       // variable-length buffer
+            return ms.ToArray();
         }
 
         public static MovementInfoUpdate ParseMovementBlock(BinaryReader reader)

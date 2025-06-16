@@ -1,4 +1,5 @@
 ﻿using GameData.Core.Enums;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -11,6 +12,7 @@ namespace WoWSharpClient.Client
         private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpEventEmitter;
         private readonly OpCodeDispatcher _opCodeDispatcher = opCodeDispatcher;
 
+        //TODO: Take in from constructor
         private IPAddress _ipAddress = IPAddress.Loopback;
         private int _port = 0;
 
@@ -20,6 +22,10 @@ namespace WoWSharpClient.Client
         private NetworkStream _stream = null;
         private Task _asyncListener;
         private readonly uint _lastPingTime;
+
+        private readonly ConcurrentQueue<Func<Task>> _sendQueue = new();
+        private readonly SemaphoreSlim _sendSemaphore = new(1, 1);
+        private bool _isSending = false;
 
         public void Dispose()
         {
@@ -78,8 +84,11 @@ namespace WoWSharpClient.Client
 
         private void SendPacket(byte[] packetData, Opcode opcode)
         {
-            Console.WriteLine($"[WorldClient] Sending packet: {opcode} ({packetData.Length} bytes)");
-            _stream.Write(packetData, 0, packetData.Length);
+            EnqueueSend(async () =>
+            {
+                Console.WriteLine($"[WorldClient] Sending packet: {opcode} ({packetData.Length} bytes)");
+                await _stream.WriteAsync(packetData);
+            });
         }
 
         private void SendCMSGAuthSession(string username, byte[] serverSeed, byte[] sessionKey)
@@ -223,7 +232,7 @@ namespace WoWSharpClient.Client
 
         public void SendMSGMove(Opcode opcode, byte[] movementInfo)
         {
-            Console.WriteLine($"[SendMSGMove] {opcode} {BitConverter.ToString(movementInfo)}");
+            //Console.WriteLine($"[SendMSGMove] {opcode} {BitConverter.ToString(movementInfo)}");
             using var ms = new MemoryStream();
             using var writer = new BinaryWriter(ms);
             var header = _vanillaEncryption.CreateClientHeader((uint)(4 + movementInfo.Length), (uint)opcode);
@@ -290,6 +299,36 @@ namespace WoWSharpClient.Client
                 }
             }
             await Task.Delay(10);
+        }
+        private void EnqueueSend(Func<Task> sendAction)
+        {
+            _sendQueue.Enqueue(sendAction);
+            if (!_isSending)
+            {
+                _isSending = true;
+                _ = Task.Run(ProcessSendQueueAsync);
+            }
+        }
+
+        private async Task ProcessSendQueueAsync()
+        {
+            while (_sendQueue.TryDequeue(out var action))
+            {
+                try
+                {
+                    await _sendSemaphore.WaitAsync();
+                    await action();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("[WorldClient] Error during send: " + ex);
+                }
+                finally
+                {
+                    _sendSemaphore.Release();
+                }
+            }
+            _isSending = false;
         }
     }
 }
