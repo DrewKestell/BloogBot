@@ -43,6 +43,8 @@ namespace WoWSharpClient.Handlers
                             MovementInfoUpdate movementUpdateData = MovementPacketHandler.ParseMovementInfo(reader);
                             movementUpdateData.MovementCounter = movementCounter;
 
+                            //_objectManager.QueueUpdate(new(guid, ObjectUpdateOperation.Update, WoWObjectType.Player, movementUpdateData, []));
+
                             _eventEmitter.FireOnTeleport(new RequiresAcknowledgementArgs(guid, movementCounter));
                             break;
                         case Opcode.SMSG_FORCE_MOVE_ROOT:
@@ -121,7 +123,6 @@ namespace WoWSharpClient.Handlers
                         case Opcode.MSG_MOVE_HEARTBEAT:
                             ParseMessageMove(reader);
                             break;
-
                         default:
                             Console.WriteLine($"{opcode} not handled");
                             break;

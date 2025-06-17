@@ -5,6 +5,7 @@ using GameData.Core.Interfaces;
 using GameData.Core.Models;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using System.Numerics;
 using System.Text;
 using System.Timers;
 using WoWSharpClient.Client;
@@ -34,15 +35,33 @@ namespace WoWSharpClient
         private readonly CharacterSelectScreen _characterSelectScreen;
 
         private Timer _gameLoopTimer;
-        private WorldTimeTracker _worldTimeTracker;
 
         private long _lastPingMs = 0;
         private ControlBits _controlBits = ControlBits.Nothing;
 
-        private uint _movementCounter = 0;
+        public bool IsPlayerMoving => !Player.MovementFlags.Equals(MovementFlags.MOVEFLAG_NONE);
 
         private bool _isInControl = false;
         private bool _isBeingTeleported = true;
+
+        private TimeSpan _lastHeartbeat = TimeSpan.Zero;
+        private TimeSpan _lastPositionUpdate = TimeSpan.Zero;
+        private WorldTimeTracker _worldTimeTracker;
+
+        // Movement Constants (based on 1.12 client)
+        private float _fallSpeed = 0.0f;              // Gravity velocity (m/s)
+        private long _lastFallStartTime = 0;
+        private float _verticalVelocity = 0.0f;
+        private long _lastSentTime = 0;
+        private Position _lastSentPosition = new(0, 0, 0);
+
+        private const float Gravity = 19.29f;         // Units/sec²
+        private const float JumpVelocity = 7.8f;       // Initial Z velocity on jump
+        private const float GroundTolerance = 0.05f;   // Distance from ground to count as grounded
+        private const float MaxFallSpeed = 60.0f;     // Terminal velocity
+        private bool _hasSentAcknowledgement = false;
+        private bool _groundZLocked;
+        private MovementFlags _lastMovementFlags = MovementFlags.MOVEFLAG_NONE;
 
         public WoWSharpObjectManager(string ipAddress, PathfindingClient pathfindingClient, ILogger<WoWSharpObjectManager> logger)
         {
@@ -81,33 +100,12 @@ namespace WoWSharpClient
         }
 
         private void EventEmitter_OnClientControlUpdate(object? sender, EventArgs e)
-        {
+        {         
             _isInControl = true;
             _isBeingTeleported = false;
             ((WoWLocalPlayer)Player).MovementFlags = MovementFlags.MOVEFLAG_JUMPING;
             Console.WriteLine($"[OnClientControlUpdate]{Player.Position}");
         }
-
-        private void OnGameLoopTick(object? sender, ElapsedEventArgs e)
-        {
-            ProcessUpdates();
-
-            // Send ping heartbeat
-            HandlePingHeartbeat(_worldTimeTracker.NowMS);
-        }
-
-        private void HandlePingHeartbeat(uint now)
-        {
-            const int interval = 30000; // 30 seconds in milliseconds
-
-            if (now - _lastPingMs < interval)
-                return;
-
-            _lastPingMs = now;
-
-            _woWClient.SendPing();
-        }
-
         private void EventEmitter_OnSetTimeSpeed(object? sender, OnSetTimeSpeedArgs e)
         {
             _woWClient.QueryTime();
@@ -119,11 +117,523 @@ namespace WoWSharpClient
             _gameLoopTimer.AutoReset = true;
             _gameLoopTimer.Start();
         }
+
+        private void OnGameLoopTick(object? sender, ElapsedEventArgs e)
+        {
+            var now = _worldTimeTracker.NowMS;
+            var delta = now - _lastPositionUpdate;
+
+            ProcessUpdates();
+
+            // Send ping heartbeat
+            HandlePingHeartbeat((long)now.TotalMilliseconds);
+
+            if (_isInControl && !_isBeingTeleported)
+            {
+                if (Player == null)
+                    return;
+
+                UpdatePlayerPosition((float)delta.TotalMilliseconds);
+
+                //HandleMovementHeartbeat(now);
+            }
+        }
         private void SendMovementHeartbeat()
         {
-            var buffer = MovementPacketHandler.BuildMovementInfoBuffer((WoWLocalPlayer)Player, _worldTimeTracker.NowMS);
+            var buffer = MovementPacketHandler.BuildMovementInfoBuffer((WoWLocalPlayer)Player, (uint)_worldTimeTracker.NowMS.TotalMilliseconds);
             _woWClient.SendMovementOpcode(Opcode.MSG_MOVE_HEARTBEAT, buffer);
         }
+
+        private void HandleMovementHeartbeat(TimeSpan now)
+        {
+            var elapsed = now - _lastHeartbeat;
+
+            if (elapsed < TimeSpan.FromMilliseconds(30000))
+                return;
+
+            SendMovementHeartbeat();
+        }
+
+        private void HandlePingHeartbeat(long now)
+        {
+            const int interval = 30000;
+
+            if (now - _lastPingMs < interval)
+                return;
+
+            _lastPingMs = now;
+
+            _woWClient.SendPing();
+        }
+        // This file contains the updated logic for WoW 1.12.1-like player movement handling
+        // including swimming, falling, walking, and terrain Z physics.
+
+        // Assumes that MovementFlags enum includes:
+        // MOVEFLAG_SWIMMING = 0x00200000,
+        // MOVEFLAG_WALK_MODE = 0x01000000,
+        private void UpdatePlayerPosition(float deltaTime)
+        {
+            var player = (WoWLocalPlayer)Player;
+            if (player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_ROOT))
+                return;
+
+            Vector2 moveDelta = ComputeMovementDelta(player, deltaTime);
+            float nextX = player.Position.X + moveDelta.X;
+            float nextY = player.Position.Y + moveDelta.Y;
+            float currentZ = player.Position.Z;
+
+            var probePosition = new Position(nextX, nextY, currentZ);
+            var zQuery = _pathfindingClient.GetZQuery((uint)MapId, probePosition);
+
+            float floorZ = zQuery.FloorZ;
+            float locationZ = zQuery.LocationZ;
+            float terrainZ = zQuery.TerrainZ;
+            float raycastZ = zQuery.RaycastZ;
+            float adtZ = zQuery.AdtZ;
+            float waterZ = zQuery.WaterLevel;
+            bool isInWater = zQuery.IsInWater || currentZ < waterZ;
+
+            // Update swimming state
+            if (isInWater)
+            {
+                if (!player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SWIMMING))
+                {
+                    player.MovementFlags |= MovementFlags.MOVEFLAG_SWIMMING;
+                    SendMovementFlagChange(player, Opcode.MSG_MOVE_START_SWIM);
+                }
+            }
+            else if (player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SWIMMING))
+            {
+                player.MovementFlags &= ~MovementFlags.MOVEFLAG_SWIMMING;
+                SendMovementFlagChange(player, Opcode.MSG_MOVE_STOP_SWIM);
+            }
+
+            bool grounded = false;
+            float desiredZ = currentZ;
+            string zReason = "";
+
+            if (!float.IsNaN(locationZ) && Math.Abs(currentZ - locationZ) < 2.0f)
+            {
+                desiredZ = locationZ;
+                grounded = true;
+                zReason = "LocationZ";
+            }
+            else if (!float.IsNaN(floorZ) && Math.Abs(currentZ - floorZ) < 2.0f)
+            {
+                desiredZ = floorZ;
+                grounded = true;
+                zReason = "FloorZ";
+            }
+            else if (!float.IsNaN(terrainZ) && Math.Abs(currentZ - terrainZ) < 2.5f)
+            {
+                desiredZ = terrainZ;
+                grounded = true;
+                zReason = "TerrainZ";
+            }
+            else if (!float.IsNaN(raycastZ) && raycastZ < currentZ && Math.Abs(currentZ - raycastZ) < 15.0f)
+            {
+                desiredZ = raycastZ;
+                grounded = true;
+                zReason = "RaycastZ";
+            }
+
+            if (grounded)
+            {
+                desiredZ += 0.05f; // server-style ground nudge
+                _verticalVelocity = 0.0f;
+                _groundZLocked = true;
+
+                if (_lastMovementFlags.HasFlag(MovementFlags.MOVEFLAG_JUMPING))
+                {
+                    player.MovementFlags &= ~MovementFlags.MOVEFLAG_JUMPING;
+                    EmitMovementPacketIfNeeded(player);
+                }
+            }
+            else
+            {
+                _groundZLocked = false;
+                SetFallingFlags(player);
+
+                if (!_lastMovementFlags.HasFlag(MovementFlags.MOVEFLAG_JUMPING))
+                    _lastFallStartTime = (uint)_worldTimeTracker.NowMS.TotalMilliseconds;
+
+                _verticalVelocity -= Gravity * (deltaTime / 1000.0f);
+                _verticalVelocity = Math.Max(_verticalVelocity, -MaxFallSpeed);
+
+                desiredZ = currentZ + _verticalVelocity * (deltaTime / 1000.0f);
+                zReason = "Falling";
+            }
+
+            if (_groundZLocked)
+            {
+                _verticalVelocity = 0.0f;
+                if (!float.IsNaN(floorZ))
+                    desiredZ = MathF.Max(desiredZ, floorZ);
+
+                if (_lastMovementFlags.HasFlag(MovementFlags.MOVEFLAG_JUMPING))
+                {
+                    player.MovementFlags &= ~MovementFlags.MOVEFLAG_JUMPING;
+                    EmitMovementPacketIfNeeded(player);
+                }
+            }
+
+            if (float.IsNaN(desiredZ) && !float.IsNaN(adtZ))
+            {
+                desiredZ = adtZ;
+                zReason += " [ADT Fallback]";
+            }
+
+            player.Position = new Position(nextX, nextY, desiredZ);
+            _lastPositionUpdate = _worldTimeTracker.NowMS;
+
+            if (player.MovementFlags != _lastMovementFlags)
+            {
+                bool justJumped = player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_JUMPING) &&
+                                  !_lastMovementFlags.HasFlag(MovementFlags.MOVEFLAG_JUMPING) &&
+                                  _groundZLocked;
+
+                if (justJumped)
+                {
+                    _verticalVelocity = JumpVelocity;
+                    _groundZLocked = false;
+                    _lastFallStartTime = (uint)_worldTimeTracker.NowMS.TotalMilliseconds;
+                    Console.WriteLine("[Movement] Jump initiated");
+                }
+
+                _lastMovementFlags = player.MovementFlags;
+            }
+
+            if (moveDelta.LengthSquared() > 0.0001f)
+                Console.WriteLine($"[Movement] {nextX:0.00}, {nextY:0.00}, {desiredZ:0.00} ({zReason}), GZLocked={_groundZLocked}, MoveFlags={player.MovementFlags}");
+
+            EmitMovementPacketIfNeeded(player);
+        }
+        public void SetFacing(float facing)
+        {
+            //if (!_isInControl || _isBeingTeleported)
+            //    return;
+
+            ((WoWPlayer)Player).Facing = facing;
+            _woWClient.SendMovementOpcode(Opcode.MSG_MOVE_SET_FACING, MovementPacketHandler.BuildMovementInfoBuffer((WoWLocalPlayer)Player, (uint)_worldTimeTracker.NowMS.TotalMilliseconds));
+        }
+        public void ToggleWalkMode()
+        {
+            var player = (WoWLocalPlayer)Player;
+            bool isWalking = player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_WALK_MODE);
+
+            if (isWalking)
+            {
+                player.MovementFlags &= ~MovementFlags.MOVEFLAG_WALK_MODE;
+                SendMovementFlagChange(player, Opcode.MSG_MOVE_SET_RUN_MODE);
+            }
+            else
+            {
+                player.MovementFlags |= MovementFlags.MOVEFLAG_WALK_MODE;
+                SendMovementFlagChange(player, Opcode.MSG_MOVE_SET_WALK_MODE);
+            }
+
+            Console.WriteLine($"[Movement] WalkMode: {(isWalking ? "Run" : "Walk")}");
+        }
+
+        private void SendMovementFlagChange(WoWLocalPlayer player, Opcode opcode)
+        {
+            var buffer = MovementPacketHandler.BuildMovementInfoBuffer(player, (uint)(uint)_worldTimeTracker.NowMS.TotalMilliseconds);
+            _woWClient.SendMovementOpcode(opcode, buffer);
+        }
+
+
+        private void EmitMovementPacketIfNeeded(WoWLocalPlayer player)
+        {
+            var now = (uint)_worldTimeTracker.NowMS.TotalMilliseconds;
+
+            bool positionChanged = !player.Position.Equals(_lastSentPosition);
+            bool flagsChanged = player.MovementFlags != _lastMovementFlags;
+            bool timeElapsed = now - _lastSentTime >= 100; // at least every 100ms
+
+            if (!positionChanged && !flagsChanged && !timeElapsed)
+                return;
+
+            Opcode opcode = DetermineMovementOpcode(player.MovementFlags, _lastMovementFlags);
+            var buffer = MovementPacketHandler.BuildMovementInfoBuffer(player, (uint)now);
+
+            _woWClient.SendMovementOpcode(opcode, buffer);
+
+            _lastSentTime = now;
+            _lastSentPosition = player.Position;
+            _lastMovementFlags = player.MovementFlags;
+        }
+        private Opcode DetermineMovementOpcode(MovementFlags current, MovementFlags previous)
+        {
+            if (current.HasFlag(MovementFlags.MOVEFLAG_JUMPING) && !previous.HasFlag(MovementFlags.MOVEFLAG_JUMPING))
+                return Opcode.MSG_MOVE_JUMP;
+
+            if (current.HasFlag(MovementFlags.MOVEFLAG_NONE) && !previous.HasFlag(MovementFlags.MOVEFLAG_NONE))
+                return Opcode.MSG_MOVE_STOP;
+
+            if (current.HasFlag(MovementFlags.MOVEFLAG_FORWARD))
+                return Opcode.MSG_MOVE_START_FORWARD;
+            if (current.HasFlag(MovementFlags.MOVEFLAG_BACKWARD))
+                return Opcode.MSG_MOVE_START_BACKWARD;
+            if (current.HasFlag(MovementFlags.MOVEFLAG_STRAFE_LEFT))
+                return Opcode.MSG_MOVE_START_STRAFE_LEFT;
+            if (current.HasFlag(MovementFlags.MOVEFLAG_STRAFE_RIGHT))
+                return Opcode.MSG_MOVE_START_STRAFE_RIGHT;
+
+            return Opcode.MSG_MOVE_HEARTBEAT;
+        }
+
+        /// <summary>
+        /// Calculates a simple terrain "gradient" between two points, giving slope and a scaling factor.
+        /// Extend this with a real surface normal if you want accurate ground collision.
+        /// </summary>
+        private bool TryComputeTerrainGradient(Position from, Position to, out Vector3 slope, out float scalar)
+        {
+            slope = Vector3.Zero;
+            scalar = 1.0f;
+
+            float tickDelta = 0.0333f; // ~30Hz simulation frame
+            float terrainTickSpan = 1.0f; // Could be distance normalization factor
+
+            float dx = to.X - from.X;
+            float dy = to.Y - from.Y;
+            float dz = to.Z - from.Z;
+
+            if (Math.Abs(dx) < 0.001f && Math.Abs(dy) < 0.001f)
+                return false; // No slope to calculate
+
+            slope = new Vector3(dx / terrainTickSpan, dz / tickDelta, dy / terrainTickSpan);
+            scalar = 1.0f / tickDelta;
+
+            return true;
+        }
+        private static Vector2 ComputeMovementDelta(WoWLocalPlayer player, float deltaTime)
+        {
+            Vector2 dir = Vector2.Zero;
+            float cosF = MathF.Cos(player.Facing);
+            float sinF = MathF.Sin(player.Facing);
+
+            if (player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FORWARD))
+                dir += new Vector2(cosF, sinF);
+            if (player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_BACKWARD))
+                dir -= new Vector2(cosF, sinF);
+            if (player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_STRAFE_LEFT))
+                dir += new Vector2(-sinF, cosF);
+            if (player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_STRAFE_RIGHT))
+                dir += new Vector2(sinF, -cosF);
+
+            if (dir.LengthSquared() > 0)
+                dir = Vector2.Normalize(dir);
+
+            return dir * player.RunSpeed * (deltaTime / 1000.0f);
+        }
+
+        /// <summary>
+        /// Placeholder: clears the player's falling state
+        /// </summary>
+        private void ClearFallingFlags(WoWLocalPlayer player)
+        {
+            player.MovementFlags &= ~MovementFlags.MOVEFLAG_JUMPING;
+        }
+
+        /// <summary>
+        /// Placeholder: sets the player's falling state
+        /// </summary>
+        private void SetFallingFlags(WoWLocalPlayer player)
+        {
+            player.MovementFlags |= MovementFlags.MOVEFLAG_JUMPING;
+        }
+
+        public void StartMovement(ControlBits bits)
+        {
+            if (_isBeingTeleported || !_isInControl)
+                return;
+
+            _controlBits = bits;
+            var player = (WoWLocalPlayer)Player;
+            MovementFlags newFlags = player.MovementFlags;
+            Opcode opcode = Opcode.MSG_MOVE_STOP;
+
+            switch (bits)
+            {
+                case ControlBits.Front:
+                    opcode = Opcode.MSG_MOVE_START_FORWARD;
+                    newFlags |= MovementFlags.MOVEFLAG_FORWARD;
+                    newFlags &= ~MovementFlags.MOVEFLAG_BACKWARD;
+                    break;
+
+                case ControlBits.Back:
+                    opcode = Opcode.MSG_MOVE_START_BACKWARD;
+                    newFlags |= MovementFlags.MOVEFLAG_BACKWARD;
+                    newFlags &= ~MovementFlags.MOVEFLAG_FORWARD;
+                    break;
+
+                case ControlBits.StrafeLeft:
+                    opcode = Opcode.MSG_MOVE_START_STRAFE_LEFT;
+                    newFlags |= MovementFlags.MOVEFLAG_STRAFE_LEFT;
+                    newFlags &= ~MovementFlags.MOVEFLAG_STRAFE_RIGHT;
+                    break;
+
+                case ControlBits.StrafeRight:
+                    opcode = Opcode.MSG_MOVE_START_STRAFE_RIGHT;
+                    newFlags |= MovementFlags.MOVEFLAG_STRAFE_RIGHT;
+                    newFlags &= ~MovementFlags.MOVEFLAG_STRAFE_LEFT;
+                    break;
+
+                case ControlBits.Left:
+                    opcode = Opcode.MSG_MOVE_START_TURN_LEFT;
+                    newFlags |= MovementFlags.MOVEFLAG_TURN_LEFT;
+                    newFlags &= ~MovementFlags.MOVEFLAG_TURN_RIGHT;
+                    break;
+
+                case ControlBits.Right:
+                    opcode = Opcode.MSG_MOVE_START_TURN_RIGHT;
+                    newFlags |= MovementFlags.MOVEFLAG_TURN_RIGHT;
+                    newFlags &= ~MovementFlags.MOVEFLAG_TURN_LEFT;
+                    break;
+
+                case ControlBits.Jump:
+                    opcode = Opcode.MSG_MOVE_JUMP;
+                    newFlags |= MovementFlags.MOVEFLAG_JUMPING;
+                    break;
+            }
+
+            if (newFlags == _lastMovementFlags)
+                return;
+
+            _lastMovementFlags = newFlags;
+            player.MovementFlags = newFlags;
+
+            var buffer = MovementPacketHandler.BuildMovementInfoBuffer(player, (uint)(uint)_worldTimeTracker.NowMS.TotalMilliseconds);
+            Console.WriteLine($"[Movement] Start: Opcode={opcode}, Flags={newFlags}");
+            _woWClient.SendMovementOpcode(opcode, buffer);
+        }
+
+        public void StopMovement(ControlBits bits)
+        {
+            var player = (WoWLocalPlayer)Player;
+
+            if (bits.HasFlag(ControlBits.Front) || bits.HasFlag(ControlBits.Back))
+                player.MovementFlags &= ~(MovementFlags.MOVEFLAG_FORWARD | MovementFlags.MOVEFLAG_BACKWARD);
+
+            if (bits.HasFlag(ControlBits.StrafeLeft) || bits.HasFlag(ControlBits.StrafeRight))
+                player.MovementFlags &= ~(MovementFlags.MOVEFLAG_STRAFE_LEFT | MovementFlags.MOVEFLAG_STRAFE_RIGHT);
+
+            if (bits.HasFlag(ControlBits.Left) || bits.HasFlag(ControlBits.Right))
+                player.MovementFlags &= ~(MovementFlags.MOVEFLAG_TURN_LEFT | MovementFlags.MOVEFLAG_TURN_RIGHT);
+
+            if (bits.HasFlag(ControlBits.Jump))
+                player.MovementFlags &= ~MovementFlags.MOVEFLAG_JUMPING;
+
+            if (player.MovementFlags == _lastMovementFlags)
+                return;
+
+            _lastMovementFlags = player.MovementFlags;
+
+            Opcode opcode = Opcode.MSG_MOVE_STOP;
+            if (bits.HasFlag(ControlBits.StrafeLeft) || bits.HasFlag(ControlBits.StrafeRight))
+                opcode = Opcode.MSG_MOVE_STOP_STRAFE;
+            else if (bits.HasFlag(ControlBits.Left) || bits.HasFlag(ControlBits.Right))
+                opcode = Opcode.MSG_MOVE_STOP_TURN;
+
+            var buffer = MovementPacketHandler.BuildMovementInfoBuffer(player, (uint)(uint)_worldTimeTracker.NowMS.TotalMilliseconds);
+            Console.WriteLine($"[Movement] Stop: Opcode={opcode}, Flags={player.MovementFlags}");
+            _woWClient.SendMovementOpcode(opcode, buffer);
+        }
+
+        private void EventEmitter_OnForceTimeSkipped(object? sender, RequiresAcknowledgementArgs e)
+        {
+
+        }
+
+        private void EventEmitter_OnForceMoveKnockBack(object? sender, RequiresAcknowledgementArgs e)
+        {
+            _woWClient.SendMSGPacked(Opcode.CMSG_MOVE_KNOCK_BACK_ACK, MovementPacketHandler.BuildMovementInfoBuffer((WoWLocalPlayer)Player, (uint)(uint)_worldTimeTracker.NowMS.TotalMilliseconds));
+        }
+
+        private void EventEmitter_OnForceSwimSpeedChange(object? sender, RequiresAcknowledgementArgs e)
+        {
+            _woWClient.SendMSGPacked(Opcode.CMSG_FORCE_SWIM_SPEED_CHANGE_ACK, MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, (uint)(uint)_worldTimeTracker.NowMS.TotalMilliseconds));
+        }
+
+        private void EventEmitter_OnForceRunBackSpeedChange(object? sender, RequiresAcknowledgementArgs e)
+        {
+            _woWClient.SendMSGPacked(Opcode.CMSG_FORCE_RUN_BACK_SPEED_CHANGE_ACK, MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, (uint)(uint)_worldTimeTracker.NowMS.TotalMilliseconds));
+        }
+
+        private void EventEmitter_OnForceRunSpeedChange(object? sender, RequiresAcknowledgementArgs e)
+        {
+            _woWClient.SendMSGPacked(Opcode.CMSG_FORCE_RUN_SPEED_CHANGE_ACK, MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, (uint)(uint)_worldTimeTracker.NowMS.TotalMilliseconds));
+        }
+
+        private void EventEmitter_OnForceMoveUnroot(object? sender, RequiresAcknowledgementArgs e)
+        {
+            _woWClient.SendMSGPacked(Opcode.CMSG_FORCE_MOVE_UNROOT_ACK, MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, (uint)(uint)_worldTimeTracker.NowMS.TotalMilliseconds));
+        }
+
+        private void EventEmitter_OnForceMoveRoot(object? sender, RequiresAcknowledgementArgs e)
+        {
+            _woWClient.SendMSGPacked(Opcode.CMSG_FORCE_MOVE_ROOT_ACK, MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, (uint)(uint)_worldTimeTracker.NowMS.TotalMilliseconds));
+        }
+
+        private void EventEmitter_OnLoginVerifyWorld(object? sender, WorldInfo e)
+        {
+            MapId = e.MapId;
+
+            Player.Position.X = e.PositionX;
+            Player.Position.Y = e.PositionY;
+            Player.Position.Z = e.PositionZ;
+
+            _worldTimeTracker = new WorldTimeTracker();
+
+            StartGameLoop();
+
+            _woWClient.SendMoveWorldPortAcknowledge();
+        }
+
+        private void EventEmitter_OnCharacterListLoaded(object? sender, EventArgs e)
+        {
+            _characterSelectScreen.HasReceivedCharacterList = true;
+        }
+
+        private void EventEmitter_OnWorldSessionStart(object? sender, EventArgs e)
+        {
+            _characterSelectScreen.RefreshCharacterListFromServer();
+        }
+
+        private void EventEmitter_OnLoginFailure(object? sender, EventArgs e)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            _woWClient.Dispose();
+        }
+        private void EventEmitter_OnWorldSessionEnd(object? sender, EventArgs e)
+        {
+            HasEnteredWorld = false;
+        }
+        public bool HasEnteredWorld { get; internal set; }
+        public List<Spell> Spells { get; internal set; } = [];
+        public List<Cooldown> Cooldowns { get; internal set; } = [];
+
+        private HighGuid _playerGuid = new(new byte[4], new byte[4]);
+        public HighGuid PlayerGuid
+        {
+            get => _playerGuid;
+            set
+            {
+                _playerGuid = value;
+                Player = new WoWLocalPlayer(_playerGuid);
+            }
+        }
+
+        public IWoWLocalPlayer Player { get; set; } = new WoWLocalPlayer(new HighGuid(new byte[4], new byte[4]));
+
+        public IWoWLocalPet Pet => throw new NotImplementedException();
+
+
+        private readonly List<WoWObject> _objects = [];
+        public IEnumerable<IWoWObject> Objects => _objects;
+        public ILoginScreen LoginScreen => _loginScreen;
+        public IRealmSelectScreen RealmSelectScreen => _realmScreen;
+        public ICharacterSelectScreen CharacterSelectScreen => _characterSelectScreen;
         public void EnterWorld(ulong characterGuid)
         {
             HasEnteredWorld = true;
@@ -161,8 +671,10 @@ namespace WoWSharpClient
 
                                 if (newObject is WoWLocalPlayer)
                                 {
-                                    //_woWClient.SendMovementOpcode(Opcode.CMSG_MOVE_TIME_SKIPPED, [.. BitConverter.GetBytes(PlayerGuid.FullGuid), .. BitConverter.GetBytes(20)]);
-                                    _woWClient.SendMovementOpcode(Opcode.MSG_MOVE_START_FORWARD, MovementPacketHandler.BuildMovementInfoBuffer((WoWLocalPlayer)Player, _worldTimeTracker.NowMS));
+                                    _woWClient.SendSetActiveMover(PlayerGuid.FullGuid);
+
+                                    _isInControl = true;
+                                    _isBeingTeleported = false;
                                 }
                             }
                             break;
@@ -176,9 +688,10 @@ namespace WoWSharpClient
                                 ApplyFieldDiffs(obj, update.UpdatedFields);
 
                                 if (update.MovementData != null && obj is WoWUnit or WoWPlayer or WoWLocalPlayer)
-                                {
                                     ApplyMovementData((WoWUnit)obj, update.MovementData);
-                                }
+
+                                if (obj is WoWLocalPlayer)
+                                    Console.WriteLine("Potential teleport from server.");
                             }
                             break;
 
@@ -193,7 +706,8 @@ namespace WoWSharpClient
                 }
             }
         }
-        private void ApplyFieldDiffs(WoWObject obj, Dictionary<uint, object?> updatedFields)
+
+        private static void ApplyFieldDiffs(WoWObject obj, Dictionary<uint, object?> updatedFields)
         {
             foreach (var (key, value) in updatedFields)
             {
@@ -881,216 +1395,53 @@ namespace WoWSharpClient
 
             }
         }
-        private void ApplyMovementData(WoWUnit unit, MovementInfoUpdate data)
-        {
-            WoWLocalPlayer? localPlayer = unit as WoWLocalPlayer;
-            bool isLocalPlayer = localPlayer != null;
 
-            // Apply position and movement info
+        private static void ApplyMovementData(WoWUnit unit, MovementInfoUpdate data)
+        {
             unit.MovementFlags = data.MovementFlags;
             unit.LastUpdated = data.LastUpdated;
             unit.Position.X = data.X;
             unit.Position.Y = data.Y;
             unit.Position.Z = data.Z;
             unit.Facing = data.Facing;
-
             unit.TransportGuid = data.TransportGuid ?? 0;
             unit.TransportOffset = data.TransportOffset ?? unit.TransportOffset;
             unit.TransportOrientation = data.TransportOrientation ?? 0f;
             unit.TransportLastUpdated = data.TransportLastUpdated ?? 0;
             unit.SwimPitch = data.SwimPitch ?? 0f;
             unit.FallTime = data.FallTime;
-
             unit.JumpVerticalSpeed = data.JumpVerticalSpeed ?? 0f;
             unit.JumpSinAngle = data.JumpSinAngle ?? 0f;
             unit.JumpCosAngle = data.JumpCosAngle ?? 0f;
             unit.JumpHorizontalSpeed = data.JumpHorizontalSpeed ?? 0f;
             unit.SplineElevation = data.SplineElevation ?? 0f;
 
-            if (data.MovementBlockUpdate is MovementBlockUpdate mbu)
+            if (data.MovementBlockUpdate != null)
             {
-                // Speed changes
-                unit.WalkSpeed = mbu.WalkSpeed;
-                unit.RunSpeed = mbu.RunSpeed;
-                unit.RunBackSpeed = mbu.RunBackSpeed;
-                unit.SwimSpeed = mbu.SwimSpeed;
-                unit.SwimBackSpeed = mbu.SwimBackSpeed;
-                unit.TurnRate = mbu.TurnRate;
-
-                // Spline data
-                unit.SplineFlags = mbu.SplineFlags ?? SplineFlags.None;
-                unit.SplineFinalPoint = mbu.SplineFinalPoint ?? unit.SplineFinalPoint;
-                unit.SplineTargetGuid = mbu.SplineTargetGuid ?? 0;
-                unit.SplineFinalOrientation = mbu.SplineFinalOrientation ?? 0f;
-                unit.SplineTimePassed = mbu.SplineTimePassed ?? 0;
-                unit.SplineDuration = mbu.SplineDuration ?? 0;
-                unit.SplineId = mbu.SplineId ?? 0;
-                unit.SplineNodes = mbu.SplineNodes ?? [];
-                unit.SplineFinalDestination = mbu.SplineFinalDestination ?? unit.SplineFinalDestination;
-                unit.SplineType = mbu.SplineType;
-                unit.SplineTargetGuid = mbu.FacingTargetGuid;
-                unit.FacingAngle = mbu.FacingAngle;
-                unit.FacingSpot = mbu.FacingSpot;
-                unit.SplineTimestamp = mbu.SplineTimestamp;
-                unit.SplinePoints = mbu.SplinePoints;
-
-                if (isLocalPlayer)
-                {
-                    CheckAndAcknowledgeSpeedChange(localPlayer!, mbu);
-                    Console.WriteLine($"  NewFlags: {data.MovementFlags}");
-                    Console.WriteLine($"{data.LastUpdated} {_worldTimeTracker.NowMS}");
-                    Console.WriteLine($"  Position: ({data.X:F2},{data.Y:F2},{data.Z:F2})");
-                }
+                unit.WalkSpeed = data.MovementBlockUpdate.WalkSpeed;
+                unit.RunSpeed = data.MovementBlockUpdate.RunSpeed;
+                unit.RunBackSpeed = data.MovementBlockUpdate.RunBackSpeed;
+                unit.SwimSpeed = data.MovementBlockUpdate.SwimSpeed;
+                unit.SwimBackSpeed = data.MovementBlockUpdate.SwimBackSpeed;
+                unit.TurnRate = data.MovementBlockUpdate.TurnRate;
+                unit.SplineFlags = data.MovementBlockUpdate.SplineFlags ?? SplineFlags.None;
+                unit.SplineFinalPoint = data.MovementBlockUpdate.SplineFinalPoint ?? unit.SplineFinalPoint;
+                unit.SplineTargetGuid = data.MovementBlockUpdate.SplineTargetGuid ?? 0;
+                unit.SplineFinalOrientation = data.MovementBlockUpdate.SplineFinalOrientation ?? 0f;
+                unit.SplineTimePassed = data.MovementBlockUpdate.SplineTimePassed ?? 0;
+                unit.SplineDuration = data.MovementBlockUpdate.SplineDuration ?? 0;
+                unit.SplineId = data.MovementBlockUpdate.SplineId ?? 0;
+                unit.SplineNodes = data.MovementBlockUpdate.SplineNodes ?? [];
+                unit.SplineFinalDestination = data.MovementBlockUpdate.SplineFinalDestination ?? unit.SplineFinalDestination;
+                unit.SplineType = data.MovementBlockUpdate.SplineType;
+                unit.SplineTargetGuid = data.MovementBlockUpdate.FacingTargetGuid;
+                unit.FacingAngle = data.MovementBlockUpdate.FacingAngle;
+                unit.FacingSpot = data.MovementBlockUpdate.FacingSpot;
+                unit.SplineTimestamp = data.MovementBlockUpdate.SplineTimestamp;
+                unit.SplinePoints = data.MovementBlockUpdate.SplinePoints;
             }
         }
 
-        public void SetFacing(float facing)
-        {
-            //if (!_isInControl || _isBeingTeleported)
-            //    return;
-
-            ((WoWPlayer)Player).Facing = facing;
-            _woWClient.SendMovementOpcode(Opcode.MSG_MOVE_SET_FACING, MovementPacketHandler.BuildMovementInfoBuffer((WoWLocalPlayer)Player, _worldTimeTracker.NowMS));
-        }
-
-        public void StartMovement(ControlBits bits)
-        {
-            _controlBits = bits;
-            var player = (WoWLocalPlayer)Player;
-            Opcode opcode = Opcode.MSG_MOVE_STOP;
-
-            // Copy current flags
-            MovementFlags newFlags = player.MovementFlags;
-
-            switch (bits)
-            {
-                case ControlBits.Front:
-                    opcode = Opcode.MSG_MOVE_START_FORWARD;
-                    newFlags |= MovementFlags.MOVEFLAG_FORWARD;
-                    newFlags &= ~MovementFlags.MOVEFLAG_BACKWARD;
-                    break;
-
-                case ControlBits.Back:
-                    opcode = Opcode.MSG_MOVE_START_BACKWARD;
-                    newFlags |= MovementFlags.MOVEFLAG_BACKWARD;
-                    newFlags &= ~MovementFlags.MOVEFLAG_FORWARD;
-                    break;
-
-                case ControlBits.StrafeLeft:
-                    opcode = Opcode.MSG_MOVE_START_STRAFE_LEFT;
-                    newFlags |= MovementFlags.MOVEFLAG_STRAFE_LEFT;
-                    newFlags &= ~MovementFlags.MOVEFLAG_STRAFE_RIGHT;
-                    break;
-
-                case ControlBits.StrafeRight:
-                    opcode = Opcode.MSG_MOVE_START_STRAFE_RIGHT;
-                    newFlags |= MovementFlags.MOVEFLAG_STRAFE_RIGHT;
-                    newFlags &= ~MovementFlags.MOVEFLAG_STRAFE_LEFT;
-                    break;
-
-                case ControlBits.Left:
-                    opcode = Opcode.MSG_MOVE_START_TURN_LEFT;
-                    newFlags |= MovementFlags.MOVEFLAG_TURN_LEFT;
-                    newFlags &= ~MovementFlags.MOVEFLAG_TURN_RIGHT;
-                    break;
-
-                case ControlBits.Right:
-                    opcode = Opcode.MSG_MOVE_START_TURN_RIGHT;
-                    newFlags |= MovementFlags.MOVEFLAG_TURN_RIGHT;
-                    newFlags &= ~MovementFlags.MOVEFLAG_TURN_LEFT;
-                    break;
-
-                case ControlBits.Jump:
-                    opcode = Opcode.MSG_MOVE_JUMP;
-                    newFlags |= MovementFlags.MOVEFLAG_JUMPING;
-                    break;
-            }
-
-            var buffer = MovementPacketHandler.BuildMovementInfoBuffer(player, _worldTimeTracker.NowMS);
-            //Console.WriteLine($"[Movement] Start: Opcode={opcode}, Flags={newFlags}");
-
-            _woWClient.SendMovementOpcode(opcode, buffer);
-        }
-
-        public void StopMovement(ControlBits bits)
-        {
-            var player = (WoWLocalPlayer)Player;
-
-            Opcode opcode = Opcode.MSG_MOVE_STOP;
-
-            var buffer = MovementPacketHandler.BuildMovementInfoBuffer(player, _worldTimeTracker.NowMS);
-            //Console.WriteLine($"[Movement] Stop: Opcode={opcode}, Flags={player.MovementFlags}");
-
-            _woWClient.SendMovementOpcode(opcode, buffer);
-        }
-        private void CheckAndAcknowledgeSpeedChange(WoWLocalPlayer player, MovementBlockUpdate mbu)
-        {
-            //if (mbu.WalkSpeed != player.WalkSpeed)
-            //    _woWClient.SendSetActiveMover(PlayerGuid.FullGuid);
-            //    SendAck(Opcode.CMSG_FORCE_WALK_SPEED_CHANGE_ACK, MovementChangeType.SPEED_CHANGE_WALK, mbu.WalkSpeed);
-
-            //if (mbu.RunSpeed != player.RunSpeed)
-            //    SendAck(Opcode.CMSG_FORCE_RUN_SPEED_CHANGE_ACK, MovementChangeType.SPEED_CHANGE_RUN, mbu.RunSpeed);
-
-            //if (mbu.RunBackSpeed != player.RunBackSpeed)
-            //    SendAck(Opcode.CMSG_FORCE_RUN_BACK_SPEED_CHANGE_ACK, MovementChangeType.SPEED_CHANGE_RUN_BACK, mbu.RunBackSpeed);
-
-            //if (mbu.SwimSpeed != player.SwimSpeed)
-            //    SendAck(Opcode.CMSG_FORCE_SWIM_SPEED_CHANGE_ACK, MovementChangeType.SPEED_CHANGE_SWIM, mbu.SwimSpeed);
-
-            //if (mbu.SwimBackSpeed != player.SwimBackSpeed)
-            //    SendAck(Opcode.CMSG_FORCE_SWIM_BACK_SPEED_CHANGE_ACK, MovementChangeType.SPEED_CHANGE_SWIM_BACK, mbu.SwimBackSpeed);
-
-            //if (mbu.TurnRate != player.TurnRate)
-            //    SendAck(Opcode.CMSG_FORCE_TURN_RATE_CHANGE_ACK, MovementChangeType.RATE_CHANGE_TURN, mbu.TurnRate);
-        }
-
-        private void SendAck(Opcode opcode, MovementChangeType type, float newValue)
-        {
-            Console.WriteLine($"[ACK] {type} changed to {newValue} → Sending {opcode} (counter {_movementCounter++})");
-
-            _woWClient.SendMSGPacked(
-                opcode,
-                MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, _movementCounter, _worldTimeTracker.NowMS)
-            );
-        }
-
-        private void EventEmitter_OnLoginVerifyWorld(object? sender, WorldInfo e)
-        {
-            MapId = e.MapId;
-
-            Player.Position.X = e.PositionX;
-            Player.Position.Y = e.PositionY;
-            Player.Position.Z = e.PositionZ;
-
-            _worldTimeTracker = new WorldTimeTracker();
-
-            _woWClient.SendMoveWorldPortAcknowledge();
-            _woWClient.SendSetActiveMover(PlayerGuid.FullGuid);
-
-            StartGameLoop();
-        }
-
-        private void EventEmitter_OnCharacterListLoaded(object? sender, EventArgs e)
-        {
-            _characterSelectScreen.HasReceivedCharacterList = true;
-        }
-
-        private void EventEmitter_OnWorldSessionStart(object? sender, EventArgs e)
-        {
-            _characterSelectScreen.RefreshCharacterListFromServer();
-        }
-
-        private void EventEmitter_OnLoginFailure(object? sender, EventArgs e)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            _woWClient.Dispose();
-        }
-        private void EventEmitter_OnWorldSessionEnd(object? sender, EventArgs e)
-        {
-            Console.WriteLine($"Session ended.");
-            HasEnteredWorld = false;
-        }
         private WoWObject CreateObjectFromFields(WoWObjectType objectType, ulong guid, Dictionary<uint, object?> fields)
         {
             WoWObject obj = objectType switch
@@ -1209,42 +1560,10 @@ namespace WoWSharpClient
 
             _woWClient.SendMSGPacked(
                 Opcode.MSG_MOVE_TELEPORT_ACK,
-                MovementPacketHandler.BuildMoveTeleportAckPayload(e.Guid, e.Counter, _worldTimeTracker.NowMS)
+                MovementPacketHandler.BuildMoveTeleportAckPayload(e.Guid, e.Counter, (uint)_worldTimeTracker.NowMS.TotalMilliseconds)
             );
 
             _isBeingTeleported = false;
-        }
-
-        private void EventEmitter_OnForceTimeSkipped(object? sender, RequiresAcknowledgementArgs e)
-        {
-            // No ACK required in vanilla (used for cinematic sync)
-        }
-
-        private void EventEmitter_OnForceMoveKnockBack(object? sender, RequiresAcknowledgementArgs e)
-        {
-            Console.WriteLine($"[ACK] KNOCK_BACK counter={e.Counter}");
-            _woWClient.SendMSGPacked(
-                Opcode.CMSG_MOVE_KNOCK_BACK_ACK,
-                MovementPacketHandler.BuildMovementInfoBuffer((WoWLocalPlayer)Player, e.Counter)
-            );
-        }
-
-        private void EventEmitter_OnForceRunSpeedChange(object? sender, RequiresAcknowledgementArgs e)
-        {
-            Console.WriteLine($"[ACK] SPEED_CHANGE_RUN counter={e.Counter}");
-            _woWClient.SendMSGPacked(
-                Opcode.CMSG_FORCE_RUN_SPEED_CHANGE_ACK,
-                MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, _worldTimeTracker.NowMS)
-            );
-        }
-
-        private void EventEmitter_OnForceRunBackSpeedChange(object? sender, RequiresAcknowledgementArgs e)
-        {
-            Console.WriteLine($"[ACK] SPEED_CHANGE_RUN_BACK counter={e.Counter}");
-            _woWClient.SendMSGPacked(
-                Opcode.CMSG_FORCE_RUN_BACK_SPEED_CHANGE_ACK,
-                MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, _worldTimeTracker.NowMS)
-            );
         }
 
         private void EventEmitter_OnForceWalkSpeedChange(object? sender, RequiresAcknowledgementArgs e)
@@ -1252,16 +1571,7 @@ namespace WoWSharpClient
             Console.WriteLine($"[ACK] SPEED_CHANGE_WALK counter={e.Counter}");
             _woWClient.SendMSGPacked(
                 Opcode.CMSG_FORCE_WALK_SPEED_CHANGE_ACK,
-                MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, _worldTimeTracker.NowMS)
-            );
-        }
-
-        private void EventEmitter_OnForceSwimSpeedChange(object? sender, RequiresAcknowledgementArgs e)
-        {
-            Console.WriteLine($"[ACK] SPEED_CHANGE_SWIM counter={e.Counter}");
-            _woWClient.SendMSGPacked(
-                Opcode.CMSG_FORCE_SWIM_SPEED_CHANGE_ACK,
-                MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, _worldTimeTracker.NowMS)
+                MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, (uint)_worldTimeTracker.NowMS.TotalMilliseconds)
             );
         }
 
@@ -1270,7 +1580,7 @@ namespace WoWSharpClient
             Console.WriteLine($"[ACK] SPEED_CHANGE_SWIM_BACK counter={e.Counter}");
             _woWClient.SendMSGPacked(
                 Opcode.CMSG_FORCE_SWIM_BACK_SPEED_CHANGE_ACK,
-                MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, _worldTimeTracker.NowMS)
+                MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, (uint)_worldTimeTracker.NowMS.TotalMilliseconds)
             );
         }
 
@@ -1279,52 +1589,12 @@ namespace WoWSharpClient
             Console.WriteLine($"[ACK] RATE_CHANGE_TURN counter={e.Counter}");
             _woWClient.SendMSGPacked(
                 Opcode.CMSG_FORCE_TURN_RATE_CHANGE_ACK,
-                MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, _worldTimeTracker.NowMS)
+                MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, (uint)_worldTimeTracker.NowMS.TotalMilliseconds)
             );
         }
 
-        private void EventEmitter_OnForceMoveRoot(object? sender, RequiresAcknowledgementArgs e)
-        {
-            Console.WriteLine($"[ACK] ROOT (apply) counter={e.Counter}");
-            _woWClient.SendMSGPacked(
-                Opcode.CMSG_FORCE_MOVE_ROOT_ACK,
-                MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, _worldTimeTracker.NowMS)
-            );
-        }
-
-        private void EventEmitter_OnForceMoveUnroot(object? sender, RequiresAcknowledgementArgs e)
-        {
-            Console.WriteLine($"[ACK] ROOT (release) counter={e.Counter}");
-            _woWClient.SendMSGPacked(
-                Opcode.CMSG_FORCE_MOVE_UNROOT_ACK,
-                MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, _worldTimeTracker.NowMS)
-            );
-        }
-        public bool HasEnteredWorld { get; internal set; }
-        public List<Spell> Spells { get; internal set; } = [];
-        public List<Cooldown> Cooldowns { get; internal set; } = [];
-
-        private HighGuid _playerGuid = new(new byte[4], new byte[4]);
-        public HighGuid PlayerGuid
-        {
-            get => _playerGuid;
-            set
-            {
-                _playerGuid = value;
-                Player = new WoWLocalPlayer(_playerGuid);
-            }
-        }
-
-        private readonly List<WoWObject> _objects = [];
-        public IEnumerable<IWoWObject> Objects => _objects;
-        public ILoginScreen LoginScreen => _loginScreen;
-        public IRealmSelectScreen RealmSelectScreen => _realmScreen;
-        public ICharacterSelectScreen CharacterSelectScreen => _characterSelectScreen;
-
-        public IWoWLocalPlayer Player { get; set; } = new WoWLocalPlayer(new HighGuid(new byte[4], new byte[4]));
         #region NotImplemented
 
-        public IWoWLocalPet Pet => throw new NotImplementedException();
         public uint MapId { get; private set; }
 
         public string ZoneText { get; private set; }
