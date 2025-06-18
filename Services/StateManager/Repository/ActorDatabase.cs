@@ -22,13 +22,13 @@ namespace StateManager.Repository
         };
 
         private static readonly (Skills, Skills)[] Professions =
-        {
+        [
             (Skills.ALCHEMY, Skills.HERBALISM),
             (Skills.BLACKSMITHING, Skills.MINING),
             (Skills.ENGINERING, Skills.MINING),
             (Skills.LEATHERWORKING, Skills.SKINNING),
             (Skills.ENCHANTING, Skills.TAILORING)
-        };
+        ];
 
         // Valid professions for each class
         private static readonly Dictionary<Class, (Skills, Skills)[]> ClassProfessions = new()

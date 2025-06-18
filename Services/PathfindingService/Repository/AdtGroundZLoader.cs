@@ -1,205 +1,345 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using PathfindingService;
+using System.Collections.Concurrent;
+using TerrainLib;
 
-namespace PathfindingService.Repository
+public static class AdtGroundZLoader
 {
-    public class AdtGroundZLoader
+    private const int CellsPerTile = 16;
+    private const float TileScale = 533.33333f;
+    private const float ChunkScale = TileScale / CellsPerTile;
+
+    private static readonly ConcurrentDictionary<(int, int, int), AdtFile> _adtCache = new();
+    private static string[] _mpqPaths;
+
+    public static void SetMPQPaths(string[] mpqPaths)
     {
-        private readonly List<string> _mpqPaths;
-        private readonly Dictionary<int, string> _mapIdToDir;
+        _mpqPaths = mpqPaths;
+        PreloadAdts();
+    }
 
-        private const float TileSize = 533.33333f;
-        private const float InvalidHeight = -99999.0f;
-        private const int ExpectedVersion = 18;
+    private static void PreloadAdts()
+    {
+        const uint MPQ_OPEN_FORCE_MPQ_V1 = 0x4;
 
-        public AdtGroundZLoader()
+        foreach (var path in _mpqPaths)
         {
-            string basePath = Path.Combine(AppContext.BaseDirectory, "Data");
-            _mpqPaths = [Path.Combine(basePath, "terrain.MPQ")];
-            _mapIdToDir = new Dictionary<int, string>
+            if (!StormLib.SFileOpenArchive(path, 0, MPQ_OPEN_FORCE_MPQ_V1, out var archive))
             {
-                { 0, "Azeroth" },
-                { 1, "Kalimdor" },
-                { 530, "Expansion01" },
-                { 571, "Northrend" }
-            };
-        }
-
-        public float GetGroundZ(int mapId, float x, float y, float fallbackZ)
-        {
-            if (!_mapIdToDir.TryGetValue(mapId, out var mapDir))
-                return fallbackZ;
-
-            float adjustedX = x + 32 * TileSize;
-            float adjustedY = y + 32 * TileSize;
-            int tileX = (int)Math.Floor(adjustedX / TileSize);
-            int tileY = (int)Math.Floor(adjustedY / TileSize);
-
-            if (tileX < 0 || tileX >= 64 || tileY < 0 || tileY >= 64)
-                return fallbackZ;
-
-            string adtPath = $"World\\Maps\\{mapDir}\\{mapDir}_{tileX}_{tileY}.adt";
-            byte[] data = ReadFromMPQ(adtPath);
-            if (data == null) return fallbackZ;
-
-            using var ms = new MemoryStream(data);
-            using var reader = new BinaryReader(ms);
-
-            bool versionOk = false;
-            while (ms.Position + 8 <= ms.Length)
-            {
-                string tag = new string(reader.ReadChars(4));
-                uint size = reader.ReadUInt32();
-                long start = ms.Position;
-
-                if (tag == "REVM")
-                {
-                    int version = reader.ReadInt32();
-                    versionOk = version == ExpectedVersion;
-                    break;
-                }
-
-                ms.Position = start + size;
+                Console.WriteLine($"[AdtGroundZLoader] Failed to open MPQ archive: {path}");
+                continue;
             }
 
-            if (!versionOk)
-                return fallbackZ;
-
-            float localX = adjustedX - tileX * TileSize;
-            float localY = adjustedY - tileY * TileSize;
-            int chunkX = (int)(localX / (TileSize / 16));
-            int chunkY = (int)(localY / (TileSize / 16));
-
-            Console.WriteLine($"X:{x}, Y:{y} -> chunkX:{chunkX}, chunkY:{chunkY}");
-
-
-            float cellX = (localX % (TileSize / 16)) / (TileSize / 16);
-            float cellY = (localY % (TileSize / 16)) / (TileSize / 16);
-            ms.Position = 0;
-            while (ms.Position + 8 <= ms.Length)
+            foreach (var (mapId, mapDirName) in MapDirectoryLookup.GetAllMapIds())
             {
-                string tag = new string(reader.ReadChars(4));
-                uint size = reader.ReadUInt32();
-                long chunkStart = ms.Position;
-
-                if (tag == "KNCM")
+                for (int tileX = 0; tileX < 64; tileX++)
                 {
-                    ms.Position = chunkStart + 4;
-                    int ix = reader.ReadInt32();
-                    int iy = reader.ReadInt32();
-
-                    if (ix == chunkX && iy == chunkY)
+                    for (int tileY = 0; tileY < 64; tileY++)
                     {
-                        ms.Position = chunkStart + 0x14;
-                        uint ofsMCVT = reader.ReadUInt32();
+                        string filePath = $"World\\Maps\\{mapDirName}\\{mapDirName}_{tileX}_{tileY}.adt";
+                        //Console.WriteLine($"[AdtGroundZLoader] Attempting to load file: {filePath}");
 
-                        if (ofsMCVT > 0 && ofsMCVT < size)
+                        try
                         {
-                            ms.Position = chunkStart + ofsMCVT;
-                            float[] h = new float[145];
-                            for (int i = 0; i < 145; i++)
-                                h[i] = reader.ReadSingle();
-
-                            int row = (int)(cellX * 8);
-                            int col = (int)(cellY * 8);
-
-                            row = Math.Clamp(row, 0, 7);
-                            col = Math.Clamp(col, 0, 7);
-
-                            int i00 = row * 9 + col;     // h1
-                            int i10 = (row + 1) * 9 + col; // h3
-                            int i01 = row * 9 + col + 1;   // h2
-                            int i11 = (row + 1) * 9 + col + 1; // h4
-                            int im = 81 + row * 8 + col;   // center (V8 index), offset by 81
-
-                            float fx = cellX * 8 - row;
-                            float fy = cellY * 8 - col;
-
-                            Console.WriteLine($"h5 = 2 * h[{im}], row={row}, col={col}");
-
-                            float z;
-                            if (fx + fy < 1.0f)
+                            if (!StormLib.SFileOpenFileEx(archive, filePath, 0, out var fileHandle))
                             {
-                                if (fx > fy)
-                                {
-                                    float h1 = h[i00];
-                                    float h2 = h[i01];
-                                    float h5 = 2 * h[im];
-                                    z = h2 - h1;
-                                    z = z * fx + (h5 - h1 - h2) * fy + h1;
-                                }
-                                else
-                                {
-                                    float h1 = h[i00];
-                                    float h3 = h[i10];
-                                    float h5 = 2 * h[im];
-                                    z = (h5 - h1 - h3) * fx + (h3 - h1) * fy + h1;
-                                }
-                            }
-                            else
-                            {
-                                if (fx > fy)
-                                {
-                                    float h2 = h[i01];
-                                    float h4 = h[i11];
-                                    float h5 = 2 * h[im];
-                                    z = (h2 + h4 - h5) * fx + (h4 - h2) * fy + h5 - h4;
-                                }
-                                else
-                                {
-                                    float h3 = h[i10];
-                                    float h4 = h[i11];
-                                    float h5 = 2 * h[im];
-                                    z = (h4 - h3) * fx + (h3 + h4 - h5) * fy + h5 - h4;
-                                }
+                                Console.WriteLine($"[AdtGroundZLoader] Failed to open file: {filePath}");
+                                continue;
                             }
 
-                            return z + 0.05f;
+                            if (fileHandle == 0)
+                                continue;
+
+                            uint len = StormLib.SFileGetFileSize(fileHandle);
+                            if (len == 0)
+                            {
+                                Console.WriteLine($"[AdtGroundZLoader] File size is zero (invalid): {filePath}");
+                                StormLib.SFileCloseFile(fileHandle);
+                                continue;
+                            }
+
+                            byte[] buf = new byte[len];
+                            if (!StormLib.SFileReadFile(fileHandle, buf, len, out _, IntPtr.Zero))
+                            {
+                                Console.WriteLine($"[AdtGroundZLoader] Failed to read file contents: {filePath}");
+                                StormLib.SFileCloseFile(fileHandle);
+                                continue;
+                            }
+
+                            try
+                            {
+                                //Console.WriteLine($"[AdtGroundZLoader] Loading ADT tile {mapId}_{tileX}_{tileY}...");
+                                var adt = AdtFile.Load(buf);
+                                _adtCache[(mapId, tileX, tileY)] = adt;
+                                //Console.WriteLine($"[AdtGroundZLoader] Successfully cached tile {mapId}_{tileX}_{tileY}");
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"[AdtGroundZLoader] Failed to parse ADT file {filePath}: {ex.Message}");
+                            }
+                            finally
+                            {
+                                StormLib.SFileCloseFile(fileHandle);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"[AdtGroundZLoader] Exception while handling file {filePath}: {ex}");
                         }
                     }
                 }
-
-                ms.Position = chunkStart + size;
             }
 
-            return fallbackZ;
+            StormLib.SFileCloseArchive(archive);
+        }
+    }
+    public static bool TryGetZ(int mapId, float x, float y, out float z)
+    {
+        // Default failure
+        z = float.NaN;
+
+        /* ──────────────────────────────────────────────────────────────
+           World coordinate system (1.12):
+             +X = north, +Y = west
+           ADT grid (64×64):
+             tileRow (a.k.a. BlockY) increases southwards   ← rows (Y axis)
+             tileCol (a.k.a. BlockX) increases eastwards    ← cols (X axis)
+        ────────────────────────────────────────────────────────────── */
+
+        // 1) world → 64×64 tile indices
+        int tileRow = (int)MathF.Floor(32 - (x / TileScale)); // 0‥63, north→south
+        int tileCol = (int)MathF.Floor(32 - (y / TileScale)); // 0‥63, west →east
+
+        if ((uint)tileRow > 63 || (uint)tileCol > 63)
+            return false;
+
+        // Key uses (mapId, tileX, tileY) = (col,row)
+        if (!_adtCache.TryGetValue((mapId, tileCol, tileRow), out var adt))
+            return false;
+
+        // 2) world → local offsets inside that tile (0‥533)
+        float originNS = (32 - tileRow) * TileScale;   // world-X at tile’s north edge
+        float originEW = (32 - tileCol) * TileScale;   // world-Y at tile’s west  edge
+
+        float localNS = originNS - x;  // south-positive     (0‥533)
+        float localEW = originEW - y;  // east-positive      (0‥533)
+
+        // 3) chunk indices (16×16 per tile)
+        int chunkRow = (int)(localNS / ChunkScale);    // 0‥15 southward
+        int chunkCol = (int)(localEW / ChunkScale);    // 0‥15 eastward
+
+        if ((uint)chunkRow > 15 || (uint)chunkCol > 15)
+            return false;
+
+        var chunk = adt.GetChunk(chunkRow, chunkCol);
+        if (chunk?.Heights == null) return false;
+
+        // 4) local offsets inside chunk (0‥33.33)
+        float inNS = localNS - chunkRow * ChunkScale;
+        float inEW = localEW - chunkCol * ChunkScale;
+
+        // 5) cell indices (8×8 per chunk) and intra-cell fractions
+        float normX = inEW / ChunkScale * 8f;     // west→east
+        float normY = inNS / ChunkScale * 8f;     // south→north
+
+        int hCol = (int)normX;   // 0‥7
+        int hRow = (int)normY;   // 0‥7
+        float fx = normX - hCol;
+        float fy = normY - hRow;
+
+        if (hCol >= 8 || hRow >= 8) return false; // guard
+
+        // 6) sample the four surrounding outer-grid heights
+        float h0 = chunk.Heights[hRow * 9 + hCol]; // top-left
+        float h1 = chunk.Heights[hRow * 9 + hCol + 1]; // top-right
+        float h2 = chunk.Heights[(hRow + 1) * 9 + hCol + 1]; // bottom-right
+        float h3 = chunk.Heights[(hRow + 1) * 9 + hCol]; // bottom-left
+
+        // 7) triangle-based interpolation (vMaNGOS / client logic)
+        float relZ = (fx + fy < 1f)
+                   ? h0 + (h1 - h0) * fx + (h3 - h0) * fy
+                   : h2 + (h3 - h2) * (1f - fx) + (h1 - h2) * (1f - fy);
+
+        // 8) absolute ground height
+        z = relZ + chunk.PositionZ;
+        return true;
+    }
+}
+
+public static class MapDirectoryLookup
+{
+    // ─────────────────────────────────────────────────────────────
+    // 1.  MapId → directory (under "World/Maps/")
+    // ─────────────────────────────────────────────────────────────
+    public static string GetInternalMapName(int mapId) => mapId switch
+    {
+        // Continents
+        0 => "Azeroth",            // Eastern Kingdoms
+        1 => "Kalimdor",
+
+        // Battlegrounds
+        30 => "AlteracValley",
+        37 => "AzsharaCrater",      // never released, but ADTs exist
+        489 => "WarsongGulch",
+        529 => "ArathiBasin",
+
+        // Unused / dev outdoor worlds (all contain ADTs)
+        169 => "EmeraldDream",
+        401 => "Kalidar",
+        451 => "DevelopmentLand",
+
+        _ => throw new ArgumentOutOfRangeException(
+                 $"Unknown (or post-TBC) mapId: {mapId}")
+    };
+
+    // ─────────────────────────────────────────────────────────────
+    // 2.  directory  → MapId
+    // ─────────────────────────────────────────────────────────────
+    public static bool TryGetMapId(string mapDirName, out int mapId)
+    {
+        switch (mapDirName.ToLowerInvariant())
+        {
+            case "azeroth": mapId = 0; return true;
+            case "kalimdor": mapId = 1; return true;
+            case "alteracvalley": mapId = 30; return true;
+            case "azsharacrater": mapId = 37; return true;
+            case "warsonggulch": mapId = 489; return true;
+            case "arathibasin": mapId = 529; return true;
+            case "emeralddream": mapId = 169; return true;
+            case "kalidar": mapId = 401; return true;
+            case "developmentland": mapId = 451; return true;
+            default: mapId = -1; return false;
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 3.  Convenience list for preload / iteration
+    // ─────────────────────────────────────────────────────────────
+    public static (int id, string dir)[] GetAllMapIds() =>
+    [
+        (  0, "Azeroth"        ),
+        (  1, "Kalimdor"       ),
+        ( 30, "AlteracValley"  ),
+        ( 37, "AzsharaCrater"  ),
+        (169, "EmeraldDream"   ),
+        (401, "Kalidar"        ),
+        (451, "DevelopmentLand"),
+        (489, "WarsongGulch"   ),
+        (529, "ArathiBasin"    )
+    ];
+}
+
+
+namespace TerrainLib
+{
+    public class AdtFile
+    {
+        private readonly AdtChunk[,] _chunks;
+
+        public AdtFile(AdtChunk[,] chunks) => _chunks = chunks;
+
+        public AdtChunk GetChunk(int row, int col)
+        {
+            if (row is < 0 or > 15 || col is < 0 or > 15)
+                return null;
+            return _chunks[row, col];
         }
 
-        private byte[] ReadFromMPQ(string internalPath)
+        public static AdtFile Load(byte[] data)
         {
-            const uint MPQ_OPEN_FORCE_MPQ_V1 = 0x00000004;
+            using var reader = new BinaryReader(new MemoryStream(data));
+            var chunks = new AdtChunk[16, 16];
+            int chunkIndex = 0;
 
-            foreach (var path in _mpqPaths)
+            try
             {
-                if (!StormLib.SFileOpenArchive(path, 0, MPQ_OPEN_FORCE_MPQ_V1, out IntPtr archive))
-                    continue;
-
-                if (!StormLib.SFileHasFile(archive, internalPath))
+                while (reader.BaseStream.Position + 8 < reader.BaseStream.Length && chunkIndex < 256)
                 {
-                    StormLib.SFileCloseArchive(archive);
-                    continue;
-                }
+                    long chunkStart = reader.BaseStream.Position;
+                    string magic = new(reader.ReadChars(4).Reverse().ToArray());
+                    int size = reader.ReadInt32();
 
-                if (StormLib.SFileOpenFileEx(archive, internalPath, 0, out IntPtr file))
-                {
-                    uint fileSize = StormLib.SFileGetFileSize(file);
-                    byte[] buffer = new byte[fileSize];
-
-                    if (StormLib.SFileReadFile(file, buffer, fileSize, out uint bytesRead, IntPtr.Zero))
+                    if (magic != "MCNK")
                     {
-                        StormLib.SFileCloseFile(file);
-                        StormLib.SFileCloseArchive(archive);
-                        return bytesRead != fileSize ? buffer[..(int)bytesRead] : buffer;
+                        reader.BaseStream.Seek(chunkStart + 8 + size, SeekOrigin.Begin);
+                        continue;
                     }
 
-                    StormLib.SFileCloseFile(file);
+                    reader.BaseStream.Seek(chunkStart + 8 + 128, SeekOrigin.Begin); // skip MCNK header
+
+                    // scan sub-chunks within MCNK
+                    long mcnkEnd = chunkStart + 8 + size;
+                    float[] heights = null;
+                    while (reader.BaseStream.Position + 8 < mcnkEnd)
+                    {
+                        string subMagic = new(reader.ReadChars(4).Reverse().ToArray());
+                        int subSize = reader.ReadInt32();
+
+                        if (subMagic == "MCVT")
+                        {
+                            if (subSize < 145 * 4)
+                            {
+                                Console.WriteLine($"[AdtFile] MCVT size too small at chunk {chunkIndex}, skipping.");
+                                break;
+                            }
+                            heights = new float[145];
+                            for (int i = 0; i < 145; i++)
+                                heights[i] = reader.ReadSingle();
+                            break;
+                        }
+                        else
+                        {
+                            reader.BaseStream.Seek(reader.BaseStream.Position + subSize, SeekOrigin.Begin);
+                        }
+                    }
+
+                    if (heights != null)
+                    {
+                        int row = chunkIndex / 16;
+                        int col = chunkIndex % 16;
+
+                        reader.BaseStream.Seek(chunkStart + 8 + 0x68, SeekOrigin.Begin);
+                        float posX = reader.ReadSingle();
+                        float posY = reader.ReadSingle();
+                        float posZ = reader.ReadSingle();
+
+                        // Optional: World-space debug position
+                        if (posZ > 34 && posZ < 42)
+                        {
+                            float worldX = (col + posX) * 33.33333f;
+                            float worldY = (row + posY) * 33.33333f;
+                            //Console.WriteLine($"[AdtFile] MCNK Pos: ChunkIndex={chunkIndex} WorldX={worldX:F2} WorldY={worldY:F2} Z={posZ} row={row} col={col}");
+                        }
+
+                        chunks[row, col] = new AdtChunk   // ✅ row first, col second
+{
+    Heights    = heights,
+    PositionZ  = posZ            // posZ is the *vertical* component
+};
+                        //Console.WriteLine($"[AdtFile] Stored chunkIndex={chunkIndex} at row={row}, col={col}, height[0]={heights[0]}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[AdtFile] No MCVT found for chunk {chunkIndex}, skipping.");
+                    }
+
+                    chunkIndex++;
+                    reader.BaseStream.Seek(chunkStart + 8 + size, SeekOrigin.Begin);
                 }
-                StormLib.SFileCloseArchive(archive);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AdtFile] Error reading ADT: {ex.Message}");
+                throw;
             }
 
-            return null;
+            return new AdtFile(chunks);
         }
+    }
+
+    public class AdtChunk
+    {
+        public float PositionZ;
+
+        public float[] Heights = new float[145];
     }
 }
