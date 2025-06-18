@@ -129,7 +129,7 @@ namespace ForegroundBotRunner.Objects
 
         public bool IsSwimming => MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SWIMMING);
 
-        public bool IsFalling => MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLING);
+        public bool IsFalling => MovementFlags.HasFlag(MovementFlags.MOVEFLAG_JUMPING);
         public uint MountDisplayId => MemoryManager.ReadUint(GetDescriptorPtr() + MemoryAddresses.WoWUnit_MountDisplayIdOffset);
 
         public bool IsMounted => MountDisplayId > 0;

@@ -105,6 +105,8 @@ namespace WoWSharpClient
             _handlers[Opcode.SMSG_NAME_QUERY_RESPONSE] = _characterHandler.HandleNameQueryResponse;
 
             _handlers[Opcode.SMSG_LOGIN_VERIFY_WORLD] = _loginHandler.HandleLoginVerifyWorld;
+            _handlers[Opcode.SMSG_LOGIN_SETTIMESPEED] = _loginHandler.HandleSetTimeSpeed;
+            _handlers[Opcode.SMSG_QUERY_TIME_RESPONSE] = _loginHandler.HandleTimeQueryResponse;
 
             _handlers[Opcode.SMSG_INITIAL_SPELLS] = _spellHandler.HandleInitialSpells;
             _handlers[Opcode.SMSG_SPELLLOGMISS] = _spellHandler.HandleSpellLogMiss;

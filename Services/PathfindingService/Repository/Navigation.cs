@@ -34,18 +34,18 @@ namespace PathfindingService.Repository
         private readonly VMAP_GetAreaInfoDelegate getAreaInfo;
         private readonly VMAP_GetLiquidLevelDelegate getLiquidLevel;
 
-        readonly AdtGroundZLoader _adtGroundZLoader;
-
         public Navigation()
         {
             var currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var mpqPath = Path.Combine(currentFolder!, "Data\\terrain.MPQ");
+
+            AdtGroundZLoader.SetMPQPaths([mpqPath]);
+
             var dllPath = Path.Combine(currentFolder!, "Navigation.dll");
 
             var navProcPtr = WinProcessImports.LoadLibrary(dllPath);
             if (navProcPtr == IntPtr.Zero)
                 throw new Exception("Failed to load Navigation.dll");
-
-            _adtGroundZLoader = new AdtGroundZLoader();
 
             calculatePath = Marshal.GetDelegateForFunctionPointer<CalculatePathDelegate>(WinProcessImports.GetProcAddress(navProcPtr, "CalculatePath"));
             freePathArr = Marshal.GetDelegateForFunctionPointer<FreePathArrDelegate>(WinProcessImports.GetProcAddress(navProcPtr, "FreePathArr"));
@@ -60,7 +60,7 @@ namespace PathfindingService.Repository
         public ZQueryResult QueryZ(uint mapId, Position pos)
         {
             float serverZ = GetHeight(mapId, pos, 100.0f);
-            float terrainZ = _adtGroundZLoader.GetGroundZ((int)mapId, pos.X, pos.Y, pos.Z);
+            AdtGroundZLoader.TryGetZ((int)mapId, pos.X, pos.Y, out float terrainZ);
 
             float finalZ = float.NaN;
             const float maxAcceptableDiff = 5.0f;
@@ -73,8 +73,8 @@ namespace PathfindingService.Repository
             return new ZQueryResult
             {
                 FloorZ = float.IsNaN(finalZ) ? pos.Z : finalZ + 0.05f,
-                TerrainZ = serverZ,
-                AdtZ = terrainZ,
+                TerrainZ = terrainZ,
+                AdtZ = serverZ,
                 RaycastZ = float.NaN,
                 LocationZ = float.NaN
             };

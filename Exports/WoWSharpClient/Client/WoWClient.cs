@@ -13,12 +13,7 @@ namespace WoWSharpClient.Client
 
         private bool _isLoggedIn;
         public bool IsLoggedIn => _isLoggedIn;
-        private uint _movementCounter = 0;
-        public uint MovementCounter => _movementCounter;
-        public void ResetMovementCounter()
-        {
-            _movementCounter = 0;
-        }
+        private uint _pingCounter = 0;
         public void Dispose()
         {
             _loginClient?.Dispose();
@@ -65,9 +60,12 @@ namespace WoWSharpClient.Client
         internal void SendMovementOpcode(Opcode opcode, byte[] movementInfo)
         {
             _worldClient.SendMSGMove(opcode, movementInfo);
-            _movementCounter++;
         }
-        internal void SendMSGPacked(Opcode opcode, byte[] payload) => _worldClient.SendMSGPacked(opcode, payload);
-        internal void SendPing() => _worldClient.SendCMSGPing(_movementCounter);
+        internal void SendMSGPacked(Opcode opcode, byte[] payload)
+        {
+            _worldClient.SendMSGPacked(opcode, payload);
+        }
+        internal void SendPing() => _worldClient.SendCMSGPing(_pingCounter++);
+        internal void QueryTime() => _worldClient.SendCMSGQueryTime();
     }
 }

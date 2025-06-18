@@ -46,13 +46,17 @@ namespace WoWSharpClient.Screens
     {
         public bool IsOpen => true;
         public bool HasReceivedCharacterList { get; set; }
+        public bool HasRequestedCharacterList { get; set; }
         public void RefreshCharacterListFromServer()
         {
             woWClient.RefreshCharacterSelects();
+            HasRequestedCharacterList = true;
+            HasReceivedCharacterList = false;
         }
         public void CreateCharacter(string name, Race race, Gender gender, Class @class, byte skinColor, byte face, byte hairStyle, byte hairColor, byte facialHair, byte outfitId)
         {
             woWClient.SendCharacterCreate(name, race, @class, gender, skinColor, face, hairStyle, hairColor, facialHair, outfitId);
+            HasRequestedCharacterList = false;
             HasReceivedCharacterList = false;
         }
 

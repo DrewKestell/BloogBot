@@ -18,62 +18,58 @@ namespace WoWSharpClient.Parsers
 
             return ms.ToArray();
         }
-        public static byte[] BuildMovementInfoBuffer(WoWLocalPlayer player, uint timestamp)
+        public static byte[] BuildMovementInfoBuffer(WoWLocalPlayer p, uint ctimeMs)
         {
             using var ms = new MemoryStream();
-            using var writer = new BinaryWriter(ms);
+            using var w = new BinaryWriter(ms);
 
-            // Movement flags
-            writer.Write((uint)player.MovementFlags);
+            w.Write((uint)p.MovementFlags);
+            w.Write(ctimeMs);
 
-            // Timestamp
-            writer.Write(timestamp);
+            w.Write(p.Position.X);
+            w.Write(p.Position.Y);
+            w.Write(p.Position.Z);
 
-            // Position
-            writer.Write(player.Position.X);
-            writer.Write(player.Position.Y);
-            writer.Write(player.Position.Z);
+            w.Write(p.Facing);
 
-            // Orientation (facing)
-            writer.Write(player.Facing);
-
-            // If ON_TRANSPORT: write transport data
-            if (player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_ONTRANSPORT) && player.Transport != null)
+            // Transport block
+            if ((p.MovementFlags & MovementFlags.MOVEFLAG_ONTRANSPORT) != 0 && p.Transport != null)
             {
-                writer.Write(player.Transport.Guid); // 64-bit GUID
-                writer.Write(player.Transport.Position.X);
-                writer.Write(player.Transport.Position.Y);
-                writer.Write(player.Transport.Position.Z);
-                writer.Write(player.Transport.Facing);
-                writer.Write(timestamp); // uint32
+                w.Write(p.Transport.Guid);
+
+                w.Write(p.Transport.Position.X);
+                w.Write(p.Transport.Position.Y);
+                w.Write(p.Transport.Position.Z);
+
+                w.Write(p.Transport.Facing);
             }
 
-            // If SWIMMING: write pitch
-            if (player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SWIMMING))
+            // Swim pitch
+            if ((p.MovementFlags & MovementFlags.MOVEFLAG_SWIMMING) != 0)
             {
-                writer.Write(player.SwimPitch);
+                w.Write(p.SwimPitch);
             }
 
-            // Fall time (always written)
-            writer.Write(player.FallTime);
+            w.Write(p.FallTime);
 
-            // If JUMPING: write jump velocity and angles
-            if (player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLING))
+            // Jump block
+            if ((p.MovementFlags & MovementFlags.MOVEFLAG_JUMPING) != 0)
             {
-                writer.Write(player.JumpVerticalSpeed);
-                writer.Write(player.JumpCosAngle);
-                writer.Write(player.JumpSinAngle);
-                writer.Write(player.JumpHorizontalSpeed);
+                w.Write(p.JumpVerticalSpeed);
+                w.Write(p.JumpCosAngle);
+                w.Write(p.JumpSinAngle);
+                w.Write(p.JumpHorizontalSpeed);
             }
 
-            // If SPLINE_ELEVATION: write elevation float
-            if (player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SPLINE_ELEVATION))
+            // Spline Elevation
+            if ((p.MovementFlags & MovementFlags.MOVEFLAG_SPLINE_ELEVATION) != 0)
             {
-                writer.Write(player.SplineElevation);
+                w.Write(p.SplineElevation);
             }
 
             return ms.ToArray();
         }
+
         public static MovementInfoUpdate ParseMovementBlock(BinaryReader reader)
         {
             var data = new MovementInfoUpdate()

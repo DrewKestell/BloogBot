@@ -41,6 +41,7 @@ namespace WoWSharpClient.Handlers
                             ulong guid = ReaderUtils.ReadPackedGuid(reader);
                             uint movementCounter = reader.ReadUInt32();
                             MovementInfoUpdate movementUpdateData = MovementPacketHandler.ParseMovementInfo(reader);
+                            movementUpdateData.MovementCounter = movementCounter;
 
                             //_objectManager.QueueUpdate(new(guid, ObjectUpdateOperation.Update, WoWObjectType.Player, movementUpdateData, []));
 
@@ -63,6 +64,22 @@ namespace WoWSharpClient.Handlers
                             break;
                         case Opcode.SMSG_MOVE_KNOCK_BACK:
                             _eventEmitter.FireOnForceMoveKnockBack(ParseGuidCounterPacket(reader));
+                            break;
+                        case Opcode.SMSG_SPLINE_MOVE_SET_RUN_MODE:
+                            ulong splineRunGuid = ReaderUtils.ReadPackedGuid(reader);
+                            Console.WriteLine($"{splineRunGuid} Now running");
+                            break;
+                        case Opcode.SMSG_SPLINE_MOVE_SET_WALK_MODE:
+                            ulong splineWalkGuid = ReaderUtils.ReadPackedGuid(reader);
+                            Console.WriteLine($"{splineWalkGuid} Now walking");
+                            break;
+                        case Opcode.SMSG_SPLINE_MOVE_ROOT:
+                            ulong splineMoveRootGuid = ReaderUtils.ReadPackedGuid(reader);
+                            Console.WriteLine($"{splineMoveRootGuid} Now rooted");
+                            break;
+                        case Opcode.SMSG_SPLINE_MOVE_UNROOT:
+                            ulong splineMoveUnrootGuid = ReaderUtils.ReadPackedGuid(reader);
+                            Console.WriteLine($"{splineMoveUnrootGuid} Now unrooted");
                             break;
                         case Opcode.MSG_MOVE_TIME_SKIPPED:
                             _eventEmitter.FireOnMoveTimeSkipped(ParseGuidCounterPacket(reader));
@@ -123,6 +140,8 @@ namespace WoWSharpClient.Handlers
             var counter = reader.ReadUInt32();
 
             MovementInfoUpdate movementData = MovementPacketHandler.ParseMovementInfo(reader);
+            movementData.MovementCounter = counter;
+
             _objectManager.QueueUpdate(new ObjectStateUpdate(packedGuid, ObjectUpdateOperation.Update, WoWObjectType.Player, movementData, []));
 
             return new(packedGuid, counter);
@@ -155,6 +174,7 @@ namespace WoWSharpClient.Handlers
             var compressedOpCode = (Opcode)reader.ReadUInt16();
             var guid = ReaderUtils.ReadPackedGuid(reader);
 
+            //Console.WriteLine($"[MovementHandler] {compressedOpCode}");
             switch (compressedOpCode)
             {
                 case Opcode.SMSG_MONSTER_MOVE:

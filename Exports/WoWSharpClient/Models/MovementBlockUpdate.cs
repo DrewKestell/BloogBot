@@ -63,6 +63,7 @@ namespace WoWSharpClient.Models
         public ulong TargetGuid { get; set; }
         public uint HighGuid { get; set; }
         public uint UpdateAll { get; set; }
+        public uint MovementCounter { get; set; }
 
         public MovementFlags MovementFlags { get; set; }
         public uint LastUpdated { get; set; }
@@ -85,7 +86,7 @@ namespace WoWSharpClient.Models
 
         // Fall / Jump Info
         public float FallTime { get; set; }
-        public bool IsFalling => MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLING);
+        public bool IsFalling => MovementFlags.HasFlag(MovementFlags.MOVEFLAG_JUMPING);
         public float? JumpVerticalSpeed { get; set; }
         public float? JumpSinAngle { get; set; }
         public float? JumpCosAngle { get; set; }

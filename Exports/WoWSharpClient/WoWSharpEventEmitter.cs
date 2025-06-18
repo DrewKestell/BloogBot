@@ -6,6 +6,7 @@ namespace WoWSharpClient
 {
     public class WoWSharpEventEmitter : IWoWEventHandler
     {
+
         public event EventHandler OnLoginConnect;
         public event EventHandler OnHandshakeBegin;
         public event EventHandler OnLoginSuccess;
@@ -18,6 +19,7 @@ namespace WoWSharpClient
         public event EventHandler OnSetRestStart;
         public event EventHandler OnClientControlUpdate;
         public event EventHandler<WorldInfo> OnLoginVerifyWorld;
+        public EventHandler<OnSetTimeSpeedArgs> OnSetTimeSpeed;
         public event EventHandler<byte> OnStandStateUpdate;
         public event EventHandler LevelUp;
         public event EventHandler<OnLootArgs> OnLoot;
@@ -194,7 +196,7 @@ namespace WoWSharpClient
         internal void FireOnForceMoveKnockBack(RequiresAcknowledgementArgs requiresAcknowledgementArgs) => OnForceMoveKnockBack?.Invoke(this, requiresAcknowledgementArgs);
         internal void FireOnMoveTimeSkipped(RequiresAcknowledgementArgs requiresAcknowledgementArgs) => OnForceTimeSkipped?.Invoke(this, requiresAcknowledgementArgs);
         internal void FireOnTeleport(RequiresAcknowledgementArgs requiresAcknowledgementArgs) => OnTeleport?.Invoke(this, requiresAcknowledgementArgs);
-
         internal void FireOnClientControlUpdate() => FireEvent(OnClientControlUpdate);
+        internal void FireOnSetTimeSpeed(OnSetTimeSpeedArgs onSetTimeSpeedArgs) => OnSetTimeSpeed?.Invoke(this, onSetTimeSpeedArgs);
     }
 }
