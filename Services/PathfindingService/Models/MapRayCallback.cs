@@ -26,26 +26,39 @@ namespace PathfindingService.Repository
         }
 
         /// <inheritdoc/>
-        public bool OnRayIntersect(Ray ray, uint entry, ref float distance,
-                           bool stopAtFirstHit, bool ignoreM2Model)
+        public bool OnRayIntersect(Ray ray, uint entry, ref float distance, bool stopAtFirstHit, bool ignoreM2Model)
         {
             ++Tested;
             var inst = _prims[entry];
+            if (inst == null || inst.GetWorldModel() == null)
+                return false;
 
-            // broad‑phase reject: null or filtered
-            if (inst == null) return false;
-            if (_m2Only && !inst.flags.HasAny((uint)ModelFlags.MOD_M2)) return false;
+            if (_m2Only && !inst.flags.HasAny((uint)ModelFlags.MOD_M2))
+                return false;
 
-            // *after* AABB test – extremely cheap and very informative
+            // Debug output
             Console.WriteLine($"[TEST] id={entry,-6} name={inst.name,-32} max={distance:0.###}");
 
-            bool hit = inst.IntersectRay(ray, ref distance, stopAtFirstHit, ignoreM2Model);
+            // Match C++: transform ray into model-local space
+            var invRot = inst.GetInvRot();
+            var scale = inst.GetScale();
+            var invScale = MathF.Abs(scale) < 1e-6f ? 0f : 1f / scale;
+            var originLocal = invRot * ((ray.Origin - inst.iPos) * invScale);
+            var dirLocal = invRot * ray.Direction;
+            var localRay = new Ray(originLocal, dirLocal, normalizeDir: false);
+            float localMax = distance * invScale;
+
+            var model = inst.GetWorldModel();
+            bool hit = model.IntersectRay(localRay, ref localMax, stopAtFirstHit, ignoreM2Model);
             if (hit)
             {
-                ++HitCount; DidHit = true;
+                ++HitCount;
+                DidHit = true;
+                distance = localMax * scale;
                 Console.WriteLine($"[HIT ] id={entry,-6} d={distance:0.###}");
-                return stopAtFirstHit;              // early‑out when caller asks
+                return stopAtFirstHit;
             }
+
             return false;
         }
     }

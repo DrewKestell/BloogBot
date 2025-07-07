@@ -103,6 +103,8 @@ namespace VMAP
                     }
                     Console.WriteLine($"[InitMap] untiled spawns added={added}");
                 }
+
+                Console.WriteLine($"[InitMap] readerPos={br.BaseStream.Position} {br.BaseStream.Length}");
             }
             catch (Exception ex)
             {
@@ -347,8 +349,8 @@ namespace VMAP
             // Rotate 90° clockwise **and** flip axes to NW‑corner origin.
             // Ref: vmangos VMapTools::convertPositionToInternal
             return new Vector3(
-                -w.y + CENTER_OFFSET,   //  Xinternal
-                -w.x + CENTER_OFFSET,   //  Yinternal   ← sign fixed
+                -w.x + CENTER_OFFSET,   //  Xinternal
+                -w.y + CENTER_OFFSET,   //  Yinternal   ← sign fixed
                  w.z);                  //  Z unchanged
         }
 

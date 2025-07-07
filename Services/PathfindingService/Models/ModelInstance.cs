@@ -38,13 +38,43 @@ namespace VMAP
             name = s.name;
             iModel = model;
 
-            Matrix3 rot = Matrix3.FromEulerAnglesZYX(
-                MathF.PI * iRot.y / 180f,
-                MathF.PI * iRot.x / 180f,
-                MathF.PI * iRot.z / 180f);
+            // 1) generate the eight corners of the model‐space bound:
+            var lo = s.iBound.Min;
+            var hi = s.iBound.Max;
+            var corners = new[]
+            {
+                new Vector3(lo.x, lo.y, lo.z),
+                new Vector3(lo.x, lo.y, hi.z),
+                new Vector3(lo.x, hi.y, lo.z),
+                new Vector3(lo.x, hi.y, hi.z),
+                new Vector3(hi.x, lo.y, lo.z),
+                new Vector3(hi.x, lo.y, hi.z),
+                new Vector3(hi.x, hi.y, lo.z),
+                new Vector3(hi.x, hi.y, hi.z),
+            };
+
+            // 2) build the world‐space transform:
+            var rot = Matrix3.FromEulerAnglesZYX(iRot.z, iRot.y, iRot.x);
+            var scale = iScale;
 
             iInvRot = rot.Inverse();
             iInvScale = MathF.Abs(iScale) < 1e-6f ? 0f : 1f / iScale;
+
+            // 3) transform each corner and expand a VMAP‐internal AABB:
+            var worldMin = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
+            var worldMax = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
+
+            foreach (var c in corners)
+            {
+                var v = rot * (c * scale);  // scale then rotate in model space
+                                            // now translate into internal‐space position:
+                v += iPos;                  // iPos is already in internal coords
+                worldMin = worldMin.Min(v);
+                worldMax = worldMax.Max(v);
+            }
+
+            // 4) override iBound so that the **broad‐phase** test is correct:
+            iBound = new AABox(worldMin, worldMax);
         }
 
         /// <summary>
@@ -227,7 +257,7 @@ namespace VMAP
                 // flags, ADT id, instance ID
                 //Console.WriteLine("ModelInstance: Reading flags, ADT id, and instance ID...");
                 flags = (ModelFlags)br.ReadUInt32();
-                adtId = (ushort)br.ReadUInt32();
+                adtId = br.ReadUInt16();
                 ID = br.ReadUInt32();
                 //Console.WriteLine($"ModelInstance: flags={flags}, adtId={adtId}, ID={ID}");
 

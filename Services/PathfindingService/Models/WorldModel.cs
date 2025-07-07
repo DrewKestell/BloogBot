@@ -18,7 +18,10 @@ namespace VMAP
         private AABox modelBounds;                           // Bounding box encompassing all groups
         private uint modelFlags;                             // Flags (e.g., MOD_M2)
         private BIH? groupTree;                              // Optional group‐level BIH for acceleration
+        private Vector3 spawnPos = Vector3.Zero;
 
+        // Call this from ReadFile (M2 branch) after inst.ReadFromFile:
+        public void SetSpawnPosition(Vector3 pos) => spawnPos = pos;
         public uint GetRootWmoID() => RootWMOID;
         public void SetRootWmoID(uint id) => RootWMOID = id;
         public uint GetModelFlags() => modelFlags;
@@ -62,7 +65,7 @@ namespace VMAP
                 return false;
 
             bool hit = false;
-                        
+
             if (groupTree != null)
             {
                 groupTree.intersectRay(
@@ -279,7 +282,7 @@ namespace VMAP
                 {
                     Console.WriteLine("WorldModel: Detected MOD_M2 – loading single-group mesh for AABB");
 
-                    // 3) GMOD chunk (should be exactly 1)
+                    // 3) GMOD chunk (single group)
                     Console.WriteLine("WorldModel: Reading GMOD chunk for M2...");
                     if (!VMapDefinitions.ReadChunk(br, "GMOD", 4))
                     {
@@ -288,10 +291,7 @@ namespace VMAP
                     }
                     uint groupCount = br.ReadUInt32();
                     Console.WriteLine($"WorldModel:   groupCount = {groupCount}");
-                    if (groupCount != 1)
-                        Console.WriteLine("WorldModel: Warning – expected 1 group for M2");
 
-                    // Load the single group
                     var gm = new GroupModel();
                     Console.WriteLine("WorldModel:   Reading single GroupModel...");
                     if (!gm.ReadFromFile(br))
@@ -304,7 +304,7 @@ namespace VMAP
                     // Build local modelBounds
                     SetGroupModels(new List<GroupModel> { gm });
 
-                    // Read spawn info immediately afterwards
+                    // 4) Spawn data
                     Console.WriteLine("WorldModel: Rewinding to WMOD payload for spawn data");
                     fs.Seek(12, SeekOrigin.Begin);
                     var inst = new ModelInstance();
@@ -314,9 +314,13 @@ namespace VMAP
                         Console.WriteLine("WorldModel: ModelInstance.ReadFromFile failed");
                         return false;
                     }
+                    Console.WriteLine($"WorldModel: Parsed spawn at {inst.iPos}");
 
-                    // Compute world-space AABB
-                    Console.WriteLine("WorldModel: Computing world‐space AABB...");
+                    // **Set spawnPos for ray transforms**
+                    spawnPos = inst.iPos;
+
+                    // 5) Compute world-space AABB for convenience
+                    Console.WriteLine("WorldModel: Computing world-space AABB...");
                     var local = modelBounds;
                     var corners = new[]
                     {
@@ -329,16 +333,13 @@ namespace VMAP
                         new Vector3(local.Max.x, local.Max.y, local.Min.z),
                         new Vector3(local.Max.x, local.Max.y, local.Max.z),
                     };
-                    // Build rotation matrix from ZYX Euler (rz, ry, rx)
                     var rotMat = Matrix3.FromEulerAnglesZYX(inst.iRot.z, inst.iRot.y, inst.iRot.x);
                     var worldBox = new AABox(
                         new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity),
                         new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity)
                     );
-
                     foreach (var c in corners)
                     {
-                        // scale → rotate → translate
                         var v = c * inst.iScale;
                         v = rotMat * v;
                         v += inst.iPos;
@@ -347,9 +348,11 @@ namespace VMAP
                     }
                     Console.WriteLine($"WorldModel: World AABB = Min{worldBox.Min} Max{worldBox.Max}");
                     inst.iBound = worldBox;
+
                     Console.WriteLine("WorldModel: M2 model loaded successfully");
                     return true;
                 }
+
 
                 // WMO path
                 Console.WriteLine("WorldModel: Reading GMOD chunk for WMO...");

@@ -33,7 +33,7 @@ namespace PathfindingService.Tests
             if (!File.Exists(path))
             {
                 // Skip test if file doesn't exist
-                return;
+                Assert.Fail();
             }
 
             var model = new WorldModel();
