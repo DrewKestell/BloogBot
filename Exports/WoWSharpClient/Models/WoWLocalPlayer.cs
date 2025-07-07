@@ -23,7 +23,7 @@ namespace WoWSharpClient.Models
 
         public override WoWLocalPlayer Clone()
         {
-            var clone = new WoWLocalPlayer(this.HighGuid, this.ObjectType);
+            var clone = new WoWLocalPlayer(HighGuid, ObjectType);
             clone.CopyFrom(this);
             return clone;
         }

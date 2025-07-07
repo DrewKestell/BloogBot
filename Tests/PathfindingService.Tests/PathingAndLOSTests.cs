@@ -25,6 +25,22 @@ namespace PathfindingService.Tests
         }
 
         [Fact]
+        public void QueryZ_FromDurotarCliff_ShouldReturnCorrectHeight()
+        {
+            // Arrange
+            uint mapId = 1; // Kalimdor
+            Position pos = new(-616.2514f, -4188.0044f, 72.316719f);
+
+            // Act
+            float z = _navigation.GetHeight(mapId, pos);
+
+            // Assert
+            Assert.True(z > -50000 && z < 200000, $"Expected valid Z, got {z}");
+            Assert.InRange(z, 70f, 75f); // matches the screenshot range
+            Console.WriteLine($"[Test] Queried VMAP Z: {z} at Durotar position {pos}");
+        }
+
+        [Fact]
         public void HasMapLineOfSight_ShouldReturnTrue()
         {
             // Arrange

@@ -99,7 +99,7 @@ namespace WoWSharpClient.Models
         }
         public override WoWPlayer Clone()
         {
-            var clone = new WoWPlayer(this.HighGuid, this.ObjectType);
+            var clone = new WoWPlayer(HighGuid, ObjectType);
             clone.CopyFrom(this);
             return clone;
         }

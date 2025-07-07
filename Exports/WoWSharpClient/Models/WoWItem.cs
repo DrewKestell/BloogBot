@@ -41,7 +41,7 @@ namespace WoWSharpClient.Models
 
         public override WoWObject Clone()
         {
-            var clone = new WoWItem(this.HighGuid, this.ObjectType);
+            var clone = new WoWItem(HighGuid, ObjectType);
             clone.CopyFrom(this);
             return clone;
         }
