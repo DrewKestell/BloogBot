@@ -62,7 +62,7 @@ namespace VMAP
                 return false;
 
             bool hit = false;
-
+                        
             if (groupTree != null)
             {
                 groupTree.intersectRay(

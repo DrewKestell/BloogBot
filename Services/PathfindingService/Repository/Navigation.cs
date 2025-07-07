@@ -80,13 +80,26 @@ namespace PathfindingService.Repository
         public static bool IsValidZ(float z) =>
             !float.IsNaN(z) && z > -200_000f && z < 200_000f;
 
-        public static void WorldToTile(float x, float y, out int tx, out int ty)
+        private const float TILE_SIZE = 533.3333333f;
+        private const float CENTER_OFFSET = 32f * TILE_SIZE;  // 17066.66666f
+
+        public static void WorldToTile(float worldX, float worldY, out int tx, out int ty)
         {
-            const float tileSize = 533.3333333f;
-            tx = 32 - (int)Math.Floor(y / tileSize);
-            ty = 32 - (int)Math.Floor(x / tileSize);
+            // 1) world → internal
+            float intX = CENTER_OFFSET - worldX;
+            float intY = CENTER_OFFSET - worldY;
+
+            // 2) divide and truncate
+            tx = (int)(intX / TILE_SIZE);
+            ty = (int)(intY / TILE_SIZE);
+
+            // 3) clamp to [0,63]
             tx = Math.Clamp(tx, 0, 63);
             ty = Math.Clamp(ty, 0, 63);
+
+            Console.WriteLine($"[Tile] world=({worldX:0.00},{worldY:0.00}) " +
+                              $"internal=({intX:0.00},{intY:0.00}) " +
+                              $"=> tile=({tx},{ty})");
         }
 
         private void EnsureTileLoaded(uint mapId, int tx, int ty)

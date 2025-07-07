@@ -228,6 +228,7 @@ namespace VMAP
                 return VMapDefinitions.INVALID_HEIGHT; // if disabled, return a sentinel
             if (!iInstanceMapTrees.TryGetValue(mapId, out var tree))
                 return VMapDefinitions.INVALID_HEIGHT;
+
             float height = tree.GetHeight(new Vector3(x, y, z), maxSearchDist);
             if (float.IsNegativeInfinity(height))
                 return VMapDefinitions.INVALID_HEIGHT_VALUE; // unknown height
