@@ -235,30 +235,6 @@
     <ClInclude Include="..\Navigation\MoveMapSharedDefines.h" />
     <ClInclude Include="..\Navigation\Navigation.h" />
     <ClInclude Include="..\Navigation\PathFinder.h" />
-    <ClInclude Include="BIH.h" />
-    <ClInclude Include="BIHWrap.h" />
-    <ClInclude Include="DBCEnums.h" />
-    <ClInclude Include="DBCStructure.h" />
-    <ClInclude Include="Duration.h" />
-    <ClInclude Include="DynamicTree.h" />
-    <ClInclude Include="GameObjectModel.h" />
-    <ClInclude Include="GroupModel.h" />
-    <ClInclude Include="IVMapManager.h" />
-    <ClInclude Include="MapTree.h" />
-    <ClInclude Include="ModelInstance.h" />
-    <ClInclude Include="Path.h" />
-    <ClInclude Include="PhysicsQuery.h" />
-    <ClInclude Include="SharedDefines.h" />
-    <ClInclude Include="Table.h" />
-    <ClInclude Include="TileAssembler.h" />
-    <ClInclude Include="Timer.h" />
-    <ClInclude Include="UnorderedMapSet.h" />
-    <ClInclude Include="Vec3Ray.h" />
-    <ClInclude Include="VMapFileUtils.h" />
-    <ClInclude Include="VMapWorldManager.h" />
-    <ClInclude Include="VMapManager2.h" />
-    <ClInclude Include="WmoLiquid.h" />
-    <ClInclude Include="WorldModel.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Navigation\Detour\Source\DetourAlloc.cpp" />
@@ -284,23 +260,6 @@
     <ClCompile Include="..\Navigation\MoveMap.cpp" />
     <ClCompile Include="..\Navigation\Navigation.cpp" />
     <ClCompile Include="..\Navigation\PathFinder.cpp" />
-    <ClCompile Include="BIH.cpp" />
-    <ClCompile Include="DynamicTree.cpp" />
-    <ClCompile Include="GameObjectModel.cpp" />
-    <ClCompile Include="MapTree.cpp" />
-    <ClCompile Include="ModelInstance.cpp" />
-    <ClCompile Include="RegularGrid.h" />
-    <ClCompile Include="Table.cpp" />
-    <ClCompile Include="TileAssembler.cpp" />
-    <ClCompile Include="Vec3Ray.cpp" />
-    <ClCompile Include="VMapFileUtils.cpp" />
-    <ClCompile Include="VMapWorldManager.cpp" />
-    <ClCompile Include="VMapManager2.cpp" />
-    <ClCompile Include="WmoLiquid.cpp" />
-    <ClCompile Include="WorldModel.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="VMapDefinitions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

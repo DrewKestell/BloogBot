@@ -8,7 +8,7 @@ namespace WoWSharpClient.Models
     {
         public override WoWObject Clone()
         {
-            var clone = new WoWObject(this.HighGuid, this.ObjectType);
+            var clone = new WoWObject(HighGuid, ObjectType);
             clone.CopyFrom(this);
             return clone;
         }

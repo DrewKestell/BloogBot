@@ -20,9 +20,6 @@ namespace PathfindingService
                     PathfindingRequest.PayloadOneofCase.Path => HandlePath(request.Path),
                     PathfindingRequest.PayloadOneofCase.Distance => HandleDistance(request.Distance),
                     PathfindingRequest.PayloadOneofCase.ZQuery => HandleZQuery(request.ZQuery),
-                    PathfindingRequest.PayloadOneofCase.LosQuery => HandleLOS(request.LosQuery),
-                    PathfindingRequest.PayloadOneofCase.AreaInfo => HandleAreaInfo(request.AreaInfo),
-                    PathfindingRequest.PayloadOneofCase.LiquidLevel => HandleLiquidLevel(request.LiquidLevel),
                     _ => ErrorResponse("Unknown or unset request type."),
                 };
             }
@@ -71,72 +68,19 @@ namespace PathfindingService
                 return err;
 
             var pos = new Position(req.Position.ToXYZ());
-            var z = _navigation.QueryZ(req.MapId, pos);
 
             var resp = new ZQueryResponse
             {
                 ZResult = new ZQueryResult
                 {
-                    FloorZ = z.FloorZ,
-                    RaycastZ = z.RaycastZ,
-                    TerrainZ = z.TerrainZ,
-                    AdtZ = z.AdtZ,
-                    LocationZ = z.LocationZ
+                    FloorZ = float.NegativeInfinity,
+                    RaycastZ = float.NegativeInfinity,
+                    TerrainZ = float.NegativeInfinity,
+                    AdtZ = float.NegativeInfinity,
+                    LocationZ = float.NegativeInfinity
                 }
             };
             return new PathfindingResponse { ZQuery = resp };
-        }
-
-        private PathfindingResponse HandleLOS(LOSRequest req)
-        {
-            if (!CheckPosition(req.MapId, req.From, req.To, out var err))
-                return err;
-
-            var a = new Position(req.From.ToXYZ());
-            var b = new Position(req.To.ToXYZ());
-            var los = _navigation.IsInLineOfSight(req.MapId, a, b);
-
-            var resp = new LOSResponse { IsInLos = los };
-            return new PathfindingResponse { LosQuery = resp };
-        }
-
-        private PathfindingResponse HandleAreaInfo(AreaInfoRequest req)
-        {
-            if (!CheckPosition(req.MapId, req.Position, out var err))
-                return err;
-
-            var pos = new Position(req.Position.ToXYZ());
-            if (_navigation.TryGetAreaInfo(req.MapId, pos, out uint flags, out int adtId, out int rootId, out int groupId))
-            {
-                var resp = new AreaInfoResponse
-                {
-                    AreaFlags = flags,
-                    AdtId = adtId,
-                    RootId = rootId,
-                    GroupId = groupId
-                };
-                return new PathfindingResponse { AreaInfo = resp };
-            }
-            return ErrorResponse("Area info query failed.");
-        }
-
-        private PathfindingResponse HandleLiquidLevel(LiquidLevelRequest req)
-        {
-            if (!CheckPosition(req.MapId, req.Position, out var err))
-                return err;
-
-            var pos = new Position(req.Position.ToXYZ());
-            if (_navigation.TryGetLiquidLevel(req.MapId, pos, (byte)req.ReqLiquidType, out float level, out float floor, out uint type))
-            {
-                var resp = new LiquidLevelResponse
-                {
-                    Level = level,
-                    Floor = floor,
-                    Type = type
-                };
-                return new PathfindingResponse { LiquidLevel = resp };
-            }
-            return ErrorResponse("Liquid level query failed.");
         }
 
         // ------------- Validation and Helpers ----------------

@@ -7,20 +7,10 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <BaseOutputPath>..\Bot</BaseOutputPath>
+    <BaseOutputPath>..\..\Bot</BaseOutputPath>
     <PlatformTarget>x64</PlatformTarget>
     <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="Data\terrain.MPQ" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Data\terrain.MPQ">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
@@ -34,30 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="mmaps\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\Exports\GameData.Core\GameData.Core.csproj" />
     <ProjectReference Include="..\..\Services\PathfindingService\PathfindingService.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="mmaps\389.mmap">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="mmaps\3893131.mmtile">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="mmaps\3893132.mmtile">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="mmaps\3893231.mmtile">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="mmaps\3893232.mmtile">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>
