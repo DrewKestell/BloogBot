@@ -1,131 +1,108 @@
-﻿using GameData.Core.Models;
+﻿// Navigation.cs  – revised to match the new VMapManager2 API
+using GameData.Core.Models;
 using Pathfinding;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Collections.Concurrent;
+using VMAP;
+using System;
 
 namespace PathfindingService.Repository
 {
     public unsafe class Navigation
     {
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate XYZ* CalculatePathDelegate(uint mapId, XYZ start, XYZ end, bool straightPath, out int length);
+            /* ─────────────── Native path-finder DLL delegates ─────────────── */
+            [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+            private delegate XYZ* CalculatePathDelegate(uint mapId, XYZ start, XYZ end,
+                                                        bool straightPath, out int length);
 
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate void FreePathArrDelegate(XYZ* pathArr);
+            [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+            private delegate void FreePathArrDelegate(XYZ* pathArr);
 
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate bool VMAP_IsInLineOfSightDelegate(uint mapId, float x1, float y1, float z1, float x2, float y2, float z2);
-
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate float VMAP_GetHeightDelegate(uint mapId, float x, float y, float z, float maxSearchDist);
-
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate bool VMAP_GetAreaInfoDelegate(uint mapId, float x, float y, float z, out uint flags, out int adtId, out int rootId, out int groupId);
-
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate bool VMAP_GetLiquidLevelDelegate(uint mapId, float x, float y, float z, byte reqLiquidType, out float level, out float floor, out uint type);
-
-        readonly object _vMapLock = new();
+            [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+            private delegate bool GetFloorHeightDelegate(uint mapId,
+                                                         float posX,
+                                                         float posY,
+                                                         float zGuess,
+                                                         out float outHeight);
 
         private readonly CalculatePathDelegate calculatePath;
         private readonly FreePathArrDelegate freePathArr;
-        private readonly VMAP_IsInLineOfSightDelegate isInLineOfSight;
-        private readonly VMAP_GetHeightDelegate getHeight;
-        private readonly VMAP_GetAreaInfoDelegate getAreaInfo;
-        private readonly VMAP_GetLiquidLevelDelegate getLiquidLevel;
+        private readonly GetFloorHeightDelegate getFloorHeight;
 
+        /* ─────────────── Constructor: load and bind all exports ─────────────── */
         public Navigation()
         {
-            var currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            WinProcessImports.SetDllDirectory(currentFolder!);
+            var binFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+            var dllPath = Path.Combine(binFolder, "Navigation.dll");
+            var mod = WinProcessImports.LoadLibrary(dllPath);
+            if (mod == IntPtr.Zero)
+                throw new FileNotFoundException("Failed to load Navigation.dll", dllPath);
 
-            //log the current folder for debugging
-            Console.WriteLine($"Current folder: {currentFolder}");
+            calculatePath = Marshal.GetDelegateForFunctionPointer<CalculatePathDelegate>(
+                                WinProcessImports.GetProcAddress(mod, "CalculatePath"));
+            freePathArr = Marshal.GetDelegateForFunctionPointer<FreePathArrDelegate>(
+                                WinProcessImports.GetProcAddress(mod, "FreePathArr"));
+            getFloorHeight = Marshal.GetDelegateForFunctionPointer<GetFloorHeightDelegate>(
+                                WinProcessImports.GetProcAddress(mod, "GetNavmeshFloorHeight"));
 
-            var mpqPath = Path.Combine(currentFolder!, "Data\\terrain.MPQ");
-            
-            AdtGroundZLoader.SetMPQPaths([mpqPath]);
+            // Ensure the ADT terrain loader can find the .MPQ containing ADT heights:
+            AdtGroundZLoader.SetMPQPaths(new[] { Path.Combine(binFolder, @"Data\terrain.MPQ") });
 
-            var dllPath = Path.Combine(currentFolder!, "Navigation.dll");
-
-            var navProcPtr = WinProcessImports.LoadLibrary(dllPath);
-
-            if (navProcPtr == IntPtr.Zero)
-                throw new Exception($"Failed to load {dllPath} (Win32 error {Marshal.GetLastWin32Error()})");
-
-            calculatePath = Marshal.GetDelegateForFunctionPointer<CalculatePathDelegate>(WinProcessImports.GetProcAddress(navProcPtr, "CalculatePath"));
-            freePathArr = Marshal.GetDelegateForFunctionPointer<FreePathArrDelegate>(WinProcessImports.GetProcAddress(navProcPtr, "FreePathArr"));
-            isInLineOfSight = Marshal.GetDelegateForFunctionPointer<VMAP_IsInLineOfSightDelegate>(WinProcessImports.GetProcAddress(navProcPtr, "VMAP_IsInLineOfSight"));
-            getHeight = Marshal.GetDelegateForFunctionPointer<VMAP_GetHeightDelegate>(WinProcessImports.GetProcAddress(navProcPtr, "VMAP_GetHeight"));
-            getAreaInfo = Marshal.GetDelegateForFunctionPointer<VMAP_GetAreaInfoDelegate>(WinProcessImports.GetProcAddress(navProcPtr, "VMAP_GetAreaInfo"));
-            getLiquidLevel = Marshal.GetDelegateForFunctionPointer<VMAP_GetLiquidLevelDelegate>(WinProcessImports.GetProcAddress(navProcPtr, "VMAP_GetLiquidLevel"));
+            calculatePath(0, new Position(0, 0, 0).ToXYZ(), new Position(0, 0, 0).ToXYZ(), true, out int length0);
+            calculatePath(1, new Position(0, 0, 0).ToXYZ(), new Position(0, 0, 0).ToXYZ(), true, out int length1);
         }
 
-        private static bool IsValidZ(float z) => !float.IsNaN(z) && z > -200000.0f && z < 200000.0f;
+        /* ─────────────── Public API ─────────────── */
 
-        public ZQueryResult QueryZ(uint mapId, Position pos)
-        {
-            float serverZ = GetHeight(mapId, pos, 100.0f);
-            AdtGroundZLoader.TryGetZ((int)mapId, pos.X, pos.Y, out float terrainZ);
-
-            float finalZ = float.NaN;
-            const float maxAcceptableDiff = 5.0f;
-
-            if (IsValidZ(serverZ) && Math.Abs(pos.Z - serverZ) < maxAcceptableDiff)
-                finalZ = serverZ;
-            else if (IsValidZ(terrainZ))
-                finalZ = terrainZ;
-
-            return new ZQueryResult
-            {
-                FloorZ = float.IsNaN(finalZ) ? pos.Z : finalZ + 0.05f,
-                TerrainZ = terrainZ,
-                AdtZ = serverZ,
-                RaycastZ = float.NaN,
-                LocationZ = float.NaN
-            };
-        }
-
+        /// <summary>
+        /// Calculates a path via native CalculatePath, marshals into managed Positions.
+        /// </summary>
         public Position[] CalculatePath(uint mapId, Position start, Position end, bool straightPath)
         {
-            lock (_vMapLock)
-            {
-                var ret = calculatePath(mapId, start.ToXYZ(), end.ToXYZ(), straightPath, out int length);
-                var list = new Position[length];
-                for (var i = 0; i < length; i++)
-                    list[i] = new Position(ret[i]);
-                freePathArr(ret);
-                return list;
-            }
+            var ptr = calculatePath(mapId, start.ToXYZ(), end.ToXYZ(), straightPath, out int len);
+            var path = new Position[len];
+            for (int i = 0; i < len; ++i)
+                path[i] = new Position(ptr[i]);
+            freePathArr(ptr);
+            return path;
         }
 
-        public bool IsInLineOfSight(uint mapId, Position a, Position b)
+        /// <summary>
+        /// Queries both native VMap GetFloorHeight and ADT terrain loader, returning the higher Z.
+        /// If the native call fails, its result is treated as –∞ so ADT always wins if valid.
+        /// </summary>
+        public float GetFloorHeight(uint mapId, float x, float y, float z)
         {
-            lock (_vMapLock)
-            {
-                return isInLineOfSight(mapId, a.X, a.Y, a.Z, b.X, b.Y, b.Z);
-            }
-        }
+            Console.WriteLine($"[GetFloorHeight] Enter: mapId={mapId} pos=({x:0.000},{y:0.000},{z:0.000})");
 
-        public float GetHeight(uint mapId, Position pos, float maxDist)
-        {
-            return getHeight(mapId, pos.X, pos.Y, pos.Z, maxDist);
-        }
+            // 1) ADT terrain height
+            bool adtOk = AdtGroundZLoader.TryGetZ((int)mapId, x, y, out float adtZ);
+            if (adtOk)
+                Console.WriteLine($"[GetFloorHeight] ADT Z={adtZ:0.000}");
+            else
+                Console.WriteLine($"[GetFloorHeight] ADT lookup failed");
 
-        public bool TryGetAreaInfo(uint mapId, Position pos, out uint flags, out int adtId, out int rootId, out int groupId)
-        {
-            lock (_vMapLock)
-            {
-                return getAreaInfo(mapId, pos.X, pos.Y, pos.Z, out flags, out adtId, out rootId, out groupId);
-            }
-        }
+            // 2) Form raycast guess = ADT Z + 0.5f (server does exactly this)
+            const float raySpan = 100.0f;
+            float startZ = z + 0.5f;
+            float endZ = startZ - raySpan;
+            Console.WriteLine($"[GetFloorHeight] Ray startZ={startZ:0.000} endZ={endZ:0.000}");
 
-        public bool TryGetLiquidLevel(uint mapId, Position pos, byte reqLiquid, out float level, out float floor, out uint type)
-        {
-            lock (_vMapLock)
-            {
-                return getLiquidLevel(mapId, pos.X, pos.Y, pos.Z, reqLiquid, out level, out floor, out type);
-            }
+            // 3) VMAP raycast
+            bool vmapOk = getFloorHeight(mapId, x, y, startZ, out float vmapZ);
+            if (vmapOk)
+                Console.WriteLine($"[GetFloorHeight] VMAP Z={vmapZ:0.000}");
+            else
+                Console.WriteLine($"[GetFloorHeight] VMAP lookup failed");
+
+            // 4) Return whichever is higher (closest underfoot)
+            float useAdt = adtOk ? adtZ : float.NegativeInfinity;
+            float useVmp = vmapOk ? vmapZ : float.NegativeInfinity;
+            float result = Math.Max(useAdt, useVmp);
+
+            Console.WriteLine($"[GetFloorHeight] Return Z={result:0.000}");
+            return result;
         }
     }
 }

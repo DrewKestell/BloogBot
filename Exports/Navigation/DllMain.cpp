@@ -1,7 +1,6 @@
 ﻿#include "Navigation.h"
-#include "VMapManager2.h"
-#include "Vec3Ray.h"
 #include <windows.h>
+#include <iostream>
 
 extern "C"
 {
@@ -18,61 +17,100 @@ extern "C"
         if (auto* nav = Navigation::GetInstance())
             nav->FreePathArr(path);
     }
-
-    __declspec(dllexport) bool VMAP_IsInLineOfSight(uint32_t mapId, float x1, float y1, float z1, float x2, float y2, float z2)
+    // NEW: returns true and writes the floor-Z into outHeight,
+    // or false if no valid ground poly was found.
+    __declspec(dllexport) bool GetNavmeshFloorHeight(uint32_t mapId,
+        float     posX,
+        float     posY,
+        float     zGuess,
+        float* outHeight)
     {
-        auto* vmap = VMAP::VMapManager2::Instance();
-        return vmap && vmap->isInLineOfSight(mapId, x1, y1, z1, x2, y2, z2, false);
-    }
+        std::cout << "[GetNavmeshFloorHeight] Enter: mapId=" << mapId
+            << " pos=(" << posX << "," << posY << "," << zGuess << ")\n";
 
-    __declspec(dllexport) float VMAP_GetHeight(uint32_t mapId, float x, float y, float z, float maxSearchDist)
-    {
-        auto* vmap = VMAP::VMapManager2::Instance();
-        if (!vmap)
-            return -std::numeric_limits<float>::infinity();
+        if (!outHeight)
+        {
+            std::cout << "[GetNavmeshFloorHeight] ERROR: outHeight pointer is null\n";
+            return false;
+        }
 
-        float result = vmap->getHeight(mapId, x, y, z, maxSearchDist);
-        return result > VMAP_INVALID_HEIGHT_VALUE ? result : -std::numeric_limits<float>::infinity();
-    }
+        // (Maps already initialized externally.)
 
-    __declspec(dllexport) bool VMAP_GetObjectHitPos(uint32_t mapId,
-        float x1, float y1, float z1, float x2, float y2, float z2,
-        float* hitX, float* hitY, float* hitZ, float modifyDist)
-    {
-        if (!hitX || !hitY || !hitZ) return false;
-        auto* vmap = VMAP::VMapManager2::Instance();
-        return vmap && vmap->getObjectHitPos(mapId, x1, y1, z1, x2, y2, z2, *hitX, *hitY, *hitZ, modifyDist);
-    }
+        // 1) Grab or create the MMapManager
+        auto* mgr = MMAP::MMapFactory::createOrGetMMapManager();
+        std::cout << "[GetNavmeshFloorHeight] MMapManager ptr=" << mgr << "\n";
 
-    __declspec(dllexport) bool VMAP_GetLocationInfo(uint32_t mapId, float x, float y, float z, float* groundZ)
-    {
-        if (!groundZ) return false;
-        auto* vmap = VMAP::VMapManager2::Instance();
-        if (!vmap) return false;
+        // 2) Get the nav-mesh query
+        auto* query = mgr->GetNavMeshQuery(mapId, 0);
+        std::cout << "[GetNavmeshFloorHeight] NavMeshQuery ptr=" << query << "\n";
+        if (!query)
+        {
+            std::cout << "[GetNavmeshFloorHeight] ERROR: NavMeshQuery is null\n";
+            return false;
+        }
 
-        VMAP::LocationInfo info;
-        auto it = vmap->iInstanceMapTrees.find(mapId);
-        if (it == vmap->iInstanceMapTrees.end() || !it->second) return false;
+        // 3) Build our Detour-space point: [X]=worldY, [Y]=worldZ+0.5, [Z]=worldX
+        float point[3] = { posY, zGuess + 0.5f, posX };
+        std::cout << "[GetNavmeshFloorHeight] point (Detour coords): ("
+            << point[0] << "," << point[1] << "," << point[2] << ")\n";
 
-        Vec3 pos = vmap->convertPositionToInternalRep(x, y, z);
-        if (!it->second->GetLocationInfo(pos, info)) return false;
+        // 4) Prepare search extents: ±3m X/Z, ±5m vertical
+        float extents[3] = { 3.0f, 5.0f, 3.0f };
+        std::cout << "[GetNavmeshFloorHeight] initial extents: ("
+            << extents[0] << "," << extents[1] << "," << extents[2] << ")\n";
 
-        *groundZ = info.ground_Z;
+        // 5) Find nearest ground polygon, with fallback to taller box
+        dtQueryFilter filter;
+        filter.setIncludeFlags(0x01);  // DT_POLYAREA_GROUND
+        filter.setExcludeFlags(0x00);
+
+        dtPolyRef polyRef = 0;
+        float nearest[3] = { 0,0,0 };
+        dtStatus st = query->findNearestPoly(point, extents, &filter, &polyRef, nearest);
+        std::cout << "[GetNavmeshFloorHeight] findNearestPoly status=" << st
+            << " polyRef=" << polyRef
+            << " nearest=(X=" << nearest[0]
+            << ",Y=" << nearest[1]
+            << ",Z=" << nearest[2] << ")\n";
+
+        if (dtStatusFailed(st) || polyRef == 0)
+        {
+            // fallback: increase vertical extent to cover large drops
+            extents[1] = 200.0f;
+            std::cout << "[GetNavmeshFloorHeight] fallback extents: ("
+                << extents[0] << "," << extents[1] << "," << extents[2] << ")\n";
+            st = query->findNearestPoly(point, extents, &filter, &polyRef, nearest);
+            std::cout << "[GetNavmeshFloorHeight] fallback findNearestPoly status=" << st
+                << " polyRef=" << polyRef
+                << " nearest=(X=" << nearest[0]
+                << ",Y=" << nearest[1]
+                << ",Z=" << nearest[2] << ")\n";
+            if (dtStatusFailed(st) || polyRef == 0)
+            {
+                std::cout << "[GetNavmeshFloorHeight] No valid poly found after fallback, abort\n";
+                return false;
+            }
+        }
+
+        std::cout << "[GetNavmeshFloorHeight] Found polyRef=" << polyRef << "\n";
+
+        // 6) Project our point onto that polygon to get exact floor height
+        float closest[3] = { 0,0,0 };
+        dtStatus cst = query->closestPointOnPoly(polyRef, point, closest, nullptr);
+        std::cout << "[GetNavmeshFloorHeight] closestPointOnPoly status=" << cst
+            << " closest=(X=" << closest[0]
+            << ",Y=" << closest[1]
+            << ",Z=" << closest[2] << ")\n";
+        if (dtStatusFailed(cst))
+        {
+            std::cout << "[GetNavmeshFloorHeight] ERROR: closestPointOnPoly failed\n";
+            return false;
+        }
+
+        // 7) closest[1] is the vertical axis (WoW-Z)
+        *outHeight = closest[1];
+        std::cout << "[GetNavmeshFloorHeight] outHeight set to " << *outHeight << "\n";
         return true;
-    }
-
-    __declspec(dllexport) bool VMAP_GetAreaInfo(uint32_t mapId, float x, float y, float z, uint32_t* flags, int* adtId, int* rootId, int* groupId)
-    {
-        if (!flags || !adtId || !rootId || !groupId) return false;
-        auto* vmap = VMAP::VMapManager2::Instance();
-        return vmap && vmap->getAreaInfo(mapId, x, y, z, *flags, *adtId, *rootId, *groupId);
-    }
-
-    __declspec(dllexport) bool VMAP_GetLiquidLevel(uint32_t mapId, float x, float y, float z, uint8_t reqLiquidType, float* level, float* floor, uint32_t* type)
-    {
-        if (!level || !floor || !type) return false;
-        auto* vmap = VMAP::VMapManager2::Instance();
-        return vmap && vmap->GetLiquidLevel(mapId, x, y, z, reqLiquidType, *level, *floor, *type);
     }
 }
 
@@ -81,7 +119,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     if (ul_reason_for_call == DLL_PROCESS_ATTACH)
     {
         if (auto* navigation = Navigation::GetInstance()) navigation->Initialize();
-        if (auto* vmapManager = VMAP::VMapManager2::Instance()) vmapManager->Initialize();
     }
     else if (ul_reason_for_call == DLL_PROCESS_DETACH)
     {

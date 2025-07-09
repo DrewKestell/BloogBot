@@ -39,21 +39,21 @@ namespace WoWSharpClient.Models
         {
             return new MovementBlockUpdate
             {
-                WalkSpeed = this.WalkSpeed,
-                RunSpeed = this.RunSpeed,
-                RunBackSpeed = this.RunBackSpeed,
-                SwimSpeed = this.SwimSpeed,
-                SwimBackSpeed = this.SwimBackSpeed,
-                TurnRate = this.TurnRate,
-                SplineFlags = this.SplineFlags,
-                SplineFinalPoint = this.SplineFinalPoint,
-                SplineTargetGuid = this.SplineTargetGuid,
-                SplineFinalOrientation = this.SplineFinalOrientation,
-                SplineTimePassed = this.SplineTimePassed,
-                SplineDuration = this.SplineDuration,
-                SplineId = this.SplineId,
-                SplineNodes = this.SplineNodes != null ? [.. this.SplineNodes] : null,
-                SplineFinalDestination = this.SplineFinalDestination
+                WalkSpeed = WalkSpeed,
+                RunSpeed = RunSpeed,
+                RunBackSpeed = RunBackSpeed,
+                SwimSpeed = SwimSpeed,
+                SwimBackSpeed = SwimBackSpeed,
+                TurnRate = TurnRate,
+                SplineFlags = SplineFlags,
+                SplineFinalPoint = SplineFinalPoint,
+                SplineTargetGuid = SplineTargetGuid,
+                SplineFinalOrientation = SplineFinalOrientation,
+                SplineTimePassed = SplineTimePassed,
+                SplineDuration = SplineDuration,
+                SplineId = SplineId,
+                SplineNodes = SplineNodes != null ? [.. SplineNodes] : null,
+                SplineFinalDestination = SplineFinalDestination
             };
         }
     }
@@ -103,25 +103,25 @@ namespace WoWSharpClient.Models
         {
             return new MovementInfoUpdate
             {
-                Guid = this.Guid,
-                MovementFlags = this.MovementFlags,
-                LastUpdated = this.LastUpdated,
-                X = this.X,
-                Y = this.Y,
-                Z = this.Z,
-                Facing = this.Facing,
-                TransportGuid = this.TransportGuid,
-                TransportOffset = this.TransportOffset,
-                TransportOrientation = this.TransportOrientation,
-                TransportLastUpdated = this.TransportLastUpdated,
-                SwimPitch = this.SwimPitch,
-                FallTime = this.FallTime,
-                JumpVerticalSpeed = this.JumpVerticalSpeed,
-                JumpSinAngle = this.JumpSinAngle,
-                JumpCosAngle = this.JumpCosAngle,
-                JumpHorizontalSpeed = this.JumpHorizontalSpeed,
-                SplineElevation = this.SplineElevation,
-                MovementBlockUpdate = this.MovementBlockUpdate,
+                Guid = Guid,
+                MovementFlags = MovementFlags,
+                LastUpdated = LastUpdated,
+                X = X,
+                Y = Y,
+                Z = Z,
+                Facing = Facing,
+                TransportGuid = TransportGuid,
+                TransportOffset = TransportOffset,
+                TransportOrientation = TransportOrientation,
+                TransportLastUpdated = TransportLastUpdated,
+                SwimPitch = SwimPitch,
+                FallTime = FallTime,
+                JumpVerticalSpeed = JumpVerticalSpeed,
+                JumpSinAngle = JumpSinAngle,
+                JumpCosAngle = JumpCosAngle,
+                JumpHorizontalSpeed = JumpHorizontalSpeed,
+                SplineElevation = SplineElevation,
+                MovementBlockUpdate = MovementBlockUpdate,
             };
         }
     }

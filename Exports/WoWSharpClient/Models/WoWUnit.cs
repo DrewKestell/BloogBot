@@ -137,7 +137,7 @@ namespace WoWSharpClient.Models
 
         public override WoWUnit Clone()
         {
-            var clone = new WoWUnit(this.HighGuid, this.ObjectType);
+            var clone = new WoWUnit(HighGuid, ObjectType);
             clone.CopyFrom(this);
             return clone;
         }

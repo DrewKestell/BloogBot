@@ -13,7 +13,7 @@ namespace WoWSharpClient.Models
 
         public override WoWDynamicObject Clone()
         {
-            var clone = new WoWDynamicObject(this.HighGuid, this.ObjectType);
+            var clone = new WoWDynamicObject(HighGuid, ObjectType);
             clone.CopyFrom(this);
             return clone;
         }
