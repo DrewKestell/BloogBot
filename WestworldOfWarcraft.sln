@@ -65,6 +65,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{02EA681E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BloogBot.AI", "BloogBot.AI\BloogBot.AI.csproj", "{58CD6FF8-8AAD-455A-86FA-8678FB8C8C4A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -241,8 +246,8 @@ Global
 		{BC4B7495-6596-487C-865D-D9AE40A22BC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC4B7495-6596-487C-865D-D9AE40A22BC5}.Debug|Win32.ActiveCfg = Debug|Any CPU
 		{BC4B7495-6596-487C-865D-D9AE40A22BC5}.Debug|Win32.Build.0 = Debug|Any CPU
-		{BC4B7495-6596-487C-865D-D9AE40A22BC5}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{BC4B7495-6596-487C-865D-D9AE40A22BC5}.Debug|x64.Build.0 = Debug|Any CPU
+		{BC4B7495-6596-487C-865D-D9AE40A22BC5}.Debug|x64.ActiveCfg = Debug|x64
+		{BC4B7495-6596-487C-865D-D9AE40A22BC5}.Debug|x64.Build.0 = Debug|x64
 		{BC4B7495-6596-487C-865D-D9AE40A22BC5}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{BC4B7495-6596-487C-865D-D9AE40A22BC5}.Debug|x86.Build.0 = Debug|Any CPU
 		{BC4B7495-6596-487C-865D-D9AE40A22BC5}.Release|Any CPU.ActiveCfg = Release|Any CPU

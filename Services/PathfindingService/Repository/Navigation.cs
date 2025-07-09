@@ -37,15 +37,21 @@ namespace PathfindingService.Repository
         public Navigation()
         {
             var currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var mpqPath = Path.Combine(currentFolder!, "Data\\terrain.MPQ");
+            WinProcessImports.SetDllDirectory(currentFolder!);
 
+            //log the current folder for debugging
+            Console.WriteLine($"Current folder: {currentFolder}");
+
+            var mpqPath = Path.Combine(currentFolder!, "Data\\terrain.MPQ");
+            
             AdtGroundZLoader.SetMPQPaths([mpqPath]);
 
             var dllPath = Path.Combine(currentFolder!, "Navigation.dll");
 
             var navProcPtr = WinProcessImports.LoadLibrary(dllPath);
+
             if (navProcPtr == IntPtr.Zero)
-                throw new Exception("Failed to load Navigation.dll");
+                throw new Exception($"Failed to load {dllPath} (Win32 error {Marshal.GetLastWin32Error()})");
 
             calculatePath = Marshal.GetDelegateForFunctionPointer<CalculatePathDelegate>(WinProcessImports.GetProcAddress(navProcPtr, "CalculatePath"));
             freePathArr = Marshal.GetDelegateForFunctionPointer<FreePathArrDelegate>(WinProcessImports.GetProcAddress(navProcPtr, "FreePathArr"));

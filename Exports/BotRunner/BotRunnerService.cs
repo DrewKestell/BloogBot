@@ -1300,6 +1300,13 @@ namespace BotRunner
                 {
                     if (_objectManager.RealmSelectScreen.CurrentRealm != null) return BehaviourTreeStatus.Success;
 
+                    var realmList = _objectManager.RealmSelectScreen.GetRealmList();
+                    if (realmList == null || realmList.Count == 0)
+                    {
+                        Console.WriteLine("[BotRunner] No realms received from server.");
+                        return BehaviourTreeStatus.Running;
+                    }
+
                     _objectManager.RealmSelectScreen.SelectRealm(_objectManager.RealmSelectScreen.GetRealmList()[0]);
                     return BehaviourTreeStatus.Success;
                 })

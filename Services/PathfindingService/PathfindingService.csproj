@@ -6,9 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-PathfindingService-39a8725a-a686-4a1d-b7b7-5b2fbfca5f95</UserSecretsId>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <BaseOutputPath>..\..\Bot</BaseOutputPath>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

@@ -124,6 +124,7 @@ namespace VMAP
 		// --- Step 1: Static Map Tiles (unchanged) ---
 		for (const auto& entry : fs::directory_iterator(basePath)) {
 			const fs::path& path = entry.path();
+			std::cout << "[VMAP][Static] Checking file: " << path.string() << std::endl;
 			if (!fs::is_regular_file(path))
 				continue;
 			if (path.extension() == ".vmtree") {

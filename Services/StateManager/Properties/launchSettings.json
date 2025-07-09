@@ -2,7 +2,7 @@
   "profiles": {
     "StateManagerService": {
       "commandName": "Project",
-      "workingDirectory": "E:\\repos\\BloogBot\\Bot\\Debug\\net8.0",
+      "workingDirectory": "C:\\Users\\wowadmin\\RiderProjects\\BloogBot\\Bot\\Debug\\net8.0",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
       },
