@@ -60,10 +60,9 @@ namespace Pathfinding {
             "GAEgASgNEg4KBmFkdF9pZBgCIAEoBRIPCgdyb290X2lkGAMgASgFEhAKCGdy",
             "b3VwX2lkGAQgASgFIkEKE0xpcXVpZExldmVsUmVzcG9uc2USDQoFbGV2ZWwY",
             "ASABKAISDQoFZmxvb3IYAiABKAISDAoEdHlwZRgDIAEoDSIYCgVFcnJvchIP",
-            "CgdtZXNzYWdlGAEgASgJIpIBCgxaUXVlcnlSZXN1bHQSDwoHZmxvb3JfehgB",
-            "IAEoAhIRCglyYXljYXN0X3oYAiABKAISEQoJdGVycmFpbl96GAMgASgCEg0K",
-            "BWFkdF96GAQgASgCEhIKCmxvY2F0aW9uX3oYBSABKAISEwoLd2F0ZXJfbGV2",
-            "ZWwYBiABKAISEwoLaXNfaW5fd2F0ZXIYByABKAhiBnByb3RvMw=="));
+            "CgdtZXNzYWdlGAEgASgJIlkKDFpRdWVyeVJlc3VsdBIRCgl0ZXJyYWluX3oY",
+            "ASABKAISDQoFYWR0X3oYAiABKAISEgoKbG9jYXRpb25fehgDIAEoAhITCgt3",
+            "YXRlcl9sZXZlbBgEIAEoAmIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Game.GameReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -82,7 +81,7 @@ namespace Pathfinding {
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.AreaInfoResponse), global::Pathfinding.AreaInfoResponse.Parser, new[]{ "AreaFlags", "AdtId", "RootId", "GroupId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.LiquidLevelResponse), global::Pathfinding.LiquidLevelResponse.Parser, new[]{ "Level", "Floor", "Type" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.Error), global::Pathfinding.Error.Parser, new[]{ "Message" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.ZQueryResult), global::Pathfinding.ZQueryResult.Parser, new[]{ "FloorZ", "RaycastZ", "TerrainZ", "AdtZ", "LocationZ", "WaterLevel", "IsInWater" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.ZQueryResult), global::Pathfinding.ZQueryResult.Parser, new[]{ "TerrainZ", "AdtZ", "LocationZ", "WaterLevel" }, null, null, null, null)
           }));
     }
     #endregion
@@ -453,7 +452,11 @@ namespace Pathfinding {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -522,7 +525,11 @@ namespace Pathfinding {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -836,7 +843,11 @@ namespace Pathfinding {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -873,7 +884,11 @@ namespace Pathfinding {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -1126,7 +1141,11 @@ namespace Pathfinding {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -1159,7 +1178,11 @@ namespace Pathfinding {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -1376,7 +1399,11 @@ namespace Pathfinding {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -1402,7 +1429,11 @@ namespace Pathfinding {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -1644,7 +1675,11 @@ namespace Pathfinding {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -1677,7 +1712,11 @@ namespace Pathfinding {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -1894,7 +1933,11 @@ namespace Pathfinding {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -1920,7 +1963,11 @@ namespace Pathfinding {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -2159,7 +2206,11 @@ namespace Pathfinding {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -2189,7 +2240,11 @@ namespace Pathfinding {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -2614,7 +2669,11 @@ namespace Pathfinding {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -2692,7 +2751,11 @@ namespace Pathfinding {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -2911,7 +2974,11 @@ namespace Pathfinding {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -2930,7 +2997,11 @@ namespace Pathfinding {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -3101,7 +3172,11 @@ namespace Pathfinding {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -3120,7 +3195,11 @@ namespace Pathfinding {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -3294,7 +3373,11 @@ namespace Pathfinding {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -3316,7 +3399,11 @@ namespace Pathfinding {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -3490,7 +3577,11 @@ namespace Pathfinding {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -3509,7 +3600,11 @@ namespace Pathfinding {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -3767,7 +3862,11 @@ namespace Pathfinding {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -3798,7 +3897,11 @@ namespace Pathfinding {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -4039,7 +4142,11 @@ namespace Pathfinding {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -4066,7 +4173,11 @@ namespace Pathfinding {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -4245,7 +4356,11 @@ namespace Pathfinding {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -4264,7 +4379,11 @@ namespace Pathfinding {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -4280,9 +4399,9 @@ namespace Pathfinding {
   }
 
   /// <summary>
-  //// &lt;summary>
-  //// Returns *all* possible Zs at a position, plus the most "canonical" ground Z.
-  //// &lt;/summary>
+  ///&#x2F; &lt;summary>
+  ///&#x2F; Returns *all* possible Zs at a position, plus the most "canonical" ground Z.
+  ///&#x2F; &lt;/summary>
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class ZQueryResult : pb::IMessage<ZQueryResult>
@@ -4319,13 +4438,10 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public ZQueryResult(ZQueryResult other) : this() {
-      floorZ_ = other.floorZ_;
-      raycastZ_ = other.raycastZ_;
       terrainZ_ = other.terrainZ_;
       adtZ_ = other.adtZ_;
       locationZ_ = other.locationZ_;
       waterLevel_ = other.waterLevel_;
-      isInWater_ = other.isInWater_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -4335,38 +4451,8 @@ namespace Pathfinding {
       return new ZQueryResult(this);
     }
 
-    /// <summary>Field number for the "floor_z" field.</summary>
-    public const int FloorZFieldNumber = 1;
-    private float floorZ_;
-    /// <summary>
-    /// Most reliable ground Z for this position.
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float FloorZ {
-      get { return floorZ_; }
-      set {
-        floorZ_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "raycast_z" field.</summary>
-    public const int RaycastZFieldNumber = 2;
-    private float raycastZ_;
-    /// <summary>
-    /// VMAP object collision (e.g. bridge, building)
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float RaycastZ {
-      get { return raycastZ_; }
-      set {
-        raycastZ_ = value;
-      }
-    }
-
     /// <summary>Field number for the "terrain_z" field.</summary>
-    public const int TerrainZFieldNumber = 3;
+    public const int TerrainZFieldNumber = 1;
     private float terrainZ_;
     /// <summary>
     /// VMAP terrain Z (collision mesh)
@@ -4381,7 +4467,7 @@ namespace Pathfinding {
     }
 
     /// <summary>Field number for the "adt_z" field.</summary>
-    public const int AdtZFieldNumber = 4;
+    public const int AdtZFieldNumber = 2;
     private float adtZ_;
     /// <summary>
     /// ADT terrain Z (raw ground, fallback)
@@ -4396,7 +4482,7 @@ namespace Pathfinding {
     }
 
     /// <summary>Field number for the "location_z" field.</summary>
-    public const int LocationZFieldNumber = 5;
+    public const int LocationZFieldNumber = 3;
     private float locationZ_;
     /// <summary>
     /// VMAP LocationInfo (WMO floor, etc)
@@ -4411,7 +4497,7 @@ namespace Pathfinding {
     }
 
     /// <summary>Field number for the "water_level" field.</summary>
-    public const int WaterLevelFieldNumber = 6;
+    public const int WaterLevelFieldNumber = 4;
     private float waterLevel_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -4419,18 +4505,6 @@ namespace Pathfinding {
       get { return waterLevel_; }
       set {
         waterLevel_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "is_in_water" field.</summary>
-    public const int IsInWaterFieldNumber = 7;
-    private bool isInWater_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool IsInWater {
-      get { return isInWater_; }
-      set {
-        isInWater_ = value;
       }
     }
 
@@ -4449,13 +4523,10 @@ namespace Pathfinding {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(FloorZ, other.FloorZ)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(RaycastZ, other.RaycastZ)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(TerrainZ, other.TerrainZ)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(AdtZ, other.AdtZ)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(LocationZ, other.LocationZ)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(WaterLevel, other.WaterLevel)) return false;
-      if (IsInWater != other.IsInWater) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -4463,13 +4534,10 @@ namespace Pathfinding {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (FloorZ != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(FloorZ);
-      if (RaycastZ != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(RaycastZ);
       if (TerrainZ != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(TerrainZ);
       if (AdtZ != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(AdtZ);
       if (LocationZ != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(LocationZ);
       if (WaterLevel != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(WaterLevel);
-      if (IsInWater != false) hash ^= IsInWater.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -4488,33 +4556,21 @@ namespace Pathfinding {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (FloorZ != 0F) {
-        output.WriteRawTag(13);
-        output.WriteFloat(FloorZ);
-      }
-      if (RaycastZ != 0F) {
-        output.WriteRawTag(21);
-        output.WriteFloat(RaycastZ);
-      }
       if (TerrainZ != 0F) {
-        output.WriteRawTag(29);
+        output.WriteRawTag(13);
         output.WriteFloat(TerrainZ);
       }
       if (AdtZ != 0F) {
-        output.WriteRawTag(37);
+        output.WriteRawTag(21);
         output.WriteFloat(AdtZ);
       }
       if (LocationZ != 0F) {
-        output.WriteRawTag(45);
+        output.WriteRawTag(29);
         output.WriteFloat(LocationZ);
       }
       if (WaterLevel != 0F) {
-        output.WriteRawTag(53);
+        output.WriteRawTag(37);
         output.WriteFloat(WaterLevel);
-      }
-      if (IsInWater != false) {
-        output.WriteRawTag(56);
-        output.WriteBool(IsInWater);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -4526,33 +4582,21 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (FloorZ != 0F) {
-        output.WriteRawTag(13);
-        output.WriteFloat(FloorZ);
-      }
-      if (RaycastZ != 0F) {
-        output.WriteRawTag(21);
-        output.WriteFloat(RaycastZ);
-      }
       if (TerrainZ != 0F) {
-        output.WriteRawTag(29);
+        output.WriteRawTag(13);
         output.WriteFloat(TerrainZ);
       }
       if (AdtZ != 0F) {
-        output.WriteRawTag(37);
+        output.WriteRawTag(21);
         output.WriteFloat(AdtZ);
       }
       if (LocationZ != 0F) {
-        output.WriteRawTag(45);
+        output.WriteRawTag(29);
         output.WriteFloat(LocationZ);
       }
       if (WaterLevel != 0F) {
-        output.WriteRawTag(53);
+        output.WriteRawTag(37);
         output.WriteFloat(WaterLevel);
-      }
-      if (IsInWater != false) {
-        output.WriteRawTag(56);
-        output.WriteBool(IsInWater);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -4564,12 +4608,6 @@ namespace Pathfinding {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (FloorZ != 0F) {
-        size += 1 + 4;
-      }
-      if (RaycastZ != 0F) {
-        size += 1 + 4;
-      }
       if (TerrainZ != 0F) {
         size += 1 + 4;
       }
@@ -4581,9 +4619,6 @@ namespace Pathfinding {
       }
       if (WaterLevel != 0F) {
         size += 1 + 4;
-      }
-      if (IsInWater != false) {
-        size += 1 + 1;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -4597,12 +4632,6 @@ namespace Pathfinding {
       if (other == null) {
         return;
       }
-      if (other.FloorZ != 0F) {
-        FloorZ = other.FloorZ;
-      }
-      if (other.RaycastZ != 0F) {
-        RaycastZ = other.RaycastZ;
-      }
       if (other.TerrainZ != 0F) {
         TerrainZ = other.TerrainZ;
       }
@@ -4615,9 +4644,6 @@ namespace Pathfinding {
       if (other.WaterLevel != 0F) {
         WaterLevel = other.WaterLevel;
       }
-      if (other.IsInWater != false) {
-        IsInWater = other.IsInWater;
-      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -4629,36 +4655,28 @@ namespace Pathfinding {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 13: {
-            FloorZ = input.ReadFloat();
-            break;
-          }
-          case 21: {
-            RaycastZ = input.ReadFloat();
-            break;
-          }
-          case 29: {
             TerrainZ = input.ReadFloat();
             break;
           }
-          case 37: {
+          case 21: {
             AdtZ = input.ReadFloat();
             break;
           }
-          case 45: {
+          case 29: {
             LocationZ = input.ReadFloat();
             break;
           }
-          case 53: {
+          case 37: {
             WaterLevel = input.ReadFloat();
-            break;
-          }
-          case 56: {
-            IsInWater = input.ReadBool();
             break;
           }
         }
@@ -4672,36 +4690,28 @@ namespace Pathfinding {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 13: {
-            FloorZ = input.ReadFloat();
-            break;
-          }
-          case 21: {
-            RaycastZ = input.ReadFloat();
-            break;
-          }
-          case 29: {
             TerrainZ = input.ReadFloat();
             break;
           }
-          case 37: {
+          case 21: {
             AdtZ = input.ReadFloat();
             break;
           }
-          case 45: {
+          case 29: {
             LocationZ = input.ReadFloat();
             break;
           }
-          case 53: {
+          case 37: {
             WaterLevel = input.ReadFloat();
-            break;
-          }
-          case 56: {
-            IsInWater = input.ReadBool();
             break;
           }
         }

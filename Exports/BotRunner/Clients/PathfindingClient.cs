@@ -71,11 +71,10 @@ namespace BotRunner.Clients
             var z = response.ZQuery.ZResult;
             return new ZQueryResult
             {
-                FloorZ = z.FloorZ,
-                RaycastZ = z.RaycastZ,
                 TerrainZ = z.TerrainZ,
                 AdtZ = z.AdtZ,
-                LocationZ = z.LocationZ
+                LocationZ = z.LocationZ,
+                WaterLevel = z.WaterLevel,
             };
         }
 

@@ -111,12 +111,8 @@ message Error {
 /// Returns *all* possible Zs at a position, plus the most "canonical" ground Z.
 /// </summary>
 message ZQueryResult {
-    float floor_z = 1;     // Most reliable ground Z for this position.
-    float raycast_z = 2;   // VMAP object collision (e.g. bridge, building)
-    float terrain_z = 3;   // VMAP terrain Z (collision mesh)
-    float adt_z = 4;       // ADT terrain Z (raw ground, fallback)
-    float location_z = 5;  // VMAP LocationInfo (WMO floor, etc)
-    float water_level = 6;
-    bool is_in_water = 7;
-
+    float terrain_z = 1;   // VMAP terrain Z (collision mesh)
+    float adt_z = 2;       // ADT terrain Z (raw ground, fallback)
+    float location_z = 3;  // VMAP LocationInfo (WMO floor, etc)
+    float water_level = 4;
 }
