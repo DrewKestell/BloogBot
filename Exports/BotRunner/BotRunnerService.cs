@@ -62,17 +62,19 @@ namespace BotRunner
                                             {
                                                 IWoWUnit woWUnit = _objectManager.Units.First(x => x.Name == "Dallawha");
 
-                                                if (_pathfindingClient.GetPathingDistance(_objectManager.MapId, _objectManager.Player.Position, woWUnit.Position) > 10)
+                                                if (_pathfindingClient.GetPathingDistance(_objectManager.MapId, _objectManager.Player.Position, woWUnit.Position) > 25)
                                                 {
                                                     Position[] positions = _pathfindingClient.GetPath(_objectManager.MapId, _objectManager.Player.Position, woWUnit.Position, true);
 
                                                     if (positions.Length > 0)
                                                         _objectManager.MoveToward(positions[1]);
                                                 }
+                                                else if (!_objectManager.Player.IsFacing(woWUnit))
+                                                {
+                                                    _objectManager.Face(woWUnit.Position);
+                                                }
                                                 else
                                                 {
-                                                    if (!_objectManager.Player.IsFacing(woWUnit))
-                                                        _objectManager.Face(woWUnit.Position);
                                                     _objectManager.StopAllMovement();
                                                 }
                                             }

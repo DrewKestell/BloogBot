@@ -1,59 +1,77 @@
-﻿using GameData.Core.Enums;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using GameData.Core.Enums;
 using GameData.Core.Models;
 using WoWSharpClient.Models;
 using WoWSharpClient.Utils;
 
 namespace WoWSharpClient.Parsers
 {
+    /// <summary>
+    ///   Serialises and deserialises the vanilla‑era MovementInfo blocks exactly
+    ///   as MaNGOS 1.12 expects them (see MovementHandler.cpp).
+    /// </summary>
     public static class MovementPacketHandler
     {
-        public static byte[] BuildMoveTeleportAckPayload(ulong guid, uint movementCounter, uint timestamp)
-        {
-            using var ms = new MemoryStream();
-            using var writer = new BinaryWriter(ms);
+        /* --------------------------------------------------------------------
+         *  BUILDERS                                                           */
+        /* ------------------------------------------------------------------ */
 
-            writer.Write(guid);
-            writer.Write(movementCounter);
-            writer.Write(timestamp);
-
-            return ms.ToArray();
-        }
-        public static byte[] BuildMovementInfoBuffer(WoWLocalPlayer p, uint ctimeMs)
+        /// <summary>
+        /// Basic teleport ACK – no movement‑block, just GUID + counter + time.
+        /// </summary>
+        public static byte[] BuildMoveTeleportAckPayload(ulong guid,
+                                                        uint movementCounter,
+                                                        uint timestamp)
         {
             using var ms = new MemoryStream();
             using var w = new BinaryWriter(ms);
 
-            w.Write((uint)p.MovementFlags);
-            w.Write(ctimeMs);
+            w.Write(guid);
+            w.Write(movementCounter);
+            w.Write(timestamp);
+            return ms.ToArray();
+        }
 
+        /*=== NEW: 3‑arg overload (full control) ============================*/
+        public static byte[] BuildMovementInfoBuffer(WoWLocalPlayer p,
+                                                     uint clientTimeMs,
+                                                     uint fallTimeMs)
+        {
+            using var ms = new MemoryStream();
+            using var w = new BinaryWriter(ms);
+
+            /* 1) Flags + timestamp */
+            w.Write((uint)p.MovementFlags);
+            w.Write(clientTimeMs);
+
+            /* 2) Position */
             w.Write(p.Position.X);
             w.Write(p.Position.Y);
             w.Write(p.Position.Z);
-
             w.Write(p.Facing);
 
-            // Transport block
-            if ((p.MovementFlags & MovementFlags.MOVEFLAG_ONTRANSPORT) != 0 && p.Transport != null)
+            /* 3) Transport */
+            if (p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_ONTRANSPORT) &&
+                p.Transport != null)
             {
                 w.Write(p.Transport.Guid);
-
                 w.Write(p.Transport.Position.X);
                 w.Write(p.Transport.Position.Y);
                 w.Write(p.Transport.Position.Z);
-
                 w.Write(p.Transport.Facing);
             }
 
-            // Swim pitch
-            if ((p.MovementFlags & MovementFlags.MOVEFLAG_SWIMMING) != 0)
-            {
+            /* 4) Swim pitch */
+            if (p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SWIMMING))
                 w.Write(p.SwimPitch);
-            }
 
-            w.Write(p.FallTime);
+            /* 5) fallTime – always present */
+            w.Write(fallTimeMs);
 
-            // Jump block
-            if ((p.MovementFlags & MovementFlags.MOVEFLAG_JUMPING) != 0)
+            /* 6) Jump */
+            if (p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_JUMPING))
             {
                 w.Write(p.JumpVerticalSpeed);
                 w.Write(p.JumpCosAngle);
@@ -61,178 +79,183 @@ namespace WoWSharpClient.Parsers
                 w.Write(p.JumpHorizontalSpeed);
             }
 
-            // Spline Elevation
-            if ((p.MovementFlags & MovementFlags.MOVEFLAG_SPLINE_ELEVATION) != 0)
-            {
+            /* 7) Spline elevation */
+            if (p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SPLINE_ELEVATION))
                 w.Write(p.SplineElevation);
-            }
 
             return ms.ToArray();
         }
 
-        public static MovementInfoUpdate ParseMovementBlock(BinaryReader reader)
+        /*=== Legacy wrapper (2‑args) ======================================*/
+        public static byte[] BuildMovementInfoBuffer(WoWLocalPlayer p,
+                                                     uint clientTimeMs)
+            => BuildMovementInfoBuffer(p,
+                                       clientTimeMs,
+                                       (uint)p.FallTime);   // ← cast fixes CS1503
+
+        /* Ack helper used by *_SPEED/ROOT_CHANGE_ACK opcodes */
+        internal static byte[] BuildForceMoveAck(WoWLocalPlayer player,
+                                                 uint movementCounter,
+                                                 uint clientTimeMs)
         {
-            var data = new MovementInfoUpdate()
+            using var ms = new MemoryStream();
+            using var w = new BinaryWriter(ms);
+
+            ReaderUtils.WritePackedGuid(w, player.Guid);
+            w.Write(movementCounter);
+            w.Write(BuildMovementInfoBuffer(player,
+                                            clientTimeMs,
+                                            (uint)player.FallTime)); // ← cast fixes CS1503
+            return ms.ToArray();
+        }
+
+        /* --------------------------------------------------------------------
+         *  PARSERS                                                           */
+        /* ------------------------------------------------------------------ */
+
+        public static MovementInfoUpdate ParseMovementBlock(BinaryReader r)
+        {
+            var info = new MovementInfoUpdate
             {
-                MovementFlags = (MovementFlags)reader.ReadUInt32(),
-                LastUpdated = reader.ReadUInt32(),
+                MovementFlags = (MovementFlags)r.ReadUInt32(),
+                LastUpdated = r.ReadUInt32(),
 
-                X = reader.ReadSingle(),
-                Y = reader.ReadSingle(),
-                Z = reader.ReadSingle(),
-
-                Facing = reader.ReadSingle(),
-
+                X = r.ReadSingle(),
+                Y = r.ReadSingle(),
+                Z = r.ReadSingle(),
+                Facing = r.ReadSingle(),
                 MovementBlockUpdate = new MovementBlockUpdate()
             };
 
-            if (data.HasTransport)
+            /* ----- Transport --------------------------------------------- */
+            if (info.HasTransport)
             {
-                data.TransportGuid = BitConverter.ToUInt64(reader.ReadBytes(4));
-                float tx = reader.ReadSingle();
-                float ty = reader.ReadSingle();
-                float tz = reader.ReadSingle();
-                data.TransportOffset = new Position(tx, ty, tz);
-                data.TransportOrientation = reader.ReadSingle();
-                data.TransportLastUpdated = reader.ReadUInt32();
+                info.TransportGuid = r.ReadUInt64();          // uint64
+                float tx = r.ReadSingle();
+                float ty = r.ReadSingle();
+                float tz = r.ReadSingle();
+                info.TransportOffset = new Position(tx, ty, tz);
+                info.TransportOrientation = r.ReadSingle();
+                info.TransportLastUpdated = r.ReadUInt32();
             }
 
-            if (data.IsSwimming)
+            /* ----- Swim pitch ------------------------------------------- */
+            if (info.IsSwimming)
+                info.SwimPitch = r.ReadSingle();
+
+            /* fallTime always present                                      */
+            info.FallTime = r.ReadUInt32();
+
+            /* ----- Jump block ------------------------------------------- */
+            if (info.IsFalling)
             {
-                data.SwimPitch = reader.ReadSingle();
+                info.JumpVerticalSpeed = r.ReadSingle();
+                info.JumpCosAngle = r.ReadSingle();
+                info.JumpSinAngle = r.ReadSingle();
+                info.JumpHorizontalSpeed = r.ReadSingle();
             }
 
-            if (!data.HasTransport)
-                data.FallTime = reader.ReadSingle();
+            /* ----- Spline elevation ------------------------------------- */
+            if (info.HasSplineElevation)
+                info.SplineElevation = r.ReadSingle();
 
-            if (data.IsFalling)
+            /* ----- Speeds block (walk|run|swim…) ------------------------ */
+            info.MovementBlockUpdate.WalkSpeed = r.ReadSingle();
+            info.MovementBlockUpdate.RunSpeed = r.ReadSingle();
+            info.MovementBlockUpdate.RunBackSpeed = r.ReadSingle();
+            info.MovementBlockUpdate.SwimSpeed = r.ReadSingle();
+            info.MovementBlockUpdate.SwimBackSpeed = r.ReadSingle();
+            info.MovementBlockUpdate.TurnRate = r.ReadSingle();
+
+            /* ----- Optional spline path --------------------------------- */
+            if (info.HasSpline)
             {
-                data.JumpVerticalSpeed = reader.ReadSingle();
-                data.JumpSinAngle = reader.ReadSingle();
-                data.JumpCosAngle = reader.ReadSingle();
-                data.JumpHorizontalSpeed = reader.ReadSingle();
-            }
-
-            if (data.HasSplineElevation)
-            {
-                data.SplineElevation = reader.ReadSingle();
-            }
-
-            // Read Speeds
-            data.MovementBlockUpdate.WalkSpeed = reader.ReadSingle();
-            data.MovementBlockUpdate.RunSpeed = reader.ReadSingle();
-            data.MovementBlockUpdate.RunBackSpeed = reader.ReadSingle();
-            data.MovementBlockUpdate.SwimSpeed = reader.ReadSingle();
-            data.MovementBlockUpdate.SwimBackSpeed = reader.ReadSingle();
-            data.MovementBlockUpdate.TurnRate = reader.ReadSingle();
-
-            if (data.HasSpline)
-            {
-                SplineFlags flags = (SplineFlags)reader.ReadUInt32();
-                data.MovementBlockUpdate.SplineFlags = flags;
+                var flags = (SplineFlags)r.ReadUInt32();
+                info.MovementBlockUpdate.SplineFlags = flags;
 
                 if (flags.HasFlag(SplineFlags.FinalPoint))
                 {
-                    float x = reader.ReadSingle();
-                    float y = reader.ReadSingle();
-                    float z = reader.ReadSingle();
-                    data.MovementBlockUpdate.SplineFinalPoint = new Position(x, y, z);
+                    float x = r.ReadSingle();
+                    float y = r.ReadSingle();
+                    float z = r.ReadSingle();
+                    info.MovementBlockUpdate.SplineFinalPoint = new Position(x, y, z);
                 }
                 else if (flags.HasFlag(SplineFlags.FinalTarget))
                 {
-                    data.MovementBlockUpdate.SplineTargetGuid = reader.ReadUInt64();
+                    info.MovementBlockUpdate.SplineTargetGuid = r.ReadUInt64();
                 }
                 else if (flags.HasFlag(SplineFlags.FinalOrientation))
                 {
-                    data.MovementBlockUpdate.SplineFinalOrientation = reader.ReadSingle();
+                    info.MovementBlockUpdate.SplineFinalOrientation = r.ReadSingle();
                 }
 
-                data.MovementBlockUpdate.SplineTimePassed = reader.ReadInt32();
-                data.MovementBlockUpdate.SplineDuration = reader.ReadInt32();
-                data.MovementBlockUpdate.SplineId = reader.ReadUInt32();
+                info.MovementBlockUpdate.SplineTimePassed = r.ReadInt32();
+                info.MovementBlockUpdate.SplineDuration = r.ReadInt32();
+                info.MovementBlockUpdate.SplineId = r.ReadUInt32();
 
-                uint nodeCount = reader.ReadUInt32();
-                var splineNodes = new List<Position>();
-
-                for (int i = 0; i < nodeCount; i++)
+                uint nodeCount = r.ReadUInt32();
+                var nodes = new List<Position>((int)nodeCount);
+                for (int i = 0; i < nodeCount; ++i)
                 {
-                    float x = reader.ReadSingle();
-                    float y = reader.ReadSingle();
-                    float z = reader.ReadSingle();
-                    splineNodes.Add(new Position(x, y, z));
+                    float x = r.ReadSingle();
+                    float y = r.ReadSingle();
+                    float z = r.ReadSingle();
+                    nodes.Add(new Position(x, y, z));
                 }
+                info.MovementBlockUpdate.SplineNodes = nodes;
 
-                data.MovementBlockUpdate.SplineNodes = splineNodes;
-
-                float finalX = reader.ReadSingle();
-                float finalY = reader.ReadSingle();
-                float finalZ = reader.ReadSingle();
-                data.MovementBlockUpdate.SplineFinalDestination = new Position(finalX, finalY, finalZ);
+                float fx = r.ReadSingle();
+                float fy = r.ReadSingle();
+                float fz = r.ReadSingle();
+                info.MovementBlockUpdate.SplineFinalDestination = new Position(fx, fy, fz);
             }
 
-            return data;
+            return info;
         }
 
-        public static MovementInfoUpdate ParseMovementInfo(BinaryReader reader)
+        /// <summary>
+        /// Parser for short form (no speed block, no spline).
+        /// </summary>
+        public static MovementInfoUpdate ParseMovementInfo(BinaryReader r)
         {
-            var data = new MovementInfoUpdate()
+            var info = new MovementInfoUpdate
             {
-                MovementFlags = (MovementFlags)reader.ReadUInt32(),
-                LastUpdated = reader.ReadUInt32(),
-
-                X = reader.ReadSingle(),
-                Y = reader.ReadSingle(),
-                Z = reader.ReadSingle(),
-
-                Facing = reader.ReadSingle()
+                MovementFlags = (MovementFlags)r.ReadUInt32(),
+                LastUpdated = r.ReadUInt32(),
+                X = r.ReadSingle(),
+                Y = r.ReadSingle(),
+                Z = r.ReadSingle(),
+                Facing = r.ReadSingle()
             };
 
-            if (data.HasTransport)
+            if (info.HasTransport)
             {
-                data.TransportGuid = BitConverter.ToUInt64(reader.ReadBytes(4));
-                float tx = reader.ReadSingle();
-                float ty = reader.ReadSingle();
-                float tz = reader.ReadSingle();
-                data.TransportOffset = new Position(tx, ty, tz);
-                data.TransportOrientation = reader.ReadSingle();
-                data.TransportLastUpdated = reader.ReadUInt32();
+                info.TransportGuid = r.ReadUInt64();
+                float tx = r.ReadSingle();
+                float ty = r.ReadSingle();
+                float tz = r.ReadSingle();
+                info.TransportOffset = new Position(tx, ty, tz);
+                info.TransportOrientation = r.ReadSingle();
+                info.TransportLastUpdated = r.ReadUInt32();
             }
 
-            if (data.IsSwimming)
+            if (info.IsSwimming)
+                info.SwimPitch = r.ReadSingle();
+
+            info.FallTime = r.ReadUInt32();
+
+            if (info.IsFalling)
             {
-                data.SwimPitch = reader.ReadSingle();
+                info.JumpVerticalSpeed = r.ReadSingle();
+                info.JumpCosAngle = r.ReadSingle();
+                info.JumpSinAngle = r.ReadSingle();
+                info.JumpHorizontalSpeed = r.ReadSingle();
             }
 
-            data.FallTime = reader.ReadSingle();
+            if (info.HasSplineElevation)
+                info.SplineElevation = r.ReadSingle();
 
-            if (data.IsFalling)
-            {
-                data.JumpVerticalSpeed = reader.ReadSingle();
-                data.JumpCosAngle = reader.ReadSingle();
-                data.JumpSinAngle = reader.ReadSingle();
-                data.JumpHorizontalSpeed = reader.ReadSingle();
-            }
-
-            if (data.HasSplineElevation)
-            {
-                data.SplineElevation = reader.ReadSingle();
-            }
-
-            return data;
-        }
-
-        internal static byte[] BuildForceMoveAck(WoWLocalPlayer player, uint movementCounter, uint timestamp)
-        {
-            using var ms = new MemoryStream();
-            using var writer = new BinaryWriter(ms);
-
-            // Pack the GUID
-            ReaderUtils.WritePackedGuid(writer, player.Guid);
-            writer.Write(movementCounter);
-            // Timestamp
-            writer.Write(BuildMovementInfoBuffer(player, timestamp));
-
-            return ms.ToArray();
+            return info;
         }
     }
 }

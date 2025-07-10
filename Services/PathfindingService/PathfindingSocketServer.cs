@@ -67,17 +67,17 @@ namespace PathfindingService
             if (!CheckPosition(req.MapId, req.Position, out var err))
                 return err;
 
-            var pos = new Position(req.Position.ToXYZ());
+            float adtZ = _navigation.GetADTHeight(req.MapId, req.Position.X, req.Position.Y);
+            float raycastZ = _navigation.GetFloorHeight(req.MapId, req.Position.X, req.Position.Y, req.Position.Z);
 
             var resp = new ZQueryResponse
             {
                 ZResult = new ZQueryResult
                 {
-                    FloorZ = float.NegativeInfinity,
-                    RaycastZ = float.NegativeInfinity,
-                    TerrainZ = float.NegativeInfinity,
-                    AdtZ = float.NegativeInfinity,
-                    LocationZ = float.NegativeInfinity
+                    TerrainZ = raycastZ,
+                    AdtZ = adtZ,
+                    LocationZ = float.NegativeInfinity,
+                    WaterLevel = float.NegativeInfinity,
                 }
             };
             return new PathfindingResponse { ZQuery = resp };
