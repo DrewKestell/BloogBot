@@ -231,11 +231,9 @@ public static class MapDirectoryLookup
 
 namespace TerrainLib
 {
-    public class AdtFile
+    public class AdtFile(AdtChunk[,] chunks)
     {
-        private readonly AdtChunk[,] _chunks;
-
-        public AdtFile(AdtChunk[,] chunks) => _chunks = chunks;
+        private readonly AdtChunk[,] _chunks = chunks;
 
         public AdtChunk GetChunk(int row, int col)
         {
