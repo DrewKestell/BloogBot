@@ -225,95 +225,54 @@ namespace WoWSharpClient.Client
 
         public List<Realm> GetRealmList()
         {
-            List<Realm> realms = [];
+            List<Realm> list = [];
 
             SendRealmListRequest();
 
             try
             {
                 using var reader = new BinaryReader(_stream, Encoding.UTF8, true);
+                byte[] header = reader.ReadBytes(8); // Read the header first
 
-                // STEP 1: Read header (opcode + size)
-                byte opcode = reader.ReadByte();
-                ushort size = reader.ReadUInt16();
+                byte opcode = header[0];
 
-                Console.WriteLine($"[RealmList] Opcode: 0x{opcode:X2}, Size: {size}");
+                uint size = BitConverter.ToUInt16([.. header.Skip(1).Take(2)], 0); // Little-endian
+                uint numOfRealms = BitConverter.ToUInt16([.. header.Skip(6).Take(2).Reverse()], 0); // Little-endian
 
-                if (opcode != 0x10)
+                if (opcode == 0x10) // REALM_LIST
                 {
-                    Console.WriteLine("[RealmList] Unexpected opcode received.");
-                    return realms;
-                }
+                    byte[] body = reader.ReadBytes((int)(size - 7)); // Read the body of the packet
 
-                // STEP 2: Read rest of packet body into a buffer of exactly [size] bytes
-                byte[] body = reader.ReadBytes(size);
-
-                if (body.Length < size)
-                {
-                    Console.WriteLine($"[RealmList] Warning: expected {size} bytes, got {body.Length}. Incomplete packet.");
-                    return realms;
-                }
-
-                // STEP 3: Parse body safely
-                using var bodyStream = new MemoryStream(body);
-                using var bodyReader = new BinaryReader(bodyStream, Encoding.UTF8, true);
-
-                ushort unknown = bodyReader.ReadUInt16();   // Usually 0x0000
-                byte realmCount = bodyReader.ReadByte();
-
-                Console.WriteLine($"[RealmList] Realms: {realmCount}");
-
-                for (int i = 0; i < realmCount; i++)
-                {
-                    byte icon = bodyReader.ReadByte();    // Realm icon/type
-                    byte locked = bodyReader.ReadByte();  // Locked status
-                    byte flags = bodyReader.ReadByte();   // Realm flags
-
-                    string name = ReadCString(bodyReader);
-                    string address = ReadCString(bodyReader);
-
-                    float population = bodyReader.ReadSingle();
-                    byte numChars = bodyReader.ReadByte();
-                    byte timezone = bodyReader.ReadByte();
-                    byte realmId = bodyReader.ReadByte();
-
-                    realms.Add(new Realm
+                    using var bodyStream = new MemoryStream(body);
+                    using var bodyReader = new BinaryReader(bodyStream, Encoding.UTF8, true);
+                    for (int i = 0; i < numOfRealms; i++)
                     {
-                        RealmType = icon,
-                        Flags = flags,
-                        RealmName = name,
-                        AddressPort = int.TryParse(address.Split(':')[1], out var port) ? port : 3724,
-                        Population = population,
-                        NumChars = numChars,
-                        RealmCategory = timezone,
-                        RealmId = realmId
-                    });
-                }
+                        list.Add(new Realm()
+                        {
+                            RealmType = bodyReader.ReadUInt32(),
+                            Flags = bodyReader.ReadByte(),
+                            RealmName = PacketManager.ReadCString(bodyReader),
+                            AddressPort = int.Parse(PacketManager.ReadCString(bodyReader).Split(":")[1]),
 
-                // Read trailing 2-byte null terminator
-                ushort terminator = bodyReader.ReadUInt16();
-                if (terminator != 0)
+                            Population = bodyReader.ReadSingle(),
+                            NumChars = bodyReader.ReadByte(),
+                            RealmCategory = bodyReader.ReadByte(),
+                            RealmId = bodyReader.ReadByte(),
+                        });
+                    }
+                }
+                else
                 {
-                    Console.WriteLine($"[RealmList] Warning: Expected 0x0000 terminator, got 0x{terminator:X4}");
+                    //Console.WriteLine("[LoginClient] Unexpected opcode received in REALM_LIST response.");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[LoginClient] Error parsing REALM_LIST: {ex}");
+                //Console.WriteLine($"[LoginClient] An error occurred while receiving REALM_LIST response: {ex}");
             }
 
-            return realms;
+            return list;
         }
-
-        private static string ReadCString(BinaryReader reader)
-        {
-            List<byte> buffer = [];
-            byte b;
-            while ((b = reader.ReadByte()) != 0)
-                buffer.Add(b);
-            return Encoding.UTF8.GetString(buffer.ToArray());
-        }
-
 
         public void Dispose() { }
     }

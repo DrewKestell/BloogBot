@@ -58,9 +58,9 @@ namespace BotRunner
                                     {
                                         if (_objectManager.HasEnteredWorld)
                                         {
-                                            if (_objectManager.Players.Any(x => x.Name == "Dallawha"))
+                                            if (_objectManager.Players.Any(x => x.Name == "Dallawha" || x.Name == "Orcorcorc"))
                                             {
-                                                IWoWUnit woWUnit = _objectManager.Units.First(x => x.Name == "Dallawha");
+                                                IWoWUnit woWUnit = _objectManager.Units.First(x => x.Name == "Dallawha" || x.Name == "Orcorcorc");
 
                                                 if (_pathfindingClient.GetPathingDistance(_objectManager.MapId, _objectManager.Player.Position, woWUnit.Position) > 10)
                                                 {
@@ -1299,13 +1299,6 @@ namespace BotRunner
                 .Do("Select Realm", time =>
                 {
                     if (_objectManager.RealmSelectScreen.CurrentRealm != null) return BehaviourTreeStatus.Success;
-
-                    var realmList = _objectManager.RealmSelectScreen.GetRealmList();
-                    if (realmList == null || realmList.Count == 0)
-                    {
-                        Console.WriteLine("[BotRunner] No realms received from server.");
-                        return BehaviourTreeStatus.Running;
-                    }
 
                     _objectManager.RealmSelectScreen.SelectRealm(_objectManager.RealmSelectScreen.GetRealmList()[0]);
                     return BehaviourTreeStatus.Success;
