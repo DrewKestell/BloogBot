@@ -58,9 +58,9 @@ namespace BotRunner
                                     {
                                         if (_objectManager.HasEnteredWorld)
                                         {
-                                            if (_objectManager.Players.Any(x => x.Name == "Dallawha" || x.Name == "Orcorcorc"))
+                                            if (_objectManager.Players.Any(x => x.Name == "Dallawha"))
                                             {
-                                                IWoWUnit woWUnit = _objectManager.Units.First(x => x.Name == "Dallawha" || x.Name == "Orcorcorc");
+                                                IWoWUnit woWUnit = _objectManager.Units.First(x => x.Name == "Dallawha");
 
                                                 if (_pathfindingClient.GetPathingDistance(_objectManager.MapId, _objectManager.Player.Position, woWUnit.Position) > 25)
                                                 {
