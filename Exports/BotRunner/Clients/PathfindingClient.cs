@@ -5,9 +5,10 @@ using Pathfinding;
 
 namespace BotRunner.Clients
 {
-    public class PathfindingClient(string ipAddress, int port, ILogger logger)
-        : ProtobufSocketClient<PathfindingRequest, PathfindingResponse>(ipAddress, port, logger)
+    public class PathfindingClient: ProtobufSocketClient<PathfindingRequest, PathfindingResponse>
     {
+        public PathfindingClient() : base() { }
+        public PathfindingClient(string ipAddress, int port, ILogger logger) : base(ipAddress, port, logger) { }
         public Position[] GetPath(uint mapId, Position start, Position end, bool smoothPath = false)
         {
             var request = new PathfindingRequest
@@ -137,6 +138,24 @@ namespace BotRunner.Clients
 
             var l = response.LiquidLevel;
             return (l.Level, l.Floor, l.Type);
+        }
+        public IEnumerable<NavPolyHit> GetCapsuleOverlaps(uint mapId, Position feet, Game.Race race)
+        {
+            var request = new PathfindingRequest
+            {
+                CapsuleOverlap = new CapsuleOverlapRequest
+                {
+                    MapId = mapId,
+                    Position = feet.ToProto(),
+                    Race = race
+                }
+            };
+
+            var response = SendMessage(request);
+            if (response.PayloadCase == PathfindingResponse.PayloadOneofCase.Error)
+                throw new Exception(response.Error.Message);
+
+            return response.CapsuleOverlap.Hits;
         }
     }
 

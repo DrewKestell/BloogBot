@@ -63,6 +63,57 @@ extern "C"
         *outHeight = closest[1];
         return true;
     }
+
+    // ----------------------------------------------------------------------------
+    //  NEW 1/3 – Line of sight
+    // ----------------------------------------------------------------------------
+    __declspec(dllexport)
+        bool LineOfSight(uint32_t mapId, XYZ from, XYZ to)
+    {
+        return Navigation::GetInstance()->IsLineOfSight(mapId, from, to);
+    }
+
+    // ----------------------------------------------------------------------------
+    //  NEW 2/3 – Capsule overlap
+    // ----------------------------------------------------------------------------
+    __declspec(dllexport)
+        NavPoly* CapsuleOverlap(uint32_t mapId, XYZ pos,
+            float radius, float height,
+            int* outCount)
+    {
+        if (!outCount) return nullptr;
+
+        std::vector<NavPoly> v;
+        try
+        {
+            v = Navigation::GetInstance()->CapsuleOverlap(mapId, pos, radius, height);
+        }
+        catch (const std::exception& ex)
+        {
+            return nullptr;
+        }
+
+        *outCount = static_cast<int>(v.size());
+
+        if (v.empty()) return nullptr;
+
+        size_t bytes = v.size() * sizeof(NavPoly);
+
+        auto* buf = static_cast<NavPoly*>(::CoTaskMemAlloc(bytes));
+        if (!buf) return nullptr;
+
+        std::memcpy(buf, v.data(), bytes);
+        return buf;
+    }
+
+
+    // ----------------------------------------------------------------------------
+    //  NEW 3/3 – free() for CapsuleOverlap
+    // ----------------------------------------------------------------------------
+    __declspec(dllexport) void FreeNavPolyArr(NavPoly* p)
+    {
+        if (p) ::CoTaskMemFree(p);
+    }
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)

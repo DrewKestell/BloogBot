@@ -105,7 +105,7 @@ public:
 
 	PointsArray& getPath() { return m_pathPoints; }
 	PathType getPathType() const { return m_type; }
-
+	NavTerrain getNavTerrain(float x, float y, float z);
 private:
 
 	dtPolyRef      m_pathPolyRefs[MAX_PATH_LENGTH];   // array of detour polygon references
@@ -152,7 +152,6 @@ private:
     void BuildError();
 	void BuildShortcut();
 
-	NavTerrain getNavTerrain(float x, float y, float z);
 	void createFilter();
 	void updateFilter(bool isSwimming, float x, float y, float z);
 

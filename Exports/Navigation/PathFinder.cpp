@@ -1,4 +1,4 @@
-/**
+﻿/**
 * MaNGOS is a full featured server for World of Warcraft, supporting
 * the following clients: 1.12.x, 2.4.3, 3.3.5a, 4.3.4a and 5.4.8
 *
@@ -512,28 +512,6 @@ void PathFinder::updateFilter(bool isSwimming, float x, float y, float z)
 	}
 }
 
-NavTerrain PathFinder::getNavTerrain(float x, float y, float z)
-{
-	GridMapLiquidData data;
-	//m_sourceUnit->GetTerrain()->getLiquidStatus(x, y, z, MAP_ALL_LIQUIDS, &data);
-
-	// TODO !!!
-	return NAV_GROUND;
-
-	switch (data.type_flags)
-	{
-	case MAP_LIQUID_TYPE_WATER:
-	case MAP_LIQUID_TYPE_OCEAN:
-		return NAV_WATER;
-	case MAP_LIQUID_TYPE_MAGMA:
-		return NAV_MAGMA;
-	case MAP_LIQUID_TYPE_SLIME:
-		return NAV_SLIME;
-	default:
-		return NAV_GROUND;
-	}
-}
-
 bool PathFinder::HaveTile(const Vector3& p) const
 {
     int tx, ty;
@@ -550,6 +528,50 @@ bool PathFinder::HaveTile(const Vector3& p) const
     }
         
     return (m_navMesh->getTileAt(tx, ty, 0) != NULL);
+}
+
+NavTerrain PathFinder::getNavTerrain(float x, float y, float z)
+{
+	// ------------------------------------------------------------------
+	// 1. Use the tile we are already path‑finding on (m_navMeshQuery)
+	// ------------------------------------------------------------------
+	if (!m_navMeshQuery)
+		return NAV_EMPTY;                           // no query → no data
+
+	/* Detour/WoW axis:  (x,y,z)game  →  (y,z,x)detour */
+	const float pos[VERTEX_SIZE] = { y, z, x };
+
+	// small search box first, then a tall one if we didn’t hit a poly
+	float ext[VERTEX_SIZE] = { 3.f, 5.f, 3.f };
+	dtPolyRef ref = 0;
+	float nearest[VERTEX_SIZE];
+
+	dtQueryFilter f;                   // let every area though – we only read
+	f.setIncludeFlags(0xFFFF);
+	f.setExcludeFlags(0);
+
+	dtStatus st = m_navMeshQuery->findNearestPoly(pos, ext, &f, &ref, nearest);
+	if (dtStatusFailed(st) || ref == 0)
+	{
+		ext[1] = 200.f;                // tall column fallback
+		st = m_navMeshQuery->findNearestPoly(pos, ext, &f, &ref, nearest);
+		if (dtStatusFailed(st) || ref == 0)
+			return NAV_EMPTY;          // still nothing
+	}
+
+	// ------------------------------------------------------------------
+	// 2. Read the Detour polygon → getArea() already encodes NavTerrain
+	// ------------------------------------------------------------------
+	const dtMeshTile* tile = nullptr;
+	const dtPoly* poly = nullptr;
+	m_navMeshQuery->getAttachedNavMesh()->getTileAndPolyByRef(ref, &tile, &poly);
+	if (!poly)
+		return NAV_EMPTY;
+
+	const uint32_t areaBits = poly->getArea();      // 0‑63 (6 bits)
+
+	// The writer used the low 4 bits exactly as NavTerrain enum.
+	return static_cast<NavTerrain>(areaBits & 0x0F);
 }
 
 unsigned int PathFinder::fixupCorridor(dtPolyRef* path, unsigned int npath, unsigned int maxPath,

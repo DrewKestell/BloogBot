@@ -7,9 +7,8 @@ using WowSrp.Header;
 
 namespace WoWSharpClient.Client
 {
-    internal class WorldClient(WoWSharpEventEmitter woWSharpEventEmitter, OpCodeDispatcher opCodeDispatcher) : IDisposable
+    internal class WorldClient(OpCodeDispatcher opCodeDispatcher) : IDisposable
     {
-        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpEventEmitter;
         private readonly OpCodeDispatcher _opCodeDispatcher = opCodeDispatcher;
 
         //TODO: Take in from constructor
@@ -275,7 +274,7 @@ namespace WoWSharpClient.Client
 
         private async Task HandleNetworkMessagesAsync()
         {
-            _woWSharpEventEmitter.FireOnWorldSessionStart();
+            WoWSharpEventEmitter.Instance.FireOnWorldSessionStart();
             using var reader = new BinaryReader(_stream, Encoding.UTF8, true);
             byte[] body = [];
             while (true)
@@ -285,7 +284,7 @@ namespace WoWSharpClient.Client
                     byte[] header = PacketManager.Read(reader, 4);
                     if (header.Length == 0)
                     {
-                        _woWSharpEventEmitter.FireOnWorldSessionEnd();
+                        WoWSharpEventEmitter.Instance.FireOnWorldSessionEnd();
                         break;
                     }
 

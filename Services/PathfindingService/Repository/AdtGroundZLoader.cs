@@ -1,23 +1,24 @@
 ﻿using PathfindingService;
 using System.Collections.Concurrent;
+using System.Text;
 using TerrainLib;
 
-public static class AdtGroundZLoader
+public class AdtGroundZLoader
 {
     private const int CellsPerTile = 16;
     private const float TileScale = 533.33333f;
     private const float ChunkScale = TileScale / CellsPerTile;
 
-    private static readonly ConcurrentDictionary<(int, int, int), AdtFile> _adtCache = new();
-    private static string[] _mpqPaths;
+    private readonly ConcurrentDictionary<(int, int, int), AdtFile> _adtCache = new();
+    private string[] _mpqPaths;
 
-    public static void SetMPQPaths(string[] mpqPaths)
+    public AdtGroundZLoader(string[] mpqPaths)
     {
         _mpqPaths = mpqPaths;
         PreloadAdts();
     }
 
-    private static void PreloadAdts()
+    private void PreloadAdts()
     {
         const uint MPQ_OPEN_FORCE_MPQ_V1 = 0x4;
 
@@ -67,14 +68,12 @@ public static class AdtGroundZLoader
 
                             try
                             {
-                                //Console.WriteLine($"[AdtGroundZLoader] Loading ADT tile {mapId}_{tileX}_{tileY}...");
                                 var adt = AdtFile.Load(buf);
                                 _adtCache[(mapId, tileX, tileY)] = adt;
-                                //Console.WriteLine($"[AdtGroundZLoader] Successfully cached tile {mapId}_{tileX}_{tileY}");
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine($"[AdtGroundZLoader] Failed to parse ADT file {filePath}: {ex.Message}");
+                                Console.WriteLine($"[AdtGroundZLoader] Failed to parse ADT file {filePath}: {ex.Message} {ex.StackTrace}");
                             }
                             finally
                             {
@@ -92,10 +91,11 @@ public static class AdtGroundZLoader
             StormLib.SFileCloseArchive(archive);
         }
     }
-    public static bool TryGetZ(int mapId, float x, float y, out float z)
+    public bool TryGetZ(int mapId, float x, float y, out float z, out float liqZ)
     {
         // Default failure
         z = float.NaN;
+        liqZ = float.NegativeInfinity;
 
         /* ──────────────────────────────────────────────────────────────
            World coordinate system (1.12):
@@ -133,6 +133,9 @@ public static class AdtGroundZLoader
         var chunk = adt.GetChunk(chunkRow, chunkCol);
         if (chunk?.Heights == null) return false;
 
+        if (chunk.HasLiquid)
+            liqZ = chunk.LiquidLevel;
+
         // 4) local offsets inside chunk (0‥33.33)
         float inNS = localNS - chunkRow * ChunkScale;
         float inEW = localEW - chunkCol * ChunkScale;
@@ -146,7 +149,7 @@ public static class AdtGroundZLoader
         float fx = normX - hCol;
         float fy = normY - hRow;
 
-        if (hCol >= 8 || hRow >= 8) return false; // guard
+        if (hCol >= 8 || hRow >= 8) return chunk.HasLiquid; // guard
 
         // 6) sample the four surrounding outer-grid heights
         float h0 = chunk.Heights[hRow * 9 + hCol]; // top-left
@@ -161,6 +164,7 @@ public static class AdtGroundZLoader
 
         // 8) absolute ground height
         z = relZ + chunk.PositionZ;
+
         return true;
     }
 }
@@ -228,7 +232,6 @@ public static class MapDirectoryLookup
     ];
 }
 
-
 namespace TerrainLib
 {
     public class AdtFile(AdtChunk[,] chunks)
@@ -241,6 +244,8 @@ namespace TerrainLib
                 return null;
             return _chunks[row, col];
         }
+        private static string ReadTag(BinaryReader br) =>
+        Encoding.ASCII.GetString(br.ReadBytes(4).Reverse().ToArray());
 
         public static AdtFile Load(byte[] data)
         {
@@ -250,76 +255,115 @@ namespace TerrainLib
 
             try
             {
-                while (reader.BaseStream.Position + 8 < reader.BaseStream.Length && chunkIndex < 256)
+                while (reader.BaseStream.Position + 8 <= reader.BaseStream.Length && chunkIndex < 256)
                 {
+                    /*── read MCNK header stub ───────────────────────────*/
                     long chunkStart = reader.BaseStream.Position;
-                    string magic = new(reader.ReadChars(4).Reverse().ToArray());
+                    string tag = ReadTag(reader);               // "KNCM" → "MCNK"
                     int size = reader.ReadInt32();
 
-                    if (magic != "MCNK")
+                    if (tag != "MCNK")
                     {
                         reader.BaseStream.Seek(chunkStart + 8 + size, SeekOrigin.Begin);
                         continue;
                     }
 
-                    reader.BaseStream.Seek(chunkStart + 8 + 128, SeekOrigin.Begin); // skip MCNK header
+                    long headerPos = chunkStart + 8;                 // start of 128‑byte header
+                    long chunkEnd = chunkStart + 8 + size;
+                    long payloadPos = headerPos + 128;              // first sub‑chunk
 
-                    // scan sub-chunks within MCNK
-                    long mcnkEnd = chunkStart + 8 + size;
-                    float[] heights = null;
-                    while (reader.BaseStream.Position + 8 < mcnkEnd)
+                    /*── header fields ─────────────────────────────────*/
+                    reader.BaseStream.Seek(headerPos, SeekOrigin.Begin);
+                    uint mcnkFlags = reader.ReadUInt32();             // bit‑field: lq_* etc.
+
+                    // Vanilla layout: liquid_offset @ 0x60, liquid_size @ 0x64
+                    reader.BaseStream.Seek(headerPos + 0x60, SeekOrigin.Begin);
+                    uint ofsLiquid = reader.ReadUInt32();            // *rel. to chunkStart*
+                    uint sizeLiquid = reader.ReadUInt32();
+
+                    /*── liquid extraction ─────────────────────────────*/
+                    bool hasLiquid = false;
+                    float liquidLevel = float.NaN;
+
+                    if (!(sizeLiquid == 0 && ofsLiquid == 0))
                     {
-                        string subMagic = new(reader.ReadChars(4).Reverse().ToArray());
-                        int subSize = reader.ReadInt32();
-
-                        if (subMagic == "MCVT")
+                        if (ofsLiquid > 0)
                         {
-                            if (subSize < 145 * 4)
+                            long lqPos = chunkStart + ofsLiquid;
+                            if (lqPos + 8 <= chunkEnd)
                             {
-                                Console.WriteLine($"[AdtFile] MCVT size too small at chunk {chunkIndex}, skipping.");
-                                break;
+                                reader.BaseStream.Seek(lqPos, SeekOrigin.Begin);
+                                string lqTag = ReadTag(reader);
+
+                                if (lqTag == "MCLQ" && reader.BaseStream.Position + 12 <= reader.BaseStream.Length)
+                                {
+                                    /*── parse this block ───────────────*/
+                                    int length = (int)(reader.BaseStream.Length - reader.BaseStream.Position);
+                                    byte[] raw = reader.ReadBytes(length);
+
+                                    if (length >= 12)
+                                    {
+                                        uint xVerts = BitConverter.ToUInt32(raw, 0);
+                                        uint yVerts = BitConverter.ToUInt32(raw, 4);
+                                        float baseH = BitConverter.ToSingle(raw, 8);
+
+                                        if (!float.IsNaN(baseH))
+                                        {
+                                            hasLiquid = true;
+                                            liquidLevel = baseH;
+                                        }
+                                    }
+                                }
                             }
-                            heights = new float[145];
-                            for (int i = 0; i < 145; i++)
-                                heights[i] = reader.ReadSingle();
-                            break;
-                        }
-                        else
-                        {
-                            reader.BaseStream.Seek(reader.BaseStream.Position + subSize, SeekOrigin.Begin);
                         }
                     }
 
+                    /*── terrain height map ───────────────────────────*/
+                    reader.BaseStream.Seek(payloadPos, SeekOrigin.Begin);
+                    float[] heights = null;
+
+                    while (reader.BaseStream.Position + 8 <= chunkEnd && heights == null)
+                    {
+                        long subStart = reader.BaseStream.Position;
+                        string subTag = ReadTag(reader);
+                        int subSize = reader.ReadInt32();
+
+                        if (subTag == "MCVT" && subSize >= 145 * 4)
+                        {
+                            heights = new float[145];
+                            for (int i = 0; i < 145; i++)
+                                heights[i] = reader.ReadSingle();
+
+                            int pad = subSize - 145 * 4;
+                            if (pad > 0)
+                                reader.BaseStream.Seek(pad, SeekOrigin.Current);
+                            break;
+                        }
+
+                        reader.BaseStream.Seek(subStart + 8 + subSize, SeekOrigin.Begin);
+                    }
+
+                    /*── persist chunk ───────────────────────────────*/
                     if (heights != null)
                     {
                         int row = chunkIndex / 16;
                         int col = chunkIndex % 16;
 
-                        reader.BaseStream.Seek(chunkStart + 8 + 0x68, SeekOrigin.Begin);
-                        float posX = reader.ReadSingle();
-                        float posY = reader.ReadSingle();
+                        reader.BaseStream.Seek(headerPos + 0x68, SeekOrigin.Begin); // posX/posY/posZ still at 0x68 in vanilla
+                        _ = reader.ReadSingle();   // posX (unused)
+                        _ = reader.ReadSingle();   // posY (unused)
                         float posZ = reader.ReadSingle();
 
-                        // Optional: World-space debug position
-                        if (posZ > 34 && posZ < 42)
+                        chunks[row, col] = new AdtChunk
                         {
-                            float worldX = (col + posX) * 33.33333f;
-                            float worldY = (row + posY) * 33.33333f;
-                            //Console.WriteLine($"[AdtFile] MCNK Pos: ChunkIndex={chunkIndex} WorldX={worldX:F2} WorldY={worldY:F2} Z={posZ} row={row} col={col}");
-                        }
-
-                        chunks[row, col] = new AdtChunk   // ✅ row first, col second
-{
-    Heights    = heights,
-    PositionZ  = posZ            // posZ is the *vertical* component
-};
-                        //Console.WriteLine($"[AdtFile] Stored chunkIndex={chunkIndex} at row={row}, col={col}, height[0]={heights[0]}");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"[AdtFile] No MCVT found for chunk {chunkIndex}, skipping.");
+                            Heights = heights,
+                            PositionZ = posZ,
+                            HasLiquid = hasLiquid,
+                            LiquidLevel = liquidLevel
+                        };
                     }
 
+                    /*── next MCNK ───────────────────────────────────*/
                     chunkIndex++;
                     reader.BaseStream.Seek(chunkStart + 8 + size, SeekOrigin.Begin);
                 }
@@ -339,5 +383,7 @@ namespace TerrainLib
         public float PositionZ;
 
         public float[] Heights = new float[145];
+        public bool HasLiquid = false;
+        public float LiquidLevel = float.NaN;
     }
 }

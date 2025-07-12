@@ -3,11 +3,9 @@ using GameData.Core.Enums;
 
 namespace WoWSharpClient.Handlers
 {
-    public class StandStateHandler(WoWSharpObjectManager objectManager)
+    public static class StandStateHandler
     {
-        private readonly WoWSharpEventEmitter _eventEmitter = objectManager.EventEmitter;
-        private readonly WoWSharpObjectManager _objectManager = objectManager;
-        public void HandleStandStateUpdate(Opcode opcode, byte[] data)
+        public static void HandleStandStateUpdate(Opcode opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
             try
@@ -22,7 +20,7 @@ namespace WoWSharpClient.Handlers
                 byte standState = reader.ReadByte();
 
                 // Process the stand state update as needed
-                _eventEmitter.FireOnStandStateUpdate(standState);
+                WoWSharpEventEmitter.Instance.FireOnStandStateUpdate(standState);
             }
             catch (EndOfStreamException e)
             {

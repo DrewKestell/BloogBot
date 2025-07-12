@@ -1,33 +1,39 @@
 using BotRunner.Clients;
 using GameData.Core.Enums;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using WoWSharpClient.Client;
 using WoWSharpClient.Handlers;
 using WoWSharpClient.Tests.Util;
 
 namespace WoWSharpClient.Tests.Handlers
 {
+    public class ObjectManagerFixture : IDisposable
+    {
+        public readonly Mock<WoWClient> _woWClient;
+        public readonly Mock<PathfindingClient> _pathfindingClient;
+        private readonly ILogger<WoWSharpObjectManager> _logger = NullLoggerFactory.Instance.CreateLogger<WoWSharpObjectManager>();
+        public ObjectManagerFixture()
+        {
+            _woWClient = new();
+            _pathfindingClient = new();
+
+            WoWSharpObjectManager.Instance.Initialize(_woWClient.Object, _pathfindingClient.Object, _logger);
+        }
+
+        public void Dispose()
+        {
+            // No unmanaged state needs disposal for now
+        }
+    }
     public class OpcodeHandler_Tests
     {
-        private readonly WoWSharpObjectManager _objectManager;
-        private readonly Mock<PathfindingClient> _pathfindingClientMock = new();
-        private readonly Mock<Logger<WoWSharpObjectManager>> _logger = new();
         private readonly OpCodeDispatcher _dispatcher;
-        private readonly MovementHandler _movementHandler;
-        private readonly AccountDataHandler _accountDataHandler;
-        private readonly SpellHandler _spellHandler;
-        private readonly WorldStateHandler _worldStateHandler;
-        private readonly LoginHandler _loginHandler;
 
         public OpcodeHandler_Tests()
         {
-            _objectManager = new("127.0.0.1", _pathfindingClientMock.Object, _logger.Object);
-            _dispatcher = new OpCodeDispatcher(_objectManager);
-            _movementHandler = new MovementHandler(_objectManager);
-            _accountDataHandler = new AccountDataHandler(_objectManager);
-            _spellHandler = new SpellHandler(_objectManager);
-            _worldStateHandler = new WorldStateHandler(_objectManager);
-            _loginHandler = new LoginHandler(_objectManager);
+            _dispatcher = new OpCodeDispatcher();
         }
 
         public static IEnumerable<object[]> OpcodeTestData => new List<object[]>
@@ -76,35 +82,8 @@ namespace WoWSharpClient.Tests.Handlers
             foreach (var filePath in files)
             {
                 byte[] data = FileReader.ReadBinaryFile(filePath);
-                switch (handlerType)
-                {
-                    case "movement":
-                        _movementHandler.HandleUpdateMovement(opcode, data);
-                        break;
-                    case "accountData":
-                        _accountDataHandler.HandleAccountData(opcode, data);
-                        break;
-                    case "dispatcher":
-                        _dispatcher.Dispatch(opcode, data);
-                        break;
-                    case "worldState":
-                        _worldStateHandler.HandleInitWorldStates(opcode, data);
-                        break;
-                    case "login":
-                        _loginHandler.HandleLoginVerifyWorld(opcode, data);
-                        break;
-                    case "spellInitial":
-                        _spellHandler.HandleInitialSpells(opcode, data);
-                        break;
-                    case "spellLogMiss":
-                        _spellHandler.HandleSpellLogMiss(opcode, data);
-                        break;
-                    case "spellGo":
-                        _spellHandler.HandleSpellGo(opcode, data);
-                        break;
-                    default:
-                        throw new NotSupportedException($"Handler type {handlerType} is not supported.");
-                }
+
+                _dispatcher.Dispatch(opcode, data);
             }
         }
     }

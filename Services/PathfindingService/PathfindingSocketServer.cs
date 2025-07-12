@@ -20,6 +20,8 @@ namespace PathfindingService
                     PathfindingRequest.PayloadOneofCase.Path => HandlePath(request.Path),
                     PathfindingRequest.PayloadOneofCase.Distance => HandleDistance(request.Distance),
                     PathfindingRequest.PayloadOneofCase.ZQuery => HandleZQuery(request.ZQuery),
+                    PathfindingRequest.PayloadOneofCase.CapsuleOverlap => HandleOverlap(request.CapsuleOverlap),
+                    PathfindingRequest.PayloadOneofCase.LosQuery => HandleLineOfSight(request.LosQuery),
                     _ => ErrorResponse("Unknown or unset request type."),
                 };
             }
@@ -67,7 +69,7 @@ namespace PathfindingService
             if (!CheckPosition(req.MapId, req.Position, out var err))
                 return err;
 
-            float adtZ = _navigation.GetADTHeight(req.MapId, req.Position.X, req.Position.Y);
+            var adtZs = _navigation.GetADTHeight(req.MapId, req.Position.X, req.Position.Y);
             float raycastZ = _navigation.GetFloorHeight(req.MapId, req.Position.X, req.Position.Y, req.Position.Z);
 
             var resp = new ZQueryResponse
@@ -75,17 +77,56 @@ namespace PathfindingService
                 ZResult = new ZQueryResult
                 {
                     TerrainZ = raycastZ,
-                    AdtZ = adtZ,
+                    AdtZ = adtZs.Item1,
                     LocationZ = float.NegativeInfinity,
-                    WaterLevel = float.NegativeInfinity,
+                    WaterLevel = adtZs.Item2,
                 }
             };
             return new PathfindingResponse { ZQuery = resp };
         }
+        private PathfindingResponse HandleLineOfSight(LOSRequest req)
+        {
+            if (!CheckPosition(req.MapId, req.From, req.To, out var err))
+                return err;
 
+            var from = new Position(req.From.ToXYZ());
+            var to = new Position(req.To.ToXYZ());
+
+            bool hasLOS = _navigation.IsLineOfSight(req.MapId, from, to);
+
+            return new PathfindingResponse
+            {
+                LosQuery = new LOSResponse { IsInLos = hasLOS }
+            };
+        }
+        private PathfindingResponse HandleOverlap(CapsuleOverlapRequest req)
+        {
+            if (!CheckPosition(req.MapId, req.Position, out var err))
+                return err;
+
+            var pos = new Position(req.Position.ToXYZ());
+            var (radius, height) = RaceDimensions.GetCapsuleForRace(req.Race);
+
+            var polys = _navigation.GetCapsuleOverlaps(req.MapId, pos, radius, height);
+
+            var overlapResp = new CapsuleOverlapResponse();
+            foreach (var poly in polys)
+            {
+                overlapResp.Hits.Add(new NavPolyHit
+                {
+                    RefId = poly.RefId,
+                    Area = poly.Area,
+                    Flags = poly.Flags,
+                    VertCount = poly.VertCount,
+                    Verts = { poly.Verts.Select(v => v.ToProto()) }
+                });
+            }
+
+            return new PathfindingResponse { CapsuleOverlap = overlapResp };
+        }
         // ------------- Validation and Helpers ----------------
 
-        private bool CheckPosition(uint mapId, Game.Position a, Game.Position b, out PathfindingResponse error)
+        private static bool CheckPosition(uint mapId, Game.Position a, Game.Position b, out PathfindingResponse error)
         {
             if (mapId == 0 || a == null || b == null)
             {
@@ -96,7 +137,7 @@ namespace PathfindingService
             return true;
         }
 
-        private bool CheckPosition(uint mapId, Game.Position a, out PathfindingResponse error)
+        private static bool CheckPosition(uint mapId, Game.Position a, out PathfindingResponse error)
         {
             if (mapId == 0 || a == null)
             {

@@ -4,13 +4,11 @@ using System.Net;
 
 namespace WoWSharpClient.Client
 {
-    public class WoWClient(string ipAddress, WoWSharpObjectManager woWSharpObjectManager) : IDisposable
+    public class WoWClient : IDisposable
     {
-        private readonly IPAddress _ipAddress = IPAddress.Parse(ipAddress);
-        private readonly WorldClient _worldClient = new(woWSharpObjectManager.EventEmitter, new(woWSharpObjectManager));
-        private readonly AuthLoginClient _loginClient = new(ipAddress, woWSharpObjectManager.EventEmitter);
-        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpObjectManager.EventEmitter;
-
+        private IPAddress _ipAddress;
+        private AuthLoginClient _loginClient;
+        private readonly WorldClient _worldClient = new(new());
         private bool _isLoggedIn;
         public bool IsLoggedIn => _isLoggedIn;
         private uint _pingCounter = 0;
@@ -25,15 +23,17 @@ namespace WoWSharpClient.Client
 
         private void ConnectToLoginServer()
         {
+            _loginClient = new(_ipAddress.ToString());
             _loginClient.Connect();
-            _woWSharpEventEmitter.FireOnLoginConnect();
+
+            WoWSharpEventEmitter.Instance.FireOnLoginConnect();
         }
 
         public void Login(string username, string password)
         {
             try
             {
-                if (!_loginClient.IsConnected)
+                if (_loginClient == null || !_loginClient.IsConnected)
                     ConnectToLoginServer();
 
                 _loginClient.Login(username, password);
@@ -54,18 +54,17 @@ namespace WoWSharpClient.Client
             => _worldClient.SendCMSGCreateCharacter(name, race, clazz, gender, skin, face, hairStyle, hairColor, facialHair, outfitId);
         public void EnterWorld(ulong guid) => _worldClient.SendCMSGPlayerLogin(guid);
         public void SendChatMessage(ChatMsg chatMsgType, Language orcish, string destination, string text) => _worldClient.SendCMSGMessageChat(chatMsgType, orcish, destination, text);
-        public void SendNameQuery(ulong guid) => _worldClient.SendCMSGNameTypeQuery(Opcode.CMSG_NAME_QUERY, guid);
+        public virtual void SendNameQuery(ulong guid) => _worldClient.SendCMSGNameTypeQuery(Opcode.CMSG_NAME_QUERY, guid);
         public void SendMoveWorldPortAcknowledge() => _worldClient.SendMSGMoveWorldportAck();
         public void SendSetActiveMover(ulong guid) => _worldClient.SendCMSGSetActiveMover(guid);
-        internal void SendMovementOpcode(Opcode opcode, byte[] movementInfo)
-        {
-            _worldClient.SendMSGMove(opcode, movementInfo);
-        }
-        internal void SendMSGPacked(Opcode opcode, byte[] payload)
-        {
-            _worldClient.SendMSGPacked(opcode, payload);
-        }
+        internal void SendMovementOpcode(Opcode opcode, byte[] movementInfo) => _worldClient.SendMSGMove(opcode, movementInfo);
+        internal void SendMSGPacked(Opcode opcode, byte[] payload) => _worldClient.SendMSGPacked(opcode, payload);
         internal void SendPing() => _worldClient.SendCMSGPing(_pingCounter++);
         internal void QueryTime() => _worldClient.SendCMSGQueryTime();
+
+        public void SetIpAddress(string v)
+        {
+            _ipAddress = IPAddress.Parse(v);
+        }
     }
 }

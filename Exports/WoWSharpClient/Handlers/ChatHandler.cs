@@ -3,12 +3,9 @@ using WoWSharpClient.Utils;
 
 namespace WoWSharpClient.Handlers
 {
-    public class ChatHandler(WoWSharpObjectManager objectManager)
+    public static class ChatHandler
     {
-        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = objectManager.EventEmitter;
-        private readonly WoWSharpObjectManager _objectManager = objectManager;
-
-        public void HandleServerChatMessage(Opcode opcode, byte[] data)
+        public static void HandleServerChatMessage(Opcode opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
             try
@@ -70,7 +67,7 @@ namespace WoWSharpClient.Handlers
                 string text = ReaderUtils.ReadString(reader, textLength);
                 playerChatTag = (PlayerChatTag)reader.ReadByte();
 
-                _woWSharpEventEmitter.FireOnChatMessage(
+                WoWSharpEventEmitter.Instance.FireOnChatMessage(
                     chatType,
                     language,
                     senderGuid,

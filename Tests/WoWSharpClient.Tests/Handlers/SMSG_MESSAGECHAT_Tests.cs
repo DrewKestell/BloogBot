@@ -7,21 +7,8 @@ using WoWSharpClient.Tests.Util;
 
 namespace WoWSharpClient.Tests.Handlers
 {
-    public class SMSG_MESSAGECHAT_Tests
+    public class SMSG_MESSAGECHAT_Tests(ObjectManagerFixture _) : IClassFixture<ObjectManagerFixture>
     {
-        private readonly ChatHandler _chatHandler;
-        private readonly WoWSharpObjectManager _objectManager;
-        private readonly Mock<PathfindingClient> _pathfindingClientMock;
-        private readonly Mock<Logger<WoWSharpObjectManager>> _logger = new();
-
-        public SMSG_MESSAGECHAT_Tests()
-        {
-            _pathfindingClientMock = new Mock<PathfindingClient>();
-            _objectManager = new("127.0.0.1", _pathfindingClientMock.Object, _logger.Object);
-
-            _chatHandler = new ChatHandler(_objectManager);
-        }
-
         [Fact]
         public void ShouldProcessPatchMessage()
         {
@@ -39,7 +26,7 @@ namespace WoWSharpClient.Tests.Handlers
             string text = string.Empty;
             PlayerChatTag playerChatTag = PlayerChatTag.CHAT_TAG_NONE;
 
-            _objectManager.EventEmitter.OnChatMessage += (objc, args) =>
+            WoWSharpEventEmitter.Instance.OnChatMessage += (objc, args) =>
             {
                 msgtype = args.MsgType;
                 language = args.Language;
@@ -53,7 +40,7 @@ namespace WoWSharpClient.Tests.Handlers
             };
 
             // Act
-            _chatHandler.HandleServerChatMessage(opcode, data);
+            ChatHandler.HandleServerChatMessage(opcode, data);
 
             // Assert
             Assert.True(eventFired, "The chat message event was not fired.");
@@ -84,7 +71,7 @@ namespace WoWSharpClient.Tests.Handlers
             string text = string.Empty;
             PlayerChatTag playerChatTag = PlayerChatTag.CHAT_TAG_NONE;
 
-            _objectManager.EventEmitter.OnChatMessage += (objc, args) =>
+            WoWSharpEventEmitter.Instance.OnChatMessage += (objc, args) =>
             {
                 msgtype = args.MsgType;
                 language = args.Language;
@@ -98,7 +85,7 @@ namespace WoWSharpClient.Tests.Handlers
             };
 
             // Act
-            _chatHandler.HandleServerChatMessage(opcode, data);
+            ChatHandler.HandleServerChatMessage(opcode, data);
 
             // Assert
             Assert.True(eventFired, "The chat message event was not fired.");
@@ -129,7 +116,7 @@ namespace WoWSharpClient.Tests.Handlers
             string text = string.Empty;
             PlayerChatTag playerChatTag = PlayerChatTag.CHAT_TAG_NONE;
 
-            _objectManager.EventEmitter.OnChatMessage += (objc, args) =>
+            WoWSharpEventEmitter.Instance.OnChatMessage += (objc, args) =>
             {
                 msgtype = args.MsgType;
                 language = args.Language;
@@ -143,7 +130,7 @@ namespace WoWSharpClient.Tests.Handlers
             };
 
             // Act
-            _chatHandler.HandleServerChatMessage(opcode, data);
+            ChatHandler.HandleServerChatMessage(opcode, data);
 
             // Assert
             Assert.True(eventFired, "The chat message event was not fired.");
@@ -174,7 +161,7 @@ namespace WoWSharpClient.Tests.Handlers
             string text = string.Empty;
             PlayerChatTag playerChatTag = PlayerChatTag.CHAT_TAG_NONE;
 
-            _objectManager.EventEmitter.OnChatMessage += (objc, args) =>
+            WoWSharpEventEmitter.Instance.OnChatMessage += (objc, args) =>
             {
                 msgtype = args.MsgType;
                 language = args.Language;
@@ -188,7 +175,7 @@ namespace WoWSharpClient.Tests.Handlers
             };
 
             // Act
-            _chatHandler.HandleServerChatMessage(opcode, data);
+            ChatHandler.HandleServerChatMessage(opcode, data);
 
             // Assert
             Assert.True(eventFired, "The chat message event was not fired.");
@@ -219,7 +206,7 @@ namespace WoWSharpClient.Tests.Handlers
             string text = string.Empty;
             PlayerChatTag playerChatTag = PlayerChatTag.CHAT_TAG_NONE;
 
-            _objectManager.EventEmitter.OnChatMessage += (objc, args) =>
+            WoWSharpEventEmitter.Instance.OnChatMessage += (objc, args) =>
             {
                 msgtype = args.MsgType;
                 language = args.Language;
@@ -233,7 +220,7 @@ namespace WoWSharpClient.Tests.Handlers
             };
 
             // Act
-            _chatHandler.HandleServerChatMessage(opcode, data);
+            ChatHandler.HandleServerChatMessage(opcode, data);
 
             // Assert
             Assert.True(eventFired, "The chat message event was not fired.");

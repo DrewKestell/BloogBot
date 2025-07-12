@@ -105,6 +105,17 @@ namespace GameData.Core.Models
         public float Radius;
         public XYZ MotionVector;
     }
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct NavPoly
+    {
+        public ulong RefId;
+        public uint Area;
+        public uint Flags;
+        public uint VertCount;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 6)]
+        public XYZ[] Verts;
+    }
     public enum SurfaceTag
     {
         Unknown = 0,

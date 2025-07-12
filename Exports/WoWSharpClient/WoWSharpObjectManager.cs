@@ -19,19 +19,27 @@ namespace WoWSharpClient
 {
     public class WoWSharpObjectManager : IObjectManager
     {
-        private readonly ILogger<WoWSharpObjectManager> _logger;
+        private static WoWSharpObjectManager _instance;
+
+        public static WoWSharpObjectManager Instance
+        {
+            get
+            {
+                _instance ??= new WoWSharpObjectManager();
+
+                return _instance;
+            }
+        }
+
+        private ILogger<WoWSharpObjectManager> _logger;
 
         // Wrapper client for both auth and world transactions
-        private readonly WoWClient _woWClient;
-        private readonly PathfindingClient _pathfindingClient;
+        private WoWClient _woWClient;
+        private PathfindingClient _pathfindingClient;
 
-        private readonly WoWSharpEventEmitter _eventEmitter = new();
-
-        public WoWSharpEventEmitter EventEmitter => _eventEmitter;
-
-        private readonly LoginScreen _loginScreen;
-        private readonly RealmSelectScreen _realmScreen;
-        private readonly CharacterSelectScreen _characterSelectScreen;
+        private LoginScreen _loginScreen;
+        private RealmSelectScreen _realmScreen;
+        private CharacterSelectScreen _characterSelectScreen;
 
         private Timer _gameLoopTimer;
 
@@ -58,39 +66,40 @@ namespace WoWSharpClient
         private const float MaxFallSpeed = 60.0f;      // terminal velocity clamp
         private const float GroundSnapThreshold = 2.5f;// metres
         private const float ServerGroundBias = 0.05f;  // +5 cm – matches vMaNGOS
-        private bool _hasSentAcknowledgement = false;
-        private bool _wasGrounded;
+
         private MovementFlags _lastMovementFlags = MovementFlags.MOVEFLAG_NONE;
 
-        public WoWSharpObjectManager(string ipAddress, PathfindingClient pathfindingClient, ILogger<WoWSharpObjectManager> logger)
+        private WoWSharpObjectManager()
+        {
+
+        }
+        public void Initialize(WoWClient wowClient, PathfindingClient pathfindingClient, ILogger<WoWSharpObjectManager> logger)
         {
             _logger = logger;
+            _pathfindingClient = pathfindingClient;
+            _woWClient = wowClient;
 
-            _eventEmitter.OnLoginFailure += EventEmitter_OnLoginFailure;
-            _eventEmitter.OnLoginVerifyWorld += EventEmitter_OnLoginVerifyWorld;
-            _eventEmitter.OnWorldSessionStart += EventEmitter_OnWorldSessionStart;
-            _eventEmitter.OnWorldSessionEnd += EventEmitter_OnWorldSessionEnd;
-            _eventEmitter.OnCharacterListLoaded += EventEmitter_OnCharacterListLoaded;
-            _eventEmitter.OnChatMessage += EventEmitter_OnChatMessage;
-            _eventEmitter.OnForceMoveRoot += EventEmitter_OnForceMoveRoot;
-            _eventEmitter.OnForceMoveUnroot += EventEmitter_OnForceMoveUnroot;
-            _eventEmitter.OnForceRunSpeedChange += EventEmitter_OnForceRunSpeedChange;
-            _eventEmitter.OnForceRunBackSpeedChange += EventEmitter_OnForceRunBackSpeedChange;
-            _eventEmitter.OnForceSwimSpeedChange += EventEmitter_OnForceSwimSpeedChange;
-            _eventEmitter.OnForceMoveKnockBack += EventEmitter_OnForceMoveKnockBack;
-            _eventEmitter.OnForceTimeSkipped += EventEmitter_OnForceTimeSkipped;
-            _eventEmitter.OnTeleport += EventEmitter_OnTeleport;
-            _eventEmitter.OnClientControlUpdate += EventEmitter_OnClientControlUpdate;
-            _eventEmitter.OnSetTimeSpeed += EventEmitter_OnSetTimeSpeed;
-            _eventEmitter.OnSpellGo += EventEmitter_OnSpellGo;
-
-            _woWClient = new(ipAddress, this);
+            WoWSharpEventEmitter.Instance.OnLoginFailure += EventEmitter_OnLoginFailure;
+            WoWSharpEventEmitter.Instance.OnLoginVerifyWorld += EventEmitter_OnLoginVerifyWorld;
+            WoWSharpEventEmitter.Instance.OnWorldSessionStart += EventEmitter_OnWorldSessionStart;
+            WoWSharpEventEmitter.Instance.OnWorldSessionEnd += EventEmitter_OnWorldSessionEnd;
+            WoWSharpEventEmitter.Instance.OnCharacterListLoaded += EventEmitter_OnCharacterListLoaded;
+            WoWSharpEventEmitter.Instance.OnChatMessage += EventEmitter_OnChatMessage;
+            WoWSharpEventEmitter.Instance.OnForceMoveRoot += EventEmitter_OnForceMoveRoot;
+            WoWSharpEventEmitter.Instance.OnForceMoveUnroot += EventEmitter_OnForceMoveUnroot;
+            WoWSharpEventEmitter.Instance.OnForceRunSpeedChange += EventEmitter_OnForceRunSpeedChange;
+            WoWSharpEventEmitter.Instance.OnForceRunBackSpeedChange += EventEmitter_OnForceRunBackSpeedChange;
+            WoWSharpEventEmitter.Instance.OnForceSwimSpeedChange += EventEmitter_OnForceSwimSpeedChange;
+            WoWSharpEventEmitter.Instance.OnForceMoveKnockBack += EventEmitter_OnForceMoveKnockBack;
+            WoWSharpEventEmitter.Instance.OnForceTimeSkipped += EventEmitter_OnForceTimeSkipped;
+            WoWSharpEventEmitter.Instance.OnTeleport += EventEmitter_OnTeleport;
+            WoWSharpEventEmitter.Instance.OnClientControlUpdate += EventEmitter_OnClientControlUpdate;
+            WoWSharpEventEmitter.Instance.OnSetTimeSpeed += EventEmitter_OnSetTimeSpeed;
+            WoWSharpEventEmitter.Instance.OnSpellGo += EventEmitter_OnSpellGo;
 
             _loginScreen = new(_woWClient);
             _realmScreen = new(_woWClient);
             _characterSelectScreen = new(_woWClient);
-
-            _pathfindingClient = pathfindingClient;
         }
 
         private void EventEmitter_OnSpellGo(object? sender, EventArgs e)
@@ -99,7 +108,7 @@ namespace WoWSharpClient
         }
 
         private void EventEmitter_OnClientControlUpdate(object? sender, EventArgs e)
-        {         
+        {
             _isInControl = true;
             _isBeingTeleported = false;
 
@@ -369,7 +378,7 @@ namespace WoWSharpClient
             _woWClient.SendMovementOpcode(opcode, buffer);
         }
 
-        private Opcode DetermineMovementOpcode(MovementFlags current, MovementFlags previous)
+        private static Opcode DetermineMovementOpcode(MovementFlags current, MovementFlags previous)
         {
             if (current.HasFlag(MovementFlags.MOVEFLAG_JUMPING) && !previous.HasFlag(MovementFlags.MOVEFLAG_JUMPING))
                 return Opcode.MSG_MOVE_JUMP;
@@ -682,9 +691,108 @@ namespace WoWSharpClient
                             break;
                     }
                 }
-                else if (Enum.IsDefined(typeof(EGameObjectFields), key))
+                else if (obj is WoWItem item)
                 {
-                    if (obj is WoWGameObject go)
+                    if (Enum.IsDefined(typeof(EItemFields), key))
+                    {
+                        var field = (EItemFields)key;
+                        switch (field)
+                        {
+                            case EItemFields.ITEM_FIELD_OWNER:
+                                item.Owner.LowGuidValue = (byte[])value;
+                                break;
+                            case EItemFields.ITEM_FIELD_OWNER + 1:
+                                item.Owner.HighGuidValue = (byte[])value;
+                                break;
+                            case EItemFields.ITEM_FIELD_CONTAINED:
+                                item.Contained.LowGuidValue = (byte[])value;
+                                break;
+                            case EItemFields.ITEM_FIELD_CONTAINED + 1:
+                                item.Contained.HighGuidValue = (byte[])value;
+                                break;
+                            case EItemFields.ITEM_FIELD_CREATOR:
+                                item.CreatedBy.LowGuidValue = (byte[])value;
+                                break;
+                            case EItemFields.ITEM_FIELD_CREATOR + 1:
+                                item.CreatedBy.HighGuidValue = (byte[])value;
+                                break;
+                            case EItemFields.ITEM_FIELD_GIFTCREATOR:
+                                item.GiftCreator.LowGuidValue = (byte[])value;
+                                break;
+                            case EItemFields.ITEM_FIELD_GIFTCREATOR + 1:
+                                item.GiftCreator.HighGuidValue = (byte[])value;
+                                break;
+                            case EItemFields.ITEM_FIELD_STACK_COUNT:
+                                item.StackCount = (uint)value;
+                                break;
+                            case EItemFields.ITEM_FIELD_DURATION:
+                                item.Duration = (uint)value;
+                                break;
+                            case EItemFields.ITEM_FIELD_SPELL_CHARGES:
+                                item.SpellCharges[0] = (uint)value;
+                                break;
+                            case EItemFields.ITEM_FIELD_SPELL_CHARGES_01:
+                                item.SpellCharges[1] = (uint)value;
+                                break;
+                            case EItemFields.ITEM_FIELD_SPELL_CHARGES_02:
+                                item.SpellCharges[2] = (uint)value;
+                                break;
+                            case EItemFields.ITEM_FIELD_SPELL_CHARGES_03:
+                                item.SpellCharges[3] = (uint)value;
+                                break;
+                            case EItemFields.ITEM_FIELD_SPELL_CHARGES_04:
+                                item.SpellCharges[4] = (uint)value;
+                                break;
+                            case EItemFields.ITEM_FIELD_FLAGS:
+                                item.ItemDynamicFlags = (ItemDynFlags)value;
+                                break;
+                            case EItemFields.ITEM_FIELD_ENCHANTMENT:
+                                item.Enchantments[0] = (uint)value;
+                                break;
+                            case EItemFields.ITEM_FIELD_PROPERTY_SEED:
+                                item.PropertySeed = (uint)value;
+                                break;
+                            case EItemFields.ITEM_FIELD_RANDOM_PROPERTIES_ID:
+                                item.PropertySeed = (uint)value;
+                                break;
+                            case EItemFields.ITEM_FIELD_ITEM_TEXT_ID:
+                                item.ItemTextId = (uint)value;
+                                break;
+                            case EItemFields.ITEM_FIELD_DURABILITY:
+                                item.Durability = (uint)value;
+                                break;
+                            case EItemFields.ITEM_FIELD_MAXDURABILITY:
+                                item.MaxDurability = (uint)value;
+                                break;
+                            case EItemFields.ITEM_END:
+                                break;
+                        }
+                    }
+                }
+                else if (obj is WoWContainer container)
+                {
+                    if (Enum.IsDefined(typeof(EContainerFields), key))
+                    {
+                        var field = (EContainerFields)key;
+                        switch (field)
+                        {
+                            case EContainerFields.CONTAINER_FIELD_NUM_SLOTS:
+                                container.NumOfSlots = (int)value;
+                                break;
+                            case EContainerFields.CONTAINER_ALIGN_PAD:
+                                break;
+                            case EContainerFields.CONTAINER_FIELD_SLOT_1:
+                                break;
+                            case EContainerFields.CONTAINER_FIELD_SLOT_LAST:
+                                break;
+                            case EContainerFields.CONTAINER_END:
+                                break;
+                        }
+                    }
+                }
+                else if (obj is WoWGameObject go)
+                {
+                    if (Enum.IsDefined(typeof(EGameObjectFields), key))
                     {
                         var field = (EGameObjectFields)key;
                         switch (field)
@@ -740,9 +848,9 @@ namespace WoWSharpClient
                         }
                     }
                 }
-                else if (Enum.IsDefined(typeof(EDynamicObjectFields), key))
+                else if (obj is WoWDynamicObject dyn)
                 {
-                    if (obj is WoWDynamicObject dyn)
+                    if (Enum.IsDefined(typeof(EDynamicObjectFields), key))
                     {
                         var field = (EDynamicObjectFields)key;
                         switch (field)
@@ -778,9 +886,9 @@ namespace WoWSharpClient
                         }
                     }
                 }
-                else if (Enum.IsDefined(typeof(ECorpseFields), key))
+                else if (obj is WoWCorpse corpse)
                 {
-                    if (obj is WoWCorpse corpse)
+                    if (Enum.IsDefined(typeof(ECorpseFields), key))
                     {
                         var field = (ECorpseFields)key;
                         switch (field)
@@ -827,10 +935,9 @@ namespace WoWSharpClient
                         }
                     }
                 }
-
-                else if (Enum.IsDefined(typeof(EUnitFields), key))
+                else if (obj is WoWUnit unit)
                 {
-                    if (obj is WoWUnit unit)
+                    if (Enum.IsDefined(typeof(EUnitFields), key))
                     {
                         var field = (EUnitFields)key;
                         switch (field)
@@ -1133,48 +1240,48 @@ namespace WoWSharpClient
                                     }
                                 }
                                 break;
-                            case >= EUnitFields.PLAYER_VISIBLE_ITEM_1_CREATOR and <= EUnitFields.PLAYER_VISIBLE_ITEM_LAST_PAD:
+                            case >= EUnitFields.PLAYER_VISIBLE_ITEM_1_CREATOR and < EUnitFields.PLAYER_VISIBLE_ITEM_LAST_PAD:
                                 {
                                     uint visibleItemField = (field - EUnitFields.PLAYER_VISIBLE_ITEM_1_CREATOR) % 12;
                                     int itemIndex = (int)((field - EUnitFields.PLAYER_VISIBLE_ITEM_1_CREATOR) / 12);
-                                    var item = ((WoWPlayer)unit).VisibleItems[itemIndex];
+                                    var visibleItem = ((WoWPlayer)unit).VisibleItems[itemIndex];
                                     switch (visibleItemField)
                                     {
                                         case 0:
-                                            item.CreatedBy.LowGuidValue = (byte[])value;
+                                            visibleItem.CreatedBy.LowGuidValue = (byte[])value;
                                             break;
                                         case 1:
-                                            item.CreatedBy.HighGuidValue = (byte[])value;
+                                            visibleItem.CreatedBy.HighGuidValue = (byte[])value;
                                             break;
                                         case 2:
-                                            ((WoWItem)item).ItemId = (uint)value;
+                                            ((WoWItem)visibleItem).ItemId = (uint)value;
                                             break;
                                         case 3:
-                                            item.Owner.LowGuidValue = (byte[])value;
+                                            visibleItem.Owner.LowGuidValue = (byte[])value;
                                             break;
                                         case 4:
-                                            item.Owner.HighGuidValue = (byte[])value;
+                                            visibleItem.Owner.HighGuidValue = (byte[])value;
                                             break;
                                         case 5:
-                                            item.Contained.LowGuidValue = (byte[])value;
+                                            visibleItem.Contained.LowGuidValue = (byte[])value;
                                             break;
                                         case 6:
-                                            item.Contained.HighGuidValue = (byte[])value;
+                                            visibleItem.Contained.HighGuidValue = (byte[])value;
                                             break;
                                         case 7:
-                                            item.GiftCreator.LowGuidValue = (byte[])value;
+                                            visibleItem.GiftCreator.LowGuidValue = (byte[])value;
                                             break;
                                         case 8:
-                                            item.GiftCreator.HighGuidValue = (byte[])value;
+                                            visibleItem.GiftCreator.HighGuidValue = (byte[])value;
                                             break;
                                         case 9:
-                                            ((WoWItem)item).StackCount = (uint)value;
+                                            ((WoWItem)visibleItem).StackCount = (uint)value;
                                             break;
                                         case 10:
-                                            ((WoWItem)item).Durability = (uint)value;
+                                            ((WoWItem)visibleItem).Durability = (uint)value;
                                             break;
                                         case 11:
-                                            ((WoWItem)item).PropertySeed = (uint)value;
+                                            ((WoWItem)visibleItem).PropertySeed = (uint)value;
                                             break;
                                     }
                                 }

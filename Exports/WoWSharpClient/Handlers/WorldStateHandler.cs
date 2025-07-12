@@ -3,11 +3,9 @@ using GameData.Core.Interfaces;
 
 namespace WoWSharpClient.Handlers
 {
-    public class WorldStateHandler(WoWSharpObjectManager objectManager)
+    public static class WorldStateHandler
     {
-        private readonly WoWSharpEventEmitter _eventEmitter = objectManager.EventEmitter;
-        private readonly WoWSharpObjectManager _objectManager = objectManager;
-        public void HandleInitWorldStates(Opcode opcode, byte[] data)
+        public static void HandleInitWorldStates(Opcode opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
             try
@@ -52,7 +50,7 @@ namespace WoWSharpClient.Handlers
                 }
 
                 // Process the world states as needed
-                _eventEmitter.FireOnWorldStatesInit(worldStates);
+                WoWSharpEventEmitter.Instance.FireOnWorldStatesInit(worldStates);
             }
             catch (EndOfStreamException e)
             {

@@ -16,6 +16,7 @@ message PathfindingRequest {
         LOSRequest los_query = 4;
         AreaInfoRequest area_info = 5;
         LiquidLevelRequest liquid_level = 6;
+        CapsuleOverlapRequest capsule_overlap = 7;
     }
 }
 
@@ -54,6 +55,12 @@ message LiquidLevelRequest {
     uint32 req_liquid_type = 3;
 }
 
+message CapsuleOverlapRequest {
+    uint32 map_id = 1;
+    game.Position position = 2;
+    game.Race race = 3;
+}
+
 // ----------------------------
 // Responses
 // ----------------------------
@@ -66,6 +73,7 @@ message PathfindingResponse {
         LOSResponse los_query = 4;
         AreaInfoResponse area_info = 5;
         LiquidLevelResponse liquid_level = 6;
+        CapsuleOverlapResponse capsule_overlap = 7;
         Error error = 99;
     }
 }
@@ -97,6 +105,18 @@ message LiquidLevelResponse {
     float level = 1;
     float floor = 2;
     uint32 type = 3;
+}
+
+message CapsuleOverlapResponse {
+    repeated NavPolyHit hits = 1;
+}
+
+message NavPolyHit {
+    uint64 ref_id = 1;
+    uint32 area = 2;
+    uint32 flags = 3;
+    uint32 vert_count = 4;
+    repeated game.Position verts = 5;
 }
 
 message Error {

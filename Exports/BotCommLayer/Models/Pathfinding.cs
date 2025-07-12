@@ -25,61 +25,73 @@ namespace Pathfinding {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "ChFwYXRoZmluZGluZy5wcm90bxILcGF0aGZpbmRpbmcaCmdhbWUucHJvdG8i",
-            "xAIKElBhdGhmaW5kaW5nUmVxdWVzdBIoCgRwYXRoGAEgASgLMhgucGF0aGZp",
+            "gwMKElBhdGhmaW5kaW5nUmVxdWVzdBIoCgRwYXRoGAEgASgLMhgucGF0aGZp",
             "bmRpbmcuUGF0aFJlcXVlc3RIABIwCghkaXN0YW5jZRgCIAEoCzIcLnBhdGhm",
             "aW5kaW5nLkRpc3RhbmNlUmVxdWVzdEgAEi0KB3pfcXVlcnkYAyABKAsyGi5w",
             "YXRoZmluZGluZy5aUXVlcnlSZXF1ZXN0SAASLAoJbG9zX3F1ZXJ5GAQgASgL",
             "MhcucGF0aGZpbmRpbmcuTE9TUmVxdWVzdEgAEjEKCWFyZWFfaW5mbxgFIAEo",
             "CzIcLnBhdGhmaW5kaW5nLkFyZWFJbmZvUmVxdWVzdEgAEjcKDGxpcXVpZF9s",
             "ZXZlbBgGIAEoCzIfLnBhdGhmaW5kaW5nLkxpcXVpZExldmVsUmVxdWVzdEgA",
-            "QgkKB3BheWxvYWQibgoLUGF0aFJlcXVlc3QSDgoGbWFwX2lkGAEgASgNEh0K",
-            "BXN0YXJ0GAIgASgLMg4uZ2FtZS5Qb3NpdGlvbhIbCgNlbmQYAyABKAsyDi5n",
-            "YW1lLlBvc2l0aW9uEhMKC3Ntb290aF9wYXRoGAQgASgIIl0KD0Rpc3RhbmNl",
-            "UmVxdWVzdBIOCgZtYXBfaWQYASABKA0SHQoFc3RhcnQYAiABKAsyDi5nYW1l",
-            "LlBvc2l0aW9uEhsKA2VuZBgDIAEoCzIOLmdhbWUuUG9zaXRpb24iQQoNWlF1",
-            "ZXJ5UmVxdWVzdBIOCgZtYXBfaWQYASABKA0SIAoIcG9zaXRpb24YAiABKAsy",
-            "Di5nYW1lLlBvc2l0aW9uIlYKCkxPU1JlcXVlc3QSDgoGbWFwX2lkGAEgASgN",
-            "EhwKBGZyb20YAiABKAsyDi5nYW1lLlBvc2l0aW9uEhoKAnRvGAMgASgLMg4u",
-            "Z2FtZS5Qb3NpdGlvbiJDCg9BcmVhSW5mb1JlcXVlc3QSDgoGbWFwX2lkGAEg",
-            "ASgNEiAKCHBvc2l0aW9uGAIgASgLMg4uZ2FtZS5Qb3NpdGlvbiJfChJMaXF1",
-            "aWRMZXZlbFJlcXVlc3QSDgoGbWFwX2lkGAEgASgNEiAKCHBvc2l0aW9uGAIg",
-            "ASgLMg4uZ2FtZS5Qb3NpdGlvbhIXCg9yZXFfbGlxdWlkX3R5cGUYAyABKA0i",
-            "8AIKE1BhdGhmaW5kaW5nUmVzcG9uc2USKQoEcGF0aBgBIAEoCzIZLnBhdGhm",
-            "aW5kaW5nLlBhdGhSZXNwb25zZUgAEjEKCGRpc3RhbmNlGAIgASgLMh0ucGF0",
-            "aGZpbmRpbmcuRGlzdGFuY2VSZXNwb25zZUgAEi4KB3pfcXVlcnkYAyABKAsy",
-            "Gy5wYXRoZmluZGluZy5aUXVlcnlSZXNwb25zZUgAEi0KCWxvc19xdWVyeRgE",
-            "IAEoCzIYLnBhdGhmaW5kaW5nLkxPU1Jlc3BvbnNlSAASMgoJYXJlYV9pbmZv",
-            "GAUgASgLMh0ucGF0aGZpbmRpbmcuQXJlYUluZm9SZXNwb25zZUgAEjgKDGxp",
-            "cXVpZF9sZXZlbBgGIAEoCzIgLnBhdGhmaW5kaW5nLkxpcXVpZExldmVsUmVz",
-            "cG9uc2VIABIjCgVlcnJvchhjIAEoCzISLnBhdGhmaW5kaW5nLkVycm9ySABC",
-            "CQoHcGF5bG9hZCIsCgxQYXRoUmVzcG9uc2USHAoEcGF0aBgBIAMoCzIOLmdh",
-            "bWUuUG9zaXRpb24iJAoQRGlzdGFuY2VSZXNwb25zZRIQCghkaXN0YW5jZRgB",
-            "IAEoAiI9Cg5aUXVlcnlSZXNwb25zZRIrCgh6X3Jlc3VsdBgBIAEoCzIZLnBh",
-            "dGhmaW5kaW5nLlpRdWVyeVJlc3VsdCIgCgtMT1NSZXNwb25zZRIRCglpc19p",
-            "bl9sb3MYASABKAgiWQoQQXJlYUluZm9SZXNwb25zZRISCgphcmVhX2ZsYWdz",
-            "GAEgASgNEg4KBmFkdF9pZBgCIAEoBRIPCgdyb290X2lkGAMgASgFEhAKCGdy",
-            "b3VwX2lkGAQgASgFIkEKE0xpcXVpZExldmVsUmVzcG9uc2USDQoFbGV2ZWwY",
-            "ASABKAISDQoFZmxvb3IYAiABKAISDAoEdHlwZRgDIAEoDSIYCgVFcnJvchIP",
-            "CgdtZXNzYWdlGAEgASgJIlkKDFpRdWVyeVJlc3VsdBIRCgl0ZXJyYWluX3oY",
-            "ASABKAISDQoFYWR0X3oYAiABKAISEgoKbG9jYXRpb25fehgDIAEoAhITCgt3",
-            "YXRlcl9sZXZlbBgEIAEoAmIGcHJvdG8z"));
+            "Ej0KD2NhcHN1bGVfb3ZlcmxhcBgHIAEoCzIiLnBhdGhmaW5kaW5nLkNhcHN1",
+            "bGVPdmVybGFwUmVxdWVzdEgAQgkKB3BheWxvYWQibgoLUGF0aFJlcXVlc3QS",
+            "DgoGbWFwX2lkGAEgASgNEh0KBXN0YXJ0GAIgASgLMg4uZ2FtZS5Qb3NpdGlv",
+            "bhIbCgNlbmQYAyABKAsyDi5nYW1lLlBvc2l0aW9uEhMKC3Ntb290aF9wYXRo",
+            "GAQgASgIIl0KD0Rpc3RhbmNlUmVxdWVzdBIOCgZtYXBfaWQYASABKA0SHQoF",
+            "c3RhcnQYAiABKAsyDi5nYW1lLlBvc2l0aW9uEhsKA2VuZBgDIAEoCzIOLmdh",
+            "bWUuUG9zaXRpb24iQQoNWlF1ZXJ5UmVxdWVzdBIOCgZtYXBfaWQYASABKA0S",
+            "IAoIcG9zaXRpb24YAiABKAsyDi5nYW1lLlBvc2l0aW9uIlYKCkxPU1JlcXVl",
+            "c3QSDgoGbWFwX2lkGAEgASgNEhwKBGZyb20YAiABKAsyDi5nYW1lLlBvc2l0",
+            "aW9uEhoKAnRvGAMgASgLMg4uZ2FtZS5Qb3NpdGlvbiJDCg9BcmVhSW5mb1Jl",
+            "cXVlc3QSDgoGbWFwX2lkGAEgASgNEiAKCHBvc2l0aW9uGAIgASgLMg4uZ2Ft",
+            "ZS5Qb3NpdGlvbiJfChJMaXF1aWRMZXZlbFJlcXVlc3QSDgoGbWFwX2lkGAEg",
+            "ASgNEiAKCHBvc2l0aW9uGAIgASgLMg4uZ2FtZS5Qb3NpdGlvbhIXCg9yZXFf",
+            "bGlxdWlkX3R5cGUYAyABKA0iYwoVQ2Fwc3VsZU92ZXJsYXBSZXF1ZXN0Eg4K",
+            "Bm1hcF9pZBgBIAEoDRIgCghwb3NpdGlvbhgCIAEoCzIOLmdhbWUuUG9zaXRp",
+            "b24SGAoEcmFjZRgDIAEoDjIKLmdhbWUuUmFjZSKwAwoTUGF0aGZpbmRpbmdS",
+            "ZXNwb25zZRIpCgRwYXRoGAEgASgLMhkucGF0aGZpbmRpbmcuUGF0aFJlc3Bv",
+            "bnNlSAASMQoIZGlzdGFuY2UYAiABKAsyHS5wYXRoZmluZGluZy5EaXN0YW5j",
+            "ZVJlc3BvbnNlSAASLgoHel9xdWVyeRgDIAEoCzIbLnBhdGhmaW5kaW5nLlpR",
+            "dWVyeVJlc3BvbnNlSAASLQoJbG9zX3F1ZXJ5GAQgASgLMhgucGF0aGZpbmRp",
+            "bmcuTE9TUmVzcG9uc2VIABIyCglhcmVhX2luZm8YBSABKAsyHS5wYXRoZmlu",
+            "ZGluZy5BcmVhSW5mb1Jlc3BvbnNlSAASOAoMbGlxdWlkX2xldmVsGAYgASgL",
+            "MiAucGF0aGZpbmRpbmcuTGlxdWlkTGV2ZWxSZXNwb25zZUgAEj4KD2NhcHN1",
+            "bGVfb3ZlcmxhcBgHIAEoCzIjLnBhdGhmaW5kaW5nLkNhcHN1bGVPdmVybGFw",
+            "UmVzcG9uc2VIABIjCgVlcnJvchhjIAEoCzISLnBhdGhmaW5kaW5nLkVycm9y",
+            "SABCCQoHcGF5bG9hZCIsCgxQYXRoUmVzcG9uc2USHAoEcGF0aBgBIAMoCzIO",
+            "LmdhbWUuUG9zaXRpb24iJAoQRGlzdGFuY2VSZXNwb25zZRIQCghkaXN0YW5j",
+            "ZRgBIAEoAiI9Cg5aUXVlcnlSZXNwb25zZRIrCgh6X3Jlc3VsdBgBIAEoCzIZ",
+            "LnBhdGhmaW5kaW5nLlpRdWVyeVJlc3VsdCIgCgtMT1NSZXNwb25zZRIRCglp",
+            "c19pbl9sb3MYASABKAgiWQoQQXJlYUluZm9SZXNwb25zZRISCgphcmVhX2Zs",
+            "YWdzGAEgASgNEg4KBmFkdF9pZBgCIAEoBRIPCgdyb290X2lkGAMgASgFEhAK",
+            "CGdyb3VwX2lkGAQgASgFIkEKE0xpcXVpZExldmVsUmVzcG9uc2USDQoFbGV2",
+            "ZWwYASABKAISDQoFZmxvb3IYAiABKAISDAoEdHlwZRgDIAEoDSI/ChZDYXBz",
+            "dWxlT3ZlcmxhcFJlc3BvbnNlEiUKBGhpdHMYASADKAsyFy5wYXRoZmluZGlu",
+            "Zy5OYXZQb2x5SGl0ImwKCk5hdlBvbHlIaXQSDgoGcmVmX2lkGAEgASgEEgwK",
+            "BGFyZWEYAiABKA0SDQoFZmxhZ3MYAyABKA0SEgoKdmVydF9jb3VudBgEIAEo",
+            "DRIdCgV2ZXJ0cxgFIAMoCzIOLmdhbWUuUG9zaXRpb24iGAoFRXJyb3ISDwoH",
+            "bWVzc2FnZRgBIAEoCSJZCgxaUXVlcnlSZXN1bHQSEQoJdGVycmFpbl96GAEg",
+            "ASgCEg0KBWFkdF96GAIgASgCEhIKCmxvY2F0aW9uX3oYAyABKAISEwoLd2F0",
+            "ZXJfbGV2ZWwYBCABKAJiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Game.GameReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PathfindingRequest), global::Pathfinding.PathfindingRequest.Parser, new[]{ "Path", "Distance", "ZQuery", "LosQuery", "AreaInfo", "LiquidLevel" }, new[]{ "Payload" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PathfindingRequest), global::Pathfinding.PathfindingRequest.Parser, new[]{ "Path", "Distance", "ZQuery", "LosQuery", "AreaInfo", "LiquidLevel", "CapsuleOverlap" }, new[]{ "Payload" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PathRequest), global::Pathfinding.PathRequest.Parser, new[]{ "MapId", "Start", "End", "SmoothPath" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.DistanceRequest), global::Pathfinding.DistanceRequest.Parser, new[]{ "MapId", "Start", "End" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.ZQueryRequest), global::Pathfinding.ZQueryRequest.Parser, new[]{ "MapId", "Position" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.LOSRequest), global::Pathfinding.LOSRequest.Parser, new[]{ "MapId", "From", "To" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.AreaInfoRequest), global::Pathfinding.AreaInfoRequest.Parser, new[]{ "MapId", "Position" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.LiquidLevelRequest), global::Pathfinding.LiquidLevelRequest.Parser, new[]{ "MapId", "Position", "ReqLiquidType" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PathfindingResponse), global::Pathfinding.PathfindingResponse.Parser, new[]{ "Path", "Distance", "ZQuery", "LosQuery", "AreaInfo", "LiquidLevel", "Error" }, new[]{ "Payload" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.CapsuleOverlapRequest), global::Pathfinding.CapsuleOverlapRequest.Parser, new[]{ "MapId", "Position", "Race" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PathfindingResponse), global::Pathfinding.PathfindingResponse.Parser, new[]{ "Path", "Distance", "ZQuery", "LosQuery", "AreaInfo", "LiquidLevel", "CapsuleOverlap", "Error" }, new[]{ "Payload" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PathResponse), global::Pathfinding.PathResponse.Parser, new[]{ "Path" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.DistanceResponse), global::Pathfinding.DistanceResponse.Parser, new[]{ "Distance" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.ZQueryResponse), global::Pathfinding.ZQueryResponse.Parser, new[]{ "ZResult" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.LOSResponse), global::Pathfinding.LOSResponse.Parser, new[]{ "IsInLos" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.AreaInfoResponse), global::Pathfinding.AreaInfoResponse.Parser, new[]{ "AreaFlags", "AdtId", "RootId", "GroupId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.LiquidLevelResponse), global::Pathfinding.LiquidLevelResponse.Parser, new[]{ "Level", "Floor", "Type" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.CapsuleOverlapResponse), global::Pathfinding.CapsuleOverlapResponse.Parser, new[]{ "Hits" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.NavPolyHit), global::Pathfinding.NavPolyHit.Parser, new[]{ "RefId", "Area", "Flags", "VertCount", "Verts" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.Error), global::Pathfinding.Error.Parser, new[]{ "Message" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.ZQueryResult), global::Pathfinding.ZQueryResult.Parser, new[]{ "TerrainZ", "AdtZ", "LocationZ", "WaterLevel" }, null, null, null, null)
           }));
@@ -141,6 +153,9 @@ namespace Pathfinding {
           break;
         case PayloadOneofCase.LiquidLevel:
           LiquidLevel = other.LiquidLevel.Clone();
+          break;
+        case PayloadOneofCase.CapsuleOverlap:
+          CapsuleOverlap = other.CapsuleOverlap.Clone();
           break;
       }
 
@@ -225,6 +240,18 @@ namespace Pathfinding {
       }
     }
 
+    /// <summary>Field number for the "capsule_overlap" field.</summary>
+    public const int CapsuleOverlapFieldNumber = 7;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Pathfinding.CapsuleOverlapRequest CapsuleOverlap {
+      get { return payloadCase_ == PayloadOneofCase.CapsuleOverlap ? (global::Pathfinding.CapsuleOverlapRequest) payload_ : null; }
+      set {
+        payload_ = value;
+        payloadCase_ = value == null ? PayloadOneofCase.None : PayloadOneofCase.CapsuleOverlap;
+      }
+    }
+
     private object payload_;
     /// <summary>Enum of possible cases for the "payload" oneof.</summary>
     public enum PayloadOneofCase {
@@ -235,6 +262,7 @@ namespace Pathfinding {
       LosQuery = 4,
       AreaInfo = 5,
       LiquidLevel = 6,
+      CapsuleOverlap = 7,
     }
     private PayloadOneofCase payloadCase_ = PayloadOneofCase.None;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -271,6 +299,7 @@ namespace Pathfinding {
       if (!object.Equals(LosQuery, other.LosQuery)) return false;
       if (!object.Equals(AreaInfo, other.AreaInfo)) return false;
       if (!object.Equals(LiquidLevel, other.LiquidLevel)) return false;
+      if (!object.Equals(CapsuleOverlap, other.CapsuleOverlap)) return false;
       if (PayloadCase != other.PayloadCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -285,6 +314,7 @@ namespace Pathfinding {
       if (payloadCase_ == PayloadOneofCase.LosQuery) hash ^= LosQuery.GetHashCode();
       if (payloadCase_ == PayloadOneofCase.AreaInfo) hash ^= AreaInfo.GetHashCode();
       if (payloadCase_ == PayloadOneofCase.LiquidLevel) hash ^= LiquidLevel.GetHashCode();
+      if (payloadCase_ == PayloadOneofCase.CapsuleOverlap) hash ^= CapsuleOverlap.GetHashCode();
       hash ^= (int) payloadCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -328,6 +358,10 @@ namespace Pathfinding {
         output.WriteRawTag(50);
         output.WriteMessage(LiquidLevel);
       }
+      if (payloadCase_ == PayloadOneofCase.CapsuleOverlap) {
+        output.WriteRawTag(58);
+        output.WriteMessage(CapsuleOverlap);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -362,6 +396,10 @@ namespace Pathfinding {
         output.WriteRawTag(50);
         output.WriteMessage(LiquidLevel);
       }
+      if (payloadCase_ == PayloadOneofCase.CapsuleOverlap) {
+        output.WriteRawTag(58);
+        output.WriteMessage(CapsuleOverlap);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -389,6 +427,9 @@ namespace Pathfinding {
       }
       if (payloadCase_ == PayloadOneofCase.LiquidLevel) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(LiquidLevel);
+      }
+      if (payloadCase_ == PayloadOneofCase.CapsuleOverlap) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(CapsuleOverlap);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -438,6 +479,12 @@ namespace Pathfinding {
             LiquidLevel = new global::Pathfinding.LiquidLevelRequest();
           }
           LiquidLevel.MergeFrom(other.LiquidLevel);
+          break;
+        case PayloadOneofCase.CapsuleOverlap:
+          if (CapsuleOverlap == null) {
+            CapsuleOverlap = new global::Pathfinding.CapsuleOverlapRequest();
+          }
+          CapsuleOverlap.MergeFrom(other.CapsuleOverlap);
           break;
       }
 
@@ -514,6 +561,15 @@ namespace Pathfinding {
             LiquidLevel = subBuilder;
             break;
           }
+          case 58: {
+            global::Pathfinding.CapsuleOverlapRequest subBuilder = new global::Pathfinding.CapsuleOverlapRequest();
+            if (payloadCase_ == PayloadOneofCase.CapsuleOverlap) {
+              subBuilder.MergeFrom(CapsuleOverlap);
+            }
+            input.ReadMessage(subBuilder);
+            CapsuleOverlap = subBuilder;
+            break;
+          }
         }
       }
     #endif
@@ -585,6 +641,15 @@ namespace Pathfinding {
             }
             input.ReadMessage(subBuilder);
             LiquidLevel = subBuilder;
+            break;
+          }
+          case 58: {
+            global::Pathfinding.CapsuleOverlapRequest subBuilder = new global::Pathfinding.CapsuleOverlapRequest();
+            if (payloadCase_ == PayloadOneofCase.CapsuleOverlap) {
+              subBuilder.MergeFrom(CapsuleOverlap);
+            }
+            input.ReadMessage(subBuilder);
+            CapsuleOverlap = subBuilder;
             break;
           }
         }
@@ -2271,6 +2336,287 @@ namespace Pathfinding {
   }
 
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class CapsuleOverlapRequest : pb::IMessage<CapsuleOverlapRequest>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<CapsuleOverlapRequest> _parser = new pb::MessageParser<CapsuleOverlapRequest>(() => new CapsuleOverlapRequest());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<CapsuleOverlapRequest> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[7]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public CapsuleOverlapRequest() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public CapsuleOverlapRequest(CapsuleOverlapRequest other) : this() {
+      mapId_ = other.mapId_;
+      position_ = other.position_ != null ? other.position_.Clone() : null;
+      race_ = other.race_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public CapsuleOverlapRequest Clone() {
+      return new CapsuleOverlapRequest(this);
+    }
+
+    /// <summary>Field number for the "map_id" field.</summary>
+    public const int MapIdFieldNumber = 1;
+    private uint mapId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint MapId {
+      get { return mapId_; }
+      set {
+        mapId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "position" field.</summary>
+    public const int PositionFieldNumber = 2;
+    private global::Game.Position position_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Game.Position Position {
+      get { return position_; }
+      set {
+        position_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "race" field.</summary>
+    public const int RaceFieldNumber = 3;
+    private global::Game.Race race_ = global::Game.Race.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Game.Race Race {
+      get { return race_; }
+      set {
+        race_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as CapsuleOverlapRequest);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(CapsuleOverlapRequest other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (MapId != other.MapId) return false;
+      if (!object.Equals(Position, other.Position)) return false;
+      if (Race != other.Race) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (MapId != 0) hash ^= MapId.GetHashCode();
+      if (position_ != null) hash ^= Position.GetHashCode();
+      if (Race != global::Game.Race.None) hash ^= Race.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (MapId != 0) {
+        output.WriteRawTag(8);
+        output.WriteUInt32(MapId);
+      }
+      if (position_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(Position);
+      }
+      if (Race != global::Game.Race.None) {
+        output.WriteRawTag(24);
+        output.WriteEnum((int) Race);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (MapId != 0) {
+        output.WriteRawTag(8);
+        output.WriteUInt32(MapId);
+      }
+      if (position_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(Position);
+      }
+      if (Race != global::Game.Race.None) {
+        output.WriteRawTag(24);
+        output.WriteEnum((int) Race);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (MapId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MapId);
+      }
+      if (position_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Position);
+      }
+      if (Race != global::Game.Race.None) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Race);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(CapsuleOverlapRequest other) {
+      if (other == null) {
+        return;
+      }
+      if (other.MapId != 0) {
+        MapId = other.MapId;
+      }
+      if (other.position_ != null) {
+        if (position_ == null) {
+          Position = new global::Game.Position();
+        }
+        Position.MergeFrom(other.Position);
+      }
+      if (other.Race != global::Game.Race.None) {
+        Race = other.Race;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            MapId = input.ReadUInt32();
+            break;
+          }
+          case 18: {
+            if (position_ == null) {
+              Position = new global::Game.Position();
+            }
+            input.ReadMessage(Position);
+            break;
+          }
+          case 24: {
+            Race = (global::Game.Race) input.ReadEnum();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            MapId = input.ReadUInt32();
+            break;
+          }
+          case 18: {
+            if (position_ == null) {
+              Position = new global::Game.Position();
+            }
+            input.ReadMessage(Position);
+            break;
+          }
+          case 24: {
+            Race = (global::Game.Race) input.ReadEnum();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class PathfindingResponse : pb::IMessage<PathfindingResponse>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -2285,7 +2631,7 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[7]; }
+      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[8]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2323,6 +2669,9 @@ namespace Pathfinding {
           break;
         case PayloadOneofCase.LiquidLevel:
           LiquidLevel = other.LiquidLevel.Clone();
+          break;
+        case PayloadOneofCase.CapsuleOverlap:
+          CapsuleOverlap = other.CapsuleOverlap.Clone();
           break;
         case PayloadOneofCase.Error:
           Error = other.Error.Clone();
@@ -2410,6 +2759,18 @@ namespace Pathfinding {
       }
     }
 
+    /// <summary>Field number for the "capsule_overlap" field.</summary>
+    public const int CapsuleOverlapFieldNumber = 7;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Pathfinding.CapsuleOverlapResponse CapsuleOverlap {
+      get { return payloadCase_ == PayloadOneofCase.CapsuleOverlap ? (global::Pathfinding.CapsuleOverlapResponse) payload_ : null; }
+      set {
+        payload_ = value;
+        payloadCase_ = value == null ? PayloadOneofCase.None : PayloadOneofCase.CapsuleOverlap;
+      }
+    }
+
     /// <summary>Field number for the "error" field.</summary>
     public const int ErrorFieldNumber = 99;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2432,6 +2793,7 @@ namespace Pathfinding {
       LosQuery = 4,
       AreaInfo = 5,
       LiquidLevel = 6,
+      CapsuleOverlap = 7,
       Error = 99,
     }
     private PayloadOneofCase payloadCase_ = PayloadOneofCase.None;
@@ -2469,6 +2831,7 @@ namespace Pathfinding {
       if (!object.Equals(LosQuery, other.LosQuery)) return false;
       if (!object.Equals(AreaInfo, other.AreaInfo)) return false;
       if (!object.Equals(LiquidLevel, other.LiquidLevel)) return false;
+      if (!object.Equals(CapsuleOverlap, other.CapsuleOverlap)) return false;
       if (!object.Equals(Error, other.Error)) return false;
       if (PayloadCase != other.PayloadCase) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -2484,6 +2847,7 @@ namespace Pathfinding {
       if (payloadCase_ == PayloadOneofCase.LosQuery) hash ^= LosQuery.GetHashCode();
       if (payloadCase_ == PayloadOneofCase.AreaInfo) hash ^= AreaInfo.GetHashCode();
       if (payloadCase_ == PayloadOneofCase.LiquidLevel) hash ^= LiquidLevel.GetHashCode();
+      if (payloadCase_ == PayloadOneofCase.CapsuleOverlap) hash ^= CapsuleOverlap.GetHashCode();
       if (payloadCase_ == PayloadOneofCase.Error) hash ^= Error.GetHashCode();
       hash ^= (int) payloadCase_;
       if (_unknownFields != null) {
@@ -2528,6 +2892,10 @@ namespace Pathfinding {
         output.WriteRawTag(50);
         output.WriteMessage(LiquidLevel);
       }
+      if (payloadCase_ == PayloadOneofCase.CapsuleOverlap) {
+        output.WriteRawTag(58);
+        output.WriteMessage(CapsuleOverlap);
+      }
       if (payloadCase_ == PayloadOneofCase.Error) {
         output.WriteRawTag(154, 6);
         output.WriteMessage(Error);
@@ -2566,6 +2934,10 @@ namespace Pathfinding {
         output.WriteRawTag(50);
         output.WriteMessage(LiquidLevel);
       }
+      if (payloadCase_ == PayloadOneofCase.CapsuleOverlap) {
+        output.WriteRawTag(58);
+        output.WriteMessage(CapsuleOverlap);
+      }
       if (payloadCase_ == PayloadOneofCase.Error) {
         output.WriteRawTag(154, 6);
         output.WriteMessage(Error);
@@ -2597,6 +2969,9 @@ namespace Pathfinding {
       }
       if (payloadCase_ == PayloadOneofCase.LiquidLevel) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(LiquidLevel);
+      }
+      if (payloadCase_ == PayloadOneofCase.CapsuleOverlap) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(CapsuleOverlap);
       }
       if (payloadCase_ == PayloadOneofCase.Error) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(Error);
@@ -2649,6 +3024,12 @@ namespace Pathfinding {
             LiquidLevel = new global::Pathfinding.LiquidLevelResponse();
           }
           LiquidLevel.MergeFrom(other.LiquidLevel);
+          break;
+        case PayloadOneofCase.CapsuleOverlap:
+          if (CapsuleOverlap == null) {
+            CapsuleOverlap = new global::Pathfinding.CapsuleOverlapResponse();
+          }
+          CapsuleOverlap.MergeFrom(other.CapsuleOverlap);
           break;
         case PayloadOneofCase.Error:
           if (Error == null) {
@@ -2729,6 +3110,15 @@ namespace Pathfinding {
             }
             input.ReadMessage(subBuilder);
             LiquidLevel = subBuilder;
+            break;
+          }
+          case 58: {
+            global::Pathfinding.CapsuleOverlapResponse subBuilder = new global::Pathfinding.CapsuleOverlapResponse();
+            if (payloadCase_ == PayloadOneofCase.CapsuleOverlap) {
+              subBuilder.MergeFrom(CapsuleOverlap);
+            }
+            input.ReadMessage(subBuilder);
+            CapsuleOverlap = subBuilder;
             break;
           }
           case 794: {
@@ -2813,6 +3203,15 @@ namespace Pathfinding {
             LiquidLevel = subBuilder;
             break;
           }
+          case 58: {
+            global::Pathfinding.CapsuleOverlapResponse subBuilder = new global::Pathfinding.CapsuleOverlapResponse();
+            if (payloadCase_ == PayloadOneofCase.CapsuleOverlap) {
+              subBuilder.MergeFrom(CapsuleOverlap);
+            }
+            input.ReadMessage(subBuilder);
+            CapsuleOverlap = subBuilder;
+            break;
+          }
           case 794: {
             global::Pathfinding.Error subBuilder = new global::Pathfinding.Error();
             if (payloadCase_ == PayloadOneofCase.Error) {
@@ -2844,7 +3243,7 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[8]; }
+      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3031,7 +3430,7 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[9]; }
+      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3229,7 +3628,7 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[10]; }
+      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3436,7 +3835,7 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[11]; }
+      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3634,7 +4033,7 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[12]; }
+      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3943,7 +4342,7 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[13]; }
+      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[14]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4201,6 +4600,528 @@ namespace Pathfinding {
   }
 
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class CapsuleOverlapResponse : pb::IMessage<CapsuleOverlapResponse>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<CapsuleOverlapResponse> _parser = new pb::MessageParser<CapsuleOverlapResponse>(() => new CapsuleOverlapResponse());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<CapsuleOverlapResponse> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[15]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public CapsuleOverlapResponse() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public CapsuleOverlapResponse(CapsuleOverlapResponse other) : this() {
+      hits_ = other.hits_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public CapsuleOverlapResponse Clone() {
+      return new CapsuleOverlapResponse(this);
+    }
+
+    /// <summary>Field number for the "hits" field.</summary>
+    public const int HitsFieldNumber = 1;
+    private static readonly pb::FieldCodec<global::Pathfinding.NavPolyHit> _repeated_hits_codec
+        = pb::FieldCodec.ForMessage(10, global::Pathfinding.NavPolyHit.Parser);
+    private readonly pbc::RepeatedField<global::Pathfinding.NavPolyHit> hits_ = new pbc::RepeatedField<global::Pathfinding.NavPolyHit>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Pathfinding.NavPolyHit> Hits {
+      get { return hits_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as CapsuleOverlapResponse);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(CapsuleOverlapResponse other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if(!hits_.Equals(other.hits_)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      hash ^= hits_.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      hits_.WriteTo(output, _repeated_hits_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      hits_.WriteTo(ref output, _repeated_hits_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      size += hits_.CalculateSize(_repeated_hits_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(CapsuleOverlapResponse other) {
+      if (other == null) {
+        return;
+      }
+      hits_.Add(other.hits_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            hits_.AddEntriesFrom(input, _repeated_hits_codec);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            hits_.AddEntriesFrom(ref input, _repeated_hits_codec);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class NavPolyHit : pb::IMessage<NavPolyHit>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<NavPolyHit> _parser = new pb::MessageParser<NavPolyHit>(() => new NavPolyHit());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<NavPolyHit> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[16]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public NavPolyHit() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public NavPolyHit(NavPolyHit other) : this() {
+      refId_ = other.refId_;
+      area_ = other.area_;
+      flags_ = other.flags_;
+      vertCount_ = other.vertCount_;
+      verts_ = other.verts_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public NavPolyHit Clone() {
+      return new NavPolyHit(this);
+    }
+
+    /// <summary>Field number for the "ref_id" field.</summary>
+    public const int RefIdFieldNumber = 1;
+    private ulong refId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong RefId {
+      get { return refId_; }
+      set {
+        refId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "area" field.</summary>
+    public const int AreaFieldNumber = 2;
+    private uint area_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Area {
+      get { return area_; }
+      set {
+        area_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "flags" field.</summary>
+    public const int FlagsFieldNumber = 3;
+    private uint flags_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Flags {
+      get { return flags_; }
+      set {
+        flags_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "vert_count" field.</summary>
+    public const int VertCountFieldNumber = 4;
+    private uint vertCount_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint VertCount {
+      get { return vertCount_; }
+      set {
+        vertCount_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "verts" field.</summary>
+    public const int VertsFieldNumber = 5;
+    private static readonly pb::FieldCodec<global::Game.Position> _repeated_verts_codec
+        = pb::FieldCodec.ForMessage(42, global::Game.Position.Parser);
+    private readonly pbc::RepeatedField<global::Game.Position> verts_ = new pbc::RepeatedField<global::Game.Position>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Game.Position> Verts {
+      get { return verts_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as NavPolyHit);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(NavPolyHit other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (RefId != other.RefId) return false;
+      if (Area != other.Area) return false;
+      if (Flags != other.Flags) return false;
+      if (VertCount != other.VertCount) return false;
+      if(!verts_.Equals(other.verts_)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (RefId != 0UL) hash ^= RefId.GetHashCode();
+      if (Area != 0) hash ^= Area.GetHashCode();
+      if (Flags != 0) hash ^= Flags.GetHashCode();
+      if (VertCount != 0) hash ^= VertCount.GetHashCode();
+      hash ^= verts_.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (RefId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(RefId);
+      }
+      if (Area != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(Area);
+      }
+      if (Flags != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(Flags);
+      }
+      if (VertCount != 0) {
+        output.WriteRawTag(32);
+        output.WriteUInt32(VertCount);
+      }
+      verts_.WriteTo(output, _repeated_verts_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (RefId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(RefId);
+      }
+      if (Area != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(Area);
+      }
+      if (Flags != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(Flags);
+      }
+      if (VertCount != 0) {
+        output.WriteRawTag(32);
+        output.WriteUInt32(VertCount);
+      }
+      verts_.WriteTo(ref output, _repeated_verts_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (RefId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(RefId);
+      }
+      if (Area != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Area);
+      }
+      if (Flags != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Flags);
+      }
+      if (VertCount != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(VertCount);
+      }
+      size += verts_.CalculateSize(_repeated_verts_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(NavPolyHit other) {
+      if (other == null) {
+        return;
+      }
+      if (other.RefId != 0UL) {
+        RefId = other.RefId;
+      }
+      if (other.Area != 0) {
+        Area = other.Area;
+      }
+      if (other.Flags != 0) {
+        Flags = other.Flags;
+      }
+      if (other.VertCount != 0) {
+        VertCount = other.VertCount;
+      }
+      verts_.Add(other.verts_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            RefId = input.ReadUInt64();
+            break;
+          }
+          case 16: {
+            Area = input.ReadUInt32();
+            break;
+          }
+          case 24: {
+            Flags = input.ReadUInt32();
+            break;
+          }
+          case 32: {
+            VertCount = input.ReadUInt32();
+            break;
+          }
+          case 42: {
+            verts_.AddEntriesFrom(input, _repeated_verts_codec);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            RefId = input.ReadUInt64();
+            break;
+          }
+          case 16: {
+            Area = input.ReadUInt32();
+            break;
+          }
+          case 24: {
+            Flags = input.ReadUInt32();
+            break;
+          }
+          case 32: {
+            VertCount = input.ReadUInt32();
+            break;
+          }
+          case 42: {
+            verts_.AddEntriesFrom(ref input, _repeated_verts_codec);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class Error : pb::IMessage<Error>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -4215,7 +5136,7 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[14]; }
+      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[17]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4418,7 +5339,7 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[15]; }
+      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[18]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
