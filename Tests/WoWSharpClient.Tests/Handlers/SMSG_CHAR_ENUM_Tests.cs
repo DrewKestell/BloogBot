@@ -1,14 +1,12 @@
-﻿using BotRunner.Clients;
-using GameData.Core.Enums;
+﻿using GameData.Core.Enums;
 using GameData.Core.Models;
-using Microsoft.Extensions.Logging;
-using Moq;
 using WoWSharpClient.Handlers;
 using WoWSharpClient.Tests.Util;
 
 namespace WoWSharpClient.Tests.Handlers
 {
-    public class SMSG_CHAR_ENUM_Tests
+    [Collection("Sequential ObjectManager tests")]
+    public class SMSG_CHAR_ENUM_Tests(ObjectManagerFixture _) : IClassFixture<ObjectManagerFixture>
     {
         [Fact]
         public void ShouldParseCharacterList()

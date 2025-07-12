@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using WoWSharpClient.Client;
-using WoWSharpClient.Handlers;
 using WoWSharpClient.Tests.Util;
 
 namespace WoWSharpClient.Tests.Handlers
@@ -24,47 +23,47 @@ namespace WoWSharpClient.Tests.Handlers
 
         public void Dispose()
         {
-            // No unmanaged state needs disposal for now
+            WoWSharpObjectManager.Instance.Initialize(_woWClient.Object, _pathfindingClient.Object, _logger);
         }
     }
-    public class OpcodeHandler_Tests
+    [CollectionDefinition("Sequential ObjectManager tests", DisableParallelization = true)]
+    public class SequentialCollection : ICollectionFixture<ObjectManagerFixture> { }
+    
+    [Collection("Sequential ObjectManager tests")]
+    public class OpcodeHandler_Tests(ObjectManagerFixture _) : IClassFixture<ObjectManagerFixture>
     {
-        private readonly OpCodeDispatcher _dispatcher;
+        private readonly OpCodeDispatcher _dispatcher = new();
 
-        public OpcodeHandler_Tests()
-        {
-            _dispatcher = new OpCodeDispatcher();
-        }
+        public static IEnumerable<object[]> OpcodeTestData =>
+        [
+            [Opcode.MSG_MOVE_FALL_LAND, "movement"],
+            [Opcode.MSG_MOVE_TIME_SKIPPED, "movement"],
+            [Opcode.SMSG_ACCOUNT_DATA_TIMES, "accountData"],
+            [Opcode.SMSG_ACTION_BUTTONS, "dispatcher"],
+            [Opcode.SMSG_AUTH_RESPONSE, "dispatcher"],
+            [Opcode.SMSG_BINDPOINTUPDATE, "dispatcher"],
+            [Opcode.SMSG_COMPRESSED_MOVES, "movement"],
+            [Opcode.SMSG_DESTROY_OBJECT, "dispatcher"],
+            [Opcode.SMSG_FRIEND_LIST, "dispatcher"],
+            [Opcode.SMSG_GROUP_LIST, "dispatcher"],
+            [Opcode.SMSG_IGNORE_LIST, "dispatcher"],
+            [Opcode.SMSG_INITIALIZE_FACTIONS, "dispatcher"],
+            [Opcode.SMSG_INITIAL_SPELLS, "spellInitial"],
+            [Opcode.SMSG_INIT_WORLD_STATES, "worldState"],
+            [Opcode.SMSG_LOGIN_SETTIMESPEED, "dispatcher"],
+            [Opcode.SMSG_LOGIN_VERIFY_WORLD, "login"],
+            [Opcode.SMSG_SET_FLAT_SPELL_MODIFIER, "dispatcher"],
+            [Opcode.SMSG_SET_PCT_SPELL_MODIFIER, "dispatcher"],
+            [Opcode.SMSG_SET_PROFICIENCY, "dispatcher"],
+            [Opcode.SMSG_SET_REST_START, "worldState"],
+            [Opcode.SMSG_SPELLLOGMISS, "spellLogMiss"],
+            [Opcode.SMSG_SPELL_GO, "spellGo"],
+            [Opcode.SMSG_TUTORIAL_FLAGS, "dispatcher"],
+            [Opcode.SMSG_UPDATE_AURA_DURATION, "dispatcher"],
+            [Opcode.SMSG_WEATHER, "dispatcher"]
+        ];
 
-        public static IEnumerable<object[]> OpcodeTestData => new List<object[]>
-        {
-            new object[] { Opcode.MSG_MOVE_FALL_LAND, "movement" },
-            new object[] { Opcode.MSG_MOVE_TIME_SKIPPED, "movement" },
-            new object[] { Opcode.SMSG_ACCOUNT_DATA_TIMES, "accountData" },
-            new object[] { Opcode.SMSG_ACTION_BUTTONS, "dispatcher" },
-            new object[] { Opcode.SMSG_AUTH_RESPONSE, "dispatcher" },
-            new object[] { Opcode.SMSG_BINDPOINTUPDATE, "dispatcher" },
-            new object[] { Opcode.SMSG_COMPRESSED_MOVES, "movement" },
-            new object[] { Opcode.SMSG_DESTROY_OBJECT, "dispatcher" },
-            new object[] { Opcode.SMSG_FRIEND_LIST, "dispatcher" },
-            new object[] { Opcode.SMSG_GROUP_LIST, "dispatcher" },
-            new object[] { Opcode.SMSG_IGNORE_LIST, "dispatcher" },
-            new object[] { Opcode.SMSG_INITIALIZE_FACTIONS, "dispatcher" },
-            new object[] { Opcode.SMSG_INITIAL_SPELLS, "spellInitial" },
-            new object[] { Opcode.SMSG_INIT_WORLD_STATES, "worldState" },
-            new object[] { Opcode.SMSG_LOGIN_SETTIMESPEED, "dispatcher" },
-            new object[] { Opcode.SMSG_LOGIN_VERIFY_WORLD, "login" },
-            new object[] { Opcode.SMSG_SET_FLAT_SPELL_MODIFIER, "dispatcher" },
-            new object[] { Opcode.SMSG_SET_PCT_SPELL_MODIFIER, "dispatcher" },
-            new object[] { Opcode.SMSG_SET_PROFICIENCY, "dispatcher" },
-            new object[] { Opcode.SMSG_SET_REST_START, "worldState" },
-            new object[] { Opcode.SMSG_SPELLLOGMISS, "spellLogMiss" },
-            new object[] { Opcode.SMSG_SPELL_GO, "spellGo" },
-            new object[] { Opcode.SMSG_TUTORIAL_FLAGS, "dispatcher" },
-            new object[] { Opcode.SMSG_UPDATE_AURA_DURATION, "dispatcher" },
-            new object[] { Opcode.SMSG_WEATHER, "dispatcher" }
-        };
-
+        //TODO: Test might be useless or redundant
         [Theory]
         [MemberData(nameof(OpcodeTestData))]
         public void ShouldHandleOpcodePackets(Opcode opcode, string handlerType)

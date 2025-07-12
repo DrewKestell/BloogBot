@@ -1,14 +1,13 @@
-﻿using BotRunner.Clients;
-using GameData.Core.Enums;
-using Microsoft.Extensions.Logging;
-using Moq;
+﻿using GameData.Core.Enums;
 using WoWSharpClient.Handlers;
 using WoWSharpClient.Tests.Util;
 
 namespace WoWSharpClient.Tests.Handlers
 {
+    [Collection("Sequential ObjectManager tests")]
     public class SMSG_UPDATE_OBJECT_Tests(ObjectManagerFixture _) : IClassFixture<ObjectManagerFixture>
     {
+        //TODO: Test might be useless or redundant
         [Fact]
         public void ShouldDecompressAndParseAllCompressedUpdateObjectPackets()
         {

@@ -75,6 +75,10 @@ namespace WoWSharpClient
         }
         public void Initialize(WoWClient wowClient, PathfindingClient pathfindingClient, ILogger<WoWSharpObjectManager> logger)
         {
+            WoWSharpEventEmitter.Instance.Reset();
+            _objects.Clear();
+            _pendingUpdates.Clear();
+
             _logger = logger;
             _pathfindingClient = pathfindingClient;
             _woWClient = wowClient;

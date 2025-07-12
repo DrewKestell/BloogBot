@@ -1,12 +1,10 @@
-﻿using BotRunner.Clients;
-using GameData.Core.Enums;
-using Microsoft.Extensions.Logging;
-using Moq;
+﻿using GameData.Core.Enums;
 using WoWSharpClient.Handlers;
 using WoWSharpClient.Tests.Util;
 
 namespace WoWSharpClient.Tests.Handlers
 {
+    [Collection("Sequential ObjectManager tests")]
     public class SMSG_MESSAGECHAT_Tests(ObjectManagerFixture _) : IClassFixture<ObjectManagerFixture>
     {
         [Fact]

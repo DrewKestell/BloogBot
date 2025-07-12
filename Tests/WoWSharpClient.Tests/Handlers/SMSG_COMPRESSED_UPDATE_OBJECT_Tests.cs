@@ -1,6 +1,4 @@
-using BotRunner.Clients;
 using GameData.Core.Enums;
-using Microsoft.Extensions.Logging;
 using Moq;
 using WoWSharpClient.Client;
 using WoWSharpClient.Handlers;
@@ -9,10 +7,9 @@ using WoWSharpClient.Tests.Util;
 
 namespace WoWSharpClient.Tests.Handlers
 {
-    public class SMSG_COMPRESSED_UPDATE_OBJECT_Tests(ObjectManagerFixture _) : IClassFixture<ObjectManagerFixture>
+    [Collection("Sequential ObjectManager tests")]
+    public class SMSG_COMPRESSED_UPDATE_OBJECT_Transports_Tests(ObjectManagerFixture _) : IClassFixture<ObjectManagerFixture>
     {
-        private Mock<WoWClient> _woWClientMock = _._woWClient;
-
         [Fact]
         public void ShouldDecompressAndParseTransports()
         {
@@ -111,6 +108,12 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal((uint)316182, addedObject6.Level);
             Assert.Equal((uint)255, addedObject6.AnimProgress);
         }
+    }
+
+    [Collection("Sequential ObjectManager tests")]
+    public class SMSG_COMPRESSED_UPDATE_OBJECT_Player_Tests(ObjectManagerFixture _) : IClassFixture<ObjectManagerFixture>
+    {
+        private Mock<WoWClient> _woWClientMock = _._woWClient;
 
         [Fact]
         public void ShouldDecompressAndParsePlayerCharacter()
@@ -1013,27 +1016,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(2.68104005f, player.Facing);
             Assert.Equal(7114328u, player.LastUpdated);
             Assert.Equal(DynamicFlags.None, player.DynamicFlags);
-        }
-
-        [Fact]
-        public void ShouldDecompressAndParseAllCompressedUpdateObjectPackets()
-        {
-            var opcode = Opcode.SMSG_COMPRESSED_UPDATE_OBJECT;
-            var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", opcode.ToString());
-
-            var files = Directory.GetFiles(directoryPath, "20240815_*.bin")
-                .OrderBy(path =>
-                {
-                    var fileName = Path.GetFileNameWithoutExtension(path);
-                    var parts = fileName.Split('_');
-                    return parts.Length > 1 && int.TryParse(parts[1], out var index) ? index : int.MaxValue;
-                });
-
-            foreach (var filePath in files)
-            {
-                byte[] data = FileReader.ReadBinaryFile(filePath);
-                ObjectUpdateHandler.HandleUpdateObject(opcode, data);
-            }
         }
     }
 }
