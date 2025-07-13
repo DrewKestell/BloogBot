@@ -1,138 +1,68 @@
-syntax = "proto3";
+﻿syntax = "proto3";
 
 package pathfinding;
 
-import "game.proto";
+import "game.proto";          // re-uses game.Position (x,y,z)
 
-// ----------------------------
-// Requests
-// ----------------------------
+/* ────────── atomic request / response types ────────── */
 
-message PathfindingRequest {
-    oneof payload {
-        PathRequest path = 1;
-        DistanceRequest distance = 2;
-        ZQueryRequest z_query = 3;
-        LOSRequest los_query = 4;
-        AreaInfoRequest area_info = 5;
-        LiquidLevelRequest liquid_level = 6;
-        CapsuleOverlapRequest capsule_overlap = 7;
-    }
+message CalculatePathRequest {
+  uint32        map_id   = 1;
+  game.Position start    = 2;
+  game.Position end      = 3;
+  bool          straight = 4;   // Detour “straight path” mode
 }
 
-message PathRequest {
-    uint32 map_id = 1;
-    game.Position start = 2;
-    game.Position end = 3;
-    bool smooth_path = 4;
+message CalculatePathResponse {
+  repeated game.Position corners = 1;
 }
 
-message DistanceRequest {
-    uint32 map_id = 1;
-    game.Position start = 2;
-    game.Position end = 3;
+message LineOfSightRequest {
+  uint32        map_id = 1;
+  game.Position from   = 2;
+  game.Position to     = 3;
 }
+message LineOfSightResponse { bool in_los = 1; }
 
-message ZQueryRequest {
-    uint32 map_id = 1;
-    game.Position position = 2;
-}
-
-message LOSRequest {
-    uint32 map_id = 1;
-    game.Position from = 2;
-    game.Position to = 3;
-}
-
-message AreaInfoRequest {
-    uint32 map_id = 1;
-    game.Position position = 2;
-}
-
-message LiquidLevelRequest {
-    uint32 map_id = 1;
-    game.Position position = 2;
-    uint32 req_liquid_type = 3;
-}
-
-message CapsuleOverlapRequest {
-    uint32 map_id = 1;
-    game.Position position = 2;
-    game.Race race = 3;
-}
-
-// ----------------------------
-// Responses
-// ----------------------------
-
-message PathfindingResponse {
-    oneof payload {
-        PathResponse path = 1;
-        DistanceResponse distance = 2;
-        ZQueryResponse z_query = 3;
-        LOSResponse los_query = 4;
-        AreaInfoResponse area_info = 5;
-        LiquidLevelResponse liquid_level = 6;
-        CapsuleOverlapResponse capsule_overlap = 7;
-        Error error = 99;
-    }
-}
-
-message PathResponse {
-    repeated game.Position path = 1;
-}
-
-message DistanceResponse {
-    float distance = 1;
-}
-
-message ZQueryResponse {
-    ZQueryResult z_result = 1;
-}
-
-message LOSResponse {
-    bool is_in_los = 1;
-}
-
-message AreaInfoResponse {
-    uint32 area_flags = 1;
-    int32 adt_id = 2;
-    int32 root_id = 3;
-    int32 group_id = 4;
-}
-
-message LiquidLevelResponse {
-    float level = 1;
-    float floor = 2;
-    uint32 type = 3;
-}
-
-message CapsuleOverlapResponse {
-    repeated NavPolyHit hits = 1;
+message TerrainProbeRequest {
+  uint32        map_id         = 1;
+  game.Position position       = 2;
+  float         capsule_radius = 3;
+  float         capsule_height = 4;
 }
 
 message NavPolyHit {
-    uint64 ref_id = 1;
-    uint32 area = 2;
-    uint32 flags = 3;
-    uint32 vert_count = 4;
-    repeated game.Position verts = 5;
+  uint64              ref_id  = 1;
+  uint32              area    = 2;
+  uint32              flags   = 3;
+  repeated game.Position verts = 4;
 }
 
-message Error {
-    string message = 1;
+message TerrainProbeResponse {
+  float               ground_z      = 1;
+  float               liquid_z      = 2;
+  uint32              terrain_flags = 3;   // see NavTerrain in C#
+  repeated NavPolyHit overlaps      = 4;
 }
 
-// ----------------------------
-// ZQueryResult Type
-// ----------------------------
+/* ────────── error helper ────────── */
+message Error { string message = 1; }
 
-/// <summary>
-/// Returns *all* possible Zs at a position, plus the most "canonical" ground Z.
-/// </summary>
-message ZQueryResult {
-    float terrain_z = 1;   // VMAP terrain Z (collision mesh)
-    float adt_z = 2;       // ADT terrain Z (raw ground, fallback)
-    float location_z = 3;  // VMAP LocationInfo (WMO floor, etc)
-    float water_level = 4;
+/* ────────── wrapper envelopes ────────── */
+
+message PathfindingRequest {
+  oneof payload {
+    CalculatePathRequest path     = 1;
+    LineOfSightRequest   los      = 2;
+    TerrainProbeRequest  terrain  = 3;
+  }
+}
+
+message PathfindingResponse {
+  oneof payload {
+    CalculatePathResponse path     = 1;
+    LineOfSightResponse   los      = 2;
+    TerrainProbeResponse  terrain  = 3;
+    Error                 error    = 4;
+  }
 }

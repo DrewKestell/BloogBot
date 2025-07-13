@@ -183,11 +183,11 @@ namespace WoWSharpClient
             float currZ = player.Position.Z;
 
             /* ──────────────────────────────────────────────── 2) Height‑field query */
-            var query = _pathfindingClient.GetZQuery(MapId, new Position(nextX, nextY, currZ));
+            var query = _pathfindingClient.ProbeTerrain(MapId, new Position(nextX, nextY, currZ), Player.Race);
 
-            float locZ = query.TerrainZ;   // WMO floors
-            float adtZ = query.AdtZ;        // ADT terrain
-            float waterZ = query.WaterLevel;
+            float locZ = query.GroundZ;   // WMO floors
+            float adtZ = query.GroundZ;        // ADT terrain
+            float waterZ = query.LiquidZ;
 
             _logger.LogInformation($"[Pos] locZ={locZ:F2} adtZ={adtZ:F2} waterZ={waterZ:F2}");
 

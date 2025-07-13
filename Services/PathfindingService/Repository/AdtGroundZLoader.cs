@@ -245,7 +245,7 @@ namespace TerrainLib
             return _chunks[row, col];
         }
         private static string ReadTag(BinaryReader br) =>
-        Encoding.ASCII.GetString(br.ReadBytes(4).Reverse().ToArray());
+        Encoding.ASCII.GetString([.. br.ReadBytes(4).Reverse()]);
 
         public static AdtFile Load(byte[] data)
         {

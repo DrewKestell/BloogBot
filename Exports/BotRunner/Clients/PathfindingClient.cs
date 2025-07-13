@@ -1,7 +1,10 @@
 ﻿using BotCommLayer;
+using GameData.Core.Constants;
+using GameData.Core.Enums;
 using GameData.Core.Models;
 using Microsoft.Extensions.Logging;
 using Pathfinding;
+using System.ComponentModel.DataAnnotations;
 
 namespace BotRunner.Clients
 {
@@ -13,12 +16,12 @@ namespace BotRunner.Clients
         {
             var request = new PathfindingRequest
             {
-                Path = new PathRequest
+                Path = new CalculatePathRequest
                 {
                     MapId = mapId,
                     Start = start.ToProto(),
                     End = end.ToProto(),
-                    SmoothPath = smoothPath
+                    Straight = smoothPath
                 }
             };
 
@@ -27,63 +30,27 @@ namespace BotRunner.Clients
             if (response.PayloadCase == PathfindingResponse.PayloadOneofCase.Error)
                 throw new Exception(response.Error.Message);
 
-            return response.Path.Path
-                .Select(p => new Position(p.X, p.Y, p.Z))
-                .ToArray();
+            return [.. response.Path
+                .Corners
+                .Select(p => new Position(p.X, p.Y, p.Z))];
         }
 
         public float GetPathingDistance(uint mapId, Position start, Position end)
         {
-            var request = new PathfindingRequest
-            {
-                Distance = new DistanceRequest
-                {
-                    MapId = mapId,
-                    Start = start.ToProto(),
-                    End = end.ToProto()
-                }
-            };
+            var path = GetPath(mapId, start, end);
+            float distance = 0f;
 
-            var response = SendMessage(request);
+            for (int i = 0; i < path.Length - 1; i++)
+                distance += path[i].DistanceTo(path[i + 1]);
 
-            if (response.PayloadCase == PathfindingResponse.PayloadOneofCase.Error)
-                throw new Exception(response.Error.Message);
-
-            return response.Distance.Distance;
-        }
-
-        public ZQueryResult GetZQuery(uint mapId, Position position)
-        {
-            var request = new PathfindingRequest
-            {
-                ZQuery = new ZQueryRequest
-                {
-                    MapId = mapId,
-                    Position = position.ToProto()
-                }
-            };
-
-            var response = SendMessage(request);
-
-            if (response.PayloadCase == PathfindingResponse.PayloadOneofCase.Error)
-                throw new Exception(response.Error.Message);
-
-            // Maps directly to proto-generated ZQueryResult
-            var z = response.ZQuery.ZResult;
-            return new ZQueryResult
-            {
-                TerrainZ = z.TerrainZ,
-                AdtZ = z.AdtZ,
-                LocationZ = z.LocationZ,
-                WaterLevel = z.WaterLevel,
-            };
+            return distance;
         }
 
         public bool IsInLineOfSight(uint mapId, Position from, Position to)
         {
             var request = new PathfindingRequest
             {
-                LosQuery = new LOSRequest
+                Los = new LineOfSightRequest
                 {
                     MapId = mapId,
                     From = from.ToProto(),
@@ -96,58 +63,21 @@ namespace BotRunner.Clients
             if (response.PayloadCase == PathfindingResponse.PayloadOneofCase.Error)
                 throw new Exception(response.Error.Message);
 
-            return response.LosQuery.IsInLos;
+            return response.Los.InLos;
         }
 
-        public (uint Flags, int AdtId, int RootId, int GroupId) GetAreaInfo(uint mapId, Position position)
+        public TerrainProbeResponse ProbeTerrain(uint mapId, Position feet, Race race)
         {
+            var (radius, height) = RaceDimensions.GetCapsuleForRace(race);
+
             var request = new PathfindingRequest
             {
-                AreaInfo = new AreaInfoRequest
-                {
-                    MapId = mapId,
-                    Position = position.ToProto()
-                }
-            };
-
-            var response = SendMessage(request);
-
-            if (response.PayloadCase == PathfindingResponse.PayloadOneofCase.Error)
-                throw new Exception(response.Error.Message);
-
-            var a = response.AreaInfo;
-            return (a.AreaFlags, a.AdtId, a.RootId, a.GroupId);
-        }
-
-        public (float Level, float Floor, uint Type) GetLiquidLevel(uint mapId, Position position, byte liquidType)
-        {
-            var request = new PathfindingRequest
-            {
-                LiquidLevel = new LiquidLevelRequest
-                {
-                    MapId = mapId,
-                    Position = position.ToProto(),
-                    ReqLiquidType = liquidType
-                }
-            };
-
-            var response = SendMessage(request);
-
-            if (response.PayloadCase == PathfindingResponse.PayloadOneofCase.Error)
-                throw new Exception(response.Error.Message);
-
-            var l = response.LiquidLevel;
-            return (l.Level, l.Floor, l.Type);
-        }
-        public IEnumerable<NavPolyHit> GetCapsuleOverlaps(uint mapId, Position feet, Game.Race race)
-        {
-            var request = new PathfindingRequest
-            {
-                CapsuleOverlap = new CapsuleOverlapRequest
+                Terrain = new TerrainProbeRequest
                 {
                     MapId = mapId,
                     Position = feet.ToProto(),
-                    Race = race
+                    CapsuleRadius = radius,
+                    CapsuleHeight = height,
                 }
             };
 
@@ -155,7 +85,7 @@ namespace BotRunner.Clients
             if (response.PayloadCase == PathfindingResponse.PayloadOneofCase.Error)
                 throw new Exception(response.Error.Message);
 
-            return response.CapsuleOverlap.Hits;
+            return response.Terrain;
         }
     }
 
