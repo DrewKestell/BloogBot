@@ -14,13 +14,12 @@ namespace PathfindingService
         {
             try
             {
-                // Dispatch on request type using oneof
                 return request.PayloadCase switch
                 {
                     PathfindingRequest.PayloadOneofCase.Path => HandlePath(request.Path),
-                    PathfindingRequest.PayloadOneofCase.Distance => HandleDistance(request.Distance),
-                    PathfindingRequest.PayloadOneofCase.ZQuery => HandleZQuery(request.ZQuery),
-                    _ => ErrorResponse("Unknown or unset request type."),
+                    PathfindingRequest.PayloadOneofCase.Los => HandleLineOfSight(request.Los),
+                    PathfindingRequest.PayloadOneofCase.Terrain => HandleTerrain(request.Terrain),
+                    _ => ErrorResponse("Unknown or unset request type.")
                 };
             }
             catch (Exception ex)
@@ -30,62 +29,48 @@ namespace PathfindingService
             }
         }
 
-        private PathfindingResponse HandlePath(PathRequest req)
+        private PathfindingResponse HandlePath(CalculatePathRequest req)
         {
             if (!CheckPosition(req.MapId, req.Start, req.End, out var err))
                 return err;
 
             var start = new Position(req.Start.ToXYZ());
             var end = new Position(req.End.ToXYZ());
-            var path = _navigation.CalculatePath(req.MapId, start, end, req.SmoothPath);
+            var path = _navigation.CalculatePath(req.MapId, start, end, req.Straight);
 
-            var resp = new PathResponse();
-            resp.Path.AddRange(path.Select(p => p.ToXYZ().ToProto()));
+            var resp = new CalculatePathResponse();
+            resp.Corners.AddRange(path.Select(p => p.ToXYZ().ToProto()));
 
             return new PathfindingResponse { Path = resp };
         }
 
-        private PathfindingResponse HandleDistance(DistanceRequest req)
+        private PathfindingResponse HandleLineOfSight(LineOfSightRequest req)
         {
-            if (!CheckPosition(req.MapId, req.Start, req.End, out var err))
+            if (!CheckPosition(req.MapId, req.From, req.To, out var err))
                 return err;
 
-            var start = new Position(req.Start.ToXYZ());
-            var end = new Position(req.End.ToXYZ());
-            var path = _navigation.CalculatePath(req.MapId, start, end, false);
+            var from = new Position(req.From.ToXYZ());
+            var to = new Position(req.To.ToXYZ());
 
-            float totalDistance = 0f;
-            for (int i = 0; i < path.Length - 1; i++)
-                totalDistance += path[i].DistanceTo(path[i + 1]);
+            bool hasLOS = _navigation.IsLineOfSight(req.MapId, from, to);
 
-            var resp = new DistanceResponse { Distance = totalDistance };
-            return new PathfindingResponse { Distance = resp };
+            return new PathfindingResponse
+            {
+                Los = new LineOfSightResponse { InLos = hasLOS }
+            };
         }
-
-        private PathfindingResponse HandleZQuery(ZQueryRequest req)
+        private PathfindingResponse HandleTerrain(TerrainProbeRequest req)
         {
             if (!CheckPosition(req.MapId, req.Position, out var err))
                 return err;
 
-            float adtZ = _navigation.GetADTHeight(req.MapId, req.Position.X, req.Position.Y);
-            float raycastZ = _navigation.GetFloorHeight(req.MapId, req.Position.X, req.Position.Y, req.Position.Z);
+            var response = _navigation.GetTerrainProbe(req.MapId, req.Position, req.CapsuleRadius, req.CapsuleHeight);
 
-            var resp = new ZQueryResponse
-            {
-                ZResult = new ZQueryResult
-                {
-                    TerrainZ = raycastZ,
-                    AdtZ = adtZ,
-                    LocationZ = float.NegativeInfinity,
-                    WaterLevel = float.NegativeInfinity,
-                }
-            };
-            return new PathfindingResponse { ZQuery = resp };
+            return new PathfindingResponse { Terrain = response };
         }
-
         // ------------- Validation and Helpers ----------------
 
-        private bool CheckPosition(uint mapId, Game.Position a, Game.Position b, out PathfindingResponse error)
+        private static bool CheckPosition(uint mapId, Game.Position a, Game.Position b, out PathfindingResponse error)
         {
             if (mapId == 0 || a == null || b == null)
             {
@@ -96,7 +81,7 @@ namespace PathfindingService
             return true;
         }
 
-        private bool CheckPosition(uint mapId, Game.Position a, out PathfindingResponse error)
+        private static bool CheckPosition(uint mapId, Game.Position a, out PathfindingResponse error)
         {
             if (mapId == 0 || a == null)
             {

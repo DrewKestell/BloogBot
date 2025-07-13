@@ -18,50 +18,45 @@ extern "C"
             nav->FreePathArr(path);
     }
 
-    __declspec(dllexport) bool GetNavmeshFloorHeight(uint32_t mapId,
-        float     posX,
-        float     posY,
-        float     zGuess,
-        float* outHeight)
+    __declspec(dllexport)
+        bool LineOfSight(uint32_t mapId, XYZ from, XYZ to)
     {
-        if (!outHeight)
-            return false;
+        return Navigation::GetInstance()->IsLineOfSight(mapId, from, to);
+    }
 
-        auto* mgr = MMAP::MMapFactory::createOrGetMMapManager();
+    __declspec(dllexport)
+        NavPoly* CapsuleOverlap(uint32_t mapId, XYZ pos,
+            float radius, float height,
+            int* outCount)
+    {
+        if (!outCount) return nullptr;
 
-        auto* query = mgr->GetNavMeshQuery(mapId, 0);
-        if (!query)
-            return false;
-
-        float point[3] = { posY, zGuess + 0.5f, posX };
-
-        float extents[3] = { 3.0f, 5.0f, 3.0f };
-
-        dtQueryFilter filter;
-        filter.setIncludeFlags(0x01);  // DT_POLYAREA_GROUND
-        filter.setExcludeFlags(0x00);
-
-        dtPolyRef polyRef = 0;
-        float nearest[3] = { 0,0,0 };
-        dtStatus st = query->findNearestPoly(point, extents, &filter, &polyRef, nearest);
-
-        if (dtStatusFailed(st) || polyRef == 0)
+        std::vector<NavPoly> v;
+        try
         {
-            extents[1] = 200.0f;
-
-            st = query->findNearestPoly(point, extents, &filter, &polyRef, nearest);
-
-            if (dtStatusFailed(st) || polyRef == 0)
-                return false;
+            v = Navigation::GetInstance()->CapsuleOverlap(mapId, pos, radius, height);
+        }
+        catch (const std::exception& ex)
+        {
+            return nullptr;
         }
 
-        float closest[3] = { 0,0,0 };
-        dtStatus cst = query->closestPointOnPoly(polyRef, point, closest, nullptr);
-        if (dtStatusFailed(cst))
-            return false;
+        *outCount = static_cast<int>(v.size());
 
-        *outHeight = closest[1];
-        return true;
+        if (v.empty()) return nullptr;
+
+        size_t bytes = v.size() * sizeof(NavPoly);
+
+        auto* buf = static_cast<NavPoly*>(::CoTaskMemAlloc(bytes));
+        if (!buf) return nullptr;
+
+        std::memcpy(buf, v.data(), bytes);
+        return buf;
+    }
+
+    __declspec(dllexport) void FreeNavPolyArr(NavPoly* p)
+    {
+        if (p) ::CoTaskMemFree(p);
     }
 }
 

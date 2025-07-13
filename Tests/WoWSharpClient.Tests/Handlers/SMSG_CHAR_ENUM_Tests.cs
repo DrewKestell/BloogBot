@@ -1,30 +1,13 @@
-﻿using BotRunner.Clients;
-using GameData.Core.Enums;
+﻿using GameData.Core.Enums;
 using GameData.Core.Models;
-using Microsoft.Extensions.Logging;
-using Moq;
 using WoWSharpClient.Handlers;
 using WoWSharpClient.Tests.Util;
 
 namespace WoWSharpClient.Tests.Handlers
 {
-    public class SMSG_CHAR_ENUM_Tests
+    [Collection("Sequential ObjectManager tests")]
+    public class SMSG_CHAR_ENUM_Tests(ObjectManagerFixture _) : IClassFixture<ObjectManagerFixture>
     {
-        private readonly CharacterSelectHandler _characterSelectHandler;
-        private readonly WoWSharpObjectManager _objectManager;
-        private readonly Mock<PathfindingClient> _pathfindingClientMock;
-        private readonly Mock<Logger<WoWSharpObjectManager>> _logger = new();
-
-        public SMSG_CHAR_ENUM_Tests()
-        {
-            _pathfindingClientMock = new Mock<PathfindingClient>();
-            // Initialize your dependencies using mocks or stubs
-            _objectManager = new WoWSharpObjectManager("127.0.0.1", _pathfindingClientMock.Object, _logger.Object);
-
-            // Initialize ObjectUpdateHandler with mocked dependencies
-            _characterSelectHandler = new CharacterSelectHandler(_objectManager);
-        }
-
         [Fact]
         public void ShouldParseCharacterList()
         {
@@ -32,10 +15,10 @@ namespace WoWSharpClient.Tests.Handlers
             byte[] data = FileReader.ReadBinaryFile($"{Path.Combine(Directory.GetCurrentDirectory(), "Resources", opcode.ToString())}\\20240815.bin");
 
             // Call the HandleUpdateObject method on ObjectUpdateHandler
-            _characterSelectHandler.HandleCharEnum(opcode, data);
+            CharacterSelectHandler.HandleCharEnum(opcode, data);
 
             // Verify that 10 characters were parsed and added to the ObjectManager
-            Assert.Equal(10, _objectManager.CharacterSelectScreen.CharacterSelects.Count);
+            Assert.Equal(10, WoWSharpObjectManager.Instance.CharacterSelectScreen.CharacterSelects.Count);
 
             // Define expected values for assertions (these values are hypothetical, replace them with the correct expected values)
             var expectedCharacters = new List<CharacterSelect>
@@ -114,7 +97,7 @@ namespace WoWSharpClient.Tests.Handlers
 
             foreach (var expectedCharacter in expectedCharacters)
             {
-                var parsedCharacter = _objectManager.CharacterSelectScreen.CharacterSelects.First(o => o.Guid == expectedCharacter.Guid);
+                var parsedCharacter = WoWSharpObjectManager.Instance.CharacterSelectScreen.CharacterSelects.First(o => o.Guid == expectedCharacter.Guid);
                 Assert.NotNull(parsedCharacter);
 
                 Assert.Equal(expectedCharacter.Name, parsedCharacter.Name);

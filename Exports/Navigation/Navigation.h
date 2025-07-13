@@ -1,4 +1,4 @@
-#ifndef NAVIGATION_H
+﻿#ifndef NAVIGATION_H
 #define NAVIGATION_H
 
 #include "MoveMap.h"
@@ -22,6 +22,15 @@ public:
     }
 };
 
+struct NavPoly            // <-- goes below XYZ definition
+{
+    uint64_t refId;       // Detour poly reference
+    uint32_t area;        // 0‑ground, 1‑water, 2‑lava, …
+    uint32_t flags;       // walk / swim / door / etc.
+    uint32_t vertCount;   // 3‑6
+    XYZ      verts[6];    // world‑space verts (WoW axis)
+};
+
 class Navigation
 {
 public:
@@ -32,6 +41,9 @@ public:
     XYZ* CalculatePath(unsigned int mapId, XYZ start, XYZ end, bool straightPath, int* length);
     void FreePathArr(XYZ* length);
     std::string GetMmapsPath();
+    bool IsLineOfSight(uint32_t mapId, const XYZ& a, const XYZ& b);
+    std::vector<NavPoly> CapsuleOverlap(uint32_t mapId, const XYZ& pos, float radius, float height);
+    float GetLiquidHeight(uint32_t mapId, float x, float y, float z, uint32_t liquidTypeMask);
 
 private:
     void InitializeMapsForContinent(MMAP::MMapManager* manager, unsigned int mapId);

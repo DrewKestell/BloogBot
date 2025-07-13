@@ -9,12 +9,11 @@ using WowSrp.Client;
 
 namespace WoWSharpClient.Client
 {
-    internal class AuthLoginClient(string ipAddress, WoWSharpEventEmitter woWSharpEventEmitter) : IDisposable
+    internal class AuthLoginClient(string ipAddress) : IDisposable
     {
         private string _username = string.Empty;
         private string _password = string.Empty;
         private readonly IPAddress _ipAddress = IPAddress.Parse(ipAddress);
-        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = woWSharpEventEmitter;
 
         private TcpClient? _client = null;
         private SrpClient _srpClient;
@@ -78,7 +77,7 @@ namespace WoWSharpClient.Client
 
             Console.WriteLine($"[AuthLoginClient] -> CMD_AUTH_LOGON_CHALLENGE [{packetData.Length}]");
 
-            _woWSharpEventEmitter.FireOnHandshakeBegin();
+            WoWSharpEventEmitter.Instance.FireOnHandshakeBegin();
             _stream.Write(packetData, 0, packetData.Length);
 
             ReceiveAuthLogonChallengeServer();
@@ -180,23 +179,23 @@ namespace WoWSharpClient.Client
 
                     var verificationResult = _srpClientChallenge.VerifyServerProof(serverProof);
                     if (!verificationResult.HasValue)
-                        _woWSharpEventEmitter.FireOnLoginFailure();
+                        WoWSharpEventEmitter.Instance.FireOnLoginFailure();
                     else
                     {
                         _srpClient = verificationResult.Value;
-                        _woWSharpEventEmitter.FireOnLoginSuccess();
+                        WoWSharpEventEmitter.Instance.FireOnLoginSuccess();
                     }
                 }
                 else
                 {
                     Console.WriteLine($"[AuthLoginClient] Failed AUTH_PROOF response: opcode {opcode:X2}, result {result}");
-                    _woWSharpEventEmitter.FireOnLoginFailure();
+                    WoWSharpEventEmitter.Instance.FireOnLoginFailure();
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[AuthLoginClient] Error in ReceiveAuthProofLogonResponse: {ex}");
-                _woWSharpEventEmitter.FireOnLoginFailure();
+                WoWSharpEventEmitter.Instance.FireOnLoginFailure();
             }
         }
 

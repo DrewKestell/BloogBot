@@ -6,17 +6,14 @@ using WoWSharpClient.Utils;
 
 namespace WoWSharpClient.Handlers
 {
-    public class CharacterSelectHandler(WoWSharpObjectManager objectManager)
+    public static class CharacterSelectHandler
     {
-        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = objectManager.EventEmitter;
-        private readonly WoWSharpObjectManager _objectManager = objectManager;
-
-        public void HandleCharEnum(Opcode opcode, byte[] data)
+        public static void HandleCharEnum(Opcode opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
             byte numChars = reader.ReadByte();
 
-            _objectManager.CharacterSelectScreen.CharacterSelects.Clear();
+            WoWSharpObjectManager.Instance.CharacterSelectScreen.CharacterSelects.Clear();
 
             for (int i = 0; i < numChars; i++)
             {
@@ -65,28 +62,28 @@ namespace WoWSharpClient.Handlers
                 character.FirstBagInventoryType = reader.ReadByte();
 
                 // Add the parsed character to the character selection list
-                _objectManager.CharacterSelectScreen.CharacterSelects.Add(character);
+                WoWSharpObjectManager.Instance.CharacterSelectScreen.CharacterSelects.Add(character);
             }
 
             // Trigger an event once the character list is loaded
-            _woWSharpEventEmitter.FireOnCharacterListLoaded();
+            WoWSharpEventEmitter.Instance.FireOnCharacterListLoaded();
         }
 
-        public void HandleSetRestStart(Opcode opcode, byte[] data)
+        public static void HandleSetRestStart(Opcode opcode, byte[] data)
         {
-            _woWSharpEventEmitter.FireOnSetRestStart();
+            WoWSharpEventEmitter.Instance.FireOnSetRestStart();
         }
 
-        public void HandleCharCreate(Opcode opcode, byte[] data)
+        public static void HandleCharCreate(Opcode opcode, byte[] data)
         {
             var result = (CreateCharacterResult)data[0];
-            _woWSharpEventEmitter.FireOnCharacterCreateResponse(new CharCreateResponse(result));
+            WoWSharpEventEmitter.Instance.FireOnCharacterCreateResponse(new CharCreateResponse(result));
         }
 
-        public void HandleCharDelete(Opcode opcode, byte[] data)
+        public static void HandleCharDelete(Opcode opcode, byte[] data)
         {
             var result = (DeleteCharacterResult)data[0];
-            _woWSharpEventEmitter.FireOnCharacterDeleteResponse(new CharDeleteResponse(result));
+            WoWSharpEventEmitter.Instance.FireOnCharacterDeleteResponse(new CharDeleteResponse(result));
         }
 
         public static void HandleAddonInfo(Opcode opcode, byte[] data)
@@ -100,7 +97,7 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        public void HandleNameQueryResponse(Opcode opcode, byte[] data)
+        public static void HandleNameQueryResponse(Opcode opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
             var guid = reader.ReadUInt64();
@@ -110,7 +107,7 @@ namespace WoWSharpClient.Handlers
             var gender = (Gender)reader.ReadUInt32();
             var classId = (Class)reader.ReadUInt32();
 
-            var gameObject = (WoWPlayer)_objectManager.Objects.First(x => x.Guid == guid);
+            var gameObject = (WoWPlayer)WoWSharpObjectManager.Instance.Objects.First(x => x.Guid == guid);
 
             if (gameObject != null)
             {
@@ -121,7 +118,7 @@ namespace WoWSharpClient.Handlers
             }
             else
             {
-                var characterSelect = _objectManager.CharacterSelectScreen.CharacterSelects.FirstOrDefault(x => x.Guid == guid);
+                var characterSelect = WoWSharpObjectManager.Instance.CharacterSelectScreen.CharacterSelects.FirstOrDefault(x => x.Guid == guid);
                 if (characterSelect != null)
                 {
                     characterSelect.Name = name;

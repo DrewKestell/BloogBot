@@ -1,12 +1,23 @@
 ﻿using GameData.Core.Enums;
 using GameData.Core.Interfaces;
 using GameData.Core.Models;
+using System.Reflection;
 
 namespace WoWSharpClient
 {
     public class WoWSharpEventEmitter : IWoWEventHandler
     {
+        private static WoWSharpEventEmitter _instance;
 
+        public static WoWSharpEventEmitter Instance
+        {
+            get
+            {
+                _instance ??= new WoWSharpEventEmitter();
+
+                return _instance;
+            }
+        }
         public event EventHandler OnLoginConnect;
         public event EventHandler OnHandshakeBegin;
         public event EventHandler OnLoginSuccess;
@@ -100,8 +111,27 @@ namespace WoWSharpClient
         public event EventHandler<CharDeleteResponse> OnCharacterDeleteResponse;
         public event EventHandler<GameObjectCreatedArgs> OnGameObjectCreated;
 
-        public WoWSharpEventEmitter() { }
-
+        private WoWSharpEventEmitter() { }
+        /// <summary>
+        /// Clear every handler from every event/delegate on the singleton.
+        /// Call this from your test fixture’s Dispose().
+        /// </summary>
+        public void Reset()
+        {
+            lock (this)                    // cheap, coarse-grained; good enough for tests
+            {
+                foreach (var field in GetType().GetFields(
+                             BindingFlags.Instance |
+                             BindingFlags.Public |   // catches OnSetTimeSpeed, a public delegate
+                             BindingFlags.NonPublic))  // catches the private backing fields for events
+                {
+                    if (typeof(Delegate).IsAssignableFrom(field.FieldType))
+                    {
+                        field.SetValue(this, null);   // one-line wipe-out
+                    }
+                }
+            }
+        }
         private void FireEvent(EventHandler handler) => handler?.Invoke(this, EventArgs.Empty);
         private void FireEvent<T>(EventHandler<T> handler, T args) where T : EventArgs => handler?.Invoke(this, args);
         private void FireEvent(EventHandler<EventArgs> handler, EventArgs args) => handler?.Invoke(this, args);

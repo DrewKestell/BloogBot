@@ -183,6 +183,83 @@ void Navigation::InitializeMapsForContinent(MMAP::MMapManager* manager, unsigned
 		manager->zoneMap.insert(std::pair<unsigned int, bool>(mapId, true));
 	}
 }
+bool Navigation::IsLineOfSight(unsigned int mapId,
+    const XYZ& s, const XYZ& e)
+{
+    MMAP::MMapManager* manager = MMAP::MMapFactory::createOrGetMMapManager();
+    InitializeMapsForContinent(manager, mapId);
+
+    const auto* query = manager->GetNavMeshQuery(mapId, 0);
+    if (!query) return false;
+
+    const float ext[3] = { 2.f, 4.f, 2.f };
+    dtQueryFilter  f;    f.setIncludeFlags(0xFFFF);
+
+    float spos[3] = { s.Y, s.Z, s.X };
+    float epos[3] = { e.Y, e.Z, e.X };
+
+    dtPolyRef sRef = 0;
+    query->findNearestPoly(spos, ext, &f, &sRef, nullptr);
+    if (!sRef) return false;                       // off‑mesh → blocked
+
+    dtRaycastHit hit{};
+    if (dtStatusFailed(query->raycast(sRef, spos, epos, &f, 0, &hit)))
+        return true;                               // raycast failed, assume clear
+
+    return hit.t >= 1.0f;                          // t<1 => obstruction
+}
+
+std::vector<NavPoly> Navigation::CapsuleOverlap(uint32_t mapId,
+    const XYZ& p,
+    float r, float h)
+{
+    std::vector<NavPoly> out;
+
+    MMAP::MMapManager* manager = MMAP::MMapFactory::createOrGetMMapManager();
+    InitializeMapsForContinent(manager, mapId);
+
+    const auto* query = manager->GetNavMeshQuery(mapId, 0);
+
+    if (!query) return out;
+
+    float centre[3] = { p.Y, p.Z + h * 0.5f, p.X };
+    float ext[3] = { r,   h * 0.5f,       r };
+
+    dtQueryFilter f;
+    f.setIncludeFlags(0xFFFF);
+
+    dtPolyRef refs[128];
+    int n = 0;
+    dtStatus status = query->queryPolygons(centre, ext, &f, refs, &n, 128);
+
+    if (dtStatusFailed(status)) return out;
+
+    const dtNavMesh* mesh = query->getAttachedNavMesh();
+
+    for (int i = 0; i < n; ++i)
+    {
+        const dtPoly* poly = nullptr;
+        const dtMeshTile* tile = nullptr;
+
+        if (dtStatusFailed(mesh->getTileAndPolyByRef(refs[i], &tile, &poly))) continue;
+
+        NavPoly np{};
+        np.refId = refs[i];
+        np.area = poly->getArea();
+        np.flags = poly->flags;
+        np.vertCount = poly->vertCount;
+
+        for (int v = 0; v < poly->vertCount; ++v)
+        {
+            const float* vt = &tile->verts[poly->verts[v] * 3];
+            np.verts[v] = { vt[2], vt[0], vt[1] };  // Detour → WoW
+        }
+
+        out.push_back(np);
+    }
+
+    return out;
+}
 
 string Navigation::GetMmapsPath()
 {

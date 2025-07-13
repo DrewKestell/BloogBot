@@ -2,11 +2,9 @@
 
 namespace WoWSharpClient.Handlers
 {
-    public class SpellHandler(WoWSharpObjectManager objectManager)
+    public static class SpellHandler
     {
-        private readonly WoWSharpEventEmitter eventEmitter = objectManager.EventEmitter;
-        private readonly WoWSharpObjectManager _objectManager = objectManager;
-        public void HandleInitialSpells(Opcode opcode, byte[] data)
+        public static void HandleInitialSpells(Opcode opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
             try
@@ -36,7 +34,7 @@ namespace WoWSharpClient.Handlers
                     ////Console.WriteLine($"Cooldown Spell ID: {cooldownSpellID}, Cooldown Time: {cooldownTime}, Cooldown Category Time: {cooldownCategoryTimeStr}");
                 }
 
-                eventEmitter.FireOnInitialSpellsLoaded(); // Trigger event or further processing
+                WoWSharpEventEmitter.Instance.FireOnInitialSpellsLoaded(); // Trigger event or further processing
             }
             catch (EndOfStreamException e)
             {
@@ -44,7 +42,7 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        public void HandleSpellLogMiss(Opcode opcode, byte[] data)
+        public static void HandleSpellLogMiss(Opcode opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
             try
@@ -54,7 +52,7 @@ namespace WoWSharpClient.Handlers
                 ulong targetGUID = reader.ReadUInt64();
                 uint missType = reader.ReadUInt32();
 
-                eventEmitter.FireOnSpellLogMiss(spellId, casterGUID, targetGUID, missType);
+                WoWSharpEventEmitter.Instance.FireOnSpellLogMiss(spellId, casterGUID, targetGUID, missType);
             }
             catch (EndOfStreamException e)
             {
@@ -62,7 +60,7 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        public void HandleSpellGo(Opcode opcode, byte[] data)
+        public static void HandleSpellGo(Opcode opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
             try
@@ -71,7 +69,7 @@ namespace WoWSharpClient.Handlers
                 uint targetGUID = reader.ReadUInt32();
                 uint spellID = reader.ReadUInt32();
 
-                eventEmitter.FireOnSpellGo(spellID, casterGUID, targetGUID);
+                WoWSharpEventEmitter.Instance.FireOnSpellGo(spellID, casterGUID, targetGUID);
             }
             catch (Exception ex)
             {

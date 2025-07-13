@@ -1,29 +1,13 @@
-﻿using BotRunner.Clients;
-using GameData.Core.Enums;
-using Microsoft.Extensions.Logging;
-using Moq;
+﻿using GameData.Core.Enums;
 using WoWSharpClient.Handlers;
 using WoWSharpClient.Tests.Util;
 
 namespace WoWSharpClient.Tests.Handlers
 {
-    public class SMSG_UPDATE_OBJECT_Tests
+    [Collection("Sequential ObjectManager tests")]
+    public class SMSG_UPDATE_OBJECT_Tests(ObjectManagerFixture _) : IClassFixture<ObjectManagerFixture>
     {
-        private readonly ObjectUpdateHandler _objectUpdateHandler;
-        private readonly WoWSharpObjectManager _objectManager;
-        private readonly Mock<PathfindingClient> _pathfindingClientMock;
-        private readonly Mock<Logger<WoWSharpObjectManager>> _logger = new();
-
-        public SMSG_UPDATE_OBJECT_Tests()
-        {
-            _pathfindingClientMock = new Mock<PathfindingClient>();
-            // Initialize your dependencies using mocks or stubs
-            _objectManager = new("127.0.0.1", _pathfindingClientMock.Object, _logger.Object);
-
-            // Initialize ObjectUpdateHandler with mocked dependencies
-            _objectUpdateHandler = new ObjectUpdateHandler(_objectManager);
-        }
-
+        //TODO: Test might be useless or redundant
         [Fact]
         public void ShouldDecompressAndParseAllCompressedUpdateObjectPackets()
         {
@@ -41,7 +25,7 @@ namespace WoWSharpClient.Tests.Handlers
             foreach (var filePath in files)
             {
                 byte[] data = FileReader.ReadBinaryFile(filePath);
-                _objectUpdateHandler.HandleUpdateObject(opcode, data);
+                ObjectUpdateHandler.HandleUpdateObject(opcode, data);
             }
         }
     }

@@ -1,32 +1,15 @@
-using BotRunner.Clients;
 using GameData.Core.Enums;
-using Microsoft.Extensions.Logging;
 using Moq;
+using WoWSharpClient.Client;
 using WoWSharpClient.Handlers;
 using WoWSharpClient.Models;
 using WoWSharpClient.Tests.Util;
 
 namespace WoWSharpClient.Tests.Handlers
 {
-    public class SMSG_COMPRESSED_UPDATE_OBJECT_Tests
+    [Collection("Sequential ObjectManager tests")]
+    public class SMSG_COMPRESSED_UPDATE_OBJECT_Transports_Tests(ObjectManagerFixture _) : IClassFixture<ObjectManagerFixture>
     {
-        private readonly ObjectUpdateHandler _objectUpdateHandler;
-        private readonly WoWSharpEventEmitter _woWSharpEventEmitter;
-        private readonly WoWSharpObjectManager _objectManager;
-        private readonly Mock<PathfindingClient> _pathfindingClientMock;
-        private readonly Mock<Logger<WoWSharpObjectManager>> _logger = new();
-
-        public SMSG_COMPRESSED_UPDATE_OBJECT_Tests()
-        {
-            _pathfindingClientMock = new Mock<PathfindingClient>();
-            // Initialize your dependencies using mocks or stubs
-            _woWSharpEventEmitter = new();
-            _objectManager = new("127.0.0.1", _pathfindingClientMock.Object, _logger.Object);
-
-            // Initialize ObjectUpdateHandler with mocked dependencies
-            _objectUpdateHandler = new ObjectUpdateHandler(_objectManager);
-        }
-
         [Fact]
         public void ShouldDecompressAndParseTransports()
         {
@@ -34,14 +17,15 @@ namespace WoWSharpClient.Tests.Handlers
             byte[] data = FileReader.ReadBinaryFile($"{Path.Combine(Directory.GetCurrentDirectory(), "Resources", opcode.ToString())}\\20240815_1.bin");
 
             // Call the HandleUpdateObject method on ObjectUpdateHandler
-            _objectUpdateHandler.HandleUpdateObject(opcode, data);
+            ObjectUpdateHandler.HandleUpdateObject(opcode, data);
 
+            WoWSharpObjectManager.Instance.ProcessUpdates();
             // Verify that objects with the expected GUIDs were added to the ObjectManager
-            Assert.Equal(6, _objectManager.Objects.Count());
+            Assert.Equal(6, WoWSharpObjectManager.Instance.Objects.Count());
 
             // First object
             ulong expectedGuid1 = 2287828610704211975;
-            var addedObject1 = (WoWGameObject)_objectManager.Objects.First(o => o.Guid == expectedGuid1);
+            var addedObject1 = (WoWGameObject)WoWSharpObjectManager.Instance.Objects.First(o => o.Guid == expectedGuid1);
 
             Assert.NotNull(addedObject1);
             Assert.Equal(WoWObjectType.GameObj, addedObject1.ObjectType);
@@ -56,7 +40,7 @@ namespace WoWSharpClient.Tests.Handlers
 
             // Third object
             ulong expectedGuid2 = 2287828610704211973;
-            var addedObject2 = (WoWGameObject)_objectManager.Objects.First(o => o.Guid == expectedGuid2);
+            var addedObject2 = (WoWGameObject)WoWSharpObjectManager.Instance.Objects.First(o => o.Guid == expectedGuid2);
 
             Assert.NotNull(addedObject2);
             Assert.Equal(WoWObjectType.GameObj, addedObject2.ObjectType);
@@ -70,7 +54,7 @@ namespace WoWSharpClient.Tests.Handlers
 
             // Second object
             ulong expectedGuid3 = 2287828610704211972;
-            var addedObject3 = (WoWGameObject)_objectManager.Objects.First(o => o.Guid == expectedGuid3);
+            var addedObject3 = (WoWGameObject)WoWSharpObjectManager.Instance.Objects.First(o => o.Guid == expectedGuid3);
 
             Assert.NotNull(addedObject2);
             Assert.Equal(WoWObjectType.GameObj, addedObject3.ObjectType);
@@ -84,7 +68,7 @@ namespace WoWSharpClient.Tests.Handlers
 
             // Fourth object
             ulong expectedGuid4 = 2287828610704211971;
-            var addedObject4 = (WoWGameObject)_objectManager.Objects.First(o => o.Guid == expectedGuid4);
+            var addedObject4 = (WoWGameObject)WoWSharpObjectManager.Instance.Objects.First(o => o.Guid == expectedGuid4);
 
             Assert.NotNull(addedObject4);
             Assert.Equal(WoWObjectType.GameObj, addedObject4.ObjectType);
@@ -98,7 +82,7 @@ namespace WoWSharpClient.Tests.Handlers
 
             // Fifth object
             ulong expectedGuid5 = 2287828610704211969;
-            var addedObject5 = (WoWGameObject)_objectManager.Objects.First(o => o.Guid == expectedGuid5);
+            var addedObject5 = (WoWGameObject)WoWSharpObjectManager.Instance.Objects.First(o => o.Guid == expectedGuid5);
 
             Assert.NotNull(addedObject5);
             Assert.Equal(WoWObjectType.GameObj, addedObject5.ObjectType);
@@ -112,7 +96,7 @@ namespace WoWSharpClient.Tests.Handlers
 
             // Sixth object
             ulong expectedGuid6 = 2287828610704211970;
-            var addedObject6 = (WoWGameObject)_objectManager.Objects.First(o => o.Guid == expectedGuid6);
+            var addedObject6 = (WoWGameObject)WoWSharpObjectManager.Instance.Objects.First(o => o.Guid == expectedGuid6);
 
             Assert.NotNull(addedObject6);
             Assert.Equal(WoWObjectType.GameObj, addedObject6.ObjectType);
@@ -124,6 +108,12 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal((uint)316182, addedObject6.Level);
             Assert.Equal((uint)255, addedObject6.AnimProgress);
         }
+    }
+
+    [Collection("Sequential ObjectManager tests")]
+    public class SMSG_COMPRESSED_UPDATE_OBJECT_Player_Tests(ObjectManagerFixture _) : IClassFixture<ObjectManagerFixture>
+    {
+        private Mock<WoWClient> _woWClientMock = _._woWClient;
 
         [Fact]
         public void ShouldDecompressAndParsePlayerCharacter()
@@ -132,13 +122,14 @@ namespace WoWSharpClient.Tests.Handlers
             byte[] data = FileReader.ReadBinaryFile($"{Path.Combine(Directory.GetCurrentDirectory(), "Resources", opcode.ToString())}\\20240815_2.bin");
 
             // Call the HandleUpdateObject method on ObjectUpdateHandler
-            _objectUpdateHandler.HandleUpdateObject(opcode, data);
+            ObjectUpdateHandler.HandleUpdateObject(opcode, data);
 
-            // Verify that objects with the expected GUIDs were added to the ObjectManager
-            Assert.Equal(31, _objectManager.Objects.Count());
+            _woWClientMock.Setup(expression => expression.SendNameQuery(150));
+
+            WoWSharpObjectManager.Instance.ProcessUpdates();
 
             // First object (WoWItem)
-            var item1 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item1 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402422, item1.Guid);
             Assert.Equal(WoWObjectType.Item, item1.ObjectType);
             Assert.Equal(0xB6, item1.HighGuid.LowGuidValue[0]);
@@ -168,7 +159,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item1.Quality);
 
             // Second object (WoWItem)
-            var item2 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item2 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402423, item2.Guid);
             Assert.Equal(WoWObjectType.Item, item2.ObjectType);
             Assert.Equal(0xB7, item2.HighGuid.LowGuidValue[0]);
@@ -198,7 +189,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item2.Quality);
 
             // Third object (WoWItem)
-            var item3 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item3 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402424, item3.Guid);
             Assert.Equal(WoWObjectType.Item, item3.ObjectType);
             Assert.Equal(0xB8, item3.HighGuid.LowGuidValue[0]);
@@ -228,7 +219,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item3.Quality);
 
             // Fourth object (WoWItem)
-            var item4 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item4 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402469, item4.Guid);
             Assert.Equal(WoWObjectType.Item, item4.ObjectType);
             Assert.Equal(0xE5, item4.HighGuid.LowGuidValue[0]);
@@ -258,7 +249,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item4.Quality);
 
             // Fifth object (WoWItem)
-            var item5 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item5 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402426, item5.Guid);
             Assert.Equal(WoWObjectType.Item, item5.ObjectType);
             Assert.Equal(0xBA, item5.HighGuid.LowGuidValue[0]);
@@ -288,7 +279,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item5.Quality);
 
             // Sixth object (WoWItem)
-            var item6 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item6 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402429, item6.Guid);
             Assert.Equal(WoWObjectType.Item, item6.ObjectType);
             Assert.Equal(0xBD, item6.HighGuid.LowGuidValue[0]);
@@ -318,7 +309,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item6.Quality);
 
             // Seventh object (WoWItem)
-            var item7 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item7 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402430, item7.Guid);
             Assert.Equal(WoWObjectType.Item, item7.ObjectType);
             Assert.Equal(0xBE, item7.HighGuid.LowGuidValue[0]);
@@ -348,7 +339,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item7.Quality);
 
             // Eighth object (WoWItem)
-            var item8 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item8 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402431, item8.Guid);
             Assert.Equal(WoWObjectType.Item, item8.ObjectType);
             Assert.Equal(0xBF, item8.HighGuid.LowGuidValue[0]);
@@ -378,7 +369,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item8.Quality);
 
             // Ninth object (WoWItem)
-            var item9 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item9 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402427, item9.Guid);
             Assert.Equal(WoWObjectType.Item, item9.ObjectType);
             Assert.Equal(0xBB, item9.HighGuid.LowGuidValue[0]);
@@ -408,7 +399,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item9.Quality);
 
             // Tenth object (WoWItem)
-            var item10 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item10 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402428, item10.Guid);
             Assert.Equal(WoWObjectType.Item, item10.ObjectType);
             Assert.Equal(0xBC, item10.HighGuid.LowGuidValue[0]);
@@ -438,7 +429,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item10.Quality);
 
             // Eleventh object (WoWItem)
-            var item11 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item11 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402433, item11.Guid);
             Assert.Equal(WoWObjectType.Item, item11.ObjectType);
             Assert.Equal(0xC1, item11.HighGuid.LowGuidValue[0]);
@@ -468,7 +459,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item11.Quality);
 
             // Twelfth object (WoWItem)
-            var item12 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item12 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402432, item12.Guid);
             Assert.Equal(WoWObjectType.Item, item12.ObjectType);
             Assert.Equal(0xC0, item12.HighGuid.LowGuidValue[0]);
@@ -498,7 +489,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item12.Quality);
 
             // Thirteenth object (WoWItem)
-            var item13 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item13 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402435, item13.Guid);
             Assert.Equal(WoWObjectType.Item, item13.ObjectType);
             Assert.Equal(0xC3, item13.HighGuid.LowGuidValue[0]);
@@ -528,7 +519,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item13.Quality);
 
             // Fourteenth object (WoWItem)
-            var item14 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item14 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402434, item14.Guid);
             Assert.Equal(WoWObjectType.Item, item14.ObjectType);
             Assert.Equal(0xC2, item14.HighGuid.LowGuidValue[0]);
@@ -558,7 +549,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item14.Quality);
 
             // Fifteenth object (WoWItem)
-            var item15 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item15 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402425, item15.Guid);
             Assert.Equal(WoWObjectType.Item, item15.ObjectType);
             Assert.Equal(0xB9, item15.HighGuid.LowGuidValue[0]);
@@ -588,7 +579,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item15.Quality);
 
             // Sixteenth object (WoWItem)
-            var item16 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item16 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402420, item16.Guid);
             Assert.Equal(WoWObjectType.Item, item16.ObjectType);
             Assert.Equal(0xB4, item16.HighGuid.LowGuidValue[0]);
@@ -618,7 +609,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item16.Quality);
 
             // Seventeenth object (WoWItem)
-            var item17 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item17 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402441, item17.Guid);
             Assert.Equal(WoWObjectType.Item, item17.ObjectType);
             Assert.Equal(0xC9, item17.HighGuid.LowGuidValue[0]);
@@ -648,7 +639,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item17.Quality);
 
             // Eighteenth object (WoWItem)
-            var item18 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item18 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402442, item18.Guid);
             Assert.Equal(WoWObjectType.Item, item18.ObjectType);
             Assert.Equal(0xCA, item18.HighGuid.LowGuidValue[0]);
@@ -678,7 +669,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item18.Quality);
 
             // Nineteenth object (WoWItem)
-            var item19 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item19 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402436, item19.Guid);
             Assert.Equal(WoWObjectType.Item, item19.ObjectType);
             Assert.Equal(0xC4, item19.HighGuid.LowGuidValue[0]);
@@ -708,7 +699,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item19.Quality);
 
             // Twentieth object (Container)
-            var container20 = (WoWContainer)_objectManager.Objects.ElementAt(0);
+            var container20 = (WoWContainer)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427396374, container20.Guid);
             Assert.Equal(WoWObjectType.Container, container20.ObjectType);
             Assert.Equal(0x16, container20.HighGuid.LowGuidValue[0]);
@@ -739,7 +730,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(18, container20.NumOfSlots);
 
             // Twenty-first object (WoWItem)
-            var item21 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item21 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402419, item21.Guid);
             Assert.Equal(WoWObjectType.Item, item21.ObjectType);
             Assert.Equal(0xB3, item21.HighGuid.LowGuidValue[0]);
@@ -769,7 +760,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item21.Quality);
 
             // Twenty-second object (Container)
-            var container22 = (WoWContainer)_objectManager.Objects.ElementAt(0);
+            var container22 = (WoWContainer)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402438, container22.Guid);
             Assert.Equal(WoWObjectType.Container, container22.ObjectType);
             Assert.Equal(0xC6, container22.HighGuid.LowGuidValue[0]);
@@ -800,7 +791,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(16, container22.NumOfSlots);
 
             // Twenty-third object (WoWItem)
-            var item23 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item23 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402443, item23.Guid);
             Assert.Equal(WoWObjectType.Item, item23.ObjectType);
             Assert.Equal(0xCB, item23.HighGuid.LowGuidValue[0]);
@@ -830,7 +821,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item23.Quality);
 
             // Twenty-fourth object (Container)
-            var container24 = (WoWContainer)_objectManager.Objects.ElementAt(0);
+            var container24 = (WoWContainer)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402439, container24.Guid);
             Assert.Equal(WoWObjectType.Container, container24.ObjectType);
             Assert.Equal(0xC7, container24.HighGuid.LowGuidValue[0]);
@@ -861,7 +852,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(14, container24.NumOfSlots);
 
             // Twenty-fifth object (WoWItem)
-            var item25 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item25 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402437, item25.Guid);
             Assert.Equal(WoWObjectType.Item, item25.ObjectType);
             Assert.Equal(0xC5, item25.HighGuid.LowGuidValue[0]);
@@ -891,7 +882,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item25.Quality);
 
             // Twenty-sixth object (Container)
-            var container26 = (WoWContainer)_objectManager.Objects.ElementAt(0);
+            var container26 = (WoWContainer)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402440, container26.Guid);
             Assert.Equal(WoWObjectType.Container, container26.ObjectType);
             Assert.Equal(0xC8, container26.HighGuid.LowGuidValue[0]);
@@ -922,7 +913,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(18, container26.NumOfSlots);
 
             // Twenty-seventh object (WoWItem)
-            var item27 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item27 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402444, item27.Guid);
             Assert.Equal(WoWObjectType.Item, item27.ObjectType);
             Assert.Equal(0xCC, item27.HighGuid.LowGuidValue[0]);
@@ -952,7 +943,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item27.Quality);
 
             // Twenty-eighth object (WoWItem)
-            var item28 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item28 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427396365, item28.Guid);
             Assert.Equal(WoWObjectType.Item, item28.ObjectType);
             Assert.Equal(0x0D, item28.HighGuid.LowGuidValue[0]);
@@ -982,7 +973,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item28.Quality);
 
             // Twenty-ninth object (WoWItem)
-            var item29 = (WoWItem)_objectManager.Objects.ElementAt(0);
+            var item29 = (WoWItem)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)4611686018427402451, item29.Guid);
             Assert.Equal(WoWObjectType.Item, item29.ObjectType);
             Assert.Equal(0xD3, item29.HighGuid.LowGuidValue[0]);
@@ -1012,7 +1003,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(ItemQuality.Poor, item29.Quality);
 
             // Thirtieth object (Player)
-            var player = (WoWPlayer)_objectManager.Objects.ElementAt(0);
+            var player = (WoWPlayer)WoWSharpObjectManager.Instance.Objects.ElementAt(0);
             Assert.Equal((ulong)150, player.Guid);
             Assert.Equal(WoWObjectType.Player, player.ObjectType);
             Assert.Equal(0x96, player.HighGuid.LowGuidValue[0]);
@@ -1025,27 +1016,6 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(2.68104005f, player.Facing);
             Assert.Equal(7114328u, player.LastUpdated);
             Assert.Equal(DynamicFlags.None, player.DynamicFlags);
-        }
-
-        [Fact]
-        public void ShouldDecompressAndParseAllCompressedUpdateObjectPackets()
-        {
-            var opcode = Opcode.SMSG_COMPRESSED_UPDATE_OBJECT;
-            var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", opcode.ToString());
-
-            var files = Directory.GetFiles(directoryPath, "20240815_*.bin")
-                .OrderBy(path =>
-                {
-                    var fileName = Path.GetFileNameWithoutExtension(path);
-                    var parts = fileName.Split('_');
-                    return parts.Length > 1 && int.TryParse(parts[1], out var index) ? index : int.MaxValue;
-                });
-
-            foreach (var filePath in files)
-            {
-                byte[] data = FileReader.ReadBinaryFile(filePath);
-                _objectUpdateHandler.HandleUpdateObject(opcode, data);
-            }
         }
     }
 }

@@ -12,8 +12,8 @@ namespace BotCommLayer
         private readonly TcpClient _client;
         private readonly NetworkStream _stream;
         private readonly ILogger _logger;
-        private readonly object _lock = new();
-
+        private readonly object _lock = new(); 
+        public ProtobufSocketClient() { }
         public ProtobufSocketClient(string ipAddress, int port, ILogger logger)
         {
             _logger = logger;

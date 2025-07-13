@@ -114,10 +114,14 @@ namespace Game {
             "GAMgASgCIpQBCgRJdGVtEgoKAmlkGAEgASgEEgwKBG5hbWUYAiABKAkSDAoE",
             "c2xvdBgDIAEoCRIQCghxdWFudGl0eRgEIAEoDRIkCgVzdGF0cxgFIAMoCzIV",
             "LmdhbWUuSXRlbS5TdGF0c0VudHJ5GiwKClN0YXRzRW50cnkSCwoDa2V5GAEg",
-            "ASgNEg0KBXZhbHVlGAIgASgNOgI4AWIGcHJvdG8z"));
+            "ASgNEg0KBXZhbHVlGAIgASgNOgI4ASqZAQoEUmFjZRINCglSQUNFX05PTkUQ",
+            "ABIOCgpSQUNFX0hVTUFOEAESDAoIUkFDRV9PUkMQAhIOCgpSQUNFX0RXQVJG",
+            "EAMSEgoOUkFDRV9OSUdIVF9FTEYQBBIPCgtSQUNFX1VOREVBRBAFEg8KC1JB",
+            "Q0VfVEFVUkVOEAYSDgoKUkFDRV9HTk9NRRAHEg4KClJBQ0VfVFJPTEwQCGIG",
+            "cHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
-          new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Game.Race), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Game.WoWObject), global::Game.WoWObject.Parser, new[]{ "Guid", "MapId", "ZoneId", "ObjectType", "ScaleX", "Height", "Facing", "Position" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Game.WoWGameObject), global::Game.WoWGameObject.Parser, new[]{ "Base", "GoState", "Level", "FactionTemplate" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Game.WoWUnit), global::Game.WoWUnit.Parser, new[]{ "GameObject", "Charm", "Summon", "CharmedBy", "SummonedBy", "CreatedBy", "TargetGuid", "Persuaded", "ChannelObject", "ChannelSpellId", "Health", "MaxHealth", "Power", "MaxPower", "Stats", "Resistances", "Bytes0", "Bytes1", "Bytes2", "MountDisplayId", "UnitFlags", "MovementFlags", "DynamicFlags", "NpcFlags", "Auras", "AuraFlags", "AuraLevels", "AuraApplications", "AuraState", "PetNumber" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, null, null, null, }),
@@ -132,6 +136,21 @@ namespace Game {
     #endregion
 
   }
+  #region Enums
+  public enum Race {
+    [pbr::OriginalName("RACE_NONE")] None = 0,
+    [pbr::OriginalName("RACE_HUMAN")] Human = 1,
+    [pbr::OriginalName("RACE_ORC")] Orc = 2,
+    [pbr::OriginalName("RACE_DWARF")] Dwarf = 3,
+    [pbr::OriginalName("RACE_NIGHT_ELF")] NightElf = 4,
+    [pbr::OriginalName("RACE_UNDEAD")] Undead = 5,
+    [pbr::OriginalName("RACE_TAUREN")] Tauren = 6,
+    [pbr::OriginalName("RACE_GNOME")] Gnome = 7,
+    [pbr::OriginalName("RACE_TROLL")] Troll = 8,
+  }
+
+  #endregion
+
   #region Messages
   /// <summary>
   /// Definition for WoWObject

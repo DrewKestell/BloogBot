@@ -1,64 +1,69 @@
 using BotRunner.Clients;
 using GameData.Core.Enums;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
-using WoWSharpClient.Handlers;
+using WoWSharpClient.Client;
 using WoWSharpClient.Tests.Util;
 
 namespace WoWSharpClient.Tests.Handlers
 {
-    public class OpcodeHandler_Tests
+    public class ObjectManagerFixture : IDisposable
     {
-        private readonly WoWSharpObjectManager _objectManager;
-        private readonly Mock<PathfindingClient> _pathfindingClientMock = new();
-        private readonly Mock<Logger<WoWSharpObjectManager>> _logger = new();
-        private readonly OpCodeDispatcher _dispatcher;
-        private readonly MovementHandler _movementHandler;
-        private readonly AccountDataHandler _accountDataHandler;
-        private readonly SpellHandler _spellHandler;
-        private readonly WorldStateHandler _worldStateHandler;
-        private readonly LoginHandler _loginHandler;
-
-        public OpcodeHandler_Tests()
+        public readonly Mock<WoWClient> _woWClient;
+        public readonly Mock<PathfindingClient> _pathfindingClient;
+        private readonly ILogger<WoWSharpObjectManager> _logger = NullLoggerFactory.Instance.CreateLogger<WoWSharpObjectManager>();
+        public ObjectManagerFixture()
         {
-            _objectManager = new("127.0.0.1", _pathfindingClientMock.Object, _logger.Object);
-            _dispatcher = new OpCodeDispatcher(_objectManager);
-            _movementHandler = new MovementHandler(_objectManager);
-            _accountDataHandler = new AccountDataHandler(_objectManager);
-            _spellHandler = new SpellHandler(_objectManager);
-            _worldStateHandler = new WorldStateHandler(_objectManager);
-            _loginHandler = new LoginHandler(_objectManager);
+            _woWClient = new();
+            _pathfindingClient = new();
+
+            WoWSharpObjectManager.Instance.Initialize(_woWClient.Object, _pathfindingClient.Object, _logger);
         }
 
-        public static IEnumerable<object[]> OpcodeTestData => new List<object[]>
+        public void Dispose()
         {
-            new object[] { Opcode.MSG_MOVE_FALL_LAND, "movement" },
-            new object[] { Opcode.MSG_MOVE_TIME_SKIPPED, "movement" },
-            new object[] { Opcode.SMSG_ACCOUNT_DATA_TIMES, "accountData" },
-            new object[] { Opcode.SMSG_ACTION_BUTTONS, "dispatcher" },
-            new object[] { Opcode.SMSG_AUTH_RESPONSE, "dispatcher" },
-            new object[] { Opcode.SMSG_BINDPOINTUPDATE, "dispatcher" },
-            new object[] { Opcode.SMSG_COMPRESSED_MOVES, "movement" },
-            new object[] { Opcode.SMSG_DESTROY_OBJECT, "dispatcher" },
-            new object[] { Opcode.SMSG_FRIEND_LIST, "dispatcher" },
-            new object[] { Opcode.SMSG_GROUP_LIST, "dispatcher" },
-            new object[] { Opcode.SMSG_IGNORE_LIST, "dispatcher" },
-            new object[] { Opcode.SMSG_INITIALIZE_FACTIONS, "dispatcher" },
-            new object[] { Opcode.SMSG_INITIAL_SPELLS, "spellInitial" },
-            new object[] { Opcode.SMSG_INIT_WORLD_STATES, "worldState" },
-            new object[] { Opcode.SMSG_LOGIN_SETTIMESPEED, "dispatcher" },
-            new object[] { Opcode.SMSG_LOGIN_VERIFY_WORLD, "login" },
-            new object[] { Opcode.SMSG_SET_FLAT_SPELL_MODIFIER, "dispatcher" },
-            new object[] { Opcode.SMSG_SET_PCT_SPELL_MODIFIER, "dispatcher" },
-            new object[] { Opcode.SMSG_SET_PROFICIENCY, "dispatcher" },
-            new object[] { Opcode.SMSG_SET_REST_START, "worldState" },
-            new object[] { Opcode.SMSG_SPELLLOGMISS, "spellLogMiss" },
-            new object[] { Opcode.SMSG_SPELL_GO, "spellGo" },
-            new object[] { Opcode.SMSG_TUTORIAL_FLAGS, "dispatcher" },
-            new object[] { Opcode.SMSG_UPDATE_AURA_DURATION, "dispatcher" },
-            new object[] { Opcode.SMSG_WEATHER, "dispatcher" }
-        };
+            WoWSharpObjectManager.Instance.Initialize(_woWClient.Object, _pathfindingClient.Object, _logger);
+        }
+    }
+    [CollectionDefinition("Sequential ObjectManager tests", DisableParallelization = true)]
+    public class SequentialCollection : ICollectionFixture<ObjectManagerFixture> { }
+    
+    [Collection("Sequential ObjectManager tests")]
+    public class OpcodeHandler_Tests(ObjectManagerFixture _) : IClassFixture<ObjectManagerFixture>
+    {
+        private readonly OpCodeDispatcher _dispatcher = new();
 
+        public static IEnumerable<object[]> OpcodeTestData =>
+        [
+            [Opcode.MSG_MOVE_FALL_LAND, "movement"],
+            [Opcode.MSG_MOVE_TIME_SKIPPED, "movement"],
+            [Opcode.SMSG_ACCOUNT_DATA_TIMES, "accountData"],
+            [Opcode.SMSG_ACTION_BUTTONS, "dispatcher"],
+            [Opcode.SMSG_AUTH_RESPONSE, "dispatcher"],
+            [Opcode.SMSG_BINDPOINTUPDATE, "dispatcher"],
+            [Opcode.SMSG_COMPRESSED_MOVES, "movement"],
+            [Opcode.SMSG_DESTROY_OBJECT, "dispatcher"],
+            [Opcode.SMSG_FRIEND_LIST, "dispatcher"],
+            [Opcode.SMSG_GROUP_LIST, "dispatcher"],
+            [Opcode.SMSG_IGNORE_LIST, "dispatcher"],
+            [Opcode.SMSG_INITIALIZE_FACTIONS, "dispatcher"],
+            [Opcode.SMSG_INITIAL_SPELLS, "spellInitial"],
+            [Opcode.SMSG_INIT_WORLD_STATES, "worldState"],
+            [Opcode.SMSG_LOGIN_SETTIMESPEED, "dispatcher"],
+            [Opcode.SMSG_LOGIN_VERIFY_WORLD, "login"],
+            [Opcode.SMSG_SET_FLAT_SPELL_MODIFIER, "dispatcher"],
+            [Opcode.SMSG_SET_PCT_SPELL_MODIFIER, "dispatcher"],
+            [Opcode.SMSG_SET_PROFICIENCY, "dispatcher"],
+            [Opcode.SMSG_SET_REST_START, "worldState"],
+            [Opcode.SMSG_SPELLLOGMISS, "spellLogMiss"],
+            [Opcode.SMSG_SPELL_GO, "spellGo"],
+            [Opcode.SMSG_TUTORIAL_FLAGS, "dispatcher"],
+            [Opcode.SMSG_UPDATE_AURA_DURATION, "dispatcher"],
+            [Opcode.SMSG_WEATHER, "dispatcher"]
+        ];
+
+        //TODO: Test might be useless or redundant
         [Theory]
         [MemberData(nameof(OpcodeTestData))]
         public void ShouldHandleOpcodePackets(Opcode opcode, string handlerType)
@@ -76,35 +81,8 @@ namespace WoWSharpClient.Tests.Handlers
             foreach (var filePath in files)
             {
                 byte[] data = FileReader.ReadBinaryFile(filePath);
-                switch (handlerType)
-                {
-                    case "movement":
-                        _movementHandler.HandleUpdateMovement(opcode, data);
-                        break;
-                    case "accountData":
-                        _accountDataHandler.HandleAccountData(opcode, data);
-                        break;
-                    case "dispatcher":
-                        _dispatcher.Dispatch(opcode, data);
-                        break;
-                    case "worldState":
-                        _worldStateHandler.HandleInitWorldStates(opcode, data);
-                        break;
-                    case "login":
-                        _loginHandler.HandleLoginVerifyWorld(opcode, data);
-                        break;
-                    case "spellInitial":
-                        _spellHandler.HandleInitialSpells(opcode, data);
-                        break;
-                    case "spellLogMiss":
-                        _spellHandler.HandleSpellLogMiss(opcode, data);
-                        break;
-                    case "spellGo":
-                        _spellHandler.HandleSpellGo(opcode, data);
-                        break;
-                    default:
-                        throw new NotSupportedException($"Handler type {handlerType} is not supported.");
-                }
+
+                _dispatcher.Dispatch(opcode, data);
             }
         }
     }

@@ -8,10 +8,9 @@ using static GameData.Core.Enums.UpdateFields;
 
 namespace WoWSharpClient.Handlers
 {
-    public class ObjectUpdateHandler(WoWSharpObjectManager objectManager)
+    public static class ObjectUpdateHandler
     {
-        private readonly WoWSharpObjectManager _objectManager = objectManager;
-        public void HandleUpdateObject(Opcode opcode, byte[] data)
+        public static void HandleUpdateObject(Opcode opcode, byte[] data)
         {
             if (opcode == Opcode.SMSG_COMPRESSED_UPDATE_OBJECT)
                 data = PacketManager.Decompress([.. data.Skip(4)]);
@@ -26,7 +25,7 @@ namespace WoWSharpClient.Handlers
                 ParseNextUpdate(reader);
         }
 
-        private void ParseNextUpdate(BinaryReader reader)
+        private static void ParseNextUpdate(BinaryReader reader)
         {
             var updateType = (ObjectUpdateType)reader.ReadByte();
             try
@@ -56,7 +55,7 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        private void ParseCreateObjectBlock(BinaryReader reader)
+        private static void ParseCreateObjectBlock(BinaryReader reader)
         {
             var guid = ReaderUtils.ReadPackedGuid(reader);
             var objectType = (WoWObjectType)reader.ReadByte();
@@ -65,7 +64,7 @@ namespace WoWSharpClient.Handlers
 
             ReadValuesUpdateBlock(reader, update);
 
-            _objectManager.QueueUpdate(update);
+            WoWSharpObjectManager.Instance.QueueUpdate(update);
         }
 
         private static MovementInfoUpdate ParseMovementInfo(BinaryReader reader)
@@ -104,15 +103,15 @@ namespace WoWSharpClient.Handlers
             return data;
         }
 
-        private void ParseMovementUpdate(BinaryReader reader)
+        private static void ParseMovementUpdate(BinaryReader reader)
         {
             var guid = ReaderUtils.ReadPackedGuid(reader);
             var movementUpdateData = MovementPacketHandler.ParseMovementInfo(reader);
             ObjectStateUpdate objectUpdate = new(guid, ObjectUpdateOperation.Update, WoWObjectType.None, movementUpdateData, []);
 
-            _objectManager.QueueUpdate(objectUpdate);
+            WoWSharpObjectManager.Instance.QueueUpdate(objectUpdate);
         }
-        private void ParsePartialUpdate(BinaryReader reader)
+        private static void ParsePartialUpdate(BinaryReader reader)
         {
             ulong guid = ReaderUtils.ReadPackedGuid(reader);
 
@@ -120,16 +119,16 @@ namespace WoWSharpClient.Handlers
 
             ReadValuesUpdateBlock(reader, update);
 
-            _objectManager.QueueUpdate(update);
+            WoWSharpObjectManager.Instance.QueueUpdate(update);
         }
 
-        private void ParseOutOfRangeObjects(BinaryReader reader)
+        private static void ParseOutOfRangeObjects(BinaryReader reader)
         {
             uint count = reader.ReadUInt32();
             for (int j = 0; j < count; j++)
             {
                 var guid = ReaderUtils.ReadPackedGuid(reader);
-                _objectManager.QueueUpdate(new(guid, ObjectUpdateOperation.Remove, WoWObjectType.None, null, []));
+                WoWSharpObjectManager.Instance.QueueUpdate(new(guid, ObjectUpdateOperation.Remove, WoWObjectType.None, null, []));
             }
         }
 
@@ -615,6 +614,7 @@ namespace WoWSharpClient.Handlers
         }
         private static void ReadItemField(BinaryReader reader, ObjectStateUpdate objectUpdate, EItemFields field)
         {
+            Console.WriteLine($"[ReadItemField] {field}");
             if (field <= EItemFields.ITEM_FIELD_OWNER + 0x01)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadBytes(4);
             else if (field <= EItemFields.ITEM_FIELD_CONTAINED + 0x01)

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using GameData.Core.Enums;
+﻿using GameData.Core.Enums;
 using GameData.Core.Models;
 using WoWSharpClient.Models;
 using WoWSharpClient.Utils;

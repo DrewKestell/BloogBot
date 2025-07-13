@@ -2,6 +2,7 @@ using BotRunner;
 using BotRunner.Clients;
 using PromptHandlingService;
 using WoWSharpClient;
+using WoWSharpClient.Client;
 
 namespace BackgroundBotRunner
 {
@@ -12,6 +13,7 @@ namespace BackgroundBotRunner
         private readonly IPromptRunner _promptRunner;
 
         private readonly PathfindingClient _pathfindingClient;
+        private readonly WoWClient _wowClient;
         private readonly CharacterStateUpdateClient _characterStateUpdateClient;
 
         private readonly BotRunnerService _botRunner;
@@ -26,8 +28,10 @@ namespace BackgroundBotRunner
 
             _pathfindingClient = new PathfindingClient(configuration["PathfindingService:IpAddress"], int.Parse(configuration["PathfindingService:Port"]), loggerFactory.CreateLogger<PathfindingClient>());
             _characterStateUpdateClient = new CharacterStateUpdateClient(configuration["CharacterStateListener:IpAddress"], int.Parse(configuration["CharacterStateListener:Port"]), loggerFactory.CreateLogger<CharacterStateUpdateClient>());
-
-            _botRunner = new BotRunnerService(new WoWSharpObjectManager(configuration["RealmEndpoint:IpAddress"], _pathfindingClient, loggerFactory.CreateLogger<WoWSharpObjectManager>()), _characterStateUpdateClient, _pathfindingClient);
+            _wowClient = new();
+            _wowClient.SetIpAddress(configuration["RealmEndpoint:IpAddress"]);
+            WoWSharpObjectManager.Instance.Initialize(_wowClient, _pathfindingClient, loggerFactory.CreateLogger<WoWSharpObjectManager>());
+            _botRunner = new BotRunnerService(WoWSharpObjectManager.Instance, _characterStateUpdateClient, _pathfindingClient);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

@@ -3,14 +3,11 @@ using System.Text;
 
 namespace WoWSharpClient.Handlers
 {
-    public class AccountDataHandler(WoWSharpObjectManager objectManager)
+    public static class AccountDataHandler
     {
-        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = objectManager.EventEmitter;
-        private readonly WoWSharpObjectManager _objectManager = objectManager;
+        private static readonly uint[] _accountDataTimestamps = new uint[8];
 
-        private readonly uint[] _accountDataTimestamps = new uint[8];
-
-        public void HandleAccountData(Opcode opcode, byte[] data)
+        public static void HandleAccountData(Opcode opcode, byte[] data)
         {
             switch (opcode)
             {
@@ -26,7 +23,7 @@ namespace WoWSharpClient.Handlers
             }
         }
 
-        private void HandleAccountDataTimes(byte[] data)
+        private static void HandleAccountDataTimes(byte[] data)
         {
             if (data.Length < 36)
             {

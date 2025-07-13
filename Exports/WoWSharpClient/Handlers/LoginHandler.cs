@@ -3,11 +3,9 @@ using GameData.Core.Interfaces;
 
 namespace WoWSharpClient.Handlers
 {
-    public class LoginHandler(WoWSharpObjectManager objectManager)
+    public static class LoginHandler
     {
-        private readonly WoWSharpEventEmitter _woWSharpEventEmitter = objectManager.EventEmitter;
-        private readonly WoWSharpObjectManager _objectManager = objectManager;
-        public void HandleLoginVerifyWorld(Opcode opcode, byte[] data)
+        public static void HandleLoginVerifyWorld(Opcode opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
             try
@@ -34,7 +32,7 @@ namespace WoWSharpClient.Handlers
                 float facing = reader.ReadSingle();
 
                 // Process the login verification as needed
-                _woWSharpEventEmitter.FireOnLoginVerifyWorld(new WorldInfo
+                WoWSharpEventEmitter.Instance.FireOnLoginVerifyWorld(new WorldInfo
                 {
                     MapId = mapId,
                     PositionX = positionX,
@@ -52,7 +50,7 @@ namespace WoWSharpClient.Handlers
                 Console.WriteLine($"Unexpected error: {ex.Message}");
             }
         }
-        public void HandleSetTimeSpeed(Opcode opcode, byte[] data)
+        public static void HandleSetTimeSpeed(Opcode opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
             try
@@ -70,7 +68,7 @@ namespace WoWSharpClient.Handlers
                 float timescale = reader.ReadSingle();
 
                 // Process the login verification as needed
-                _woWSharpEventEmitter.FireOnSetTimeSpeed(new OnSetTimeSpeedArgs(serverTime, timescale));
+                WoWSharpEventEmitter.Instance.FireOnSetTimeSpeed(new OnSetTimeSpeedArgs(serverTime, timescale));
             }
             catch (EndOfStreamException e)
             {
@@ -81,7 +79,7 @@ namespace WoWSharpClient.Handlers
                 Console.WriteLine($"Unexpected error: {ex.Message}");
             }
         }
-        public void HandleTimeQueryResponse(Opcode opcode, byte[] data)
+        public static void HandleTimeQueryResponse(Opcode opcode, byte[] data)
         {
             using var reader = new BinaryReader(new MemoryStream(data));
             try
