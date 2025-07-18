@@ -21,7 +21,7 @@ namespace GameData.Core.Interfaces
         bool TappedByOther => DynamicFlags.HasFlag(DynamicFlags.Tapped) && !DynamicFlags.HasFlag(DynamicFlags.TappedByMe);
         Position GetPointBehindUnit(float distance);
         void Interact();
-        public bool IsFacing(Position position) => Math.Abs(GetFacingForPosition(position) - Facing) < 0.1f;
+        public bool IsFacing(Position position) => Math.Abs(GetFacingForPosition(position) - Facing) < 0.5f;
 
         public bool IsFacing(IWoWObject obj) => obj != null && IsFacing(obj.Position);
 
@@ -69,12 +69,6 @@ namespace GameData.Core.Interfaces
                     f -= (float)Math.PI * 2.0f;
             }
             return f;
-        }
-        private static float NormalizeAngle(float angle)
-        {
-            while (angle < 0) angle += (float)(2 * Math.PI);
-            while (angle >= (float)(2 * Math.PI)) angle -= (float)(2 * Math.PI);
-            return angle;
         }
         string Name { get; }
     }

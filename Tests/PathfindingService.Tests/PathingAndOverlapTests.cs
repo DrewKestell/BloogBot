@@ -1,10 +1,8 @@
-﻿using System;
-using System.Linq;
-using GameData.Core.Constants;
+﻿using GameData.Core.Constants;
 using GameData.Core.Enums;
 using GameData.Core.Models;
+using Pathfinding;
 using PathfindingService.Repository;
-using Xunit;
 
 namespace PathfindingService.Tests
 {
@@ -23,11 +21,9 @@ namespace PathfindingService.Tests
         public void Dispose() { /* Navigation lives for the AppDomain – nothing to do. */ }
     }
 
-    public class PathingAndTerrainTests : IClassFixture<NavigationFixture>
+    public class PathingAndTerrainTests(NavigationFixture fixture) : IClassFixture<NavigationFixture>
     {
-        private readonly Navigation _navigation;
-
-        public PathingAndTerrainTests(NavigationFixture fixture) => _navigation = fixture.Navigation;
+        private readonly Navigation _navigation = fixture.Navigation;
 
         /* ──────────────────────────────────────────────────────── */
         /*  PATH‑FINDING + LINE‑OF‑SIGHT BASICS                    */
@@ -103,7 +99,7 @@ namespace PathfindingService.Tests
             // ─── Polygon expectations ───────────────────────────
             if (expUpper >= 0 && expLower >= 0)
             {
-                var walkable = probe.Overlaps.Where(p => IsGroundAndWalkable(p.Flags)).Count();
+                var walkable = probe.Overlaps.Count(IsGroundAndWalkable);
                 var nonWalkable = probe.Overlaps.Count - walkable;
 
                 Assert.Equal(expLower, walkable);   // floor polys
@@ -128,11 +124,11 @@ namespace PathfindingService.Tests
         /* ──────────────────────────────────────────────────────── */
         /*  Helpers                                               */
         /* ──────────────────────────────────────────────────────── */
-        private static bool IsGroundAndWalkable(uint flags)
+        private static bool IsGroundAndWalkable(NavPolyHit poly)
         {
-            const uint NavGround = 0x01;
-            const uint NavNonWalkable = 0x10;
-            return (flags & NavGround) != 0 && (flags & NavNonWalkable) == 0;
+            return poly.Area == NavTerrain.NavGround &&
+                   poly.Flags.HasFlag(NavPolyFlag.PolyFlagWalk) &&
+                   !poly.Flags.HasFlag(NavPolyFlag.PolyFlagDisabled);
         }
     }
 }

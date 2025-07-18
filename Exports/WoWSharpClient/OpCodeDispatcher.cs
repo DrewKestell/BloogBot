@@ -141,7 +141,7 @@ namespace WoWSharpClient
                 WoWSharpEventEmitter.Instance.FireOnWorldSessionEnd();
         }
 
-        public void HandleSMSGClientControlUpdate(Opcode opCode, byte[] payload)
+        public static void HandleSMSGClientControlUpdate(Opcode opCode, byte[] payload)
         {
             BinaryReader reader = new(new MemoryStream(payload));
             ulong guid = ReaderUtils.ReadPackedGuid(reader);

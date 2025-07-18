@@ -247,7 +247,7 @@ namespace WoWSharpClient.Handlers
                     );
                     break;
                 case Opcode.SMSG_MONSTER_MOVE_TRANSPORT:
-                    ReaderUtils.ReadPackedGuid(reader); // skip transport guid
+                    ulong transportGuid = ReaderUtils.ReadPackedGuid(reader); // skip transport guid
                     moveData = ParseMonsterMove(reader);
                     WoWSharpObjectManager.Instance.QueueUpdate(
                         new WoWSharpObjectManager.ObjectStateUpdate(
@@ -260,8 +260,8 @@ namespace WoWSharpClient.Handlers
                     );
                     break;
                 case Opcode.SMSG_SPLINE_SET_RUN_SPEED:
-                    ReaderUtils.ReadPackedGuid(reader);
-                    reader.ReadSingle();
+                    ulong tarGuid = ReaderUtils.ReadPackedGuid(reader);
+                    float runSpeed = reader.ReadSingle();
                     break;
             }
         }

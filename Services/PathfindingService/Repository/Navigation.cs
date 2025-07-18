@@ -93,39 +93,41 @@ namespace PathfindingService.Repository
             return lineOfSight(mapId, from.ToXYZ(), to.ToXYZ());
         }
 
-        public TerrainProbeResponse GetTerrainProbe(uint mapId, Game.Position pos, float radius, float height)
+        public TerrainProbeResponse GetTerrainProbe(uint mapId, Game.Position pos,
+                                            float radius, float height)
         {
             TerrainProbeResponse response = new();
 
+            // ADT height-field sample
             _adtGroundZLoader.TryGetZ((int)mapId, pos.X, pos.Y, out float z, out float liqZ);
             response.GroundZ = z;
             response.LiquidZ = liqZ;
 
+            // polygon overlap
             IntPtr ptr = capsuleOverlap(mapId, pos.ToXYZ(), radius, height, out int count);
-            if (ptr == IntPtr.Zero || count == 0)
-                return response;
+            if (ptr == IntPtr.Zero || count == 0) return response;
 
             int size = Marshal.SizeOf<NavPoly>();
             for (int i = 0; i < count; i++)
             {
                 IntPtr curr = IntPtr.Add(ptr, i * size);
                 var poly = Marshal.PtrToStructure<NavPoly>(curr);
-                NavPolyHit navPolyHit = new() { RefId = poly.RefId, Area = poly.Area, Flags = poly.Flags };
+
+                NavPolyHit hit = new()
+                {
+                    RefId = poly.RefId,
+                    Area = (NavTerrain)poly.Area,
+                    Flags = (NavPolyFlag)poly.Flags
+                };
+
                 foreach (var vert in poly.Verts)
-                    navPolyHit.Verts.Add(vert.ToProto());
-                response.Overlaps.Add(navPolyHit);
+                    hit.Verts.Add(vert.ToProto());
+
+                response.Overlaps.Add(hit);
             }
 
             freeNavPolyArr(ptr);
             return response;
         }
-    }
-    public static class NavTerrain
-    {
-        public const uint Empty = 0x00;
-        public const uint Ground = 0x01;
-        public const uint Magma = 0x02;
-        public const uint Slime = 0x04;
-        public const uint Water = 0x08;
     }
 }

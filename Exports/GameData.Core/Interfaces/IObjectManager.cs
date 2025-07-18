@@ -56,7 +56,8 @@ namespace GameData.Core.Interfaces
                 SetFacing((float)(Math.PI * 2) + Player.Facing);
                 return;
             }
-            SetFacing(Player.GetFacingForPosition(pos));
+            if (!Player.IsFacing(pos))
+                SetFacing(Player.GetFacingForPosition(pos));
             return;
         }
         public void MoveToward(Position pos)

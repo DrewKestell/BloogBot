@@ -4,7 +4,6 @@ using GameData.Core.Enums;
 using GameData.Core.Models;
 using Microsoft.Extensions.Logging;
 using Pathfinding;
-using System.ComponentModel.DataAnnotations;
 
 namespace BotRunner.Clients
 {
@@ -12,7 +11,7 @@ namespace BotRunner.Clients
     {
         public PathfindingClient() : base() { }
         public PathfindingClient(string ipAddress, int port, ILogger logger) : base(ipAddress, port, logger) { }
-        public Position[] GetPath(uint mapId, Position start, Position end, bool smoothPath = false)
+        public virtual Position[] GetPath(uint mapId, Position start, Position end, bool smoothPath = false)
         {
             var request = new PathfindingRequest
             {
@@ -35,7 +34,7 @@ namespace BotRunner.Clients
                 .Select(p => new Position(p.X, p.Y, p.Z))];
         }
 
-        public float GetPathingDistance(uint mapId, Position start, Position end)
+        public virtual float GetPathingDistance(uint mapId, Position start, Position end)
         {
             var path = GetPath(mapId, start, end);
             float distance = 0f;
@@ -46,7 +45,7 @@ namespace BotRunner.Clients
             return distance;
         }
 
-        public bool IsInLineOfSight(uint mapId, Position from, Position to)
+        public virtual bool IsInLineOfSight(uint mapId, Position from, Position to)
         {
             var request = new PathfindingRequest
             {
@@ -66,7 +65,7 @@ namespace BotRunner.Clients
             return response.Los.InLos;
         }
 
-        public TerrainProbeResponse ProbeTerrain(uint mapId, Position feet, Race race)
+        public virtual TerrainProbeResponse ProbeTerrain(uint mapId, Position feet, Race race)
         {
             var (radius, height) = RaceDimensions.GetCapsuleForRace(race);
 

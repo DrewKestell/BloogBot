@@ -7,8 +7,12 @@ using GameData.Core.Frames;
 using GameData.Core.Interfaces;
 using GameData.Core.Models;
 using Microsoft.Extensions.Logging;
+using System.Numerics;
+using System.Text;
+using System.Timers;
 using WoWSharpClient.Client;
 using WoWSharpClient.Models;
+using WoWSharpClient.Movement;
 using WoWSharpClient.Parsers;
 using WoWSharpClient.Screens;
 using WoWSharpClient.Utils;
@@ -32,6 +36,8 @@ namespace WoWSharpClient
         }
 
         private ILogger<WoWSharpObjectManager> _logger;
+
+        private PhysicsManager _physicsManager;
 
         // Wrapper client for both auth and world transactions
         private WoWClient _woWClient;
@@ -61,6 +67,8 @@ namespace WoWSharpClient
         private float _verticalVelocity = 0.0f;
         private long _lastSentTime = 0;
         private Position _lastSentPosition = new(0, 0, 0);
+        private const float PositionEpsilon = 0.05f;   // 5 cm tolerance
+        private const int HeartbeatMinMs = 400;     // min gap between HB
 
         private const float Gravity = 19.29f; // 19.291 m/s² vanilla constant
         private const float MaxFallSpeed = 60.0f; // terminal velocity clamp
@@ -84,6 +92,8 @@ namespace WoWSharpClient
             _logger = logger;
             _pathfindingClient = pathfindingClient;
             _woWClient = wowClient;
+
+            _physicsManager = new PhysicsManager(_pathfindingClient, null);
 
             WoWSharpEventEmitter.Instance.OnLoginFailure += EventEmitter_OnLoginFailure;
             WoWSharpEventEmitter.Instance.OnLoginVerifyWorld += EventEmitter_OnLoginVerifyWorld;
@@ -141,18 +151,14 @@ namespace WoWSharpClient
             var now = _worldTimeTracker.NowMS;
             var delta = now - _lastPositionUpdate;
 
-            ProcessUpdates();
+            // --- NEW: advance every monster / NPC spline before physics ---
+            Splines.Instance.Update((float)delta.TotalMilliseconds);         // ⇦ global controller
 
-            // Send ping heartbeat
+            ProcessUpdates();                                                // keep existing logic
             HandlePingHeartbeat((long)now.TotalMilliseconds);
 
-            if (_isInControl && !_isBeingTeleported)
-            {
-                if (Player == null)
-                    return;
-
+            if (_isInControl && !_isBeingTeleported && Player != null)
                 UpdatePlayerPosition((float)delta.TotalMilliseconds);
-            }
 
             _lastPositionUpdate = now;
         }
@@ -174,57 +180,45 @@ namespace WoWSharpClient
         public void UpdatePlayerPosition(float deltaTimeMs)
         {
             var player = (WoWLocalPlayer)Player;
+            float dt = deltaTimeMs * 0.001f;                 // ms → s
 
-            /* ───────────────────────────────────────────────────────────── Root check */
-            float dt = deltaTimeMs * 0.001f; // ms → s
-            Vector2 move2D = player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_ROOT)
-                ? Vector2.Zero
-                : ComputeMovementDelta(player, dt);
+            /* ───────────────────── 1) XY intent → gated by nav-mesh */
+            Vector2 inputXY = player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_ROOT)
+                                ? Vector2.Zero
+                                : ComputeMovementDelta(player, dt);
 
-            _logger.LogInformation($"[Pos] dt={dt * 1000:F0}ms  flags={player.MovementFlags}");
+            Vector2 allowedXY = _physicsManager.ProcessHorizontalMovement(player, inputXY, MapId); // gate step
 
-            /* ──────────────────────────────────────────────── 1) Horizontal preview */
-            float nextX = player.Position.X + move2D.X;
-            float nextY = player.Position.Y + move2D.Y;
-            float currZ = player.Position.Z;
+            /* ───────────────────── 2) vertical / slope physics */
+            PhysicsState p = _physicsManager.ApplyPhysics(
+                                 player,
+                                 dt,
+                                 (long)_worldTimeTracker.NowMS.TotalMilliseconds,
+                                 MapId);                                                             // full tick
 
-            /* ──────────────────────────────────────────────── 2) Height‑field query */
-            var query = _pathfindingClient.ProbeTerrain(
-                MapId,
-                new Position(nextX, nextY, currZ),
-                Player.Race
-            );
-
-            float locZ = query.GroundZ; // WMO floors
-            float adtZ = query.GroundZ; // ADT terrain
-            float waterZ = query.LiquidZ;
-
-            _logger.LogInformation($"[Pos] locZ={locZ:F2} adtZ={adtZ:F2} waterZ={waterZ:F2}");
-
-            static bool IsValid(float z) => !float.IsNaN(z);
-
-            float groundZ = float.NaN;
-            if (IsValid(locZ))
-                groundZ = locZ;
-            else if (IsValid(adtZ))
-                groundZ = adtZ;
-
-            bool grounded = IsValid(groundZ) && Math.Abs(currZ - groundZ) < GroundSnapThreshold;
-            bool inLiquid = waterZ > groundZ && player.Position.Z < waterZ;
-
-            /* ─────────────────────────────────────────────── 3) Swim‑flag handling */
-            if (inLiquid && !player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SWIMMING))
+            /* ───────────────────── 3) commit position */
+            player.Position = new Position(
+                player.Position.X + allowedXY.X + p.SlideDelta.X,
+                player.Position.Y + allowedXY.Y + p.SlideDelta.Y,
+                p.DesiredZ);
+            Console.WriteLine("[DEBUG] ApplyPhysics Final Position: " + JsonSerializer.Serialize(new
             {
-                player.MovementFlags |= MovementFlags.MOVEFLAG_SWIMMING;
-                SendMovementFlagChange(player, Opcode.MSG_MOVE_START_SWIM);
-                _logger.LogInformation("[Pos] Entered liquid – MOVEFLAG_SWIMMING on");
-            }
-            else if (!inLiquid && player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SWIMMING))
+                player.Position.X,
+                player.Position.Y,
+                Z = p.DesiredZ,
+                slide = p.SlideDelta,
+                grounded = p.Grounded,
+                vertical = p.VerticalVelocity
+            }));
+
+            /* ───────────────────── 4) swim-flag bookkeeping */
+            bool swim = p.InLiquid;
+            if (swim != player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SWIMMING))
             {
-                player.MovementFlags &= ~MovementFlags.MOVEFLAG_SWIMMING;
-                SendMovementFlagChange(player, Opcode.MSG_MOVE_STOP_SWIM);
-                _logger.LogInformation("[Pos] Left liquid – MOVEFLAG_SWIMMING off");
-            }
+                if (swim)
+                    player.MovementFlags |= MovementFlags.MOVEFLAG_SWIMMING;
+                else
+                    player.MovementFlags &= ~MovementFlags.MOVEFLAG_SWIMMING;
 
             float desiredZ;
 
@@ -234,68 +228,22 @@ namespace WoWSharpClient
                 desiredZ = groundZ;
                 _verticalVelocity = 0f;
 
-                if (
-                    player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_JUMPING)
-                    || player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLINGFAR)
-                )
+                if (player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_JUMPING) ||
+                    player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLINGFAR))
                 {
-                    player.MovementFlags &= ~(
-                        MovementFlags.MOVEFLAG_JUMPING | MovementFlags.MOVEFLAG_FALLINGFAR
-                    );
+                    player.MovementFlags &= ~(MovementFlags.MOVEFLAG_JUMPING | MovementFlags.MOVEFLAG_FALLINGFAR);
                     EmitMovementPacket(Opcode.MSG_MOVE_FALL_LAND, player);
-                    _logger.LogInformation(
-                        "[Pos] Landed – fall flags cleared, MSG_MOVE_FALL_LAND sent"
-                    );
+                    _logger.LogInformation("[Pos] Landed – fall flags cleared, MSG_MOVE_FALL_LAND sent");
                 }
 
-                _fallStartMS = 0;
-            }
-            else
-            {
-                if (_fallStartMS == 0)
-                    _fallStartMS = (uint)_worldTimeTracker.NowMS.TotalMilliseconds;
+            /* ───────────────────── 5) fall timer for packet builder */
+            _fallStartMS = p.Grounded
+                           ? 0
+                           : (_fallStartMS == 0 ? (long)_worldTimeTracker.NowMS.TotalMilliseconds
+                                                 : _fallStartMS);
 
-                float g = inLiquid ? 4.0f : Gravity;
-                float terminal = inLiquid ? 4.0f : MaxFallSpeed;
-
-                _verticalVelocity -= g * dt;
-                _verticalVelocity = Math.Max(_verticalVelocity, -terminal);
-
-                desiredZ = currZ + _verticalVelocity * dt;
-
-                if (IsValid(groundZ) && desiredZ < groundZ)
-                {
-                    desiredZ = groundZ + ServerGroundBias;
-                    _verticalVelocity = 0f;
-                    grounded = true;
-                    _logger.LogInformation("[Pos] Ground collision predicted – clamping Z, vel=0");
-                }
-
-                if (
-                    _verticalVelocity < -0.1f
-                    && !player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLINGFAR)
-                )
-                {
-                    player.MovementFlags |= MovementFlags.MOVEFLAG_FALLINGFAR;
-                    _logger.LogInformation("[Pos] Falling – MOVEFLAG_FALLINGFAR set");
-                }
-            }
-
-            /* ─────────────────────────────────────────────── 5) Commit position    */
-            player.Position = new Position(nextX, nextY, desiredZ);
-
-            Heartbeat(
-                (long)_worldTimeTracker.NowMS.TotalMilliseconds,
-                moving: move2D.LengthSquared() > 0
-            );
-
+            /* ───────────────────── 6) emit movement packet */
             EmitMovementPacketIfNeeded(player);
-
-            /* ─────────────────────────────────────────────── Summary line          */
-            _logger.LogInformation(
-                $"[Pos] X:{nextX:F2} Y:{nextY:F2} Z:{desiredZ:F2} vZ:{_verticalVelocity:+0.00;-0.00}  "
-                    + $"groundZ:{groundZ:F2} {(grounded ? "GRD" : "AIR")} flags:{player.MovementFlags} fallT:{_fallStartMS}"
-            );
         }
 
         /* ------------------------------------------------------------------------- */
@@ -304,15 +252,26 @@ namespace WoWSharpClient
 
         private static float GetMoveSpeed(WoWLocalPlayer p)
         {
+            // vanilla 1.12 defaults
+            const float RUN = 7.0f, RUN_BACK = 4.5f,
+                        WALK = 2.5f,
+                        SWIM = 4.7f, SWIM_BACK = 2.5f;
+
             bool walk = p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_WALK_MODE);
             bool back = p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_BACKWARD);
             bool swim = p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SWIMMING);
 
             if (swim)
-                return p.SwimSpeed;
+                return back
+                     ? (p.SwimBackSpeed == 0 ? SWIM_BACK : p.SwimBackSpeed)
+                     : (p.SwimSpeed == 0 ? SWIM : p.SwimSpeed);
+
             if (walk)
-                return p.WalkSpeed;
-            return back ? p.RunBackSpeed : p.RunSpeed;
+                return p.WalkSpeed == 0 ? WALK : p.WalkSpeed;
+
+            return back
+                 ? (p.RunBackSpeed == 0 ? RUN_BACK : p.RunBackSpeed)
+                 : (p.RunSpeed == 0 ? RUN : p.RunSpeed);
         }
 
         private static Vector2 ComputeMovementDelta(WoWLocalPlayer p, float dt)
@@ -338,50 +297,25 @@ namespace WoWSharpClient
         /* Emits MOVE_STOP / MOVE_START_* / HEARTBEAT automatically */
         private void EmitMovementPacketIfNeeded(WoWLocalPlayer player)
         {
+            if (player.MovementFlags == MovementFlags.MOVEFLAG_NONE)
+                return;                                   // idle – no movement packets
+
             uint now = (uint)_worldTimeTracker.NowMS.TotalMilliseconds;
 
-            bool positionChanged = !player.Position.Equals(_lastSentPosition);
-            bool flagsChanged = player.MovementFlags != _lastMovementFlags;
-            bool timeElapsed = now - _lastSentTime >= 100; // 100 ms min
-
-            if (!positionChanged && !flagsChanged && !timeElapsed)
-                return;
+            if (now - _lastSentTime < HeartbeatMinMs)
+                return;                                   // heartbeat not yet due
 
             Opcode opcode = DetermineMovementOpcode(player.MovementFlags, _lastMovementFlags);
-            var buffer = MovementPacketHandler.BuildMovementInfoBuffer(
-                player,
-                now,
-                _fallStartMS == 0 ? 0 : (uint)(now - _fallStartMS)
-            );
+            byte[] buf = MovementPacketHandler.BuildMovementInfoBuffer(
+                                player,
+                                now,
+                                _fallStartMS == 0 ? 0 : (uint)(now - _fallStartMS));
 
-            _woWClient.SendMovementOpcode(opcode, buffer);
+            _woWClient.SendMovementOpcode(opcode, buf);
 
             _lastSentTime = now;
             _lastSentPosition = player.Position;
             _lastMovementFlags = player.MovementFlags;
-        }
-
-        private void EmitMovementPacket(Opcode op, WoWLocalPlayer player)
-        {
-            uint now = (uint)_worldTimeTracker.NowMS.TotalMilliseconds;
-            var buffer = MovementPacketHandler.BuildMovementInfoBuffer(
-                player,
-                now,
-                _fallStartMS == 0 ? 0 : (uint)(now - _fallStartMS)
-            );
-
-            _woWClient.SendMovementOpcode(op, buffer);
-        }
-
-        private void Heartbeat(long nowMS, bool moving)
-        {
-            int interval = moving ? 250 : 5000; // 250 ms while moving, 5 s idle
-            if (nowMS - _lastHeartbeat.TotalMilliseconds < interval)
-                return;
-
-            Opcode op = moving ? Opcode.MSG_MOVE_HEARTBEAT : Opcode.MSG_MOVE_STOP;
-            EmitMovementPacket(op, (WoWLocalPlayer)Player);
-            _lastHeartbeat = TimeSpan.FromMilliseconds(nowMS);
         }
 
         public void SetFacing(float facing)
@@ -470,7 +404,6 @@ namespace WoWSharpClient
                     newFlags |= MovementFlags.MOVEFLAG_FORWARD;
                     newFlags &= ~MovementFlags.MOVEFLAG_BACKWARD;
                     break;
-
                 case ControlBits.Back:
                     opcode = Opcode.MSG_MOVE_START_BACKWARD;
                     newFlags |= MovementFlags.MOVEFLAG_BACKWARD;

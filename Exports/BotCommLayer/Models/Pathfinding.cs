@@ -34,25 +34,34 @@ namespace Pathfinding {
             "biIlChNMaW5lT2ZTaWdodFJlc3BvbnNlEg4KBmluX2xvcxgBIAEoCCJ3ChNU",
             "ZXJyYWluUHJvYmVSZXF1ZXN0Eg4KBm1hcF9pZBgBIAEoDRIgCghwb3NpdGlv",
             "bhgCIAEoCzIOLmdhbWUuUG9zaXRpb24SFgoOY2Fwc3VsZV9yYWRpdXMYAyAB",
-            "KAISFgoOY2Fwc3VsZV9oZWlnaHQYBCABKAIiWAoKTmF2UG9seUhpdBIOCgZy",
-            "ZWZfaWQYASABKAQSDAoEYXJlYRgCIAEoDRINCgVmbGFncxgDIAEoDRIdCgV2",
-            "ZXJ0cxgEIAMoCzIOLmdhbWUuUG9zaXRpb24ifAoUVGVycmFpblByb2JlUmVz",
-            "cG9uc2USEAoIZ3JvdW5kX3oYASABKAISEAoIbGlxdWlkX3oYAiABKAISFQoN",
-            "dGVycmFpbl9mbGFncxgDIAEoDRIpCghvdmVybGFwcxgEIAMoCzIXLnBhdGhm",
-            "aW5kaW5nLk5hdlBvbHlIaXQiGAoFRXJyb3ISDwoHbWVzc2FnZRgBIAEoCSK3",
-            "AQoSUGF0aGZpbmRpbmdSZXF1ZXN0EjEKBHBhdGgYASABKAsyIS5wYXRoZmlu",
-            "ZGluZy5DYWxjdWxhdGVQYXRoUmVxdWVzdEgAEi4KA2xvcxgCIAEoCzIfLnBh",
-            "dGhmaW5kaW5nLkxpbmVPZlNpZ2h0UmVxdWVzdEgAEjMKB3RlcnJhaW4YAyAB",
-            "KAsyIC5wYXRoZmluZGluZy5UZXJyYWluUHJvYmVSZXF1ZXN0SABCCQoHcGF5",
-            "bG9hZCLgAQoTUGF0aGZpbmRpbmdSZXNwb25zZRIyCgRwYXRoGAEgASgLMiIu",
-            "cGF0aGZpbmRpbmcuQ2FsY3VsYXRlUGF0aFJlc3BvbnNlSAASLwoDbG9zGAIg",
-            "ASgLMiAucGF0aGZpbmRpbmcuTGluZU9mU2lnaHRSZXNwb25zZUgAEjQKB3Rl",
-            "cnJhaW4YAyABKAsyIS5wYXRoZmluZGluZy5UZXJyYWluUHJvYmVSZXNwb25z",
-            "ZUgAEiMKBWVycm9yGAQgASgLMhIucGF0aGZpbmRpbmcuRXJyb3JIAEIJCgdw",
-            "YXlsb2FkYgZwcm90bzM="));
+            "KAISFgoOY2Fwc3VsZV9oZWlnaHQYBCABKAIiiwEKCk5hdlBvbHlIaXQSDgoG",
+            "cmVmX2lkGAEgASgEEiUKBGFyZWEYAiABKA4yFy5wYXRoZmluZGluZy5OYXZU",
+            "ZXJyYWluEicKBWZsYWdzGAMgASgOMhgucGF0aGZpbmRpbmcuTmF2UG9seUZs",
+            "YWcSHQoFdmVydHMYBCADKAsyDi5nYW1lLlBvc2l0aW9uInwKFFRlcnJhaW5Q",
+            "cm9iZVJlc3BvbnNlEhAKCGdyb3VuZF96GAEgASgCEhAKCGxpcXVpZF96GAIg",
+            "ASgCEhUKDXRlcnJhaW5fZmxhZ3MYAyABKA0SKQoIb3ZlcmxhcHMYBCADKAsy",
+            "Fy5wYXRoZmluZGluZy5OYXZQb2x5SGl0IhgKBUVycm9yEg8KB21lc3NhZ2UY",
+            "ASABKAkitwEKElBhdGhmaW5kaW5nUmVxdWVzdBIxCgRwYXRoGAEgASgLMiEu",
+            "cGF0aGZpbmRpbmcuQ2FsY3VsYXRlUGF0aFJlcXVlc3RIABIuCgNsb3MYAiAB",
+            "KAsyHy5wYXRoZmluZGluZy5MaW5lT2ZTaWdodFJlcXVlc3RIABIzCgd0ZXJy",
+            "YWluGAMgASgLMiAucGF0aGZpbmRpbmcuVGVycmFpblByb2JlUmVxdWVzdEgA",
+            "QgkKB3BheWxvYWQi4AEKE1BhdGhmaW5kaW5nUmVzcG9uc2USMgoEcGF0aBgB",
+            "IAEoCzIiLnBhdGhmaW5kaW5nLkNhbGN1bGF0ZVBhdGhSZXNwb25zZUgAEi8K",
+            "A2xvcxgCIAEoCzIgLnBhdGhmaW5kaW5nLkxpbmVPZlNpZ2h0UmVzcG9uc2VI",
+            "ABI0Cgd0ZXJyYWluGAMgASgLMiEucGF0aGZpbmRpbmcuVGVycmFpblByb2Jl",
+            "UmVzcG9uc2VIABIjCgVlcnJvchgEIAEoCzISLnBhdGhmaW5kaW5nLkVycm9y",
+            "SABCCQoHcGF5bG9hZCq2AQoLTmF2UG9seUZsYWcSEgoOUE9MWV9GTEFHX05P",
+            "TkUQABISCg5QT0xZX0ZMQUdfV0FMSxABEhIKDlBPTFlfRkxBR19TV0lNEAIS",
+            "EgoOUE9MWV9GTEFHX0RPT1IQBBISCg5QT0xZX0ZMQUdfSlVNUBAIEhYKElBP",
+            "TFlfRkxBR19ESVNBQkxFRBAQEhYKElBPTFlfRkxBR19URUxFUE9SVBAgEhMK",
+            "DVBPTFlfRkxBR19BTEwQ//8DKp0BCgpOYXZUZXJyYWluEg0KCU5BVl9FTVBU",
+            "WRAAEg4KCk5BVl9HUk9VTkQQARINCglOQVZfTUFHTUEQAhINCglOQVZfU0xJ",
+            "TUUQBBINCglOQVZfV0FURVIQCBIPCgtOQVZfVU5VU0VEMRAQEg8KC05BVl9V",
+            "TlVTRUQyECASDwoLTkFWX1VOVVNFRDMQQBIQCgtOQVZfVU5VU0VENBCAAWIG",
+            "cHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Game.GameReflection.Descriptor, },
-          new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Pathfinding.NavPolyFlag), typeof(global::Pathfinding.NavTerrain), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.CalculatePathRequest), global::Pathfinding.CalculatePathRequest.Parser, new[]{ "MapId", "Start", "End", "Straight" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.CalculatePathResponse), global::Pathfinding.CalculatePathResponse.Parser, new[]{ "Corners" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.LineOfSightRequest), global::Pathfinding.LineOfSightRequest.Parser, new[]{ "MapId", "From", "To" }, null, null, null, null),
@@ -68,6 +77,89 @@ namespace Pathfinding {
     #endregion
 
   }
+  #region Enums
+  /// <summary>
+  ///* Bit-field of per-polygon capabilities (matches NavMeshDefines.h). 
+  /// </summary>
+  public enum NavPolyFlag {
+    /// <summary>
+    /// 0x00 – not walkable
+    /// </summary>
+    [pbr::OriginalName("POLY_FLAG_NONE")] PolyFlagNone = 0,
+    /// <summary>
+    /// 0x01 – land-unit can traverse
+    /// </summary>
+    [pbr::OriginalName("POLY_FLAG_WALK")] PolyFlagWalk = 1,
+    /// <summary>
+    /// 0x02 – requires swimming
+    /// </summary>
+    [pbr::OriginalName("POLY_FLAG_SWIM")] PolyFlagSwim = 2,
+    /// <summary>
+    /// 0x04 – door that toggles WALK at runtime
+    /// </summary>
+    [pbr::OriginalName("POLY_FLAG_DOOR")] PolyFlagDoor = 4,
+    /// <summary>
+    /// 0x08 – explicit jump link
+    /// </summary>
+    [pbr::OriginalName("POLY_FLAG_JUMP")] PolyFlagJump = 8,
+    /// <summary>
+    /// 0x10 – temporarily disabled (dynamic obstacle)
+    /// </summary>
+    [pbr::OriginalName("POLY_FLAG_DISABLED")] PolyFlagDisabled = 16,
+    /// <summary>
+    /// 0x20 – one-way teleporter surface
+    /// </summary>
+    [pbr::OriginalName("POLY_FLAG_TELEPORT")] PolyFlagTeleport = 32,
+    /// <summary>
+    /// helper mask (0xFFFF)
+    /// </summary>
+    [pbr::OriginalName("POLY_FLAG_ALL")] PolyFlagAll = 65535,
+  }
+
+  /// <summary>
+  ///* Area‐IDs carved into the mesh during build (must start at 0 for proto3). 
+  /// </summary>
+  public enum NavTerrain {
+    /// <summary>
+    /// 0x00 – no terrain bits set
+    /// </summary>
+    [pbr::OriginalName("NAV_EMPTY")] NavEmpty = 0,
+    /// <summary>
+    /// 0x01
+    /// </summary>
+    [pbr::OriginalName("NAV_GROUND")] NavGround = 1,
+    /// <summary>
+    /// 0x02
+    /// </summary>
+    [pbr::OriginalName("NAV_MAGMA")] NavMagma = 2,
+    /// <summary>
+    /// 0x04
+    /// </summary>
+    [pbr::OriginalName("NAV_SLIME")] NavSlime = 4,
+    /// <summary>
+    /// 0x08
+    /// </summary>
+    [pbr::OriginalName("NAV_WATER")] NavWater = 8,
+    /// <summary>
+    /// 0x10
+    /// </summary>
+    [pbr::OriginalName("NAV_UNUSED1")] NavUnused1 = 16,
+    /// <summary>
+    /// 0x20
+    /// </summary>
+    [pbr::OriginalName("NAV_UNUSED2")] NavUnused2 = 32,
+    /// <summary>
+    /// 0x40
+    /// </summary>
+    [pbr::OriginalName("NAV_UNUSED3")] NavUnused3 = 64,
+    /// <summary>
+    /// 0x80
+    /// </summary>
+    [pbr::OriginalName("NAV_UNUSED4")] NavUnused4 = 128,
+  }
+
+  #endregion
+
   #region Messages
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class CalculatePathRequest : pb::IMessage<CalculatePathRequest>
@@ -1443,6 +1535,9 @@ namespace Pathfinding {
     /// <summary>Field number for the "ref_id" field.</summary>
     public const int RefIdFieldNumber = 1;
     private ulong refId_;
+    /// <summary>
+    /// dtPolyRef
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public ulong RefId {
@@ -1454,10 +1549,13 @@ namespace Pathfinding {
 
     /// <summary>Field number for the "area" field.</summary>
     public const int AreaFieldNumber = 2;
-    private uint area_;
+    private global::Pathfinding.NavTerrain area_ = global::Pathfinding.NavTerrain.NavEmpty;
+    /// <summary>
+    /// baked area-id
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint Area {
+    public global::Pathfinding.NavTerrain Area {
       get { return area_; }
       set {
         area_ = value;
@@ -1466,10 +1564,13 @@ namespace Pathfinding {
 
     /// <summary>Field number for the "flags" field.</summary>
     public const int FlagsFieldNumber = 3;
-    private uint flags_;
+    private global::Pathfinding.NavPolyFlag flags_ = global::Pathfinding.NavPolyFlag.PolyFlagNone;
+    /// <summary>
+    /// bit-mask – see NavPolyFlag
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint Flags {
+    public global::Pathfinding.NavPolyFlag Flags {
       get { return flags_; }
       set {
         flags_ = value;
@@ -1481,6 +1582,9 @@ namespace Pathfinding {
     private static readonly pb::FieldCodec<global::Game.Position> _repeated_verts_codec
         = pb::FieldCodec.ForMessage(34, global::Game.Position.Parser);
     private readonly pbc::RepeatedField<global::Game.Position> verts_ = new pbc::RepeatedField<global::Game.Position>();
+    /// <summary>
+    /// convex hull verts (debug / visualisation)
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public pbc::RepeatedField<global::Game.Position> Verts {
@@ -1514,8 +1618,8 @@ namespace Pathfinding {
     public override int GetHashCode() {
       int hash = 1;
       if (RefId != 0UL) hash ^= RefId.GetHashCode();
-      if (Area != 0) hash ^= Area.GetHashCode();
-      if (Flags != 0) hash ^= Flags.GetHashCode();
+      if (Area != global::Pathfinding.NavTerrain.NavEmpty) hash ^= Area.GetHashCode();
+      if (Flags != global::Pathfinding.NavPolyFlag.PolyFlagNone) hash ^= Flags.GetHashCode();
       hash ^= verts_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -1539,13 +1643,13 @@ namespace Pathfinding {
         output.WriteRawTag(8);
         output.WriteUInt64(RefId);
       }
-      if (Area != 0) {
+      if (Area != global::Pathfinding.NavTerrain.NavEmpty) {
         output.WriteRawTag(16);
-        output.WriteUInt32(Area);
+        output.WriteEnum((int) Area);
       }
-      if (Flags != 0) {
+      if (Flags != global::Pathfinding.NavPolyFlag.PolyFlagNone) {
         output.WriteRawTag(24);
-        output.WriteUInt32(Flags);
+        output.WriteEnum((int) Flags);
       }
       verts_.WriteTo(output, _repeated_verts_codec);
       if (_unknownFields != null) {
@@ -1562,13 +1666,13 @@ namespace Pathfinding {
         output.WriteRawTag(8);
         output.WriteUInt64(RefId);
       }
-      if (Area != 0) {
+      if (Area != global::Pathfinding.NavTerrain.NavEmpty) {
         output.WriteRawTag(16);
-        output.WriteUInt32(Area);
+        output.WriteEnum((int) Area);
       }
-      if (Flags != 0) {
+      if (Flags != global::Pathfinding.NavPolyFlag.PolyFlagNone) {
         output.WriteRawTag(24);
-        output.WriteUInt32(Flags);
+        output.WriteEnum((int) Flags);
       }
       verts_.WriteTo(ref output, _repeated_verts_codec);
       if (_unknownFields != null) {
@@ -1584,11 +1688,11 @@ namespace Pathfinding {
       if (RefId != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(RefId);
       }
-      if (Area != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Area);
+      if (Area != global::Pathfinding.NavTerrain.NavEmpty) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Area);
       }
-      if (Flags != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Flags);
+      if (Flags != global::Pathfinding.NavPolyFlag.PolyFlagNone) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Flags);
       }
       size += verts_.CalculateSize(_repeated_verts_codec);
       if (_unknownFields != null) {
@@ -1606,10 +1710,10 @@ namespace Pathfinding {
       if (other.RefId != 0UL) {
         RefId = other.RefId;
       }
-      if (other.Area != 0) {
+      if (other.Area != global::Pathfinding.NavTerrain.NavEmpty) {
         Area = other.Area;
       }
-      if (other.Flags != 0) {
+      if (other.Flags != global::Pathfinding.NavPolyFlag.PolyFlagNone) {
         Flags = other.Flags;
       }
       verts_.Add(other.verts_);
@@ -1637,11 +1741,11 @@ namespace Pathfinding {
             break;
           }
           case 16: {
-            Area = input.ReadUInt32();
+            Area = (global::Pathfinding.NavTerrain) input.ReadEnum();
             break;
           }
           case 24: {
-            Flags = input.ReadUInt32();
+            Flags = (global::Pathfinding.NavPolyFlag) input.ReadEnum();
             break;
           }
           case 34: {
@@ -1672,11 +1776,11 @@ namespace Pathfinding {
             break;
           }
           case 16: {
-            Area = input.ReadUInt32();
+            Area = (global::Pathfinding.NavTerrain) input.ReadEnum();
             break;
           }
           case 24: {
-            Flags = input.ReadUInt32();
+            Flags = (global::Pathfinding.NavPolyFlag) input.ReadEnum();
             break;
           }
           case 34: {
@@ -1741,6 +1845,9 @@ namespace Pathfinding {
     /// <summary>Field number for the "ground_z" field.</summary>
     public const int GroundZFieldNumber = 1;
     private float groundZ_;
+    /// <summary>
+    /// best-fit walkable Z (or NaN)
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public float GroundZ {
@@ -1753,6 +1860,9 @@ namespace Pathfinding {
     /// <summary>Field number for the "liquid_z" field.</summary>
     public const int LiquidZFieldNumber = 2;
     private float liquidZ_;
+    /// <summary>
+    /// water surface (or NaN)
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public float LiquidZ {
@@ -1766,7 +1876,7 @@ namespace Pathfinding {
     public const int TerrainFlagsFieldNumber = 3;
     private uint terrainFlags_;
     /// <summary>
-    /// see NavTerrain in C#
+    /// reserved – e.g. MASK_LIQUID / INDOORS
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -1782,6 +1892,9 @@ namespace Pathfinding {
     private static readonly pb::FieldCodec<global::Pathfinding.NavPolyHit> _repeated_overlaps_codec
         = pb::FieldCodec.ForMessage(34, global::Pathfinding.NavPolyHit.Parser);
     private readonly pbc::RepeatedField<global::Pathfinding.NavPolyHit> overlaps_ = new pbc::RepeatedField<global::Pathfinding.NavPolyHit>();
+    /// <summary>
+    /// all polys intersecting the query capsule
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public pbc::RepeatedField<global::Pathfinding.NavPolyHit> Overlaps {

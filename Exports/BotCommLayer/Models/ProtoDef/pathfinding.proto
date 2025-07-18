@@ -4,6 +4,33 @@ package pathfinding;
 
 import "game.proto";          // re-uses game.Position (x,y,z)
 
+/* ─────────────────────── Detour / Recast nav-mesh metadata ─────────────────────── */
+
+/** Bit-field of per-polygon capabilities (matches NavMeshDefines.h). */
+enum NavPolyFlag {
+  POLY_FLAG_NONE     = 0;   // 0x00 – not walkable
+  POLY_FLAG_WALK     = 1;   // 0x01 – land-unit can traverse
+  POLY_FLAG_SWIM     = 2;   // 0x02 – requires swimming
+  POLY_FLAG_DOOR     = 4;   // 0x04 – door that toggles WALK at runtime
+  POLY_FLAG_JUMP     = 8;   // 0x08 – explicit jump link
+  POLY_FLAG_DISABLED = 16;  // 0x10 – temporarily disabled (dynamic obstacle)
+  POLY_FLAG_TELEPORT = 32;  // 0x20 – one-way teleporter surface
+  POLY_FLAG_ALL      = 65535; // helper mask (0xFFFF)
+}
+
+/** Area‐IDs carved into the mesh during build (must start at 0 for proto3). */
+enum NavTerrain {
+  NAV_EMPTY   = 0;   // 0x00 – no terrain bits set
+  NAV_GROUND  = 1;   // 0x01
+  NAV_MAGMA   = 2;   // 0x02
+  NAV_SLIME   = 4;   // 0x04
+  NAV_WATER   = 8;   // 0x08
+  NAV_UNUSED1 = 16;  // 0x10
+  NAV_UNUSED2 = 32;  // 0x20
+  NAV_UNUSED3 = 64;  // 0x40
+  NAV_UNUSED4 = 128; // 0x80
+}
+
 /* ────────── atomic request / response types ────────── */
 
 message CalculatePathRequest {
@@ -32,17 +59,17 @@ message TerrainProbeRequest {
 }
 
 message NavPolyHit {
-  uint64              ref_id  = 1;
-  uint32              area    = 2;
-  uint32              flags   = 3;
-  repeated game.Position verts = 4;
+  uint64       ref_id  = 1;                // dtPolyRef
+  NavTerrain  area    = 2;                // baked area-id
+  NavPolyFlag       flags   = 3;                // bit-mask – see NavPolyFlag
+  repeated game.Position verts = 4;        // convex hull verts (debug / visualisation)
 }
 
 message TerrainProbeResponse {
-  float               ground_z      = 1;
-  float               liquid_z      = 2;
-  uint32              terrain_flags = 3;   // see NavTerrain in C#
-  repeated NavPolyHit overlaps      = 4;
+  float               ground_z      = 1;   // best-fit walkable Z (or NaN)
+  float               liquid_z      = 2;   // water surface (or NaN)
+  uint32              terrain_flags = 3;   // reserved – e.g. MASK_LIQUID / INDOORS
+  repeated NavPolyHit overlaps      = 4;   // all polys intersecting the query capsule
 }
 
 /* ────────── error helper ────────── */

@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace GameData.Core.Models
 {
@@ -60,6 +61,8 @@ namespace GameData.Core.Models
         public XYZ ToXYZ() => new(X, Y, Z);
 
         public override string ToString() => $"X: {Math.Round(X, 2)}, Y: {Math.Round(Y, 2)}, Z: {Math.Round(Z, 2)}";
+
+        public Vector3 ToVector3() => new(X, Y, Z);
     }
 
     [StructLayout(LayoutKind.Sequential)]
