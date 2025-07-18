@@ -164,65 +164,73 @@ namespace WoWSharpClient.Handlers
             WoWSharpObjectManager.ObjectStateUpdate objectUpdate
         )
         {
-            // Read the block count (the first byte)
             byte blockCount = reader.ReadByte();
-
-            // Parse the update mask
             byte[] updateMask = reader.ReadBytes(blockCount * 4);
-
             BitArray updateMaskBits = new(updateMask);
 
-            for (int i = 0; i < updateMaskBits.Length; i++)
+            for (int i = 0; i < updateMaskBits.Length; )
             {
+                if (!updateMaskBits[i])
+                {
+                    i++;
+                    continue;
+                }
+
+                // Handle 64-bit GUIDs for Items and Containers
+                if (
+                    objectUpdate.ObjectType is WoWObjectType.Item or WoWObjectType.Container
+                    && GuidFieldHandler.IsGuidField((EItemFields)i)
+                    && i + 1 < updateMaskBits.Length
+                    && updateMaskBits[i + 1]
+                )
+                {
+                    byte[] full = GuidFieldHandler.ReadGuidField(reader);
+                    objectUpdate.UpdatedFields[(uint)i] = full;
+                    i += 2;
+                    continue;
+                }
+
+                // Standard object field handling
                 if (i < (int)EObjectFields.OBJECT_END)
                 {
-                    if (updateMaskBits[i])
-                        ReadObjectField(reader, objectUpdate, (EObjectFields)i);
+                    ReadObjectField(reader, objectUpdate, (EObjectFields)i);
                 }
-                else if (
-                    objectUpdate.ObjectType == WoWObjectType.Unit
-                    || objectUpdate.ObjectType == WoWObjectType.Player
-                )
+                else if (objectUpdate.ObjectType is WoWObjectType.Unit or WoWObjectType.Player)
                 {
                     if (i < (int)EUnitFields.UNIT_END)
                     {
-                        if (updateMaskBits[i])
-                            ReadUnitField(reader, objectUpdate, (EUnitFields)i);
+                        ReadUnitField(reader, objectUpdate, (EUnitFields)i);
                     }
-                    else if (objectUpdate.ObjectType == WoWObjectType.Player && updateMaskBits[i])
+                    else if (objectUpdate.ObjectType == WoWObjectType.Player)
+                    {
                         ReadPlayerField(reader, objectUpdate, (EPlayerFields)i);
+                    }
                 }
-                else if (
-                    objectUpdate.ObjectType == WoWObjectType.Item
-                    || objectUpdate.ObjectType == WoWObjectType.Container
-                )
+                else if (objectUpdate.ObjectType is WoWObjectType.Item or WoWObjectType.Container)
                 {
                     if (i < (int)EItemFields.ITEM_END)
                     {
-                        if (updateMaskBits[i])
-                            ReadItemField(reader, objectUpdate, (EItemFields)i);
+                        ReadItemField(reader, objectUpdate, (EItemFields)i);
                     }
-                    else if (
-                        objectUpdate.ObjectType == WoWObjectType.Container
-                        && updateMaskBits[i]
-                    )
+                    else if (objectUpdate.ObjectType == WoWObjectType.Container)
+                    {
                         ReadContainerField(reader, objectUpdate, (EContainerFields)i);
+                    }
                 }
                 else if (objectUpdate.ObjectType == WoWObjectType.GameObj)
                 {
-                    if (updateMaskBits[i])
-                        ReadGameObjectField(reader, objectUpdate, (EGameObjectFields)i);
+                    ReadGameObjectField(reader, objectUpdate, (EGameObjectFields)i);
                 }
                 else if (objectUpdate.ObjectType == WoWObjectType.DynamicObj)
                 {
-                    if (updateMaskBits[i])
-                        ReadDynamicObjectField(reader, objectUpdate, (EDynamicObjectFields)i);
+                    ReadDynamicObjectField(reader, objectUpdate, (EDynamicObjectFields)i);
                 }
                 else if (objectUpdate.ObjectType == WoWObjectType.Corpse)
                 {
-                    if (updateMaskBits[i])
-                        ReadCorpseField(reader, objectUpdate, (ECorpseFields)i);
+                    ReadCorpseField(reader, objectUpdate, (ECorpseFields)i);
                 }
+
+                i++; // Move to the next field index
             }
         }
 

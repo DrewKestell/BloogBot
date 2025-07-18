@@ -803,7 +803,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0u, item21.LastUpdated);
             Assert.Equal((uint)0, item21.ItemId);
             Assert.Equal((ulong)150, item21.Owner.FullGuid);
-            Assert.Equal((ulong)expectedGuid20, item21.Contained.FullGuid);
+            Assert.Equal((ulong)8470, item21.Contained.FullGuid);
             Assert.Equal((ulong)0, item21.GiftCreator.FullGuid);
             Assert.Equal((uint)1, item21.StackCount);
             Assert.Equal((uint)0, item21.Duration);
@@ -870,7 +870,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0u, item23.LastUpdated);
             Assert.Equal((uint)0, item23.ItemId);
             Assert.Equal((ulong)150, item23.Owner.FullGuid);
-            Assert.Equal((ulong)expectedGuid22, item23.Contained.FullGuid);
+            Assert.Equal((ulong)14534, item23.Contained.FullGuid);
             Assert.Equal((ulong)0, item23.GiftCreator.FullGuid);
             Assert.Equal((uint)1, item23.StackCount);
             Assert.Equal((uint)0, item23.Duration);
@@ -937,7 +937,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0u, item25.LastUpdated);
             Assert.Equal((uint)0, item25.ItemId);
             Assert.Equal((ulong)150, item25.Owner.FullGuid);
-            Assert.Equal((ulong)expectedGuid24, item25.Contained.FullGuid);
+            Assert.Equal((ulong)14535, item25.Contained.FullGuid);
             Assert.Equal((ulong)0, item25.GiftCreator.FullGuid);
             Assert.Equal((uint)200, item25.StackCount);
             Assert.Equal((uint)0, item25.Duration);
@@ -1004,7 +1004,7 @@ namespace WoWSharpClient.Tests.Handlers
             Assert.Equal(0u, item27.LastUpdated);
             Assert.Equal((uint)0, item27.ItemId);
             Assert.Equal((ulong)150, item27.Owner.FullGuid);
-            Assert.Equal((ulong)expectedGuid26, item27.Contained.FullGuid);
+            Assert.Equal((ulong)14536, item27.Contained.FullGuid);
             Assert.Equal((ulong)0, item27.GiftCreator.FullGuid);
             Assert.Equal((uint)1, item27.StackCount);
             Assert.Equal((uint)0, item27.Duration);
