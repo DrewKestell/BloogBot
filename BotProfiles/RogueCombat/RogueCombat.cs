@@ -7,7 +7,7 @@ using RogueCombat.Tasks;
 namespace RogueCombat
 {
     [Export(typeof(IBot))]
-    internal class RogueAssassin : IBot
+    internal class RogueCombat : IBot
     {
         public string Name => "Combat Rogue";
 

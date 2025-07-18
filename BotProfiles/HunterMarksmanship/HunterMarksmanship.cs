@@ -7,7 +7,7 @@ using System.ComponentModel.Composition;
 namespace HunterMarksmanship
 {
     [Export(typeof(IBot))]
-    internal class DruidBalance : IBot
+    internal class HunterMarksmanship : IBot
     {
         public string Name => "Marksmanship Hunter";
 
