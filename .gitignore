@@ -290,3 +290,4 @@ raidMemberBotSettings.json
 */vcpkg_installed/
 Debug/vc143.idb
 Tests/PathfindingService.Tests/Data/terrain.MPQ
+/Exports/Navigation/Win32/Debug/
