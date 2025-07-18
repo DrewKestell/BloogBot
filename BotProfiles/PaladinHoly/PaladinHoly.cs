@@ -36,6 +36,6 @@ namespace PaladinHoly
             new PvERotationTask(botContext);
 
         public IBotTask CreatePvPRotationTask(IBotContext botContext) =>
-            new PvERotationTask(botContext);
+            new PvPRotationTask(botContext);
     }
 }
