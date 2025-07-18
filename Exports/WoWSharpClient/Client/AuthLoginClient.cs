@@ -221,6 +221,7 @@ namespace WoWSharpClient.Client
                 Console.WriteLine($"[LoginClient] Error in SendRealmListRequest: {ex}");
             }
         }
+
         public List<Realm> GetRealmList()
         {
             List<Realm> list = [];
@@ -271,6 +272,7 @@ namespace WoWSharpClient.Client
 
             return list;
         }
+
         public void Dispose() { }
     }
 }

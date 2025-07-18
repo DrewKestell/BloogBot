@@ -1,5 +1,5 @@
-﻿using GameData.Core.Enums;
-using System.Collections;
+﻿using System.Collections;
+using GameData.Core.Enums;
 using WoWSharpClient.Client;
 using WoWSharpClient.Models;
 using WoWSharpClient.Parsers;
@@ -60,7 +60,13 @@ namespace WoWSharpClient.Handlers
             var guid = ReaderUtils.ReadPackedGuid(reader);
             var objectType = (WoWObjectType)reader.ReadByte();
             MovementInfoUpdate movementUpdateData = ParseMovementInfo(reader);
-            var update = new ObjectStateUpdate(guid, ObjectUpdateOperation.Add, objectType, movementUpdateData, []);
+            var update = new WoWSharpObjectManager.ObjectStateUpdate(
+                guid,
+                WoWSharpObjectManager.ObjectUpdateOperation.Add,
+                objectType,
+                movementUpdateData,
+                []
+            );
 
             ReadValuesUpdateBlock(reader, update);
 
@@ -97,7 +103,7 @@ namespace WoWSharpClient.Handlers
                 Y = reader.ReadSingle(),
                 Z = reader.ReadSingle(),
 
-                Facing = reader.ReadSingle()
+                Facing = reader.ReadSingle(),
             };
 
             return data;
@@ -107,15 +113,28 @@ namespace WoWSharpClient.Handlers
         {
             var guid = ReaderUtils.ReadPackedGuid(reader);
             var movementUpdateData = MovementPacketHandler.ParseMovementInfo(reader);
-            ObjectStateUpdate objectUpdate = new(guid, ObjectUpdateOperation.Update, WoWObjectType.None, movementUpdateData, []);
+            WoWSharpObjectManager.ObjectStateUpdate objectUpdate = new(
+                guid,
+                WoWSharpObjectManager.ObjectUpdateOperation.Update,
+                WoWObjectType.None,
+                movementUpdateData,
+                []
+            );
 
             WoWSharpObjectManager.Instance.QueueUpdate(objectUpdate);
         }
+
         private static void ParsePartialUpdate(BinaryReader reader)
         {
             ulong guid = ReaderUtils.ReadPackedGuid(reader);
 
-            var update = new ObjectStateUpdate(guid, ObjectUpdateOperation.Update, WoWObjectType.None, null, []);
+            var update = new WoWSharpObjectManager.ObjectStateUpdate(
+                guid,
+                WoWSharpObjectManager.ObjectUpdateOperation.Update,
+                WoWObjectType.None,
+                null,
+                []
+            );
 
             ReadValuesUpdateBlock(reader, update);
 
@@ -128,65 +147,98 @@ namespace WoWSharpClient.Handlers
             for (int j = 0; j < count; j++)
             {
                 var guid = ReaderUtils.ReadPackedGuid(reader);
-                WoWSharpObjectManager.Instance.QueueUpdate(new(guid, ObjectUpdateOperation.Remove, WoWObjectType.None, null, []));
+                WoWSharpObjectManager.Instance.QueueUpdate(
+                    new(
+                        guid,
+                        WoWSharpObjectManager.ObjectUpdateOperation.Remove,
+                        WoWObjectType.None,
+                        null,
+                        []
+                    )
+                );
             }
         }
 
-        private static void ReadValuesUpdateBlock(BinaryReader reader, ObjectStateUpdate objectUpdate)
+        private static void ReadValuesUpdateBlock(
+            BinaryReader reader,
+            WoWSharpObjectManager.ObjectStateUpdate objectUpdate
+        )
         {
-            // Read the block count (the first byte)
             byte blockCount = reader.ReadByte();
-
-            // Parse the update mask
             byte[] updateMask = reader.ReadBytes(blockCount * 4);
-
             BitArray updateMaskBits = new(updateMask);
 
-            for (int i = 0; i < updateMaskBits.Length; i++)
+            for (int i = 0; i < updateMaskBits.Length; )
             {
+                if (!updateMaskBits[i])
+                {
+                    i++;
+                    continue;
+                }
+
+                // Handle 64-bit GUIDs for Items and Containers
+                if (
+                    objectUpdate.ObjectType is WoWObjectType.Item or WoWObjectType.Container
+                    && GuidFieldHandler.IsGuidField((EItemFields)i)
+                    && i + 1 < updateMaskBits.Length
+                    && updateMaskBits[i + 1]
+                )
+                {
+                    byte[] full = GuidFieldHandler.ReadGuidField(reader);
+                    objectUpdate.UpdatedFields[(uint)i] = full;
+                    i += 2;
+                    continue;
+                }
+
+                // Standard object field handling
                 if (i < (int)EObjectFields.OBJECT_END)
                 {
-                    if (updateMaskBits[i])
-                        ReadObjectField(reader, objectUpdate, (EObjectFields)i);
+                    ReadObjectField(reader, objectUpdate, (EObjectFields)i);
                 }
-                else if (objectUpdate.ObjectType == WoWObjectType.Unit || objectUpdate.ObjectType == WoWObjectType.Player)
+                else if (objectUpdate.ObjectType is WoWObjectType.Unit or WoWObjectType.Player)
                 {
                     if (i < (int)EUnitFields.UNIT_END)
                     {
-                        if (updateMaskBits[i])
-                            ReadUnitField(reader, objectUpdate, (EUnitFields)i);
+                        ReadUnitField(reader, objectUpdate, (EUnitFields)i);
                     }
-                    else if (objectUpdate.ObjectType == WoWObjectType.Player && updateMaskBits[i])
-                        ReadPlayerField(reader, objectUpdate, (EUnitFields)i);
+                    else if (objectUpdate.ObjectType == WoWObjectType.Player)
+                    {
+                        ReadPlayerField(reader, objectUpdate, (EPlayerFields)i);
+                    }
                 }
-                else if (objectUpdate.ObjectType == WoWObjectType.Item || objectUpdate.ObjectType == WoWObjectType.Container)
+                else if (objectUpdate.ObjectType is WoWObjectType.Item or WoWObjectType.Container)
                 {
                     if (i < (int)EItemFields.ITEM_END)
                     {
-                        if (updateMaskBits[i])
-                            ReadItemField(reader, objectUpdate, (EItemFields)i);
+                        ReadItemField(reader, objectUpdate, (EItemFields)i);
                     }
-                    else if (objectUpdate.ObjectType == WoWObjectType.Container && updateMaskBits[i])
+                    else if (objectUpdate.ObjectType == WoWObjectType.Container)
+                    {
                         ReadContainerField(reader, objectUpdate, (EContainerFields)i);
+                    }
                 }
                 else if (objectUpdate.ObjectType == WoWObjectType.GameObj)
                 {
-                    if (updateMaskBits[i])
-                        ReadGameObjectField(reader, objectUpdate, (EGameObjectFields)i);
+                    ReadGameObjectField(reader, objectUpdate, (EGameObjectFields)i);
                 }
                 else if (objectUpdate.ObjectType == WoWObjectType.DynamicObj)
                 {
-                    if (updateMaskBits[i])
-                        ReadDynamicObjectField(reader, objectUpdate, (EDynamicObjectFields)i);
+                    ReadDynamicObjectField(reader, objectUpdate, (EDynamicObjectFields)i);
                 }
                 else if (objectUpdate.ObjectType == WoWObjectType.Corpse)
                 {
-                    if (updateMaskBits[i])
-                        ReadCorpseField(reader, objectUpdate, (ECorpseFields)i);
+                    ReadCorpseField(reader, objectUpdate, (ECorpseFields)i);
                 }
+
+                i++; // Move to the next field index
             }
         }
-        private static void ReadObjectField(BinaryReader reader, ObjectStateUpdate objectUpdate, EObjectFields field)
+
+        private static void ReadObjectField(
+            BinaryReader reader,
+            WoWSharpObjectManager.ObjectStateUpdate objectUpdate,
+            EObjectFields field
+        )
         {
             if (field <= EObjectFields.OBJECT_FIELD_GUID + 0x01)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadBytes(4);
@@ -199,7 +251,12 @@ namespace WoWSharpClient.Handlers
             else if (field == EObjectFields.OBJECT_FIELD_PADDING)
                 reader.ReadUInt32();
         }
-        private static void ReadGameObjectField(BinaryReader reader, ObjectStateUpdate objectUpdate, EGameObjectFields field)
+
+        private static void ReadGameObjectField(
+            BinaryReader reader,
+            WoWSharpObjectManager.ObjectStateUpdate objectUpdate,
+            EGameObjectFields field
+        )
         {
             if (field <= EGameObjectFields.OBJECT_FIELD_CREATED_BY + 0x01)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadBytes(4);
@@ -234,7 +291,12 @@ namespace WoWSharpClient.Handlers
             else if (field == EGameObjectFields.GAMEOBJECT_PADDING)
                 reader.ReadUInt32();
         }
-        private static void ReadDynamicObjectField(BinaryReader reader, ObjectStateUpdate objectUpdate, EDynamicObjectFields field)
+
+        private static void ReadDynamicObjectField(
+            BinaryReader reader,
+            WoWSharpObjectManager.ObjectStateUpdate objectUpdate,
+            EDynamicObjectFields field
+        )
         {
             if (field <= EDynamicObjectFields.DYNAMICOBJECT_CASTER + 0x01)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadBytes(4);
@@ -255,7 +317,12 @@ namespace WoWSharpClient.Handlers
             else if (field == EDynamicObjectFields.DYNAMICOBJECT_PAD)
                 reader.ReadUInt32();
         }
-        private static void ReadCorpseField(BinaryReader reader, ObjectStateUpdate objectUpdate, ECorpseFields field)
+
+        private static void ReadCorpseField(
+            BinaryReader reader,
+            WoWSharpObjectManager.ObjectStateUpdate objectUpdate,
+            ECorpseFields field
+        )
         {
             if (field <= ECorpseFields.CORPSE_FIELD_OWNER + 0x01)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadBytes(4);
@@ -284,7 +351,12 @@ namespace WoWSharpClient.Handlers
             else if (field == ECorpseFields.CORPSE_FIELD_PAD)
                 reader.ReadUInt32();
         }
-        private static void ReadUnitField(BinaryReader reader, ObjectStateUpdate objectUpdate, EUnitFields field)
+
+        private static void ReadUnitField(
+            BinaryReader reader,
+            WoWSharpObjectManager.ObjectStateUpdate objectUpdate,
+            EUnitFields field
+        )
         {
             if (field <= EUnitFields.UNIT_FIELD_CHARM + 0x01)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadBytes(4);
@@ -331,7 +403,13 @@ namespace WoWSharpClient.Handlers
             else if (field == EUnitFields.UNIT_FIELD_FACTIONTEMPLATE)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
             else if (field == EUnitFields.UNIT_FIELD_BYTES_0)
-                objectUpdate.UpdatedFields[(uint)field] = new byte[] { reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte() };
+                objectUpdate.UpdatedFields[(uint)field] = new byte[]
+                {
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                };
             else if (field <= EUnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY_02)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
             else if (field <= EUnitFields.UNIT_VIRTUAL_ITEM_INFO_05)
@@ -373,7 +451,13 @@ namespace WoWSharpClient.Handlers
             else if (field == EUnitFields.UNIT_FIELD_MAXOFFHANDDAMAGE)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
             else if (field == EUnitFields.UNIT_FIELD_BYTES_1)
-                objectUpdate.UpdatedFields[(uint)field] = new byte[] { reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte() };
+                objectUpdate.UpdatedFields[(uint)field] = new byte[]
+                {
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                };
             else if (field == EUnitFields.UNIT_FIELD_PETNUMBER)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
             else if (field == EUnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP)
@@ -413,7 +497,13 @@ namespace WoWSharpClient.Handlers
             else if (field == EUnitFields.UNIT_FIELD_BASE_HEALTH)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
             else if (field == EUnitFields.UNIT_FIELD_BYTES_2)
-                objectUpdate.UpdatedFields[(uint)field] = new byte[] { reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte() };
+                objectUpdate.UpdatedFields[(uint)field] = new byte[]
+                {
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                };
             else if (field == EUnitFields.UNIT_FIELD_ATTACK_POWER)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
             else if (field == EUnitFields.UNIT_FIELD_ATTACK_POWER_MODS)
@@ -437,27 +527,50 @@ namespace WoWSharpClient.Handlers
             else if (field == EUnitFields.UNIT_FIELD_PADDING)
                 reader.ReadUInt32();
         }
-        private static void ReadPlayerField(BinaryReader reader, ObjectStateUpdate objectUpdate, EUnitFields field)
+
+        private static void ReadPlayerField(
+            BinaryReader reader,
+            WoWSharpObjectManager.ObjectStateUpdate objectUpdate,
+            EPlayerFields field
+        )
         {
-            if (field <= EUnitFields.PLAYER_DUEL_ARBITER + 0x01)
+            if (field <= EPlayerFields.PLAYER_DUEL_ARBITER + 0x01)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadBytes(4);
-            else if (field == EUnitFields.PLAYER_FLAGS)
+            else if (field == EPlayerFields.PLAYER_FLAGS)
                 objectUpdate.UpdatedFields[(uint)field] = (PlayerFlags)reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_GUILDID)
+            else if (field == EPlayerFields.PLAYER_GUILDID)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_GUILDRANK)
+            else if (field == EPlayerFields.PLAYER_GUILDRANK)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_BYTES)
-                objectUpdate.UpdatedFields[(uint)field] = new byte[] { reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte() };
-            else if (field == EUnitFields.PLAYER_BYTES_2)
-                objectUpdate.UpdatedFields[(uint)field] = new byte[] { reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte() };
-            else if (field == EUnitFields.PLAYER_BYTES_3)
-                objectUpdate.UpdatedFields[(uint)field] = new byte[] { reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte() };
-            else if (field == EUnitFields.PLAYER_DUEL_TEAM)
+            else if (field == EPlayerFields.PLAYER_BYTES)
+                objectUpdate.UpdatedFields[(uint)field] = new byte[]
+                {
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                };
+            else if (field == EPlayerFields.PLAYER_BYTES_2)
+                objectUpdate.UpdatedFields[(uint)field] = new byte[]
+                {
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                };
+            else if (field == EPlayerFields.PLAYER_BYTES_3)
+                objectUpdate.UpdatedFields[(uint)field] = new byte[]
+                {
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                };
+            else if (field == EPlayerFields.PLAYER_DUEL_TEAM)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field <= EUnitFields.PLAYER_QUEST_LOG_LAST_3)
+            else if (field <= EPlayerFields.PLAYER_QUEST_LOG_LAST_3)
             {
-                uint questField = (field - EUnitFields.PLAYER_QUEST_LOG_1_1) % 3;
+                uint questField = (field - EPlayerFields.PLAYER_QUEST_LOG_1_1) % 3;
 
                 switch (questField)
                 {
@@ -472,9 +585,9 @@ namespace WoWSharpClient.Handlers
                         break;
                 }
             }
-            else if (field <= EUnitFields.PLAYER_VISIBLE_ITEM_LAST_PAD)
+            else if (field <= EPlayerFields.PLAYER_VISIBLE_ITEM_19_PAD)
             {
-                uint visibleItemField = (field - EUnitFields.PLAYER_VISIBLE_ITEM_1_CREATOR) % 12;
+                uint visibleItemField = (field - EPlayerFields.PLAYER_VISIBLE_ITEM_1_CREATOR) % 12;
 
                 switch (visibleItemField)
                 {
@@ -514,111 +627,128 @@ namespace WoWSharpClient.Handlers
                     case 11:
                         objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
                         break;
-                    case 12:
-                        reader.ReadUInt32();
-                        break;
                 }
             }
-            else if (field < EUnitFields.PLAYER_FIELD_PACK_SLOT_1)
+            else if (field < EPlayerFields.PLAYER_FIELD_PACK_SLOT_1)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field <= EUnitFields.PLAYER_FIELD_PACK_SLOT_LAST)
+            else if (field <= EPlayerFields.PLAYER_FIELD_PACK_SLOT_LAST)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field <= EUnitFields.PLAYER_FIELD_BANK_SLOT_LAST)
+            else if (field <= EPlayerFields.PLAYER_FIELD_BANK_SLOT_LAST)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field <= EUnitFields.PLAYER_FIELD_BANKBAG_SLOT_LAST)
+            else if (field <= EPlayerFields.PLAYER_FIELD_BANKBAG_SLOT_LAST)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field <= EUnitFields.PLAYER_FIELD_VENDORBUYBACK_SLOT_LAST)
+            else if (field <= EPlayerFields.PLAYER_FIELD_VENDORBUYBACK_SLOT_LAST)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field <= EUnitFields.PLAYER_FIELD_KEYRING_SLOT_LAST)
+            else if (field <= EPlayerFields.PLAYER_FIELD_KEYRING_SLOT_LAST)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_FARSIGHT)
+            else if (field == EPlayerFields.PLAYER_FARSIGHT)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field <= EUnitFields.PLAYER_FIELD_COMBO_TARGET)
+            else if (field <= EPlayerFields.PLAYER_FIELD_COMBO_TARGET)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadBytes(4);
-            else if (field == EUnitFields.PLAYER_XP)
+            else if (field == EPlayerFields.PLAYER_XP)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_NEXT_LEVEL_XP)
+            else if (field == EPlayerFields.PLAYER_NEXT_LEVEL_XP)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field <= EUnitFields.PLAYER_SKILL_INFO_1_1 + 384)
+            else if (field <= EPlayerFields.PLAYER_SKILL_INFO_1_1 + 384)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_CHARACTER_POINTS1)
+            else if (field == EPlayerFields.PLAYER_CHARACTER_POINTS1)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_CHARACTER_POINTS2)
+            else if (field == EPlayerFields.PLAYER_CHARACTER_POINTS2)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_TRACK_CREATURES)
+            else if (field == EPlayerFields.PLAYER_TRACK_CREATURES)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_TRACK_RESOURCES)
+            else if (field == EPlayerFields.PLAYER_TRACK_RESOURCES)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_BLOCK_PERCENTAGE)
+            else if (field == EPlayerFields.PLAYER_BLOCK_PERCENTAGE)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_DODGE_PERCENTAGE)
+            else if (field == EPlayerFields.PLAYER_DODGE_PERCENTAGE)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_PARRY_PERCENTAGE)
+            else if (field == EPlayerFields.PLAYER_PARRY_PERCENTAGE)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_CRIT_PERCENTAGE)
+            else if (field == EPlayerFields.PLAYER_CRIT_PERCENTAGE)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_RANGED_CRIT_PERCENTAGE)
+            else if (field == EPlayerFields.PLAYER_RANGED_CRIT_PERCENTAGE)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field < EUnitFields.PLAYER_REST_STATE_EXPERIENCE)
+            else if (field < EPlayerFields.PLAYER_REST_STATE_EXPERIENCE)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_REST_STATE_EXPERIENCE)
+            else if (field == EPlayerFields.PLAYER_REST_STATE_EXPERIENCE)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_FIELD_COINAGE)
+            else if (field == EPlayerFields.PLAYER_FIELD_COINAGE)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field <= EUnitFields.PLAYER_FIELD_POSSTAT4)
+            else if (field <= EPlayerFields.PLAYER_FIELD_POSSTAT4)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field <= EUnitFields.PLAYER_FIELD_NEGSTAT4)
+            else if (field <= EPlayerFields.PLAYER_FIELD_NEGSTAT4)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field <= EUnitFields.PLAYER_FIELD_RESISTANCEBUFFMODSNEGATIVE + 6)
+            else if (field <= EPlayerFields.PLAYER_FIELD_RESISTANCEBUFFMODSNEGATIVE + 6)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field <= EUnitFields.PLAYER_FIELD_MOD_DAMAGE_DONE_POS + 6)
+            else if (field <= EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_POS + 6)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field <= EUnitFields.PLAYER_FIELD_MOD_DAMAGE_DONE_POS + 6)
+            else if (field <= EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_POS + 6)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field <= EUnitFields.PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + 6)
+            else if (field <= EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + 6)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field <= EUnitFields.PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + 6)
+            else if (field <= EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + 6)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadSingle();
-            else if (field == EUnitFields.PLAYER_FIELD_BYTES)
-                objectUpdate.UpdatedFields[(uint)field] = new byte[] { reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte() };
-            else if (field == EUnitFields.PLAYER_AMMO_ID)
+            else if (field == EPlayerFields.PLAYER_FIELD_BYTES)
+                objectUpdate.UpdatedFields[(uint)field] = new byte[]
+                {
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                };
+            else if (field == EPlayerFields.PLAYER_AMMO_ID)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_SELF_RES_SPELL)
+            else if (field == EPlayerFields.PLAYER_SELF_RES_SPELL)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_FIELD_PVP_MEDALS)
+            else if (field == EPlayerFields.PLAYER_FIELD_PVP_MEDALS)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field <= EUnitFields.PLAYER_FIELD_BUYBACK_PRICE_LAST)
+            else if (field <= EPlayerFields.PLAYER_FIELD_BUYBACK_PRICE_LAST)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field <= EUnitFields.PLAYER_FIELD_BUYBACK_TIMESTAMP_LAST)
+            else if (field <= EPlayerFields.PLAYER_FIELD_BUYBACK_TIMESTAMP_LAST)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_FIELD_SESSION_KILLS)
+            else if (field == EPlayerFields.PLAYER_FIELD_KILLS)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_FIELD_YESTERDAY_KILLS)
+            else if (field == EPlayerFields.PLAYER_FIELD_YESTERDAY_KILLS)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_FIELD_LAST_WEEK_KILLS)
+            else if (field == EPlayerFields.PLAYER_FIELD_LAST_WEEK_KILLS)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_FIELD_THIS_WEEK_KILLS)
+            else if (field == EPlayerFields.PLAYER_FIELD_LAST_WEEK_KILLS)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_FIELD_THIS_WEEK_CONTRIBUTION)
+            else if (field == EPlayerFields.PLAYER_FIELD_LAST_WEEK_CONTRIBUTION)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_FIELD_LIFETIME_HONORABLE_KILLS)
+            else if (field == EPlayerFields.PLAYER_FIELD_LIFETIME_HONORABLE_KILLS)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_FIELD_LIFETIME_DISHONORABLE_KILLS)
+            else if (field == EPlayerFields.PLAYER_FIELD_LIFETIME_DISHONORABLE_KILLS)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field == EUnitFields.PLAYER_FIELD_BYTES2)
-                objectUpdate.UpdatedFields[(uint)field] = new byte[] { reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte() };
-            else if (field == EUnitFields.PLAYER_FIELD_WATCHED_FACTION_INDEX)
+            else if (field == EPlayerFields.PLAYER_FIELD_BYTES2)
+                objectUpdate.UpdatedFields[(uint)field] = new byte[]
+                {
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                    reader.ReadByte(),
+                };
+            else if (field == EPlayerFields.PLAYER_FIELD_WATCHED_FACTION_INDEX)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
-            else if (field <= EUnitFields.PLAYER_FIELD_COMBAT_RATING_1 + 20)
+            else if (field <= EPlayerFields.PLAYER_FIELD_COMBAT_RATING_1 + 20)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
         }
-        private static void ReadItemField(BinaryReader reader, ObjectStateUpdate objectUpdate, EItemFields field)
+
+        private static void ReadItemField(
+            BinaryReader reader,
+            WoWSharpObjectManager.ObjectStateUpdate objectUpdate,
+            EItemFields field
+        )
         {
             Console.WriteLine($"[ReadItemField] {field}");
             if (field <= EItemFields.ITEM_FIELD_OWNER + 0x01)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadBytes(4);
             else if (field <= EItemFields.ITEM_FIELD_CONTAINED + 0x01)
-                objectUpdate.UpdatedFields[(uint)field] = reader.ReadBytes(4);
+            {
+                var bytes = reader.ReadBytes(4);
+                objectUpdate.UpdatedFields[(uint)field] = bytes;
+            }
             else if (field <= EItemFields.ITEM_FIELD_CREATOR + 0x01)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadBytes(4);
             else if (field <= EItemFields.ITEM_FIELD_GIFTCREATOR + 0x01)
@@ -644,7 +774,12 @@ namespace WoWSharpClient.Handlers
             else if (field == EItemFields.ITEM_FIELD_MAXDURABILITY)
                 objectUpdate.UpdatedFields[(uint)field] = reader.ReadUInt32();
         }
-        private static void ReadContainerField(BinaryReader reader, ObjectStateUpdate objectUpdate, EContainerFields field)
+
+        private static void ReadContainerField(
+            BinaryReader reader,
+            WoWSharpObjectManager.ObjectStateUpdate objectUpdate,
+            EContainerFields field
+        )
         {
             if (field == EContainerFields.CONTAINER_FIELD_NUM_SLOTS)
                 objectUpdate.UpdatedFields[(uint)field] = (int)reader.ReadUInt32();

@@ -1,12 +1,12 @@
-﻿using BotRunner.Clients;
+﻿using System.Numerics;
+using System.Text;
+using System.Timers;
+using BotRunner.Clients;
 using GameData.Core.Enums;
 using GameData.Core.Frames;
 using GameData.Core.Interfaces;
 using GameData.Core.Models;
 using Microsoft.Extensions.Logging;
-using System.Numerics;
-using System.Text;
-using System.Timers;
 using WoWSharpClient.Client;
 using WoWSharpClient.Models;
 using WoWSharpClient.Parsers;
@@ -56,24 +56,26 @@ namespace WoWSharpClient
         private WorldTimeTracker _worldTimeTracker;
 
         // Movement Constants (based on 1.12 client)
-        private float _fallSpeed = 0.0f;              // Gravity velocity (m/s)
+        private float _fallSpeed = 0.0f; // Gravity velocity (m/s)
         private long _lastFallStartTime = 0;
         private float _verticalVelocity = 0.0f;
         private long _lastSentTime = 0;
         private Position _lastSentPosition = new(0, 0, 0);
 
-        private const float Gravity = 19.29f;          // 19.291 m/s² vanilla constant
-        private const float MaxFallSpeed = 60.0f;      // terminal velocity clamp
-        private const float GroundSnapThreshold = 2.5f;// metres
-        private const float ServerGroundBias = 0.05f;  // +5 cm – matches vMaNGOS
+        private const float Gravity = 19.29f; // 19.291 m/s² vanilla constant
+        private const float MaxFallSpeed = 60.0f; // terminal velocity clamp
+        private const float GroundSnapThreshold = 2.5f; // metres
+        private const float ServerGroundBias = 0.05f; // +5 cm – matches vMaNGOS
 
         private MovementFlags _lastMovementFlags = MovementFlags.MOVEFLAG_NONE;
 
-        private WoWSharpObjectManager()
-        {
+        private WoWSharpObjectManager() { }
 
-        }
-        public void Initialize(WoWClient wowClient, PathfindingClient pathfindingClient, ILogger<WoWSharpObjectManager> logger)
+        public void Initialize(
+            WoWClient wowClient,
+            PathfindingClient pathfindingClient,
+            ILogger<WoWSharpObjectManager> logger
+        )
         {
             WoWSharpEventEmitter.Instance.Reset();
             _objects.Clear();
@@ -87,17 +89,22 @@ namespace WoWSharpClient
             WoWSharpEventEmitter.Instance.OnLoginVerifyWorld += EventEmitter_OnLoginVerifyWorld;
             WoWSharpEventEmitter.Instance.OnWorldSessionStart += EventEmitter_OnWorldSessionStart;
             WoWSharpEventEmitter.Instance.OnWorldSessionEnd += EventEmitter_OnWorldSessionEnd;
-            WoWSharpEventEmitter.Instance.OnCharacterListLoaded += EventEmitter_OnCharacterListLoaded;
+            WoWSharpEventEmitter.Instance.OnCharacterListLoaded +=
+                EventEmitter_OnCharacterListLoaded;
             WoWSharpEventEmitter.Instance.OnChatMessage += EventEmitter_OnChatMessage;
             WoWSharpEventEmitter.Instance.OnForceMoveRoot += EventEmitter_OnForceMoveRoot;
             WoWSharpEventEmitter.Instance.OnForceMoveUnroot += EventEmitter_OnForceMoveUnroot;
-            WoWSharpEventEmitter.Instance.OnForceRunSpeedChange += EventEmitter_OnForceRunSpeedChange;
-            WoWSharpEventEmitter.Instance.OnForceRunBackSpeedChange += EventEmitter_OnForceRunBackSpeedChange;
-            WoWSharpEventEmitter.Instance.OnForceSwimSpeedChange += EventEmitter_OnForceSwimSpeedChange;
+            WoWSharpEventEmitter.Instance.OnForceRunSpeedChange +=
+                EventEmitter_OnForceRunSpeedChange;
+            WoWSharpEventEmitter.Instance.OnForceRunBackSpeedChange +=
+                EventEmitter_OnForceRunBackSpeedChange;
+            WoWSharpEventEmitter.Instance.OnForceSwimSpeedChange +=
+                EventEmitter_OnForceSwimSpeedChange;
             WoWSharpEventEmitter.Instance.OnForceMoveKnockBack += EventEmitter_OnForceMoveKnockBack;
             WoWSharpEventEmitter.Instance.OnForceTimeSkipped += EventEmitter_OnForceTimeSkipped;
             WoWSharpEventEmitter.Instance.OnTeleport += EventEmitter_OnTeleport;
-            WoWSharpEventEmitter.Instance.OnClientControlUpdate += EventEmitter_OnClientControlUpdate;
+            WoWSharpEventEmitter.Instance.OnClientControlUpdate +=
+                EventEmitter_OnClientControlUpdate;
             WoWSharpEventEmitter.Instance.OnSetTimeSpeed += EventEmitter_OnSetTimeSpeed;
             WoWSharpEventEmitter.Instance.OnSpellGo += EventEmitter_OnSpellGo;
 
@@ -106,10 +113,7 @@ namespace WoWSharpClient
             _characterSelectScreen = new(_woWClient);
         }
 
-        private void EventEmitter_OnSpellGo(object? sender, EventArgs e)
-        {
-
-        }
+        private void EventEmitter_OnSpellGo(object? sender, EventArgs e) { }
 
         private void EventEmitter_OnClientControlUpdate(object? sender, EventArgs e)
         {
@@ -118,10 +122,12 @@ namespace WoWSharpClient
 
             Console.WriteLine($"[OnClientControlUpdate]{Player.Position}");
         }
+
         private void EventEmitter_OnSetTimeSpeed(object? sender, OnSetTimeSpeedArgs e)
         {
             _woWClient.QueryTime();
         }
+
         public void StartGameLoop()
         {
             _gameLoopTimer = new Timer(50);
@@ -170,10 +176,10 @@ namespace WoWSharpClient
             var player = (WoWLocalPlayer)Player;
 
             /* ───────────────────────────────────────────────────────────── Root check */
-            float dt = deltaTimeMs * 0.001f;                       // ms → s
+            float dt = deltaTimeMs * 0.001f; // ms → s
             Vector2 move2D = player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_ROOT)
-                             ? Vector2.Zero
-                             : ComputeMovementDelta(player, dt);
+                ? Vector2.Zero
+                : ComputeMovementDelta(player, dt);
 
             _logger.LogInformation($"[Pos] dt={dt * 1000:F0}ms  flags={player.MovementFlags}");
 
@@ -183,10 +189,14 @@ namespace WoWSharpClient
             float currZ = player.Position.Z;
 
             /* ──────────────────────────────────────────────── 2) Height‑field query */
-            var query = _pathfindingClient.ProbeTerrain(MapId, new Position(nextX, nextY, currZ), Player.Race);
+            var query = _pathfindingClient.ProbeTerrain(
+                MapId,
+                new Position(nextX, nextY, currZ),
+                Player.Race
+            );
 
-            float locZ = query.GroundZ;   // WMO floors
-            float adtZ = query.GroundZ;        // ADT terrain
+            float locZ = query.GroundZ; // WMO floors
+            float adtZ = query.GroundZ; // ADT terrain
             float waterZ = query.LiquidZ;
 
             _logger.LogInformation($"[Pos] locZ={locZ:F2} adtZ={adtZ:F2} waterZ={waterZ:F2}");
@@ -194,8 +204,10 @@ namespace WoWSharpClient
             static bool IsValid(float z) => !float.IsNaN(z);
 
             float groundZ = float.NaN;
-            if (IsValid(locZ)) groundZ = locZ;
-            else if (IsValid(adtZ)) groundZ = adtZ;
+            if (IsValid(locZ))
+                groundZ = locZ;
+            else if (IsValid(adtZ))
+                groundZ = adtZ;
 
             bool grounded = IsValid(groundZ) && Math.Abs(currZ - groundZ) < GroundSnapThreshold;
             bool inLiquid = waterZ > groundZ && player.Position.Z < waterZ;
@@ -222,12 +234,18 @@ namespace WoWSharpClient
                 desiredZ = groundZ;
                 _verticalVelocity = 0f;
 
-                if (player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_JUMPING) ||
-                    player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLINGFAR))
+                if (
+                    player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_JUMPING)
+                    || player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLINGFAR)
+                )
                 {
-                    player.MovementFlags &= ~(MovementFlags.MOVEFLAG_JUMPING | MovementFlags.MOVEFLAG_FALLINGFAR);
+                    player.MovementFlags &= ~(
+                        MovementFlags.MOVEFLAG_JUMPING | MovementFlags.MOVEFLAG_FALLINGFAR
+                    );
                     EmitMovementPacket(Opcode.MSG_MOVE_FALL_LAND, player);
-                    _logger.LogInformation("[Pos] Landed – fall flags cleared, MSG_MOVE_FALL_LAND sent");
+                    _logger.LogInformation(
+                        "[Pos] Landed – fall flags cleared, MSG_MOVE_FALL_LAND sent"
+                    );
                 }
 
                 _fallStartMS = 0;
@@ -253,8 +271,10 @@ namespace WoWSharpClient
                     _logger.LogInformation("[Pos] Ground collision predicted – clamping Z, vel=0");
                 }
 
-                if (_verticalVelocity < -0.1f &&
-                    !player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLINGFAR))
+                if (
+                    _verticalVelocity < -0.1f
+                    && !player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLINGFAR)
+                )
                 {
                     player.MovementFlags |= MovementFlags.MOVEFLAG_FALLINGFAR;
                     _logger.LogInformation("[Pos] Falling – MOVEFLAG_FALLINGFAR set");
@@ -264,15 +284,18 @@ namespace WoWSharpClient
             /* ─────────────────────────────────────────────── 5) Commit position    */
             player.Position = new Position(nextX, nextY, desiredZ);
 
-            Heartbeat((long)_worldTimeTracker.NowMS.TotalMilliseconds,
-                      moving: move2D.LengthSquared() > 0);
+            Heartbeat(
+                (long)_worldTimeTracker.NowMS.TotalMilliseconds,
+                moving: move2D.LengthSquared() > 0
+            );
 
             EmitMovementPacketIfNeeded(player);
 
             /* ─────────────────────────────────────────────── Summary line          */
             _logger.LogInformation(
-                $"[Pos] X:{nextX:F2} Y:{nextY:F2} Z:{desiredZ:F2} vZ:{_verticalVelocity:+0.00;-0.00}  " +
-                $"groundZ:{groundZ:F2} {(grounded ? "GRD" : "AIR")} flags:{player.MovementFlags} fallT:{_fallStartMS}");
+                $"[Pos] X:{nextX:F2} Y:{nextY:F2} Z:{desiredZ:F2} vZ:{_verticalVelocity:+0.00;-0.00}  "
+                    + $"groundZ:{groundZ:F2} {(grounded ? "GRD" : "AIR")} flags:{player.MovementFlags} fallT:{_fallStartMS}"
+            );
         }
 
         /* ------------------------------------------------------------------------- */
@@ -285,8 +308,10 @@ namespace WoWSharpClient
             bool back = p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_BACKWARD);
             bool swim = p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_SWIMMING);
 
-            if (swim) return p.SwimSpeed;
-            if (walk) return p.WalkSpeed;
+            if (swim)
+                return p.SwimSpeed;
+            if (walk)
+                return p.WalkSpeed;
             return back ? p.RunBackSpeed : p.RunSpeed;
         }
 
@@ -296,12 +321,17 @@ namespace WoWSharpClient
             float cos = MathF.Cos(p.Facing);
             float sin = MathF.Sin(p.Facing);
 
-            if (p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FORWARD)) dir += new Vector2(cos, sin);
-            if (p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_BACKWARD)) dir -= new Vector2(cos, sin);
-            if (p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_STRAFE_LEFT)) dir += new Vector2(-sin, cos);
-            if (p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_STRAFE_RIGHT)) dir += new Vector2(sin, -cos);
+            if (p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FORWARD))
+                dir += new Vector2(cos, sin);
+            if (p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_BACKWARD))
+                dir -= new Vector2(cos, sin);
+            if (p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_STRAFE_LEFT))
+                dir += new Vector2(-sin, cos);
+            if (p.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_STRAFE_RIGHT))
+                dir += new Vector2(sin, -cos);
 
-            if (dir.LengthSquared() > 0) dir = Vector2.Normalize(dir);
+            if (dir.LengthSquared() > 0)
+                dir = Vector2.Normalize(dir);
             return dir * GetMoveSpeed(p) * dt;
         }
 
@@ -312,15 +342,17 @@ namespace WoWSharpClient
 
             bool positionChanged = !player.Position.Equals(_lastSentPosition);
             bool flagsChanged = player.MovementFlags != _lastMovementFlags;
-            bool timeElapsed = now - _lastSentTime >= 100;        // 100 ms min
+            bool timeElapsed = now - _lastSentTime >= 100; // 100 ms min
 
-            if (!positionChanged && !flagsChanged && !timeElapsed) return;
+            if (!positionChanged && !flagsChanged && !timeElapsed)
+                return;
 
             Opcode opcode = DetermineMovementOpcode(player.MovementFlags, _lastMovementFlags);
             var buffer = MovementPacketHandler.BuildMovementInfoBuffer(
-                                player,
-                                now,
-                                _fallStartMS == 0 ? 0 : (uint)(now - _fallStartMS));
+                player,
+                now,
+                _fallStartMS == 0 ? 0 : (uint)(now - _fallStartMS)
+            );
 
             _woWClient.SendMovementOpcode(opcode, buffer);
 
@@ -333,30 +365,40 @@ namespace WoWSharpClient
         {
             uint now = (uint)_worldTimeTracker.NowMS.TotalMilliseconds;
             var buffer = MovementPacketHandler.BuildMovementInfoBuffer(
-                            player,
-                            now,
-                            _fallStartMS == 0 ? 0 : (uint)(now - _fallStartMS));
+                player,
+                now,
+                _fallStartMS == 0 ? 0 : (uint)(now - _fallStartMS)
+            );
 
             _woWClient.SendMovementOpcode(op, buffer);
         }
 
         private void Heartbeat(long nowMS, bool moving)
         {
-            int interval = moving ? 250 : 5000;          // 250 ms while moving, 5 s idle
-            if (nowMS - _lastHeartbeat.TotalMilliseconds < interval) return;
+            int interval = moving ? 250 : 5000; // 250 ms while moving, 5 s idle
+            if (nowMS - _lastHeartbeat.TotalMilliseconds < interval)
+                return;
 
             Opcode op = moving ? Opcode.MSG_MOVE_HEARTBEAT : Opcode.MSG_MOVE_STOP;
             EmitMovementPacket(op, (WoWLocalPlayer)Player);
             _lastHeartbeat = TimeSpan.FromMilliseconds(nowMS);
         }
+
         public void SetFacing(float facing)
         {
             //if (!_isInControl || _isBeingTeleported)
             //    return;
 
             ((WoWPlayer)Player).Facing = facing;
-            _woWClient.SendMovementOpcode(Opcode.MSG_MOVE_SET_FACING, MovementPacketHandler.BuildMovementInfoBuffer((WoWLocalPlayer)Player, (uint)_worldTimeTracker.NowMS.TotalMilliseconds));
+            _woWClient.SendMovementOpcode(
+                Opcode.MSG_MOVE_SET_FACING,
+                MovementPacketHandler.BuildMovementInfoBuffer(
+                    (WoWLocalPlayer)Player,
+                    (uint)_worldTimeTracker.NowMS.TotalMilliseconds
+                )
+            );
         }
+
         public void ToggleWalkMode()
         {
             var player = (WoWLocalPlayer)Player;
@@ -378,16 +420,25 @@ namespace WoWSharpClient
 
         private void SendMovementFlagChange(WoWLocalPlayer player, Opcode opcode)
         {
-            var buffer = MovementPacketHandler.BuildMovementInfoBuffer(player, (uint)_worldTimeTracker.NowMS.TotalMilliseconds);
+            var buffer = MovementPacketHandler.BuildMovementInfoBuffer(
+                player,
+                (uint)_worldTimeTracker.NowMS.TotalMilliseconds
+            );
             _woWClient.SendMovementOpcode(opcode, buffer);
         }
 
         private static Opcode DetermineMovementOpcode(MovementFlags current, MovementFlags previous)
         {
-            if (current.HasFlag(MovementFlags.MOVEFLAG_JUMPING) && !previous.HasFlag(MovementFlags.MOVEFLAG_JUMPING))
+            if (
+                current.HasFlag(MovementFlags.MOVEFLAG_JUMPING)
+                && !previous.HasFlag(MovementFlags.MOVEFLAG_JUMPING)
+            )
                 return Opcode.MSG_MOVE_JUMP;
 
-            if (current.HasFlag(MovementFlags.MOVEFLAG_NONE) && !previous.HasFlag(MovementFlags.MOVEFLAG_NONE))
+            if (
+                current.HasFlag(MovementFlags.MOVEFLAG_NONE)
+                && !previous.HasFlag(MovementFlags.MOVEFLAG_NONE)
+            )
                 return Opcode.MSG_MOVE_STOP;
 
             if (current.HasFlag(MovementFlags.MOVEFLAG_FORWARD))
@@ -462,7 +513,10 @@ namespace WoWSharpClient
             _lastMovementFlags = newFlags;
             player.MovementFlags = newFlags;
 
-            var buffer = MovementPacketHandler.BuildMovementInfoBuffer(player, (uint)_worldTimeTracker.NowMS.TotalMilliseconds);
+            var buffer = MovementPacketHandler.BuildMovementInfoBuffer(
+                player,
+                (uint)_worldTimeTracker.NowMS.TotalMilliseconds
+            );
             Console.WriteLine($"[Movement] Start: Opcode={opcode}, Flags={newFlags}");
             _woWClient.SendMovementOpcode(opcode, buffer);
         }
@@ -472,13 +526,19 @@ namespace WoWSharpClient
             var player = (WoWLocalPlayer)Player;
 
             if (bits.HasFlag(ControlBits.Front) || bits.HasFlag(ControlBits.Back))
-                player.MovementFlags &= ~(MovementFlags.MOVEFLAG_FORWARD | MovementFlags.MOVEFLAG_BACKWARD);
+                player.MovementFlags &= ~(
+                    MovementFlags.MOVEFLAG_FORWARD | MovementFlags.MOVEFLAG_BACKWARD
+                );
 
             if (bits.HasFlag(ControlBits.StrafeLeft) || bits.HasFlag(ControlBits.StrafeRight))
-                player.MovementFlags &= ~(MovementFlags.MOVEFLAG_STRAFE_LEFT | MovementFlags.MOVEFLAG_STRAFE_RIGHT);
+                player.MovementFlags &= ~(
+                    MovementFlags.MOVEFLAG_STRAFE_LEFT | MovementFlags.MOVEFLAG_STRAFE_RIGHT
+                );
 
             if (bits.HasFlag(ControlBits.Left) || bits.HasFlag(ControlBits.Right))
-                player.MovementFlags &= ~(MovementFlags.MOVEFLAG_TURN_LEFT | MovementFlags.MOVEFLAG_TURN_RIGHT);
+                player.MovementFlags &= ~(
+                    MovementFlags.MOVEFLAG_TURN_LEFT | MovementFlags.MOVEFLAG_TURN_RIGHT
+                );
 
             if (bits.HasFlag(ControlBits.Jump))
                 player.MovementFlags &= ~MovementFlags.MOVEFLAG_JUMPING;
@@ -494,1020 +554,28 @@ namespace WoWSharpClient
             else if (bits.HasFlag(ControlBits.Left) || bits.HasFlag(ControlBits.Right))
                 opcode = Opcode.MSG_MOVE_STOP_TURN;
 
-            var buffer = MovementPacketHandler.BuildMovementInfoBuffer(player, (uint)_worldTimeTracker.NowMS.TotalMilliseconds);
+            var buffer = MovementPacketHandler.BuildMovementInfoBuffer(
+                player,
+                (uint)_worldTimeTracker.NowMS.TotalMilliseconds
+            );
             Console.WriteLine($"[Movement] Stop: Opcode={opcode}, Flags={player.MovementFlags}");
             _woWClient.SendMovementOpcode(opcode, buffer);
         }
 
-        private void EventEmitter_OnForceTimeSkipped(object? sender, RequiresAcknowledgementArgs e)
-        {
-
-        }
-
-        private void EventEmitter_OnForceMoveKnockBack(object? sender, RequiresAcknowledgementArgs e)
-        {
-            _woWClient.SendMSGPacked(Opcode.CMSG_MOVE_KNOCK_BACK_ACK, MovementPacketHandler.BuildMovementInfoBuffer((WoWLocalPlayer)Player, (uint)_worldTimeTracker.NowMS.TotalMilliseconds));
-        }
-
-        private void EventEmitter_OnForceSwimSpeedChange(object? sender, RequiresAcknowledgementArgs e)
-        {
-            _woWClient.SendMSGPacked(Opcode.CMSG_FORCE_SWIM_SPEED_CHANGE_ACK, MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, (uint)_worldTimeTracker.NowMS.TotalMilliseconds));
-        }
-
-        private void EventEmitter_OnForceRunBackSpeedChange(object? sender, RequiresAcknowledgementArgs e)
-        {
-            _woWClient.SendMSGPacked(Opcode.CMSG_FORCE_RUN_BACK_SPEED_CHANGE_ACK, MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, (uint)_worldTimeTracker.NowMS.TotalMilliseconds));
-        }
-
-        private void EventEmitter_OnForceRunSpeedChange(object? sender, RequiresAcknowledgementArgs e)
-        {
-            _woWClient.SendMSGPacked(Opcode.CMSG_FORCE_RUN_SPEED_CHANGE_ACK, MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, (uint)_worldTimeTracker.NowMS.TotalMilliseconds));
-        }
-
-        private void EventEmitter_OnForceMoveUnroot(object? sender, RequiresAcknowledgementArgs e)
-        {
-            _woWClient.SendMSGPacked(Opcode.CMSG_FORCE_MOVE_UNROOT_ACK, MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, (uint)_worldTimeTracker.NowMS.TotalMilliseconds));
-        }
-
-        private void EventEmitter_OnForceMoveRoot(object? sender, RequiresAcknowledgementArgs e)
-        {
-            _woWClient.SendMSGPacked(Opcode.CMSG_FORCE_MOVE_ROOT_ACK, MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, (uint)_worldTimeTracker.NowMS.TotalMilliseconds));
-        }
-
-        private void EventEmitter_OnLoginVerifyWorld(object? sender, WorldInfo e)
-        {
-            MapId = e.MapId;
-
-            Player.Position.X = e.PositionX;
-            Player.Position.Y = e.PositionY;
-            Player.Position.Z = e.PositionZ;
-
-            _worldTimeTracker = new WorldTimeTracker();
-            _lastPositionUpdate = _worldTimeTracker.NowMS;
-            StartGameLoop();
-
-            _woWClient.SendMoveWorldPortAcknowledge();
-            _woWClient.SendMSGPacked(Opcode.CMSG_FORCE_MOVE_ROOT_ACK, MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, 1, (uint)_worldTimeTracker.NowMS.TotalMilliseconds));
-        }
-
-        private void EventEmitter_OnCharacterListLoaded(object? sender, EventArgs e)
-        {
-            _characterSelectScreen.HasReceivedCharacterList = true;
-        }
-
-        private void EventEmitter_OnWorldSessionStart(object? sender, EventArgs e)
-        {
-            _characterSelectScreen.RefreshCharacterListFromServer();
-        }
-
-        private void EventEmitter_OnLoginFailure(object? sender, EventArgs e)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            _woWClient.Dispose();
-        }
-        private void EventEmitter_OnWorldSessionEnd(object? sender, EventArgs e)
-        {
-            HasEnteredWorld = false;
-        }
-        public bool HasEnteredWorld { get; internal set; }
-        public List<Spell> Spells { get; internal set; } = [];
-        public List<Cooldown> Cooldowns { get; internal set; } = [];
-
-        private HighGuid _playerGuid = new(new byte[4], new byte[4]);
-        public HighGuid PlayerGuid
-        {
-            get => _playerGuid;
-            set
-            {
-                _playerGuid = value;
-                Player = new WoWLocalPlayer(_playerGuid);
-            }
-        }
-
-        public IWoWLocalPlayer Player { get; set; } = new WoWLocalPlayer(new HighGuid(new byte[4], new byte[4]));
-
-        public IWoWLocalPet Pet => throw new NotImplementedException();
-
-
-        private readonly List<WoWObject> _objects = [];
-        public IEnumerable<IWoWObject> Objects => _objects;
-        public ILoginScreen LoginScreen => _loginScreen;
-        public IRealmSelectScreen RealmSelectScreen => _realmScreen;
-        public ICharacterSelectScreen CharacterSelectScreen => _characterSelectScreen;
-        public void EnterWorld(ulong characterGuid)
-        {
-            HasEnteredWorld = true;
-
-            _playerGuid = new HighGuid(characterGuid);
-            _woWClient.EnterWorld(characterGuid);
-        }
-
-        private readonly Queue<ObjectStateUpdate> _pendingUpdates = new();
-
-        public void QueueUpdate(ObjectStateUpdate update)
-        {
-            _pendingUpdates.Enqueue(update);
-        }
-        public void ProcessUpdates()
-        {
-            while (_pendingUpdates.Count > 0)
-            {
-                try
-                {
-                    var update = _pendingUpdates.Dequeue();
-                    Console.WriteLine($"[ProcessUpdates] operations={update.Operation} type={update.ObjectType} guid={update.Guid}");
-                    switch (update.Operation)
-                    {
-                        case ObjectUpdateOperation.Add:
-                            var newObject = CreateObjectFromFields(update.ObjectType, update.Guid, update.UpdatedFields);
-                            _objects.Add(newObject);
-
-                            if (update.MovementData != null && newObject is WoWUnit or WoWPlayer or WoWLocalPlayer)
-                                ApplyMovementData((WoWUnit)newObject, update.MovementData);
-
-                            if (newObject is WoWPlayer)
-                            {
-                                _woWClient.SendNameQuery(update.Guid);
-
-                                if (newObject is WoWLocalPlayer)
-                                {
-                                    _woWClient.SendSetActiveMover(PlayerGuid.FullGuid);
-
-                                    _isInControl = true;
-                                    _isBeingTeleported = false;
-                                }
-                            }
-                            break;
-
-                        case ObjectUpdateOperation.Update:
-                            var index = _objects.FindIndex(o => o.Guid == update.Guid);
-                            Console.WriteLine($"Updating Object: {update.Guid}");
-                            if (index != -1)
-                            {
-                                var obj = _objects[index];
-                                ApplyFieldDiffs(obj, update.UpdatedFields);
-
-                                if (update.MovementData != null && obj is WoWUnit or WoWPlayer or WoWLocalPlayer)
-                                    ApplyMovementData((WoWUnit)obj, update.MovementData);
-
-                                if (obj is WoWLocalPlayer)
-                                    Console.WriteLine("Potential teleport from server.");
-                            }
-                            break;
-
-                        case ObjectUpdateOperation.Remove:
-                            _objects.RemoveAll(x => x.Guid == update.Guid);
-                            break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[ProcessUpdates] {ex}");
-                }
-            }
-        }
-
-        private static void ApplyFieldDiffs(WoWObject obj, Dictionary<uint, object?> updatedFields)
-        {
-            foreach (var (key, value) in updatedFields)
-            {
-                if (value == null) continue;
-
-                if (Enum.IsDefined(typeof(EObjectFields), key))
-                {
-                    var field = (EObjectFields)key;
-                    switch (field)
-                    {
-                        case EObjectFields.OBJECT_FIELD_GUID:
-                            obj.HighGuid.LowGuidValue = (byte[])value;
-                            break;
-                        case EObjectFields.OBJECT_FIELD_GUID + 1:
-                            obj.HighGuid.HighGuidValue = (byte[])value;
-                            break;
-                        case EObjectFields.OBJECT_FIELD_TYPE:
-
-                            break;
-                        case EObjectFields.OBJECT_FIELD_ENTRY:
-                            obj.Entry = (uint)value;
-                            break;
-                        case EObjectFields.OBJECT_FIELD_SCALE_X:
-                            obj.ScaleX = (float)value;
-                            break;
-                    }
-                }
-                else if (obj is WoWItem item)
-                {
-                    if (Enum.IsDefined(typeof(EItemFields), key))
-                    {
-                        var field = (EItemFields)key;
-                        switch (field)
-                        {
-                            case EItemFields.ITEM_FIELD_OWNER:
-                                item.Owner.LowGuidValue = (byte[])value;
-                                break;
-                            case EItemFields.ITEM_FIELD_OWNER + 1:
-                                item.Owner.HighGuidValue = (byte[])value;
-                                break;
-                            case EItemFields.ITEM_FIELD_CONTAINED:
-                                item.Contained.LowGuidValue = (byte[])value;
-                                break;
-                            case EItemFields.ITEM_FIELD_CONTAINED + 1:
-                                item.Contained.HighGuidValue = (byte[])value;
-                                break;
-                            case EItemFields.ITEM_FIELD_CREATOR:
-                                item.CreatedBy.LowGuidValue = (byte[])value;
-                                break;
-                            case EItemFields.ITEM_FIELD_CREATOR + 1:
-                                item.CreatedBy.HighGuidValue = (byte[])value;
-                                break;
-                            case EItemFields.ITEM_FIELD_GIFTCREATOR:
-                                item.GiftCreator.LowGuidValue = (byte[])value;
-                                break;
-                            case EItemFields.ITEM_FIELD_GIFTCREATOR + 1:
-                                item.GiftCreator.HighGuidValue = (byte[])value;
-                                break;
-                            case EItemFields.ITEM_FIELD_STACK_COUNT:
-                                item.StackCount = (uint)value;
-                                break;
-                            case EItemFields.ITEM_FIELD_DURATION:
-                                item.Duration = (uint)value;
-                                break;
-                            case EItemFields.ITEM_FIELD_SPELL_CHARGES:
-                                item.SpellCharges[0] = (uint)value;
-                                break;
-                            case EItemFields.ITEM_FIELD_SPELL_CHARGES_01:
-                                item.SpellCharges[1] = (uint)value;
-                                break;
-                            case EItemFields.ITEM_FIELD_SPELL_CHARGES_02:
-                                item.SpellCharges[2] = (uint)value;
-                                break;
-                            case EItemFields.ITEM_FIELD_SPELL_CHARGES_03:
-                                item.SpellCharges[3] = (uint)value;
-                                break;
-                            case EItemFields.ITEM_FIELD_SPELL_CHARGES_04:
-                                item.SpellCharges[4] = (uint)value;
-                                break;
-                            case EItemFields.ITEM_FIELD_FLAGS:
-                                item.ItemDynamicFlags = (ItemDynFlags)value;
-                                break;
-                            case EItemFields.ITEM_FIELD_ENCHANTMENT:
-                                item.Enchantments[0] = (uint)value;
-                                break;
-                            case EItemFields.ITEM_FIELD_PROPERTY_SEED:
-                                item.PropertySeed = (uint)value;
-                                break;
-                            case EItemFields.ITEM_FIELD_RANDOM_PROPERTIES_ID:
-                                item.PropertySeed = (uint)value;
-                                break;
-                            case EItemFields.ITEM_FIELD_ITEM_TEXT_ID:
-                                item.ItemTextId = (uint)value;
-                                break;
-                            case EItemFields.ITEM_FIELD_DURABILITY:
-                                item.Durability = (uint)value;
-                                break;
-                            case EItemFields.ITEM_FIELD_MAXDURABILITY:
-                                item.MaxDurability = (uint)value;
-                                break;
-                            case EItemFields.ITEM_END:
-                                break;
-                        }
-                    }
-                }
-                else if (obj is WoWContainer container)
-                {
-                    if (Enum.IsDefined(typeof(EContainerFields), key))
-                    {
-                        var field = (EContainerFields)key;
-                        switch (field)
-                        {
-                            case EContainerFields.CONTAINER_FIELD_NUM_SLOTS:
-                                container.NumOfSlots = (int)value;
-                                break;
-                            case EContainerFields.CONTAINER_ALIGN_PAD:
-                                break;
-                            case EContainerFields.CONTAINER_FIELD_SLOT_1:
-                                break;
-                            case EContainerFields.CONTAINER_FIELD_SLOT_LAST:
-                                break;
-                            case EContainerFields.CONTAINER_END:
-                                break;
-                        }
-                    }
-                }
-                else if (obj is WoWGameObject go)
-                {
-                    if (Enum.IsDefined(typeof(EGameObjectFields), key))
-                    {
-                        var field = (EGameObjectFields)key;
-                        switch (field)
-                        {
-                            case EGameObjectFields.OBJECT_FIELD_CREATED_BY:
-                                go.CreatedBy.LowGuidValue = (byte[])value;
-                                break;
-                            case EGameObjectFields.OBJECT_FIELD_CREATED_BY + 1:
-                                go.CreatedBy.HighGuidValue = (byte[])value;
-                                break;
-                            case EGameObjectFields.GAMEOBJECT_DISPLAYID:
-                                go.DisplayId = (uint)value;
-                                break;
-                            case EGameObjectFields.GAMEOBJECT_FLAGS:
-                                go.Flags = (uint)value;
-                                break;
-                            case >= EGameObjectFields.GAMEOBJECT_ROTATION and < EGameObjectFields.GAMEOBJECT_STATE:
-                                go.Rotation[key - (uint)EGameObjectFields.GAMEOBJECT_ROTATION] = (float)value;
-                                break;
-                            case EGameObjectFields.GAMEOBJECT_STATE:
-                                go.GoState = (GOState)value;
-                                break;
-                            case EGameObjectFields.GAMEOBJECT_POS_X:
-                                go.Position.X = (float)value;
-                                break;
-                            case EGameObjectFields.GAMEOBJECT_POS_Y:
-                                go.Position.Y = (float)value;
-                                break;
-                            case EGameObjectFields.GAMEOBJECT_POS_Z:
-                                go.Position.Z = (float)value;
-                                break;
-                            case EGameObjectFields.GAMEOBJECT_FACING:
-                                go.Facing = (float)value;
-                                break;
-                            case EGameObjectFields.GAMEOBJECT_DYN_FLAGS:
-                                go.DynamicFlags = (DynamicFlags)value;
-                                break;
-                            case EGameObjectFields.GAMEOBJECT_FACTION:
-                                go.FactionTemplate = (uint)value;
-                                break;
-                            case EGameObjectFields.GAMEOBJECT_TYPE_ID:
-                                go.TypeId = (uint)value;
-                                break;
-                            case EGameObjectFields.GAMEOBJECT_LEVEL:
-                                go.Level = (uint)value;
-                                break;
-                            case EGameObjectFields.GAMEOBJECT_ARTKIT:
-                                go.ArtKit = (uint)value;
-                                break;
-                            case EGameObjectFields.GAMEOBJECT_ANIMPROGRESS:
-                                go.AnimProgress = (uint)value;
-                                break;
-                        }
-                    }
-                }
-                else if (obj is WoWDynamicObject dyn)
-                {
-                    if (Enum.IsDefined(typeof(EDynamicObjectFields), key))
-                    {
-                        var field = (EDynamicObjectFields)key;
-                        switch (field)
-                        {
-                            case EDynamicObjectFields.DYNAMICOBJECT_CASTER:
-                                dyn.Caster.LowGuidValue = (byte[])value;
-                                break;
-                            case EDynamicObjectFields.DYNAMICOBJECT_CASTER + 1:
-                                dyn.Caster.HighGuidValue = (byte[])value;
-                                break;
-                            case EDynamicObjectFields.DYNAMICOBJECT_BYTES:
-                                dyn.Bytes = (byte[])value;
-                                break;
-                            case EDynamicObjectFields.DYNAMICOBJECT_SPELLID:
-                                dyn.SpellId = (uint)value;
-                                break;
-                            case EDynamicObjectFields.DYNAMICOBJECT_RADIUS:
-                                dyn.Radius = (float)value;
-                                break;
-                            case EDynamicObjectFields.DYNAMICOBJECT_POS_X:
-                                dyn.Position.X = (float)value;
-                                break;
-                            case EDynamicObjectFields.DYNAMICOBJECT_POS_Y:
-                                dyn.Position.Y = (float)value;
-                                break;
-                            case EDynamicObjectFields.DYNAMICOBJECT_POS_Z:
-                                dyn.Position.Z = (float)value;
-                                break;
-                            case EDynamicObjectFields.DYNAMICOBJECT_FACING:
-                                dyn.Facing = (float)value;
-                                break;
-                                // DYNAMICOBJECT_PAD is skipped
-                        }
-                    }
-                }
-                else if (obj is WoWCorpse corpse)
-                {
-                    if (Enum.IsDefined(typeof(ECorpseFields), key))
-                    {
-                        var field = (ECorpseFields)key;
-                        switch (field)
-                        {
-                            case ECorpseFields.CORPSE_FIELD_OWNER:
-                                corpse.OwnerGuid.LowGuidValue = (byte[])value;
-                                break;
-                            case ECorpseFields.CORPSE_FIELD_OWNER + 1:
-                                corpse.OwnerGuid.HighGuidValue = (byte[])value;
-                                break;
-                            case ECorpseFields.CORPSE_FIELD_FACING:
-                                corpse.Facing = (float)value;
-                                break;
-                            case ECorpseFields.CORPSE_FIELD_POS_X:
-                                corpse.Position.X = (float)value;
-                                break;
-                            case ECorpseFields.CORPSE_FIELD_POS_Y:
-                                corpse.Position.Y = (float)value;
-                                break;
-                            case ECorpseFields.CORPSE_FIELD_POS_Z:
-                                corpse.Position.Z = (float)value;
-                                break;
-                            case ECorpseFields.CORPSE_FIELD_DISPLAY_ID:
-                                corpse.DisplayId = (uint)value;
-                                break;
-                            case >= ECorpseFields.CORPSE_FIELD_ITEM and < ECorpseFields.CORPSE_FIELD_BYTES_1:
-                                corpse.Items[key - (uint)ECorpseFields.CORPSE_FIELD_ITEM] = (uint)value;
-                                break;
-                            case ECorpseFields.CORPSE_FIELD_BYTES_1:
-                                corpse.Bytes1 = (byte[])value;
-                                break;
-                            case ECorpseFields.CORPSE_FIELD_BYTES_2:
-                                corpse.Bytes2 = (byte[])value;
-                                break;
-                            case ECorpseFields.CORPSE_FIELD_GUILD:
-                                corpse.Guild = (uint)value;
-                                break;
-                            case ECorpseFields.CORPSE_FIELD_FLAGS:
-                                corpse.CorpseFlags = (CorpseFlags)value;
-                                break;
-                            case ECorpseFields.CORPSE_FIELD_DYNAMIC_FLAGS:
-                                corpse.DynamicFlags = (DynamicFlags)value;
-                                break;
-                        }
-                    }
-                }
-                else if (obj is WoWUnit unit)
-                {
-                    if (Enum.IsDefined(typeof(EUnitFields), key))
-                    {
-                        var field = (EUnitFields)key;
-                        switch (field)
-                        {
-                            case EUnitFields.UNIT_FIELD_CHARM:
-                                unit.Charm.LowGuidValue = (byte[])value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_CHARM + 1:
-                                unit.Charm.HighGuidValue = (byte[])value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_SUMMON:
-                                unit.Summon.LowGuidValue = (byte[])value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_SUMMON + 1:
-                                unit.Summon.HighGuidValue = (byte[])value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_CHARMEDBY:
-                                unit.CharmedBy.LowGuidValue = (byte[])value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_CHARMEDBY + 1:
-                                unit.CharmedBy.HighGuidValue = (byte[])value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_SUMMONEDBY:
-                                unit.SummonedBy.LowGuidValue = (byte[])value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_SUMMONEDBY + 1:
-                                unit.SummonedBy.HighGuidValue = (byte[])value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_CREATEDBY:
-                                unit.CreatedBy.LowGuidValue = (byte[])value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_CREATEDBY + 1:
-                                unit.CreatedBy.HighGuidValue = (byte[])value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_TARGET:
-                                unit.TargetHighGuid.LowGuidValue = (byte[])value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_TARGET + 1:
-                                unit.TargetHighGuid.HighGuidValue = (byte[])value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_PERSUADED:
-                                unit.Persuaded.LowGuidValue = (byte[])value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_PERSUADED + 1:
-                                unit.Persuaded.HighGuidValue = (byte[])value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_CHANNEL_OBJECT:
-                                unit.ChannelObject.LowGuidValue = (byte[])value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_CHANNEL_OBJECT + 1:
-                                unit.ChannelObject.HighGuidValue = (byte[])value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_HEALTH:
-                                unit.Health = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_POWER1:
-                                unit.Powers[Powers.MANA] = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_POWER2:
-                                unit.Powers[Powers.RAGE] = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_POWER3:
-                                unit.Powers[Powers.FOCUS] = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_POWER4:
-                                unit.Powers[Powers.ENERGY] = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_POWER5:
-                                unit.Powers[Powers.HAPPINESS] = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_MAXHEALTH:
-                                unit.MaxHealth = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_MAXPOWER1:
-                                unit.MaxPowers[Powers.MANA] = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_MAXPOWER2:
-                                unit.MaxPowers[Powers.RAGE] = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_MAXPOWER3:
-                                unit.MaxPowers[Powers.FOCUS] = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_MAXPOWER4:
-                                unit.MaxPowers[Powers.ENERGY] = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_MAXPOWER5:
-                                unit.MaxPowers[Powers.HAPPINESS] = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_LEVEL:
-                                unit.Level = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_FACTIONTEMPLATE:
-                                unit.FactionTemplate = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_BYTES_0:
-                                byte[] value1 = (byte[])value;
-
-                                unit.Bytes0[0] = value1[0];
-                                unit.Bytes0[1] = value1[1];
-                                unit.Bytes0[2] = value1[2];
-                                unit.Bytes0[3] = value1[3];
-                                break;
-                            case >= EUnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY and <= EUnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY_02:
-                                unit.VirtualItemSlotDisplay[field - EUnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY] = (uint)value;
-                                break;
-                            case >= EUnitFields.UNIT_VIRTUAL_ITEM_INFO and <= EUnitFields.UNIT_VIRTUAL_ITEM_INFO_05:
-                                unit.VirtualItemInfo[field - EUnitFields.UNIT_VIRTUAL_ITEM_INFO] = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_FLAGS:
-                                unit.UnitFlags = (UnitFlags)value;
-                                break;
-                            case >= EUnitFields.UNIT_FIELD_AURA and <= EUnitFields.UNIT_FIELD_AURA_LAST:
-                                unit.AuraFields[field - EUnitFields.UNIT_FIELD_AURA] = (uint)value;
-                                break;
-                            case >= EUnitFields.UNIT_FIELD_AURAFLAGS and <= EUnitFields.UNIT_FIELD_AURAFLAGS_05:
-                                unit.AuraFlags[field - EUnitFields.UNIT_FIELD_AURAFLAGS] = (uint)value;
-                                break;
-                            case >= EUnitFields.UNIT_FIELD_AURALEVELS and <= EUnitFields.UNIT_FIELD_AURALEVELS_LAST:
-                                unit.AuraLevels[field - EUnitFields.UNIT_FIELD_AURALEVELS] = (uint)value;
-                                break;
-                            case >= EUnitFields.UNIT_FIELD_AURAAPPLICATIONS and <= EUnitFields.UNIT_FIELD_AURAAPPLICATIONS_LAST:
-                                unit.AuraApplications[field - EUnitFields.UNIT_FIELD_AURAAPPLICATIONS] = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_AURASTATE:
-                                unit.AuraState = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_BASEATTACKTIME:
-                                unit.BaseAttackTime = (float)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_OFFHANDATTACKTIME:
-                                unit.OffhandAttackTime = (float)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_RANGEDATTACKTIME:
-                                unit.OffhandAttackTime1 = (float)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_BOUNDINGRADIUS:
-                                unit.BoundingRadius = (float)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_COMBATREACH:
-                                unit.CombatReach = (float)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_DISPLAYID:
-                                unit.DisplayId = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_NATIVEDISPLAYID:
-                                unit.NativeDisplayId = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_MINDAMAGE:
-                                unit.MinDamage = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_MAXDAMAGE:
-                                unit.MaxDamage = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_MINOFFHANDDAMAGE:
-                                unit.MinOffhandDamage = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_MAXOFFHANDDAMAGE:
-                                unit.MaxOffhandDamage = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_BYTES_1:
-                                byte[] value2 = (byte[])value;
-
-                                unit.Bytes1[0] = value2[0];
-                                unit.Bytes1[1] = value2[1];
-                                unit.Bytes1[2] = value2[2];
-                                unit.Bytes1[3] = value2[3];
-                                break;
-                            case EUnitFields.UNIT_FIELD_PETNUMBER:
-                                unit.PetNumber = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP:
-                                unit.PetNameTimestamp = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_PETEXPERIENCE:
-                                unit.PetExperience = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_PETNEXTLEVELEXP:
-                                unit.PetNextLevelExperience = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_DYNAMIC_FLAGS:
-                                unit.DynamicFlags = (DynamicFlags)value;
-                                break;
-                            case EUnitFields.UNIT_CHANNEL_SPELL:
-                                unit.ChannelingId = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_MOD_CAST_SPEED:
-                                unit.ModCastSpeed = (float)value;
-                                break;
-                            case EUnitFields.UNIT_CREATED_BY_SPELL:
-                                unit.CreatedBySpell = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_NPC_FLAGS:
-                                unit.NpcFlags = (NPCFlags)value;
-                                break;
-                            case EUnitFields.UNIT_NPC_EMOTESTATE:
-                                unit.NpcEmoteState = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_TRAINING_POINTS:
-                                unit.TrainingPoints = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_STAT0:
-                                unit.Strength = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_STAT1:
-                                unit.Agility = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_STAT2:
-                                unit.Stamina = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_STAT3:
-                                unit.Intellect = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_STAT4:
-                                unit.Spirit = (uint)value;
-                                break;
-                            case >= EUnitFields.UNIT_FIELD_RESISTANCES and <= EUnitFields.UNIT_FIELD_RESISTANCES_06:
-                                unit.Resistances[field - EUnitFields.UNIT_FIELD_RESISTANCES] = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_BASE_MANA:
-                                unit.BaseMana = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_BASE_HEALTH:
-                                unit.BaseHealth = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_BYTES_2:
-                                byte[] value3 = (byte[])value;
-
-                                unit.Bytes2[0] = value3[0];
-                                unit.Bytes2[1] = value3[1];
-                                unit.Bytes2[2] = value3[2];
-                                unit.Bytes2[3] = value3[3];
-                                break;
-                            case EUnitFields.UNIT_FIELD_ATTACK_POWER:
-                                unit.AttackPower = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_ATTACK_POWER_MODS:
-                                unit.AttackPowerMods = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_ATTACK_POWER_MULTIPLIER:
-                                unit.AttackPowerMultipler = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_RANGED_ATTACK_POWER:
-                                unit.RangedAttackPower = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_RANGED_ATTACK_POWER_MODS:
-                                unit.RangedAttackPowerMods = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER:
-                                unit.RangedAttackPowerMultipler = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_MINRANGEDDAMAGE:
-                                unit.MinRangedDamage = (uint)value;
-                                break;
-                            case EUnitFields.UNIT_FIELD_MAXRANGEDDAMAGE:
-                                unit.MaxRangedDamage = (uint)value;
-                                break;
-                            case >= EUnitFields.UNIT_FIELD_POWER_COST_MODIFIER and <= EUnitFields.UNIT_FIELD_POWER_COST_MODIFIER_06:
-                                unit.PowerCostModifers[field - EUnitFields.UNIT_FIELD_POWER_COST_MODIFIER] = (uint)value;
-                                break;
-                            case >= EUnitFields.UNIT_FIELD_POWER_COST_MULTIPLIER and <= EUnitFields.UNIT_FIELD_POWER_COST_MULTIPLIER_06:
-                                unit.PowerCostMultipliers[field - EUnitFields.UNIT_FIELD_POWER_COST_MULTIPLIER] = (uint)value;
-                                break;
-
-                            case EUnitFields.PLAYER_FLAGS:
-                                ((WoWPlayer)unit).PlayerFlags = (PlayerFlags)value;
-                                break;
-                            case EUnitFields.PLAYER_GUILDID:
-                                ((WoWPlayer)unit).GuildId = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_GUILDRANK:
-                                ((WoWPlayer)unit).GuildRank = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_BYTES:
-                                ((WoWPlayer)unit).PlayerBytes = (byte[])value;
-                                break;
-                            case EUnitFields.PLAYER_BYTES_2:
-                                ((WoWPlayer)unit).PlayerBytes2 = (byte[])value;
-                                break;
-                            case EUnitFields.PLAYER_BYTES_3:
-                                ((WoWPlayer)unit).PlayerBytes3 = (byte[])value;
-                                break;
-                            case EUnitFields.PLAYER_DUEL_TEAM:
-                                ((WoWPlayer)unit).GuildTimestamp = (uint)value;
-                                break;
-                            case >= EUnitFields.PLAYER_QUEST_LOG_1_1 and <= EUnitFields.PLAYER_QUEST_LOG_LAST_3:
-                                {
-                                    uint questField = (field - EUnitFields.PLAYER_QUEST_LOG_1_1) % 3;
-                                    int questIndex = (int)((field - EUnitFields.PLAYER_QUEST_LOG_1_1) / 3);
-                                    switch (questField)
-                                    {
-                                        case 0:
-                                            ((WoWPlayer)unit).QuestLog[questIndex].QuestId = (uint)value;
-                                            break;
-                                        case 1:
-                                            ((WoWPlayer)unit).QuestLog[questIndex].QuestCounters = (byte[])value;
-                                            break;
-                                        case 2:
-                                            ((WoWPlayer)unit).QuestLog[questIndex].QuestState = (uint)value;
-                                            break;
-                                    }
-                                }
-                                break;
-                            case >= EUnitFields.PLAYER_VISIBLE_ITEM_1_CREATOR and < EUnitFields.PLAYER_VISIBLE_ITEM_LAST_PAD:
-                                {
-                                    uint visibleItemField = (field - EUnitFields.PLAYER_VISIBLE_ITEM_1_CREATOR) % 12;
-                                    int itemIndex = (int)((field - EUnitFields.PLAYER_VISIBLE_ITEM_1_CREATOR) / 12);
-                                    var visibleItem = ((WoWPlayer)unit).VisibleItems[itemIndex];
-                                    switch (visibleItemField)
-                                    {
-                                        case 0:
-                                            visibleItem.CreatedBy.LowGuidValue = (byte[])value;
-                                            break;
-                                        case 1:
-                                            visibleItem.CreatedBy.HighGuidValue = (byte[])value;
-                                            break;
-                                        case 2:
-                                            ((WoWItem)visibleItem).ItemId = (uint)value;
-                                            break;
-                                        case 3:
-                                            visibleItem.Owner.LowGuidValue = (byte[])value;
-                                            break;
-                                        case 4:
-                                            visibleItem.Owner.HighGuidValue = (byte[])value;
-                                            break;
-                                        case 5:
-                                            visibleItem.Contained.LowGuidValue = (byte[])value;
-                                            break;
-                                        case 6:
-                                            visibleItem.Contained.HighGuidValue = (byte[])value;
-                                            break;
-                                        case 7:
-                                            visibleItem.GiftCreator.LowGuidValue = (byte[])value;
-                                            break;
-                                        case 8:
-                                            visibleItem.GiftCreator.HighGuidValue = (byte[])value;
-                                            break;
-                                        case 9:
-                                            ((WoWItem)visibleItem).StackCount = (uint)value;
-                                            break;
-                                        case 10:
-                                            ((WoWItem)visibleItem).Durability = (uint)value;
-                                            break;
-                                        case 11:
-                                            ((WoWItem)visibleItem).PropertySeed = (uint)value;
-                                            break;
-                                    }
-                                }
-                                break;
-                            case >= EUnitFields.PLAYER_FIELD_INV_SLOT_HEAD and < EUnitFields.PLAYER_FIELD_PACK_SLOT_1:
-                                ((WoWPlayer)unit).Inventory[field - EUnitFields.PLAYER_FIELD_INV_SLOT_HEAD] = (uint)value;
-                                break;
-                            case >= EUnitFields.PLAYER_FIELD_PACK_SLOT_1 and <= EUnitFields.PLAYER_FIELD_PACK_SLOT_LAST:
-                                ((WoWPlayer)unit).PackSlots[field - EUnitFields.PLAYER_FIELD_PACK_SLOT_1] = (uint)value;
-                                break;
-                            case >= EUnitFields.PLAYER_FIELD_BANK_SLOT_1 and <= EUnitFields.PLAYER_FIELD_BANK_SLOT_LAST:
-                                ((WoWPlayer)unit).BankSlots[field - EUnitFields.PLAYER_FIELD_BANK_SLOT_1] = (uint)value;
-                                break;
-                            case >= EUnitFields.PLAYER_FIELD_BANKBAG_SLOT_1 and <= EUnitFields.PLAYER_FIELD_BANKBAG_SLOT_LAST:
-                                ((WoWPlayer)unit).BankBagSlots[field - EUnitFields.PLAYER_FIELD_BANKBAG_SLOT_1] = (uint)value;
-                                break;
-                            case >= EUnitFields.PLAYER_FIELD_VENDORBUYBACK_SLOT_1 and <= EUnitFields.PLAYER_FIELD_VENDORBUYBACK_SLOT_LAST:
-                                ((WoWPlayer)unit).VendorBuybackSlots[field - EUnitFields.PLAYER_FIELD_VENDORBUYBACK_SLOT_1] = (uint)value;
-                                break;
-                            case >= EUnitFields.PLAYER_FIELD_KEYRING_SLOT_1 and <= EUnitFields.PLAYER_FIELD_KEYRING_SLOT_LAST:
-                                ((WoWPlayer)unit).KeyringSlots[field - EUnitFields.PLAYER_FIELD_KEYRING_SLOT_1] = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_FARSIGHT:
-                                ((WoWPlayer)unit).Farsight = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_FIELD_COMBO_TARGET:
-                                ((WoWPlayer)unit).ComboTarget.LowGuidValue = (byte[])value;
-                                break;
-                            case EUnitFields.PLAYER_FIELD_COMBO_TARGET + 1:
-                                ((WoWPlayer)unit).ComboTarget.HighGuidValue = (byte[])value;
-                                break;
-                            case EUnitFields.PLAYER_XP:
-                                ((WoWPlayer)unit).XP = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_NEXT_LEVEL_XP:
-                                ((WoWPlayer)unit).NextLevelXP = (uint)value;
-                                break;
-                            case >= EUnitFields.PLAYER_SKILL_INFO_1_1 and <= EUnitFields.PLAYER_SKILL_INFO_1_1 + 383:
-                                {
-                                    uint skillField = (field - EUnitFields.PLAYER_SKILL_INFO_1_1) % 4;
-                                    int skillIndex = (int)((field - EUnitFields.PLAYER_SKILL_INFO_1_1) / 4);
-                                    switch (skillField)
-                                    {
-                                        case 0:
-                                            ((WoWPlayer)unit).SkillInfo[skillIndex].SkillInt1 = (uint)value;
-                                            break;
-                                        case 1:
-                                            ((WoWPlayer)unit).SkillInfo[skillIndex].SkillInt2 = (uint)value;
-                                            break;
-                                        case 2:
-                                            ((WoWPlayer)unit).SkillInfo[skillIndex].SkillInt3 = (uint)value;
-                                            break;
-                                        case 3:
-                                            ((WoWPlayer)unit).SkillInfo[skillIndex].SkillInt4 = (uint)value;
-                                            break;
-                                    }
-                                }
-                                break;
-                            case EUnitFields.PLAYER_CHARACTER_POINTS1:
-                                ((WoWPlayer)unit).CharacterPoints1 = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_CHARACTER_POINTS2:
-                                ((WoWPlayer)unit).CharacterPoints2 = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_TRACK_CREATURES:
-                                ((WoWPlayer)unit).TrackCreatures = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_TRACK_RESOURCES:
-                                ((WoWPlayer)unit).TrackResources = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_BLOCK_PERCENTAGE:
-                                ((WoWPlayer)unit).BlockPercentage = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_DODGE_PERCENTAGE:
-                                ((WoWPlayer)unit).DodgePercentage = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_PARRY_PERCENTAGE:
-                                ((WoWPlayer)unit).ParryPercentage = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_CRIT_PERCENTAGE:
-                                ((WoWPlayer)unit).CritPercentage = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_RANGED_CRIT_PERCENTAGE:
-                                ((WoWPlayer)unit).RangedCritPercentage = (uint)value;
-                                break;
-                            case >= EUnitFields.PLAYER_EXPLORED_ZONES_1 and < EUnitFields.PLAYER_REST_STATE_EXPERIENCE:
-                                ((WoWPlayer)unit).ExploredZones[field - EUnitFields.PLAYER_EXPLORED_ZONES_1] = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_REST_STATE_EXPERIENCE:
-                                ((WoWPlayer)unit).RestStateExperience = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_FIELD_COINAGE:
-                                ((WoWPlayer)unit).Coinage = (uint)value;
-                                break;
-                            case >= EUnitFields.PLAYER_FIELD_POSSTAT0 and <= EUnitFields.PLAYER_FIELD_POSSTAT4:
-                                ((WoWPlayer)unit).StatBonusesPos[field - EUnitFields.PLAYER_FIELD_POSSTAT0] = (uint)value;
-                                break;
-                            case >= EUnitFields.PLAYER_FIELD_NEGSTAT0 and <= EUnitFields.PLAYER_FIELD_NEGSTAT4:
-                                ((WoWPlayer)unit).StatBonusesNeg[field - EUnitFields.PLAYER_FIELD_NEGSTAT0] = (uint)value;
-                                break;
-                            case >= EUnitFields.PLAYER_FIELD_RESISTANCEBUFFMODSPOSITIVE and <= EUnitFields.PLAYER_FIELD_RESISTANCEBUFFMODSNEGATIVE + 6:
-                                if (field <= EUnitFields.PLAYER_FIELD_RESISTANCEBUFFMODSNEGATIVE)
-                                    ((WoWPlayer)unit).ResistBonusesPos[field - EUnitFields.PLAYER_FIELD_RESISTANCEBUFFMODSPOSITIVE] = (uint)value;
-                                else
-                                    ((WoWPlayer)unit).ResistBonusesNeg[field - EUnitFields.PLAYER_FIELD_RESISTANCEBUFFMODSNEGATIVE] = (uint)value;
-                                break;
-                            case >= EUnitFields.PLAYER_FIELD_MOD_DAMAGE_DONE_POS and <= EUnitFields.PLAYER_FIELD_MOD_DAMAGE_DONE_POS + 6:
-                                ((WoWPlayer)unit).ModDamageDonePos[field - EUnitFields.PLAYER_FIELD_MOD_DAMAGE_DONE_POS] = (uint)value;
-                                break;
-                            case >= EUnitFields.PLAYER_FIELD_MOD_DAMAGE_DONE_NEG and <= EUnitFields.PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + 6:
-                                ((WoWPlayer)unit).ModDamageDoneNeg[field - EUnitFields.PLAYER_FIELD_MOD_DAMAGE_DONE_NEG] = (uint)value;
-                                break;
-                            case >= EUnitFields.PLAYER_FIELD_MOD_DAMAGE_DONE_PCT and <= EUnitFields.PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + 6:
-                                ((WoWPlayer)unit).ModDamageDonePct[field - EUnitFields.PLAYER_FIELD_MOD_DAMAGE_DONE_PCT] = (float)value;
-                                break;
-                            case EUnitFields.PLAYER_AMMO_ID:
-                                ((WoWPlayer)unit).AmmoId = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_SELF_RES_SPELL:
-                                ((WoWPlayer)unit).SelfResSpell = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_FIELD_PVP_MEDALS:
-                                ((WoWPlayer)unit).PvpMedals = (uint)value;
-                                break;
-                            case >= EUnitFields.PLAYER_FIELD_BUYBACK_PRICE_1 and <= EUnitFields.PLAYER_FIELD_BUYBACK_PRICE_LAST:
-                                ((WoWPlayer)unit).BuybackPrices[field - EUnitFields.PLAYER_FIELD_BUYBACK_PRICE_1] = (uint)value;
-                                break;
-                            case >= EUnitFields.PLAYER_FIELD_BUYBACK_TIMESTAMP_1 and <= EUnitFields.PLAYER_FIELD_BUYBACK_TIMESTAMP_LAST:
-                                ((WoWPlayer)unit).BuybackTimestamps[field - EUnitFields.PLAYER_FIELD_BUYBACK_TIMESTAMP_1] = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_FIELD_SESSION_KILLS:
-                                ((WoWPlayer)unit).SessionKills = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_FIELD_YESTERDAY_KILLS:
-                                ((WoWPlayer)unit).YesterdayKills = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_FIELD_LAST_WEEK_KILLS:
-                                ((WoWPlayer)unit).LastWeekKills = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_FIELD_THIS_WEEK_KILLS:
-                                ((WoWPlayer)unit).ThisWeekKills = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_FIELD_THIS_WEEK_CONTRIBUTION:
-                                ((WoWPlayer)unit).ThisWeekContribution = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_FIELD_LIFETIME_HONORABLE_KILLS:
-                                ((WoWPlayer)unit).LifetimeHonorableKills = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_FIELD_LIFETIME_DISHONORABLE_KILLS:
-                                ((WoWPlayer)unit).LifetimeDishonorableKills = (uint)value;
-                                break;
-                            case EUnitFields.PLAYER_FIELD_BYTES2:
-                                ((WoWPlayer)unit).FieldBytes2 = (byte[])value;
-                                break;
-                            case EUnitFields.PLAYER_FIELD_WATCHED_FACTION_INDEX:
-                                ((WoWPlayer)unit).WatchedFactionIndex = (uint)value;
-                                break;
-                            case >= EUnitFields.PLAYER_FIELD_COMBAT_RATING_1 and <= EUnitFields.PLAYER_FIELD_COMBAT_RATING_1 + 20:
-                                ((WoWPlayer)unit).CombatRating[field - EUnitFields.PLAYER_FIELD_COMBAT_RATING_1] = (uint)value;
-                                break;
-                        }
-                    }
-                }
-
-
-            }
-        }
-
-        private static void ApplyMovementData(WoWUnit unit, MovementInfoUpdate data)
-        {
-            unit.MovementFlags = data.MovementFlags;
-            unit.LastUpdated = data.LastUpdated;
-            unit.Position.X = data.X;
-            unit.Position.Y = data.Y;
-            unit.Position.Z = data.Z;
-            unit.Facing = data.Facing;
-            unit.TransportGuid = data.TransportGuid ?? 0;
-            unit.TransportOffset = data.TransportOffset ?? unit.TransportOffset;
-            unit.TransportOrientation = data.TransportOrientation ?? 0f;
-            unit.TransportLastUpdated = data.TransportLastUpdated ?? 0;
-            unit.SwimPitch = data.SwimPitch ?? 0f;
-            unit.FallTime = data.FallTime;
-            unit.JumpVerticalSpeed = data.JumpVerticalSpeed ?? 0f;
-            unit.JumpSinAngle = data.JumpSinAngle ?? 0f;
-            unit.JumpCosAngle = data.JumpCosAngle ?? 0f;
-            unit.JumpHorizontalSpeed = data.JumpHorizontalSpeed ?? 0f;
-            unit.SplineElevation = data.SplineElevation ?? 0f;
-
-            if (data.MovementBlockUpdate != null)
-            {
-                unit.WalkSpeed = data.MovementBlockUpdate.WalkSpeed;
-                unit.RunSpeed = data.MovementBlockUpdate.RunSpeed;
-                unit.RunBackSpeed = data.MovementBlockUpdate.RunBackSpeed;
-                unit.SwimSpeed = data.MovementBlockUpdate.SwimSpeed;
-                unit.SwimBackSpeed = data.MovementBlockUpdate.SwimBackSpeed;
-                unit.TurnRate = data.MovementBlockUpdate.TurnRate;
-                unit.SplineFlags = data.MovementBlockUpdate.SplineFlags ?? SplineFlags.None;
-                unit.SplineFinalPoint = data.MovementBlockUpdate.SplineFinalPoint ?? unit.SplineFinalPoint;
-                unit.SplineTargetGuid = data.MovementBlockUpdate.SplineTargetGuid ?? 0;
-                unit.SplineFinalOrientation = data.MovementBlockUpdate.SplineFinalOrientation ?? 0f;
-                unit.SplineTimePassed = data.MovementBlockUpdate.SplineTimePassed ?? 0;
-                unit.SplineDuration = data.MovementBlockUpdate.SplineDuration ?? 0;
-                unit.SplineId = data.MovementBlockUpdate.SplineId ?? 0;
-                unit.SplineNodes = data.MovementBlockUpdate.SplineNodes ?? [];
-                unit.SplineFinalDestination = data.MovementBlockUpdate.SplineFinalDestination ?? unit.SplineFinalDestination;
-                unit.SplineType = data.MovementBlockUpdate.SplineType;
-                unit.SplineTargetGuid = data.MovementBlockUpdate.FacingTargetGuid;
-                unit.FacingAngle = data.MovementBlockUpdate.FacingAngle;
-                unit.FacingSpot = data.MovementBlockUpdate.FacingSpot;
-                unit.SplineTimestamp = data.MovementBlockUpdate.SplineTimestamp;
-                unit.SplinePoints = data.MovementBlockUpdate.SplinePoints;
-            }
-        }
-
-        private WoWObject CreateObjectFromFields(WoWObjectType objectType, ulong guid, Dictionary<uint, object?> fields)
+        private WoWObject CreateObjectFromFields(
+            WoWObjectType objectType,
+            ulong guid,
+            Dictionary<uint, object?> fields
+        )
         {
             WoWObject obj = objectType switch
             {
                 WoWObjectType.Item => new WoWItem(new HighGuid(guid)),
                 WoWObjectType.Container => new WoWContainer(new HighGuid(guid)),
                 WoWObjectType.Unit => new WoWUnit(new HighGuid(guid)),
-                WoWObjectType.Player => guid == PlayerGuid.FullGuid ? (WoWLocalPlayer)Player : new WoWPlayer(new HighGuid(guid)),
+                WoWObjectType.Player => guid == PlayerGuid.FullGuid
+                    ? (WoWLocalPlayer)Player
+                    : new WoWPlayer(new HighGuid(guid)),
                 WoWObjectType.GameObj => new WoWGameObject(new HighGuid(guid)),
                 WoWObjectType.DynamicObj => new WoWDynamicObject(new HighGuid(guid)),
                 WoWObjectType.Corpse => new WoWCorpse(new HighGuid(guid)),
@@ -1515,6 +583,94 @@ namespace WoWSharpClient
             };
             ApplyFieldDiffs(obj, fields);
             return obj;
+        }
+
+        private void EventEmitter_OnForceTimeSkipped(
+            object? sender,
+            RequiresAcknowledgementArgs e
+        ) { }
+
+        private void EventEmitter_OnForceMoveKnockBack(
+            object? sender,
+            RequiresAcknowledgementArgs e
+        )
+        {
+            _woWClient.SendMSGPacked(
+                Opcode.CMSG_MOVE_KNOCK_BACK_ACK,
+                MovementPacketHandler.BuildMovementInfoBuffer(
+                    (WoWLocalPlayer)Player,
+                    (uint)_worldTimeTracker.NowMS.TotalMilliseconds
+                )
+            );
+        }
+
+        private void EventEmitter_OnForceSwimSpeedChange(
+            object? sender,
+            RequiresAcknowledgementArgs e
+        )
+        {
+            _woWClient.SendMSGPacked(
+                Opcode.CMSG_FORCE_SWIM_SPEED_CHANGE_ACK,
+                MovementPacketHandler.BuildForceMoveAck(
+                    (WoWLocalPlayer)Player,
+                    e.Counter,
+                    (uint)_worldTimeTracker.NowMS.TotalMilliseconds
+                )
+            );
+        }
+
+        private void EventEmitter_OnForceRunBackSpeedChange(
+            object? sender,
+            RequiresAcknowledgementArgs e
+        )
+        {
+            _woWClient.SendMSGPacked(
+                Opcode.CMSG_FORCE_RUN_BACK_SPEED_CHANGE_ACK,
+                MovementPacketHandler.BuildForceMoveAck(
+                    (WoWLocalPlayer)Player,
+                    e.Counter,
+                    (uint)_worldTimeTracker.NowMS.TotalMilliseconds
+                )
+            );
+        }
+
+        private void EventEmitter_OnForceRunSpeedChange(
+            object? sender,
+            RequiresAcknowledgementArgs e
+        )
+        {
+            _woWClient.SendMSGPacked(
+                Opcode.CMSG_FORCE_RUN_SPEED_CHANGE_ACK,
+                MovementPacketHandler.BuildForceMoveAck(
+                    (WoWLocalPlayer)Player,
+                    e.Counter,
+                    (uint)_worldTimeTracker.NowMS.TotalMilliseconds
+                )
+            );
+        }
+
+        private void EventEmitter_OnForceMoveUnroot(object? sender, RequiresAcknowledgementArgs e)
+        {
+            _woWClient.SendMSGPacked(
+                Opcode.CMSG_FORCE_MOVE_UNROOT_ACK,
+                MovementPacketHandler.BuildForceMoveAck(
+                    (WoWLocalPlayer)Player,
+                    e.Counter,
+                    (uint)_worldTimeTracker.NowMS.TotalMilliseconds
+                )
+            );
+        }
+
+        private void EventEmitter_OnForceMoveRoot(object? sender, RequiresAcknowledgementArgs e)
+        {
+            _woWClient.SendMSGPacked(
+                Opcode.CMSG_FORCE_MOVE_ROOT_ACK,
+                MovementPacketHandler.BuildForceMoveAck(
+                    (WoWLocalPlayer)Player,
+                    e.Counter,
+                    (uint)_worldTimeTracker.NowMS.TotalMilliseconds
+                )
+            );
         }
 
         private void EventEmitter_OnChatMessage(object? sender, ChatMessageArgs e)
@@ -1549,6 +705,7 @@ namespace WoWSharpClient
                     {
                         name = string.Empty;
                     }
+
                     sb.Append($"[{name}]");
                     Console.ForegroundColor = ConsoleColor.Magenta;
                     break;
@@ -1604,6 +761,7 @@ namespace WoWSharpClient
                     Console.ForegroundColor = ConsoleColor.Gray;
                     break;
             }
+
             sb.Append(e.Text);
 
             Console.WriteLine(sb.ToString());
@@ -1611,44 +769,1341 @@ namespace WoWSharpClient
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-
         private void EventEmitter_OnTeleport(object? sender, RequiresAcknowledgementArgs e)
         {
             Console.WriteLine($"[ACK] TELEPORT counter={e.Counter}");
 
             _woWClient.SendMSGPacked(
                 Opcode.MSG_MOVE_TELEPORT_ACK,
-                MovementPacketHandler.BuildMoveTeleportAckPayload(e.Guid, e.Counter, (uint)_worldTimeTracker.NowMS.TotalMilliseconds)
+                MovementPacketHandler.BuildMoveTeleportAckPayload(
+                    e.Guid,
+                    e.Counter,
+                    (uint)_worldTimeTracker.NowMS.TotalMilliseconds
+                )
             );
 
             _isBeingTeleported = false;
         }
 
-        private void EventEmitter_OnForceWalkSpeedChange(object? sender, RequiresAcknowledgementArgs e)
+        private void EventEmitter_OnLoginVerifyWorld(object? sender, WorldInfo e)
         {
-            Console.WriteLine($"[ACK] SPEED_CHANGE_WALK counter={e.Counter}");
+            MapId = e.MapId;
+
+            Player.Position.X = e.PositionX;
+            Player.Position.Y = e.PositionY;
+            Player.Position.Z = e.PositionZ;
+
+            _worldTimeTracker = new WorldTimeTracker();
+            _lastPositionUpdate = _worldTimeTracker.NowMS;
+            StartGameLoop();
+
+            _woWClient.SendMoveWorldPortAcknowledge();
             _woWClient.SendMSGPacked(
-                Opcode.CMSG_FORCE_WALK_SPEED_CHANGE_ACK,
-                MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, (uint)_worldTimeTracker.NowMS.TotalMilliseconds)
+                Opcode.CMSG_FORCE_MOVE_ROOT_ACK,
+                MovementPacketHandler.BuildForceMoveAck(
+                    (WoWLocalPlayer)Player,
+                    1,
+                    (uint)_worldTimeTracker.NowMS.TotalMilliseconds
+                )
             );
         }
 
-        private void EventEmitter_OnForceSwimBackSpeedChange(object? sender, RequiresAcknowledgementArgs e)
+        private void EventEmitter_OnCharacterListLoaded(object? sender, EventArgs e)
         {
-            Console.WriteLine($"[ACK] SPEED_CHANGE_SWIM_BACK counter={e.Counter}");
-            _woWClient.SendMSGPacked(
-                Opcode.CMSG_FORCE_SWIM_BACK_SPEED_CHANGE_ACK,
-                MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, (uint)_worldTimeTracker.NowMS.TotalMilliseconds)
-            );
+            _characterSelectScreen.HasReceivedCharacterList = true;
         }
 
-        private void EventEmitter_OnForceTurnRateChange(object? sender, RequiresAcknowledgementArgs e)
+        private void EventEmitter_OnWorldSessionStart(object? sender, EventArgs e)
         {
-            Console.WriteLine($"[ACK] RATE_CHANGE_TURN counter={e.Counter}");
-            _woWClient.SendMSGPacked(
-                Opcode.CMSG_FORCE_TURN_RATE_CHANGE_ACK,
-                MovementPacketHandler.BuildForceMoveAck((WoWLocalPlayer)Player, e.Counter, (uint)_worldTimeTracker.NowMS.TotalMilliseconds)
+            _characterSelectScreen.RefreshCharacterListFromServer();
+        }
+
+        private void EventEmitter_OnLoginFailure(object? sender, EventArgs e)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            _woWClient.Dispose();
+        }
+
+        private void EventEmitter_OnWorldSessionEnd(object? sender, EventArgs e)
+        {
+            HasEnteredWorld = false;
+        }
+
+        public bool HasEnteredWorld { get; internal set; }
+        public List<Spell> Spells { get; internal set; } = [];
+        public List<Cooldown> Cooldowns { get; internal set; } = [];
+
+        private HighGuid _playerGuid = new(new byte[4], new byte[4]);
+
+        public HighGuid PlayerGuid
+        {
+            get => _playerGuid;
+            set
+            {
+                _playerGuid = value;
+                Player = new WoWLocalPlayer(_playerGuid);
+            }
+        }
+
+        public IWoWLocalPlayer Player { get; set; } =
+            new WoWLocalPlayer(new HighGuid(new byte[4], new byte[4]));
+
+        public IWoWLocalPet Pet => throw new NotImplementedException();
+
+        private static readonly List<WoWObject> _objects = [];
+        public IEnumerable<IWoWObject> Objects => _objects;
+        public ILoginScreen LoginScreen => _loginScreen;
+        public IRealmSelectScreen RealmSelectScreen => _realmScreen;
+        public ICharacterSelectScreen CharacterSelectScreen => _characterSelectScreen;
+
+        public void EnterWorld(ulong characterGuid)
+        {
+            HasEnteredWorld = true;
+
+            _playerGuid = new HighGuid(characterGuid);
+            _woWClient.EnterWorld(characterGuid);
+        }
+
+        private readonly Queue<ObjectStateUpdate> _pendingUpdates = new();
+
+        public void QueueUpdate(ObjectStateUpdate update)
+        {
+            _pendingUpdates.Enqueue(update);
+        }
+
+        public void ProcessUpdates()
+        {
+            while (_pendingUpdates.Count > 0)
+            {
+                try
+                {
+                    var update = _pendingUpdates.Dequeue();
+                    Console.WriteLine(
+                        $"[ProcessUpdates] operations={update.Operation} type={update.ObjectType} guid={update.Guid}"
+                    );
+                    switch (update.Operation)
+                    {
+                        case ObjectUpdateOperation.Add:
+                            var newObject = CreateObjectFromFields(
+                                update.ObjectType,
+                                update.Guid,
+                                update.UpdatedFields
+                            );
+                            _objects.Add(newObject);
+
+                            if (
+                                update.MovementData != null
+                                && newObject is WoWUnit or WoWPlayer or WoWLocalPlayer
+                            )
+                                ApplyMovementData((WoWUnit)newObject, update.MovementData);
+
+                            if (newObject is WoWPlayer player)
+                            {
+                                _woWClient.SendNameQuery(update.Guid);
+
+                                if (newObject is WoWLocalPlayer)
+                                {
+                                    _woWClient.SendSetActiveMover(PlayerGuid.FullGuid);
+
+                                    _isInControl = true;
+                                    _isBeingTeleported = false;
+                                }
+                            }
+
+                            break;
+
+                        case ObjectUpdateOperation.Update:
+                            var index = _objects.FindIndex(o => o.Guid == update.Guid);
+                            Console.WriteLine($"Updating Object: {update.Guid}");
+                            if (index != -1)
+                            {
+                                var obj = _objects[index];
+                                ApplyFieldDiffs(obj, update.UpdatedFields);
+
+                                if (
+                                    update.MovementData != null
+                                    && obj is WoWUnit or WoWPlayer or WoWLocalPlayer
+                                )
+                                    ApplyMovementData((WoWUnit)obj, update.MovementData);
+
+                                if (obj is WoWLocalPlayer)
+                                    Console.WriteLine("Potential teleport from server.");
+                            }
+
+                            break;
+
+                        case ObjectUpdateOperation.Remove:
+                            _objects.RemoveAll(x => x.Guid == update.Guid);
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[ProcessUpdates] {ex}");
+                }
+            }
+        }
+
+        private static void ApplyContainerFieldDiffs(
+            WoWContainer container,
+            uint key,
+            object? value
+        )
+        {
+            var field = (EContainerFields)key;
+            switch (field)
+            {
+                case EContainerFields.CONTAINER_FIELD_NUM_SLOTS:
+                    container.NumOfSlots = (int)value;
+                    break;
+                case EContainerFields.CONTAINER_ALIGN_PAD:
+                    break;
+                case >= EContainerFields.CONTAINER_FIELD_SLOT_1
+                and <= EContainerFields.CONTAINER_FIELD_SLOT_LAST:
+                    if (
+                        field >= EContainerFields.CONTAINER_FIELD_SLOT_1
+                        && field <= EContainerFields.CONTAINER_FIELD_SLOT_LAST
+                    )
+                    {
+                        // Calculate slot index and whether this is the low or high GUID part
+                        var slotFieldOffset =
+                            (uint)field - (uint)EContainerFields.CONTAINER_FIELD_SLOT_1;
+                        var slotIndex = slotFieldOffset / 2; // Each slot GUID takes 2 fields (low + high)
+                        var isHighPart = (slotFieldOffset % 2) == 1;
+
+                        if (slotIndex < container.Slots.Length)
+                        {
+                            if (!isHighPart)
+                            {
+                                // Store low part GUID value in slot
+                                container.Slots[slotIndex] = (uint)value;
+                            }
+                            // Note: Currently not storing high part since Slots is uint[]
+                            // This could be enhanced to support full 64-bit GUIDs if needed
+                        }
+                    }
+                    break;
+                case EContainerFields.CONTAINER_END:
+                    break;
+            }
+        }
+
+        private static void ApplyUnitFieldDiffs(WoWUnit unit, uint key, object? value)
+        {
+            var field = (EUnitFields)key;
+            switch (field)
+            {
+                case EUnitFields.UNIT_FIELD_CHARM:
+                    unit.Charm.LowGuidValue = (byte[])value;
+                    break;
+                case EUnitFields.UNIT_FIELD_CHARM + 1:
+                    unit.Charm.HighGuidValue = (byte[])value;
+                    break;
+                case EUnitFields.UNIT_FIELD_SUMMON:
+                    unit.Summon.LowGuidValue = (byte[])value;
+                    break;
+                case EUnitFields.UNIT_FIELD_SUMMON + 1:
+                    unit.Summon.HighGuidValue = (byte[])value;
+                    break;
+                case EUnitFields.UNIT_FIELD_CHARMEDBY:
+                    unit.CharmedBy.LowGuidValue = (byte[])value;
+                    break;
+                case EUnitFields.UNIT_FIELD_CHARMEDBY + 1:
+                    unit.CharmedBy.HighGuidValue = (byte[])value;
+                    break;
+                case EUnitFields.UNIT_FIELD_SUMMONEDBY:
+                    unit.SummonedBy.LowGuidValue = (byte[])value;
+                    break;
+                case EUnitFields.UNIT_FIELD_SUMMONEDBY + 1:
+                    unit.SummonedBy.HighGuidValue = (byte[])value;
+                    break;
+                case EUnitFields.UNIT_FIELD_CREATEDBY:
+                    unit.CreatedBy.LowGuidValue = (byte[])value;
+                    break;
+                case EUnitFields.UNIT_FIELD_CREATEDBY + 1:
+                    unit.CreatedBy.HighGuidValue = (byte[])value;
+                    break;
+                case EUnitFields.UNIT_FIELD_TARGET:
+                    unit.TargetHighGuid.LowGuidValue = (byte[])value;
+                    break;
+                case EUnitFields.UNIT_FIELD_TARGET + 1:
+                    unit.TargetHighGuid.HighGuidValue = (byte[])value;
+                    break;
+                case EUnitFields.UNIT_FIELD_PERSUADED:
+                    unit.Persuaded.LowGuidValue = (byte[])value;
+                    break;
+                case EUnitFields.UNIT_FIELD_PERSUADED + 1:
+                    unit.Persuaded.HighGuidValue = (byte[])value;
+                    break;
+                case EUnitFields.UNIT_FIELD_CHANNEL_OBJECT:
+                    unit.ChannelObject.LowGuidValue = (byte[])value;
+                    break;
+                case EUnitFields.UNIT_FIELD_CHANNEL_OBJECT + 1:
+                    unit.ChannelObject.HighGuidValue = (byte[])value;
+                    break;
+                case EUnitFields.UNIT_FIELD_HEALTH:
+                    unit.Health = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_POWER1:
+                    unit.Powers[Powers.MANA] = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_POWER2:
+                    unit.Powers[Powers.RAGE] = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_POWER3:
+                    unit.Powers[Powers.FOCUS] = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_POWER4:
+                    unit.Powers[Powers.ENERGY] = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_POWER5:
+                    unit.Powers[Powers.HAPPINESS] = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_MAXHEALTH:
+                    unit.MaxHealth = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_MAXPOWER1:
+                    unit.MaxPowers[Powers.MANA] = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_MAXPOWER2:
+                    unit.MaxPowers[Powers.RAGE] = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_MAXPOWER3:
+                    unit.MaxPowers[Powers.FOCUS] = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_MAXPOWER4:
+                    unit.MaxPowers[Powers.ENERGY] = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_MAXPOWER5:
+                    unit.MaxPowers[Powers.HAPPINESS] = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_LEVEL:
+                    unit.Level = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_FACTIONTEMPLATE:
+                    unit.FactionTemplate = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_BYTES_0:
+                    byte[] value1 = (byte[])value;
+
+                    unit.Bytes0[0] = value1[0];
+                    unit.Bytes0[1] = value1[1];
+                    unit.Bytes0[2] = value1[2];
+                    unit.Bytes0[3] = value1[3];
+                    break;
+                case >= EUnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY
+                and <= EUnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY_02:
+                    unit.VirtualItemSlotDisplay[
+                        field - EUnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY
+                    ] = (uint)value;
+                    break;
+                case >= EUnitFields.UNIT_VIRTUAL_ITEM_INFO
+                and <= EUnitFields.UNIT_VIRTUAL_ITEM_INFO_05:
+                    unit.VirtualItemInfo[field - EUnitFields.UNIT_VIRTUAL_ITEM_INFO] = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_FLAGS:
+                    unit.UnitFlags = (UnitFlags)value;
+                    break;
+                case >= EUnitFields.UNIT_FIELD_AURA
+                and <= EUnitFields.UNIT_FIELD_AURA_LAST:
+                    unit.AuraFields[field - EUnitFields.UNIT_FIELD_AURA] = (uint)value;
+                    break;
+                case >= EUnitFields.UNIT_FIELD_AURAFLAGS
+                and <= EUnitFields.UNIT_FIELD_AURAFLAGS_05:
+                    unit.AuraFlags[field - EUnitFields.UNIT_FIELD_AURAFLAGS] = (uint)value;
+                    break;
+                case >= EUnitFields.UNIT_FIELD_AURALEVELS
+                and <= EUnitFields.UNIT_FIELD_AURALEVELS_LAST:
+                    unit.AuraLevels[field - EUnitFields.UNIT_FIELD_AURALEVELS] = (uint)value;
+                    break;
+                case >= EUnitFields.UNIT_FIELD_AURAAPPLICATIONS
+                and <= EUnitFields.UNIT_FIELD_AURAAPPLICATIONS_LAST:
+                    unit.AuraApplications[field - EUnitFields.UNIT_FIELD_AURAAPPLICATIONS] =
+                        (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_AURASTATE:
+                    unit.AuraState = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_BASEATTACKTIME:
+                    unit.BaseAttackTime = (float)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_OFFHANDATTACKTIME:
+                    unit.OffhandAttackTime = (float)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_RANGEDATTACKTIME:
+                    unit.OffhandAttackTime1 = (float)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_BOUNDINGRADIUS:
+                    unit.BoundingRadius = (float)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_COMBATREACH:
+                    unit.CombatReach = (float)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_DISPLAYID:
+                    unit.DisplayId = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_NATIVEDISPLAYID:
+                    unit.NativeDisplayId = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_MINDAMAGE:
+                    unit.MinDamage = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_MAXDAMAGE:
+                    unit.MaxDamage = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_MINOFFHANDDAMAGE:
+                    unit.MinOffhandDamage = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_MAXOFFHANDDAMAGE:
+                    unit.MaxOffhandDamage = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_BYTES_1:
+                    byte[] value2 = (byte[])value;
+
+                    unit.Bytes1[0] = value2[0];
+                    unit.Bytes1[1] = value2[1];
+                    unit.Bytes1[2] = value2[2];
+                    unit.Bytes1[3] = value2[3];
+                    break;
+                case EUnitFields.UNIT_FIELD_PETNUMBER:
+                    unit.PetNumber = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP:
+                    unit.PetNameTimestamp = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_PETEXPERIENCE:
+                    unit.PetExperience = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_PETNEXTLEVELEXP:
+                    unit.PetNextLevelExperience = (uint)value;
+                    break;
+                case EUnitFields.UNIT_DYNAMIC_FLAGS:
+                    unit.DynamicFlags = (DynamicFlags)value;
+                    break;
+                case EUnitFields.UNIT_CHANNEL_SPELL:
+                    unit.ChannelingId = (uint)value;
+                    break;
+                case EUnitFields.UNIT_MOD_CAST_SPEED:
+                    unit.ModCastSpeed = (float)value;
+                    break;
+                case EUnitFields.UNIT_CREATED_BY_SPELL:
+                    unit.CreatedBySpell = (uint)value;
+                    break;
+                case EUnitFields.UNIT_NPC_FLAGS:
+                    unit.NpcFlags = (NPCFlags)value;
+                    break;
+                case EUnitFields.UNIT_NPC_EMOTESTATE:
+                    unit.NpcEmoteState = (uint)value;
+                    break;
+                case EUnitFields.UNIT_TRAINING_POINTS:
+                    unit.TrainingPoints = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_STAT0:
+                    unit.Strength = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_STAT1:
+                    unit.Agility = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_STAT2:
+                    unit.Stamina = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_STAT3:
+                    unit.Intellect = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_STAT4:
+                    unit.Spirit = (uint)value;
+                    break;
+                case >= EUnitFields.UNIT_FIELD_RESISTANCES
+                and <= EUnitFields.UNIT_FIELD_RESISTANCES_06:
+                    unit.Resistances[field - EUnitFields.UNIT_FIELD_RESISTANCES] = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_BASE_MANA:
+                    unit.BaseMana = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_BASE_HEALTH:
+                    unit.BaseHealth = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_BYTES_2:
+                    byte[] value3 = (byte[])value;
+
+                    unit.Bytes2[0] = value3[0];
+                    unit.Bytes2[1] = value3[1];
+                    unit.Bytes2[2] = value3[2];
+                    unit.Bytes2[3] = value3[3];
+                    break;
+                case EUnitFields.UNIT_FIELD_ATTACK_POWER:
+                    unit.AttackPower = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_ATTACK_POWER_MODS:
+                    unit.AttackPowerMods = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_ATTACK_POWER_MULTIPLIER:
+                    unit.AttackPowerMultipler = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_RANGED_ATTACK_POWER:
+                    unit.RangedAttackPower = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_RANGED_ATTACK_POWER_MODS:
+                    unit.RangedAttackPowerMods = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER:
+                    unit.RangedAttackPowerMultipler = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_MINRANGEDDAMAGE:
+                    unit.MinRangedDamage = (uint)value;
+                    break;
+                case EUnitFields.UNIT_FIELD_MAXRANGEDDAMAGE:
+                    unit.MaxRangedDamage = (uint)value;
+                    break;
+                case >= EUnitFields.UNIT_FIELD_POWER_COST_MODIFIER
+                and <= EUnitFields.UNIT_FIELD_POWER_COST_MODIFIER_06:
+                    unit.PowerCostModifers[field - EUnitFields.UNIT_FIELD_POWER_COST_MODIFIER] =
+                        (uint)value;
+                    break;
+                case >= EUnitFields.UNIT_FIELD_POWER_COST_MULTIPLIER
+                and <= EUnitFields.UNIT_FIELD_POWER_COST_MULTIPLIER_06:
+                    unit.PowerCostMultipliers[
+                        field - EUnitFields.UNIT_FIELD_POWER_COST_MULTIPLIER
+                    ] = (uint)value;
+                    break;
+            }
+        }
+
+        private static void ApplyFieldDiffs(WoWObject obj, Dictionary<uint, object?> updatedFields)
+        {
+            foreach (var (key, value) in updatedFields)
+            {
+                if (value == null)
+                    continue;
+
+                bool fieldHandled = false;
+
+                // Check object-specific fields first, in inheritance order (most specific to least specific)
+
+                // WoWContainer (inherits from WoWItem)
+                if (obj is WoWContainer container)
+                {
+                    if (Enum.IsDefined(typeof(EContainerFields), key))
+                    {
+                        ApplyContainerFieldDiffs(container, key, value);
+                        fieldHandled = true;
+                    }
+                    else if (Enum.IsDefined(typeof(EItemFields), key))
+                    {
+                        ApplyItemFieldDiffs(container, key, value);
+                        fieldHandled = true;
+                    }
+                }
+                // WoWItem (but not container since container was handled above)
+                else if (obj is WoWItem item)
+                {
+                    if (Enum.IsDefined(typeof(EItemFields), key))
+                    {
+                        ApplyItemFieldDiffs(item, key, value);
+                        fieldHandled = true;
+                    }
+                }
+                // WoWPlayer/WoWLocalPlayer (inherits from WoWUnit)
+                else if (obj is WoWPlayer player)
+                {
+                    if (Enum.IsDefined(typeof(EPlayerFields), key))
+                    {
+                        ApplyPlayerFieldDiffs(player, key, value, _objects);
+                        fieldHandled = true;
+                    }
+                    else if (Enum.IsDefined(typeof(EUnitFields), key))
+                    {
+                        ApplyUnitFieldDiffs(player, key, value);
+                        fieldHandled = true;
+                    }
+                }
+                // WoWUnit (but not player since player was handled above)
+                else if (obj is WoWUnit unit)
+                {
+                    if (Enum.IsDefined(typeof(EUnitFields), key))
+                    {
+                        ApplyUnitFieldDiffs(unit, key, value);
+                        fieldHandled = true;
+                    }
+                }
+                // WoWGameObject
+                else if (obj is WoWGameObject go)
+                {
+                    if (Enum.IsDefined(typeof(EGameObjectFields), key))
+                    {
+                        ApplyGameObjectFieldDiffs(go, key, value);
+                        fieldHandled = true;
+                    }
+                }
+                // WoWDynamicObject
+                else if (obj is WoWDynamicObject dyn)
+                {
+                    if (Enum.IsDefined(typeof(EDynamicObjectFields), key))
+                    {
+                        ApplyDynamicObjectFieldDiffs(dyn, key, value);
+                        fieldHandled = true;
+                    }
+                }
+                // WoWCorpse
+                else if (obj is WoWCorpse corpse)
+                {
+                    if (Enum.IsDefined(typeof(ECorpseFields), key))
+                    {
+                        ApplyCorpseFieldDiffs(corpse, key, value);
+                        fieldHandled = true;
+                    }
+                }
+
+                // Fall back to base object fields if no specific field type was handled
+                if (!fieldHandled && Enum.IsDefined(typeof(EObjectFields), key))
+                {
+                    ApplyObjectFieldDiffs(obj, key, value);
+                }
+            }
+        }
+
+        private static void ApplyObjectFieldDiffs(WoWObject obj, uint key, object value)
+        {
+            var field = (EObjectFields)key;
+            switch (field)
+            {
+                case EObjectFields.OBJECT_FIELD_GUID:
+                    Console.WriteLine(
+                        $"[GUID DEBUG] Attempting to modify object GUID Low for {obj.GetType().Name} (current GUID: {obj.Guid}), ignoring..."
+                    );
+                    // obj.HighGuid.LowGuidValue = (byte[])value; // COMMENTED OUT - should not modify object's own GUID
+                    break;
+                case EObjectFields.OBJECT_FIELD_GUID + 1:
+                    Console.WriteLine(
+                        $"[GUID DEBUG] Attempting to modify object GUID High for {obj.GetType().Name} (current GUID: {obj.Guid}), ignoring..."
+                    );
+                    // obj.HighGuid.HighGuidValue = (byte[])value; // COMMENTED OUT - should not modify object's own GUID
+                    break;
+                case EObjectFields.OBJECT_FIELD_TYPE:
+                    break;
+                case EObjectFields.OBJECT_FIELD_ENTRY:
+                    obj.Entry = (uint)value;
+                    break;
+                case EObjectFields.OBJECT_FIELD_SCALE_X:
+                    obj.ScaleX = (float)value;
+                    break;
+            }
+        }
+
+        private static void ApplyItemFieldDiffs(WoWItem item, uint key, object value)
+        {
+            var field = (EItemFields)key;
+            switch (field)
+            {
+                case EItemFields.ITEM_FIELD_OWNER:
+                    item.Owner.LowGuidValue = (byte[])value;
+                    break;
+                case EItemFields.ITEM_FIELD_OWNER + 1:
+                    item.Owner.HighGuidValue = (byte[])value;
+                    break;
+                case EItemFields.ITEM_FIELD_CONTAINED:
+                {
+                    var bytes = (byte[])value;
+                    item.Contained.LowGuidValue = bytes;
+                    break;
+                }
+                case EItemFields.ITEM_FIELD_CONTAINED + 1:
+                    item.Contained.HighGuidValue = (byte[])value;
+                    break;
+                case EItemFields.ITEM_FIELD_CREATOR:
+                    item.CreatedBy.LowGuidValue = (byte[])value;
+                    break;
+                case EItemFields.ITEM_FIELD_CREATOR + 1:
+                    item.CreatedBy.HighGuidValue = (byte[])value;
+                    break;
+                case EItemFields.ITEM_FIELD_GIFTCREATOR:
+                    item.GiftCreator.LowGuidValue = (byte[])value;
+                    break;
+                case EItemFields.ITEM_FIELD_GIFTCREATOR + 1:
+                    item.GiftCreator.HighGuidValue = (byte[])value;
+                    break;
+                case EItemFields.ITEM_FIELD_STACK_COUNT:
+                    item.StackCount = (uint)value;
+                    break;
+                case EItemFields.ITEM_FIELD_DURATION:
+                    item.Duration = (uint)value;
+                    break;
+                case EItemFields.ITEM_FIELD_SPELL_CHARGES:
+                    item.SpellCharges[0] = (uint)value;
+                    break;
+                case EItemFields.ITEM_FIELD_SPELL_CHARGES_01:
+                    item.SpellCharges[1] = (uint)value;
+                    break;
+                case EItemFields.ITEM_FIELD_SPELL_CHARGES_02:
+                    item.SpellCharges[2] = (uint)value;
+                    break;
+                case EItemFields.ITEM_FIELD_SPELL_CHARGES_03:
+                    item.SpellCharges[3] = (uint)value;
+                    break;
+                case EItemFields.ITEM_FIELD_SPELL_CHARGES_04:
+                    item.SpellCharges[4] = (uint)value;
+                    break;
+                case EItemFields.ITEM_FIELD_FLAGS:
+                    item.ItemDynamicFlags = (ItemDynFlags)value;
+                    break;
+                case EItemFields.ITEM_FIELD_ENCHANTMENT:
+                    item.Enchantments[0] = (uint)value;
+                    break;
+                case EItemFields.ITEM_FIELD_PROPERTY_SEED:
+                    item.PropertySeed = (uint)value;
+                    break;
+                case EItemFields.ITEM_FIELD_RANDOM_PROPERTIES_ID:
+                    item.PropertySeed = (uint)value;
+                    break;
+                case EItemFields.ITEM_FIELD_ITEM_TEXT_ID:
+                    item.ItemTextId = (uint)value;
+                    break;
+                case EItemFields.ITEM_FIELD_DURABILITY:
+                    item.Durability = (uint)value;
+                    break;
+                case EItemFields.ITEM_FIELD_MAXDURABILITY:
+                    item.MaxDurability = (uint)value;
+                    break;
+                case EItemFields.ITEM_END:
+                    break;
+            }
+        }
+
+        private static void ApplyGameObjectFieldDiffs(WoWGameObject go, uint key, object value)
+        {
+            var field = (EGameObjectFields)key;
+            switch (field)
+            {
+                case EGameObjectFields.OBJECT_FIELD_CREATED_BY:
+                    go.CreatedBy.LowGuidValue = (byte[])value;
+                    break;
+                case EGameObjectFields.OBJECT_FIELD_CREATED_BY + 1:
+                    go.CreatedBy.HighGuidValue = (byte[])value;
+                    break;
+                case EGameObjectFields.GAMEOBJECT_DISPLAYID:
+                    go.DisplayId = (uint)value;
+                    break;
+                case EGameObjectFields.GAMEOBJECT_FLAGS:
+                    go.Flags = (uint)value;
+                    break;
+                case >= EGameObjectFields.GAMEOBJECT_ROTATION
+                and < EGameObjectFields.GAMEOBJECT_STATE:
+                    go.Rotation[key - (uint)EGameObjectFields.GAMEOBJECT_ROTATION] = (float)value;
+                    break;
+                case EGameObjectFields.GAMEOBJECT_STATE:
+                    go.GoState = (GOState)value;
+                    break;
+                case EGameObjectFields.GAMEOBJECT_POS_X:
+                    go.Position.X = (float)value;
+                    break;
+                case EGameObjectFields.GAMEOBJECT_POS_Y:
+                    go.Position.Y = (float)value;
+                    break;
+                case EGameObjectFields.GAMEOBJECT_POS_Z:
+                    go.Position.Z = (float)value;
+                    break;
+                case EGameObjectFields.GAMEOBJECT_FACING:
+                    go.Facing = (float)value;
+                    break;
+                case EGameObjectFields.GAMEOBJECT_DYN_FLAGS:
+                    go.DynamicFlags = (DynamicFlags)value;
+                    break;
+                case EGameObjectFields.GAMEOBJECT_FACTION:
+                    go.FactionTemplate = (uint)value;
+                    break;
+                case EGameObjectFields.GAMEOBJECT_TYPE_ID:
+                    go.TypeId = (uint)value;
+                    break;
+                case EGameObjectFields.GAMEOBJECT_LEVEL:
+                    go.Level = (uint)value;
+                    break;
+                case EGameObjectFields.GAMEOBJECT_ARTKIT:
+                    go.ArtKit = (uint)value;
+                    break;
+                case EGameObjectFields.GAMEOBJECT_ANIMPROGRESS:
+                    go.AnimProgress = (uint)value;
+                    break;
+            }
+        }
+
+        private static void ApplyDynamicObjectFieldDiffs(
+            WoWDynamicObject dyn,
+            uint key,
+            object value
+        )
+        {
+            var field = (EDynamicObjectFields)key;
+            switch (field)
+            {
+                case EDynamicObjectFields.DYNAMICOBJECT_CASTER:
+                    dyn.Caster.LowGuidValue = (byte[])value;
+                    break;
+                case EDynamicObjectFields.DYNAMICOBJECT_CASTER + 1:
+                    dyn.Caster.HighGuidValue = (byte[])value;
+                    break;
+                case EDynamicObjectFields.DYNAMICOBJECT_BYTES:
+                    dyn.Bytes = (byte[])value;
+                    break;
+                case EDynamicObjectFields.DYNAMICOBJECT_SPELLID:
+                    dyn.SpellId = (uint)value;
+                    break;
+                case EDynamicObjectFields.DYNAMICOBJECT_RADIUS:
+                    dyn.Radius = (float)value;
+                    break;
+                case EDynamicObjectFields.DYNAMICOBJECT_POS_X:
+                    dyn.Position.X = (float)value;
+                    break;
+                case EDynamicObjectFields.DYNAMICOBJECT_POS_Y:
+                    dyn.Position.Y = (float)value;
+                    break;
+                case EDynamicObjectFields.DYNAMICOBJECT_POS_Z:
+                    dyn.Position.Z = (float)value;
+                    break;
+                case EDynamicObjectFields.DYNAMICOBJECT_FACING:
+                    dyn.Facing = (float)value;
+                    break;
+            }
+        }
+
+        private static void ApplyCorpseFieldDiffs(WoWCorpse corpse, uint key, object value)
+        {
+            var field = (ECorpseFields)key;
+            switch (field)
+            {
+                case ECorpseFields.CORPSE_FIELD_OWNER:
+                    corpse.OwnerGuid.LowGuidValue = (byte[])value;
+                    break;
+                case ECorpseFields.CORPSE_FIELD_OWNER + 1:
+                    corpse.OwnerGuid.HighGuidValue = (byte[])value;
+                    break;
+                case ECorpseFields.CORPSE_FIELD_FACING:
+                    corpse.Facing = (float)value;
+                    break;
+                case ECorpseFields.CORPSE_FIELD_POS_X:
+                    corpse.Position.X = (float)value;
+                    break;
+                case ECorpseFields.CORPSE_FIELD_POS_Y:
+                    corpse.Position.Y = (float)value;
+                    break;
+                case ECorpseFields.CORPSE_FIELD_POS_Z:
+                    corpse.Position.Z = (float)value;
+                    break;
+                case ECorpseFields.CORPSE_FIELD_DISPLAY_ID:
+                    corpse.DisplayId = (uint)value;
+                    break;
+                case >= ECorpseFields.CORPSE_FIELD_ITEM
+                and < ECorpseFields.CORPSE_FIELD_BYTES_1:
+                    corpse.Items[key - (uint)ECorpseFields.CORPSE_FIELD_ITEM] = (uint)value;
+                    break;
+                case ECorpseFields.CORPSE_FIELD_BYTES_1:
+                    corpse.Bytes1 = (byte[])value;
+                    break;
+                case ECorpseFields.CORPSE_FIELD_BYTES_2:
+                    corpse.Bytes2 = (byte[])value;
+                    break;
+                case ECorpseFields.CORPSE_FIELD_GUILD:
+                    corpse.Guild = (uint)value;
+                    break;
+                case ECorpseFields.CORPSE_FIELD_FLAGS:
+                    corpse.CorpseFlags = (CorpseFlags)value;
+                    break;
+                case ECorpseFields.CORPSE_FIELD_DYNAMIC_FLAGS:
+                    corpse.DynamicFlags = (DynamicFlags)value;
+                    break;
+            }
+        }
+
+        private static void ApplyPlayerFieldDiffs(
+            WoWPlayer player,
+            uint key,
+            object value,
+            List<WoWObject> objects
+        )
+        {
+            var field = (EPlayerFields)key;
+            Console.WriteLine(
+                $"[ApplyPlayerFieldDiffs] Processing field: {field} (0x{(uint)field:X})"
             );
+            switch (field)
+            {
+                case EPlayerFields.PLAYER_FIELD_THIS_WEEK_CONTRIBUTION:
+                    player.ThisWeekContribution = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_DUEL_ARBITER:
+                    player.DuelArbiter.LowGuidValue = (byte[])value;
+                    break;
+                case EPlayerFields.PLAYER_DUEL_ARBITER + 1:
+                    player.DuelArbiter.HighGuidValue = (byte[])value;
+                    break;
+                case EPlayerFields.PLAYER_FLAGS:
+                    player.PlayerFlags = (PlayerFlags)value;
+                    break;
+                case EPlayerFields.PLAYER_GUILDID:
+                    player.GuildId = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_GUILDRANK:
+                    player.GuildRank = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_BYTES:
+                    player.PlayerBytes = (byte[])value;
+                    break;
+                case EPlayerFields.PLAYER_BYTES_2:
+                    player.PlayerBytes2 = (byte[])value;
+                    break;
+                case EPlayerFields.PLAYER_BYTES_3:
+                    player.PlayerBytes3 = (byte[])value;
+                    break;
+                case EPlayerFields.PLAYER_DUEL_TEAM:
+                    player.GuildTimestamp = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_GUILD_TIMESTAMP:
+                    player.GuildTimestamp = (uint)value;
+                    break;
+                case >= EPlayerFields.PLAYER_QUEST_LOG_1_1
+                and <= EPlayerFields.PLAYER_QUEST_LOG_25_2:
+                    {
+                        uint questField = (field - EPlayerFields.PLAYER_QUEST_LOG_1_1) % 3;
+                        int questIndex = (int)((field - EPlayerFields.PLAYER_QUEST_LOG_1_1) / 3);
+
+                        if (questIndex >= 0 && questIndex < player.QuestLog.Length)
+                        {
+                            switch (questField)
+                            {
+                                case 0:
+                                    player.QuestLog[questIndex].QuestId = (uint)value;
+                                    break;
+                                case 1:
+                                    player.QuestLog[questIndex].QuestCounters = (byte[])value;
+                                    break;
+                                case 2:
+                                    player.QuestLog[questIndex].QuestState = (uint)value;
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine(
+                                $"[ApplyPlayerFieldDiffs] QuestLog index out of bounds: {questIndex}, array length: {player.QuestLog.Length}"
+                            );
+                        }
+                    }
+                    break;
+                case >= EPlayerFields.PLAYER_VISIBLE_ITEM_1_CREATOR
+                and <= EPlayerFields.PLAYER_VISIBLE_ITEM_19_PAD:
+                    {
+                        uint visibleItemField =
+                            (field - EPlayerFields.PLAYER_VISIBLE_ITEM_1_CREATOR) % 12;
+                        int itemIndex = (int)(
+                            (field - EPlayerFields.PLAYER_VISIBLE_ITEM_1_CREATOR) / 12
+                        );
+                        var visibleItem = player.VisibleItems[itemIndex];
+                        switch (visibleItemField)
+                        {
+                            case 0:
+                                visibleItem.CreatedBy.LowGuidValue = (byte[])value;
+                                break;
+                            case 1:
+                                visibleItem.CreatedBy.HighGuidValue = (byte[])value;
+                                break;
+                            case 2:
+                                ((WoWItem)visibleItem).ItemId = (uint)value;
+                                break;
+                            case 3:
+                                visibleItem.Owner.LowGuidValue = (byte[])value;
+                                break;
+                            case 4:
+                                visibleItem.Owner.HighGuidValue = (byte[])value;
+                                break;
+                            case 5:
+                                visibleItem.Contained.LowGuidValue = (byte[])value;
+                                break;
+                            case 6:
+                                visibleItem.Contained.HighGuidValue = (byte[])value;
+                                break;
+                            case 7:
+                                visibleItem.GiftCreator.LowGuidValue = (byte[])value;
+                                break;
+                            case 8:
+                                visibleItem.GiftCreator.HighGuidValue = (byte[])value;
+                                break;
+                            case 9:
+                                ((WoWItem)visibleItem).StackCount = (uint)value;
+                                break;
+                            case 10:
+                                ((WoWItem)visibleItem).Durability = (uint)value;
+                                break;
+                            case 11:
+                                ((WoWItem)visibleItem).PropertySeed = (uint)value;
+                                break;
+                        }
+                    }
+                    break;
+
+                case >= EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD
+                and < EPlayerFields.PLAYER_FIELD_PACK_SLOT_1:
+                    {
+                        var inventoryIndex = field - EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD;
+                        if (inventoryIndex >= 0 && inventoryIndex < player.Inventory.Length)
+                        {
+                            player.Inventory[inventoryIndex] = (uint)value;
+
+                            // If this is a 2-byte field pair representing a GUID, populate VisibleItems
+                            var itemGuid = (ulong)(uint)value;
+                            if (itemGuid != 0 && inventoryIndex < player.VisibleItems.Length)
+                            {
+                                var actualItem =
+                                    objects.FirstOrDefault(o => o.Guid == itemGuid) as WoWItem;
+                                if (actualItem != null)
+                                {
+                                    player.VisibleItems[inventoryIndex] = actualItem;
+                                }
+                                else
+                                {
+                                    Console.WriteLine(
+                                        $"[ApplyPlayerFieldDiffs] No item found for GUID {itemGuid:X} at inventory index {inventoryIndex}"
+                                    );
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine(
+                                $"[ApplyPlayerFieldDiffs] inventoryIndex {inventoryIndex} out of bounds for Inventory array (length: {player.Inventory.Length}), field: {field}"
+                            );
+                        }
+                    }
+                    break;
+                case >= EPlayerFields.PLAYER_FIELD_PACK_SLOT_1
+                and <= EPlayerFields.PLAYER_FIELD_PACK_SLOT_LAST:
+                    {
+                        var packIndex = field - EPlayerFields.PLAYER_FIELD_PACK_SLOT_1;
+                        if (packIndex >= 0 && packIndex < player.PackSlots.Length)
+                        {
+                            player.PackSlots[packIndex] = (uint)value;
+                        }
+                        else
+                        {
+                            Console.WriteLine(
+                                $"[ApplyPlayerFieldDiffs] packIndex {packIndex} out of bounds for PackSlots array (length: {player.PackSlots.Length}), field: {field}"
+                            );
+                        }
+                    }
+                    break;
+                case >= EPlayerFields.PLAYER_FIELD_BANK_SLOT_1
+                and <= EPlayerFields.PLAYER_FIELD_BANK_SLOT_LAST:
+                    {
+                        var bankIndex = field - EPlayerFields.PLAYER_FIELD_BANK_SLOT_1;
+                        if (bankIndex >= 0 && bankIndex < player.BankSlots.Length)
+                        {
+                            player.BankSlots[bankIndex] = (uint)value;
+                        }
+                        else
+                        {
+                            Console.WriteLine(
+                                $"[ApplyPlayerFieldDiffs] bankIndex {bankIndex} out of bounds for BankSlots array (length: {player.BankSlots.Length}), field: {field}"
+                            );
+                        }
+                    }
+                    break;
+                case >= EPlayerFields.PLAYER_FIELD_BANKBAG_SLOT_1
+                and <= EPlayerFields.PLAYER_FIELD_BANKBAG_SLOT_LAST:
+                    {
+                        var bankBagIndex = field - EPlayerFields.PLAYER_FIELD_BANKBAG_SLOT_1;
+                        if (bankBagIndex >= 0 && bankBagIndex < player.BankBagSlots.Length)
+                        {
+                            player.BankBagSlots[bankBagIndex] = (uint)value;
+                        }
+                        else
+                        {
+                            Console.WriteLine(
+                                $"[ApplyPlayerFieldDiffs] bankBagIndex {bankBagIndex} out of bounds for BankBagSlots array (length: {player.BankBagSlots.Length}), field: {field}"
+                            );
+                        }
+                    }
+                    break;
+                case >= EPlayerFields.PLAYER_FIELD_VENDORBUYBACK_SLOT_1
+                and <= EPlayerFields.PLAYER_FIELD_VENDORBUYBACK_SLOT_LAST:
+                    {
+                        var vendorIndex = field - EPlayerFields.PLAYER_FIELD_VENDORBUYBACK_SLOT_1;
+                        if (vendorIndex >= 0 && vendorIndex < player.VendorBuybackSlots.Length)
+                        {
+                            player.VendorBuybackSlots[vendorIndex] = (uint)value;
+                        }
+                        else
+                        {
+                            Console.WriteLine(
+                                $"[ApplyPlayerFieldDiffs] vendorIndex {vendorIndex} out of bounds for VendorBuybackSlots array (length: {player.VendorBuybackSlots.Length}), field: {field}"
+                            );
+                        }
+                    }
+                    break;
+                case >= EPlayerFields.PLAYER_FIELD_KEYRING_SLOT_1
+                and <= EPlayerFields.PLAYER_FIELD_KEYRING_SLOT_LAST:
+                    {
+                        var keyringIndex = field - EPlayerFields.PLAYER_FIELD_KEYRING_SLOT_1;
+                        if (keyringIndex >= 0 && keyringIndex < player.KeyringSlots.Length)
+                        {
+                            player.KeyringSlots[keyringIndex] = (uint)value;
+                        }
+                        else
+                        {
+                            Console.WriteLine(
+                                $"[ApplyPlayerFieldDiffs] keyringIndex {keyringIndex} out of bounds for KeyringSlots array (length: {player.KeyringSlots.Length}), field: {field}"
+                            );
+                        }
+                    }
+                    break;
+                case EPlayerFields.PLAYER_FARSIGHT:
+                    player.Farsight = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_FIELD_COMBO_TARGET:
+                    player.ComboTarget.LowGuidValue = (byte[])value;
+                    break;
+                case EPlayerFields.PLAYER_FIELD_COMBO_TARGET + 1:
+                    player.ComboTarget.HighGuidValue = (byte[])value;
+                    break;
+                case EPlayerFields.PLAYER_XP:
+                    player.XP = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_NEXT_LEVEL_XP:
+                    player.NextLevelXP = (uint)value;
+                    break;
+                case >= EPlayerFields.PLAYER_SKILL_INFO_1_1
+                and <= EPlayerFields.PLAYER_SKILL_INFO_1_1 + 383:
+                    {
+                        uint skillField = (field - EPlayerFields.PLAYER_SKILL_INFO_1_1) % 4;
+                        int skillIndex = (int)((field - EPlayerFields.PLAYER_SKILL_INFO_1_1) / 4);
+                        switch (skillField)
+                        {
+                            case 0:
+                                player.SkillInfo[skillIndex].SkillInt1 = (uint)value;
+                                break;
+                            case 1:
+                                player.SkillInfo[skillIndex].SkillInt2 = (uint)value;
+                                break;
+                            case 2:
+                                player.SkillInfo[skillIndex].SkillInt3 = (uint)value;
+                                break;
+                            case 3:
+                                player.SkillInfo[skillIndex].SkillInt4 = (uint)value;
+                                break;
+                        }
+                    }
+                    break;
+                case EPlayerFields.PLAYER_CHARACTER_POINTS1:
+                    player.CharacterPoints1 = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_CHARACTER_POINTS2:
+                    player.CharacterPoints2 = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_TRACK_CREATURES:
+                    player.TrackCreatures = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_TRACK_RESOURCES:
+                    player.TrackResources = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_BLOCK_PERCENTAGE:
+                    player.BlockPercentage = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_DODGE_PERCENTAGE:
+                    player.DodgePercentage = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_PARRY_PERCENTAGE:
+                    player.ParryPercentage = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_CRIT_PERCENTAGE:
+                    player.CritPercentage = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_RANGED_CRIT_PERCENTAGE:
+                    player.RangedCritPercentage = (uint)value;
+                    break;
+                case >= EPlayerFields.PLAYER_EXPLORED_ZONES_1
+                and < EPlayerFields.PLAYER_REST_STATE_EXPERIENCE:
+                    player.ExploredZones[field - EPlayerFields.PLAYER_EXPLORED_ZONES_1] =
+                        (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_REST_STATE_EXPERIENCE:
+                    player.RestStateExperience = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_FIELD_COINAGE:
+                    player.Coinage = (uint)value;
+                    break;
+                case >= EPlayerFields.PLAYER_FIELD_POSSTAT0
+                and <= EPlayerFields.PLAYER_FIELD_POSSTAT4:
+                    player.StatBonusesPos[field - EPlayerFields.PLAYER_FIELD_POSSTAT0] =
+                        (uint)value;
+                    break;
+                case >= EPlayerFields.PLAYER_FIELD_NEGSTAT0
+                and <= EPlayerFields.PLAYER_FIELD_NEGSTAT4:
+                    player.StatBonusesNeg[field - EPlayerFields.PLAYER_FIELD_NEGSTAT0] =
+                        (uint)value;
+                    break;
+                case >= EPlayerFields.PLAYER_FIELD_RESISTANCEBUFFMODSPOSITIVE
+                and <= EPlayerFields.PLAYER_FIELD_RESISTANCEBUFFMODSNEGATIVE + 6:
+                    if (field <= EPlayerFields.PLAYER_FIELD_RESISTANCEBUFFMODSNEGATIVE)
+                        player.ResistBonusesPos[
+                            field - EPlayerFields.PLAYER_FIELD_RESISTANCEBUFFMODSPOSITIVE
+                        ] = (uint)value;
+                    else
+                        player.ResistBonusesNeg[
+                            field - EPlayerFields.PLAYER_FIELD_RESISTANCEBUFFMODSNEGATIVE
+                        ] = (uint)value;
+                    break;
+                case >= EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_POS
+                and <= EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_POS + 6:
+                    player.ModDamageDonePos[
+                        field - EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_POS
+                    ] = (uint)value;
+                    break;
+                case >= EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_NEG
+                and <= EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + 6:
+                    player.ModDamageDoneNeg[
+                        field - EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_NEG
+                    ] = (uint)value;
+                    break;
+                case >= EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_PCT
+                and <= EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + 6:
+                    player.ModDamageDonePct[
+                        field - EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_PCT
+                    ] = (float)value;
+                    break;
+                case EPlayerFields.PLAYER_AMMO_ID:
+                    player.AmmoId = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_SELF_RES_SPELL:
+                    player.SelfResSpell = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_FIELD_PVP_MEDALS:
+                    player.PvpMedals = (uint)value;
+                    break;
+                case >= EPlayerFields.PLAYER_FIELD_BUYBACK_PRICE_1
+                and <= EPlayerFields.PLAYER_FIELD_BUYBACK_PRICE_LAST:
+                    player.BuybackPrices[field - EPlayerFields.PLAYER_FIELD_BUYBACK_PRICE_1] =
+                        (uint)value;
+                    break;
+                case >= EPlayerFields.PLAYER_FIELD_BUYBACK_TIMESTAMP_1
+                and <= EPlayerFields.PLAYER_FIELD_BUYBACK_TIMESTAMP_LAST:
+                    player.BuybackTimestamps[
+                        field - EPlayerFields.PLAYER_FIELD_BUYBACK_TIMESTAMP_1
+                    ] = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_FIELD_YESTERDAY_KILLS:
+                    player.YesterdayKills = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_FIELD_LAST_WEEK_KILLS:
+                    player.LastWeekKills = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_FIELD_LIFETIME_HONORABLE_KILLS:
+                    player.LifetimeHonorableKills = (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_FIELD_WATCHED_FACTION_INDEX:
+                    player.WatchedFactionIndex = (uint)value;
+                    break;
+                case >= EPlayerFields.PLAYER_FIELD_COMBAT_RATING_1
+                and <= EPlayerFields.PLAYER_FIELD_COMBAT_RATING_1 + 20:
+                    player.CombatRating[field - EPlayerFields.PLAYER_FIELD_COMBAT_RATING_1] =
+                        (uint)value;
+                    break;
+                case EPlayerFields.PLAYER_CHOSEN_TITLE:
+                    // Note: ChosenTitle property not implemented in WoWPlayer yet
+                    break;
+                case EPlayerFields.PLAYER__FIELD_KNOWN_TITLES:
+                    // Note: KnownTitles property not implemented in WoWPlayer yet
+                    break;
+                case EPlayerFields.PLAYER__FIELD_KNOWN_TITLES + 1:
+                    // Note: KnownTitles property not implemented in WoWPlayer yet
+                    break;
+                case EPlayerFields.PLAYER_FIELD_MOD_HEALING_DONE_POS:
+                    // Note: ModHealingDonePos property not implemented in WoWPlayer yet
+                    break;
+                case EPlayerFields.PLAYER_FIELD_MOD_TARGET_RESISTANCE:
+                    // Note: ModTargetResistance property not implemented in WoWPlayer yet
+                    break;
+                case EPlayerFields.PLAYER_FIELD_BYTES:
+                    // Note: FieldBytes property not implemented in WoWPlayer yet
+                    break;
+                case EPlayerFields.PLAYER_OFFHAND_CRIT_PERCENTAGE:
+                    // Note: OffhandCritPercentage property not implemented in WoWPlayer yet
+                    break;
+                case >= EPlayerFields.PLAYER_SPELL_CRIT_PERCENTAGE1
+                and <= EPlayerFields.PLAYER_SPELL_CRIT_PERCENTAGE1 + 6:
+                    // Note: SpellCritPercentage array not implemented in WoWPlayer yet
+                    break;
+                case >= EPlayerFields.PLAYER_FIELD_ARENA_TEAM_INFO_1_1
+                and <= EPlayerFields.PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 17:
+                    // Note: ArenaTeamInfo array not implemented in WoWPlayer yet
+                    break;
+                case EPlayerFields.PLAYER_FIELD_HONOR_CURRENCY:
+                    // Note: HonorCurrency property not implemented in WoWPlayer yet
+                    break;
+                case EPlayerFields.PLAYER_FIELD_ARENA_CURRENCY:
+                    // Note: ArenaCurrency property not implemented in WoWPlayer yet
+                    break;
+                case EPlayerFields.PLAYER_FIELD_MOD_MANA_REGEN:
+                    // Note: ModManaRegen property not implemented in WoWPlayer yet
+                    break;
+                case EPlayerFields.PLAYER_FIELD_MOD_MANA_REGEN_INTERRUPT:
+                    // Note: ModManaRegenInterrupt property not implemented in WoWPlayer yet
+                    break;
+                case EPlayerFields.PLAYER_FIELD_MAX_LEVEL:
+                    // Note: MaxLevel property not implemented in WoWPlayer yet
+                    break;
+                case >= EPlayerFields.PLAYER_FIELD_DAILY_QUESTS_1
+                and <= EPlayerFields.PLAYER_FIELD_DAILY_QUESTS_1 + 9:
+                    // Note: DailyQuests array not implemented in WoWPlayer yet
+                    break;
+                case EPlayerFields.PLAYER_FIELD_PADDING:
+                    // Padding field, usually ignored
+                    break;
+            }
+        }
+
+        private static void ApplyMovementData(WoWUnit unit, MovementInfoUpdate data)
+        {
+            unit.MovementFlags = data.MovementFlags;
+            unit.LastUpdated = data.LastUpdated;
+            unit.Position.X = data.X;
+            unit.Position.Y = data.Y;
+            unit.Position.Z = data.Z;
+            unit.Facing = data.Facing;
+            unit.TransportGuid = data.TransportGuid ?? 0;
+            unit.TransportOffset = data.TransportOffset ?? unit.TransportOffset;
+            unit.TransportOrientation = data.TransportOrientation ?? 0f;
+            unit.TransportLastUpdated = data.TransportLastUpdated ?? 0;
+            unit.SwimPitch = data.SwimPitch ?? 0f;
+            unit.FallTime = data.FallTime;
+            unit.JumpVerticalSpeed = data.JumpVerticalSpeed ?? 0f;
+            unit.JumpSinAngle = data.JumpSinAngle ?? 0f;
+            unit.JumpCosAngle = data.JumpCosAngle ?? 0f;
+            unit.JumpHorizontalSpeed = data.JumpHorizontalSpeed ?? 0f;
+            unit.SplineElevation = data.SplineElevation ?? 0f;
+
+            if (data.MovementBlockUpdate != null)
+            {
+                unit.WalkSpeed = data.MovementBlockUpdate.WalkSpeed;
+                unit.RunSpeed = data.MovementBlockUpdate.RunSpeed;
+                unit.RunBackSpeed = data.MovementBlockUpdate.RunBackSpeed;
+                unit.SwimSpeed = data.MovementBlockUpdate.SwimSpeed;
+                unit.SwimBackSpeed = data.MovementBlockUpdate.SwimBackSpeed;
+                unit.TurnRate = data.MovementBlockUpdate.TurnRate;
+                unit.SplineFlags = data.MovementBlockUpdate.SplineFlags ?? SplineFlags.None;
+                unit.SplineFinalPoint =
+                    data.MovementBlockUpdate.SplineFinalPoint ?? unit.SplineFinalPoint;
+                unit.SplineTargetGuid = data.MovementBlockUpdate.SplineTargetGuid ?? 0;
+                unit.SplineFinalOrientation = data.MovementBlockUpdate.SplineFinalOrientation ?? 0f;
+                unit.SplineTimePassed = data.MovementBlockUpdate.SplineTimePassed ?? 0;
+                unit.SplineDuration = data.MovementBlockUpdate.SplineDuration ?? 0;
+                unit.SplineId = data.MovementBlockUpdate.SplineId ?? 0;
+                unit.SplineNodes = data.MovementBlockUpdate.SplineNodes ?? [];
+                unit.SplineFinalDestination =
+                    data.MovementBlockUpdate.SplineFinalDestination ?? unit.SplineFinalDestination;
+                unit.SplineType = data.MovementBlockUpdate.SplineType;
+                unit.SplineTargetGuid = data.MovementBlockUpdate.FacingTargetGuid;
+                unit.FacingAngle = data.MovementBlockUpdate.FacingAngle;
+                unit.FacingSpot = data.MovementBlockUpdate.FacingSpot;
+                unit.SplineTimestamp = data.MovementBlockUpdate.SplineTimestamp;
+                unit.SplinePoints = data.MovementBlockUpdate.SplinePoints;
+            }
         }
 
         #region NotImplemented
@@ -1766,7 +2221,13 @@ namespace WoWSharpClient
             throw new NotImplementedException();
         }
 
-        public void SplitStack(int bag, int slot, int quantity, int destinationBag, int destinationSlot)
+        public void SplitStack(
+            int bag,
+            int slot,
+            int quantity,
+            int destinationBag,
+            int destinationSlot
+        )
         {
             throw new NotImplementedException();
         }
@@ -1818,10 +2279,7 @@ namespace WoWSharpClient
 
         public LoginStates LoginState => throw new NotImplementedException();
 
-        public void AntiAfk()
-        {
-
-        }
+        public void AntiAfk() { }
 
         public IWoWUnit GetTarget(IWoWUnit woWUnit)
         {
@@ -1833,90 +2291,39 @@ namespace WoWSharpClient
             return 0;
         }
 
-        public void PickupInventoryItem(uint inventorySlot)
-        {
+        public void PickupInventoryItem(uint inventorySlot) { }
 
-        }
+        public void DeleteCursorItem() { }
 
-        public void DeleteCursorItem()
-        {
+        public void EquipCursorItem() { }
 
-        }
+        public void ConfirmItemEquip() { }
 
-        public void EquipCursorItem()
-        {
+        public void SendChatMessage(string chatMessage) { }
 
-        }
+        public void SetRaidTarget(IWoWUnit target, TargetMarker v) { }
 
-        public void ConfirmItemEquip()
-        {
+        public void JoinBattleGroundQueue() { }
 
-        }
+        public void ResetInstances() { }
 
-        public void SendChatMessage(string chatMessage)
-        {
+        public void PickupMacro(uint v) { }
 
-        }
+        public void PlaceAction(uint v) { }
 
-        public void SetRaidTarget(IWoWUnit target, TargetMarker v)
-        {
+        public void InviteToGroup(ulong guid) { }
 
-        }
+        public void KickPlayer(ulong guid) { }
 
-        public void JoinBattleGroundQueue()
-        {
+        public void AcceptGroupInvite() { }
 
-        }
+        public void DeclineGroupInvite() { }
 
-        public void ResetInstances()
-        {
+        public void LeaveGroup() { }
 
-        }
+        public void DisbandGroup() { }
 
-        public void PickupMacro(uint v)
-        {
-
-        }
-
-        public void PlaceAction(uint v)
-        {
-
-        }
-
-        public void InviteToGroup(ulong guid)
-        {
-
-        }
-
-        public void KickPlayer(ulong guid)
-        {
-
-        }
-
-        public void AcceptGroupInvite()
-        {
-
-        }
-
-        public void DeclineGroupInvite()
-        {
-
-        }
-
-        public void LeaveGroup()
-        {
-
-        }
-
-        public void DisbandGroup()
-        {
-
-        }
-
-        public void ConvertToRaid()
-        {
-
-        }
+        public void ConvertToRaid() { }
 
         public bool HasPendingGroupInvite()
         {
@@ -1928,45 +2335,21 @@ namespace WoWSharpClient
             return false;
         }
 
-        public void LootPass(int itemId)
-        {
+        public void LootPass(int itemId) { }
 
-        }
+        public void LootRollGreed(int itemId) { }
 
-        public void LootRollGreed(int itemId)
-        {
+        public void LootRollNeed(int itemId) { }
 
-        }
+        public void AssignLoot(int itemId, ulong playerGuid) { }
 
-        public void LootRollNeed(int itemId)
-        {
+        public void SetGroupLoot(GroupLootSetting setting) { }
 
-        }
+        public void PromoteLootManager(ulong playerGuid) { }
 
-        public void AssignLoot(int itemId, ulong playerGuid)
-        {
+        public void PromoteAssistant(ulong playerGuid) { }
 
-        }
-
-        public void SetGroupLoot(GroupLootSetting setting)
-        {
-
-        }
-
-        public void PromoteLootManager(ulong playerGuid)
-        {
-
-        }
-
-        public void PromoteAssistant(ulong playerGuid)
-        {
-
-        }
-
-        public void PromoteLeader(ulong playerGuid)
-        {
-
-        }
+        public void PromoteLeader(ulong playerGuid) { }
 
         public void DoEmote(Emote emote)
         {
@@ -2014,18 +2397,20 @@ namespace WoWSharpClient
         }
 
         #endregion
+
+        public enum ObjectUpdateOperation
+        {
+            Add,
+            Update,
+            Remove,
+        }
+
+        public record ObjectStateUpdate(
+            ulong Guid,
+            ObjectUpdateOperation Operation,
+            WoWObjectType ObjectType,
+            MovementInfoUpdate? MovementData,
+            Dictionary<uint, object?> UpdatedFields
+        );
     }
-    public enum ObjectUpdateOperation
-    {
-        Add,
-        Update,
-        Remove
-    }
-    public record ObjectStateUpdate(
-        ulong Guid,
-        ObjectUpdateOperation Operation,
-        WoWObjectType ObjectType,
-        MovementInfoUpdate? MovementData,
-        Dictionary<uint, object?> UpdatedFields
-    );
 }

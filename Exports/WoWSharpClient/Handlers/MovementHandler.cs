@@ -32,35 +32,52 @@ namespace WoWSharpClient.Handlers
                     switch (opcode)
                     {
                         case Opcode.MSG_MOVE_TELEPORT:
-                            WoWSharpEventEmitter.Instance.FireOnTeleport(ParseAcknowledgementPacket(reader));
+                            WoWSharpEventEmitter.Instance.FireOnTeleport(
+                                ParseAcknowledgementPacket(reader)
+                            );
                             break;
                         case Opcode.MSG_MOVE_TELEPORT_ACK:
                             ulong guid = ReaderUtils.ReadPackedGuid(reader);
                             uint movementCounter = reader.ReadUInt32();
-                            MovementInfoUpdate movementUpdateData = MovementPacketHandler.ParseMovementInfo(reader);
+                            MovementInfoUpdate movementUpdateData =
+                                MovementPacketHandler.ParseMovementInfo(reader);
                             movementUpdateData.MovementCounter = movementCounter;
 
                             //_objectManager.QueueUpdate(new(guid, ObjectUpdateOperation.Update, WoWObjectType.Player, movementUpdateData, []));
 
-                            WoWSharpEventEmitter.Instance.FireOnTeleport(new RequiresAcknowledgementArgs(guid, movementCounter));
+                            WoWSharpEventEmitter.Instance.FireOnTeleport(
+                                new RequiresAcknowledgementArgs(guid, movementCounter)
+                            );
                             break;
                         case Opcode.SMSG_FORCE_MOVE_ROOT:
-                            WoWSharpEventEmitter.Instance.FireOnForceMoveRoot(ParseGuidCounterPacket(reader));
+                            WoWSharpEventEmitter.Instance.FireOnForceMoveRoot(
+                                ParseGuidCounterPacket(reader)
+                            );
                             break;
                         case Opcode.SMSG_FORCE_MOVE_UNROOT:
-                            WoWSharpEventEmitter.Instance.FireOnForceMoveUnroot(ParseGuidCounterPacket(reader));
+                            WoWSharpEventEmitter.Instance.FireOnForceMoveUnroot(
+                                ParseGuidCounterPacket(reader)
+                            );
                             break;
                         case Opcode.SMSG_FORCE_RUN_SPEED_CHANGE:
-                            WoWSharpEventEmitter.Instance.FireOnForceRunSpeedChange(ParseGuidCounterPacket(reader));
+                            WoWSharpEventEmitter.Instance.FireOnForceRunSpeedChange(
+                                ParseGuidCounterPacket(reader)
+                            );
                             break;
                         case Opcode.SMSG_FORCE_RUN_BACK_SPEED_CHANGE:
-                            WoWSharpEventEmitter.Instance.FireOnForceRunBackSpeedChange(ParseGuidCounterPacket(reader));
+                            WoWSharpEventEmitter.Instance.FireOnForceRunBackSpeedChange(
+                                ParseGuidCounterPacket(reader)
+                            );
                             break;
                         case Opcode.SMSG_FORCE_SWIM_SPEED_CHANGE:
-                            WoWSharpEventEmitter.Instance.FireOnForceSwimSpeedChange(ParseGuidCounterPacket(reader));
+                            WoWSharpEventEmitter.Instance.FireOnForceSwimSpeedChange(
+                                ParseGuidCounterPacket(reader)
+                            );
                             break;
                         case Opcode.SMSG_MOVE_KNOCK_BACK:
-                            WoWSharpEventEmitter.Instance.FireOnForceMoveKnockBack(ParseGuidCounterPacket(reader));
+                            WoWSharpEventEmitter.Instance.FireOnForceMoveKnockBack(
+                                ParseGuidCounterPacket(reader)
+                            );
                             break;
                         case Opcode.SMSG_SPLINE_MOVE_SET_RUN_MODE:
                             ulong splineRunGuid = ReaderUtils.ReadPackedGuid(reader);
@@ -79,43 +96,69 @@ namespace WoWSharpClient.Handlers
                             Console.WriteLine($"{splineMoveUnrootGuid} Now unrooted");
                             break;
                         case Opcode.MSG_MOVE_TIME_SKIPPED:
-                            WoWSharpEventEmitter.Instance.FireOnMoveTimeSkipped(ParseGuidCounterPacket(reader));
+                            WoWSharpEventEmitter.Instance.FireOnMoveTimeSkipped(
+                                ParseGuidCounterPacket(reader)
+                            );
                             break;
                         case Opcode.MSG_MOVE_JUMP:
-                            WoWSharpEventEmitter.Instance.FireOnCharacterJumpStart(ParseMessageMove(reader));
+                            WoWSharpEventEmitter.Instance.FireOnCharacterJumpStart(
+                                ParseMessageMove(reader)
+                            );
                             break;
                         case Opcode.MSG_MOVE_FALL_LAND:
-                            WoWSharpEventEmitter.Instance.FireOnCharacterFallLand(ParseMessageMove(reader));
+                            WoWSharpEventEmitter.Instance.FireOnCharacterFallLand(
+                                ParseMessageMove(reader)
+                            );
                             break;
                         case Opcode.MSG_MOVE_START_FORWARD:
-                            WoWSharpEventEmitter.Instance.FireOnCharacterStartForward(ParseMessageMove(reader));
+                            WoWSharpEventEmitter.Instance.FireOnCharacterStartForward(
+                                ParseMessageMove(reader)
+                            );
                             break;
                         case Opcode.MSG_MOVE_STOP:
-                            WoWSharpEventEmitter.Instance.FireOnCharacterMoveStop(ParseMessageMove(reader));
+                            WoWSharpEventEmitter.Instance.FireOnCharacterMoveStop(
+                                ParseMessageMove(reader)
+                            );
                             break;
                         case Opcode.MSG_MOVE_START_STRAFE_LEFT:
-                            WoWSharpEventEmitter.Instance.FireOnCharacterStartStrafeLeft(ParseMessageMove(reader));
+                            WoWSharpEventEmitter.Instance.FireOnCharacterStartStrafeLeft(
+                                ParseMessageMove(reader)
+                            );
                             break;
                         case Opcode.MSG_MOVE_START_STRAFE_RIGHT:
-                            WoWSharpEventEmitter.Instance.FireOnCharacterStartStrafeRight(ParseMessageMove(reader));
+                            WoWSharpEventEmitter.Instance.FireOnCharacterStartStrafeRight(
+                                ParseMessageMove(reader)
+                            );
                             break;
                         case Opcode.MSG_MOVE_STOP_STRAFE:
-                            WoWSharpEventEmitter.Instance.FireOnCharacterStopStrafe(ParseMessageMove(reader));
+                            WoWSharpEventEmitter.Instance.FireOnCharacterStopStrafe(
+                                ParseMessageMove(reader)
+                            );
                             break;
                         case Opcode.MSG_MOVE_START_TURN_LEFT:
-                            WoWSharpEventEmitter.Instance.FireOnCharacterStartTurnLeft(ParseMessageMove(reader));
+                            WoWSharpEventEmitter.Instance.FireOnCharacterStartTurnLeft(
+                                ParseMessageMove(reader)
+                            );
                             break;
                         case Opcode.MSG_MOVE_START_TURN_RIGHT:
-                            WoWSharpEventEmitter.Instance.FireOnCharacterStartTurnRight(ParseMessageMove(reader));
+                            WoWSharpEventEmitter.Instance.FireOnCharacterStartTurnRight(
+                                ParseMessageMove(reader)
+                            );
                             break;
                         case Opcode.MSG_MOVE_STOP_TURN:
-                            WoWSharpEventEmitter.Instance.FireOnCharacterStopTurn(ParseMessageMove(reader));
+                            WoWSharpEventEmitter.Instance.FireOnCharacterStopTurn(
+                                ParseMessageMove(reader)
+                            );
                             break;
                         case Opcode.MSG_MOVE_SET_FACING:
-                            WoWSharpEventEmitter.Instance.FireOnCharacterSetFacing(ParseMessageMove(reader));
+                            WoWSharpEventEmitter.Instance.FireOnCharacterSetFacing(
+                                ParseMessageMove(reader)
+                            );
                             break;
                         case Opcode.MSG_MOVE_START_BACKWARD:
-                            WoWSharpEventEmitter.Instance.FireOnCharacterStartBackwards(ParseMessageMove(reader));
+                            WoWSharpEventEmitter.Instance.FireOnCharacterStartBackwards(
+                                ParseMessageMove(reader)
+                            );
                             break;
                         case Opcode.MSG_MOVE_HEARTBEAT:
                             ParseMessageMove(reader);
@@ -131,6 +174,7 @@ namespace WoWSharpClient.Handlers
                 }
             }
         }
+
         private static RequiresAcknowledgementArgs ParseAcknowledgementPacket(BinaryReader reader)
         {
             var packedGuid = ReaderUtils.ReadPackedGuid(reader);
@@ -139,7 +183,15 @@ namespace WoWSharpClient.Handlers
             MovementInfoUpdate movementData = MovementPacketHandler.ParseMovementInfo(reader);
             movementData.MovementCounter = counter;
 
-            WoWSharpObjectManager.Instance.QueueUpdate(new ObjectStateUpdate(packedGuid, ObjectUpdateOperation.Update, WoWObjectType.Player, movementData, []));
+            WoWSharpObjectManager.Instance.QueueUpdate(
+                new WoWSharpObjectManager.ObjectStateUpdate(
+                    packedGuid,
+                    WoWSharpObjectManager.ObjectUpdateOperation.Update,
+                    WoWObjectType.Player,
+                    movementData,
+                    []
+                )
+            );
 
             return new(packedGuid, counter);
         }
@@ -160,7 +212,15 @@ namespace WoWSharpClient.Handlers
             var movementData = MovementPacketHandler.ParseMovementInfo(reader);
 
             // Queue an update for the object's movement
-            WoWSharpObjectManager.Instance.QueueUpdate(new ObjectStateUpdate(packedGuid, ObjectUpdateOperation.Update, WoWObjectType.None, movementData, []));
+            WoWSharpObjectManager.Instance.QueueUpdate(
+                new WoWSharpObjectManager.ObjectStateUpdate(
+                    packedGuid,
+                    WoWSharpObjectManager.ObjectUpdateOperation.Update,
+                    WoWObjectType.None,
+                    movementData,
+                    []
+                )
+            );
 
             return packedGuid;
         }
@@ -176,12 +236,28 @@ namespace WoWSharpClient.Handlers
             {
                 case Opcode.SMSG_MONSTER_MOVE:
                     var moveData = ParseMonsterMove(reader);
-                    WoWSharpObjectManager.Instance.QueueUpdate(new ObjectStateUpdate(guid, ObjectUpdateOperation.Update, WoWObjectType.Unit, moveData, []));
+                    WoWSharpObjectManager.Instance.QueueUpdate(
+                        new WoWSharpObjectManager.ObjectStateUpdate(
+                            guid,
+                            WoWSharpObjectManager.ObjectUpdateOperation.Update,
+                            WoWObjectType.Unit,
+                            moveData,
+                            []
+                        )
+                    );
                     break;
                 case Opcode.SMSG_MONSTER_MOVE_TRANSPORT:
                     ReaderUtils.ReadPackedGuid(reader); // skip transport guid
                     moveData = ParseMonsterMove(reader);
-                    WoWSharpObjectManager.Instance.QueueUpdate(new ObjectStateUpdate(guid, ObjectUpdateOperation.Update, WoWObjectType.Unit, moveData, []));
+                    WoWSharpObjectManager.Instance.QueueUpdate(
+                        new WoWSharpObjectManager.ObjectStateUpdate(
+                            guid,
+                            WoWSharpObjectManager.ObjectUpdateOperation.Update,
+                            WoWObjectType.Unit,
+                            moveData,
+                            []
+                        )
+                    );
                     break;
                 case Opcode.SMSG_SPLINE_SET_RUN_SPEED:
                     ReaderUtils.ReadPackedGuid(reader);
@@ -200,8 +276,8 @@ namespace WoWSharpClient.Handlers
                 MovementBlockUpdate = new()
                 {
                     SplineId = reader.ReadUInt32(),
-                    SplineType = (SplineType)reader.ReadByte()
-                }
+                    SplineType = (SplineType)reader.ReadByte(),
+                },
             };
 
             switch (data.MovementBlockUpdate.SplineType)

@@ -1,0 +1,16 @@
+﻿**/bin/
+**/obj/
+**/.vs/
+**/.git/
+**/Release/
+*.user
+*.suo
+*.log
+*.db
+*.tmp
+*.cache
+*.nupkg
+*.snupkg
+.vscode/
+.idea/
+TestResults/

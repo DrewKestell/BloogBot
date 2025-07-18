@@ -18,5 +18,7 @@ namespace GameData.Core.Interfaces
         uint Copper { get; }
         bool IsAutoAttacking { get; }
         bool CanResurrect { get; }
+        bool InBattleground { get; }
+        bool HasQuestTargets { get; }
     }
 }

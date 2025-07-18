@@ -4,7 +4,7 @@ namespace StateManager.Repository
 {
     public class ReamldRepository
     {
-        private static readonly string ConnectionString = "server=localhost;user=root;database=realmd;port=3306;password=root";
+        private static readonly string ConnectionString = "server=localhost;user=mangos;database=realmd;port=3306;password=mangos";
 
         public static bool CheckIfAccountExists(string accountName)
         {

@@ -2,6 +2,23 @@
 
 public static class WinProcessImports
 {
+    [Flags]
+    public enum LoadLibraryFlags : uint
+    {
+        None                          = 0,
+        LOAD_WITH_ALTERED_SEARCH_PATH = 0x00000008
+    }
+
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    public static extern IntPtr LoadLibraryEx(
+        string lpFileName,
+        IntPtr hFile,
+        LoadLibraryFlags dwFlags);
+
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool SetDllDirectory(string lpPathName);
+    
     [DllImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool AllocConsole();
