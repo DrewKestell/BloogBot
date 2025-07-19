@@ -7,7 +7,7 @@ using MageFire.Tasks;
 namespace MageFire
 {
     [Export(typeof(IBot))]
-    internal class MageArcane : IBot
+    internal class MageFire : IBot
     {
         public string Name => "Fire Mage";
 
@@ -36,6 +36,6 @@ namespace MageFire
             new PvERotationTask(botContext);
 
         public IBotTask CreatePvPRotationTask(IBotContext botContext) =>
-            new PvERotationTask(botContext);
+            new PvPRotationTask(botContext);
     }
 }
