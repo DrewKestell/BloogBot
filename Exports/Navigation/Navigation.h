@@ -38,13 +38,18 @@ public:
     void Initialize();
     void Release(); 
     bool RaycastToWmoMesh(unsigned int mapId, float startX, float startY, float startZ, float endX, float endY, float endZ, float* hitX, float* hitY, float* hitZ);
+    std::vector<NavPoly> CapsuleOverlapSweep(uint32_t mapId,
+        const XYZ& p0,
+        const XYZ& p1,
+        float r, float h,
+        float step /* =0.3f */);
     XYZ* CalculatePath(unsigned int mapId, XYZ start, XYZ end, bool straightPath, int* length);
     void FreePathArr(XYZ* length);
     std::string GetMmapsPath();
     bool IsLineOfSight(uint32_t mapId, const XYZ& a, const XYZ& b);
     std::vector<NavPoly> CapsuleOverlap(uint32_t mapId, const XYZ& pos, float radius, float height);
     float GetLiquidHeight(uint32_t mapId, float x, float y, float z, uint32_t liquidTypeMask);
-
+    const dtNavMeshQuery* GetQueryForMap(uint32_t mapId);
 private:
     void InitializeMapsForContinent(MMAP::MMapManager* manager, unsigned int mapId);
     static Navigation* s_singletonInstance;

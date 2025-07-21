@@ -2,16 +2,10 @@ using BloogBot.AI.Semantic;
 using BloogBot.AI.States;
 using Microsoft.SemanticKernel;
 
-public sealed class KernelCoordinator
+public sealed class KernelCoordinator(Kernel kernel, PluginCatalog catalog)
 {
-    private readonly Kernel _kernel;
-    private readonly PluginCatalog _catalog;
-
-    public KernelCoordinator(Kernel kernel, PluginCatalog catalog)
-    {
-        _kernel = kernel;
-        _catalog = catalog;
-    }
+    private readonly Kernel _kernel = kernel;
+    private readonly PluginCatalog _catalog = catalog;
 
     public void OnActivityChanged(BotActivity newActivity)
     {

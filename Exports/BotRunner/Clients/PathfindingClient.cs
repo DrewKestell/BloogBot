@@ -1,6 +1,4 @@
 ﻿using BotCommLayer;
-using GameData.Core.Constants;
-using GameData.Core.Enums;
 using GameData.Core.Models;
 using Microsoft.Extensions.Logging;
 using Pathfinding;
@@ -65,26 +63,18 @@ namespace BotRunner.Clients
             return response.Los.InLos;
         }
 
-        public virtual TerrainProbeResponse ProbeTerrain(uint mapId, Position feet, Race race)
+        public virtual PhysicsOutput PhysicsStep(PhysicsInput physicsInput)
         {
-            var (radius, height) = RaceDimensions.GetCapsuleForRace(race);
-
             var request = new PathfindingRequest
             {
-                Terrain = new TerrainProbeRequest
-                {
-                    MapId = mapId,
-                    Position = feet.ToProto(),
-                    CapsuleRadius = radius,
-                    CapsuleHeight = height,
-                }
+                Step = physicsInput
             };
 
             var response = SendMessage(request);
             if (response.PayloadCase == PathfindingResponse.PayloadOneofCase.Error)
                 throw new Exception(response.Error.Message);
 
-            return response.Terrain;
+            return response.Step;
         }
     }
 

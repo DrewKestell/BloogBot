@@ -2,42 +2,100 @@
 
 package pathfinding;
 
-import "game.proto";          // re-uses game.Position (x,y,z)
+import "game.proto";  // defines game.Position
 
 /* ─────────────────────── Detour / Recast nav-mesh metadata ─────────────────────── */
 
-/** Bit-field of per-polygon capabilities (matches NavMeshDefines.h). */
 enum NavPolyFlag {
-  POLY_FLAG_NONE     = 0;   // 0x00 – not walkable
-  POLY_FLAG_WALK     = 1;   // 0x01 – land-unit can traverse
-  POLY_FLAG_SWIM     = 2;   // 0x02 – requires swimming
-  POLY_FLAG_DOOR     = 4;   // 0x04 – door that toggles WALK at runtime
-  POLY_FLAG_JUMP     = 8;   // 0x08 – explicit jump link
-  POLY_FLAG_DISABLED = 16;  // 0x10 – temporarily disabled (dynamic obstacle)
-  POLY_FLAG_TELEPORT = 32;  // 0x20 – one-way teleporter surface
-  POLY_FLAG_ALL      = 65535; // helper mask (0xFFFF)
+  POLY_FLAG_NONE     = 0;
+  POLY_FLAG_WALK     = 1;
+  POLY_FLAG_SWIM     = 2;
+  POLY_FLAG_DOOR     = 4;
+  POLY_FLAG_JUMP     = 8;
+  POLY_FLAG_DISABLED = 16;
+  POLY_FLAG_TELEPORT = 32;
+  POLY_FLAG_ALL      = 65535;
 }
 
-/** Area‐IDs carved into the mesh during build (must start at 0 for proto3). */
 enum NavTerrain {
-  NAV_EMPTY   = 0;   // 0x00 – no terrain bits set
-  NAV_GROUND  = 1;   // 0x01
-  NAV_MAGMA   = 2;   // 0x02
-  NAV_SLIME   = 4;   // 0x04
-  NAV_WATER   = 8;   // 0x08
-  NAV_UNUSED1 = 16;  // 0x10
-  NAV_UNUSED2 = 32;  // 0x20
-  NAV_UNUSED3 = 64;  // 0x40
-  NAV_UNUSED4 = 128; // 0x80
+  NAV_EMPTY   = 0;
+  NAV_GROUND  = 1;
+  NAV_MAGMA   = 2;
+  NAV_SLIME   = 4;
+  NAV_WATER   = 8;
+  NAV_UNUSED1 = 16;
+  NAV_UNUSED2 = 32;
+  NAV_UNUSED3 = 64;
+  NAV_UNUSED4 = 128;
 }
 
-/* ────────── atomic request / response types ────────── */
+/* ────────── core physics interface ────────── */
+
+message PhysicsInput {
+  uint32 movementFlags = 1;
+  uint32 lastUpdated = 2;
+
+  float posX = 3;
+  float posY = 4;
+  float posZ = 5;
+  float facing = 6;
+
+  uint64 transportGuid = 7;
+  float transportOffsetX = 8;
+  float transportOffsetY = 9;
+  float transportOffsetZ = 10;
+  float transportOrientation = 11;
+  uint32 transportLastUpdated = 12;
+
+  float swimPitch = 13;
+
+  uint32 fallTime = 14;
+  float jumpVerticalSpeed = 15;
+  float jumpCosAngle = 16;
+  float jumpSinAngle = 17;
+  float jumpHorizontalSpeed = 18;
+
+  float splineElevation = 19;
+
+  float walkSpeed = 20;
+  float runSpeed = 21;
+  float runBackSpeed = 22;
+  float swimSpeed = 23;
+  float swimBackSpeed = 24;
+  float turnRate = 25;
+
+  float velX = 26;
+  float velY = 27;
+  float velZ = 28;
+
+  float radius = 29;
+  float height = 30;
+  float gravity = 31;
+
+  float adtGroundZ = 32;
+  float adtLiquidZ = 33;
+
+  uint32 mapId = 34;
+  float deltaTime = 35;
+}
+
+message PhysicsOutput {
+  float newPosX = 1;
+  float newPosY = 2;
+  float newPosZ = 3;
+  float newVelX = 4;
+  float newVelY = 5;
+  float newVelZ = 6;
+  uint32 movementFlags = 7;
+}
+
+/* ────────── navigation requests ────────── */
 
 message CalculatePathRequest {
-  uint32        map_id   = 1;
-  game.Position start    = 2;
-  game.Position end      = 3;
-  bool          straight = 4;   // Detour “straight path” mode
+  uint32 map_id = 1;
+  game.Position start = 2;
+  game.Position end = 3;
+  bool straight = 4;
 }
 
 message CalculatePathResponse {
@@ -45,51 +103,42 @@ message CalculatePathResponse {
 }
 
 message LineOfSightRequest {
-  uint32        map_id = 1;
-  game.Position from   = 2;
-  game.Position to     = 3;
+  uint32 map_id = 1;
+  game.Position from = 2;
+  game.Position to = 3;
 }
-message LineOfSightResponse { bool in_los = 1; }
 
-message TerrainProbeRequest {
-  uint32        map_id         = 1;
-  game.Position position       = 2;
-  float         capsule_radius = 3;
-  float         capsule_height = 4;
+message LineOfSightResponse {
+  bool in_los = 1;
 }
 
 message NavPolyHit {
-  uint64       ref_id  = 1;                // dtPolyRef
-  NavTerrain  area    = 2;                // baked area-id
-  NavPolyFlag       flags   = 3;                // bit-mask – see NavPolyFlag
-  repeated game.Position verts = 4;        // convex hull verts (debug / visualisation)
+  uint64 ref_id = 1;
+  NavTerrain area = 2;
+  NavPolyFlag flags = 3;
+  repeated game.Position verts = 4;
 }
 
-message TerrainProbeResponse {
-  float               ground_z      = 1;   // best-fit walkable Z (or NaN)
-  float               liquid_z      = 2;   // water surface (or NaN)
-  uint32              terrain_flags = 3;   // reserved – e.g. MASK_LIQUID / INDOORS
-  repeated NavPolyHit overlaps      = 4;   // all polys intersecting the query capsule
+/* ────────── error wrapper ────────── */
+message Error {
+  string message = 1;
 }
 
-/* ────────── error helper ────────── */
-message Error { string message = 1; }
-
-/* ────────── wrapper envelopes ────────── */
+/* ────────── unified wrapper ────────── */
 
 message PathfindingRequest {
   oneof payload {
-    CalculatePathRequest path     = 1;
-    LineOfSightRequest   los      = 2;
-    TerrainProbeRequest  terrain  = 3;
+    CalculatePathRequest path = 1;
+    LineOfSightRequest los = 2;
+    PhysicsInput step = 3;
   }
 }
 
 message PathfindingResponse {
   oneof payload {
-    CalculatePathResponse path     = 1;
-    LineOfSightResponse   los      = 2;
-    TerrainProbeResponse  terrain  = 3;
-    Error                 error    = 4;
+    CalculatePathResponse path = 1;
+    LineOfSightResponse los = 2;
+    PhysicsOutput step = 3;
+    Error error = 4;
   }
 }

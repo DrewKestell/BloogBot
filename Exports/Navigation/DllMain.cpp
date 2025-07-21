@@ -1,6 +1,8 @@
 ﻿#include "Navigation.h"
 #include <windows.h>
 #include <iostream>
+#include "PhysicsBridge.h"
+#include "PhysicsEngine.h"
 
 extern "C"
 {
@@ -18,14 +20,12 @@ extern "C"
             nav->FreePathArr(path);
     }
 
-    __declspec(dllexport)
-        bool LineOfSight(uint32_t mapId, XYZ from, XYZ to)
+    __declspec(dllexport) bool LineOfSight(uint32_t mapId, XYZ from, XYZ to)
     {
         return Navigation::GetInstance()->IsLineOfSight(mapId, from, to);
     }
 
-    __declspec(dllexport)
-        NavPoly* CapsuleOverlap(uint32_t mapId, XYZ pos,
+    __declspec(dllexport) NavPoly* CapsuleOverlap(uint32_t mapId, XYZ pos,
             float radius, float height,
             int* outCount)
     {
@@ -58,12 +58,18 @@ extern "C"
     {
         if (p) ::CoTaskMemFree(p);
     }
+    
+    __declspec(dllexport) PhysicsOutput __cdecl StepPhysics(const PhysicsInput* in, float dt)
+    {
+        return PhysicsEngine::Instance()->Step(*in, dt);
+    }
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
     if (ul_reason_for_call == DLL_PROCESS_ATTACH)
     {
+        if (auto* physics = PhysicsEngine::Instance()) physics->Initialize();
         if (auto* navigation = Navigation::GetInstance()) navigation->Initialize();
     }
     else if (ul_reason_for_call == DLL_PROCESS_DETACH)

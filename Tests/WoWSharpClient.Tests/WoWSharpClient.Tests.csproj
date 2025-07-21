@@ -7,7 +7,6 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <BaseOutputPath>..\..\Bot</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,7 +21,7 @@
     <ProjectReference Include="..\..\Exports\BotCommLayer\BotCommLayer.csproj" />
     <ProjectReference Include="..\..\Exports\BotRunner\BotRunner.csproj" />
     <ProjectReference Include="..\..\Exports\WoWSharpClient\WoWSharpClient.csproj" />
-    <ProjectReference Include="..\PathfindingService.Tests\PathfindingService.Tests.csproj" />
+    <ProjectReference Include="..\..\Services\PathfindingService\PathfindingService.csproj" />
   </ItemGroup>
 
   <ItemGroup>

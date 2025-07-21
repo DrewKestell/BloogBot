@@ -235,6 +235,18 @@
     <ClInclude Include="..\Navigation\MoveMapSharedDefines.h" />
     <ClInclude Include="..\Navigation\Navigation.h" />
     <ClInclude Include="..\Navigation\PathFinder.h" />
+    <ClInclude Include="Assert.h" />
+    <ClInclude Include="BIH.h" />
+    <ClInclude Include="Define.h" />
+    <ClInclude Include="GroupModel_Raw.h" />
+    <ClInclude Include="Log.h" />
+    <ClInclude Include="MapTree.h" />
+    <ClInclude Include="Math.h" />
+    <ClInclude Include="PhysicsBridge.h" />
+    <ClInclude Include="PhysicsEngine.h" />
+    <ClInclude Include="VMapDefinitions.h" />
+    <ClInclude Include="VMapManager2.h" />
+    <ClInclude Include="WorldModel.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Navigation\Detour\Source\DetourAlloc.cpp" />
@@ -260,6 +272,11 @@
     <ClCompile Include="..\Navigation\MoveMap.cpp" />
     <ClCompile Include="..\Navigation\Navigation.cpp" />
     <ClCompile Include="..\Navigation\PathFinder.cpp" />
+    <ClCompile Include="BIH.cpp" />
+    <ClCompile Include="MapTree.cpp" />
+    <ClCompile Include="PhysicsEngine.cpp" />
+    <ClCompile Include="VMapManager2.cpp" />
+    <ClCompile Include="WorldModel.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,18 +1,12 @@
 ﻿using BotRunner.Clients;
-using GameData.Core.Constants;
-using GameData.Core.Enums;
 using GameData.Core.Models;
 using Pathfinding;
+using PathfindingService;
 using PathfindingService.Repository;
 
-public class InMemoryPathfindingClient : PathfindingClient
+public class InMemoryPathfindingClient(Navigation nav) : PathfindingClient
 {
-    private readonly Navigation _nav;
-
-    public InMemoryPathfindingClient(Navigation nav)
-    {
-        _nav = nav;
-    }
+    private readonly Navigation _nav = nav;
 
     public override Position[] GetPath(uint mapId, Position start, Position end, bool smoothPath = false)
         => _nav.CalculatePath(mapId, start, end, smoothPath);
@@ -29,9 +23,6 @@ public class InMemoryPathfindingClient : PathfindingClient
     public override bool IsInLineOfSight(uint mapId, Position from, Position to)
         => _nav.IsLineOfSight(mapId, from, to);
 
-    public override TerrainProbeResponse ProbeTerrain(uint mapId, Position feet, Race race)
-    {
-        var (radius, height) = RaceDimensions.GetCapsuleForRace(race);
-        return _nav.GetTerrainProbe(mapId, feet.ToProto(), radius, height);
-    }
+    public override PhysicsOutput PhysicsStep(PhysicsInput physicsInput)
+        => _nav.StepPhysics(physicsInput.ToPhysicsInput(), physicsInput.DeltaTime).ToPhysicsOutput();
 }

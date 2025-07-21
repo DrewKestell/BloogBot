@@ -1,5 +1,4 @@
 ﻿using GameData.Core.Models;
-using Pathfinding;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Position = GameData.Core.Models.Position;
@@ -21,6 +20,72 @@ namespace PathfindingService.Repository
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 6)]
             public XYZ[] Verts;
         }
+        // Newly added for physics bridge:
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct PhysicsInput
+        {
+            // MovementInfoUpdate core
+            public uint movementFlags;
+
+            // Position & orientation
+            public float posX;
+            public float posY;
+            public float posZ;
+            public float facing;
+
+            // Transport
+            public ulong transportGuid;
+            public float transportOffsetX;
+            public float transportOffsetY;
+            public float transportOffsetZ;
+            public float transportOrientation;
+
+            // Swimming
+            public float swimPitch;
+
+            // Falling / jumping
+            public uint fallTime;
+            public float jumpVerticalSpeed;
+            public float jumpCosAngle;
+            public float jumpSinAngle;
+            public float jumpHorizontalSpeed;
+
+            // Spline elevation
+            public float splineElevation;
+
+            // MovementBlockUpdate speeds
+            public float walkSpeed;
+            public float runSpeed;
+            public float runBackSpeed;
+            public float swimSpeed;
+            public float swimBackSpeed;
+
+            // Current velocity
+            public float velX;
+            public float velY;
+            public float velZ;
+
+            // Collision & world
+            public float radius;
+            public float height;
+            public float gravity;
+
+            // Terrain fallbacks
+            public float adtGroundZ;
+            public float adtLiquidZ;
+
+            // Context
+            public uint mapId;
+        }
+
+        // PhysicsOutput.cs
+        [StructLayout(LayoutKind.Sequential)]
+        public struct PhysicsOutput
+        {
+            public float newPosX, newPosY, newPosZ;
+            public float newVelX, newVelY, newVelZ;
+            public uint movementFlags;
+        }
 
         /* ─────────────── Native delegates ─────────────── */
 
@@ -41,6 +106,9 @@ namespace PathfindingService.Repository
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void FreeNavPolyArrDelegate(IntPtr ptr);
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate PhysicsOutput StepPhysicsDelegate(ref PhysicsInput input, float dt);
+
         /* ─────────────── Function pointers ─────────────── */
 
         private readonly CalculatePathDelegate calculatePath;
@@ -48,6 +116,7 @@ namespace PathfindingService.Repository
         private readonly LineOfSightDelegate lineOfSight;
         private readonly CapsuleOverlapDelegate capsuleOverlap;
         private readonly FreeNavPolyArrDelegate freeNavPolyArr;
+        private readonly StepPhysicsDelegate stepPhysics;
 
         /* ─────────────── Constructor: bind all exports ─────────────── */
 
@@ -72,11 +141,11 @@ namespace PathfindingService.Repository
                 WinProcessImports.GetProcAddress(mod, "CapsuleOverlap"));
             freeNavPolyArr = Marshal.GetDelegateForFunctionPointer<FreeNavPolyArrDelegate>(
                 WinProcessImports.GetProcAddress(mod, "FreeNavPolyArr"));
+            stepPhysics = Marshal.GetDelegateForFunctionPointer<StepPhysicsDelegate>(
+                WinProcessImports.GetProcAddress(mod, "StepPhysics"));
 
             _adtGroundZLoader = new AdtGroundZLoader([Path.Combine(binFolder, @"Data\terrain.MPQ")]);
         }
-
-        /* ─────────────── High-level API ─────────────── */
 
         public Position[] CalculatePath(uint mapId, Position start, Position end, bool straightPath)
         {
@@ -93,41 +162,15 @@ namespace PathfindingService.Repository
             return lineOfSight(mapId, from.ToXYZ(), to.ToXYZ());
         }
 
-        public TerrainProbeResponse GetTerrainProbe(uint mapId, Game.Position pos,
-                                            float radius, float height)
+        public PhysicsOutput StepPhysics(PhysicsInput input,
+            float dt)
         {
-            TerrainProbeResponse response = new();
+            _adtGroundZLoader.TryGetZ((int)input.mapId, input.posX, input.posY, out float adtGroundZ, out float adtLiquidZ);
 
-            // ADT height-field sample
-            _adtGroundZLoader.TryGetZ((int)mapId, pos.X, pos.Y, out float z, out float liqZ);
-            response.GroundZ = z;
-            response.LiquidZ = liqZ;
+            input.adtGroundZ = adtGroundZ;
+            input.adtLiquidZ = adtLiquidZ;
 
-            // polygon overlap
-            IntPtr ptr = capsuleOverlap(mapId, pos.ToXYZ(), radius, height, out int count);
-            if (ptr == IntPtr.Zero || count == 0) return response;
-
-            int size = Marshal.SizeOf<NavPoly>();
-            for (int i = 0; i < count; i++)
-            {
-                IntPtr curr = IntPtr.Add(ptr, i * size);
-                var poly = Marshal.PtrToStructure<NavPoly>(curr);
-
-                NavPolyHit hit = new()
-                {
-                    RefId = poly.RefId,
-                    Area = (NavTerrain)poly.Area,
-                    Flags = (NavPolyFlag)poly.Flags
-                };
-
-                foreach (var vert in poly.Verts)
-                    hit.Verts.Add(vert.ToProto());
-
-                response.Overlaps.Add(hit);
-            }
-
-            freeNavPolyArr(ptr);
-            return response;
+            return stepPhysics(ref input, dt);
         }
     }
 }
