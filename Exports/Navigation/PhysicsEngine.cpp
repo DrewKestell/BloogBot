@@ -1,321 +1,836 @@
-﻿// PhysicsEngine.cpp
+// PhysicsEngine.cpp
 #include "PhysicsEngine.h"
-#include <iostream>
-#include <iomanip>   // std::hex / std::dec
-#include <cmath>
-#include <DetourCommon.h>
 #include "Navigation.h"
+#include "VMapClient.h"
+#include "VMapFactory.h"
+#include "MapLoader.h"
+#include <cmath>
+#include <algorithm>
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <sstream>
+#include <chrono>
+#include <cstring>
 #include <filesystem>
-#include "VMapManager2.h"
+#include "PhysicsMath.h"
 
-static inline float ClampF(float v, float lo, float hi) { return v < lo ? lo : (v > hi ? hi : v); }
+using namespace PhysicsConstants;
+using namespace PhysicsMath;
 
-static constexpr float TERMINAL_VELOCITY_YDPS = 60.0f;   // vanilla cap
-static constexpr float GROUND_EPS = 0.05f;   // snap distance (yd)
-static constexpr float SLOPE_MAX_COS = 0.6f;    // 53.13° walkable
-
-using MF = MovementFlags;
-using std::cout;
-using std::endl;
-
-PhysicsEngine* PhysicsEngine::s_singletonInstance = NULL;
+PhysicsEngine* PhysicsEngine::s_instance = nullptr;
 
 PhysicsEngine* PhysicsEngine::Instance()
 {
-    if (s_singletonInstance == NULL)
-        s_singletonInstance = new PhysicsEngine();
-    return s_singletonInstance;
-}
-
-PhysicsEngine::~PhysicsEngine()
-{
-    // no need to free queries; MMAP manager owns them
-}
-
-
-bool PhysicsEngine::Initialize()
-{
-    //std::puts("\n[PE] ================================================");
-    //std::puts("[PE]  PhysicsEngine::Initialize  (vmaps + mmaps)");
-    //std::puts("[PE] ================================================"); std::fflush(stdout);
-
-    //auto& vman = wow::vmap::VMapManager2::instance();
-    //std::puts("[PE]  VMapManager instance OK"); std::fflush(stdout);
-
-    //namespace fs = std::filesystem;
-    //// FIX: fully-qualify the static call
-    //fs::path root = wow::vmap::VMapManager2::GetVmapsRootString();
-    //std::printf("[PE]  vmaps root = %s\n", root.string().c_str()); std::fflush(stdout);
-
-    //auto preloadVMap = [&](uint32_t mapId)
-    //    {
-    //        if (!fs::exists(root))
-    //        {
-    //            std::puts("[PE]  vmaps directory NOT FOUND!\n");
-    //            return;
-    //        }
-
-    //        size_t loaded = 0, tested = 0;
-    //        try
-    //        {
-    //            for (int x = 0; x < 64; ++x)
-    //                for (int y = 0; y < 64; ++y)
-    //                {
-    //                    if (tested == 0)
-    //                    {
-    //                        std::printf("[PE]  map %u first probe (%02d,%02d)\n", mapId, x, y);
-    //                        std::fflush(stdout);
-    //                    }
-    //                    ++tested;
-    //                    if (vman.loadMapTile(mapId, x, y))
-    //                        ++loaded;
-    //                }
-    //        }
-    //        catch (const std::exception& e)
-    //        {
-    //            std::printf("[PE]  C++ EXCEPTION in loop: %s\n", e.what());
-    //            std::fflush(stdout);
-    //            throw;
-    //        }
-    //        catch (...)  // CORRECTED from `catch (.)` :contentReference[oaicite:2]{index=2}
-    //        {
-    //            std::puts("[PE]  *** NATIVE SEH EXCEPTION in loop ***");
-    //            std::fflush(stdout);
-    //            throw;
-    //        }
-
-    //        std::printf("[PE]  Map %u  tilesLoaded=%zu / 4096\n", mapId, loaded);
-    //        std::fflush(stdout);
-    //    };
-
-    //try
-    //{
-    //    preloadVMap(0);
-    //    preloadVMap(1);
-    //    preloadVMap(389);
-    //}
-    //catch (...)  // CORRECTED from `catch (.)` :contentReference[oaicite:3]{index=3}
-    //{
-    //    std::puts("[PE]  Initialize aborted by exception.\n"); std::fflush(stdout);
-    //    return false;
-    //}
-
-    // navmesh preload unchanged
-    GetOrLoadMap(0);
-    GetOrLoadMap(1);
-    GetOrLoadMap(389);
-
-    std::puts("[PE]  Initialize complete\n"); std::fflush(stdout);
-    return true;
-}
-
-PhysicsEngine::MapContext* PhysicsEngine::GetOrLoadMap(uint32_t mapId)
-{
-    auto it = _maps.find(mapId);
-    if (it != _maps.end())
-        return &it->second;
-
-    // Ask Navigation for the pre-loaded query:
-    const dtNavMeshQuery* q = Navigation::GetInstance()->GetQueryForMap(mapId);
-    if (!q)
-        return nullptr;
-
-    MapContext ctx;
-    ctx.query = q;
-    _maps[mapId] = ctx;
-    return &_maps[mapId];
-}
-
-// ============================================================================
-//  PhysicsEngine::Step ‒ vanilla-style movement with wall-slide support
-//  • User-input flags (FWD / STRAFE / SPRINT …) are **never** cleared here –
-//    the client keeps sending them while the key is held / auto-run is on.
-//  • When movement is blocked head-on, horizontal velocity is zeroed but
-//    flags remain; when only partially blocked, velocity is the slide vector.
-//  • Engine state flags (SWIMMING / FALLING) are managed by the server.
-// ============================================================================
-
-// helper: concise hex print
-static void LogFlags(const char* tag, uint32_t f)
-{
-    std::cout << tag << " 0x" << std::hex << f << std::dec << '\n';
-}
-
-// ============================================================================
-//  PhysicsEngine::Step  – 2025‑07‑19
-//  • Yaw (facing) is read‑only; TURN flags are ignored by physics.
-//  • Transport: X/Y stay in world space; deck height used as ground.
-//  • Wall/ceiling blocking via Navigation::CapsuleOverlapSweep.
-//  • Ground‑snap FIX: feet snap to groundZ (no +height bump).
-// ============================================================================
-// Helper – collision query via Navigation capsule sweep
-static bool CapsuleBlocked(uint32_t mapId, const XYZ& a, const XYZ& b, float radius, float height)
-{
-    if (auto* nav = Navigation::GetInstance())
-        for (auto& hit : nav->CapsuleOverlapSweep(mapId, a, b, radius, height, 0.001f))
-            if (!(hit.flags & 0x01)) return true;               // any blocking triangle
-    return false;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  Main step – vanilla-style movement with VMap static collision + navmesh
-// ─────────────────────────────────────────────────────────────────────────────
-// ---------------------------------------------------------------------------
-//  PhysicsEngine::Step  –  VMap-first movement & collision
-// ---------------------------------------------------------------------------
-PhysicsOutput PhysicsEngine::Step(const PhysicsInput& in, float dt)
-{
-    using MF = MovementFlags;
-    constexpr float  GROUND_EPS = 0.05f;
-    constexpr uint32_t FALL_MASK = MF::MOVEFLAG_JUMPING | MF::MOVEFLAG_FALLINGFAR;
-    auto& vman = wow::vmap::VMapManager2::instance();
-
-    /* ── 1) clone / sanitise flags ─────────────────────────────────────── */
-    uint32_t flags = in.movementFlags;
-    const bool onTrans = flags & MF::MOVEFLAG_ONTRANSPORT;
-    const bool rooted = flags & MF::MOVEFLAG_ROOT;
-    if (onTrans) flags &= ~MF::MOVEFLAG_SWIMMING;
-
-    /* ── 2) basic facing vectors ───────────────────────────────────────── */
-    const float cosO = std::cosf(in.facing);
-    const float sinO = std::sinf(in.facing);
-    const float fwdX = cosO, fwdY = sinO;
-    const float rgtX = -sinO, rgtY = cosO;
-
-    /* ── 3) VMap ground probe (primary) ────────────────────────────────── */
-    float groundZ = wow::vmap::VMAP_INVALID_HEIGHT;
-    bool  vmapOk = false;
-    if (!onTrans)
+    if (!s_instance)
     {
-        groundZ = vman.getHeight(in.mapId,
-            in.posX, in.posY, in.posZ + 5.f);
-        vmapOk = (groundZ != wow::vmap::VMAP_INVALID_HEIGHT);
+        s_instance = new PhysicsEngine();
+    }
+    return s_instance;
+}
 
-        std::printf("[Step] map %u @ (%.1f, %.1f)  vmapZ=%s\n",
-            in.mapId, in.posX, in.posY,
-            vmapOk ? std::to_string(groundZ).c_str() : "INVALID");
+void PhysicsEngine::Destroy()
+{
+    if (s_instance)
+    {
+        delete s_instance;
+        s_instance = nullptr;
+    }
+}
+
+PhysicsEngine::PhysicsEngine()
+    : m_navigation(nullptr), m_initialized(false),
+    m_vmapHeightEnabled(true),
+    m_vmapIndoorCheckEnabled(true),
+    m_vmapLOSEnabled(true),
+    m_currentMapId(UINT32_MAX)  // Add this to track loaded map
+{
+}
+
+void PhysicsEngine::Initialize()
+{
+    if (m_initialized)
+    {
+        return;
     }
 
-    /* ── 4) final fallback to cached ADT height ────────────────────────── */
-    if (!vmapOk) groundZ = in.adtGroundZ;
-
-    const bool grounded = (in.posZ <= groundZ + GROUND_EPS);
-
-    /* ── 5) liquid probe (still ADT) ───────────────────────────────────── */
-    const bool inLiquid = (in.posZ < in.adtLiquidZ) &&
-        (in.adtLiquidZ > groundZ + 0.1f);
-
-    /* ── 6) movement state ---------------------------------------------- */
-    enum class State { GROUND, AIR, SWIM };
-    State state = State::GROUND;
-    if (!onTrans && inLiquid) state = State::SWIM;
-    else if (!grounded)       state = State::AIR;
-
-    /* ── 7) horizontal intention ---------------------------------------- */
-    float vx = 0.f, vy = 0.f, vz = in.velZ;
-    auto Add = [&](float dx, float dy, float sp) { vx += dx * sp; vy += dy * sp; };
-
-    if (!rooted)
+    try
     {
-        const bool  walk = flags & MF::MOVEFLAG_WALK_MODE;
-        const float runFwd = walk ? in.walkSpeed : in.runSpeed;
-        const float runBack = walk ? in.walkSpeed : in.runBackSpeed;
-        const float swimFwd = in.swimSpeed;
-        const float swimBack = in.swimBackSpeed;
+        // Initialize MapLoader for terrain data
+        m_mapLoader = std::make_unique<MapLoader>();
 
-        if (state == State::SWIM)
+        std::vector<std::string> mapPaths = { "maps/", "Data/maps/", "../Data/maps/" };
+        bool mapLoaderInitialized = false;
+
+        for (const auto& path : mapPaths)
         {
-            if (flags & MF::MOVEFLAG_FORWARD)      Add(fwdX, fwdY, swimFwd);
-            if (flags & MF::MOVEFLAG_BACKWARD)     Add(-fwdX, -fwdY, swimBack);
-            if (flags & MF::MOVEFLAG_STRAFE_RIGHT) Add(rgtX, rgtY, swimFwd);
-            if (flags & MF::MOVEFLAG_STRAFE_LEFT)  Add(-rgtX, -rgtY, swimFwd);
+            if (std::filesystem::exists(path))
+            {
+                if (m_mapLoader->Initialize(path))
+                {
+                    mapLoaderInitialized = true;
+                    break;
+                }
+            }
         }
-        else
+
+        // Initialize VMAP system with better error handling
+        try
         {
-            if (flags & MF::MOVEFLAG_FORWARD)      Add(fwdX, fwdY, runFwd);
-            if (flags & MF::MOVEFLAG_BACKWARD)     Add(-fwdX, -fwdY, runBack);
-            if (flags & MF::MOVEFLAG_STRAFE_RIGHT) Add(rgtX, rgtY, runFwd);
-            if (flags & MF::MOVEFLAG_STRAFE_LEFT)  Add(-rgtX, -rgtY, runFwd);
+            m_vmapClient = std::make_unique<VMapClient>();
+
+            if (m_vmapClient)
+            {
+                try
+                {
+                    m_vmapClient->initialize();
+
+                    if (!m_vmapClient->isInitialized())
+                    {
+                        m_vmapClient.reset();
+                    }
+                }
+                catch (const std::exception& e)
+                {
+                    m_vmapClient.reset();
+                }
+            }
         }
-    }
-
-    /* normalise diagonal */
-    float hLen = std::sqrt(vx * vx + vy * vy);
-    if (hLen > 0.f)
-    {
-        float cap = (state == State::SWIM) ? in.swimSpeed :
-            ((flags & MF::MOVEFLAG_BACKWARD) ? in.runBackSpeed : in.runSpeed);
-        if (hLen > cap) { float s = cap / hLen; vx *= s; vy *= s; }
-    }
-
-    /* ── 8) vertical physics -------------------------------------------- */
-    switch (state)
-    {
-    case State::GROUND:
-        vz = 0.f; flags &= ~FALL_MASK;
-        if (flags & MF::MOVEFLAG_JUMPING)
+        catch (const std::bad_alloc& e)
         {
-            vz = (in.jumpVerticalSpeed > 0 ? in.jumpVerticalSpeed : 8.2f);
-            state = State::AIR;
+            m_vmapClient.reset();
         }
-        break;
-
-    case State::AIR:
-        vz -= in.gravity * dt;
-        vz = ClampF(vz, -TERMINAL_VELOCITY_YDPS, TERMINAL_VELOCITY_YDPS);
-        if (!(flags & MF::MOVEFLAG_JUMPING)) flags |= MF::MOVEFLAG_FALLINGFAR;
-        break;
-
-    case State::SWIM:
-        vz = 0.f;
-        if (flags & MF::MOVEFLAG_JUMPING)    vz += in.swimSpeed;
-        if (flags & MF::MOVEFLAG_PITCH_DOWN) vz -= in.swimSpeed;
-        break;
-    }
-
-    /* ── 9) tentative move ---------------------------------------------- */
-    float px = in.posX + vx * dt;
-    float py = in.posY + vy * dt;
-    float pz = in.posZ + vz * dt;
-
-    /* ── 10) static wall check via VMap ---------------------------------- */
-    {
-        float hx, hy, hz;
-        bool hit = vman.getObjectHitPos(in.mapId,
-            in.posX, in.posY, in.posZ,
-            px, py, pz,
-            hx, hy, hz, in.radius);
-
-        if (hit)
+        catch (const std::exception& e)
         {
-            std::printf("[Step] VMap blocked  (%.1f,%.1f)->(%.1f,%.1f)\n",
-                in.posX, in.posY, px, py);
-            px = in.posX; py = in.posY;
-            vx = vy = 0.f;
+            m_vmapClient.reset();
         }
-    }
 
-    /* ── 11) clamp to ground / water ------------------------------------ */
-    if (state == State::AIR && pz <= groundZ + GROUND_EPS)
-    {
-        pz = groundZ; vz = 0.f; state = State::GROUND; flags &= ~FALL_MASK;
-    }
+        // DON'T preload all maps - let them load on demand
+        // Remove the entire map preloading section
 
-    if (state == State::SWIM)
+        // Get navigation instance
+        m_navigation = Navigation::GetInstance();
+
+        // Set default configuration matching vMaNGOS
+        m_vmapHeightEnabled = (m_vmapClient != nullptr);
+        m_vmapIndoorCheckEnabled = (m_vmapClient != nullptr);
+        m_vmapLOSEnabled = (m_vmapClient != nullptr);
+
+        m_initialized = true;
+    }
+    catch (const std::exception& e)
     {
-        float surf = in.adtLiquidZ - in.height;
-        if (!(flags & (MF::MOVEFLAG_WATERWALKING | MF::MOVEFLAG_HOVER)))
+        m_initialized = true;
+    }
+    catch (...)
+    {
+        m_initialized = true;
+    }
+}
+
+void PhysicsEngine::Shutdown()
+{
+    m_vmapClient.reset();
+    m_mapLoader.reset();
+    m_currentMapId = UINT32_MAX;
+    m_initialized = false;
+}
+
+// Ensure map is loaded only once per map change
+void PhysicsEngine::EnsureMapLoaded(uint32_t mapId)
+{
+    if (m_currentMapId != mapId)
+    {
+        if (m_vmapClient)
         {
-            if (pz > surf) pz = surf;
-            if (pz < groundZ) { pz = groundZ; state = State::GROUND; flags &= ~MF::MOVEFLAG_SWIMMING; }
+            m_vmapClient->preloadMap(mapId);
         }
-        else pz = in.adtLiquidZ;
+        m_currentMapId = mapId;
+    }
+}
+
+// Main vMaNGOS-style GetHeight implementation
+float PhysicsEngine::GetHeight(uint32_t mapId, float x, float y, float z, bool checkVMap, float maxSearchDist)
+{
+    std::cout << "[Physics::GetHeight] Called - Map: " << mapId
+        << ", Pos: (" << x << ", " << y << ", " << z << ")"
+        << ", checkVMap: " << checkVMap << ", maxSearchDist: " << maxSearchDist << std::endl;
+
+    // Get terrain height from ADT data
+    float adtHeight = GetADTHeight(mapId, x, y, z);
+    std::cout << "[Physics::GetHeight] ADT height: " << adtHeight << std::endl;
+
+    if (!checkVMap || !m_vmapHeightEnabled)
+    {
+        std::cout << "[Physics::GetHeight] Returning ADT height (no VMAP check)" << std::endl;
+        return adtHeight;
     }
 
-    /* ── 12) compose output --------------------------------------------- */
-    PhysicsOutput out;
-    out.newPosX = px; out.newPosY = py; out.newPosZ = pz;
-    out.newVelX = vx; out.newVelY = vy; out.newVelZ = vz;
-    out.movementFlags = flags;
-    return out;
+    // Get VMAP height
+    float vmapHeight = GetVMapHeight(mapId, x, y, z, maxSearchDist);
+    std::cout << "[Physics::GetHeight] VMAP height: " << vmapHeight << std::endl;
+
+    // Select best height using vMaNGOS logic
+    float finalHeight = SelectBestHeight(vmapHeight, adtHeight, z, maxSearchDist);
+    std::cout << "[Physics::GetHeight] Final height: " << finalHeight << std::endl;
+
+    return finalHeight;
+}
+
+// Get height from VMAP collision data
+float PhysicsEngine::GetVMapHeight(uint32_t mapId, float x, float y, float z, float maxSearchDist)
+{
+    if (!m_vmapClient || !m_vmapHeightEnabled)
+    {
+        return VMAP_INVALID_HEIGHT_VALUE;
+    }
+
+    try
+    {
+        // DON'T call preloadMap here - it's already done in EnsureMapLoaded
+        // Just get the height
+        float height = m_vmapClient->getGroundHeight(mapId, x, y, z, maxSearchDist);
+        return height;
+    }
+    catch (const std::exception& e)
+    {
+        return VMAP_INVALID_HEIGHT_VALUE;
+    }
+}
+
+// Get height from ADT terrain data
+float PhysicsEngine::GetADTHeight(uint32_t mapId, float x, float y, float z)
+{
+    std::cout << "[Physics DEBUG] GetADTHeight called - Map: " << mapId
+        << ", Pos: (" << x << ", " << y << ", " << z << ")" << std::endl;
+
+    if (!m_mapLoader || !m_mapLoader->IsInitialized())
+    {
+        std::cout << "[Physics DEBUG] MapLoader not initialized" << std::endl;
+        return INVALID_HEIGHT_VALUE;
+    }
+
+    // MapLoader expects world coordinates directly
+    float adtHeight = m_mapLoader->GetHeight(mapId, x, y, z);
+    std::cout << "[Physics DEBUG] ADT height result: " << adtHeight << std::endl;
+    return adtHeight;
+}
+
+// Select best height using vMaNGOS logic
+float PhysicsEngine::SelectBestHeight(float vmapHeight, float adtHeight, float currentZ, float maxSearchDist)
+{
+    // Both invalid - return invalid
+    if (vmapHeight <= VMAP_INVALID_HEIGHT_VALUE && adtHeight <= INVALID_HEIGHT_VALUE)
+    {
+        return INVALID_HEIGHT_VALUE;
+    }
+
+    // Only ADT valid
+    if (vmapHeight <= VMAP_INVALID_HEIGHT_VALUE)
+    {
+        return adtHeight;
+    }
+
+    // Only VMAP valid
+    if (adtHeight <= INVALID_HEIGHT_VALUE)
+    {
+        return vmapHeight;
+    }
+
+    // Both valid - return the higher one (you stand on whatever is above)
+    float selectedHeight = std::max(vmapHeight, adtHeight);
+    return selectedHeight;
+}
+
+PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
+{
+    PhysicsOutput output = {};
+
+    if (!m_initialized)
+    {
+        // Pass through input values if not initialized
+        output.x = input.x;
+        output.y = input.y;
+        output.z = input.z;
+        output.orientation = input.orientation;
+        output.pitch = input.pitch;
+        output.vx = input.vx;
+        output.vy = input.vy;
+        output.vz = input.vz;
+        output.moveFlags = input.moveFlags;
+        return output;
+    }
+
+    // Ensure map is loaded ONCE at the start of the step
+    EnsureMapLoaded(input.mapId);
+
+    // Query environment at current position
+    CollisionInfo collision = QueryEnvironment(input.mapId, input.x, input.y, input.z,
+        input.radius, input.height);
+
+    // Initialize movement state from input
+    MovementState state;
+    state.x = input.x;
+    state.y = input.y;
+    state.z = input.z;
+    state.vx = input.vx;
+    state.vy = input.vy;
+    state.vz = input.vz;
+    state.orientation = input.orientation;
+    state.pitch = input.pitch;
+    state.fallTime = 0;
+    state.fallStartZ = input.z;
+
+    // Determine movement state using vMaNGOS tolerance
+    bool groundCheck = collision.hasGround &&
+        std::abs(input.z - collision.groundZ) < GROUND_HEIGHT_TOLERANCE;
+
+    state.isGrounded = groundCheck;
+    state.isSwimming = collision.hasLiquid &&
+        input.z < (collision.liquidZ - input.height * 0.5f);
+    state.isFlying = (input.moveFlags & MOVEFLAG_FLYING) != 0;
+
+    // Apply knockback if any
+    if (input.knockbackVx != 0 || input.knockbackVy != 0 || input.knockbackVz != 0)
+    {
+        ApplyKnockback(state, input.knockbackVx, input.knockbackVy, input.knockbackVz);
+        state.isGrounded = false;
+    }
+
+    // Apply jump velocity
+    if (input.jumpVelocity > 0 && state.isGrounded && !state.isSwimming)
+    {
+        state.vz = input.jumpVelocity;
+        state.isGrounded = false;
+    }
+
+    // Update movement based on state
+    if (input.hasSplinePath)
+    {
+        state = HandleSplineMovement(input, state, dt);
+    }
+    else if (state.isFlying)
+    {
+        state = HandleAirMovement(input, state, dt);
+    }
+    else if (state.isSwimming)
+    {
+        state = HandleSwimMovement(input, state, dt);
+    }
+    else if (state.isGrounded)
+    {
+        state = HandleGroundMovement(input, state, dt);
+    }
+    else
+    {
+        state = HandleAirMovement(input, state, dt);
+    }
+
+    // Resolve collisions
+    ResolveCollisions(input.mapId, state, input.radius, input.height);
+
+    // Re-query environment at new position
+    collision = QueryEnvironment(input.mapId, state.x, state.y, state.z,
+        input.radius, input.height);
+
+    // Update grounded state
+    bool wasGrounded = state.isGrounded;
+    state.isGrounded = collision.hasGround &&
+        std::abs(state.z - collision.groundZ) < GROUND_HEIGHT_TOLERANCE;
+
+    // Snap to ground if close enough
+    if (state.isGrounded && !state.isFlying && !state.isSwimming)
+    {
+        float snapDelta = collision.groundZ - state.z;
+        if (std::abs(snapDelta) > 0.01f && std::abs(snapDelta) < GROUND_HEIGHT_TOLERANCE)
+        {
+            state.z = collision.groundZ;
+            state.vz = 0;
+        }
+    }
+
+    // Fill output structure
+    output.x = state.x;
+    output.y = state.y;
+    output.z = state.z;
+    output.orientation = state.orientation;
+    output.pitch = state.pitch;
+    output.vx = state.vx;
+    output.vy = state.vy;
+    output.vz = state.vz;
+    output.isGrounded = state.isGrounded;
+    output.isSwimming = state.isSwimming;
+    output.isFlying = state.isFlying;
+    output.groundZ = collision.groundZ;
+    output.liquidZ = collision.liquidZ;
+    output.collided = false;
+
+    // Update movement flags
+    output.moveFlags = input.moveFlags;
+    if (!state.isGrounded)
+        output.moveFlags |= MOVEFLAG_FALLING;
+    else
+        output.moveFlags &= ~MOVEFLAG_FALLING;
+
+    if (state.isSwimming)
+        output.moveFlags |= MOVEFLAG_SWIMMING;
+    else
+        output.moveFlags &= ~MOVEFLAG_SWIMMING;
+
+    // Calculate fall damage info
+    if (!state.isGrounded && state.vz < 0)
+    {
+        output.fallTime = state.fallTime;
+        output.fallDistance = state.fallStartZ - state.z;
+    }
+    else
+    {
+        output.fallTime = 0;
+        output.fallDistance = 0;
+    }
+
+    // Update spline progress
+    if (input.hasSplinePath)
+    {
+        output.currentSplineIndex = input.currentSplineIndex;
+        output.splineProgress = GetSplineProgress(state.x, state.y, state.z,
+            input.splinePoints, input.currentSplineIndex);
+    }
+
+    return output;
+}
+
+PhysicsEngine::CollisionInfo PhysicsEngine::QueryEnvironment(uint32_t mapId, float x, float y, float z,
+    float radius, float height)
+{
+    CollisionInfo info = {};
+
+    // Get ground height using vMaNGOS-style logic
+    float finalHeight = GetHeight(mapId, x, y, z, m_vmapHeightEnabled, DEFAULT_HEIGHT_SEARCH);
+
+    info.hasGround = (finalHeight > INVALID_HEIGHT_VALUE);
+    info.groundZ = info.hasGround ? finalHeight : INVALID_HEIGHT_VALUE;
+
+    // Store individual height sources for debugging
+    info.vmapHeight = GetVMapHeight(mapId, x, y, z, DEFAULT_HEIGHT_SEARCH);
+    info.adtHeight = GetADTHeight(mapId, x, y, z);
+    info.vmapValid = (info.vmapHeight > VMAP_INVALID_HEIGHT_VALUE);
+    info.adtValid = (info.adtHeight > INVALID_HEIGHT_VALUE);
+
+    // Get liquid info
+    info.liquidZ = GetLiquidHeight(mapId, x, y, z, info.liquidType);
+    info.hasLiquid = (info.liquidZ > INVALID_HEIGHT_VALUE);
+
+    // Check if indoors (using VMAP area info)
+    if (m_vmapIndoorCheckEnabled && m_vmapClient)
+    {
+        uint32_t flags;
+        int32_t adtId, rootId, groupId;
+        float checkZ = z;
+        m_vmapClient->getAreaInfo(mapId, x, y, checkZ, flags, adtId, rootId, groupId);
+        info.isIndoors = (rootId >= 0 && groupId >= 0);  // Inside a WMO
+    }
+
+    // Calculate ground normal (simplified - assumes flat for now)
+    info.groundNormalZ = 1.0f;
+
+    return info;
+}
+
+// Movement handlers remain the same...
+PhysicsEngine::MovementState PhysicsEngine::HandleGroundMovement(const PhysicsInput& input,
+    MovementState& state, float dt)
+{
+    // Calculate movement direction
+    float moveX = 0, moveY = 0;
+
+    if (input.moveForward != 0 || input.moveStrafe != 0)
+    {
+        float forward = input.moveForward;
+        float strafe = input.moveStrafe;
+
+        float cos_o = std::cos(state.orientation);
+        float sin_o = std::sin(state.orientation);
+
+        moveX = forward * cos_o - strafe * sin_o;
+        moveY = forward * sin_o + strafe * cos_o;
+
+        Normalize2D(moveX, moveY);
+    }
+
+    // Get movement speed
+    float speed = CalculateMoveSpeed(input, false, false);
+
+    // Apply movement
+    state.vx = moveX * speed;
+    state.vy = moveY * speed;
+    state.vz = 0;
+
+    // Update position
+    state.x += state.vx * dt;
+    state.y += state.vy * dt;
+
+    // Update orientation
+    if (input.turnRate != 0)
+    {
+        state.orientation += input.turnRate * TURN_SPEED * dt;
+        state.orientation = NormalizeAngle(state.orientation);
+    }
+
+    // Apply friction
+    ApplyFriction(state, 10.0f, dt);
+
+    return state;
+}
+
+PhysicsEngine::MovementState PhysicsEngine::HandleAirMovement(const PhysicsInput& input,
+    MovementState& state, float dt)
+{
+    // Apply gravity if not flying
+    if (!(input.moveFlags & MOVEFLAG_FLYING))
+    {
+        ApplyGravity(state, dt);
+        state.fallTime += dt;
+    }
+
+    // Limited air control
+    if (input.moveForward != 0 || input.moveStrafe != 0)
+    {
+        float forward = input.moveForward * AIR_CONTROL_FACTOR;
+        float strafe = input.moveStrafe * AIR_CONTROL_FACTOR;
+
+        float cos_o = std::cos(state.orientation);
+        float sin_o = std::sin(state.orientation);
+
+        float moveX = forward * cos_o - strafe * sin_o;
+        float moveY = forward * sin_o + strafe * cos_o;
+
+        float speed = CalculateMoveSpeed(input, false, true);
+
+        state.vx += moveX * speed * dt;
+        state.vy += moveY * speed * dt;
+    }
+
+    // Update position
+    state.x += state.vx * dt;
+    state.y += state.vy * dt;
+    state.z += state.vz * dt;
+
+    // Update orientation
+    if (input.turnRate != 0)
+    {
+        state.orientation += input.turnRate * TURN_SPEED * dt;
+        state.orientation = NormalizeAngle(state.orientation);
+    }
+
+    // Apply air friction
+    ApplyFriction(state, 0.5f, dt);
+
+    return state;
+}
+
+PhysicsEngine::MovementState PhysicsEngine::HandleSwimMovement(const PhysicsInput& input,
+    MovementState& state, float dt)
+{
+    // Swimming uses full 3D movement
+    float moveX = 0, moveY = 0, moveZ = 0;
+
+    if (input.moveForward != 0 || input.moveStrafe != 0)
+    {
+        float forward = input.moveForward;
+        float strafe = input.moveStrafe;
+
+        float cos_o = std::cos(state.orientation);
+        float sin_o = std::sin(state.orientation);
+        float cos_p = std::cos(state.pitch);
+        float sin_p = std::sin(state.pitch);
+
+        moveX = forward * cos_o - strafe * sin_o;
+        moveY = forward * sin_o + strafe * cos_o;
+        moveZ = forward * sin_p;
+
+        // Normalize
+        float len = std::sqrt(moveX * moveX + moveY * moveY + moveZ * moveZ);
+        if (len > 0.0001f)
+        {
+            moveX /= len;
+            moveY /= len;
+            moveZ /= len;
+        }
+    }
+
+    // Get swim speed
+    float speed = input.swimSpeed;
+
+    // Apply movement
+    state.vx = moveX * speed;
+    state.vy = moveY * speed;
+    state.vz = moveZ * speed;
+
+    // Update position
+    state.x += state.vx * dt;
+    state.y += state.vy * dt;
+    state.z += state.vz * dt;
+
+    // Update orientation and pitch
+    if (input.turnRate != 0)
+    {
+        state.orientation += input.turnRate * TURN_SPEED * dt;
+        state.orientation = NormalizeAngle(state.orientation);
+    }
+
+    state.pitch = Clamp(state.pitch + input.pitch * dt, -1.57f, 1.57f);
+
+    // Apply water friction
+    ApplyFriction(state, 5.0f, dt);
+
+    return state;
+}
+
+PhysicsEngine::MovementState PhysicsEngine::HandleSplineMovement(const PhysicsInput& input,
+    MovementState& state, float dt)
+{
+    if (!input.splinePoints || input.splinePointCount < 2)
+    {
+        return state;
+    }
+
+    // Get current and next spline points
+    int currentIndex = Clamp(input.currentSplineIndex, 0, input.splinePointCount - 2);
+
+    float* current = const_cast<float*>(&input.splinePoints[currentIndex * 3]);
+    float* next = const_cast<float*>(&input.splinePoints[(currentIndex + 1) * 3]);
+
+    // Calculate direction to next point
+    float dx = next[0] - current[0];
+    float dy = next[1] - current[1];
+    float dz = next[2] - current[2];
+
+    float distance = std::sqrt(dx * dx + dy * dy + dz * dz);
+
+    if (distance > 0.0001f)
+    {
+        // Normalize direction
+        dx /= distance;
+        dy /= distance;
+        dz /= distance;
+
+        // Set velocity
+        state.vx = dx * input.splineSpeed;
+        state.vy = dy * input.splineSpeed;
+        state.vz = dz * input.splineSpeed;
+
+        // Update position
+        state.x += state.vx * dt;
+        state.y += state.vy * dt;
+        state.z += state.vz * dt;
+
+        // Update orientation to face movement direction
+        state.orientation = std::atan2(dy, dx);
+    }
+
+    return state;
+}
+
+void PhysicsEngine::ApplyGravity(MovementState& state, float dt)
+{
+    state.vz -= GRAVITY * dt;
+}
+
+void PhysicsEngine::ApplyFriction(MovementState& state, float friction, float dt)
+{
+    float factor = std::exp(-friction * dt);
+    state.vx *= factor;
+    state.vy *= factor;
+    if (!state.isGrounded)
+        state.vz *= factor;
+}
+
+void PhysicsEngine::ApplyKnockback(MovementState& state, float vx, float vy, float vz)
+{
+    state.vx += vx;
+    state.vy += vy;
+    state.vz += vz;
+}
+
+float PhysicsEngine::CalculateMoveSpeed(const PhysicsInput& input, bool isSwimming, bool isFlying)
+{
+    if (isFlying)
+        return input.flightSpeed;
+    if (isSwimming)
+        return input.swimSpeed;
+    if (input.moveFlags & MOVEFLAG_WALK_MODE)
+        return input.walkSpeed;
+    if (input.moveForward < 0)
+        return input.backSpeed;
+    return input.runSpeed;
+}
+
+float PhysicsEngine::GetGroundHeight(uint32_t mapId, float x, float y, float z)
+{
+    // Use the main GetHeight function with vMaNGOS logic
+    return GetHeight(mapId, x, y, z, m_vmapHeightEnabled, DEFAULT_HEIGHT_SEARCH);
+}
+
+float PhysicsEngine::GetLiquidHeight(uint32_t mapId, float x, float y, float z, uint32_t& liquidType)
+{
+    // First try to get liquid from MapLoader (ADT data)
+    if (m_mapLoader && m_mapLoader->IsInitialized())
+    {
+        float liquidLevel = m_mapLoader->GetLiquidLevel(mapId, x, y, z);
+        if (liquidLevel > INVALID_HEIGHT_VALUE)
+        {
+            liquidType = m_mapLoader->GetLiquidType(mapId, x, y);
+            return liquidLevel;
+        }
+    }
+
+    // Then try VMAP for WMO liquids
+    if (m_vmapClient)
+    {
+        try
+        {
+            float liquidLevel, liquidFloor;
+            if (m_vmapClient->getLiquidLevel(mapId, x, y, z, liquidLevel, liquidFloor))
+            {
+                liquidType = 0;  // TODO: Get actual liquid type from VMAP
+                return liquidLevel;
+            }
+        }
+        catch (const std::exception& e)
+        {
+        }
+    }
+
+    return INVALID_HEIGHT_VALUE;
+}
+
+void PhysicsEngine::ResolveCollisions(uint32_t mapId, MovementState& state, float radius, float height)
+{
+    if (!m_vmapClient)
+    {
+        return;
+    }
+
+    try
+    {
+        // Check for collision with terrain
+        float hitX, hitY, hitZ;
+        bool hasCollision = CheckCollision(mapId, state.x, state.y, state.z,
+            state.x + state.vx * 0.1f,
+            state.y + state.vy * 0.1f,
+            state.z + state.vz * 0.1f,
+            radius, height, hitX, hitY, hitZ);
+
+        if (hasCollision)
+        {
+            // Stop at collision point
+            state.x = hitX;
+            state.y = hitY;
+            state.z = hitZ;
+
+            // Kill velocity in collision direction
+            state.vx = 0;
+            state.vy = 0;
+            if (state.vz < 0)
+                state.vz = 0;
+        }
+    }
+    catch (const std::exception& e)
+    {
+    }
+}
+
+bool PhysicsEngine::CheckCollision(uint32_t mapId, float startX, float startY, float startZ,
+    float endX, float endY, float endZ, float radius, float height,
+    float& hitX, float& hitY, float& hitZ)
+{
+    if (!m_vmapClient)
+    {
+        return false;
+    }
+
+    try
+    {
+        // Check VMAP for collisions
+        bool vmapHit = m_vmapClient->getCollisionPoint(mapId, startX, startY, startZ,
+            endX, endY, endZ, hitX, hitY, hitZ);
+
+        // Also check NavMesh if available for additional collision
+        if (m_navigation)
+        {
+            XYZ from = { startX, startY, startZ };
+            XYZ to = { endX, endY, endZ };
+            bool navMeshLOS = m_navigation->IsLineOfSight(mapId, from, to);
+
+            if (!navMeshLOS)
+            {
+                if (!vmapHit)
+                {
+                    hitX = endX;
+                    hitY = endY;
+                    hitZ = endZ;
+                }
+                return true;
+            }
+        }
+
+        return vmapHit;
+    }
+    catch (const std::exception& e)
+    {
+        return false;
+    }
+}
+
+float PhysicsEngine::GetSplineProgress(float x, float y, float z, const float* points, int index)
+{
+    if (!points || index < 0)
+        return 0.0f;
+
+    const float* current = &points[index * 3];
+    const float* next = &points[(index + 1) * 3];
+
+    float totalDist = Distance3D(current[0], current[1], current[2],
+        next[0], next[1], next[2]);
+    float currentDist = Distance3D(current[0], current[1], current[2],
+        x, y, z);
+
+    if (totalDist > 0.0001f)
+        return Clamp(currentDist / totalDist, 0.0f, 1.0f);
+
+    return 0.0f;
+}
+
+bool PhysicsEngine::IsGrounded(uint32_t mapId, float x, float y, float z, float radius, float height)
+{
+    EnsureMapLoaded(mapId);
+    float groundZ = GetHeight(mapId, x, y, z, true, DEFAULT_HEIGHT_SEARCH);
+    bool grounded = (groundZ > INVALID_HEIGHT_VALUE &&
+        std::abs(z - groundZ) < GROUND_HEIGHT_TOLERANCE);
+    return grounded;
+}
+
+bool PhysicsEngine::IsInWater(uint32_t mapId, float x, float y, float z, float height)
+{
+    EnsureMapLoaded(mapId);
+    uint32_t liquidType;
+    float liquidZ = GetLiquidHeight(mapId, x, y, z, liquidType);
+    bool inWater = (liquidZ > INVALID_HEIGHT_VALUE && z < liquidZ);
+    return inWater;
+}
+
+float PhysicsEngine::GetFallDamage(float fallDistance, bool hasSafeFall)
+{
+    if (hasSafeFall || fallDistance < SAFE_FALL_HEIGHT)
+        return 0.0f;
+
+    if (fallDistance > LETHAL_FALL_HEIGHT)
+        return 10000.0f;  // Lethal
+
+    // Linear interpolation between safe and lethal
+    float factor = (fallDistance - SAFE_FALL_HEIGHT) / (LETHAL_FALL_HEIGHT - SAFE_FALL_HEIGHT);
+    float damage = factor * 1000.0f;
+
+    return damage;
 }

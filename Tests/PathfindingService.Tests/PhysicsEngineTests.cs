@@ -3,6 +3,7 @@ using GameData.Core.Enums;
 using PathfindingService.Repository; // Navigation wrapper
 using static PathfindingService.Repository.Navigation;
 using Xunit;
+using MovementFlags = GameData.Core.Enums.MovementFlags;
 
 namespace PathfindingService.Tests
 {
@@ -23,13 +24,13 @@ namespace PathfindingService.Tests
         // Helper to compare PhysicsOutput with tolerance
         private static void AssertEqual(PhysicsOutput exp, PhysicsOutput act)
         {
-            Assert.Equal(exp.newPosX, act.newPosX, 3);
-            Assert.Equal(exp.newPosY, act.newPosY, 3);
-            Assert.Equal(exp.newPosZ, act.newPosZ, 3);
-            Assert.Equal(exp.newVelX, act.newVelX, 3);
-            Assert.Equal(exp.newVelY, act.newVelY, 3);
-            Assert.Equal(exp.newVelZ, act.newVelZ, 3);
-            Assert.Equal(exp.movementFlags, act.movementFlags);
+            Assert.Equal(exp.x, act.x, 3);
+            Assert.Equal(exp.y, act.y, 3);
+            Assert.Equal(exp.z, act.z, 3);
+            Assert.Equal(exp.vx, act.vx, 3);
+            Assert.Equal(exp.vy, act.vy, 3);
+            Assert.Equal(exp.vz, act.vz, 3);
+            Assert.Equal(exp.moveFlags, act.moveFlags);
         }
 
         [Theory]
@@ -46,6 +47,7 @@ namespace PathfindingService.Tests
         [InlineData(1u, -601.294000f, -4296.760000f, 37.811500f, Race.Orc, 0f, MovementFlags.MOVEFLAG_NONE)]
         [InlineData(1u, -582.580383f, -4236.643970f, 38.044630f, Race.Orc, 0f, MovementFlags.MOVEFLAG_NONE)]
         [InlineData(1u, -576.927856f, -4242.207030f, 37.980587f, Race.Orc, 0f, MovementFlags.MOVEFLAG_NONE)]
+        [InlineData(1u, -618.518f, -4251.67f, 38.718f, Race.Orc, 0f, MovementFlags.MOVEFLAG_NONE)]
         [InlineData(1u, 10334.000000f, 833.902000f, 1326.110000f, Race.Orc, 0f, MovementFlags.MOVEFLAG_NONE)]
         [InlineData(389u, -247.728561f, -30.644503f, -58.082531f, Race.Orc, 0f, MovementFlags.MOVEFLAG_NONE)]
         [InlineData(389u, -158.395340f, 5.857921f, -42.873611f, Race.Orc, 0f, MovementFlags.MOVEFLAG_NONE)]
@@ -62,33 +64,33 @@ namespace PathfindingService.Tests
             var input = new PhysicsInput
             {
                 mapId = mapId,
-                posX = x,
-                posY = y,
-                posZ = z,
-                facing = orientation,
-                movementFlags = 0,
-                velX = 0f,
-                velY = 0f,
-                velZ = 0f,
+                x = x,
+                y = y,
+                z = z,
+                orientation = orientation,
+                moveFlags = 0,
+                vx = 0f,
+                vy = 0f,
+                vz = 0f,
                 radius = radius,
                 height = height,
-                gravity = 19.29f,
+                //gravity = 19.29f,
                 walkSpeed = 2.5f,
                 runSpeed = 7f,
-                runBackSpeed = 4.5f,
+                //runBackSpeed = 4.5f,
                 swimSpeed = 6.45f,
-                swimBackSpeed = 3.14f,
+                //swimBackSpeed = 3.14f,
             };
 
             var expected = new PhysicsOutput
             {
-                newPosX = x,
-                newPosY = y,
-                newPosZ = z,
-                newVelX = 0f,
-                newVelY = 0f,
-                newVelZ = 0f,
-                movementFlags = (uint)expMovementFlags
+                x = x,
+                y = y,
+                z = z,
+                vx = 0f,
+                vy = 0f,
+                vz = 0f,
+                moveFlags = (uint)expMovementFlags
             };
 
             var actual = _nav.StepPhysics(input, Dt);

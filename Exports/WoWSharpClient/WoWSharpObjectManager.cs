@@ -174,7 +174,6 @@ namespace WoWSharpClient
                 DeltaTime = dt,
 
                 MovementFlags = (uint)player.MovementFlags,
-                LastUpdated = 0, // optional: fill with actual timestamp
 
                 PosX = player.Position.X,
                 PosY = player.Position.Y,
@@ -186,7 +185,6 @@ namespace WoWSharpClient
                 TransportOffsetY = player.TransportOffset.Y,
                 TransportOffsetZ = player.TransportOffset.Z,
                 TransportOrientation = player.TransportOrientation,
-                TransportLastUpdated = player.TransportLastUpdated,
 
                 SwimPitch = player.SwimPitch,
 
@@ -214,7 +212,6 @@ namespace WoWSharpClient
                 RunBackSpeed = player.RunBackSpeed,
                 SwimSpeed = player.SwimSpeed,
                 SwimBackSpeed = player.SwimBackSpeed,
-                TurnRate = player.TurnRate,
 
                 MapId = MapId,
             };

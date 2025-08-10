@@ -1,114 +1,124 @@
-﻿// PhysicsBridge.h
+// PhysicsBridge.h
 #pragma once
+
 #include <cstdint>
 
-#pragma pack(push,1)
-/// Input from C#: position, velocity, world info, orientation, map context.
+// Movement states matching WoW 1.12.1
+enum MovementFlags : uint32_t
+{
+    MOVEFLAG_NONE = 0x00000000,
+    MOVEFLAG_FORWARD = 0x00000001,
+    MOVEFLAG_BACKWARD = 0x00000002,
+    MOVEFLAG_STRAFE_LEFT = 0x00000004,
+    MOVEFLAG_STRAFE_RIGHT = 0x00000008,
+    MOVEFLAG_TURN_LEFT = 0x00000010,
+    MOVEFLAG_TURN_RIGHT = 0x00000020,
+    MOVEFLAG_PITCH_UP = 0x00000040,
+    MOVEFLAG_PITCH_DOWN = 0x00000080,
+    MOVEFLAG_WALK_MODE = 0x00000100,
+    MOVEFLAG_ON_TRANSPORT = 0x00000200,
+    MOVEFLAG_LEVITATING = 0x00000400,
+    MOVEFLAG_FLYING = 0x00000800,
+    MOVEFLAG_FALLING = 0x00001000,
+    MOVEFLAG_FALLINGFAR = 0x00004000,
+    MOVEFLAG_SWIMMING = 0x00200000,
+    MOVEFLAG_SPLINE_ENABLED = 0x00400000,
+    MOVEFLAG_CAN_FLY = 0x00800000,
+    MOVEFLAG_FLYING2 = 0x01000000,
+    MOVEFLAG_WATERWALKING = 0x02000000,
+    MOVEFLAG_SAFE_FALL = 0x04000000,
+    MOVEFLAG_HOVER = 0x08000000,
+    MOVEFLAG_ROOT = 0x10000000,
+};
+
+// Unit movement type
+enum MovementType : uint8_t
+{
+    MOVE_WALK = 0,
+    MOVE_RUN = 1,
+    MOVE_RUN_BACK = 2,
+    MOVE_SWIM = 3,
+    MOVE_SWIM_BACK = 4,
+    MOVE_TURN_RATE = 5,
+    MOVE_FLIGHT = 6,
+    MOVE_FLIGHT_BACK = 7,
+};
+
+// Physics input from the game
 struct PhysicsInput
 {
-    // MovementInfoUpdate core
-    uint32_t movementFlags;       // MovementFlags bitfield
-
-    // Position & orientation
-    float posX, posY, posZ;       // world-space coordinates
-    float facing;                 // heading around Z-axis (yaw)
-
-    // Transport (if HasTransport flag set)
-    uint64_t transportGuid;       // unique transport identifier
-    float transportOffsetX;       // position offset from transport
-    float transportOffsetY;
-    float transportOffsetZ;
-    float transportOrientation;    // orientation on transport
-
-    // Swimming
-    float swimPitch;              // up/down angle when swimming
-
-    // Falling / jumping
-    uint32_t fallTime;            // time since fall start (ms)
-    float jumpVerticalSpeed;      // initial vertical speed for jump/fall
-    float jumpCosAngle;           // horizontal direction X component
-    float jumpSinAngle;           // horizontal direction Y component
-    float jumpHorizontalSpeed;    // initial horizontal speed magnitude
-
-    // Spline elevation
-    float splineElevation;        // optional spline elevation value
-
-    // MovementBlockUpdate speeds
-    float walkSpeed;              // client WalkSpeed
-    float runSpeed;               // client RunSpeed
-    float runBackSpeed;           // client RunBackSpeed
-    float swimSpeed;              // client SwimSpeed
-    float swimBackSpeed;          // client SwimBackSpeed
+    // Current position and orientation
+    float x, y, z;
+    float orientation;      // Facing direction in radians
+    float pitch;           // Pitch for swimming/flying
 
     // Current velocity
-    float velX, velY, velZ;       // world-space velocity
+    float vx, vy, vz;
 
-    // Collision & world
-    float radius;                 // collision capsule radius
-    float height;                 // collision capsule height / step height
-    float gravity;                // gravity constant
+    // Movement inputs
+    float moveForward;     // -1.0 to 1.0 (backward to forward)
+    float moveStrafe;      // -1.0 to 1.0 (left to right)
+    float turnRate;        // -1.0 to 1.0 (turn speed)
 
-    // Terrain fallbacks
-    float adtGroundZ;             // ADT-sampled ground height
-    float adtLiquidZ;             // ADT-sampled liquid level
+    // Movement speeds (yards/second)
+    float walkSpeed;       // Default: 2.5
+    float runSpeed;        // Default: 7.0
+    float swimSpeed;       // Default: 4.72
+    float flightSpeed;     // Default: 7.0
+    float backSpeed;       // Default: 4.5
 
-    // Context
-    uint32_t mapId;               // map identifier
+    // State flags
+    uint32_t moveFlags;
+    uint32_t mapId;
+
+    // Physics modifiers
+    float jumpVelocity;    // Initial jump velocity (if jumping this frame)
+    float knockbackVx;     // Knockback velocity X
+    float knockbackVy;     // Knockback velocity Y
+    float knockbackVz;     // Knockback velocity Z
+
+    // Collision parameters
+    float height;          // Unit height (for collision)
+    float radius;          // Unit radius (for collision)
+
+    // Spline movement (if following a path)
+    bool hasSplinePath;
+    float splineSpeed;
+    float* splinePoints;   // Array of x,y,z coordinates
+    int splinePointCount;
+    int currentSplineIndex;
+
+    // Time info
+    float deltaTime;       // Time since last update
 };
 
-/// Output back to C#: new position, velocity, and state flags.
+// Physics output back to the game
 struct PhysicsOutput
 {
-    float newPosX, newPosY, newPosZ;
-    float newVelX, newVelY, newVelZ;
-    uint32_t movementFlags;   // authoritative post-tick bitfield
+    // New position
+    float x, y, z;
+    float orientation;
+    float pitch;
+
+    // New velocity
+    float vx, vy, vz;
+
+    // Updated movement flags
+    uint32_t moveFlags;
+
+    // Collision info
+    bool isGrounded;
+    bool isSwimming;
+    bool isFlying;
+    bool collided;
+    float groundZ;         // Ground height at position
+    float liquidZ;         // Liquid surface height (if any)
+
+    // Fall damage info
+    float fallDistance;
+    float fallTime;
+
+    // Spline progress
+    int currentSplineIndex;
+    float splineProgress;  // 0.0 to 1.0 between current and next point
 };
-
-enum MovementFlags
-{
-    MOVEFLAG_NONE = 0x00000000, // 0
-    MOVEFLAG_FORWARD = 0x00000001, // 1
-    MOVEFLAG_BACKWARD = 0x00000002, // 2
-    MOVEFLAG_STRAFE_LEFT = 0x00000004, // 3
-    MOVEFLAG_STRAFE_RIGHT = 0x00000008, // 4
-    MOVEFLAG_TURN_LEFT = 0x00000010, // 5
-    MOVEFLAG_TURN_RIGHT = 0x00000020, // 6
-    MOVEFLAG_PITCH_UP = 0x00000040, // 7
-    MOVEFLAG_PITCH_DOWN = 0x00000080, // 8
-    MOVEFLAG_WALK_MODE = 0x00000100, // 9 Walking
-    MOVEFLAG_UNUSED10 = 0x00000200, // 10 ??
-    MOVEFLAG_LEVITATING = 0x00000400, // 11 ?? Seems not to work
-    MOVEFLAG_FIXED_Z = 0x00000800, // 12 Fixed height. Jump => Glide across the entire map
-    MOVEFLAG_ROOT = 0x00001000, // 13
-    MOVEFLAG_JUMPING = 0x00002000, // 14
-    MOVEFLAG_FALLINGFAR = 0x00004000, // 15
-    MOVEFLAG_PENDING_STOP = 0x00008000, // 16 Only used in older client versions
-    MOVEFLAG_PENDING_UNSTRAFE = 0x00010000, // 17 Only used in older client versions
-    MOVEFLAG_PENDING_FORWARD = 0x00020000, // 18 Only used in older client versions
-    MOVEFLAG_PENDING_BACKWARD = 0x00040000, // 19 Only used in older client versions
-    MOVEFLAG_PENDING_STR_LEFT = 0x00080000, // 20 Only used in older client versions
-    MOVEFLAG_PENDING_STR_RGHT = 0x00100000, // 21 Only used in older client versions
-    MOVEFLAG_SWIMMING = 0x00200000, // 22 Ok
-    MOVEFLAG_SPLINE_ENABLED = 0x00400000, // 23 Ok
-    MOVEFLAG_MOVED = 0x00800000, // 24 Only used in older client versions
-    MOVEFLAG_FLYING = 0x01000000, // 25 [-ZERO] is it really need and correct value
-    MOVEFLAG_ONTRANSPORT = 0x02000000, // 26 Used for flying on some creatures
-    MOVEFLAG_SPLINE_ELEVATION = 0x04000000, // 27 Used for flight paths
-    MOVEFLAG_UNUSED28 = 0x08000000, // 28
-    MOVEFLAG_WATERWALKING = 0x10000000, // 29 Prevent unit from falling through water
-    MOVEFLAG_SAFE_FALL = 0x20000000, // 30 Active rogue safe fall spell (passive)
-    MOVEFLAG_HOVER = 0x40000000, // 31
-    MOVEFLAG_UNUSED32 = 0x80000000, // 32
-
-    // Can not be present with MOVEFLAG_ROOT (otherwise client freeze)
-    MOVEFLAG_MASK_MOVING =
-    MOVEFLAG_FORWARD | MOVEFLAG_BACKWARD | MOVEFLAG_STRAFE_LEFT | MOVEFLAG_STRAFE_RIGHT |
-    MOVEFLAG_PITCH_UP | MOVEFLAG_PITCH_DOWN | MOVEFLAG_JUMPING | MOVEFLAG_FALLINGFAR |
-    MOVEFLAG_SPLINE_ELEVATION,
-    MOVEFLAG_MASK_MOVING_OR_TURN = MOVEFLAG_MASK_MOVING | MOVEFLAG_TURN_LEFT | MOVEFLAG_TURN_RIGHT,
-
-    // MovementFlags mask that only contains flags for x/z translations
-    // this is to avoid that a jumping character that stands still triggers melee-leeway
-    MOVEFLAG_MASK_XZ = MOVEFLAG_FORWARD | MOVEFLAG_BACKWARD | MOVEFLAG_STRAFE_LEFT | MOVEFLAG_STRAFE_RIGHT
-};
-#pragma pack(pop)

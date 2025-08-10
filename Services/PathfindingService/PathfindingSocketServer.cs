@@ -1,7 +1,10 @@
 ﻿using BotCommLayer;
+using GameData.Core.Enums;
 using GameData.Core.Models;
 using Pathfinding; // Proto-generated C# files
 using PathfindingService.Repository;
+using System;
+using System.Linq;
 
 namespace PathfindingService
 {
@@ -19,6 +22,7 @@ namespace PathfindingService
                     PathfindingRequest.PayloadOneofCase.Path => HandlePath(request.Path),
                     PathfindingRequest.PayloadOneofCase.Los => HandleLineOfSight(request.Los),
                     PathfindingRequest.PayloadOneofCase.Step => HandlePhysics(request.Step),
+                    PathfindingRequest.PayloadOneofCase.VmapHeight => HandleVMapHeight(request.VmapHeight),
                     _ => ErrorResponse("Unknown or unset request type.")
                 };
             }
@@ -40,12 +44,12 @@ namespace PathfindingService
             if (!CheckPosition(req.MapId, req.Start, req.End, out var err))
                 return err;
 
-            var start = new Position(req.Start.ToXYZ());
-            var end = new Position(req.End.ToXYZ());
-            var path = _navigation.CalculatePath(req.MapId, start, end, req.Straight);
+            var start = new Position(req.Start.X, req.Start.Y, req.Start.Z);
+            var end = new Position(req.End.X, req.End.Y, req.End.Z);
+            var path = _navigation.CalculatePath(req.MapId, start.ToXYZ(), end.ToXYZ(), req.Straight);
 
             var resp = new CalculatePathResponse();
-            resp.Corners.AddRange(path.Select(p => p.ToXYZ().ToProto()));
+            resp.Corners.AddRange(path.Select(p => new Game.Position { X = p.X, Y = p.Y, Z = p.Z }));
 
             return new PathfindingResponse { Path = resp };
         }
@@ -55,14 +59,28 @@ namespace PathfindingService
             if (!CheckPosition(req.MapId, req.From, req.To, out var err))
                 return err;
 
-            var from = new Position(req.From.ToXYZ());
-            var to = new Position(req.To.ToXYZ());
+            var from = new Position(req.From.X, req.From.Y, req.From.Z);
+            var to = new Position(req.To.X, req.To.Y, req.To.Z);
 
-            bool hasLOS = _navigation.IsLineOfSight(req.MapId, from, to);
+            bool hasLOS = _navigation.LineOfSight(req.MapId, from.ToXYZ(), to.ToXYZ());
 
             return new PathfindingResponse
             {
                 Los = new LineOfSightResponse { InLos = hasLOS }
+            };
+        }
+
+        private PathfindingResponse HandleVMapHeight(VMapHeightRequest req)
+        {
+            if (req.Position == null)
+                return ErrorResponse("Position is required");
+
+            var pos = new Position(req.Position.X, req.Position.Y, req.Position.Z);
+            float height = _navigation.GetGroundHeight(req.MapId, pos.X, pos.Y, pos.Z, req.SearchDistance);
+
+            return new PathfindingResponse
+            {
+                VmapHeight = new VMapHeightResponse { Height = height }
             };
         }
 
@@ -90,58 +108,108 @@ namespace PathfindingService
 
     public static class ProtoInteropExtensions
     {
-        public static Game.Position ToProto(this XYZ xyz) =>
-            new() { X = xyz.X, Y = xyz.Y, Z = xyz.Z };
-
-        public static XYZ ToXYZ(this Game.Position p) =>
-            new(p.X, p.Y, p.Z);
-
-        public static Navigation.PhysicsInput ToPhysicsInput(this PhysicsInput physicsInput) =>
-            new()
+        // Convert from Protobuf PhysicsInput to Navigation.PhysicsInput
+        public static Navigation.PhysicsInput ToPhysicsInput(this PhysicsInput proto)
+        {
+            var input = new Navigation.PhysicsInput
             {
-                movementFlags = physicsInput.MovementFlags,
-                posX = physicsInput.PosX,
-                posY = physicsInput.PosY,
-                posZ = physicsInput.PosZ,
-                facing = physicsInput.Facing,
-                transportGuid = physicsInput.TransportGuid,
-                transportOffsetX = physicsInput.TransportOffsetX,
-                transportOffsetY = physicsInput.TransportOffsetY,
-                transportOffsetZ = physicsInput.TransportOffsetZ,
-                transportOrientation = physicsInput.TransportOrientation,
-                swimPitch = physicsInput.SwimPitch,
-                fallTime = physicsInput.FallTime,
-                jumpVerticalSpeed = physicsInput.JumpVerticalSpeed,
-                jumpCosAngle = physicsInput.JumpCosAngle,
-                jumpSinAngle = physicsInput.JumpSinAngle,
-                jumpHorizontalSpeed = physicsInput.JumpHorizontalSpeed,
-                splineElevation = physicsInput.SplineElevation,
-                walkSpeed = physicsInput.WalkSpeed,
-                runSpeed = physicsInput.RunSpeed,
-                runBackSpeed = physicsInput.RunBackSpeed,
-                swimSpeed = physicsInput.SwimSpeed,
-                swimBackSpeed = physicsInput.SwimBackSpeed,
-                velX = physicsInput.VelX,
-                velY = physicsInput.VelY,
-                velZ = physicsInput.VelZ,
-                radius = physicsInput.Radius,
-                height = physicsInput.Height,
-                gravity = physicsInput.Gravity,
-                adtGroundZ = physicsInput.AdtGroundZ,
-                adtLiquidZ = physicsInput.AdtLiquidZ,
-                mapId = physicsInput.MapId
+                // Position and orientation
+                x = proto.PosX,
+                y = proto.PosY,
+                z = proto.PosZ,
+                orientation = proto.Facing,
+                pitch = proto.SwimPitch,
+
+                // Velocity
+                vx = proto.VelX,
+                vy = proto.VelY,
+                vz = proto.VelZ,
+
+                // Movement inputs - derive from movement flags and speeds
+                moveForward = 0,
+                moveStrafe = 0,
+                turnRate = 0,
+
+                // Movement speeds
+                walkSpeed = proto.WalkSpeed,
+                runSpeed = proto.RunSpeed,
+                swimSpeed = proto.SwimSpeed,
+                flightSpeed = 7.0f, // Default, not in proto
+                backSpeed = proto.RunBackSpeed,
+
+                // State
+                moveFlags = proto.MovementFlags,
+                mapId = proto.MapId,
+
+                // Physics modifiers
+                jumpVelocity = 0, // Check if jumping
+                knockbackVx = 0,
+                knockbackVy = 0,
+                knockbackVz = 0,
+
+                // Collision
+                height = proto.Height,
+                radius = proto.Radius,
+
+                // Spline (not used in current proto)
+                hasSplinePath = false,
+                splineSpeed = 0,
+                splinePoints = IntPtr.Zero,
+                splinePointCount = 0,
+                currentSplineIndex = 0,
+
+                // Time
+                deltaTime = 0.016f // Will be overridden by parameter
             };
 
-        public static PhysicsOutput ToPhysicsOutput(this Navigation.PhysicsOutput physics) =>
-            new()
+            // Derive movement inputs from flags
+            if ((proto.MovementFlags & (uint)MovementFlags.MOVEFLAG_FORWARD) != 0)
+                input.moveForward = 1.0f;
+            else if ((proto.MovementFlags & (uint)MovementFlags.MOVEFLAG_BACKWARD) != 0)
+                input.moveForward = -1.0f;
+
+            if ((proto.MovementFlags & (uint)MovementFlags.MOVEFLAG_STRAFE_LEFT) != 0)
+                input.moveStrafe = -1.0f;
+            else if ((proto.MovementFlags & (uint)MovementFlags.MOVEFLAG_STRAFE_RIGHT) != 0)
+                input.moveStrafe = 1.0f;
+
+            if ((proto.MovementFlags & (uint)MovementFlags.MOVEFLAG_TURN_LEFT) != 0)
+                input.turnRate = -1.0f;
+            else if ((proto.MovementFlags & (uint)MovementFlags.MOVEFLAG_TURN_RIGHT) != 0)
+                input.turnRate = 1.0f;
+
+            // Check for jump
+            if (proto.JumpVerticalSpeed > 0)
+                input.jumpVelocity = proto.JumpVerticalSpeed;
+
+            return input;
+        }
+
+        // Convert from Navigation.PhysicsOutput to Protobuf PhysicsOutput
+        public static PhysicsOutput ToPhysicsOutput(this Navigation.PhysicsOutput nav)
+        {
+            return new PhysicsOutput
             {
-                NewPosX = physics.newPosX,
-                NewPosY = physics.newPosY,
-                NewPosZ = physics.newPosZ,
-                NewVelX = physics.newVelX,
-                NewVelY = physics.newVelY,
-                NewVelZ = physics.newVelZ,
-                MovementFlags = physics.movementFlags
+                NewPosX = nav.x,
+                NewPosY = nav.y,
+                NewPosZ = nav.z,
+                NewVelX = nav.vx,
+                NewVelY = nav.vy,
+                NewVelZ = nav.vz,
+                MovementFlags = nav.moveFlags,
+                Orientation = nav.orientation,
+                Pitch = nav.pitch,
+                IsGrounded = nav.isGrounded,
+                IsSwimming = nav.isSwimming,
+                IsFlying = nav.isFlying,
+                Collided = nav.collided,
+                GroundZ = nav.groundZ,
+                LiquidZ = nav.liquidZ,
+                FallDistance = nav.fallDistance,
+                FallTime = nav.fallTime,
+                CurrentSplineIndex = nav.currentSplineIndex,
+                SplineProgress = nav.splineProgress
             };
+        }
     }
 }

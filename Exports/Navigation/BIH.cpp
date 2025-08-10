@@ -1,175 +1,310 @@
-// wow/vmap/BIH.cpp
+// BIH.cpp - Fixed for vMaNGOS format
 #include "BIH.h"
+#include "VMapDefinitions.h"
+#include <cstdio>
 #include <algorithm>
-#include <stack>
+#include <limits>
+#include <iostream>
 
-using namespace wow::vmap;
-
-namespace
+BIH::BIH()
 {
-    struct TriBox
-    {
-        AABox box;
-        uint32 idx;
-    };
+    init_empty();
 }
 
-/* ---------- BIH constructor ------------------------------------------------ */
-
-BIH::BIH(const std::vector<Triangle>& tris, uint32 leaf)
-    : _tris(tris), _leafSize(std::max<uint32>(1, leaf))
+void BIH::init_empty()
 {
-    // Compute per-triangle bounds & world bounds
-    std::vector<TriBox> tb(tris.size());
-    for (size_t i = 0; i < tris.size(); ++i)
-    {
-        AABox b;
-        b.expand(tris[i].v[0]);
-        b.expand(tris[i].v[1]);
-        b.expand(tris[i].v[2]);
-        tb[i] = { b, static_cast<uint32>(i) };
-        _world.expand(b);
-    }
+    tree.clear();
+    objects.clear();
+    // Initialize with an empty leaf node
+    tree.push_back(static_cast<uint32_t>(3 << 30)); // axis = 3 (leaf)
+    tree.push_back(0); // no objects
+    tree.push_back(0); // reserved
 
-    // Build in place – node 0 = root
-    _nodes.resize(tris.size() * 2);      // safe upper bound
-    _nodes[0] = BIHNode{};
-    build(0, 0, static_cast<uint32>(tb.size()), 0);
-
-    // reorder triangles in leaf order for cache locality
+    // Set infinite bounds for empty tree
+    bounds = G3D::AABox(
+        G3D::Vector3(std::numeric_limits<float>::max(),
+            std::numeric_limits<float>::max(),
+            std::numeric_limits<float>::max()),
+        G3D::Vector3(-std::numeric_limits<float>::max(),
+            -std::numeric_limits<float>::max(),
+            -std::numeric_limits<float>::max())
+    );
 }
 
-/* ---------- recursive build ----------------------------------------------- */
-
-void BIH::build(uint32 nodeIdx, uint32 begin, uint32 end, uint8 depth)
+bool BIH::readFromFile(FILE* rf)
 {
-    BIHNode& n = _nodes[nodeIdx];
-    const uint32 count = end - begin;
-
-    if (count <= _leafSize)
+    if (!rf)
     {
-        n.axis = 3;           // leaf
-        n.firstTri = begin;
-        n.triCount = count;
-        return;
+        std::cerr << "[BIH] ERROR: NULL file pointer" << std::endl;
+        return false;
     }
 
-    // choose longest axis
-    AABox bounds;
-    for (uint32 i = begin; i < end; ++i) bounds.expand(_tris[i].v[0]); // rough
-    const Vec3 extent = bounds.max - bounds.min;
-    n.axis = wow::vmap::maxAxis(extent);
+    try
+    {
+        // vMaNGOS BIH format (CORRECTED):
+        // 1. AABox bounds (6 floats: minX, minY, minZ, maxX, maxY, maxZ)
+        // 2. uint32 primCount (number of objects this BIH indexes)
+        // 3. BIH tree data directly (NOT preceded by nodeCount)
 
-    // partition around median
-    const float mid = bounds.min[n.axis] + extent[n.axis] * 0.5f;
-    auto midIt = std::partition(_tris.begin() + begin,
-        _tris.begin() + end,
-        [&](const Triangle& t)
+        // Read bounding box (6 floats)
+        float boundsData[6];
+        if (fread(boundsData, sizeof(float), 6, rf) != 6)
         {
-            float c = (t.v[0][n.axis] +
-                t.v[1][n.axis] +
-                t.v[2][n.axis]) / 3.0f;
-            return c < mid;
-        });
+            std::cerr << "[BIH] ERROR: Failed to read bounding box" << std::endl;
+            return false;
+        }
 
-    const uint32 midIdx = static_cast<uint32>(midIt - _tris.begin());
-    if (midIdx == begin || midIdx == end)
-    {
-        // partition failed – fallback to equal split
-        n.split = mid;
-        n.leftChild = static_cast<uint32>(_nodes.size());
-        _nodes.emplace_back();
-        _nodes.emplace_back();
-        build(n.leftChild, begin, begin + count / 2, depth + 1);
-        build(n.leftChild + 1, begin + count / 2, end, depth + 1);
-        return;
+        G3D::Vector3 lo(boundsData[0], boundsData[1], boundsData[2]);
+        G3D::Vector3 hi(boundsData[3], boundsData[4], boundsData[5]);
+
+        // Validate bounding box
+        if (std::isnan(lo.x) || std::isnan(lo.y) || std::isnan(lo.z) ||
+            std::isnan(hi.x) || std::isnan(hi.y) || std::isnan(hi.z))
+        {
+            std::cerr << "[BIH] ERROR: Invalid bounding box (NaN values)" << std::endl;
+            return false;
+        }
+
+        // Ensure min < max for valid bounds
+        for (int i = 0; i < 3; ++i)
+        {
+            if (lo[i] > hi[i])
+            {
+                std::swap(lo[i], hi[i]);
+            }
+        }
+
+        bounds = G3D::AABox(lo, hi);
+        std::cout << "[BIH] Bounds loaded: ("
+            << lo.x << ", " << lo.y << ", " << lo.z << ") to ("
+            << hi.x << ", " << hi.y << ", " << hi.z << ")" << std::endl;
+
+        // Read primitive count
+        uint32_t primCount;
+        if (fread(&primCount, sizeof(uint32_t), 1, rf) != 1)
+        {
+            std::cerr << "[BIH] ERROR: Failed to read primitive count" << std::endl;
+            return false;
+        }
+
+        if (primCount > 10000000)  // Sanity check
+        {
+            std::cerr << "[BIH] ERROR: Primitive count too large: " << primCount << std::endl;
+            return false;
+        }
+
+        // CRITICAL FIX: The tree size is NOT stored separately!
+        // We need to calculate it from the file size or read until EOF
+        // For vMaNGOS, the tree follows immediately after primCount
+
+        // Get current position and file size
+        long dataStart = ftell(rf);
+        fseek(rf, 0, SEEK_END);
+        long fileSize = ftell(rf);
+        fseek(rf, dataStart, SEEK_SET);
+
+        // Calculate remaining size for tree + objects
+        long remainingSize = fileSize - dataStart;
+
+        // Tree data comes first, then object indices
+        // Object indices = primCount * sizeof(uint32_t)
+        long objectDataSize = primCount * sizeof(uint32_t);
+        long treeDataSize = remainingSize - objectDataSize;
+
+        if (treeDataSize <= 0 || treeDataSize % sizeof(uint32_t) != 0)
+        {
+            std::cerr << "[BIH] ERROR: Invalid tree data size: " << treeDataSize << std::endl;
+            return false;
+        }
+
+        uint32_t treeSize = treeDataSize / sizeof(uint32_t);
+
+        std::cout << "[BIH] Tree size: " << treeSize << " uint32s, Object count: " << primCount << std::endl;
+
+        // Read tree data
+        if (treeSize > 0)
+        {
+            tree.clear();
+            tree.resize(treeSize);
+
+            if (fread(&tree[0], sizeof(uint32_t), treeSize, rf) != treeSize)
+            {
+                std::cerr << "[BIH] ERROR: Failed to read tree data" << std::endl;
+                tree.clear();
+                return false;
+            }
+        }
+        else
+        {
+            // Empty tree - create a single leaf node
+            tree.clear();
+            tree.push_back(static_cast<uint32_t>(3 << 30)); // axis = 3 (leaf)
+            tree.push_back(0); // no objects
+            tree.push_back(0); // reserved
+        }
+
+        // Read object indices
+        if (primCount > 0)
+        {
+            objects.clear();
+            objects.resize(primCount);
+
+            if (fread(&objects[0], sizeof(uint32_t), primCount, rf) != primCount)
+            {
+                std::cerr << "[BIH] ERROR: Failed to read object indices" << std::endl;
+                objects.clear();
+                tree.clear();
+                return false;
+            }
+        }
+
+        // Validate tree structure
+        if (tree.size() >= 3)
+        {
+            uint32_t firstNode = tree[0];
+            uint32_t axis = (firstNode >> 30) & 3;
+            if (axis > 3)
+            {
+                std::cerr << "[BIH] Warning: Invalid axis in root node: " << axis << std::endl;
+            }
+        }
+
+        return true;
     }
-
-    n.split = mid;
-    n.leftChild = static_cast<uint32>(_nodes.size());
-    _nodes.emplace_back();
-    _nodes.emplace_back();
-    build(n.leftChild, begin, midIdx, depth + 1);
-    build(n.leftChild + 1, midIdx, end, depth + 1);
+    catch (const std::exception& e)
+    {
+        std::cerr << "[BIH] ERROR: Exception in readFromFile: " << e.what() << std::endl;
+        tree.clear();
+        objects.clear();
+        return false;
+    }
 }
 
-bool BIH::intersectRay(const Vec3& o,
-    const Vec3& dir,
-    float& outT,
-    Vec3& outN) const
+bool BIH::writeToFile(FILE* wf) const
 {
-    Vec3 invDir = wow::vmap::reciprocal(dir);
-    int  dirIsNeg[3] = { dir.x < 0, dir.y < 0, dir.z < 0 };
+    // Write bounding box as 6 floats (vMaNGOS format)
+    G3D::Vector3 lo = bounds.low();
+    G3D::Vector3 hi = bounds.high();
+    float boundsData[6] = { lo.x, lo.y, lo.z, hi.x, hi.y, hi.z };
 
-    float tEnter = 0.f, tExit = std::numeric_limits<float>::max();
-    if (!_world.rayIntersect(o, invDir, dirIsNeg, tEnter, tExit))
+    if (fwrite(boundsData, sizeof(float), 6, wf) != 6)
         return false;
 
-    outT = tExit;
-    return traverse(0, o, invDir, dirIsNeg, tEnter, tExit, outT, outN);
-}
-/* ---------- ray / triangle helpers ---------------------------------------- */
+    // Write primitive count
+    uint32_t primCount = objects.size();
+    if (fwrite(&primCount, sizeof(uint32_t), 1, wf) != 1)
+        return false;
 
-static inline bool rayTri(const Vec3& o, const Vec3& d,
-    const Vec3& a, const Vec3& b, const Vec3& c,
-    float& t, Vec3& n)
-{
-    const Vec3 ab = b - a;
-    const Vec3 ac = c - a;
-    n = ab.cross(ac);
-    float det = -d.dot(n);
-    if (std::abs(det) < 1e-6f) return false;
+    // Note: We don't write node count - vMaNGOS format doesn't have it
 
-    Vec3 ao = o - a;
-    Vec3 dao = ao.cross(d);
+    // Write tree nodes
+    if (tree.size() > 0 && fwrite(&tree[0], sizeof(uint32_t), tree.size(), wf) != tree.size())
+        return false;
 
-    float u = ao.dot(n) / det;
-    float v = -d.dot(dao) / det;
-    float w = ao.dot(dao) / det;
+    // Write object indices
+    if (objects.size() > 0 && fwrite(&objects[0], sizeof(uint32_t), objects.size(), wf) != objects.size())
+        return false;
 
-    if (u < 0 || v < 0 || w < 0) return false;
-    t = ac.dot(dao) / det;
-    return t >= 0;
+    return true;
 }
 
-/* ---------- ray traversal -------------------------------------------------- */
-
-bool BIH::traverse(uint32 nodeIdx,
-    const Vec3& o,
-    const Vec3& invDir,
-    const int    dirIsNeg[3],
-    float& tMin,
-    float& tMax,
-    float& outT,
-    Vec3& outN) const
+void BIH::build(const std::vector<G3D::AABox>& primitives, uint32_t maxPrimsPerLeaf)
 {
-    const BIHNode& n = _nodes[nodeIdx];
-
-    if (n.isLeaf())
+    if (primitives.empty())
     {
-        bool hit = false;
-        for (uint32 i = 0; i < n.triCount; ++i)
-        {
-            const Triangle& tri = _tris[n.firstTri + i];
-            float t; Vec3 normal;
-            if (rayTri(o, normal, tri.v[0], tri.v[1], tri.v[2], t, normal))
-                if (t < outT) { outT = t; outN = normal; hit = true; }
-        }
-        return hit;
+        init_empty();
+        return;
     }
 
-    const float tPlane = (n.split - o[n.axis]) * invDir[n.axis];
-    const uint32 nearIdx = dirIsNeg[n.axis] ? n.leftChild + 1 : n.leftChild;
-    const uint32 farIdx = nearIdx ^ 1;
+    // Calculate overall bounds
+    bounds = primitives[0];
+    for (size_t i = 1; i < primitives.size(); ++i)
+    {
+        bounds.merge(primitives[i]);
+    }
 
-    bool hit = false;
-    float tNear = tMin, tFar = std::min(tMax, tPlane);
-    if (tPlane >= tMin)
-        hit |= traverse(nearIdx, o, invDir, dirIsNeg, tNear, tFar, outT, outN);
+    // Initialize object indices
+    objects.resize(primitives.size());
+    for (size_t i = 0; i < primitives.size(); ++i)
+    {
+        objects[i] = static_cast<uint32_t>(i);
+    }
 
-    tNear = std::max(tMin, tPlane); tFar = tMax;
-    if (tPlane <= tMax && (!hit || tPlane < outT))
-        hit |= traverse(farIdx, o, invDir, dirIsNeg, tNear, tFar, outT, outN);
+    // Build tree recursively
+    tree.clear();
+    std::vector<uint32_t> tempObjects = objects;
+    buildNode(primitives, tempObjects, 0, static_cast<uint32_t>(primitives.size()), maxPrimsPerLeaf, 0);
+}
 
-    return hit;
+void BIH::buildNode(const std::vector<G3D::AABox>& primitives,
+    std::vector<uint32_t>& indices,
+    uint32_t start, uint32_t end,
+    uint32_t maxPrimsPerLeaf, int depth)
+{
+    uint32_t numPrims = end - start;
+
+    // Create leaf if we have few enough primitives or max depth reached
+    if (numPrims <= maxPrimsPerLeaf || depth > 20)
+    {
+        // Leaf node
+        uint32_t nodeIndex = static_cast<uint32_t>(tree.size());
+        tree.push_back((3 << 30) | start); // axis = 3 (leaf), offset to objects
+        tree.push_back(numPrims); // number of primitives
+        tree.push_back(0); // reserved
+        return;
+    }
+
+    // Calculate bounds for current primitives
+    G3D::AABox nodeBounds = primitives[indices[start]];
+    for (uint32_t i = start + 1; i < end; ++i)
+    {
+        nodeBounds.merge(primitives[indices[i]]);
+    }
+
+    // Choose split axis (longest extent)
+    G3D::Vector3 extent = nodeBounds.high() - nodeBounds.low();
+    int axis = 0;
+    if (extent.y > extent.x) axis = 1;
+    if (extent.z > extent[axis]) axis = 2;
+
+    // Sort primitives along chosen axis
+    float splitPos = (nodeBounds.low()[axis] + nodeBounds.high()[axis]) * 0.5f;
+
+    // Partition primitives
+    uint32_t mid = start;
+    for (uint32_t i = start; i < end; ++i)
+    {
+        float center = (primitives[indices[i]].low()[axis] +
+            primitives[indices[i]].high()[axis]) * 0.5f;
+        if (center < splitPos)
+        {
+            if (i != mid)
+                std::swap(indices[i], indices[mid]);
+            ++mid;
+        }
+    }
+
+    // Ensure we actually split
+    if (mid == start || mid == end)
+    {
+        mid = (start + end) / 2;
+    }
+
+    // Create inner node
+    uint32_t nodeIndex = static_cast<uint32_t>(tree.size());
+    tree.push_back(axis << 30); // axis in top 2 bits
+    tree.push_back(VMAP::floatToRawIntBits(nodeBounds.low()[axis]));
+    tree.push_back(VMAP::floatToRawIntBits(nodeBounds.high()[axis]));
+
+    // Reserve space for child offset
+    uint32_t offsetIndex = static_cast<uint32_t>(tree.size()) - 3;
+
+    // Build left child
+    buildNode(primitives, indices, start, mid, maxPrimsPerLeaf, depth + 1);
+
+    // Update offset to right child
+    tree[offsetIndex] |= (static_cast<uint32_t>(tree.size()) & 0x1FFFFFFF);
+
+    // Build right child
+    buildNode(primitives, indices, mid, end, maxPrimsPerLeaf, depth + 1);
 }
