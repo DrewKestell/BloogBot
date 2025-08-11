@@ -180,6 +180,11 @@ float PhysicsEngine::GetHeight(uint32_t mapId, float x, float y, float z, bool c
 // Get height from VMAP collision data
 float PhysicsEngine::GetVMapHeight(uint32_t mapId, float x, float y, float z, float maxSearchDist)
 {
+    std::cout << "\n===== VMAP HEIGHT CHECK =====" << std::endl;
+    std::cout << "Map: " << mapId << " Pos: (" << x << ", " << y << ", " << z << ")" << std::endl;
+    std::cout << "Search distance: " << maxSearchDist << std::endl;
+    auto start = std::chrono::high_resolution_clock::now();
+
     if (!m_vmapClient || !m_vmapHeightEnabled)
     {
         return VMAP_INVALID_HEIGHT_VALUE;
@@ -187,13 +192,19 @@ float PhysicsEngine::GetVMapHeight(uint32_t mapId, float x, float y, float z, fl
 
     try
     {
-        // DON'T call preloadMap here - it's already done in EnsureMapLoaded
-        // Just get the height
         float height = m_vmapClient->getGroundHeight(mapId, x, y, z, maxSearchDist);
+
+        auto end = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+        std::cout << "Result: " << height << " (took " << duration.count() << " us)" << std::endl;
+        std::cout << "============================\n" << std::endl;
+
         return height;
     }
     catch (const std::exception& e)
     {
+        std::cout << "EXCEPTION: " << e.what() << std::endl;
+        std::cout << "============================\n" << std::endl;
         return VMAP_INVALID_HEIGHT_VALUE;
     }
 }
@@ -281,13 +292,25 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
     state.fallTime = 0;
     state.fallStartZ = input.z;
 
-    // Determine movement state using vMaNGOS tolerance
-    bool groundCheck = collision.hasGround &&
-        std::abs(input.z - collision.groundZ) < GROUND_HEIGHT_TOLERANCE;
+    // CRITICAL FIX: Check if unit SHOULD be on ground (not if it IS on ground)
+    // This matches vMaNGOS UpdateAllowedPositionZ logic
+    bool shouldBeGrounded = false;
+    if (!(input.moveFlags & MOVEFLAG_FLYING) && collision.hasGround)
+    {
+        // If below ground, we WILL place on ground
+        if (input.z <= collision.groundZ)
+            shouldBeGrounded = true;
+        // If close to ground, we're grounded
+        else if (std::abs(input.z - collision.groundZ) < GROUND_HEIGHT_TOLERANCE)
+            shouldBeGrounded = true;
+    }
 
-    state.isGrounded = groundCheck;
-    state.isSwimming = collision.hasLiquid &&
-        input.z < (collision.liquidZ - input.height * 0.5f);
+    state.isGrounded = shouldBeGrounded;
+
+    state.isSwimming = !state.isGrounded && collision.hasLiquid &&
+        (collision.liquidType & (MapFormat::MAP_LIQUID_TYPE_WATER | MapFormat::MAP_LIQUID_TYPE_OCEAN)) &&
+        input.z < (collision.liquidZ + 0.6f);
+
     state.isFlying = (input.moveFlags & MOVEFLAG_FLYING) != 0;
 
     // Apply knockback if any
@@ -329,23 +352,45 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
     // Resolve collisions
     ResolveCollisions(input.mapId, state, input.radius, input.height);
 
-    // Re-query environment at new position
-    collision = QueryEnvironment(input.mapId, state.x, state.y, state.z,
-        input.radius, input.height);
-
-    // Update grounded state
-    bool wasGrounded = state.isGrounded;
-    state.isGrounded = collision.hasGround &&
-        std::abs(state.z - collision.groundZ) < GROUND_HEIGHT_TOLERANCE;
-
-    // Snap to ground if close enough
-    if (state.isGrounded && !state.isFlying && !state.isSwimming)
+    // Instead of re-querying everything, just update ground height at new position if needed
+    if (state.x != input.x || state.y != input.y)
     {
-        float snapDelta = collision.groundZ - state.z;
-        if (std::abs(snapDelta) > 0.01f && std::abs(snapDelta) < GROUND_HEIGHT_TOLERANCE)
+        // Only query ground at NEW position, reuse liquid info
+        float newGroundZ = GetHeight(input.mapId, state.x, state.y, state.z,
+            m_vmapHeightEnabled, DEFAULT_HEIGHT_SEARCH);
+        if (newGroundZ > INVALID_HEIGHT_VALUE)
+        {
+            collision.groundZ = newGroundZ;
+            collision.hasGround = true;
+        }
+    }
+
+    // CRITICAL FIX: vMaNGOS-style position validation (UpdateAllowedPositionZ logic)
+    if (!state.isFlying && !(input.moveFlags & (MOVEFLAG_FALLINGFAR | MOVEFLAG_FALLING)) &&
+        !state.isSwimming && collision.hasGround && collision.groundZ > INVALID_HEIGHT_VALUE)
+    {
+        // ALWAYS place on ground if below it (core vMaNGOS behavior)
+        if (state.z < collision.groundZ)
         {
             state.z = collision.groundZ;
             state.vz = 0;
+            state.isGrounded = true;
+        }
+        // Also snap if very close to ground
+        else if (std::abs(state.z - collision.groundZ) < GROUND_HEIGHT_TOLERANCE)
+        {
+            state.z = collision.groundZ;
+            state.vz = 0;
+            state.isGrounded = true;
+        }
+        // Check if we're on ground (within reasonable distance)
+        else if (state.z - collision.groundZ < 0.5f)
+        {
+            state.isGrounded = true;
+        }
+        else
+        {
+            state.isGrounded = false;
         }
     }
 
@@ -367,7 +412,7 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
 
     // Update movement flags
     output.moveFlags = input.moveFlags;
-    if (!state.isGrounded)
+    if (!state.isGrounded && !state.isSwimming)  // Don't set falling when swimming
         output.moveFlags |= MOVEFLAG_FALLING;
     else
         output.moveFlags &= ~MOVEFLAG_FALLING;
@@ -403,6 +448,9 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
 PhysicsEngine::CollisionInfo PhysicsEngine::QueryEnvironment(uint32_t mapId, float x, float y, float z,
     float radius, float height)
 {
+    std::cout << "\n[Physics::QueryEnvironment] Map: " << mapId
+        << ", Pos: (" << x << ", " << y << ", " << z << ")" << std::endl;
+
     CollisionInfo info = {};
 
     // Get ground height using vMaNGOS-style logic
@@ -413,13 +461,28 @@ PhysicsEngine::CollisionInfo PhysicsEngine::QueryEnvironment(uint32_t mapId, flo
 
     // Store individual height sources for debugging
     info.vmapHeight = GetVMapHeight(mapId, x, y, z, DEFAULT_HEIGHT_SEARCH);
-    info.adtHeight = GetADTHeight(mapId, x, y, z);
+    // REMOVED REDUNDANT CALL - GetHeight already calls GetADTHeight internally!
+    info.adtHeight = finalHeight;  // Just use the result we already have
     info.vmapValid = (info.vmapHeight > VMAP_INVALID_HEIGHT_VALUE);
     info.adtValid = (info.adtHeight > INVALID_HEIGHT_VALUE);
 
+    std::cout << "[Physics::QueryEnvironment] Ground: " << (info.hasGround ? "YES" : "NO")
+        << ", Z=" << info.groundZ << std::endl;
+
     // Get liquid info
-    info.liquidZ = GetLiquidHeight(mapId, x, y, z, info.liquidType);
-    info.hasLiquid = (info.liquidZ > INVALID_HEIGHT_VALUE);
+    float liquidFloor;
+    if (GetLiquidInfo(mapId, x, y, z, info.liquidZ, liquidFloor, info.liquidType))
+    {
+        info.hasLiquid = true;
+        std::cout << "[Physics::QueryEnvironment] Liquid: YES, Z=" << info.liquidZ
+            << ", Type=" << info.liquidType << std::endl;
+    }
+    else
+    {
+        info.hasLiquid = false;
+        info.liquidZ = INVALID_HEIGHT_VALUE;
+        std::cout << "[Physics::QueryEnvironment] Liquid: NO" << std::endl;
+    }
 
     // Check if indoors (using VMAP area info)
     if (m_vmapIndoorCheckEnabled && m_vmapClient)
@@ -429,12 +492,48 @@ PhysicsEngine::CollisionInfo PhysicsEngine::QueryEnvironment(uint32_t mapId, flo
         float checkZ = z;
         m_vmapClient->getAreaInfo(mapId, x, y, checkZ, flags, adtId, rootId, groupId);
         info.isIndoors = (rootId >= 0 && groupId >= 0);  // Inside a WMO
+        std::cout << "[Physics::QueryEnvironment] Indoor: " << (info.isIndoors ? "YES" : "NO") << std::endl;
     }
 
     // Calculate ground normal (simplified - assumes flat for now)
     info.groundNormalZ = 1.0f;
 
     return info;
+}
+
+bool PhysicsEngine::GetLiquidInfo(uint32_t mapId, float x, float y, float z, float& liquidLevel, float& liquidFloor, uint32_t& liquidType)
+{
+    // First try to get liquid from MapLoader (ADT data)
+    if (m_mapLoader && m_mapLoader->IsInitialized())
+    {
+        liquidLevel = m_mapLoader->GetLiquidLevel(mapId, x, y, z);
+        if (liquidLevel > INVALID_HEIGHT_VALUE)
+        {
+            liquidType = m_mapLoader->GetLiquidType(mapId, x, y);
+            // Convert to vmangos liquid mask
+
+            liquidFloor = liquidLevel - 2.0f;  // Estimate floor
+            return true;
+        }
+    }
+
+    // Then try VMAP for WMO liquids
+    if (m_vmapClient)
+    {
+        try
+        {
+            if (m_vmapClient->getLiquidLevel(mapId, x, y, z, liquidLevel, liquidFloor))
+            {
+                liquidType = MapFormat::MAP_LIQUID_TYPE_WATER;  // Default for VMAP liquids
+                return true;
+            }
+        }
+        catch (const std::exception& e)
+        {
+        }
+    }
+
+    return false;
 }
 
 // Movement handlers remain the same...
@@ -473,7 +572,7 @@ PhysicsEngine::MovementState PhysicsEngine::HandleGroundMovement(const PhysicsIn
     // Update orientation
     if (input.turnRate != 0)
     {
-        state.orientation += input.turnRate * TURN_SPEED * dt;
+        state.orientation += input.turnRate * 0.75f * TURN_SPEED * dt;
         state.orientation = NormalizeAngle(state.orientation);
     }
 

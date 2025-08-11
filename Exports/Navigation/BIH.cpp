@@ -41,11 +41,6 @@ bool BIH::readFromFile(FILE* rf)
 
     try
     {
-        // vMaNGOS BIH format (CORRECTED):
-        // 1. AABox bounds (6 floats: minX, minY, minZ, maxX, maxY, maxZ)
-        // 2. uint32 primCount (number of objects this BIH indexes)
-        // 3. BIH tree data directly (NOT preceded by nodeCount)
-
         // Read bounding box (6 floats)
         float boundsData[6];
         if (fread(boundsData, sizeof(float), 6, rf) != 6)
@@ -65,108 +60,52 @@ bool BIH::readFromFile(FILE* rf)
             return false;
         }
 
-        // Ensure min < max for valid bounds
-        for (int i = 0; i < 3; ++i)
-        {
-            if (lo[i] > hi[i])
-            {
-                std::swap(lo[i], hi[i]);
-            }
-        }
-
         bounds = G3D::AABox(lo, hi);
-        std::cout << "[BIH] Bounds loaded: ("
-            << lo.x << ", " << lo.y << ", " << lo.z << ") to ("
-            << hi.x << ", " << hi.y << ", " << hi.z << ")" << std::endl;
 
-        // Read primitive count
-        uint32_t primCount;
-        if (fread(&primCount, sizeof(uint32_t), 1, rf) != 1)
+        // FIXED: Read tree size FIRST (matching reference format)
+        uint32_t treeSize;
+        if (fread(&treeSize, sizeof(uint32_t), 1, rf) != 1)
         {
-            std::cerr << "[BIH] ERROR: Failed to read primitive count" << std::endl;
+            std::cerr << "[BIH] ERROR: Failed to read tree size" << std::endl;
             return false;
         }
 
-        if (primCount > 10000000)  // Sanity check
+        if (treeSize > 10000000)  // Sanity check
         {
-            std::cerr << "[BIH] ERROR: Primitive count too large: " << primCount << std::endl;
+            std::cerr << "[BIH] ERROR: Tree size too large: " << treeSize << std::endl;
             return false;
         }
-
-        // CRITICAL FIX: The tree size is NOT stored separately!
-        // We need to calculate it from the file size or read until EOF
-        // For vMaNGOS, the tree follows immediately after primCount
-
-        // Get current position and file size
-        long dataStart = ftell(rf);
-        fseek(rf, 0, SEEK_END);
-        long fileSize = ftell(rf);
-        fseek(rf, dataStart, SEEK_SET);
-
-        // Calculate remaining size for tree + objects
-        long remainingSize = fileSize - dataStart;
-
-        // Tree data comes first, then object indices
-        // Object indices = primCount * sizeof(uint32_t)
-        long objectDataSize = primCount * sizeof(uint32_t);
-        long treeDataSize = remainingSize - objectDataSize;
-
-        if (treeDataSize <= 0 || treeDataSize % sizeof(uint32_t) != 0)
-        {
-            std::cerr << "[BIH] ERROR: Invalid tree data size: " << treeDataSize << std::endl;
-            return false;
-        }
-
-        uint32_t treeSize = treeDataSize / sizeof(uint32_t);
-
-        std::cout << "[BIH] Tree size: " << treeSize << " uint32s, Object count: " << primCount << std::endl;
 
         // Read tree data
-        if (treeSize > 0)
+        tree.clear();
+        tree.resize(treeSize);
+        if (treeSize > 0 && fread(&tree[0], sizeof(uint32_t), treeSize, rf) != treeSize)
         {
-            tree.clear();
-            tree.resize(treeSize);
-
-            if (fread(&tree[0], sizeof(uint32_t), treeSize, rf) != treeSize)
-            {
-                std::cerr << "[BIH] ERROR: Failed to read tree data" << std::endl;
-                tree.clear();
-                return false;
-            }
+            std::cerr << "[BIH] ERROR: Failed to read tree data" << std::endl;
+            return false;
         }
-        else
+
+        // FIXED: Read object count AFTER tree (matching reference format)
+        uint32_t count;
+        if (fread(&count, sizeof(uint32_t), 1, rf) != 1)
         {
-            // Empty tree - create a single leaf node
-            tree.clear();
-            tree.push_back(static_cast<uint32_t>(3 << 30)); // axis = 3 (leaf)
-            tree.push_back(0); // no objects
-            tree.push_back(0); // reserved
+            std::cerr << "[BIH] ERROR: Failed to read object count" << std::endl;
+            return false;
+        }
+
+        if (count > 10000000)  // Sanity check
+        {
+            std::cerr << "[BIH] ERROR: Object count too large: " << count << std::endl;
+            return false;
         }
 
         // Read object indices
-        if (primCount > 0)
+        objects.clear();
+        objects.resize(count);
+        if (count > 0 && fread(&objects[0], sizeof(uint32_t), count, rf) != count)
         {
-            objects.clear();
-            objects.resize(primCount);
-
-            if (fread(&objects[0], sizeof(uint32_t), primCount, rf) != primCount)
-            {
-                std::cerr << "[BIH] ERROR: Failed to read object indices" << std::endl;
-                objects.clear();
-                tree.clear();
-                return false;
-            }
-        }
-
-        // Validate tree structure
-        if (tree.size() >= 3)
-        {
-            uint32_t firstNode = tree[0];
-            uint32_t axis = (firstNode >> 30) & 3;
-            if (axis > 3)
-            {
-                std::cerr << "[BIH] Warning: Invalid axis in root node: " << axis << std::endl;
-            }
+            std::cerr << "[BIH] ERROR: Failed to read object indices" << std::endl;
+            return false;
         }
 
         return true;

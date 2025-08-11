@@ -15,165 +15,76 @@ namespace VMAP
 
         try
         {
-            // vMaNGOS ModelSpawn format:
-            // uint32 flags
-            // uint16 adtId  
-            // uint32 ID
-            // Vector3 position (3 floats)
-            // Vector3 rotation (3 floats)
-            // float scale
-            // [if flags & MOD_HAS_BOUND:]
-            //   AABox bounds (6 floats)
-            // uint32 nameLength
-            // char name[nameLength]
+            uint32_t check = 0;
 
             // Read flags
-            if (fread(&spawn.flags, sizeof(uint32_t), 1, rf) != 1)
+            check += fread(&spawn.flags, sizeof(uint32_t), 1, rf);
+
+            // EoF check
+            if (!check)
             {
-                std::cerr << "[ModelSpawn] ERROR: Failed to read flags" << std::endl;
+                if (ferror(rf))
+                    std::cerr << "[ModelSpawn] Error reading ModelSpawn!" << std::endl;
                 return false;
             }
 
-            // Read ADT ID
-            if (fread(&spawn.adtId, sizeof(uint16_t), 1, rf) != 1)
-            {
-                std::cerr << "[ModelSpawn] ERROR: Failed to read adtId" << std::endl;
-                return false;
-            }
+            // Read basic data
+            check += fread(&spawn.adtId, sizeof(uint16_t), 1, rf);
+            check += fread(&spawn.ID, sizeof(uint32_t), 1, rf);
 
-            // Read spawn ID
-            if (fread(&spawn.ID, sizeof(uint32_t), 1, rf) != 1)
-            {
-                std::cerr << "[ModelSpawn] ERROR: Failed to read ID" << std::endl;
-                return false;
-            }
+            // FIXED: Read position as 3 floats in ONE call (matching reference)
+            check += fread(&spawn.iPos, sizeof(float), 3, rf);
 
-            // Read position (3 floats)
-            if (fread(&spawn.iPos.x, sizeof(float), 1, rf) != 1 ||
-                fread(&spawn.iPos.y, sizeof(float), 1, rf) != 1 ||
-                fread(&spawn.iPos.z, sizeof(float), 1, rf) != 1)
-            {
-                std::cerr << "[ModelSpawn] ERROR: Failed to read position" << std::endl;
-                return false;
-            }
+            // FIXED: Read rotation as 3 floats in ONE call (matching reference)
+            check += fread(&spawn.iRot, sizeof(float), 3, rf);
 
-            // Validate position
-            const float MAX_COORD = 100000.0f;
-            if (std::isnan(spawn.iPos.x) || std::isnan(spawn.iPos.y) || std::isnan(spawn.iPos.z) ||
-                std::isinf(spawn.iPos.x) || std::isinf(spawn.iPos.y) || std::isinf(spawn.iPos.z))
-            {
-                std::cerr << "[ModelSpawn] ERROR: Invalid position (NaN or Inf)" << std::endl;
-                return false;
-            }
-
-            if (std::abs(spawn.iPos.x) > MAX_COORD || std::abs(spawn.iPos.y) > MAX_COORD ||
-                std::abs(spawn.iPos.z) > MAX_COORD)
-            {
-                std::cerr << "[ModelSpawn] Warning: Large position: ("
-                    << spawn.iPos.x << ", " << spawn.iPos.y << ", " << spawn.iPos.z << ")" << std::endl;
-            }
-
-            // Read rotation (3 floats)
-            if (fread(&spawn.iRot.x, sizeof(float), 1, rf) != 1 ||
-                fread(&spawn.iRot.y, sizeof(float), 1, rf) != 1 ||
-                fread(&spawn.iRot.z, sizeof(float), 1, rf) != 1)
-            {
-                std::cerr << "[ModelSpawn] ERROR: Failed to read rotation" << std::endl;
-                return false;
-            }
-
-            // Read scale
-            if (fread(&spawn.iScale, sizeof(float), 1, rf) != 1)
-            {
-                std::cerr << "[ModelSpawn] ERROR: Failed to read scale" << std::endl;
-                return false;
-            }
-
-            // Validate scale
-            if (spawn.iScale <= 0.0f || spawn.iScale > 1000.0f)
-            {
-                std::cerr << "[ModelSpawn] Warning: Unusual scale: " << spawn.iScale << std::endl;
-                if (spawn.iScale <= 0.0f)
-                    spawn.iScale = 1.0f;
-            }
+            check += fread(&spawn.iScale, sizeof(float), 1, rf);
 
             // Read bounding box if present
             bool has_bound = (spawn.flags & MOD_HAS_BOUND) != 0;
             if (has_bound)
             {
-                // vMaNGOS stores bounds as 6 floats
-                float boundsData[6];
-                if (fread(boundsData, sizeof(float), 6, rf) != 6)
-                {
-                    std::cerr << "[ModelSpawn] ERROR: Failed to read bounds" << std::endl;
-                    return false;
-                }
-
-                G3D::Vector3 bLow(boundsData[0], boundsData[1], boundsData[2]);
-                G3D::Vector3 bHigh(boundsData[3], boundsData[4], boundsData[5]);
-
-                // Validate bounds
-                if (std::isnan(bLow.x) || std::isnan(bLow.y) || std::isnan(bLow.z) ||
-                    std::isnan(bHigh.x) || std::isnan(bHigh.y) || std::isnan(bHigh.z))
-                {
-                    std::cerr << "[ModelSpawn] Warning: Invalid bounds (NaN), using default" << std::endl;
-                    spawn.iBound = G3D::AABox(spawn.iPos - G3D::Vector3(10, 10, 10),
-                        spawn.iPos + G3D::Vector3(10, 10, 10));
-                }
-                else
-                {
-                    spawn.iBound = G3D::AABox(bLow, bHigh);
-                }
+                // FIXED: Read as two Vector3 directly (matching reference)
+                G3D::Vector3 bLow, bHigh;
+                check += fread(&bLow, sizeof(float), 3, rf);
+                check += fread(&bHigh, sizeof(float), 3, rf);
+                spawn.iBound = G3D::AABox(bLow, bHigh);
             }
             else
             {
-                // Create default bounds around position
+                // Default bounds
                 spawn.iBound = G3D::AABox(spawn.iPos - G3D::Vector3(10, 10, 10),
                     spawn.iPos + G3D::Vector3(10, 10, 10));
             }
 
             // Read name length
-            uint32_t nameLen = 0;
-            if (fread(&nameLen, sizeof(uint32_t), 1, rf) != 1)
+            uint32_t nameLen;
+            check += fread(&nameLen, sizeof(uint32_t), 1, rf);
+
+            // FIXED: Validate read count (matching reference)
+            if (check != uint32_t(has_bound ? 17 : 11))
             {
-                std::cerr << "[ModelSpawn] ERROR: Failed to read name length" << std::endl;
+                std::cerr << "[ModelSpawn] Error reading ModelSpawn!" << std::endl;
                 return false;
             }
 
             // Sanity check name length
             if (nameLen > 500)
             {
-                std::cerr << "[ModelSpawn] ERROR: Name too long: " << nameLen << " bytes" << std::endl;
+                std::cerr << "[ModelSpawn] Error: Name too long: " << nameLen << std::endl;
                 return false;
             }
 
-            // Read name
-            if (nameLen > 0)
+            // FIXED: Use fixed buffer like reference (avoids dynamic allocation)
+            char nameBuff[500];
+            check = fread(nameBuff, sizeof(char), nameLen, rf);
+            if (check != nameLen)
             {
-                char* nameBuff = new char[nameLen + 1];
-                memset(nameBuff, 0, nameLen + 1);
-
-                if (fread(nameBuff, sizeof(char), nameLen, rf) != nameLen)
-                {
-                    std::cerr << "[ModelSpawn] ERROR: Failed to read name" << std::endl;
-                    delete[] nameBuff;
-                    return false;
-                }
-
-                spawn.name = std::string(nameBuff, nameLen);
-                delete[] nameBuff;
-
-                // Validate name
-                if (spawn.name.find('\0') != std::string::npos && spawn.name.find('\0') < spawn.name.length() - 1)
-                {
-                    std::cerr << "[ModelSpawn] Warning: Name contains embedded null characters" << std::endl;
-                    spawn.name = spawn.name.substr(0, spawn.name.find('\0'));
-                }
+                std::cerr << "[ModelSpawn] Error reading name string!" << std::endl;
+                return false;
             }
-            else
-            {
-                spawn.name.clear();
-            }
+
+            spawn.name = std::string(nameBuff, nameLen);
 
             return true;
         }
@@ -249,38 +160,79 @@ namespace VMAP
         bool stopAtFirstHit, bool ignoreM2Model) const
     {
         if (!iModel)
+        {
+            std::cout << "[ModelInstance] No model loaded for " << name << std::endl;
             return false;
+        }
 
         float time = ray.intersectionTime(iBound);
         if (time == G3D::inf())
+        {
+            std::cout << "[ModelInstance] Ray misses bounds for " << name << std::endl;
             return false;
+        }
 
+        std::cout << "[ModelInstance] Testing model: " << name
+            << " Flags=0x" << std::hex << flags << std::dec
+            << " Bound hit at t=" << time << std::endl;
+
+        // ADD THIS DIAGNOSTIC LOGGING:
+        std::cout << "[ModelInstance] Model details: "
+            << " HasModel=" << (iModel ? "YES" : "NO")
+            << " IsM2=" << ((flags & MOD_M2) ? "YES" : "NO")
+            << " IgnoreM2=" << (ignoreM2Model ? "YES" : "NO") << std::endl;
+
+        // child bounds are defined in object space:
         G3D::Vector3 p = iInvRot * (ray.origin() - iPos) * iInvScale;
         G3D::Ray modRay(p, iInvRot * ray.direction());
         float distance = maxDist * iInvScale;
+
+        // ADD THIS:
+        std::cout << "[ModelInstance] Calling WorldModel::IntersectRay..." << std::endl;
+
         bool hit = iModel->IntersectRay(modRay, distance, stopAtFirstHit, ignoreM2Model);
+
         if (hit)
         {
             distance *= iScale;
             maxDist = distance;
+            std::cout << "[ModelInstance] HIT! Model: " << name
+                << " Distance: " << distance << " Flags: 0x" << std::hex << flags << std::dec << std::endl;
         }
+        else
+        {
+            std::cout << "[ModelInstance] MISS - WorldModel returned no hit" << std::endl;
+        }
+
         return hit;
     }
 
     void ModelInstance::intersectPoint(const G3D::Vector3& p, AreaInfo& info) const
     {
-        if (!iModel || (flags & MOD_M2))
+        if (!iModel)
+        {
+            std::cout << "[ModelInstance] No model loaded" << std::endl;
             return;
+        }
+
+        // M2 files don't contain area info, only WMO files
+        if (flags & MOD_M2)
+            return;
+
         if (!iBound.contains(p))
             return;
 
+        // child bounds are defined in object space:
         G3D::Vector3 pModel = iInvRot * (p - iPos) * iInvScale;
-        G3D::Vector3 zDirModel = iInvRot * G3D::Vector3(0, 0, -1);
+        G3D::Vector3 zDirModel = iInvRot * G3D::Vector3(0, 0, -1);  // Vector3::down()
         float zDist;
 
         if (iModel->IntersectPoint(pModel, zDirModel, zDist, info))
         {
             G3D::Vector3 modelGround = pModel + zDirModel * zDist;
+            // Transform back to world space. Note that:
+            // Mat * vec == vec * Mat.transpose()
+            // and for rotation matrices: Mat.inverse() == Mat.transpose()
             float world_Z = ((modelGround * iInvRot) * iScale + iPos).z;
             if (info.ground_Z < world_Z)
             {

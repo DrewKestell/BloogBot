@@ -10,8 +10,14 @@ template<typename RayCallback>
 void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
     float& maxDist, bool stopAtFirst, bool ignoreM2Model) const
 {
+    int nodesVisited = 0;
+    int leavesChecked = 0;
+    int objectsTested = 0;
+    int objectsHit = 0;
+
     if (tree.empty() || objects.empty())
     {
+        std::cout << "[BIH] Empty tree or objects, returning" << std::endl;
         return;
     }
 
@@ -28,42 +34,48 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
         {
             float t1 = (bounds.low()[i] - org[i]) * invDir[i];
             float t2 = (bounds.high()[i] - org[i]) * invDir[i];
-            if (t1 > t2) std::swap(t1, t2);
-            if (i == 0)
-            {
+            if (t1 > t2)
+                std::swap(t1, t2);
+            if (t1 > intervalMin)
                 intervalMin = t1;
+            if (t2 < intervalMax || intervalMax < 0.f)
                 intervalMax = t2;
-            }
-            else
+            // intervalMax can only become smaller for other axis,
+            // and intervalMin only larger respectively, so stop early
+            if (intervalMax <= 0 || intervalMin >= maxDist)
             {
-                if (t1 > intervalMin) intervalMin = t1;
-                if (t2 < intervalMax) intervalMax = t2;
-            }
-            if (intervalMax < 0 || intervalMin >= maxDist || intervalMin > intervalMax)
-            {
+                std::cout << "[BIH] Ray misses overall bounds" << std::endl;
                 return;
             }
-        }
-        else if (org[i] < bounds.low()[i] || org[i] > bounds.high()[i])
-        {
-            return;
         }
     }
 
     if (intervalMin > intervalMax)
     {
+        std::cout << "[BIH] Invalid interval: min=" << intervalMin << " max=" << intervalMax << std::endl;
         return;
     }
 
     intervalMin = std::max(intervalMin, 0.f);
     intervalMax = std::min(intervalMax, maxDist);
 
+    std::cout << "[BIH] Ray intersects bounds: interval [" << intervalMin << ", " << intervalMax << "]" << std::endl;
+
     // Prepare offset arrays for traversal
     uint32_t offsetFront[3], offsetBack[3];
+    uint32_t offsetFront3[3], offsetBack3[3];
+
+    // compute custom offsets from direction sign bit
     for (int i = 0; i < 3; ++i)
     {
-        offsetFront[i] = (dir[i] >= 0.0f) ? 1 : 2;
-        offsetBack[i] = 3 - offsetFront[i];
+        offsetFront[i] = VMAP::floatToRawIntBits(dir[i]) >> 31;
+        offsetBack[i] = offsetFront[i] ^ 1;
+        offsetFront3[i] = offsetFront[i] * 3;
+        offsetBack3[i] = offsetBack[i] * 3;
+
+        // avoid always adding 1 during the inner loop
+        ++offsetFront[i];
+        ++offsetBack[i];
     }
 
     // Stack for tree traversal
@@ -82,94 +94,166 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
     {
         while (true)
         {
+            nodesVisited++;
+
             uint32_t tn = tree[node];
             uint32_t axis = (tn >> 30) & 3;
-            uint32_t offset = tn & 0x1FFFFFFF;
+            bool const BVH2 = tn & (1 << 29);
+            int offset = tn & ~(7 << 29);
 
-            if (axis == 3) // Leaf node
+            if (!BVH2)
             {
-                // Get the count from the next uint32
-                uint32_t count = tree[node + 1];
-
-                // Validate count and offset
-                if (count > objects.size() || offset >= objects.size() || offset + count > objects.size())
+                if (axis < 3) // Inner node
                 {
-                    break;
-                }
+                    // "normal" interior node
+                    float tf = (VMAP::intBitsToFloat(tree[node + offsetFront[axis]]) - org[axis]) * invDir[axis];
+                    float tb = (VMAP::intBitsToFloat(tree[node + offsetBack[axis]]) - org[axis]) * invDir[axis];
 
-                for (uint32_t i = 0; i < count; ++i)
-                {
-                    uint32_t objIdx = objects[offset + i];
+                    // ray passes between clip zones
+                    if (tf < intervalMin && tb > intervalMax)
+                        break;
 
-                    if (objIdx >= 100000000)  // Sanity check for corrupted data
+                    int back = offset + offsetBack3[axis];
+                    node = back;
+
+                    // ray passes through far node only
+                    if (tf < intervalMin)
                     {
+                        intervalMin = (tb >= intervalMin) ? tb : intervalMin;
                         continue;
                     }
 
-                    bool hit = intersectCallback(r, objIdx, maxDist, stopAtFirst, ignoreM2Model);
+                    node = offset + offsetFront3[axis]; // front
 
-                    if (hit)
+                    // ray passes through near node only
+                    if (tb > intervalMax)
                     {
-                        if (stopAtFirst)
-                        {
-                            return;
-                        }
+                        intervalMax = (tf <= intervalMax) ? tf : intervalMax;
+                        continue;
                     }
-                }
-                break;
-            }
-            else // Inner node
-            {
-                // Get the split values
-                float splitMin = VMAP::intBitsToFloat(tree[node + offsetFront[axis]]);
-                float splitMax = VMAP::intBitsToFloat(tree[node + offsetBack[axis]]);
 
-                float tf = (splitMin - org[axis]) * invDir[axis];
-                float tb = (splitMax - org[axis]) * invDir[axis];
-
-                // Check which children to visit
-                int first = node + 3;  // Left child
-                int second = offset;   // Right child
-
-                if (dir[axis] < 0.0f)
-                    std::swap(first, second);
-
-                if (tf >= intervalMax || tb <= intervalMin)
-                {
-                    // Visit only near child
-                    node = (tf >= intervalMax) ? second : first;
-                }
-                else
-                {
-                    // Visit both children
+                    // ray passes through both nodes
+                    // push back node
                     if (stackPos < MAX_STACK_SIZE)
                     {
-                        stack[stackPos].node = second;
-                        stack[stackPos].tnear = std::max(tb, intervalMin);
+                        stack[stackPos].node = back;
+                        stack[stackPos].tnear = (tb >= intervalMin) ? tb : intervalMin;
                         stack[stackPos].tfar = intervalMax;
                         ++stackPos;
+
+                        if (stackPos > 10 && stackPos % 10 == 0)
+                        {
+                            std::cout << "[BIH] Stack depth: " << stackPos << std::endl;
+                        }
                     }
-                    node = first;
-                    intervalMax = std::min(tf, intervalMax);
+                    else
+                    {
+                        std::cout << "[BIH] WARNING: Stack overflow!" << std::endl;
+                    }
+
+                    // update ray interval for front node
+                    intervalMax = (tf <= intervalMax) ? tf : intervalMax;
+                    continue;
                 }
+                else // Leaf node
+                {
+                    leavesChecked++;
+
+                    // leaf - test some objects
+                    int n = tree[node + 1];
+
+                    std::cout << "[BIH] Leaf node with " << n << " objects" << std::endl;
+
+                    // Enhanced leaf diagnostics
+                    std::cout << "[BIH] Leaf at node " << node << ", offset " << offset << ", checking objects:" << std::endl;
+                    for (int i = 0; i < n; ++i) {
+                        uint32_t objIdx = objects[offset + i];
+                        std::cout << "  Object[" << i << "]: index=" << objIdx;
+                        if (objIdx >= 100000000) {
+                            std::cout << " (INVALID - SKIPPED)";
+                        }
+                        std::cout << std::endl;
+                    }
+
+                    while (n > 0)
+                    {
+                        uint32_t objIdx = objects[offset];
+
+                        if (objIdx >= 100000000)  // Sanity check for corrupted data
+                        {
+                            std::cout << "[BIH] Skipping corrupted object index: " << objIdx << std::endl;
+                            --n;
+                            ++offset;
+                            continue;
+                        }
+
+                        objectsTested++;
+                        float oldDist = maxDist;
+
+                        bool hit = intersectCallback(r, objIdx, maxDist, stopAtFirst, ignoreM2Model);
+
+                        if (hit)
+                        {
+                            objectsHit++;
+                            std::cout << "[BIH] Object " << objIdx << " HIT at distance " << maxDist
+                                << " (was " << oldDist << ")" << std::endl;
+                        }
+
+                        if (stopAtFirst && hit)
+                        {
+                            std::cout << "[BIH] Early exit - Stats: Nodes=" << nodesVisited
+                                << " Leaves=" << leavesChecked
+                                << " Objects=" << objectsTested
+                                << " Hits=" << objectsHit << std::endl;
+                            return;
+                        }
+
+                        --n;
+                        ++offset;
+                    }
+                    break;
+                }
+            }
+            else
+            {
+                if (axis > 2)
+                {
+                    std::cout << "[BIH] Invalid BVH2 axis: " << axis << std::endl;
+                    return; // should not happen
+                }
+                float tf = (VMAP::intBitsToFloat(tree[node + offsetFront[axis]]) - org[axis]) * invDir[axis];
+                float tb = (VMAP::intBitsToFloat(tree[node + offsetBack[axis]]) - org[axis]) * invDir[axis];
+                node = offset;
+                intervalMin = (tf >= intervalMin) ? tf : intervalMin;
+                intervalMax = (tb <= intervalMax) ? tb : intervalMax;
+                if (intervalMin > intervalMax)
+                    break;
                 continue;
             }
-        }
+        } // traversal loop
 
         // Pop from stack
-        if (stackPos == 0)
+        do
         {
-            return;
-        }
-        --stackPos;
-        node = stack[stackPos].node;
-        intervalMin = stack[stackPos].tnear;
-        intervalMax = stack[stackPos].tfar;
-
-        if (intervalMin > maxDist)
-        {
-            return;
-        }
+            // stack is empty?
+            if (stackPos == 0)
+            {
+                std::cout << "[BIH] Complete - Stats: Nodes=" << nodesVisited
+                    << " Leaves=" << leavesChecked
+                    << " Objects=" << objectsTested
+                    << " Hits=" << objectsHit
+                    << " Final dist=" << maxDist << std::endl;
+                return;
+            }
+            // move back up the stack
+            --stackPos;
+            intervalMin = stack[stackPos].tnear;
+            if (maxDist < intervalMin)
+                continue;
+            node = stack[stackPos].node;
+            intervalMax = stack[stackPos].tfar;
+            break;
+        } while (true);
     }
 }
 

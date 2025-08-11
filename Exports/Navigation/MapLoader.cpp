@@ -418,65 +418,25 @@ bool GridMap::loadHolesData(FILE* in, uint32_t offset, uint32_t size)
         return false;
     }
 
-    // Holes should be exactly 16 bytes (8 uint16 values)
-    if (size < 16)
+    // FIX: Holes should be 64 uint16 values (8x8 grid), not 8
+    const int HOLES_COUNT = 64;  // 8x8 grid
+    if (size < HOLES_COUNT * sizeof(uint16_t))
     {
-        std::cout << "[GridMap] WARNING: Holes size too small: " << size << " bytes (expected at least 16)" << std::endl;
+        std::cout << "[GridMap] WARNING: Holes size too small: " << size << " bytes (expected at least "
+            << (HOLES_COUNT * sizeof(uint16_t)) << ")" << std::endl;
         return false;
     }
 
-    uint8_t holesData[16];
-    if (fread(holesData, 1, 16, in) != 16)
+    m_holes = new uint16_t[HOLES_COUNT];
+    if (fread(m_holes, sizeof(uint16_t), HOLES_COUNT, in) != HOLES_COUNT)
     {
         std::cout << "[GridMap] ERROR: Failed to read holes data!" << std::endl;
-        return false;
-    }
-
-    std::cout << "[GridMap] Raw holes data (16 bytes):" << std::endl;
-    for (int i = 0; i < 16; i++)
-    {
-        std::cout << std::hex << std::setfill('0') << std::setw(2) << (int)holesData[i] << " ";
-        if ((i + 1) % 8 == 0) std::cout << std::endl;
-    }
-    std::cout << std::dec << std::endl;
-
-    // Store as 8 uint16 values
-    m_holes = new uint16_t[8];
-    memcpy(m_holes, holesData, 16);
-
-    std::cout << "[GridMap] Holes as uint16 values:" << std::endl;
-    bool looksValid = true;
-    for (int i = 0; i < 8; i++)
-    {
-        std::cout << "  holes[" << i << "] = 0x" << std::hex << m_holes[i] << std::dec;
-
-        // Check for common invalid patterns
-        if (m_holes[i] == 0xCDCD || m_holes[i] == 0xCCCC)  // MSVC debug uninitialized memory
-        {
-            std::cout << " (UNINITIALIZED MEMORY!)";
-            looksValid = false;
-        }
-        else if (m_holes[i] == 0xFFFF)  // All holes
-        {
-            std::cout << " (all holes)";
-        }
-        else if (m_holes[i] == 0x0000)  // No holes
-        {
-            std::cout << " (no holes)";
-        }
-        std::cout << std::endl;
-    }
-
-    if (!looksValid)
-    {
-        std::cout << "[GridMap] WARNING: Holes data appears to be invalid/uninitialized!" << std::endl;
-        std::cout << "[GridMap] Disabling holes detection" << std::endl;
         delete[] m_holes;
         m_holes = nullptr;
         return false;
     }
 
-    std::cout << "[GridMap] Holes data loaded successfully" << std::endl;
+    std::cout << "[GridMap] Loaded " << HOLES_COUNT << " hole values (8x8 grid)" << std::endl;
     return true;
 }
 
@@ -1048,16 +1008,6 @@ bool GridMap::isHole(int row, int col) const
     if (!m_holes)
         return false;
 
-    // Check if holes data is uninitialized (0xCCCC pattern)
-    // If any hole value is 0xCCCC, treat as no holes
-    for (int i = 0; i < 8; i++)
-    {
-        if (m_holes[i] == 0xCCCC || m_holes[i] == 0xCDCD)
-        {
-            return false; // Uninitialized data, assume no holes
-        }
-    }
-
     int cellRow = row / 8;     // 8 squares per cell
     int cellCol = col / 8;
     int holeRow = row % 8 / 2;
@@ -1066,8 +1016,7 @@ bool GridMap::isHole(int row, int col) const
     if (cellRow >= 8 || cellCol >= 8)
         return false;
 
-    // Each m_holes entry represents 2x2 cells
-    uint16_t hole = m_holes[cellRow / 2 * 2 + cellCol / 2];
+    uint16_t hole = m_holes[cellRow * 8 + cellCol];  // Row-major order
     bool isHolePos = (hole & holetab_h[holeCol] & holetab_v[holeRow]) != 0;
 
     return isHolePos;
@@ -1307,62 +1256,88 @@ float MapLoader::GetHeight(uint32_t mapId, float x, float y, float z)
 
 float MapLoader::GetLiquidLevel(uint32_t mapId, float x, float y, float z)
 {
+    std::cout << "\n[MapLoader::GetLiquidLevel] Map: " << mapId << ", World Position: ("
+        << x << ", " << y << ", " << z << ")" << std::endl;
+
     uint32_t gridX, gridY;
     worldToGridCoords(x, y, gridX, gridY);
 
-    if (!LoadMapTile(mapId, gridX, gridY))
+    if (!LoadMapTile(mapId, gridY, gridX))
+    {
+        std::cout << "[MapLoader::GetLiquidLevel] Failed to load tile" << std::endl;
         return INVALID_HEIGHT;
+    }
 
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    auto it = m_loadedTiles.find(makeKey(mapId, gridX, gridY));
+    auto it = m_loadedTiles.find(makeKey(mapId, gridY, gridX));
     if (it == m_loadedTiles.end())
+    {
+        std::cout << "[MapLoader::GetLiquidLevel] Tile not found in cache" << std::endl;
         return INVALID_HEIGHT;
+    }
 
-    float tileX = (CENTER_GRID_ID - gridX) * GRID_SIZE - x;
-    float tileY = (CENTER_GRID_ID - gridY) * GRID_SIZE - y;
-
-    return it->second->getLiquidLevel(tileX, tileY);
+    float liquidLevel = it->second->getLiquidLevel(x, y);
+    std::cout << "[MapLoader::GetLiquidLevel] Result: " << liquidLevel << std::endl;
+    return liquidLevel;
 }
 
 uint8_t MapLoader::GetLiquidType(uint32_t mapId, float x, float y)
 {
+    std::cout << "\n[MapLoader::GetLiquidType] Map: " << mapId << ", World Position: ("
+        << x << ", " << y << ")" << std::endl;
+
     uint32_t gridX, gridY;
     worldToGridCoords(x, y, gridX, gridY);
 
-    if (!LoadMapTile(mapId, gridX, gridY))
+    if (!LoadMapTile(mapId, gridY, gridX))  // Note: was gridX, gridY - should be gridY, gridX
+    {
+        std::cout << "[MapLoader::GetLiquidType] Failed to load tile" << std::endl;
         return MAP_LIQUID_TYPE_NO_WATER;
+    }
 
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    auto it = m_loadedTiles.find(makeKey(mapId, gridX, gridY));
+    auto it = m_loadedTiles.find(makeKey(mapId, gridY, gridX));  // Note: was gridX, gridY
     if (it == m_loadedTiles.end())
+    {
+        std::cout << "[MapLoader::GetLiquidType] Tile not found in cache" << std::endl;
         return MAP_LIQUID_TYPE_NO_WATER;
+    }
 
-    float tileX = (CENTER_GRID_ID - gridX) * GRID_SIZE - x;
-    float tileY = (CENTER_GRID_ID - gridY) * GRID_SIZE - y;
-
-    return it->second->getLiquidType(tileX, tileY);
+    // Pass world coordinates directly - GridMap will transform them
+    uint8_t liquidType = it->second->getLiquidType(x, y);
+    std::cout << "[MapLoader::GetLiquidType] Result: " << (int)liquidType << std::endl;
+    return liquidType;
 }
 
 uint16_t MapLoader::GetAreaId(uint32_t mapId, float x, float y)
 {
+    std::cout << "\n[MapLoader::GetAreaId] Map: " << mapId << ", World Position: ("
+        << x << ", " << y << ")" << std::endl;
+
     uint32_t gridX, gridY;
     worldToGridCoords(x, y, gridX, gridY);
 
-    if (!LoadMapTile(mapId, gridX, gridY))
+    if (!LoadMapTile(mapId, gridY, gridX))  // Note: was gridX, gridY - should be gridY, gridX
+    {
+        std::cout << "[MapLoader::GetAreaId] Failed to load tile" << std::endl;
         return 0;
+    }
 
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    auto it = m_loadedTiles.find(makeKey(mapId, gridX, gridY));
+    auto it = m_loadedTiles.find(makeKey(mapId, gridY, gridX));  // Note: was gridX, gridY
     if (it == m_loadedTiles.end())
+    {
+        std::cout << "[MapLoader::GetAreaId] Tile not found in cache" << std::endl;
         return 0;
+    }
 
-    float tileX = (CENTER_GRID_ID - gridX) * GRID_SIZE - x;
-    float tileY = (CENTER_GRID_ID - gridY) * GRID_SIZE - y;
-
-    return it->second->getArea(tileX, tileY);
+    // Pass world coordinates directly - GridMap will transform them
+    uint16_t areaId = it->second->getArea(x, y);
+    std::cout << "[MapLoader::GetAreaId] Result: " << areaId << std::endl;
+    return areaId;
 }
 
 size_t MapLoader::GetLoadedTileCount() const

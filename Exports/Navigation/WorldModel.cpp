@@ -11,15 +11,15 @@ namespace VMAP
     // ======================== WmoLiquid Implementation ========================
 
     WmoLiquid::WmoLiquid(uint32_t width, uint32_t height, const G3D::Vector3& corner, uint32_t type)
-        : iTilesX(width), iTilesY(height), iCorner(corner), iType(type), iHeight(nullptr), iFlags(nullptr)
+        : iTilesX(width), iTilesY(height), iCorner(corner), iType(type)
     {
-        if (iTilesX && iTilesY)
-        {
-            iHeight = new float[iTilesX * iTilesY];
-            iFlags = new uint8_t[iTilesX * iTilesY];
-            memset(iHeight, 0, iTilesX * iTilesY * sizeof(float));
-            memset(iFlags, 0, iTilesX * iTilesY * sizeof(uint8_t));
-        }
+        // Heights array needs an extra row and column for the corners
+        iHeight = new float[(width + 1) * (height + 1)];
+        iFlags = new uint8_t[width * height];
+
+        // Initialize to zero (optional, server doesn't do this)
+        memset(iHeight, 0, (width + 1) * (height + 1) * sizeof(float));
+        memset(iFlags, 0, width * height * sizeof(uint8_t));
     }
 
     WmoLiquid::WmoLiquid(const WmoLiquid& other)
@@ -28,11 +28,15 @@ namespace VMAP
     {
         if (iTilesX && iTilesY)
         {
-            uint32_t size = iTilesX * iTilesY;
-            iHeight = new float[size];
-            iFlags = new uint8_t[size];
-            memcpy(iHeight, other.iHeight, size * sizeof(float));
-            memcpy(iFlags, other.iFlags, size * sizeof(uint8_t));
+            // FIXED: Correct sizes!
+            uint32_t heightSize = (iTilesX + 1) * (iTilesY + 1);
+            uint32_t flagSize = iTilesX * iTilesY;
+
+            iHeight = new float[heightSize];
+            iFlags = new uint8_t[flagSize];
+
+            memcpy(iHeight, other.iHeight, heightSize * sizeof(float));
+            memcpy(iFlags, other.iFlags, flagSize * sizeof(uint8_t));
         }
     }
 
@@ -56,11 +60,15 @@ namespace VMAP
 
             if (iTilesX && iTilesY)
             {
-                uint32_t size = iTilesX * iTilesY;
-                iHeight = new float[size];
-                iFlags = new uint8_t[size];
-                memcpy(iHeight, other.iHeight, size * sizeof(float));
-                memcpy(iFlags, other.iFlags, size * sizeof(uint8_t));
+                // FIXED: Correct sizes!
+                uint32_t heightSize = (iTilesX + 1) * (iTilesY + 1);
+                uint32_t flagSize = iTilesX * iTilesY;
+
+                iHeight = new float[heightSize];
+                iFlags = new uint8_t[flagSize];
+
+                memcpy(iHeight, other.iHeight, heightSize * sizeof(float));
+                memcpy(iFlags, other.iFlags, flagSize * sizeof(uint8_t));
             }
             else
             {
@@ -123,36 +131,27 @@ namespace VMAP
         return true;
     }
 
-    bool WmoLiquid::readFromFile(WmoLiquid*& liquid, FILE* rf)
+    bool WmoLiquid::readFromFile(FILE* rf, WmoLiquid*& out)
     {
-        uint32_t tilesX, tilesY, type;
-        G3D::Vector3 corner;
-
-        if (fread(&tilesX, sizeof(uint32_t), 1, rf) != 1) return false;
-        if (fread(&tilesY, sizeof(uint32_t), 1, rf) != 1) return false;
-        if (fread(&corner, sizeof(float), 3, rf) != 3) return false;
-        if (fread(&type, sizeof(uint32_t), 1, rf) != 1) return false;
-
-        liquid = new WmoLiquid(tilesX, tilesY, corner, type);
-
-        if (tilesX && tilesY)
+        bool result = true;
+        WmoLiquid* liquid = new WmoLiquid();
+        if (result && fread(&liquid->iTilesX, sizeof(uint32_t), 1, rf) != 1) result = false;
+        if (result && fread(&liquid->iTilesY, sizeof(uint32_t), 1, rf) != 1) result = false;
+        if (result && fread(&liquid->iCorner, sizeof(G3D::Vector3), 1, rf) != 1) result = false;
+        if (result && fread(&liquid->iType, sizeof(uint32_t), 1, rf) != 1) result = false;
+        uint32_t size = (liquid->iTilesX + 1) * (liquid->iTilesY + 1);
+        liquid->iHeight = new float[size];
+        if (result && fread(liquid->iHeight, sizeof(float), size, rf) != size) result = false;
+        size = liquid->iTilesX * liquid->iTilesY;
+        liquid->iFlags = new uint8_t[size];
+        if (result && fread(liquid->iFlags, sizeof(uint8_t), size, rf) != size) result = false;
+        if (!result)
         {
-            uint32_t size = tilesX * tilesY;
-            if (fread(liquid->iHeight, sizeof(float), size, rf) != size)
-            {
-                delete liquid;
-                liquid = nullptr;
-                return false;
-            }
-            if (fread(liquid->iFlags, sizeof(uint8_t), size, rf) != size)
-            {
-                delete liquid;
-                liquid = nullptr;
-                return false;
-            }
+            delete liquid;
+            liquid = nullptr;
         }
-
-        return true;
+        out = liquid;
+        return result;
     }
 
     void WmoLiquid::getPosInfo(uint32_t& tilesX, uint32_t& tilesY, G3D::Vector3& corner) const
@@ -312,42 +311,124 @@ namespace VMAP
 
     bool GroupModel::readFromFile(FILE* rf)
     {
-        if (fread(&iMogpFlags, sizeof(uint32_t), 1, rf) != 1) return false;
-        if (fread(&iGroupWMOID, sizeof(uint32_t), 1, rf) != 1) return false;
+        char chunk[8];
+        bool result = true;
+        uint32_t chunkSize = 0;
+        uint32_t count = 0;
 
-        G3D::Vector3 low, high;
-        if (fread(&low, sizeof(float), 3, rf) != 3) return false;
-        if (fread(&high, sizeof(float), 3, rf) != 3) return false;
-        iBound = G3D::AABox(low, high);
+        // Clear existing data
+        triangles.clear();
+        vertices.clear();
+        delete iLiquid;
+        iLiquid = nullptr;
 
-        uint32_t nVertices;
-        if (fread(&nVertices, sizeof(uint32_t), 1, rf) != 1) return false;
-        if (nVertices > 0)
+        // Read bounding box (stored as complete AABox, not two vectors)
+        if (fread(&iBound, sizeof(G3D::AABox), 1, rf) != 1)
         {
-            vertices.resize(nVertices);
-            if (fread(&vertices[0], sizeof(G3D::Vector3), nVertices, rf) != nVertices)
-                return false;
+            std::cerr << "[GroupModel] Failed to read bounding box" << std::endl;
+            return false;
         }
 
-        uint32_t nTriangles;
-        if (fread(&nTriangles, sizeof(uint32_t), 1, rf) != 1) return false;
-        if (nTriangles > 0)
+        // Read MOGP flags
+        if (fread(&iMogpFlags, sizeof(uint32_t), 1, rf) != 1)
         {
-            triangles.resize(nTriangles);
-            if (fread(&triangles[0], sizeof(MeshTriangle), nTriangles, rf) != nTriangles)
+            std::cerr << "[GroupModel] Failed to read MOGP flags" << std::endl;
+            return false;
+        }
+
+        // Read Group WMO ID
+        if (fread(&iGroupWMOID, sizeof(uint32_t), 1, rf) != 1)
+        {
+            std::cerr << "[GroupModel] Failed to read Group WMO ID" << std::endl;
+            return false;
+        }
+
+        // Read VERT chunk (vertices)
+        if (!readChunk(rf, chunk, "VERT", 4))
+        {
+            std::cerr << "[GroupModel] Missing VERT chunk" << std::endl;
+            return false;
+        }
+
+        if (fread(&chunkSize, sizeof(uint32_t), 1, rf) != 1)
+            return false;
+
+        if (fread(&count, sizeof(uint32_t), 1, rf) != 1)
+            return false;
+
+        std::cout << "[GroupModel] Reading " << count << " vertices" << std::endl;
+
+        if (!count) // Models without collision geometry end here
+            return true;
+
+        vertices.resize(count);
+        if (fread(&vertices[0], sizeof(G3D::Vector3), count, rf) != count)
+        {
+            std::cerr << "[GroupModel] Failed to read vertices" << std::endl;
+            return false;
+        }
+
+        // Read TRIM chunk (triangles)
+        if (!readChunk(rf, chunk, "TRIM", 4))
+        {
+            std::cerr << "[GroupModel] Missing TRIM chunk" << std::endl;
+            return false;
+        }
+
+        if (fread(&chunkSize, sizeof(uint32_t), 1, rf) != 1)
+            return false;
+
+        if (fread(&count, sizeof(uint32_t), 1, rf) != 1)
+            return false;
+
+        std::cout << "[GroupModel] Reading " << count << " triangles" << std::endl;
+
+        if (count)
+        {
+            triangles.resize(count);
+            if (fread(&triangles[0], sizeof(MeshTriangle), count, rf) != count)
+            {
+                std::cerr << "[GroupModel] Failed to read triangles" << std::endl;
                 return false;
+            }
+        }
+
+        // Read MBIH chunk (mesh BIH tree)
+        if (!readChunk(rf, chunk, "MBIH", 4))
+        {
+            std::cerr << "[GroupModel] Missing MBIH chunk" << std::endl;
+            return false;
         }
 
         if (!meshTree.readFromFile(rf))
+        {
+            std::cerr << "[GroupModel] Failed to read mesh BIH tree" << std::endl;
+            return false;
+        }
+
+        // Read LIQU chunk (liquid data)
+        if (!readChunk(rf, chunk, "LIQU", 4))
+        {
+            std::cerr << "[GroupModel] Missing LIQU chunk" << std::endl;
+            return false;
+        }
+
+        if (fread(&chunkSize, sizeof(uint32_t), 1, rf) != 1)
             return false;
 
-        bool hasLiquid;
-        if (fread(&hasLiquid, sizeof(bool), 1, rf) != 1) return false;
-        if (hasLiquid)
+        if (chunkSize > 0)
         {
-            if (!WmoLiquid::readFromFile(iLiquid, rf))
+            // Note: WmoLiquid::readFromFile signature might be different
+            // You may need to adjust this based on your implementation
+            if (!WmoLiquid::readFromFile(rf, iLiquid))
+            {
+                std::cerr << "[GroupModel] Failed to read liquid data" << std::endl;
                 return false;
+            }
         }
+
+        std::cout << "[GroupModel] Successfully loaded: " << vertices.size()
+            << " verts, " << triangles.size() << " tris" << std::endl;
 
         return true;
     }
@@ -374,11 +455,22 @@ namespace VMAP
 
     bool WorldModel::IntersectRay(const G3D::Ray& ray, float& distance, bool stopAtFirstHit, bool ignoreM2Model) const
     {
+        std::cout << "[WorldModel] IntersectRay called: "
+            << " ModelFlags=0x" << std::hex << modelFlags << std::dec
+            << " IgnoreM2=" << (ignoreM2Model ? "YES" : "NO")
+            << " GroupCount=" << groupModels.size() << std::endl;
+
         if (ignoreM2Model && (modelFlags & MOD_M2))
+        {
+            std::cout << "[WorldModel] Skipping M2 model (flags check)" << std::endl;
             return false;
+        }
 
         if (groupModels.empty())
+        {
+            std::cout << "[WorldModel] No group models - no collision geometry!" << std::endl;
             return false;
+        }
 
         auto callback = [this](const G3D::Ray& r, uint32_t groupIdx,
             float& dist, bool stopAtFirst, bool ignoreM2) -> bool
@@ -457,150 +549,100 @@ namespace VMAP
     {
         FILE* rf = fopen(filename.c_str(), "rb");
         if (!rf)
-        {
             return false;
-        }
 
-        // Read magic header
-        char magic[8];
-        if (fread(magic, 1, 8, rf) != 8)
+        bool result = true;
+        uint32_t chunkSize = 0;
+        uint32_t count = 0;
+        char chunk[8];
+
+        // Read VMAP magic header (8 bytes)
+        if (!readChunk(rf, chunk, VMAP_MAGIC, 8))
         {
             fclose(rf);
             return false;
         }
 
-        // Check for VMAP_7.0 format (used by some extractors for individual models)
-        if (memcmp(magic, VMAP_MAGIC, 8) == 0)
-        {
-            // This is a VMAP_7.0 format file
-            // For M2 models converted to VMO, these often contain no actual collision data
-            // The format after the magic is typically:
-            // - 1 byte: tiled flag (usually 0 for individual models)
-            // - Then either empty or minimal data for M2 models
-
-            char tiledFlag;
-            if (fread(&tiledFlag, sizeof(char), 1, rf) != 1)
-            {
-                fclose(rf);
-                return false;
-            }
-
-            // Check if there's a NODE chunk (for actual collision data)
-            char chunk[4];
-            if (fread(chunk, 1, 4, rf) == 4 && memcmp(chunk, "NODE", 4) == 0)
-            {
-                // This file has collision data, but we'll treat M2 models as having no collision
-                // M2 models in vMaNGOS typically don't provide collision
-                fclose(rf);
-
-                // Return success with empty model (no collision)
-                modelFlags = MOD_M2;  // Mark as M2 model
-                return true;
-            }
-
-            // No NODE chunk or other data - this is an empty collision model
-            fclose(rf);
-
-            // Return success with empty model
-            modelFlags = MOD_M2;  // Mark as M2 model
-            return true;
-        }
-
-        // Check for standard VMOD format
-        bool isVMOD = (memcmp(magic, "VMOD", 4) == 0);
-        bool isWMOD = (memcmp(magic, "WMOD", 4) == 0);
-
-        if (!isVMOD && !isWMOD)
-        {
-            // Check for M2 model formats
-            if (memcmp(magic, "MD20", 4) == 0 || memcmp(magic, "MD21", 4) == 0)
-            {
-                // This is an M2 model - no collision
-                fclose(rf);
-                modelFlags = MOD_M2;
-                return true;
-            }
-
-            std::cerr << "[WorldModel] Invalid file magic for: " << filename << std::endl;
-            fclose(rf);
-            return false;
-        }
-
-        // Read version
-        uint32_t version;
-        if (fread(&version, sizeof(uint32_t), 1, rf) != 1)
+        // Read WMOD chunk identifier
+        if (!readChunk(rf, chunk, "WMOD", 4))
         {
             fclose(rf);
             return false;
         }
 
-        if (version != 17 && version != 18)
+        // Read chunk size
+        if (fread(&chunkSize, sizeof(uint32_t), 1, rf) != 1)
         {
-            std::cerr << "[WorldModel] Unsupported version: " << version << std::endl;
             fclose(rf);
             return false;
         }
 
-        // Read root WMO ID
+        // Read RootWMOID
         if (fread(&RootWMOID, sizeof(uint32_t), 1, rf) != 1)
         {
             fclose(rf);
             return false;
         }
 
-        // Read model flags
-        if (fread(&modelFlags, sizeof(uint32_t), 1, rf) != 1)
+        // Read GMOD chunk (group models)
+        if (readChunk(rf, chunk, "GMOD", 4))
         {
-            fclose(rf);
-            return false;
-        }
-
-        // Read number of groups
-        uint32_t nGroups;
-        if (fread(&nGroups, sizeof(uint32_t), 1, rf) != 1)
-        {
-            fclose(rf);
-            return false;
-        }
-
-        if (nGroups > 512)
-        {
-            std::cerr << "[WorldModel] Invalid group count: " << nGroups << std::endl;
-            fclose(rf);
-            return false;
-        }
-
-        // For M2 models or models with 0 groups, return success with empty collision
-        if (nGroups == 0 || (modelFlags & MOD_M2))
-        {
-            fclose(rf);
-            return true;
-        }
-
-        groupModels.clear();
-        groupModels.reserve(nGroups);
-
-        for (uint32_t i = 0; i < nGroups; ++i)
-        {
-            GroupModel group;
-            if (!group.readFromFile(rf))
+            // Read count of group models
+            if (fread(&count, sizeof(uint32_t), 1, rf) != 1)
             {
-                std::cerr << "[WorldModel] Failed to read group " << i << std::endl;
                 fclose(rf);
                 return false;
             }
-            groupModels.push_back(std::move(group));
-        }
 
-        if (!groupTree.readFromFile(rf))
+            std::cout << "[WorldModel] Loading " << filename << " - Found " << count << " group models" << std::endl;
+
+            groupModels.clear();
+            groupModels.reserve(count);
+
+            // Read each group model
+            for (uint32_t i = 0; i < count && result; ++i)
+            {
+                GroupModel group;
+                if (!group.readFromFile(rf))
+                {
+                    std::cerr << "[WorldModel] Failed to read group " << i << std::endl;
+                    result = false;
+                    break;
+                }
+                groupModels.push_back(std::move(group));
+            }
+
+            // Read GBIH chunk (BIH tree)
+            if (result && !readChunk(rf, chunk, "GBIH", 4))
+            {
+                std::cerr << "[WorldModel] Missing GBIH chunk" << std::endl;
+                result = false;
+            }
+
+            if (result)
+            {
+                result = groupTree.readFromFile(rf);
+                if (!result)
+                {
+                    std::cerr << "[WorldModel] Failed to read BIH tree" << std::endl;
+                }
+            }
+        }
+        else
         {
-            std::cerr << "[WorldModel] Failed to read BIH tree" << std::endl;
-            fclose(rf);
-            return false;
+            std::cerr << "[WorldModel] Missing GMOD chunk" << std::endl;
+            result = false;
         }
 
         fclose(rf);
-        return true;
+
+        if (result)
+        {
+            std::cout << "[WorldModel] Successfully loaded " << filename
+                << " with " << groupModels.size() << " group models" << std::endl;
+        }
+
+        return result;
     }
 
     bool WorldModel::IntersectPoint(const G3D::Vector3& p, const G3D::Vector3& down, float& dist, AreaInfo& info) const

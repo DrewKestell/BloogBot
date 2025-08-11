@@ -24,6 +24,7 @@ namespace PathfindingService.Tests
         // Helper to compare PhysicsOutput with tolerance
         private static void AssertEqual(PhysicsOutput exp, PhysicsOutput act)
         {
+            Console.WriteLine($"Movement Flags: {(MovementFlags)act.moveFlags}");
             Assert.Equal(exp.x, act.x, 3);
             Assert.Equal(exp.y, act.y, 3);
             Assert.Equal(exp.z, act.z, 3);

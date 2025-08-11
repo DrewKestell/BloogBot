@@ -21,15 +21,15 @@ namespace PhysicsConstants
     constexpr float GRAVITY = 19.2911f;
 
     // Jump initial velocity in yards/second
-    constexpr float JUMP_VELOCITY = 7.95f;  // Results in ~1.6 yard jump height
+    constexpr float JUMP_VELOCITY = 7.95577f;  // Results in ~1.6 yard jump height
 
     // Water entry/exit thresholds
     constexpr float WATER_LEVEL_DELTA = 2.0f;
 
     // Ground detection distance - matching vMaNGOS
-    constexpr float GROUND_HEIGHT_TOLERANCE = 0.05f;  // vMaNGOS uses 0.05f for ground contact
-    constexpr float DEFAULT_HEIGHT_SEARCH = 4.0f;     // vMaNGOS default maxSearchDist
-    constexpr float GROUND_SEARCH_RANGE = 100.0f;     // Maximum search range
+    constexpr float GROUND_HEIGHT_TOLERANCE = 0.5f;    // Changed from 0.05f to 0.5f for better ground detection
+    constexpr float DEFAULT_HEIGHT_SEARCH = 4.0f;      // vMaNGOS default maxSearchDist
+    constexpr float GROUND_SEARCH_RANGE = 100.0f;      // Maximum search range
 
     // Collision detection
     constexpr float STEP_HEIGHT = 0.5f;  // Maximum step up height

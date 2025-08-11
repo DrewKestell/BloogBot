@@ -64,7 +64,7 @@ namespace VMAP
         uint32_t GetType() const { return iType; }
 
         bool writeToFile(FILE* wf) const;
-        static bool readFromFile(WmoLiquid*& liquid, FILE* rf);
+        static bool readFromFile(FILE* rf, WmoLiquid*& liquid);
 
         void getPosInfo(uint32_t& tilesX, uint32_t& tilesY, G3D::Vector3& corner) const;
 

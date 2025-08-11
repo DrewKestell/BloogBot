@@ -80,6 +80,15 @@ namespace VMAP
 
             LOG_INFO("Found " << modelNameToPath.size() << " model mappings");
 
+            // Enhanced breakdown by type
+            int vmoCount = 0, dtreeCount = 0;
+            for (const auto& pair : modelNameToPath) {
+                if (pair.second.find("GameObjectModels") != std::string::npos) dtreeCount++;
+                else vmoCount++;
+            }
+            LOG_INFO("  Direct .vmo files: " << vmoCount);
+            LOG_INFO("  GameObjectModels: " << dtreeCount);
+
             // Also try to load GameObjectModels.dtree if it exists
             std::string dtreeFile = basePath + "GameObjectModels.dtree";
             if (std::filesystem::exists(dtreeFile))
@@ -237,7 +246,19 @@ namespace VMAP
             }
         }
 
+        // Enhanced diagnostic logging for failed resolution
         LOG_DEBUG("Could not resolve model path for: " << modelName);
+        LOG_ERROR("FAILED to resolve: " << modelName);
+        LOG_ERROR("  Searched names: " << lowerName << ", " << searchName);
+        LOG_ERROR("  Total mappings available: " << modelNameToPath.size());
+        // Add a sample of what IS available for debugging
+        int shown = 0;
+        for (const auto& pair : modelNameToPath) {
+            if (shown++ < 5) {
+                LOG_ERROR("    Available: " << pair.first << " -> " << pair.second);
+            }
+        }
+
         return "";
     }
 
@@ -599,10 +620,34 @@ namespace VMAP
         if (instanceTree != iInstanceMapTrees.end())
         {
             G3D::Vector3 pos = convertPositionToInternalRep(x, y, z);
+
+            std::cout << "[VMAP] Height raycast: World(" << x << "," << y << "," << z
+                << ") -> Internal(" << pos.x << "," << pos.y << "," << pos.z
+                << ") SearchDist=" << maxSearchDist << std::endl;
+
             float height = instanceTree->second->getHeight(pos, maxSearchDist);
+
+            std::cout << "[VMAP] Height result: " << height << std::endl;
+
+            // Enhanced summary logging
+            std::cout << "[VMAP] Height query summary:" << std::endl;
+            std::cout << "  Map " << pMapId << " at world(" << x << "," << y << "," << z << ")" << std::endl;
+            std::cout << "  Result: " << (height > -G3D::inf() && height < G3D::inf() ? std::to_string(height) : "NO HIT") << std::endl;
+            std::cout << "  Map initialized: YES" << std::endl;
+            std::cout << "  Tiles loaded: " << instanceTree->second->numLoadedTiles() << std::endl;
+            std::cout << "================================" << std::endl;
 
             if (height > -G3D::inf() && height < G3D::inf())
                 return height;
+        }
+        else
+        {
+            // Summary for uninitialized map
+            std::cout << "[VMAP] Height query summary:" << std::endl;
+            std::cout << "  Map " << pMapId << " at world(" << x << "," << y << "," << z << ")" << std::endl;
+            std::cout << "  Result: NO HIT (map not initialized)" << std::endl;
+            std::cout << "  Map initialized: NO" << std::endl;
+            std::cout << "================================" << std::endl;
         }
 
         return VMAP_INVALID_HEIGHT_VALUE;

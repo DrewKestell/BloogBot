@@ -33,189 +33,120 @@ namespace VMAP
     {
         std::cout << "[StaticMapTree] InitMap called for: " << fname << std::endl;
 
+        bool success = true;
         std::string fullPath = iBasePath + fname;
         FILE* rf = fopen(fullPath.c_str(), "rb");
         if (!rf)
-        {
-            std::cerr << "[StaticMapTree] ERROR: Failed to open file: " << fullPath << std::endl;
             return false;
-        }
 
         try
         {
-            // 1. Read magic (8 bytes) - "VMAP_x.x"
-            char magic[8];
-            if (fread(magic, 1, 8, rf) != 8)
-            {
-                std::cerr << "[StaticMapTree] ERROR: Failed to read magic" << std::endl;
-                fclose(rf);
-                return false;
-            }
+            char chunk[8];
 
-            if (memcmp(magic, "VMAP", 4) != 0)
-            {
-                std::cerr << "[StaticMapTree] ERROR: Invalid magic" << std::endl;
-                fclose(rf);
-                return false;
-            }
+            // 1. Read magic (8 bytes)
+            if (!readChunk(rf, chunk, VMAP_MAGIC, 8))
+                success = false;
 
-            std::cout << "[StaticMapTree] Magic: " << std::string(magic, 8) << std::endl;
+            // 2. Read tiled flag
+            char tiled = 0;
+            if (success && fread(&tiled, sizeof(char), 1, rf) != 1)
+                success = false;
+            iIsTiled = bool(tiled);
 
-            // 2. Read tiled flag (1 byte)
-            char tiledFlag;
-            if (fread(&tiledFlag, sizeof(char), 1, rf) != 1)
-            {
-                std::cerr << "[StaticMapTree] ERROR: Failed to read tiled flag" << std::endl;
-                fclose(rf);
-                return false;
-            }
-            iIsTiled = (tiledFlag != 0);
             std::cout << "[StaticMapTree] Is tiled: " << (iIsTiled ? "yes" : "no") << std::endl;
 
             // 3. Read NODE chunk and BIH tree
-            char chunk[4];
-            if (fread(chunk, 1, 4, rf) != 4 || memcmp(chunk, "NODE", 4) != 0)
+            if (success && !readChunk(rf, chunk, "NODE", 4))
+                success = false;
+
+            if (success)
+                success = iTree.readFromFile(rf);
+
+            if (success)
             {
-                std::cerr << "[StaticMapTree] ERROR: Failed to read NODE chunk" << std::endl;
-                fclose(rf);
-                return false;
-            }
-            std::cout << "[StaticMapTree] NODE format detected" << std::endl;
+                iNTreeValues = iTree.primCount();
+                std::cout << "[StaticMapTree] BIH tree references " << iNTreeValues << " model slots" << std::endl;
 
-            // 4. Read BIH tree
-            std::cout << "[StaticMapTree] Reading BIH tree..." << std::endl;
-            if (!iTree.readFromFile(rf))
-            {
-                std::cerr << "[StaticMapTree] ERROR: Failed to read BIH tree" << std::endl;
-                fclose(rf);
-                return false;
-            }
+                // Enhanced BIH tree diagnostics
+                std::cout << "[StaticMapTree] BIH tree loaded - " << iNTreeValues << " model slots";
+                std::cout << "[StaticMapTree]   Tree bounds: ("
+                    << iTree.getBounds().low().x << "," << iTree.getBounds().low().y << "," << iTree.getBounds().low().z
+                    << ") to ("
+                    << iTree.getBounds().high().x << "," << iTree.getBounds().high().y << "," << iTree.getBounds().high().z << ")";
 
-            // 5. Get the tree size and allocate instance array
-            iNTreeValues = iTree.primCount();
-            std::cout << "[StaticMapTree] BIH tree references " << iNTreeValues << " model slots" << std::endl;
-
-            if (iNTreeValues > 0)
-            {
-                // For large maps, show memory estimate
-                size_t estimatedMemory = iNTreeValues * sizeof(ModelInstance);
-                std::cout << "[StaticMapTree] Allocating " << (estimatedMemory / (1024 * 1024))
-                    << " MB for model instance array" << std::endl;
-
-                try
+                if (iNTreeValues > 0)
                 {
                     iTreeValues = new ModelInstance[iNTreeValues];
-                    std::cout << "[StaticMapTree] Successfully allocated " << iNTreeValues
-                        << " model instance slots" << std::endl;
-                }
-                catch (const std::bad_alloc& e)
-                {
-                    std::cerr << "[StaticMapTree] ERROR: Failed to allocate memory for "
-                        << iNTreeValues << " instances: " << e.what() << std::endl;
-                    std::cerr << "[StaticMapTree] Try increasing available memory or using lazy loading" << std::endl;
-                    iTreeValues = nullptr;
-                    iNTreeValues = 0;
-                    fclose(rf);
-                    return false;
                 }
             }
 
-            // 6. Handle tiled vs non-tiled maps
-            if (iIsTiled)
+            // 4. FIXED: Always read GOBJ chunk (even for tiled maps)
+            if (success && !readChunk(rf, chunk, "GOBJ", 4))
+                success = false;
+
+            // 5. Only non-tiled maps have spawns after GOBJ
+            if (success && !iIsTiled)
             {
-                std::cout << "[StaticMapTree] Tiled map - checking for preload option..." << std::endl;
+                std::cout << "[StaticMapTree] Non-tiled map - loading spawns..." << std::endl;
 
-                // Check environment variable for preload preference
-                const char* preloadEnv = std::getenv("VMAP_PRELOAD_ALL");
-                bool preloadAll = (preloadEnv && std::string(preloadEnv) == "1");
-
-                if (true)
+                ModelSpawn spawn;
+                while (ModelSpawn::readFromFile(rf, spawn))
                 {
-                    std::cout << "[StaticMapTree] VMAP_PRELOAD_ALL=1 detected, preloading all tiles..." << std::endl;
-                    fclose(rf);  // Close the main file before loading tiles
-
-                    if (!PreloadAllTiles(vm))
+                    // Acquire model instance
+                    std::shared_ptr<WorldModel> model = nullptr;
+                    if (!spawn.name.empty())
                     {
-                        std::cerr << "[StaticMapTree] Warning: Some tiles failed to load" << std::endl;
-                    }
-                    else
-                    {
-                        std::cout << "[StaticMapTree] All tiles preloaded successfully" << std::endl;
+                        model = vm->acquireModelInstance(iBasePath, spawn.name);
+                        if (model)
+                            model->setModelFlags(spawn.flags);
                     }
 
-                    return true;  // Early return after preloading
-                }
-                else
-                {
-                    std::cout << "[StaticMapTree] Tiles will be loaded on demand (set VMAP_PRELOAD_ALL=1 to preload)" << std::endl;
-                }
-            }
-            else
-            {
-                // Non-tiled map - load all spawns from GOBJ chunk
-                std::cout << "[StaticMapTree] Non-tiled map - loading all spawns..." << std::endl;
+                    // FIXED: Read referencedVal IMMEDIATELY after spawn
+                    uint32_t referencedVal;
+                    if (fread(&referencedVal, sizeof(uint32_t), 1, rf) != 1)
+                        break;
 
-                // Skip to GOBJ chunk
-                if (fread(chunk, 1, 4, rf) == 4 && memcmp(chunk, "GOBJ", 4) == 0)
-                {
-                    std::cout << "[StaticMapTree] Found GOBJ chunk" << std::endl;
-
-                    uint32_t loadedCount = 0;
-                    ModelSpawn spawn;
-
-                    while (!feof(rf))
+                    // FIXED: Use iLoadedSpawns as reference counter (not ID map)
+                    if (!iLoadedSpawns.count(referencedVal))
                     {
-                        long currentPos = ftell(rf);
-
-                        if (!ModelSpawn::readFromFile(rf, spawn))
-                        {
-                            fseek(rf, currentPos, SEEK_SET);
-                            break;
-                        }
-
-                        uint32_t referencedVal;
-                        if (fread(&referencedVal, sizeof(uint32_t), 1, rf) != 1)
-                            break;
-
                         if (referencedVal >= iNTreeValues)
                         {
-                            std::cerr << "[StaticMapTree] Warning: Invalid reference " << referencedVal << std::endl;
+                            std::cerr << "[StaticMapTree] Invalid tree element! ("
+                                << referencedVal << "/" << iNTreeValues << ")" << std::endl;
                             continue;
                         }
 
-                        // Load the model
-                        std::shared_ptr<WorldModel> model = nullptr;
-                        if (!spawn.name.empty())
-                        {
-                            model = vm->acquireModelInstance(iBasePath, spawn.name);
-                            if (model)
-                            {
-                                model->setModelFlags(spawn.flags);
-                            }
-                        }
-
                         iTreeValues[referencedVal] = ModelInstance(spawn, model);
-                        iLoadedSpawns[spawn.ID] = referencedVal;
-                        loadedCount++;
+                        iLoadedSpawns[referencedVal] = 1;  // First reference
                     }
-
-                    std::cout << "[StaticMapTree] Loaded " << loadedCount << " model spawns" << std::endl;
+                    else
+                    {
+                        // FIXED: Increment reference count
+                        ++iLoadedSpawns[referencedVal];
+                    }
                 }
             }
 
             fclose(rf);
-            std::cout << "[StaticMapTree] Map " << iMapID << " initialized successfully" << std::endl;
-            return true;
+
+            // Keep your preload functionality if needed
+            if (success && iIsTiled)
+            {
+                const char* preloadEnv = std::getenv("VMAP_PRELOAD_ALL");
+                bool preloadAll = (preloadEnv && std::string(preloadEnv) == "1");
+
+                if (preloadAll)
+                {
+                    std::cout << "[StaticMapTree] VMAP_PRELOAD_ALL=1 detected, preloading all tiles..." << std::endl;
+                    PreloadAllTiles(vm);
+                }
+            }
+
+            return success;
         }
         catch (const std::exception& e)
         {
             std::cerr << "[StaticMapTree] Exception: " << e.what() << std::endl;
-            if (iTreeValues)
-            {
-                delete[] iTreeValues;
-                iTreeValues = nullptr;
-                iNTreeValues = 0;
-            }
             fclose(rf);
             return false;
         }
@@ -288,7 +219,7 @@ namespace VMAP
     {
         if (!iIsTiled)
         {
-            // Non-tiled maps have everything loaded already
+            // Non-tiled maps have everything loaded already in InitMap
             iLoadedTiles[packTileID(tileX, tileY)] = false;
             return true;
         }
@@ -312,88 +243,108 @@ namespace VMAP
             return true;
         }
 
+        bool success = true;
+
         try
         {
-            // Read VMAP magic
             char chunk[8];
+
+            // Read VMAP magic
             if (!readChunk(rf, chunk, VMAP_MAGIC, 8))
             {
                 std::cerr << "[StaticMapTree] ERROR: Invalid tile file magic in " << tilefile << std::endl;
-                fclose(rf);
-                return false;
+                success = false;
             }
 
-            // Read number of model spawns in this tile
-            uint32_t numSpawns;
-            if (fread(&numSpawns, sizeof(uint32_t), 1, rf) != 1)
+            if (success)
             {
-                std::cerr << "[StaticMapTree] ERROR: Failed to read spawn count" << std::endl;
-                fclose(rf);
-                return false;
-            }
-
-            // Read each spawn and its referenced tree index
-            uint32_t loadedCount = 0;
-            for (uint32_t i = 0; i < numSpawns; ++i)
-            {
-                ModelSpawn spawn;
-                if (!ModelSpawn::readFromFile(rf, spawn))
+                // Read number of model spawns in this tile
+                uint32_t numSpawns;
+                if (fread(&numSpawns, sizeof(uint32_t), 1, rf) != 1)
                 {
-                    std::cerr << "[StaticMapTree] ERROR: Failed to read spawn " << i << std::endl;
-                    fclose(rf);
-                    return false;
+                    std::cerr << "[StaticMapTree] ERROR: Failed to read spawn count" << std::endl;
+                    success = false;
                 }
-
-                // Read the tree index this spawn references
-                uint32_t referencedVal;
-                if (fread(&referencedVal, sizeof(uint32_t), 1, rf) != 1)
+                else
                 {
-                    std::cerr << "[StaticMapTree] ERROR: Failed to read reference value" << std::endl;
-                    fclose(rf);
-                    return false;
-                }
-
-                // Check bounds
-                if (!iTreeValues || referencedVal >= iNTreeValues)
-                {
-                    std::cerr << "[StaticMapTree] ERROR: Invalid tree reference: " << referencedVal
-                        << " (max: " << iNTreeValues << ")" << std::endl;
-                    continue;
-                }
-
-                // Check if this spawn is already loaded
-                auto spawnItr = iLoadedSpawns.find(spawn.ID);
-                if (spawnItr == iLoadedSpawns.end())
-                {
-                    // First time loading this spawn
-                    std::shared_ptr<WorldModel> model = nullptr;
-                    if (!spawn.name.empty())
+                    // Read each spawn
+                    for (uint32_t i = 0; i < numSpawns && success; ++i)
                     {
-                        try
+                        ModelSpawn spawn;
+                        if (!ModelSpawn::readFromFile(rf, spawn))
                         {
-                            model = vm->acquireModelInstance(iBasePath, spawn.name);
-                            if (model)
+                            std::cerr << "[StaticMapTree] ERROR: Failed to read spawn " << i << std::endl;
+                            success = false;
+                            break;
+                        }
+
+                        // FIXED: Read the tree index IMMEDIATELY after spawn (matching reference)
+                        uint32_t referencedVal;
+                        if (fread(&referencedVal, sizeof(uint32_t), 1, rf) != 1)
+                        {
+                            std::cerr << "[StaticMapTree] ERROR: Failed to read reference value" << std::endl;
+                            success = false;
+                            break;
+                        }
+
+                        // Check bounds
+                        if (!iTreeValues || referencedVal >= iNTreeValues)
+                        {
+                            std::cerr << "[StaticMapTree] ERROR: Invalid tree reference: " << referencedVal
+                                << " (max: " << iNTreeValues << ")" << std::endl;
+                            continue;  // Skip this spawn but continue loading
+                        }
+
+                        // FIXED: Use iLoadedSpawns as reference counter (not spawn ID map)
+                        if (!iLoadedSpawns.count(referencedVal))
+                        {
+                            // First time loading this tree index
+                            std::shared_ptr<WorldModel> model = nullptr;
+                            if (!spawn.name.empty())
                             {
-                                model->setModelFlags(spawn.flags);
+                                model = vm->acquireModelInstance(iBasePath, spawn.name);
+                                if (model)
+                                {
+                                    model->setModelFlags(spawn.flags);
+                                }
+                                else
+                                {
+                                    std::cerr << "[StaticMapTree] Could not acquire WorldModel for '"
+                                        << spawn.name << "'!" << std::endl;
+                                }
+                            }
+
+                            // Store the model instance
+                            iTreeValues[referencedVal] = ModelInstance(spawn, model);
+                            iLoadedSpawns[referencedVal] = 1;  // First reference
+                        }
+                        else
+                        {
+                            // Already loaded this tree index, just increment reference count
+                            ++iLoadedSpawns[referencedVal];
+
+                            // Validate that we're loading the same spawn
+                            if (iTreeValues[referencedVal].ID != spawn.ID)
+                            {
+                                std::cerr << "[StaticMapTree] Error: trying to load wrong spawn in node!" << std::endl;
+                            }
+                            else if (iTreeValues[referencedVal].name != spawn.name)
+                            {
+                                std::cerr << "[StaticMapTree] Error: name mismatch on GUID=" << spawn.ID << std::endl;
                             }
                         }
-                        catch (const std::exception& e)
-                        {
-                            std::cerr << "[StaticMapTree] Failed to load model " << spawn.name
-                                << ": " << e.what() << std::endl;
-                        }
                     }
-
-                    iTreeValues[referencedVal] = ModelInstance(spawn, model);
-                    iLoadedSpawns[spawn.ID] = referencedVal;
-                    loadedCount++;
                 }
             }
 
             fclose(rf);
-            iLoadedTiles[tileID] = true;
 
-            return true;
+            if (success)
+            {
+                iLoadedTiles[tileID] = true;
+            }
+
+            return success;
         }
         catch (const std::exception& e)
         {
@@ -489,12 +440,32 @@ namespace VMAP
         if (!iTreeValues || iNTreeValues == 0)
             return height;
 
+        // The ray shoots downward from above
         G3D::Ray ray(pos + G3D::Vector3(0, 0, maxSearchDist), G3D::Vector3(0, 0, -1));
         float distance = maxSearchDist * 2.0f;
+
+        // Enhanced diagnostics
+        std::cout << "[StaticMapTree::getHeight] Query at (" << pos.x << "," << pos.y << "," << pos.z << ")" << std::endl;
+        std::cout << "  Ray: Origin(" << ray.origin().x << "," << ray.origin().y << "," << ray.origin().z
+            << ") Dir(" << ray.direction().x << "," << ray.direction().y << "," << ray.direction().z << ")" << std::endl;
+        std::cout << "  Search distance: " << maxSearchDist << ", ray distance: " << distance << std::endl;
+        std::cout << "  Tree has " << iNTreeValues << " models" << std::endl;
+
+        // Count loaded models
+        int loadedCount = 0;
+        for (uint32_t i = 0; i < iNTreeValues; ++i) {
+            if (iTreeValues[i].iModel) loadedCount++;
+        }
+        std::cout << "  Models loaded: " << loadedCount << "/" << iNTreeValues << std::endl;
 
         if (getIntersectionTime(ray, distance, true, false))
         {
             height = pos.z + maxSearchDist - distance;
+            std::cout << "[StaticMapTree] HIT! Distance=" << distance << " Height=" << height << std::endl;
+        }
+        else
+        {
+            std::cout << "[StaticMapTree] MISS - no intersection found" << std::endl;
         }
 
         return height;
