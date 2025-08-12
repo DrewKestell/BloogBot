@@ -240,19 +240,25 @@ namespace WoWSharpClient
         /* Emits MOVE_STOP / MOVE_START_* / HEARTBEAT automatically */
         private void EmitMovementPacketIfNeeded(WoWLocalPlayer player)
         {
-            if (player.MovementFlags == MovementFlags.MOVEFLAG_NONE)
-                return;                                   // idle – no movement packets
-
             uint now = (uint)_worldTimeTracker.NowMS.TotalMilliseconds;
 
-            if (now - _lastSentTime < HeartbeatMinMs)
-                return;                                   // heartbeat not yet due
-
+            // Determine the opcode based on flag transitions
             Opcode opcode = DetermineMovementOpcode(player.MovementFlags, _lastMovementFlags);
+
+            // Only send packets for:
+            // 1. State changes (START/STOP opcodes)
+            // 2. Heartbeats if enough time has passed and we're moving
+            bool isStateChange = opcode != Opcode.MSG_MOVE_HEARTBEAT;
+            bool isHeartbeatDue = (now - _lastSentTime >= HeartbeatMinMs) &&
+                                  (player.MovementFlags != MovementFlags.MOVEFLAG_NONE);
+
+            if (!isStateChange && !isHeartbeatDue)
+                return;
+
             byte[] buf = MovementPacketHandler.BuildMovementInfoBuffer(
-                                player,
-                                now,
-                                _fallTime);
+                player,
+                now,
+                _fallTime);
 
             _woWClient.SendMovementOpcode(opcode, buf);
 
@@ -266,11 +272,25 @@ namespace WoWSharpClient
             //if (!_isInControl || _isBeingTeleported)
             //    return;
 
-            ((WoWPlayer)Player).Facing = facing;
+            var player = (WoWLocalPlayer)Player;
+            float currentFacing = player.Facing;
+
+            // Calculate the shortest angular distance between current and target facing
+            float diff = Math.Abs(facing - currentFacing);
+
+            // Handle angle wrapping (e.g., 0 and 2π are the same)
+            if (diff > Math.PI)
+                diff = (float)(2 * Math.PI - diff);
+
+            // Only update if the difference is significant
+            if (diff < 0.05f)
+                return;
+
+            player.Facing = facing;
             _woWClient.SendMovementOpcode(
                 Opcode.MSG_MOVE_SET_FACING,
                 MovementPacketHandler.BuildMovementInfoBuffer(
-                    (WoWLocalPlayer)Player,
+                    player,
                     (uint)_worldTimeTracker.NowMS.TotalMilliseconds
                 )
             );
@@ -306,101 +326,129 @@ namespace WoWSharpClient
 
         private static Opcode DetermineMovementOpcode(MovementFlags current, MovementFlags previous)
         {
-            if (
-                current.HasFlag(MovementFlags.MOVEFLAG_JUMPING)
-                && !previous.HasFlag(MovementFlags.MOVEFLAG_JUMPING)
-            )
+            // Check for new movements (transitions from not having flag to having flag)
+            if (current.HasFlag(MovementFlags.MOVEFLAG_JUMPING) && !previous.HasFlag(MovementFlags.MOVEFLAG_JUMPING))
                 return Opcode.MSG_MOVE_JUMP;
 
-            if (
-                current.HasFlag(MovementFlags.MOVEFLAG_NONE)
-                && !previous.HasFlag(MovementFlags.MOVEFLAG_NONE)
-            )
+            // Check for stopping movement
+            if (previous != MovementFlags.MOVEFLAG_NONE && current == MovementFlags.MOVEFLAG_NONE)
                 return Opcode.MSG_MOVE_STOP;
 
-            if (current.HasFlag(MovementFlags.MOVEFLAG_FORWARD))
+            // Check for NEW forward movement
+            if (current.HasFlag(MovementFlags.MOVEFLAG_FORWARD) && !previous.HasFlag(MovementFlags.MOVEFLAG_FORWARD))
                 return Opcode.MSG_MOVE_START_FORWARD;
-            if (current.HasFlag(MovementFlags.MOVEFLAG_BACKWARD))
+
+            // Check for NEW backward movement  
+            if (current.HasFlag(MovementFlags.MOVEFLAG_BACKWARD) && !previous.HasFlag(MovementFlags.MOVEFLAG_BACKWARD))
                 return Opcode.MSG_MOVE_START_BACKWARD;
-            if (current.HasFlag(MovementFlags.MOVEFLAG_STRAFE_LEFT))
+
+            // Check for NEW strafe left movement
+            if (current.HasFlag(MovementFlags.MOVEFLAG_STRAFE_LEFT) && !previous.HasFlag(MovementFlags.MOVEFLAG_STRAFE_LEFT))
                 return Opcode.MSG_MOVE_START_STRAFE_LEFT;
-            if (current.HasFlag(MovementFlags.MOVEFLAG_STRAFE_RIGHT))
+
+            // Check for NEW strafe right movement
+            if (current.HasFlag(MovementFlags.MOVEFLAG_STRAFE_RIGHT) && !previous.HasFlag(MovementFlags.MOVEFLAG_STRAFE_RIGHT))
                 return Opcode.MSG_MOVE_START_STRAFE_RIGHT;
 
+            // Check for stopping specific movements
+            if (!current.HasFlag(MovementFlags.MOVEFLAG_STRAFE_LEFT) && !current.HasFlag(MovementFlags.MOVEFLAG_STRAFE_RIGHT) &&
+                (previous.HasFlag(MovementFlags.MOVEFLAG_STRAFE_LEFT) || previous.HasFlag(MovementFlags.MOVEFLAG_STRAFE_RIGHT)))
+                return Opcode.MSG_MOVE_STOP_STRAFE;
+
+            if (!current.HasFlag(MovementFlags.MOVEFLAG_TURN_LEFT) && !current.HasFlag(MovementFlags.MOVEFLAG_TURN_RIGHT) &&
+                (previous.HasFlag(MovementFlags.MOVEFLAG_TURN_LEFT) || previous.HasFlag(MovementFlags.MOVEFLAG_TURN_RIGHT)))
+                return Opcode.MSG_MOVE_STOP_TURN;
+
+            // Default to heartbeat if already moving
             return Opcode.MSG_MOVE_HEARTBEAT;
         }
 
         public void StartMovement(ControlBits bits)
         {
-            if (_isBeingTeleported || !_isInControl || bits == _controlBits)
+            // Don't process movement if we're not in control
+            if (_isBeingTeleported || !_isInControl)
                 return;
 
-            _controlBits = bits;
             var player = (WoWLocalPlayer)Player;
-            MovementFlags newFlags = player.MovementFlags;
-            Opcode opcode = Opcode.MSG_MOVE_STOP;
+            if (player == null)
+                return;
 
+            // Store the old flags for comparison
+            MovementFlags oldFlags = player.MovementFlags;
+            MovementFlags newFlags = player.MovementFlags;
+
+            // Update control bits
+            _controlBits = bits;
+
+            // Clear opposing movement flags and set new ones based on control bits
             switch (bits)
             {
                 case ControlBits.Front:
-                    opcode = Opcode.MSG_MOVE_START_FORWARD;
                     newFlags |= MovementFlags.MOVEFLAG_FORWARD;
                     newFlags &= ~MovementFlags.MOVEFLAG_BACKWARD;
                     break;
+
                 case ControlBits.Back:
-                    opcode = Opcode.MSG_MOVE_START_BACKWARD;
                     newFlags |= MovementFlags.MOVEFLAG_BACKWARD;
                     newFlags &= ~MovementFlags.MOVEFLAG_FORWARD;
                     break;
 
                 case ControlBits.StrafeLeft:
-                    opcode = Opcode.MSG_MOVE_START_STRAFE_LEFT;
                     newFlags |= MovementFlags.MOVEFLAG_STRAFE_LEFT;
                     newFlags &= ~MovementFlags.MOVEFLAG_STRAFE_RIGHT;
                     break;
 
                 case ControlBits.StrafeRight:
-                    opcode = Opcode.MSG_MOVE_START_STRAFE_RIGHT;
                     newFlags |= MovementFlags.MOVEFLAG_STRAFE_RIGHT;
                     newFlags &= ~MovementFlags.MOVEFLAG_STRAFE_LEFT;
                     break;
 
                 case ControlBits.Left:
-                    opcode = Opcode.MSG_MOVE_START_TURN_LEFT;
                     newFlags |= MovementFlags.MOVEFLAG_TURN_LEFT;
                     newFlags &= ~MovementFlags.MOVEFLAG_TURN_RIGHT;
                     break;
 
                 case ControlBits.Right:
-                    opcode = Opcode.MSG_MOVE_START_TURN_RIGHT;
                     newFlags |= MovementFlags.MOVEFLAG_TURN_RIGHT;
                     newFlags &= ~MovementFlags.MOVEFLAG_TURN_LEFT;
                     break;
 
                 case ControlBits.Jump:
-                    opcode = Opcode.MSG_MOVE_JUMP;
                     newFlags |= MovementFlags.MOVEFLAG_JUMPING;
                     break;
+
+                case ControlBits.Nothing:
+                    // Clear all movement flags
+                    newFlags &= ~(MovementFlags.MOVEFLAG_FORWARD |
+                                 MovementFlags.MOVEFLAG_BACKWARD |
+                                 MovementFlags.MOVEFLAG_STRAFE_LEFT |
+                                 MovementFlags.MOVEFLAG_STRAFE_RIGHT |
+                                 MovementFlags.MOVEFLAG_TURN_LEFT |
+                                 MovementFlags.MOVEFLAG_TURN_RIGHT);
+                    break;
+
+                default:
+                    return; // Unknown control bit, don't process
             }
 
-            if (newFlags == _lastMovementFlags)
+            // Only proceed if flags actually changed
+            if (newFlags == oldFlags)
                 return;
 
-            _lastMovementFlags = newFlags;
+            // Apply the new movement flags
             player.MovementFlags = newFlags;
 
-            var buffer = MovementPacketHandler.BuildMovementInfoBuffer(
-                player,
-                (uint)_worldTimeTracker.NowMS.TotalMilliseconds
-            );
-            Console.WriteLine($"[Movement] Start: Opcode={opcode}, Flags={newFlags}");
-            _woWClient.SendMovementOpcode(opcode, buffer);
+            // Emit movement packet immediately for state changes
+            // EmitMovementPacketIfNeeded will determine the correct opcode
+            EmitMovementPacketIfNeeded(player);
         }
 
         public void StopMovement(ControlBits bits)
         {
             var player = (WoWLocalPlayer)Player;
             var previousFlags = player.MovementFlags;
+
+            _controlBits = bits;
 
             if (bits.HasFlag(ControlBits.Front) || bits.HasFlag(ControlBits.Back))
                 player.MovementFlags &= ~(

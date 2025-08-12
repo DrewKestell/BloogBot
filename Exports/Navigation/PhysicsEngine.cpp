@@ -1006,7 +1006,7 @@ void PhysicsEngine::ResolveCollisions(uint32_t mapId, MovementState& state, floa
     // This is temporary until we can properly tune the collision detection
     return;
 
-    /* COMMENTED OUT - Collision system needs tuning
+    /* COMMENTED OUT - Collision system needs tuning */
     if (!m_vmapClient || !m_navigation)
     {
         return;
@@ -1059,7 +1059,6 @@ void PhysicsEngine::ResolveCollisions(uint32_t mapId, MovementState& state, floa
     {
         // On error, just return without modifying anything
     }
-    */
 }
 
 bool PhysicsEngine::CheckCollision(uint32_t mapId, float startX, float startY, float startZ,
