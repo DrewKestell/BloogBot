@@ -548,6 +548,7 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
     return output;
 }
 
+
 PhysicsEngine::CollisionInfo PhysicsEngine::QueryEnvironment(uint32_t mapId, float x, float y, float z,
     float radius, float height)
 {
@@ -643,28 +644,80 @@ bool PhysicsEngine::GetLiquidInfo(uint32_t mapId, float x, float y, float z, flo
 PhysicsEngine::MovementState PhysicsEngine::HandleGroundMovement(const PhysicsInput& input,
     MovementState& state, float dt)
 {
-    // Calculate movement direction
-    float moveX = 0, moveY = 0;
+    // Calculate movement direction from flags
+    float moveForward = 0;
+    float moveStrafe = 0;
 
-    if (input.moveForward != 0 || input.moveStrafe != 0)
+    if (input.moveFlags & MOVEFLAG_FORWARD)
+        moveForward = 1.0f;
+    else if (input.moveFlags & MOVEFLAG_BACKWARD)
+        moveForward = -1.0f;
+
+    if (input.moveFlags & MOVEFLAG_STRAFE_LEFT)
+        moveStrafe = -1.0f;
+    else if (input.moveFlags & MOVEFLAG_STRAFE_RIGHT)
+        moveStrafe = 1.0f;
+
+    float moveX = 0, moveY = 0;
+    float speed = CalculateMoveSpeed(input, false, false);
+
+    if (moveForward != 0 || moveStrafe != 0)
     {
         std::cout << "=== MOVEMENT DEBUG ===" << std::endl;
-        std::cout << "Input - Forward: " << input.moveForward << ", Strafe: " << input.moveStrafe << std::endl;
+        std::cout << "Movement - Forward: " << moveForward << ", Strafe: " << moveStrafe << std::endl;
         std::cout << "Orientation (rad): " << state.orientation << " (deg): " << (state.orientation * 180.0f / 3.14159f) << std::endl;
 
-        // WoW coordinate system: 0 = North (+Y), π/2 = East (+X), π = South (-Y), 3π/2 = West (-X)
         float cos_o = std::cos(state.orientation);
         float sin_o = std::sin(state.orientation);
 
-        // Fixed coordinate transformation for WoW
-        moveX = input.moveForward * sin_o + input.moveStrafe * cos_o;
-        moveY = input.moveForward * cos_o - input.moveStrafe * sin_o;
+        std::cout << "Trig values - cos: " << cos_o << ", sin: " << sin_o << std::endl;
 
-        std::cout << "With rotation gives: X=" << moveX << ", Y=" << moveY << std::endl;
+        // Calculate each component separately for debugging
+        float forward_x = moveForward * cos_o;
+        float forward_y = moveForward * sin_o;
+        float strafe_x = moveStrafe * sin_o;
+        float strafe_y = -moveStrafe * cos_o;
+
+        std::cout << "Forward contribution: X=" << forward_x << ", Y=" << forward_y << std::endl;
+        std::cout << "Strafe contribution: X=" << strafe_x << ", Y=" << strafe_y << std::endl;
+
+        moveX = forward_x + strafe_x;
+        moveY = forward_y + strafe_y;
+
+        std::cout << "Combined movement: X=" << moveX << ", Y=" << moveY << std::endl;
+
+        // Show what the expected position change will be
+        float expectedDeltaX = moveX * speed * dt;
+        float expectedDeltaY = moveY * speed * dt;
+        std::cout << "Speed: " << speed << ", dt: " << dt << std::endl;
+        std::cout << "Expected position delta: X=" << expectedDeltaX << ", Y=" << expectedDeltaY << std::endl;
+        std::cout << "Expected new position: X=" << (state.x + expectedDeltaX) << ", Y=" << (state.y + expectedDeltaY) << std::endl;
+
+        // Verify the orientation is what we expect
+        float north_angle = 1.5708f; // 90 degrees
+        float east_angle = 0.0f;      // 0 degrees
+        float south_angle = 4.7124f;  // 270 degrees
+        float west_angle = 3.14159f;  // 180 degrees
+
+        std::cout << "Reference angles - North: " << north_angle << " East: " << east_angle
+            << " South: " << south_angle << " West: " << west_angle << std::endl;
+
+        // Determine approximate cardinal direction
+        const char* facing_dir = "Unknown";
+        float deg = state.orientation * 180.0f / 3.14159f;
+        if (deg < 0) deg += 360.0f;
+
+        if (deg >= 337.5f || deg < 22.5f) facing_dir = "East";
+        else if (deg >= 22.5f && deg < 67.5f) facing_dir = "NorthEast";
+        else if (deg >= 67.5f && deg < 112.5f) facing_dir = "North";
+        else if (deg >= 112.5f && deg < 157.5f) facing_dir = "NorthWest";
+        else if (deg >= 157.5f && deg < 202.5f) facing_dir = "West";
+        else if (deg >= 202.5f && deg < 247.5f) facing_dir = "SouthWest";
+        else if (deg >= 247.5f && deg < 292.5f) facing_dir = "South";
+        else if (deg >= 292.5f && deg < 337.5f) facing_dir = "SouthEast";
+
+        std::cout << "Facing direction: " << facing_dir << std::endl;
     }
-
-    // Get movement speed
-    float speed = CalculateMoveSpeed(input, false, false);
 
     // Apply movement
     state.vx = moveX * speed;
@@ -674,16 +727,6 @@ PhysicsEngine::MovementState PhysicsEngine::HandleGroundMovement(const PhysicsIn
     // Update position
     state.x += state.vx * dt;
     state.y += state.vy * dt;
-
-    // Update orientation
-    if (input.turnRate != 0)
-    {
-        state.orientation += input.turnRate * 0.75f * TURN_SPEED * dt;
-        state.orientation = NormalizeAngle(state.orientation);
-    }
-
-    // Apply friction
-    ApplyFriction(state, 10.0f, dt);
 
     return state;
 }
@@ -701,11 +744,24 @@ PhysicsEngine::MovementState PhysicsEngine::HandleAirMovement(const PhysicsInput
         state.fallTime += dt;
     }
 
-    // Limited air control
-    if (input.moveForward != 0 || input.moveStrafe != 0)
+    // Calculate movement from flags for limited air control
+    float moveForward = 0;
+    float moveStrafe = 0;
+
+    if (input.moveFlags & MOVEFLAG_FORWARD)
+        moveForward = 1.0f;
+    else if (input.moveFlags & MOVEFLAG_BACKWARD)
+        moveForward = -1.0f;
+
+    if (input.moveFlags & MOVEFLAG_STRAFE_LEFT)
+        moveStrafe = -1.0f;
+    else if (input.moveFlags & MOVEFLAG_STRAFE_RIGHT)
+        moveStrafe = 1.0f;
+
+    if (moveForward != 0 || moveStrafe != 0)
     {
-        float forward = input.moveForward * AIR_CONTROL_FACTOR;
-        float strafe = input.moveStrafe * AIR_CONTROL_FACTOR;
+        float forward = moveForward * AIR_CONTROL_FACTOR;
+        float strafe = moveStrafe * AIR_CONTROL_FACTOR;
 
         // WoW coordinate system
         float cos_o = std::cos(state.orientation);
@@ -725,15 +781,17 @@ PhysicsEngine::MovementState PhysicsEngine::HandleAirMovement(const PhysicsInput
     state.y += state.vy * dt;
     state.z += (initial_vz + state.vz) * 0.5f * dt;  // Use average velocity for Z
 
-    // Update orientation
-    if (input.turnRate != 0)
+    // Update orientation for turning
+    if (input.moveFlags & MOVEFLAG_TURN_LEFT)
     {
-        state.orientation += input.turnRate * TURN_SPEED * dt;
+        state.orientation -= TURN_SPEED * dt;
         state.orientation = NormalizeAngle(state.orientation);
     }
-
-    // Apply air friction
-    ApplyFriction(state, 0.5f, dt);
+    else if (input.moveFlags & MOVEFLAG_TURN_RIGHT)
+    {
+        state.orientation += TURN_SPEED * dt;
+        state.orientation = NormalizeAngle(state.orientation);
+    }
 
     return state;
 }
@@ -741,13 +799,27 @@ PhysicsEngine::MovementState PhysicsEngine::HandleAirMovement(const PhysicsInput
 PhysicsEngine::MovementState PhysicsEngine::HandleSwimMovement(const PhysicsInput& input,
     MovementState& state, float dt)
 {
+    // Calculate movement from flags
+    float moveForward = 0;
+    float moveStrafe = 0;
+
+    if (input.moveFlags & MOVEFLAG_FORWARD)
+        moveForward = 1.0f;
+    else if (input.moveFlags & MOVEFLAG_BACKWARD)
+        moveForward = -1.0f;
+
+    if (input.moveFlags & MOVEFLAG_STRAFE_LEFT)
+        moveStrafe = -1.0f;
+    else if (input.moveFlags & MOVEFLAG_STRAFE_RIGHT)
+        moveStrafe = 1.0f;
+
     // Swimming uses full 3D movement
     float moveX = 0, moveY = 0, moveZ = 0;
 
-    if (input.moveForward != 0 || input.moveStrafe != 0)
+    if (moveForward != 0 || moveStrafe != 0)
     {
-        float forward = input.moveForward;
-        float strafe = input.moveStrafe;
+        float forward = moveForward;
+        float strafe = moveStrafe;
 
         // WoW coordinate system
         float cos_o = std::cos(state.orientation);
@@ -782,17 +854,27 @@ PhysicsEngine::MovementState PhysicsEngine::HandleSwimMovement(const PhysicsInpu
     state.y += state.vy * dt;
     state.z += state.vz * dt;
 
-    // Update orientation and pitch
-    if (input.turnRate != 0)
+    // Update orientation for turning
+    if (input.moveFlags & MOVEFLAG_TURN_LEFT)
     {
-        state.orientation += input.turnRate * TURN_SPEED * dt;
+        state.orientation -= TURN_SPEED * dt;
+        state.orientation = NormalizeAngle(state.orientation);
+    }
+    else if (input.moveFlags & MOVEFLAG_TURN_RIGHT)
+    {
+        state.orientation += TURN_SPEED * dt;
         state.orientation = NormalizeAngle(state.orientation);
     }
 
-    state.pitch = Clamp(state.pitch + input.pitch * dt, -1.57f, 1.57f);
-
-    // Apply water friction
-    ApplyFriction(state, 5.0f, dt);
+    // Update pitch for swimming up/down
+    if (input.moveFlags & MOVEFLAG_PITCH_UP)
+    {
+        state.pitch = Clamp(state.pitch - dt, -1.57f, 1.57f);
+    }
+    else if (input.moveFlags & MOVEFLAG_PITCH_DOWN)
+    {
+        state.pitch = Clamp(state.pitch + dt, -1.57f, 1.57f);
+    }
 
     return state;
 }
@@ -874,7 +956,7 @@ float PhysicsEngine::CalculateMoveSpeed(const PhysicsInput& input, bool isSwimmi
         return input.swimSpeed;
     if (input.moveFlags & MOVEFLAG_WALK_MODE)
         return input.walkSpeed;
-    if (input.moveForward < 0)
+    if (input.moveFlags & MOVEFLAG_BACKWARD)  // Moving backward
         return input.backSpeed;
     return input.runSpeed;
 }

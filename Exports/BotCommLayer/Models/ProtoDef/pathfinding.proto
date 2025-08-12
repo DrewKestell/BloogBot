@@ -110,13 +110,9 @@ message PhysicsInput {
     float height = 27;
     float gravity = 28;
     
-    // Terrain fallbacks
-    float adt_ground_z = 29;
-    float adt_liquid_z = 30;
-    
     // Context
-    uint32 map_id = 31;
-    float delta_time = 32;
+    uint32 map_id = 29;
+    float delta_time = 30;
 }
 
 message PhysicsOutput {

@@ -178,7 +178,7 @@ namespace WoWSharpClient
                 PosX = player.Position.X,
                 PosY = player.Position.Y,
                 PosZ = player.Position.Z,
-                Facing = player.FacingAngle,
+                Facing = player.Facing,
 
                 TransportGuid = player.TransportGuid,
                 TransportOffsetX = player.TransportOffset.X,
@@ -201,9 +201,6 @@ namespace WoWSharpClient
                 Radius = radius,
                 Height = height,
                 Gravity = 19.29f,
-
-                AdtGroundZ = float.NaN,     // populated only if sampled from terrain earlier
-                AdtLiquidZ = float.NaN,
 
                 SplineElevation = player.SplineElevation,
 
@@ -335,7 +332,7 @@ namespace WoWSharpClient
 
         public void StartMovement(ControlBits bits)
         {
-            if (_isBeingTeleported || !_isInControl)
+            if (_isBeingTeleported || !_isInControl || bits == _controlBits)
                 return;
 
             _controlBits = bits;
@@ -403,6 +400,7 @@ namespace WoWSharpClient
         public void StopMovement(ControlBits bits)
         {
             var player = (WoWLocalPlayer)Player;
+            var previousFlags = player.MovementFlags;
 
             if (bits.HasFlag(ControlBits.Front) || bits.HasFlag(ControlBits.Back))
                 player.MovementFlags &= ~(
@@ -427,20 +425,36 @@ namespace WoWSharpClient
 
             _lastMovementFlags = player.MovementFlags;
 
+            // Determine opcode based on what movement was ACTUALLY stopped
             Opcode opcode = Opcode.MSG_MOVE_STOP;
-            if (bits.HasFlag(ControlBits.StrafeLeft) || bits.HasFlag(ControlBits.StrafeRight))
+
+            // Check if we were actually strafing and just stopped
+            bool wasStrafing = previousFlags.HasFlag(MovementFlags.MOVEFLAG_STRAFE_LEFT) ||
+                               previousFlags.HasFlag(MovementFlags.MOVEFLAG_STRAFE_RIGHT);
+            bool stoppedStrafing = wasStrafing &&
+                                   !player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_STRAFE_LEFT) &&
+                                   !player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_STRAFE_RIGHT);
+
+            // Check if we were actually turning and just stopped
+            bool wasTurning = previousFlags.HasFlag(MovementFlags.MOVEFLAG_TURN_LEFT) ||
+                              previousFlags.HasFlag(MovementFlags.MOVEFLAG_TURN_RIGHT);
+            bool stoppedTurning = wasTurning &&
+                                  !player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_TURN_LEFT) &&
+                                  !player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_TURN_RIGHT);
+
+            if (stoppedStrafing)
                 opcode = Opcode.MSG_MOVE_STOP_STRAFE;
-            else if (bits.HasFlag(ControlBits.Left) || bits.HasFlag(ControlBits.Right))
+            else if (stoppedTurning)
                 opcode = Opcode.MSG_MOVE_STOP_TURN;
 
             var buffer = MovementPacketHandler.BuildMovementInfoBuffer(
                 player,
                 (uint)_worldTimeTracker.NowMS.TotalMilliseconds
             );
+
             Console.WriteLine($"[Movement] Stop: Opcode={opcode}, Flags={player.MovementFlags}");
             _woWClient.SendMovementOpcode(opcode, buffer);
         }
-
         private WoWObject CreateObjectFromFields(
             WoWObjectType objectType,
             ulong guid,

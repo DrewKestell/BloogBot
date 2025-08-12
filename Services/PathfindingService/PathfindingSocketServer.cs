@@ -125,11 +125,6 @@ namespace PathfindingService
                 vy = proto.VelY,
                 vz = proto.VelZ,
 
-                // Movement inputs - derive from movement flags and speeds
-                moveForward = 0,
-                moveStrafe = 0,
-                turnRate = 0,
-
                 // Movement speeds
                 walkSpeed = proto.WalkSpeed,
                 runSpeed = proto.RunSpeed,
@@ -161,22 +156,6 @@ namespace PathfindingService
                 // Time
                 deltaTime = 0.016f // Will be overridden by parameter
             };
-
-            // Derive movement inputs from flags
-            if ((proto.MovementFlags & (uint)MovementFlags.MOVEFLAG_FORWARD) != 0)
-                input.moveForward = 1.0f;
-            else if ((proto.MovementFlags & (uint)MovementFlags.MOVEFLAG_BACKWARD) != 0)
-                input.moveForward = -1.0f;
-
-            if ((proto.MovementFlags & (uint)MovementFlags.MOVEFLAG_STRAFE_LEFT) != 0)
-                input.moveStrafe = -1.0f;
-            else if ((proto.MovementFlags & (uint)MovementFlags.MOVEFLAG_STRAFE_RIGHT) != 0)
-                input.moveStrafe = 1.0f;
-
-            if ((proto.MovementFlags & (uint)MovementFlags.MOVEFLAG_TURN_LEFT) != 0)
-                input.turnRate = -1.0f;
-            else if ((proto.MovementFlags & (uint)MovementFlags.MOVEFLAG_TURN_RIGHT) != 0)
-                input.turnRate = 1.0f;
 
             // Check for jump
             if (proto.JumpVerticalSpeed > 0)

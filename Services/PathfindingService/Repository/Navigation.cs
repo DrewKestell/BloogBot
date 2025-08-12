@@ -32,11 +32,6 @@ namespace PathfindingService.Repository
             // Velocity
             public float vx, vy, vz;
 
-            // Movement inputs
-            public float moveForward;
-            public float moveStrafe;
-            public float turnRate;
-
             // Movement speeds
             public float walkSpeed;
             public float runSpeed;
@@ -358,9 +353,6 @@ namespace PathfindingService.Repository
                 vx = 0,
                 vy = 0,
                 vz = 0,
-                moveForward = 0,
-                moveStrafe = 0,
-                turnRate = 0,
                 walkSpeed = 2.5f,
                 runSpeed = 7.0f,
                 swimSpeed = 4.72f,

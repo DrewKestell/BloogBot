@@ -55,11 +55,6 @@ struct PhysicsInput
     // Current velocity
     float vx, vy, vz;
 
-    // Movement inputs
-    float moveForward;     // -1.0 to 1.0 (backward to forward)
-    float moveStrafe;      // -1.0 to 1.0 (left to right)
-    float turnRate;        // -1.0 to 1.0 (turn speed)
-
     // Movement speeds (yards/second)
     float walkSpeed;       // Default: 2.5
     float runSpeed;        // Default: 7.0
