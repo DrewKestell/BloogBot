@@ -21,11 +21,8 @@ namespace VMAP
         {
             gVMapManager = new VMapManager2();
 
-            // Set the base path but DON'T auto-load maps here
             std::string vmapsPath = getVMapsPath();
             gVMapManager->setBasePath(vmapsPath);
-
-            std::cout << "[VMAP] VMapManager created with path: " << vmapsPath << std::endl;
         }
         return gVMapManager;
     }
@@ -42,6 +39,7 @@ namespace VMAP
 
     std::string VMapFactory::getVMapsPath()
     {
+        std::string vmapsPath;
 #ifdef _WIN32
         // Get the DLL/EXE path
         WCHAR dllPath[MAX_PATH] = { 0 };
@@ -55,7 +53,7 @@ namespace VMAP
         if (lastSlash != std::string::npos)
         {
             std::string dirPath = pathAndFile.substr(0, lastSlash + 1);
-            std::string vmapsPath = dirPath + "vmaps\\";
+            vmapsPath = dirPath + "vmaps\\";
 
             // Check if the directory exists
             if (std::filesystem::exists(vmapsPath))
@@ -75,31 +73,8 @@ namespace VMAP
                 }
             }
         }
-#else
-        // For non-Windows, try various paths
-        std::vector<std::string> paths = {
-            "./vmaps/",
-            "../vmaps/",
-            "../../vmaps/",
-            "/opt/vmaps/",
-            "/usr/local/share/vmaps/"
-        };
-
-        for (const auto& path : paths)
-        {
-            if (std::filesystem::exists(path))
-                return path;
-        }
+        return vmapsPath;
 #endif
-        // Default fallback - create directory if it doesn't exist
-        std::string defaultPath = "vmaps/";
-        if (!std::filesystem::exists(defaultPath))
-        {
-            std::cout << "[VMAP] Warning: vmaps directory not found at " << defaultPath << std::endl;
-            std::cout << "[VMAP] Creating empty vmaps directory..." << std::endl;
-            std::filesystem::create_directory(defaultPath);
-        }
-        return defaultPath;
     }
 
     void VMapFactory::initialize()
@@ -107,48 +82,13 @@ namespace VMAP
         if (gInitialized)
             return;
 
-        std::cout << "[VMAP] VMapFactory::initialize() called" << std::endl;
-
-        // Just ensure the manager exists, don't load maps
         VMapManager2* manager = static_cast<VMapManager2*>(createOrGetVMapManager());
         if (!manager)
         {
-            std::cerr << "[VMAP] Failed to create VMapManager!" << std::endl;
             return;
         }
 
-        // Check if vmaps path exists
-        std::string vmapsPath = getVMapsPath();
-        if (!std::filesystem::exists(vmapsPath))
-        {
-            std::cerr << "[VMAP] Warning: VMAP path does not exist: " << vmapsPath << std::endl;
-            std::cerr << "[VMAP] VMAP functionality will be limited without extracted map files" << std::endl;
-        }
-        else
-        {
-            std::cout << "[VMAP] VMAP path verified: " << vmapsPath << std::endl;
-
-            // List available vmtree files for debugging
-            int mapCount = 0;
-            try
-            {
-                for (const auto& entry : std::filesystem::directory_iterator(vmapsPath))
-                {
-                    if (entry.path().extension() == ".vmtree")
-                    {
-                        mapCount++;
-                    }
-                }
-                std::cout << "[VMAP] Found " << mapCount << " map files in " << vmapsPath << std::endl;
-            }
-            catch (const std::exception& e)
-            {
-                std::cerr << "[VMAP] Error scanning directory: " << e.what() << std::endl;
-            }
-        }
-
         gInitialized = true;
-        std::cout << "[VMAP] VMapFactory initialized successfully" << std::endl;
     }
 
     void VMapFactory::initializeMapForContinent(unsigned int mapId)
@@ -161,7 +101,6 @@ namespace VMAP
         VMapManager2* manager = static_cast<VMapManager2*>(createOrGetVMapManager());
         if (!manager)
         {
-            std::cerr << "[VMAP] Manager not available for map initialization" << std::endl;
             return;
         }
 
@@ -173,17 +112,14 @@ namespace VMAP
 
         if (!std::filesystem::exists(fullPath))
         {
-            std::cout << "[VMAP] Map file not found: " << fullPath << " (this is normal if maps aren't extracted)" << std::endl;
             return;
         }
 
         if (!manager->isMapInitialized(mapId))
         {
-            std::cout << "[VMAP] Initializing map " << mapId << std::endl;
             try
             {
                 manager->initializeMap(mapId);
-                std::cout << "[VMAP] Map " << mapId << " initialized successfully" << std::endl;
             }
             catch (const std::exception& e)
             {

@@ -27,7 +27,7 @@ namespace PhysicsConstants
     constexpr float WATER_LEVEL_DELTA = 2.0f;
 
     // Ground detection distance - matching vMaNGOS
-    constexpr float GROUND_HEIGHT_TOLERANCE = 0.5f;    // Changed from 0.05f to 0.5f for better ground detection
+    constexpr float GROUND_HEIGHT_TOLERANCE = 0.05f;    // 
     constexpr float DEFAULT_HEIGHT_SEARCH = 4.0f;      // vMaNGOS default maxSearchDist
     constexpr float GROUND_SEARCH_RANGE = 100.0f;      // Maximum search range
 

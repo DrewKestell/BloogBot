@@ -17,7 +17,6 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
 
     if (tree.empty() || objects.empty())
     {
-        std::cout << "[BIH] Empty tree or objects, returning" << std::endl;
         return;
     }
 
@@ -44,7 +43,6 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
             // and intervalMin only larger respectively, so stop early
             if (intervalMax <= 0 || intervalMin >= maxDist)
             {
-                std::cout << "[BIH] Ray misses overall bounds" << std::endl;
                 return;
             }
         }
@@ -52,14 +50,11 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
 
     if (intervalMin > intervalMax)
     {
-        std::cout << "[BIH] Invalid interval: min=" << intervalMin << " max=" << intervalMax << std::endl;
         return;
     }
 
     intervalMin = std::max(intervalMin, 0.f);
     intervalMax = std::min(intervalMax, maxDist);
-
-    std::cout << "[BIH] Ray intersects bounds: interval [" << intervalMin << ", " << intervalMax << "]" << std::endl;
 
     // Prepare offset arrays for traversal
     uint32_t offsetFront[3], offsetBack[3];
@@ -140,15 +135,6 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
                         stack[stackPos].tnear = (tb >= intervalMin) ? tb : intervalMin;
                         stack[stackPos].tfar = intervalMax;
                         ++stackPos;
-
-                        if (stackPos > 10 && stackPos % 10 == 0)
-                        {
-                            std::cout << "[BIH] Stack depth: " << stackPos << std::endl;
-                        }
-                    }
-                    else
-                    {
-                        std::cout << "[BIH] WARNING: Stack overflow!" << std::endl;
                     }
 
                     // update ray interval for front node
@@ -162,26 +148,12 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
                     // leaf - test some objects
                     int n = tree[node + 1];
 
-                    std::cout << "[BIH] Leaf node with " << n << " objects" << std::endl;
-
-                    // Enhanced leaf diagnostics
-                    std::cout << "[BIH] Leaf at node " << node << ", offset " << offset << ", checking objects:" << std::endl;
-                    for (int i = 0; i < n; ++i) {
-                        uint32_t objIdx = objects[offset + i];
-                        std::cout << "  Object[" << i << "]: index=" << objIdx;
-                        if (objIdx >= 100000000) {
-                            std::cout << " (INVALID - SKIPPED)";
-                        }
-                        std::cout << std::endl;
-                    }
-
                     while (n > 0)
                     {
                         uint32_t objIdx = objects[offset];
 
                         if (objIdx >= 100000000)  // Sanity check for corrupted data
                         {
-                            std::cout << "[BIH] Skipping corrupted object index: " << objIdx << std::endl;
                             --n;
                             ++offset;
                             continue;
@@ -195,16 +167,10 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
                         if (hit)
                         {
                             objectsHit++;
-                            std::cout << "[BIH] Object " << objIdx << " HIT at distance " << maxDist
-                                << " (was " << oldDist << ")" << std::endl;
                         }
 
                         if (stopAtFirst && hit)
                         {
-                            std::cout << "[BIH] Early exit - Stats: Nodes=" << nodesVisited
-                                << " Leaves=" << leavesChecked
-                                << " Objects=" << objectsTested
-                                << " Hits=" << objectsHit << std::endl;
                             return;
                         }
 
@@ -218,7 +184,6 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
             {
                 if (axis > 2)
                 {
-                    std::cout << "[BIH] Invalid BVH2 axis: " << axis << std::endl;
                     return; // should not happen
                 }
                 float tf = (VMAP::intBitsToFloat(tree[node + offsetFront[axis]]) - org[axis]) * invDir[axis];
@@ -238,11 +203,6 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
             // stack is empty?
             if (stackPos == 0)
             {
-                std::cout << "[BIH] Complete - Stats: Nodes=" << nodesVisited
-                    << " Leaves=" << leavesChecked
-                    << " Objects=" << objectsTested
-                    << " Hits=" << objectsHit
-                    << " Final dist=" << maxDist << std::endl;
                 return;
             }
             // move back up the stack

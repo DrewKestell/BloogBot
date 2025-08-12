@@ -1,5 +1,6 @@
-// PhysicsEngine.cpp
+﻿// PhysicsEngine.cpp
 #include "PhysicsEngine.h"
+#include "VMapDefinitions.h"
 #include "Navigation.h"
 #include "VMapClient.h"
 #include "VMapFactory.h"
@@ -255,11 +256,18 @@ float PhysicsEngine::SelectBestHeight(float vmapHeight, float adtHeight, float c
 
 PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
 {
+    std::cout << "\n========== PHYSICS STEP START ==========" << std::endl;
+    std::cout << "Input Position: (" << input.x << ", " << input.y << ", " << input.z << ")" << std::endl;
+    std::cout << "Input Velocity: (" << input.vx << ", " << input.vy << ", " << input.vz << ")" << std::endl;
+    std::cout << "Input MoveFlags: 0x" << std::hex << input.moveFlags << std::dec << std::endl;
+    std::cout << "Input Height: " << input.height << ", Radius: " << input.radius << std::endl;
+    std::cout << "Delta Time: " << dt << std::endl;
+
     PhysicsOutput output = {};
 
     if (!m_initialized)
     {
-        // Pass through input values if not initialized
+        std::cout << "Physics not initialized - passthrough mode" << std::endl;
         output.x = input.x;
         output.y = input.y;
         output.z = input.z;
@@ -276,8 +284,15 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
     EnsureMapLoaded(input.mapId);
 
     // Query environment at current position
+    std::cout << "Querying environment..." << std::endl;
     CollisionInfo collision = QueryEnvironment(input.mapId, input.x, input.y, input.z,
         input.radius, input.height);
+
+    std::cout << "Collision Info:" << std::endl;
+    std::cout << "  hasGround: " << collision.hasGround << ", groundZ: " << collision.groundZ << std::endl;
+    std::cout << "  hasLiquid: " << collision.hasLiquid << ", liquidZ: " << collision.liquidZ
+        << ", liquidType: 0x" << std::hex << collision.liquidType << std::dec << std::endl;
+    std::cout << "  isIndoors: " << collision.isIndoors << std::endl;
 
     // Initialize movement state from input
     MovementState state;
@@ -292,30 +307,61 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
     state.fallTime = 0;
     state.fallStartZ = input.z;
 
-    // CRITICAL FIX: Check if unit SHOULD be on ground (not if it IS on ground)
-    // This matches vMaNGOS UpdateAllowedPositionZ logic
+    // Determine if grounded
     bool shouldBeGrounded = false;
     if (!(input.moveFlags & MOVEFLAG_FLYING) && collision.hasGround)
     {
-        // If below ground, we WILL place on ground
+        float distToGround = input.z - collision.groundZ;
+        std::cout << "Distance to ground: " << distToGround << std::endl;
+
         if (input.z <= collision.groundZ)
+        {
+            std::cout << "Below ground - will be grounded" << std::endl;
             shouldBeGrounded = true;
-        // If close to ground, we're grounded
-        else if (std::abs(input.z - collision.groundZ) < GROUND_HEIGHT_TOLERANCE)
+        }
+        else if (std::abs(distToGround) < GROUND_HEIGHT_TOLERANCE)
+        {
+            std::cout << "Close to ground (within " << GROUND_HEIGHT_TOLERANCE << ") - will be grounded" << std::endl;
             shouldBeGrounded = true;
+        }
+        else
+        {
+            std::cout << "Too far from ground - not grounded" << std::endl;
+        }
+    }
+    else
+    {
+        std::cout << "Not checking ground (flying=" << ((input.moveFlags & MOVEFLAG_FLYING) != 0)
+            << ", hasGround=" << collision.hasGround << ")" << std::endl;
     }
 
     state.isGrounded = shouldBeGrounded;
+    std::cout << "IsGrounded: " << state.isGrounded << std::endl;
 
+    // Determine if swimming - add small tolerance for floating point precision
+    float swimDepth = input.height * 0.7f;  // Changed to 0.7f per vmangos
+    std::cout << "Swimming check:" << std::endl;
+    std::cout << "  Not grounded: " << !state.isGrounded << std::endl;
+    std::cout << "  Has liquid: " << collision.hasLiquid << std::endl;
+    std::cout << "  Liquid type has water: " << ((collision.liquidType & (VMAP::MAP_LIQUID_TYPE_WATER | VMAP::MAP_LIQUID_TYPE_OCEAN)) != 0) << std::endl;
+    std::cout << "  Swim depth threshold: " << swimDepth << " (height * 0.7)" << std::endl;
+    std::cout << "  Position below liquid: z=" << input.z << " < liquidZ-swimDepth=" << (collision.liquidZ - swimDepth)
+        << " = " << (input.z < (collision.liquidZ - swimDepth + 0.02f)) << std::endl;
+
+    // Add 0.02f tolerance for floating point precision issues
     state.isSwimming = !state.isGrounded && collision.hasLiquid &&
-        (collision.liquidType & (MapFormat::MAP_LIQUID_TYPE_WATER | MapFormat::MAP_LIQUID_TYPE_OCEAN)) &&
-        input.z < (collision.liquidZ + 0.6f);
+        (collision.liquidType & (VMAP::MAP_LIQUID_TYPE_WATER | VMAP::MAP_LIQUID_TYPE_OCEAN)) &&
+        input.z < (collision.liquidZ - swimDepth + 0.02f);
+
+    std::cout << "IsSwimming: " << state.isSwimming << std::endl;
 
     state.isFlying = (input.moveFlags & MOVEFLAG_FLYING) != 0;
+    std::cout << "IsFlying: " << state.isFlying << std::endl;
 
     // Apply knockback if any
     if (input.knockbackVx != 0 || input.knockbackVy != 0 || input.knockbackVz != 0)
     {
+        std::cout << "Applying knockback: (" << input.knockbackVx << ", " << input.knockbackVy << ", " << input.knockbackVz << ")" << std::endl;
         ApplyKnockback(state, input.knockbackVx, input.knockbackVy, input.knockbackVz);
         state.isGrounded = false;
     }
@@ -323,73 +369,104 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
     // Apply jump velocity
     if (input.jumpVelocity > 0 && state.isGrounded && !state.isSwimming)
     {
+        std::cout << "Jumping with velocity: " << input.jumpVelocity << std::endl;
         state.vz = input.jumpVelocity;
         state.isGrounded = false;
+        state.fallStartZ = state.z;  // Set fall start position
     }
 
     // Update movement based on state
+    std::cout << "Movement handler: ";
     if (input.hasSplinePath)
     {
+        std::cout << "SPLINE" << std::endl;
         state = HandleSplineMovement(input, state, dt);
     }
     else if (state.isFlying)
     {
+        std::cout << "FLYING" << std::endl;
         state = HandleAirMovement(input, state, dt);
     }
     else if (state.isSwimming)
     {
+        std::cout << "SWIMMING" << std::endl;
         state = HandleSwimMovement(input, state, dt);
     }
     else if (state.isGrounded)
     {
+        std::cout << "GROUND" << std::endl;
         state = HandleGroundMovement(input, state, dt);
     }
     else
     {
+        std::cout << "AIR (falling)" << std::endl;
         state = HandleAirMovement(input, state, dt);
     }
 
-    // Resolve collisions
-    ResolveCollisions(input.mapId, state, input.radius, input.height);
+    std::cout << "After movement - Position: (" << state.x << ", " << state.y << ", " << state.z << ")" << std::endl;
+    std::cout << "After movement - Velocity: (" << state.vx << ", " << state.vy << ", " << state.vz << ")" << std::endl;
 
-    // Instead of re-querying everything, just update ground height at new position if needed
+    // Recheck swimming after position update (in case we fell into water)
+    if (!state.isSwimming && collision.hasLiquid &&
+        (collision.liquidType & (VMAP::MAP_LIQUID_TYPE_WATER | VMAP::MAP_LIQUID_TYPE_OCEAN)))
+    {
+        float currentSwimDepth = input.height * 0.7f;  // Changed to 0.7f
+        if (state.z < (collision.liquidZ - currentSwimDepth + 0.02f))
+        {
+            std::cout << "Entered water after movement - now swimming!" << std::endl;
+            state.isSwimming = true;
+            state.vz = std::max(state.vz, -2.0f);  // Limit fall speed in water
+        }
+    }
+
+    // Resolve collisions
+    std::cout << "Resolving collisions..." << std::endl;
+    ResolveCollisions(input.mapId, state, input.radius, input.height);
+    std::cout << "After collisions - Position: (" << state.x << ", " << state.y << ", " << state.z << ")" << std::endl;
+
+    // Re-query ground at new position if moved
     if (state.x != input.x || state.y != input.y)
     {
-        // Only query ground at NEW position, reuse liquid info
+        std::cout << "Re-querying ground at new position..." << std::endl;
         float newGroundZ = GetHeight(input.mapId, state.x, state.y, state.z,
             m_vmapHeightEnabled, DEFAULT_HEIGHT_SEARCH);
         if (newGroundZ > INVALID_HEIGHT_VALUE)
         {
             collision.groundZ = newGroundZ;
             collision.hasGround = true;
+            std::cout << "New ground height: " << newGroundZ << std::endl;
         }
     }
 
-    // CRITICAL FIX: vMaNGOS-style position validation (UpdateAllowedPositionZ logic)
+    // Final ground placement
     if (!state.isFlying && !(input.moveFlags & (MOVEFLAG_FALLINGFAR | MOVEFLAG_FALLING)) &&
         !state.isSwimming && collision.hasGround && collision.groundZ > INVALID_HEIGHT_VALUE)
     {
-        // ALWAYS place on ground if below it (core vMaNGOS behavior)
+        std::cout << "Final ground placement check:" << std::endl;
+        std::cout << "  Current Z: " << state.z << ", Ground Z: " << collision.groundZ << std::endl;
+
         if (state.z < collision.groundZ)
         {
+            std::cout << "  Below ground - snapping to ground" << std::endl;
             state.z = collision.groundZ;
             state.vz = 0;
             state.isGrounded = true;
         }
-        // Also snap if very close to ground
         else if (std::abs(state.z - collision.groundZ) < GROUND_HEIGHT_TOLERANCE)
         {
+            std::cout << "  Very close to ground - snapping" << std::endl;
             state.z = collision.groundZ;
             state.vz = 0;
             state.isGrounded = true;
         }
-        // Check if we're on ground (within reasonable distance)
         else if (state.z - collision.groundZ < 0.5f)
         {
+            std::cout << "  On ground (within 0.5)" << std::endl;
             state.isGrounded = true;
         }
         else
         {
+            std::cout << "  Too far above ground - not grounded" << std::endl;
             state.isGrounded = false;
         }
     }
@@ -411,22 +488,40 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
     output.collided = false;
 
     // Update movement flags
+    std::cout << "Updating movement flags..." << std::endl;
+    std::cout << "  Input flags: 0x" << std::hex << input.moveFlags << std::dec << std::endl;
     output.moveFlags = input.moveFlags;
-    if (!state.isGrounded && !state.isSwimming)  // Don't set falling when swimming
+
+    if (!state.isGrounded && !state.isSwimming)
+    {
+        std::cout << "  Adding FALLING flag" << std::endl;
         output.moveFlags |= MOVEFLAG_FALLING;
+    }
     else
+    {
+        std::cout << "  Removing FALLING flag" << std::endl;
         output.moveFlags &= ~MOVEFLAG_FALLING;
+    }
 
     if (state.isSwimming)
+    {
+        std::cout << "  Adding SWIMMING flag" << std::endl;
         output.moveFlags |= MOVEFLAG_SWIMMING;
+    }
     else
+    {
+        std::cout << "  Removing SWIMMING flag" << std::endl;
         output.moveFlags &= ~MOVEFLAG_SWIMMING;
+    }
+
+    std::cout << "  Output flags: 0x" << std::hex << output.moveFlags << std::dec << std::endl;
 
     // Calculate fall damage info
     if (!state.isGrounded && state.vz < 0)
     {
         output.fallTime = state.fallTime;
         output.fallDistance = state.fallStartZ - state.z;
+        std::cout << "Falling - Time: " << output.fallTime << ", Distance: " << output.fallDistance << std::endl;
     }
     else
     {
@@ -441,6 +536,13 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
         output.splineProgress = GetSplineProgress(state.x, state.y, state.z,
             input.splinePoints, input.currentSplineIndex);
     }
+
+    std::cout << "Final Output:" << std::endl;
+    std::cout << "  Position: (" << output.x << ", " << output.y << ", " << output.z << ")" << std::endl;
+    std::cout << "  Velocity: (" << output.vx << ", " << output.vy << ", " << output.vz << ")" << std::endl;
+    std::cout << "  Grounded: " << output.isGrounded << ", Swimming: " << output.isSwimming << ", Flying: " << output.isFlying << std::endl;
+    std::cout << "  MoveFlags: 0x" << std::hex << output.moveFlags << std::dec << std::endl;
+    std::cout << "========== PHYSICS STEP END ==========\n" << std::endl;
 
     return output;
 }
@@ -461,7 +563,7 @@ PhysicsEngine::CollisionInfo PhysicsEngine::QueryEnvironment(uint32_t mapId, flo
 
     // Store individual height sources for debugging
     info.vmapHeight = GetVMapHeight(mapId, x, y, z, DEFAULT_HEIGHT_SEARCH);
-    // REMOVED REDUNDANT CALL - GetHeight already calls GetADTHeight internally!
+
     info.adtHeight = finalHeight;  // Just use the result we already have
     info.vmapValid = (info.vmapHeight > VMAP_INVALID_HEIGHT_VALUE);
     info.adtValid = (info.adtHeight > INVALID_HEIGHT_VALUE);
@@ -524,7 +626,7 @@ bool PhysicsEngine::GetLiquidInfo(uint32_t mapId, float x, float y, float z, flo
         {
             if (m_vmapClient->getLiquidLevel(mapId, x, y, z, liquidLevel, liquidFloor))
             {
-                liquidType = MapFormat::MAP_LIQUID_TYPE_WATER;  // Default for VMAP liquids
+                liquidType = VMAP::MAP_LIQUID_TYPE_WATER;  // Default for VMAP liquids
                 return true;
             }
         }
@@ -545,16 +647,19 @@ PhysicsEngine::MovementState PhysicsEngine::HandleGroundMovement(const PhysicsIn
 
     if (input.moveForward != 0 || input.moveStrafe != 0)
     {
-        float forward = input.moveForward;
-        float strafe = input.moveStrafe;
+        std::cout << "=== MOVEMENT DEBUG ===" << std::endl;
+        std::cout << "Input - Forward: " << input.moveForward << ", Strafe: " << input.moveStrafe << std::endl;
+        std::cout << "Orientation (rad): " << state.orientation << " (deg): " << (state.orientation * 180.0f / 3.14159f) << std::endl;
 
+        // WoW coordinate system: 0 = North (+Y), π/2 = East (+X), π = South (-Y), 3π/2 = West (-X)
         float cos_o = std::cos(state.orientation);
         float sin_o = std::sin(state.orientation);
 
-        moveX = forward * cos_o - strafe * sin_o;
-        moveY = forward * sin_o + strafe * cos_o;
+        // Fixed coordinate transformation for WoW
+        moveX = input.moveForward * sin_o + input.moveStrafe * cos_o;
+        moveY = input.moveForward * cos_o - input.moveStrafe * sin_o;
 
-        Normalize2D(moveX, moveY);
+        std::cout << "With rotation gives: X=" << moveX << ", Y=" << moveY << std::endl;
     }
 
     // Get movement speed
@@ -585,6 +690,9 @@ PhysicsEngine::MovementState PhysicsEngine::HandleGroundMovement(const PhysicsIn
 PhysicsEngine::MovementState PhysicsEngine::HandleAirMovement(const PhysicsInput& input,
     MovementState& state, float dt)
 {
+    // Store initial velocity for proper integration
+    float initial_vz = state.vz;
+
     // Apply gravity if not flying
     if (!(input.moveFlags & MOVEFLAG_FLYING))
     {
@@ -598,11 +706,12 @@ PhysicsEngine::MovementState PhysicsEngine::HandleAirMovement(const PhysicsInput
         float forward = input.moveForward * AIR_CONTROL_FACTOR;
         float strafe = input.moveStrafe * AIR_CONTROL_FACTOR;
 
+        // WoW coordinate system
         float cos_o = std::cos(state.orientation);
         float sin_o = std::sin(state.orientation);
 
-        float moveX = forward * cos_o - strafe * sin_o;
-        float moveY = forward * sin_o + strafe * cos_o;
+        float moveX = forward * sin_o + strafe * cos_o;
+        float moveY = forward * cos_o - strafe * sin_o;
 
         float speed = CalculateMoveSpeed(input, false, true);
 
@@ -610,10 +719,10 @@ PhysicsEngine::MovementState PhysicsEngine::HandleAirMovement(const PhysicsInput
         state.vy += moveY * speed * dt;
     }
 
-    // Update position
+    // Update position using average velocity for proper integration
     state.x += state.vx * dt;
     state.y += state.vy * dt;
-    state.z += state.vz * dt;
+    state.z += (initial_vz + state.vz) * 0.5f * dt;  // Use average velocity for Z
 
     // Update orientation
     if (input.turnRate != 0)
@@ -639,13 +748,14 @@ PhysicsEngine::MovementState PhysicsEngine::HandleSwimMovement(const PhysicsInpu
         float forward = input.moveForward;
         float strafe = input.moveStrafe;
 
+        // WoW coordinate system
         float cos_o = std::cos(state.orientation);
         float sin_o = std::sin(state.orientation);
         float cos_p = std::cos(state.pitch);
         float sin_p = std::sin(state.pitch);
 
-        moveX = forward * cos_o - strafe * sin_o;
-        moveY = forward * sin_o + strafe * cos_o;
+        moveX = forward * sin_o + strafe * cos_o;
+        moveY = forward * cos_o - strafe * sin_o;
         moveZ = forward * sin_p;
 
         // Normalize
@@ -734,6 +844,9 @@ PhysicsEngine::MovementState PhysicsEngine::HandleSplineMovement(const PhysicsIn
 void PhysicsEngine::ApplyGravity(MovementState& state, float dt)
 {
     state.vz -= GRAVITY * dt;
+
+    if (state.vz < -54.0f)  // Terminal velocity (vmangos value)
+        state.vz = -54.0f;
 }
 
 void PhysicsEngine::ApplyFriction(MovementState& state, float friction, float dt)
@@ -915,7 +1028,11 @@ bool PhysicsEngine::IsInWater(uint32_t mapId, float x, float y, float z, float h
     EnsureMapLoaded(mapId);
     uint32_t liquidType;
     float liquidZ = GetLiquidHeight(mapId, x, y, z, liquidType);
-    bool inWater = (liquidZ > INVALID_HEIGHT_VALUE && z < liquidZ);
+
+    // Use the same swimming depth calculation as in Step() with tolerance
+    float swimDepth = height * 0.75f;
+    bool inWater = (liquidZ > INVALID_HEIGHT_VALUE && z < (liquidZ - swimDepth + 0.02f));
+
     return inWater;
 }
 

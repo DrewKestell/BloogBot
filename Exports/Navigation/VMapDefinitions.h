@@ -53,14 +53,13 @@ namespace VMAP
         return temp.fval;
     }
 
-    // Liquid masks (for GetLiquidLevel)
     enum LiquidTypeMask
     {
         MAP_LIQUID_TYPE_NO_WATER = 0x00,
-        MAP_LIQUID_TYPE_WATER = 0x01,
+        MAP_LIQUID_TYPE_MAGMA = 0x01,
         MAP_LIQUID_TYPE_OCEAN = 0x02,
-        MAP_LIQUID_TYPE_MAGMA = 0x04,
-        MAP_LIQUID_TYPE_SLIME = 0x08,
+        MAP_LIQUID_TYPE_SLIME = 0x04,
+        MAP_LIQUID_TYPE_WATER = 0x08,
         MAP_LIQUID_TYPE_DARK_WATER = 0x10,
         MAP_LIQUID_TYPE_ALL_LIQUIDS = 0xFF
     };

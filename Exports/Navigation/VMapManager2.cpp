@@ -11,10 +11,6 @@
 #include <algorithm>
 #include <unordered_map>
 
-#define LOG_INFO(msg) std::cout << "[VMAP] " << msg << std::endl
-#define LOG_ERROR(msg) std::cerr << "[VMAP ERROR] " << msg << std::endl
-#define LOG_DEBUG(msg) std::cout << "[VMAP DEBUG] " << msg << std::endl
-
 namespace VMAP
 {
     // Global model name to path mapping
@@ -27,7 +23,6 @@ namespace VMAP
         if (modelMappingLoaded)
             return;
 
-        LOG_INFO("Building complete model mapping from: " << basePath);
         modelNameToPath.clear();
 
         // Helper function to add a model to our mapping
@@ -78,22 +73,17 @@ namespace VMAP
                 }
             }
 
-            LOG_INFO("Found " << modelNameToPath.size() << " model mappings");
-
             // Enhanced breakdown by type
             int vmoCount = 0, dtreeCount = 0;
             for (const auto& pair : modelNameToPath) {
                 if (pair.second.find("GameObjectModels") != std::string::npos) dtreeCount++;
                 else vmoCount++;
             }
-            LOG_INFO("  Direct .vmo files: " << vmoCount);
-            LOG_INFO("  GameObjectModels: " << dtreeCount);
 
             // Also try to load GameObjectModels.dtree if it exists
             std::string dtreeFile = basePath + "GameObjectModels.dtree";
             if (std::filesystem::exists(dtreeFile))
             {
-                LOG_INFO("Loading additional mappings from GameObjectModels.dtree");
                 FILE* rf = fopen(dtreeFile.c_str(), "rb");
                 if (rf)
                 {
@@ -152,12 +142,10 @@ namespace VMAP
                     fclose(rf);
                 }
             }
-
-            LOG_INFO("Total model mappings after dtree: " << modelNameToPath.size());
         }
         catch (const std::exception& e)
         {
-            LOG_ERROR("Error building model mapping: " << e.what());
+            std::cerr << "Error building model mapping: " << e.what();
         }
 
         modelMappingLoaded = true;
@@ -246,33 +234,18 @@ namespace VMAP
             }
         }
 
-        // Enhanced diagnostic logging for failed resolution
-        LOG_DEBUG("Could not resolve model path for: " << modelName);
-        LOG_ERROR("FAILED to resolve: " << modelName);
-        LOG_ERROR("  Searched names: " << lowerName << ", " << searchName);
-        LOG_ERROR("  Total mappings available: " << modelNameToPath.size());
-        // Add a sample of what IS available for debugging
-        int shown = 0;
-        for (const auto& pair : modelNameToPath) {
-            if (shown++ < 5) {
-                LOG_ERROR("    Available: " << pair.first << " -> " << pair.second);
-            }
-        }
-
         return "";
     }
 
     // Constructor
     VMapManager2::VMapManager2()
     {
-        LOG_INFO("VMapManager2 constructor called");
+
     }
 
     // Destructor
     VMapManager2::~VMapManager2()
     {
-        LOG_INFO("VMapManager2 destructor called");
-
         try
         {
             for (auto& pair : iInstanceMapTrees)
@@ -285,7 +258,7 @@ namespace VMAP
         }
         catch (const std::exception& e)
         {
-            LOG_ERROR("Exception in destructor: " << e.what());
+            std::cerr << "Exception in destructor: " << e.what();
         }
     }
 
@@ -305,7 +278,6 @@ namespace VMAP
         {
             if (iLoadedMaps.count(mapId) > 0)
             {
-                LOG_DEBUG("Map " << mapId << " already initialized");
                 return;
             }
 
@@ -314,14 +286,12 @@ namespace VMAP
 
             if (!std::filesystem::exists(fullPath))
             {
-                LOG_DEBUG("Map file not found: " << fullPath);
                 return;
             }
 
             FILE* rf = fopen(fullPath.c_str(), "rb");
             if (!rf)
             {
-                LOG_ERROR("Failed to open map file: " << fullPath);
                 return;
             }
             fclose(rf);
@@ -335,34 +305,32 @@ namespace VMAP
                 {
                     iInstanceMapTrees[mapId] = newTree;
                     iLoadedMaps.insert(mapId);
-                    LOG_INFO("Initialized map " << mapId);
                 }
                 else
                 {
                     delete newTree;
-                    LOG_ERROR("Failed to initialize map " << mapId);
                 }
             }
             catch (const std::bad_alloc& e)
             {
                 delete newTree;
-                LOG_ERROR("Bad allocation while initializing map " << mapId << ": " << e.what());
+                std::cerr << "Bad allocation while initializing map " << mapId << ": " << e.what();
                 throw;
             }
             catch (const std::exception& e)
             {
                 delete newTree;
-                LOG_ERROR("Exception while initializing map " << mapId << ": " << e.what());
+                std::cerr << "Exception while initializing map " << mapId << ": " << e.what();
             }
         }
         catch (const std::bad_alloc& e)
         {
-            LOG_ERROR("Memory allocation failed for map " << mapId);
+            std::cerr << "Memory allocation failed for map " << mapId;
             throw;
         }
         catch (const std::exception& e)
         {
-            LOG_ERROR("Failed to initialize map " << mapId << ": " << e.what());
+            std::cerr << "Failed to initialize map " << mapId << ": " << e.what();
         }
     }
 
@@ -429,8 +397,6 @@ namespace VMAP
     {
         try
         {
-            LOG_DEBUG("loadMap called - Map: " << pMapId << " Tile: (" << x << ", " << y << ")");
-
             if (pBasePath && strlen(pBasePath) > 0)
             {
                 iBasePath = pBasePath;
@@ -441,7 +407,7 @@ namespace VMAP
 
             if (!std::filesystem::exists(iBasePath))
             {
-                LOG_ERROR("Base path does not exist: " << iBasePath);
+                std::cerr << "Base path does not exist: " << iBasePath;
                 return VMAP_LOAD_RESULT_ERROR;
             }
 
@@ -453,14 +419,13 @@ namespace VMAP
                 }
                 catch (const std::bad_alloc& e)
                 {
-                    LOG_ERROR("Failed to initialize map due to memory allocation failure");
+                    std::cerr << "Failed to initialize map due to memory allocation failure";
                     return VMAP_LOAD_RESULT_ERROR;
                 }
             }
 
             if (!isMapInitialized(pMapId))
             {
-                LOG_DEBUG("Map " << pMapId << " not available");
                 return VMAP_LOAD_RESULT_IGNORED;
             }
 
@@ -470,7 +435,7 @@ namespace VMAP
         }
         catch (const std::exception& e)
         {
-            LOG_ERROR("Exception in loadMap: " << e.what());
+            std::cerr << "Exception in loadMap: " << e.what();
             return VMAP_LOAD_RESULT_ERROR;
         }
     }
@@ -479,8 +444,6 @@ namespace VMAP
     {
         try
         {
-            LOG_DEBUG("_loadMap internal - Map: " << pMapId << " Tile: (" << tileX << ", " << tileY << ")");
-
             auto instanceTree = iInstanceMapTrees.find(pMapId);
 
             if (instanceTree == iInstanceMapTrees.end())
@@ -490,7 +453,6 @@ namespace VMAP
 
                 if (!std::filesystem::exists(fullPath))
                 {
-                    LOG_DEBUG("Map file does not exist: " << fullPath);
                     return false;
                 }
 
@@ -501,7 +463,6 @@ namespace VMAP
 
                     if (!newTree->InitMap(mapFileName, this))
                     {
-                        LOG_ERROR("Failed to init map tree for map " << pMapId);
                         delete newTree;
                         return false;
                     }
@@ -512,7 +473,7 @@ namespace VMAP
                 catch (const std::bad_alloc& e)
                 {
                     delete newTree;
-                    LOG_ERROR("Memory allocation failed while loading map " << pMapId);
+                    std::cerr << "Memory allocation failed while loading map " << pMapId;
                     throw;
                 }
             }
@@ -521,15 +482,13 @@ namespace VMAP
         }
         catch (const std::exception& e)
         {
-            LOG_ERROR("Exception in _loadMap: " << e.what());
+            std::cerr << "Exception in _loadMap: " << e.what();
             return false;
         }
     }
 
     void VMapManager2::unloadMap(unsigned int pMapId, int x, int y)
     {
-        LOG_DEBUG("unloadMap tile - Map: " << pMapId << " Tile: (" << x << ", " << y << ")");
-
         auto instanceTree = iInstanceMapTrees.find(pMapId);
         if (instanceTree != iInstanceMapTrees.end())
         {
@@ -539,8 +498,6 @@ namespace VMAP
 
     void VMapManager2::unloadMap(unsigned int pMapId)
     {
-        LOG_DEBUG("unloadMap entire - Map: " << pMapId);
-
         auto instanceTree = iInstanceMapTrees.find(pMapId);
         if (instanceTree != iInstanceMapTrees.end())
         {
@@ -621,33 +578,10 @@ namespace VMAP
         {
             G3D::Vector3 pos = convertPositionToInternalRep(x, y, z);
 
-            std::cout << "[VMAP] Height raycast: World(" << x << "," << y << "," << z
-                << ") -> Internal(" << pos.x << "," << pos.y << "," << pos.z
-                << ") SearchDist=" << maxSearchDist << std::endl;
-
             float height = instanceTree->second->getHeight(pos, maxSearchDist);
-
-            std::cout << "[VMAP] Height result: " << height << std::endl;
-
-            // Enhanced summary logging
-            std::cout << "[VMAP] Height query summary:" << std::endl;
-            std::cout << "  Map " << pMapId << " at world(" << x << "," << y << "," << z << ")" << std::endl;
-            std::cout << "  Result: " << (height > -G3D::inf() && height < G3D::inf() ? std::to_string(height) : "NO HIT") << std::endl;
-            std::cout << "  Map initialized: YES" << std::endl;
-            std::cout << "  Tiles loaded: " << instanceTree->second->numLoadedTiles() << std::endl;
-            std::cout << "================================" << std::endl;
 
             if (height > -G3D::inf() && height < G3D::inf())
                 return height;
-        }
-        else
-        {
-            // Summary for uninitialized map
-            std::cout << "[VMAP] Height query summary:" << std::endl;
-            std::cout << "  Map " << pMapId << " at world(" << x << "," << y << "," << z << ")" << std::endl;
-            std::cout << "  Result: NO HIT (map not initialized)" << std::endl;
-            std::cout << "  Map initialized: NO" << std::endl;
-            std::cout << "================================" << std::endl;
         }
 
         return VMAP_INVALID_HEIGHT_VALUE;
@@ -733,7 +667,6 @@ namespace VMAP
 
             if (fullPath.empty() || !std::filesystem::exists(fullPath))
             {
-                LOG_DEBUG("WMO model not found (may not be extracted): " << filename);
                 return nullptr;
             }
 
@@ -744,13 +677,13 @@ namespace VMAP
             }
             catch (const std::bad_alloc& e)
             {
-                LOG_ERROR("Failed to allocate WorldModel: " << e.what());
+                std::cerr << "Failed to allocate WorldModel: " << e.what();
                 return nullptr;
             }
 
             if (!worldmodel->readFile(fullPath))
             {
-                LOG_ERROR("Failed to read model file: " << fullPath);
+                std::cerr << "Failed to read model file: " << fullPath;
                 return nullptr;
             }
 
@@ -761,7 +694,7 @@ namespace VMAP
         }
         catch (const std::exception& e)
         {
-            LOG_ERROR("Exception in acquireModelInstance: " << e.what());
+            std::cerr << "Exception in acquireModelInstance: " << e.what();
             return nullptr;
         }
     }

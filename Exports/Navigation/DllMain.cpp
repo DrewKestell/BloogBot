@@ -30,13 +30,11 @@ void InitializeAllSystems()
 
     try
     {
-        std::cout << "[Navigation] Initializing systems..." << std::endl;
-
         // Initialize MapLoader first (optional, for terrain data)
         try
         {
             g_mapLoader = std::make_unique<MapLoader>();
-            std::vector<std::string> mapPaths = { "maps/", "Data/maps/", "../Data/maps/" };
+            std::vector<std::string> mapPaths = { "maps/", };
 
             for (const auto& path : mapPaths)
             {
@@ -44,7 +42,6 @@ void InitializeAllSystems()
                 {
                     if (g_mapLoader->Initialize(path))
                     {
-                        std::cout << "[Navigation] MapLoader initialized: " << path << std::endl;
                         break;
                     }
                 }
@@ -70,7 +67,6 @@ void InitializeAllSystems()
                 physics->SetVMapHeightEnabled(true);
                 physics->SetVMapIndoorCheckEnabled(true);
                 physics->SetVMapLOSEnabled(true);
-                std::cout << "[Navigation] Physics engine initialized" << std::endl;
             }
         }
         catch (const std::bad_alloc& e)
@@ -90,7 +86,6 @@ void InitializeAllSystems()
             if (auto* navigation = Navigation::GetInstance())
             {
                 navigation->Initialize();
-                std::cout << "[Navigation] Navigation system initialized" << std::endl;
             }
         }
         catch (const std::exception& e)
@@ -102,7 +97,7 @@ void InitializeAllSystems()
         try
         {
             // First check if vmaps directory exists
-            std::vector<std::string> vmapPaths = { "vmaps/", "Data/vmaps/", "../Data/vmaps/" };
+            std::vector<std::string> vmapPaths = { "vmaps/", };
             std::string vmapPath;
 
             for (const auto& path : vmapPaths)
@@ -110,7 +105,6 @@ void InitializeAllSystems()
                 if (std::filesystem::exists(path))
                 {
                     vmapPath = path;
-                    std::cout << "[Navigation] Found VMAP directory: " << path << std::endl;
                     break;
                 }
             }
@@ -133,7 +127,6 @@ void InitializeAllSystems()
                 if (g_vmapClient)
                 {
                     g_vmapClient->initialize();
-                    std::cout << "[Navigation] VMAP client initialized" << std::endl;
                 }
             }
         }
@@ -150,7 +143,6 @@ void InitializeAllSystems()
         }
 
         g_initialized = true;
-        std::cout << "[Navigation] System initialization complete" << std::endl;
 
         // Report status
         std::cout << "[Navigation] Status:" << std::endl;
@@ -410,7 +402,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     if (ul_reason_for_call == DLL_PROCESS_ATTACH)
     {
         SetConsoleOutputCP(CP_UTF8);
-        std::cout << "[Navigation] Navigation.dll loaded" << std::endl;
     }
     else if (ul_reason_for_call == DLL_PROCESS_DETACH)
     {

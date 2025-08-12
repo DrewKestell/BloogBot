@@ -84,33 +84,39 @@ namespace VMAP
         if (!iHeight || !iFlags)
             return false;
 
-        float tx = (pos.x - iCorner.x) / LIQUID_TILE_SIZE;
-        float ty = (pos.y - iCorner.y) / LIQUID_TILE_SIZE;
-
-        if (tx < 0 || tx >= iTilesX - 1 || ty < 0 || ty >= iTilesY - 1)
+        float tx_f = (pos.x - iCorner.x) / LIQUID_TILE_SIZE;
+        uint32_t tx = uint32_t(tx_f);
+        if (tx_f < 0.0f || tx >= iTilesX)
             return false;
 
-        int x = static_cast<int>(tx);
-        int y = static_cast<int>(ty);
-
-        uint32_t index = y * iTilesX + x;
-        if (!(iFlags[index] & 0x0F))
+        float ty_f = (pos.y - iCorner.y) / LIQUID_TILE_SIZE;
+        uint32_t ty = uint32_t(ty_f);
+        if (ty_f < 0.0f || ty >= iTilesY)
             return false;
 
-        float fx = tx - x;
-        float fy = ty - y;
+        // Check if tile is valid for liquid (0x0F = disabled)
+        if ((iFlags[tx + ty * iTilesX] & 0x0F) == 0x0F)
+            return false;
 
-        float h1 = iHeight[index];
-        float h2 = iHeight[index + 1];
-        float h3 = iHeight[index + iTilesX];
-        float h4 = iHeight[index + iTilesX + 1];
+        float dx = tx_f - float(tx);
+        float dy = ty_f - float(ty);
 
-        liqHeight = h1 * (1 - fx) * (1 - fy) +
-            h2 * fx * (1 - fy) +
-            h3 * (1 - fx) * fy +
-            h4 * fx * fy;
+        uint32_t const rowOffset = iTilesX + 1;  // Height array is (width+1) wide
 
-        liqHeight += iCorner.z;
+        if (dx > dy)  // Triangle (a)
+        {
+            float sx = iHeight[tx + 1 + ty * rowOffset] - iHeight[tx + ty * rowOffset];
+            float sy = iHeight[tx + 1 + (ty + 1) * rowOffset] - iHeight[tx + 1 + ty * rowOffset];
+            liqHeight = iHeight[tx + ty * rowOffset] + dx * sx + dy * sy;
+        }
+        else  // Triangle (b)
+        {
+            float sx = iHeight[tx + 1 + (ty + 1) * rowOffset] - iHeight[tx + (ty + 1) * rowOffset];
+            float sy = iHeight[tx + (ty + 1) * rowOffset] - iHeight[tx + ty * rowOffset];
+            liqHeight = iHeight[tx + ty * rowOffset] + dx * sx + dy * sy;
+        }
+
+        // Don't add iCorner.z - height values are already absolute
         return true;
     }
 
@@ -356,8 +362,6 @@ namespace VMAP
         if (fread(&count, sizeof(uint32_t), 1, rf) != 1)
             return false;
 
-        std::cout << "[GroupModel] Reading " << count << " vertices" << std::endl;
-
         if (!count) // Models without collision geometry end here
             return true;
 
@@ -380,8 +384,6 @@ namespace VMAP
 
         if (fread(&count, sizeof(uint32_t), 1, rf) != 1)
             return false;
-
-        std::cout << "[GroupModel] Reading " << count << " triangles" << std::endl;
 
         if (count)
         {
@@ -427,9 +429,6 @@ namespace VMAP
             }
         }
 
-        std::cout << "[GroupModel] Successfully loaded: " << vertices.size()
-            << " verts, " << triangles.size() << " tris" << std::endl;
-
         return true;
     }
 
@@ -455,20 +454,13 @@ namespace VMAP
 
     bool WorldModel::IntersectRay(const G3D::Ray& ray, float& distance, bool stopAtFirstHit, bool ignoreM2Model) const
     {
-        std::cout << "[WorldModel] IntersectRay called: "
-            << " ModelFlags=0x" << std::hex << modelFlags << std::dec
-            << " IgnoreM2=" << (ignoreM2Model ? "YES" : "NO")
-            << " GroupCount=" << groupModels.size() << std::endl;
-
         if (ignoreM2Model && (modelFlags & MOD_M2))
         {
-            std::cout << "[WorldModel] Skipping M2 model (flags check)" << std::endl;
             return false;
         }
 
         if (groupModels.empty())
         {
-            std::cout << "[WorldModel] No group models - no collision geometry!" << std::endl;
             return false;
         }
 
@@ -594,8 +586,6 @@ namespace VMAP
                 return false;
             }
 
-            std::cout << "[WorldModel] Loading " << filename << " - Found " << count << " group models" << std::endl;
-
             groupModels.clear();
             groupModels.reserve(count);
 
@@ -635,12 +625,6 @@ namespace VMAP
         }
 
         fclose(rf);
-
-        if (result)
-        {
-            std::cout << "[WorldModel] Successfully loaded " << filename
-                << " with " << groupModels.size() << " group models" << std::endl;
-        }
 
         return result;
     }

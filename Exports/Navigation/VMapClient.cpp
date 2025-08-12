@@ -8,9 +8,6 @@
 VMapClient::VMapClient(const std::string& dataPath)
     : vmapPath(dataPath), initialized(false), vmapManager(nullptr)
 {
-    std::cout << "[VMapClient] Constructor called with path: " << dataPath << std::endl;
-
-    // Get or create the VMapManager instance
     try
     {
         // Cast the interface pointer to the concrete implementation
@@ -18,7 +15,6 @@ VMapClient::VMapClient(const std::string& dataPath)
 
         if (!vmapManager)
         {
-            std::cerr << "[VMapClient] Failed to get VMapManager instance!" << std::endl;
             return;
         }
 
@@ -26,7 +22,6 @@ VMapClient::VMapClient(const std::string& dataPath)
         if (vmapPath.empty())
         {
             vmapPath = VMAP::VMapFactory::getVMapsPath();
-            std::cout << "[VMapClient] Auto-detected VMAP path: " << vmapPath << std::endl;
         }
         else
         {
@@ -35,25 +30,8 @@ VMapClient::VMapClient(const std::string& dataPath)
                 vmapPath += "/";
         }
 
-        // Verify the path exists
-        if (!std::filesystem::exists(vmapPath))
-        {
-            std::cerr << "[VMapClient] Warning: VMAP path does not exist: " << vmapPath << std::endl;
-            std::cerr << "[VMapClient] Creating directory..." << std::endl;
-
-            try
-            {
-                std::filesystem::create_directories(vmapPath);
-            }
-            catch (const std::exception& e)
-            {
-                std::cerr << "[VMapClient] Failed to create directory: " << e.what() << std::endl;
-            }
-        }
-
         // Set the base path in the manager
         vmapManager->setBasePath(vmapPath);
-        std::cout << "[VMapClient] VMapManager base path set to: " << vmapPath << std::endl;
     }
     catch (const std::exception& e)
     {
@@ -69,18 +47,13 @@ VMapClient::VMapClient(const std::string& dataPath)
 
 VMapClient::~VMapClient()
 {
-    std::cout << "[VMapClient] Destructor called" << std::endl;
-    // Note: Don't call VMapFactory::clear() here as it's a singleton
-    // and might be used by other instances
+
 }
 
 void VMapClient::initialize()
 {
-    std::cout << "[VMapClient] initialize() called" << std::endl;
-
     if (initialized)
     {
-        std::cout << "[VMapClient] Already initialized" << std::endl;
         return;
     }
 
@@ -96,15 +69,6 @@ void VMapClient::initialize()
         }
 
         initialized = (vmapManager != nullptr);
-
-        if (initialized)
-        {
-            std::cout << "[VMapClient] Initialization successful" << std::endl;
-        }
-        else
-        {
-            std::cerr << "[VMapClient] Initialization failed - no VMapManager" << std::endl;
-        }
     }
     catch (const std::exception& e)
     {
@@ -120,11 +84,8 @@ void VMapClient::initialize()
 
 void VMapClient::preloadMap(uint32_t mapId)
 {
-    std::cout << "[VMapClient] preloadMap(" << mapId << ") called" << std::endl;
-
     if (!vmapManager)
     {
-        std::cerr << "[VMapClient] Cannot preload map - VMapManager is NULL" << std::endl;
         return;
     }
 
@@ -138,12 +99,10 @@ void VMapClient::preloadMap(uint32_t mapId)
 
         if (!std::filesystem::exists(mapFile))
         {
-            std::cout << "[VMapClient] Map file not found: " << mapFile << " (skipping)" << std::endl;
             return;
         }
 
         VMAP::VMapFactory::initializeMapForContinent(mapId);
-        std::cout << "[VMapClient] Map " << mapId << " preload complete" << std::endl;
     }
     catch (const std::exception& e)
     {
@@ -159,7 +118,6 @@ bool VMapClient::loadMapTile(uint32_t mapId, int x, int y)
 {
     if (!vmapManager)
     {
-        std::cerr << "[VMapClient] Cannot load tile - VMapManager is NULL" << std::endl;
         return false;
     }
 

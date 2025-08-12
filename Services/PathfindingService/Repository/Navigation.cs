@@ -225,6 +225,10 @@ namespace PathfindingService.Repository
             // Utility
             preloadMap = GetDelegate<PreloadMapDelegate>("PreloadMap");
             isInitialized = GetDelegate<IsInitializedDelegate>("IsInitialized");
+
+            PreloadMap(0);
+            PreloadMap(1);
+            PreloadMap(389);
         }
 
         // ============ NAVIGATION METHODS ============
@@ -260,7 +264,6 @@ namespace PathfindingService.Repository
         // ============ PHYSICS METHODS ============
         public PhysicsOutput StepPhysics(PhysicsInput input, float deltaTime)
         {
-            PreloadMap(input.mapId);
             return stepPhysics(ref input, deltaTime);
         }
 
@@ -276,7 +279,6 @@ namespace PathfindingService.Repository
 
         public float GetGroundHeight(uint mapId, float x, float y, float z, float searchDistance = 4.0f)
         {
-            PreloadMap(mapId);
             return getGroundHeight(mapId, x, y, z, searchDistance);
         }
 
@@ -302,7 +304,6 @@ namespace PathfindingService.Repository
                                       float x2, float y2, float z2,
                                       out float hitX, out float hitY, out float hitZ)
         {
-            PreloadMap(mapId);
             return getCollisionPoint(mapId, x1, y1, z1, x2, y2, z2, out hitX, out hitY, out hitZ);
         }
 

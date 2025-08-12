@@ -31,8 +31,6 @@ namespace VMAP
     // Initialize map from file with optional full preloading
     bool StaticMapTree::InitMap(const std::string& fname, VMapManager2* vm)
     {
-        std::cout << "[StaticMapTree] InitMap called for: " << fname << std::endl;
-
         bool success = true;
         std::string fullPath = iBasePath + fname;
         FILE* rf = fopen(fullPath.c_str(), "rb");
@@ -53,8 +51,6 @@ namespace VMAP
                 success = false;
             iIsTiled = bool(tiled);
 
-            std::cout << "[StaticMapTree] Is tiled: " << (iIsTiled ? "yes" : "no") << std::endl;
-
             // 3. Read NODE chunk and BIH tree
             if (success && !readChunk(rf, chunk, "NODE", 4))
                 success = false;
@@ -65,14 +61,6 @@ namespace VMAP
             if (success)
             {
                 iNTreeValues = iTree.primCount();
-                std::cout << "[StaticMapTree] BIH tree references " << iNTreeValues << " model slots" << std::endl;
-
-                // Enhanced BIH tree diagnostics
-                std::cout << "[StaticMapTree] BIH tree loaded - " << iNTreeValues << " model slots";
-                std::cout << "[StaticMapTree]   Tree bounds: ("
-                    << iTree.getBounds().low().x << "," << iTree.getBounds().low().y << "," << iTree.getBounds().low().z
-                    << ") to ("
-                    << iTree.getBounds().high().x << "," << iTree.getBounds().high().y << "," << iTree.getBounds().high().z << ")";
 
                 if (iNTreeValues > 0)
                 {
@@ -87,8 +75,6 @@ namespace VMAP
             // 5. Only non-tiled maps have spawns after GOBJ
             if (success && !iIsTiled)
             {
-                std::cout << "[StaticMapTree] Non-tiled map - loading spawns..." << std::endl;
-
                 ModelSpawn spawn;
                 while (ModelSpawn::readFromFile(rf, spawn))
                 {
@@ -111,8 +97,6 @@ namespace VMAP
                     {
                         if (referencedVal >= iNTreeValues)
                         {
-                            std::cerr << "[StaticMapTree] Invalid tree element! ("
-                                << referencedVal << "/" << iNTreeValues << ")" << std::endl;
                             continue;
                         }
 
@@ -137,7 +121,6 @@ namespace VMAP
 
                 if (preloadAll)
                 {
-                    std::cout << "[StaticMapTree] VMAP_PRELOAD_ALL=1 detected, preloading all tiles..." << std::endl;
                     PreloadAllTiles(vm);
                 }
             }
@@ -158,8 +141,6 @@ namespace VMAP
         if (!iIsTiled)
             return true;
 
-        std::cout << "[StaticMapTree] Scanning for tiles to preload..." << std::endl;
-
         int tilesLoaded = 0;
         int tilesFailed = 0;
 
@@ -179,10 +160,6 @@ namespace VMAP
                 if (LoadMapTile(x, y, vm))
                 {
                     tilesLoaded++;
-                    if (tilesLoaded % 10 == 0)
-                    {
-                        std::cout << "[StaticMapTree] Loaded " << tilesLoaded << " tiles..." << std::endl;
-                    }
                 }
                 else
                 {
@@ -192,13 +169,6 @@ namespace VMAP
             }
         }
 
-        std::cout << "[StaticMapTree] Preload complete: " << tilesLoaded << " tiles loaded";
-        if (tilesFailed > 0)
-        {
-            std::cout << ", " << tilesFailed << " failed";
-        }
-        std::cout << std::endl;
-
         // Calculate memory usage
         size_t totalModels = 0;
         for (uint32_t i = 0; i < iNTreeValues; ++i)
@@ -206,10 +176,6 @@ namespace VMAP
             if (iTreeValues[i].iModel)
                 totalModels++;
         }
-
-        std::cout << "[StaticMapTree] " << totalModels << " of " << iNTreeValues
-            << " model slots populated ("
-            << (totalModels * 100 / iNTreeValues) << "%)" << std::endl;
 
         return tilesFailed == 0;
     }
@@ -252,7 +218,6 @@ namespace VMAP
             // Read VMAP magic
             if (!readChunk(rf, chunk, VMAP_MAGIC, 8))
             {
-                std::cerr << "[StaticMapTree] ERROR: Invalid tile file magic in " << tilefile << std::endl;
                 success = false;
             }
 
@@ -262,7 +227,6 @@ namespace VMAP
                 uint32_t numSpawns;
                 if (fread(&numSpawns, sizeof(uint32_t), 1, rf) != 1)
                 {
-                    std::cerr << "[StaticMapTree] ERROR: Failed to read spawn count" << std::endl;
                     success = false;
                 }
                 else
@@ -273,7 +237,6 @@ namespace VMAP
                         ModelSpawn spawn;
                         if (!ModelSpawn::readFromFile(rf, spawn))
                         {
-                            std::cerr << "[StaticMapTree] ERROR: Failed to read spawn " << i << std::endl;
                             success = false;
                             break;
                         }
@@ -282,7 +245,6 @@ namespace VMAP
                         uint32_t referencedVal;
                         if (fread(&referencedVal, sizeof(uint32_t), 1, rf) != 1)
                         {
-                            std::cerr << "[StaticMapTree] ERROR: Failed to read reference value" << std::endl;
                             success = false;
                             break;
                         }
@@ -290,8 +252,6 @@ namespace VMAP
                         // Check bounds
                         if (!iTreeValues || referencedVal >= iNTreeValues)
                         {
-                            std::cerr << "[StaticMapTree] ERROR: Invalid tree reference: " << referencedVal
-                                << " (max: " << iNTreeValues << ")" << std::endl;
                             continue;  // Skip this spawn but continue loading
                         }
 
@@ -306,11 +266,6 @@ namespace VMAP
                                 if (model)
                                 {
                                     model->setModelFlags(spawn.flags);
-                                }
-                                else
-                                {
-                                    std::cerr << "[StaticMapTree] Could not acquire WorldModel for '"
-                                        << spawn.name << "'!" << std::endl;
                                 }
                             }
 
@@ -444,28 +399,15 @@ namespace VMAP
         G3D::Ray ray(pos + G3D::Vector3(0, 0, maxSearchDist), G3D::Vector3(0, 0, -1));
         float distance = maxSearchDist * 2.0f;
 
-        // Enhanced diagnostics
-        std::cout << "[StaticMapTree::getHeight] Query at (" << pos.x << "," << pos.y << "," << pos.z << ")" << std::endl;
-        std::cout << "  Ray: Origin(" << ray.origin().x << "," << ray.origin().y << "," << ray.origin().z
-            << ") Dir(" << ray.direction().x << "," << ray.direction().y << "," << ray.direction().z << ")" << std::endl;
-        std::cout << "  Search distance: " << maxSearchDist << ", ray distance: " << distance << std::endl;
-        std::cout << "  Tree has " << iNTreeValues << " models" << std::endl;
-
         // Count loaded models
         int loadedCount = 0;
         for (uint32_t i = 0; i < iNTreeValues; ++i) {
             if (iTreeValues[i].iModel) loadedCount++;
         }
-        std::cout << "  Models loaded: " << loadedCount << "/" << iNTreeValues << std::endl;
 
         if (getIntersectionTime(ray, distance, true, false))
         {
             height = pos.z + maxSearchDist - distance;
-            std::cout << "[StaticMapTree] HIT! Distance=" << distance << " Height=" << height << std::endl;
-        }
-        else
-        {
-            std::cout << "[StaticMapTree] MISS - no intersection found" << std::endl;
         }
 
         return height;
@@ -645,13 +587,4 @@ namespace VMAP
 
         return hitModel;
     }
-
-#ifdef MMAP_GENERATOR
-    void StaticMapTree::getModelInstances(ModelInstance*& models, uint32_t& count)
-    {
-        models = iTreeValues;
-        count = iNTreeValues;
-    }
-#endif
-
 } // namespace VMAP

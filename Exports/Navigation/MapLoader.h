@@ -45,14 +45,6 @@ namespace MapFormat
     constexpr uint32_t MAP_LIQUID_NO_TYPE = 0x0001;
     constexpr uint32_t MAP_LIQUID_NO_HEIGHT = 0x0002;
 
-    // Liquid type flags
-    constexpr uint8_t MAP_LIQUID_TYPE_NO_WATER = 0x00;
-    constexpr uint8_t MAP_LIQUID_TYPE_MAGMA = 0x01;
-    constexpr uint8_t MAP_LIQUID_TYPE_OCEAN = 0x02;
-    constexpr uint8_t MAP_LIQUID_TYPE_SLIME = 0x04;
-    constexpr uint8_t MAP_LIQUID_TYPE_WATER = 0x08;
-    constexpr uint8_t MAP_LIQUID_TYPE_DEEP_WATER = 0x10;
-
 #pragma pack(push, 1)
     // Map file header (44 bytes)
     struct MapFileHeader
