@@ -10,6 +10,7 @@
 #include <fstream>
 #include <algorithm>
 #include <unordered_map>
+#include "VMapLog.h"
 
 namespace VMAP
 {
@@ -274,64 +275,92 @@ namespace VMAP
 
     void VMapManager2::initializeMap(uint32_t mapId)
     {
+        LOG_INFO("==================== VMapManager2::initializeMap START ====================");
+        LOG_INFO("Initializing map " << mapId);
+
         try
         {
             if (iLoadedMaps.count(mapId) > 0)
             {
+                LOG_DEBUG("Map already in loaded set");
+                LOG_INFO("==================== VMapManager2::initializeMap END (already loaded) ====================");
                 return;
             }
 
             std::string mapFileName = getMapFileName(mapId);
             std::string fullPath = iBasePath + mapFileName;
 
+            LOG_INFO("Looking for map file: " << mapFileName);
+            LOG_INFO("Full path: " << fullPath);
+
             if (!std::filesystem::exists(fullPath))
             {
+                LOG_WARN("Map file does not exist - map has no VMAP data");
+                LOG_INFO("==================== VMapManager2::initializeMap END (no file) ====================");
                 return;
             }
 
+            // Get file size
+            auto fileSize = std::filesystem::file_size(fullPath);
+            LOG_INFO("Map file size: " << fileSize << " bytes");
+
+            // Quick check if file is readable
             FILE* rf = fopen(fullPath.c_str(), "rb");
             if (!rf)
             {
+                LOG_ERROR("Cannot open map file! Error: " << strerror(errno));
+                LOG_INFO("==================== VMapManager2::initializeMap END (cannot open) ====================");
                 return;
             }
             fclose(rf);
+            LOG_DEBUG("Map file is readable");
 
             StaticMapTree* newTree = nullptr;
             try
             {
+                LOG_DEBUG("Creating StaticMapTree for map " << mapId);
                 newTree = new StaticMapTree(mapId, iBasePath);
 
+                LOG_DEBUG("Initializing tree from file...");
                 if (newTree->InitMap(mapFileName, this))
                 {
+                    LOG_INFO("Tree initialization successful");
+                    LOG_INFO("  Is tiled: " << (newTree->isTiled() ? "YES" : "NO"));
+
                     iInstanceMapTrees[mapId] = newTree;
                     iLoadedMaps.insert(mapId);
+
+                    LOG_INFO("Map " << mapId << " added to loaded maps set");
                 }
                 else
                 {
+                    LOG_ERROR("Tree initialization failed!");
                     delete newTree;
                 }
             }
             catch (const std::bad_alloc& e)
             {
+                LOG_ERROR("Bad allocation while initializing map " << mapId << ": " << e.what());
                 delete newTree;
-                std::cerr << "Bad allocation while initializing map " << mapId << ": " << e.what();
                 throw;
             }
             catch (const std::exception& e)
             {
+                LOG_ERROR("Exception while initializing map " << mapId << ": " << e.what());
                 delete newTree;
-                std::cerr << "Exception while initializing map " << mapId << ": " << e.what();
             }
         }
         catch (const std::bad_alloc& e)
         {
-            std::cerr << "Memory allocation failed for map " << mapId;
+            LOG_ERROR("Memory allocation failed for map " << mapId << ": " << e.what());
             throw;
         }
         catch (const std::exception& e)
         {
-            std::cerr << "Failed to initialize map " << mapId << ": " << e.what();
+            LOG_ERROR("Failed to initialize map " << mapId << ": " << e.what());
         }
+
+        LOG_INFO("==================== VMapManager2::initializeMap END ====================");
     }
 
     bool VMapManager2::isUnderModel(unsigned int pMapId, float x, float y, float z,
@@ -395,94 +424,218 @@ namespace VMAP
 
     VMAPLoadResult VMapManager2::loadMap(const char* pBasePath, unsigned int pMapId, int x, int y)
     {
+        LOG_INFO("==================== VMapManager2::loadMap START ====================");
+        LOG_INFO("loadMap called - Map:" << pMapId << " Tile:[" << x << "," << y << "]");
+        LOG_INFO("Base path provided: " << (pBasePath ? pBasePath : "NULL"));
+
         try
         {
+            // Update base path if provided
             if (pBasePath && strlen(pBasePath) > 0)
             {
+                std::string oldPath = iBasePath;
                 iBasePath = pBasePath;
                 if (!iBasePath.empty() && iBasePath.back() != '/' && iBasePath.back() != '\\')
                     iBasePath += "/";
-                BuildCompleteModelMapping(iBasePath);
+
+                LOG_INFO("Base path updated from: " << oldPath << " to: " << iBasePath);
+
+                // Rebuild model mapping if path changed
+                if (oldPath != iBasePath)
+                {
+                    LOG_DEBUG("Path changed - rebuilding model mapping");
+                    BuildCompleteModelMapping(iBasePath);
+                }
             }
 
+            LOG_INFO("Current base path: " << iBasePath);
+
+            // Check if base path exists
             if (!std::filesystem::exists(iBasePath))
             {
-                std::cerr << "Base path does not exist: " << iBasePath;
+                LOG_ERROR("Base path does not exist: " << iBasePath);
+                LOG_INFO("==================== VMapManager2::loadMap END (ERROR) ====================");
                 return VMAP_LOAD_RESULT_ERROR;
             }
 
+            // Check if map is initialized
+            LOG_DEBUG("Checking if map " << pMapId << " is initialized...");
             if (!isMapInitialized(pMapId))
             {
+                LOG_INFO("Map " << pMapId << " not initialized - attempting to initialize");
+
                 try
                 {
                     initializeMap(pMapId);
+
+                    if (isMapInitialized(pMapId))
+                    {
+                        LOG_INFO("Map initialization successful");
+                    }
+                    else
+                    {
+                        LOG_WARN("Map initialization completed but map still not marked as initialized");
+                    }
                 }
                 catch (const std::bad_alloc& e)
                 {
-                    std::cerr << "Failed to initialize map due to memory allocation failure";
+                    LOG_ERROR("Failed to initialize map due to memory allocation failure: " << e.what());
+                    LOG_INFO("==================== VMapManager2::loadMap END (ERROR) ====================");
+                    return VMAP_LOAD_RESULT_ERROR;
+                }
+                catch (const std::exception& e)
+                {
+                    LOG_ERROR("Failed to initialize map: " << e.what());
+                    LOG_INFO("==================== VMapManager2::loadMap END (ERROR) ====================");
                     return VMAP_LOAD_RESULT_ERROR;
                 }
             }
+            else
+            {
+                LOG_DEBUG("Map " << pMapId << " already initialized");
+            }
 
+            // Final check
             if (!isMapInitialized(pMapId))
             {
+                LOG_WARN("Map " << pMapId << " could not be initialized - no vmtree file?");
+                LOG_INFO("==================== VMapManager2::loadMap END (IGNORED) ====================");
                 return VMAP_LOAD_RESULT_IGNORED;
             }
 
+            // Call internal load function
+            LOG_INFO("Calling _loadMap for actual tile loading...");
             bool result = _loadMap(pMapId, iBasePath, x, y);
 
-            return result ? VMAP_LOAD_RESULT_OK : VMAP_LOAD_RESULT_ERROR;
+            VMAPLoadResult loadResult = result ? VMAP_LOAD_RESULT_OK : VMAP_LOAD_RESULT_ERROR;
+
+            LOG_INFO("Tile load result: " << (result ? "SUCCESS" : "FAILED"));
+            LOG_INFO("==================== VMapManager2::loadMap END ("
+                << (loadResult == VMAP_LOAD_RESULT_OK ? "OK" :
+                    loadResult == VMAP_LOAD_RESULT_ERROR ? "ERROR" : "IGNORED")
+                << ") ====================");
+
+            return loadResult;
         }
         catch (const std::exception& e)
         {
-            std::cerr << "Exception in loadMap: " << e.what();
+            LOG_ERROR("Exception in loadMap: " << e.what());
+            LOG_INFO("==================== VMapManager2::loadMap END (EXCEPTION) ====================");
+            return VMAP_LOAD_RESULT_ERROR;
+        }
+        catch (...)
+        {
+            LOG_ERROR("Unknown exception in loadMap");
+            LOG_INFO("==================== VMapManager2::loadMap END (EXCEPTION) ====================");
             return VMAP_LOAD_RESULT_ERROR;
         }
     }
 
     bool VMapManager2::_loadMap(uint32_t pMapId, const std::string& basePath, uint32_t tileX, uint32_t tileY)
     {
+        LOG_INFO("==================== VMapManager2::_loadMap START ====================");
+        LOG_INFO("_loadMap called - Map:" << pMapId << " Tile:[" << tileX << "," << tileY << "]");
+        LOG_INFO("Base path: " << basePath);
+
         try
         {
+            // Find or create the map tree
             auto instanceTree = iInstanceMapTrees.find(pMapId);
 
             if (instanceTree == iInstanceMapTrees.end())
             {
+                LOG_INFO("Map tree not found in cache - creating new tree");
+
                 std::string mapFileName = getMapFileName(pMapId);
                 std::string fullPath = basePath + mapFileName;
 
-                if (!std::filesystem::exists(fullPath))
+                LOG_INFO("Map tree file: " << mapFileName);
+                LOG_INFO("Full path: " << fullPath);
+
+                // Check if file exists
+                bool fileExists = std::filesystem::exists(fullPath);
+                LOG_INFO("File exists: " << (fileExists ? "YES" : "NO"));
+
+                if (!fileExists)
                 {
+                    LOG_ERROR("Map tree file does not exist!");
+                    LOG_INFO("==================== VMapManager2::_loadMap END (no file) ====================");
                     return false;
                 }
+
+                // Get file size
+                auto fileSize = std::filesystem::file_size(fullPath);
+                LOG_INFO("File size: " << fileSize << " bytes");
 
                 StaticMapTree* newTree = nullptr;
                 try
                 {
+                    LOG_DEBUG("Creating new StaticMapTree instance...");
                     newTree = new StaticMapTree(pMapId, basePath);
 
+                    LOG_DEBUG("Initializing map tree from file...");
                     if (!newTree->InitMap(mapFileName, this))
                     {
+                        LOG_ERROR("Failed to initialize map tree!");
                         delete newTree;
+                        LOG_INFO("==================== VMapManager2::_loadMap END (init failed) ====================");
                         return false;
                     }
 
+                    LOG_INFO("Map tree initialized successfully");
+                    LOG_INFO("Tree is tiled: " << (newTree->isTiled() ? "YES" : "NO"));
+                    LOG_INFO("Number of loaded tiles: " << newTree->numLoadedTiles());
+
+                    // Store in cache
                     iInstanceMapTrees[pMapId] = newTree;
                     instanceTree = iInstanceMapTrees.find(pMapId);
+
+                    LOG_DEBUG("Map tree stored in cache");
                 }
                 catch (const std::bad_alloc& e)
                 {
+                    LOG_ERROR("Memory allocation failed while creating map tree: " << e.what());
                     delete newTree;
-                    std::cerr << "Memory allocation failed while loading map " << pMapId;
                     throw;
                 }
+                catch (const std::exception& e)
+                {
+                    LOG_ERROR("Exception while creating map tree: " << e.what());
+                    delete newTree;
+                    LOG_INFO("==================== VMapManager2::_loadMap END (exception) ====================");
+                    return false;
+                }
+            }
+            else
+            {
+                LOG_DEBUG("Map tree found in cache");
+                LOG_DEBUG("Tree is tiled: " << (instanceTree->second->isTiled() ? "YES" : "NO"));
+                LOG_DEBUG("Number of loaded tiles: " << instanceTree->second->numLoadedTiles());
             }
 
-            return instanceTree->second->LoadMapTile(tileX, tileY, this);
+            // Now load the specific tile
+            LOG_INFO("Calling LoadMapTile on StaticMapTree...");
+            bool tileLoadResult = instanceTree->second->LoadMapTile(tileX, tileY, this);
+
+            LOG_INFO("LoadMapTile returned: " << (tileLoadResult ? "SUCCESS" : "FAILED"));
+
+            // Report final statistics
+            LOG_INFO("Final tree statistics:");
+            LOG_INFO("  Tiles loaded: " << instanceTree->second->numLoadedTiles());
+
+            LOG_INFO("==================== VMapManager2::_loadMap END (result=" << tileLoadResult << ") ====================");
+            return tileLoadResult;
         }
         catch (const std::exception& e)
         {
-            std::cerr << "Exception in _loadMap: " << e.what();
+            LOG_ERROR("Exception in _loadMap: " << e.what());
+            LOG_INFO("==================== VMapManager2::_loadMap END (exception) ====================");
+            return false;
+        }
+        catch (...)
+        {
+            LOG_ERROR("Unknown exception in _loadMap");
+            LOG_INFO("==================== VMapManager2::_loadMap END (exception) ====================");
             return false;
         }
     }
@@ -512,18 +665,39 @@ namespace VMAP
     bool VMapManager2::isInLineOfSight(unsigned int pMapId, float x1, float y1, float z1,
         float x2, float y2, float z2, bool ignoreM2Model)
     {
+        LOG_TRACE("VMapManager2::isInLineOfSight ENTER - Map:" << pMapId
+            << " From:(" << x1 << "," << y1 << "," << z1 << ")"
+            << " To:(" << x2 << "," << y2 << "," << z2 << ")"
+            << " IgnoreM2:" << ignoreM2Model);
+
         if (!isLineOfSightCalcEnabled())
+        {
+            LOG_DEBUG("Line of sight calculation disabled globally");
             return true;
+        }
 
         auto instanceTree = iInstanceMapTrees.find(pMapId);
         if (instanceTree != iInstanceMapTrees.end())
         {
+            LOG_DEBUG("Found map tree for LOS check");
+
             G3D::Vector3 pos1 = convertPositionToInternalRep(x1, y1, z1);
             G3D::Vector3 pos2 = convertPositionToInternalRep(x2, y2, z2);
 
-            return instanceTree->second->isInLineOfSight(pos1, pos2, ignoreM2Model);
+            LOG_VECTOR3("Internal pos1", pos1);
+            LOG_VECTOR3("Internal pos2", pos2);
+
+            bool result = instanceTree->second->isInLineOfSight(pos1, pos2, ignoreM2Model);
+
+            LOG_INFO("LOS check result: " << (result ? "CLEAR" : "BLOCKED"));
+            return result;
+        }
+        else
+        {
+            LOG_WARN("No map tree for LOS check - defaulting to clear");
         }
 
+        LOG_TRACE("VMapManager2::isInLineOfSight EXIT - Default true");
         return true;
     }
 
@@ -546,6 +720,11 @@ namespace VMAP
         float x2, float y2, float z2,
         float& rx, float& ry, float& rz, float pModifyDist)
     {
+        LOG_TRACE("VMapManager2::getObjectHitPos ENTER - Map:" << pMapId
+            << " Ray from:(" << x1 << "," << y1 << "," << z1 << ")"
+            << " to:(" << x2 << "," << y2 << "," << z2 << ")"
+            << " ModifyDist:" << pModifyDist);
+
         auto instanceTree = iInstanceMapTrees.find(pMapId);
         if (instanceTree != iInstanceMapTrees.end())
         {
@@ -553,74 +732,140 @@ namespace VMAP
             G3D::Vector3 pos2 = convertPositionToInternalRep(x2, y2, z2);
             G3D::Vector3 resultPos;
 
+            LOG_VECTOR3("Internal start", pos1);
+            LOG_VECTOR3("Internal end", pos2);
+
             bool result = instanceTree->second->getObjectHitPos(pos1, pos2, resultPos, pModifyDist);
 
             if (result)
             {
+                // Convert back to world coordinates
                 float const mid = 0.5f * 64.0f * 533.33333333f;
                 rx = mid - resultPos.x;
                 ry = mid - resultPos.y;
                 rz = resultPos.z;
+
+                LOG_INFO("Hit found at world pos: (" << rx << "," << ry << "," << rz << ")");
+                LOG_VECTOR3("Hit internal pos", resultPos);
                 return true;
             }
+            else
+            {
+                LOG_DEBUG("No hit detected along ray");
+            }
+        }
+        else
+        {
+            LOG_WARN("No map tree for collision check");
         }
 
+        LOG_TRACE("VMapManager2::getObjectHitPos EXIT - No hit");
         return false;
     }
 
     float VMapManager2::getHeight(unsigned int pMapId, float x, float y, float z, float maxSearchDist)
     {
+        LOG_TRACE("VMapManager2::getHeight ENTER - Map:" << pMapId
+            << " Pos:(" << x << "," << y << "," << z << ")"
+            << " MaxSearch:" << maxSearchDist);
+
         if (!isHeightCalcEnabled())
+        {
+            LOG_DEBUG("Height calculation disabled globally");
             return VMAP_INVALID_HEIGHT_VALUE;
+        }
 
         auto instanceTree = iInstanceMapTrees.find(pMapId);
         if (instanceTree != iInstanceMapTrees.end())
         {
-            G3D::Vector3 pos = convertPositionToInternalRep(x, y, z);
+            LOG_DEBUG("Found map tree for map " << pMapId);
 
+            // Convert to internal coordinates
+            G3D::Vector3 pos = convertPositionToInternalRep(x, y, z);
+            LOG_VECTOR3("Internal position", pos);
+
+            // Query the static map tree
             float height = instanceTree->second->getHeight(pos, maxSearchDist);
 
             if (height > -G3D::inf() && height < G3D::inf())
+            {
+                LOG_INFO("Found height: " << height << " at (" << x << "," << y << "," << z << ")");
                 return height;
+            }
+            else
+            {
+                LOG_DEBUG("No valid height found (inf/-inf result)");
+            }
+        }
+        else
+        {
+            LOG_WARN("No map tree loaded for map " << pMapId);
         }
 
+        LOG_TRACE("VMapManager2::getHeight EXIT - Returning INVALID");
         return VMAP_INVALID_HEIGHT_VALUE;
     }
 
     bool VMapManager2::getAreaInfo(unsigned int pMapId, float x, float y, float& z,
         uint32_t& flags, int32_t& adtId, int32_t& rootId, int32_t& groupId) const
     {
+        LOG_TRACE("VMapManager2::getAreaInfo ENTER - Map:" << pMapId
+            << " Pos:(" << x << "," << y << "," << z << ")");
+
         auto instanceTree = iInstanceMapTrees.find(pMapId);
         if (instanceTree != iInstanceMapTrees.end())
         {
             G3D::Vector3 pos = convertPositionToInternalRep(x, y, z);
+            LOG_VECTOR3("Internal position", pos);
+
             bool result = instanceTree->second->getAreaInfo(pos, flags, adtId, rootId, groupId);
 
             if (result)
             {
                 z = pos.z;
+                LOG_INFO("Area info found - Flags:" << std::hex << flags << std::dec
+                    << " AdtId:" << adtId << " RootId:" << rootId
+                    << " GroupId:" << groupId << " NewZ:" << z);
                 return true;
             }
+            else
+            {
+                LOG_DEBUG("No area info at position");
+            }
+        }
+        else
+        {
+            LOG_WARN("No map tree for area info query");
         }
 
         flags = 0;
         adtId = -1;
         rootId = -1;
         groupId = -1;
+
+        LOG_TRACE("VMapManager2::getAreaInfo EXIT - Not found");
         return false;
     }
 
     bool VMapManager2::GetLiquidLevel(uint32_t pMapId, float x, float y, float z,
         uint8_t ReqLiquidTypeMask, float& level, float& floor, uint32_t& type) const
     {
+        LOG_TRACE("VMapManager2::GetLiquidLevel ENTER - Map:" << pMapId
+            << " Pos:(" << x << "," << y << "," << z << ")"
+            << " ReqMask:" << std::hex << (int)ReqLiquidTypeMask << std::dec);
+
         auto instanceTree = iInstanceMapTrees.find(pMapId);
         if (instanceTree != iInstanceMapTrees.end())
         {
             G3D::Vector3 pos = convertPositionToInternalRep(x, y, z);
             LocationInfo info;
 
+            LOG_VECTOR3("Internal position", pos);
+
             if (instanceTree->second->GetLocationInfo(pos, info))
             {
+                LOG_DEBUG("Got location info - HitModel:" << (info.hitModel ? "YES" : "NO"));
+
                 if (info.hitModel)
                 {
                     float liqHeight;
@@ -629,18 +874,34 @@ namespace VMAP
                         uint32_t liquidType = info.hitModel->GetLiquidType();
                         uint32_t liquidMask = GetLiquidMask(liquidType);
 
+                        LOG_DEBUG("Liquid found - Type:" << liquidType
+                            << " Mask:" << std::hex << liquidMask << std::dec
+                            << " Height:" << liqHeight);
+
                         if (ReqLiquidTypeMask & liquidMask)
                         {
                             level = liqHeight;
                             floor = info.ground_Z;
                             type = liquidType;
+
+                            LOG_INFO("Liquid match - Level:" << level
+                                << " Floor:" << floor << " Type:" << type);
                             return true;
+                        }
+                        else
+                        {
+                            LOG_DEBUG("Liquid type doesn't match requested mask");
                         }
                     }
                 }
             }
         }
+        else
+        {
+            LOG_WARN("No map tree for liquid query");
+        }
 
+        LOG_TRACE("VMapManager2::GetLiquidLevel EXIT - Not found");
         return false;
     }
 

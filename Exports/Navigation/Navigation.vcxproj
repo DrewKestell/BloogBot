@@ -250,6 +250,7 @@
     <ClInclude Include="VMapClient.h" />
     <ClInclude Include="VMapDefinitions.h" />
     <ClInclude Include="VMapFactory.h" />
+    <ClInclude Include="VMapLog.h" />
     <ClInclude Include="VMapManager2.h" />
     <ClInclude Include="WorldModel.h" />
   </ItemGroup>

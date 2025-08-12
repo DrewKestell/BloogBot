@@ -5,6 +5,7 @@
 #include <cstring>
 #include <iostream>
 #include <iomanip>
+#include "VMapLog.h"
 
 namespace VMAP
 {
@@ -208,31 +209,58 @@ namespace VMAP
 
     bool GroupModel::IntersectRay(const G3D::Ray& ray, float& distance, bool stopAtFirstHit) const
     {
-        if (triangles.empty())
-            return false;
+        LOG_TRACE("GroupModel::IntersectRay ENTER"
+            << " GroupWMOID:" << iGroupWMOID
+            << " Distance:" << distance
+            << " StopAtFirst:" << stopAtFirstHit);
 
+        if (triangles.empty())
+        {
+            LOG_DEBUG("No triangles in group model");
+            return false;
+        }
+
+        // Check bounding box first
         float time = ray.intersectionTime(iBound);
         if (time == G3D::inf())
+        {
+            LOG_DEBUG("Ray misses group bounds");
+            LOG_BOUNDS("Group bounds", iBound);
             return false;
+        }
 
-        auto callback = [this](const G3D::Ray& r, uint32_t triIdx, float& dist,
+        LOG_DEBUG("Ray hits bounds at time " << time);
+        LOG_DEBUG("Group has " << triangles.size() << " triangles, " << vertices.size() << " vertices");
+
+        int trianglesTested = 0;
+        int trianglesHit = 0;
+
+        auto callback = [this, &trianglesTested, &trianglesHit](const G3D::Ray& r, uint32_t triIdx, float& dist,
             bool stopAtFirst, bool ignoreM2) -> bool
             {
                 if (triIdx >= triangles.size())
+                {
+                    LOG_ERROR("Invalid triangle index: " << triIdx << " (max:" << triangles.size() << ")");
                     return false;
+                }
+
+                trianglesTested++;
 
                 const MeshTriangle& tri = triangles[triIdx];
                 const G3D::Vector3& v0 = vertices[tri.idx0];
                 const G3D::Vector3& v1 = vertices[tri.idx1];
                 const G3D::Vector3& v2 = vertices[tri.idx2];
 
+                // Ray-triangle intersection (Möller-Trumbore algorithm)
                 G3D::Vector3 edge1 = v1 - v0;
                 G3D::Vector3 edge2 = v2 - v0;
                 G3D::Vector3 h = r.direction().cross(edge2);
                 float a = edge1.dot(h);
 
                 if (std::abs(a) < 0.00001f)
-                    return false;
+                {
+                    return false; // Ray parallel to triangle
+                }
 
                 float f = 1.0f / a;
                 G3D::Vector3 s = r.origin() - v0;
@@ -251,7 +279,12 @@ namespace VMAP
 
                 if (t > 0.00001f && t < dist)
                 {
+                    trianglesHit++;
                     dist = t;
+
+                    LOG_DEBUG("Triangle " << triIdx << " HIT at distance " << t
+                        << " Verts: (" << tri.idx0 << "," << tri.idx1 << "," << tri.idx2 << ")");
+
                     return true;
                 }
 
@@ -259,15 +292,48 @@ namespace VMAP
             };
 
         float oldDist = distance;
+
+        LOG_DEBUG("Starting mesh BIH traversal");
+
         meshTree.intersectRay(ray, callback, distance, stopAtFirstHit, false);
 
-        return distance < oldDist;
+        bool hasHit = distance < oldDist;
+
+        LOG_INFO("GroupModel ray test - TrianglesTested:" << trianglesTested
+            << " TrianglesHit:" << trianglesHit
+            << " InitialDist:" << oldDist
+            << " FinalDist:" << distance
+            << " HasHit:" << hasHit);
+
+        LOG_TRACE("GroupModel::IntersectRay EXIT - Hit:" << hasHit);
+        return hasHit;
     }
+
 
     bool GroupModel::GetLiquidLevel(const G3D::Vector3& pos, float& liqHeight) const
     {
+        LOG_TRACE("GroupModel::GetLiquidLevel ENTER"
+            << " GroupWMOID:" << iGroupWMOID
+            << " Pos:(" << pos.x << "," << pos.y << "," << pos.z << ")");
+
         if (iLiquid)
-            return iLiquid->GetLiquidHeight(pos, liqHeight);
+        {
+            bool result = iLiquid->GetLiquidHeight(pos, liqHeight);
+
+            if (result)
+            {
+                LOG_INFO("Liquid found at height " << liqHeight);
+            }
+            else
+            {
+                LOG_DEBUG("No liquid at position");
+            }
+
+            return result;
+        }
+
+        LOG_DEBUG("No liquid data in group");
+        LOG_TRACE("GroupModel::GetLiquidLevel EXIT - No liquid");
         return false;
     }
 
@@ -454,29 +520,72 @@ namespace VMAP
 
     bool WorldModel::IntersectRay(const G3D::Ray& ray, float& distance, bool stopAtFirstHit, bool ignoreM2Model) const
     {
+        LOG_TRACE("WorldModel::IntersectRay ENTER"
+            << " RootWMOID:" << RootWMOID
+            << " Distance:" << distance
+            << " StopAtFirst:" << stopAtFirstHit
+            << " IgnoreM2:" << ignoreM2Model);
+
+        LOG_RAY("Input ray", ray);
+        LOG_DEBUG("Model flags: 0x" << std::hex << modelFlags << std::dec
+            << " IsM2:" << ((modelFlags & MOD_M2) ? "YES" : "NO"));
+
         if (ignoreM2Model && (modelFlags & MOD_M2))
         {
+            LOG_DEBUG("Ignoring M2 model as requested");
             return false;
         }
 
         if (groupModels.empty())
         {
+            LOG_DEBUG("No group models to test");
             return false;
         }
 
-        auto callback = [this](const G3D::Ray& r, uint32_t groupIdx,
+        LOG_DEBUG("Testing " << groupModels.size() << " group models");
+
+        int groupsTested = 0;
+        int groupsHit = 0;
+
+        auto callback = [this, &groupsTested, &groupsHit](const G3D::Ray& r, uint32_t groupIdx,
             float& dist, bool stopAtFirst, bool ignoreM2) -> bool
             {
                 if (groupIdx >= groupModels.size())
+                {
+                    LOG_ERROR("Invalid group index: " << groupIdx << " (max:" << groupModels.size() << ")");
                     return false;
+                }
 
-                return groupModels[groupIdx].IntersectRay(r, dist, stopAtFirst);
+                groupsTested++;
+                float oldDist = dist;
+                bool hit = groupModels[groupIdx].IntersectRay(r, dist, stopAtFirst);
+
+                if (hit)
+                {
+                    groupsHit++;
+                    LOG_DEBUG("Group " << groupIdx << " HIT at distance " << dist
+                        << " (was " << oldDist << ")");
+                }
+
+                return hit;
             };
 
         float oldDist = distance;
+
+        LOG_DEBUG("Starting BIH tree traversal for groups");
+
         groupTree.intersectRay(ray, callback, distance, stopAtFirstHit, ignoreM2Model);
 
-        return distance < oldDist;
+        bool hasHit = distance < oldDist;
+
+        LOG_INFO("WorldModel ray test - GroupsTested:" << groupsTested
+            << " GroupsHit:" << groupsHit
+            << " InitialDist:" << oldDist
+            << " FinalDist:" << distance
+            << " HasHit:" << hasHit);
+
+        LOG_TRACE("WorldModel::IntersectRay EXIT - Hit:" << hasHit);
+        return hasHit;
     }
 
     bool WorldModel::writeFile(const std::string& filename)
@@ -631,19 +740,36 @@ namespace VMAP
 
     bool WorldModel::IntersectPoint(const G3D::Vector3& p, const G3D::Vector3& down, float& dist, AreaInfo& info) const
     {
+        LOG_TRACE("WorldModel::IntersectPoint ENTER"
+            << " RootWMOID:" << RootWMOID
+            << " Point:(" << p.x << "," << p.y << "," << p.z << ")"
+            << " Down:(" << down.x << "," << down.y << "," << down.z << ")"
+            << " MaxDist:" << dist);
+
         if (groupModels.empty())
+        {
+            LOG_DEBUG("No group models for intersection");
             return false;
+        }
 
         G3D::Ray ray(p, down);
+        LOG_RAY("Intersection ray", ray);
 
         bool hit = false;
         float minDist = dist;
+        int groupsTested = 0;
+        int groupsHit = 0;
 
         for (size_t i = 0; i < groupModels.size(); ++i)
         {
+            groupsTested++;
             float groupDist = dist;
+
             if (groupModels[i].IntersectRay(ray, groupDist, false))
             {
+                groupsHit++;
+                LOG_DEBUG("Group " << i << " intersects at distance " << groupDist);
+
                 if (groupDist < minDist)
                 {
                     minDist = groupDist;
@@ -653,13 +779,29 @@ namespace VMAP
                     info.rootId = RootWMOID;
                     info.groupId = groupModels[i].GetWmoID();
                     hit = true;
+
+                    LOG_INFO("New closest hit - Group:" << i
+                        << " Distance:" << groupDist
+                        << " GroundZ:" << info.ground_Z
+                        << " Flags:" << std::hex << info.flags << std::dec);
                 }
             }
         }
 
         if (hit)
+        {
             dist = minDist;
+            LOG_INFO("Final intersection - Distance:" << dist
+                << " GroundZ:" << info.ground_Z
+                << " Groups tested:" << groupsTested
+                << " Groups hit:" << groupsHit);
+        }
+        else
+        {
+            LOG_DEBUG("No intersection found after testing " << groupsTested << " groups");
+        }
 
+        LOG_TRACE("WorldModel::IntersectPoint EXIT - Hit:" << hit);
         return hit;
     }
 
@@ -702,32 +844,63 @@ namespace VMAP
     bool WorldModel::GetLocationInfo(const G3D::Vector3& p, const G3D::Vector3& down, float& dist,
         GroupLocationInfo& info) const
     {
+        LOG_TRACE("WorldModel::GetLocationInfo ENTER"
+            << " RootWMOID:" << RootWMOID
+            << " Point:(" << p.x << "," << p.y << "," << p.z << ")"
+            << " MaxDist:" << dist);
+
         if (groupModels.empty())
+        {
+            LOG_DEBUG("No group models for location info");
             return false;
+        }
 
         G3D::Ray ray(p, down);
+        LOG_RAY("Location ray", ray);
 
         bool hit = false;
         float minDist = dist;
+        int groupsTested = 0;
+        int groupsHit = 0;
 
         for (size_t i = 0; i < groupModels.size(); ++i)
         {
+            groupsTested++;
             float groupDist = dist;
+
             if (groupModels[i].IntersectRay(ray, groupDist, false))
             {
+                groupsHit++;
+                LOG_DEBUG("Group " << i << " has location at distance " << groupDist);
+
                 if (groupDist < minDist)
                 {
                     minDist = groupDist;
                     info.hitModel = &groupModels[i];
                     info.rootId = RootWMOID;
                     hit = true;
+
+                    LOG_INFO("New location found - Group:" << i
+                        << " Distance:" << groupDist
+                        << " RootId:" << info.rootId);
                 }
             }
         }
 
         if (hit)
+        {
             dist = minDist;
+            LOG_INFO("Final location - Distance:" << dist
+                << " RootId:" << info.rootId
+                << " Groups tested:" << groupsTested
+                << " Groups hit:" << groupsHit);
+        }
+        else
+        {
+            LOG_DEBUG("No location found after testing " << groupsTested << " groups");
+        }
 
+        LOG_TRACE("WorldModel::GetLocationInfo EXIT - Hit:" << hit);
         return hit;
     }
 

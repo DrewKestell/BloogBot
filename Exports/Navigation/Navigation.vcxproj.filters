@@ -135,6 +135,9 @@
     <ClInclude Include="PhysicsMath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="VMapLog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

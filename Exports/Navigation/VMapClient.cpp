@@ -4,6 +4,7 @@
 #include "VMapManager2.h"
 #include <iostream>
 #include <filesystem>
+#include "VMapLog.h"
 
 VMapClient::VMapClient(const std::string& dataPath)
     : vmapPath(dataPath), initialized(false), vmapManager(nullptr)
@@ -84,50 +85,101 @@ void VMapClient::initialize()
 
 void VMapClient::preloadMap(uint32_t mapId)
 {
+    LOG_INFO("==================== VMapClient::preloadMap START ====================");
+    LOG_INFO("Preloading map " << mapId);
+    LOG_INFO("VMapClient initialized: " << (initialized ? "YES" : "NO"));
+    LOG_INFO("VMapManager exists: " << (vmapManager ? "YES" : "NO"));
+    LOG_INFO("VMAP path: " << vmapPath);
+
     if (!vmapManager)
     {
+        LOG_ERROR("No VMapManager available!");
+        LOG_INFO("==================== VMapClient::preloadMap END (no manager) ====================");
         return;
     }
 
     try
     {
-        // Don't force initialization if the map file doesn't exist
+        // Check if map file exists
         std::string mapFile = vmapPath;
         char filename[256];
         snprintf(filename, sizeof(filename), "%03u.vmtree", mapId);
         mapFile += filename;
 
+        LOG_DEBUG("Checking for map file: " << mapFile);
+
         if (!std::filesystem::exists(mapFile))
         {
+            LOG_WARN("Map file does not exist: " << mapFile);
+            LOG_INFO("==================== VMapClient::preloadMap END (no file) ====================");
             return;
         }
 
+        LOG_INFO("Map file exists - size: " << std::filesystem::file_size(mapFile) << " bytes");
+
+        LOG_DEBUG("Calling VMapFactory::initializeMapForContinent...");
         VMAP::VMapFactory::initializeMapForContinent(mapId);
+        LOG_INFO("Map initialization call completed");
     }
     catch (const std::exception& e)
     {
-        std::cerr << "[VMapClient] Exception preloading map " << mapId << ": " << e.what() << std::endl;
+        LOG_ERROR("Exception preloading map " << mapId << ": " << e.what());
     }
     catch (...)
     {
-        std::cerr << "[VMapClient] Unknown exception preloading map " << mapId << std::endl;
+        LOG_ERROR("Unknown exception preloading map " << mapId);
     }
+
+    LOG_INFO("==================== VMapClient::preloadMap END ====================");
 }
 
 bool VMapClient::loadMapTile(uint32_t mapId, int x, int y)
 {
+    LOG_INFO("==================== VMapClient::loadMapTile START ====================");
+    LOG_INFO("Loading tile - Map:" << mapId << " Tile:[" << x << "," << y << "]");
+
     if (!vmapManager)
     {
+        LOG_ERROR("No VMapManager available!");
+        LOG_INFO("==================== VMapClient::loadMapTile END (no manager) ====================");
         return false;
     }
 
     // Ensure map is initialized
     if (!vmapManager->isMapInitialized(mapId))
     {
+        LOG_INFO("Map " << mapId << " not initialized - calling preloadMap");
         preloadMap(mapId);
+
+        if (!vmapManager->isMapInitialized(mapId))
+        {
+            LOG_WARN("Map still not initialized after preload attempt");
+        }
+    }
+    else
+    {
+        LOG_DEBUG("Map " << mapId << " already initialized");
     }
 
+    LOG_DEBUG("Calling VMapManager::loadMap...");
     VMAP::VMAPLoadResult result = vmapManager->loadMap(vmapPath.c_str(), mapId, x, y);
+
+    switch (result)
+    {
+    case VMAP::VMAP_LOAD_RESULT_OK:
+        LOG_INFO("Tile loaded successfully");
+        break;
+    case VMAP::VMAP_LOAD_RESULT_ERROR:
+        LOG_ERROR("Error loading tile");
+        break;
+    case VMAP::VMAP_LOAD_RESULT_IGNORED:
+        LOG_WARN("Tile load ignored");
+        break;
+    default:
+        LOG_WARN("Unknown load result: " << (int)result);
+    }
+
+    LOG_INFO("==================== VMapClient::loadMapTile END (result=" << (int)result << ") ====================");
     return result == VMAP::VMAP_LOAD_RESULT_OK;
 }
 
@@ -145,10 +197,45 @@ void VMapClient::unloadMap(uint32_t mapId)
 
 float VMapClient::getGroundHeight(uint32_t mapId, float x, float y, float z, float searchDistance)
 {
-    if (!vmapManager)
-        return VMAP::VMAP_INVALID_HEIGHT_VALUE;
+    LOG_TRACE("VMapClient::getGroundHeight - Map:" << mapId
+        << " Pos:(" << x << "," << y << "," << z << ")"
+        << " SearchDist:" << searchDistance);
 
-    return vmapManager->getHeight(mapId, x, y, z, searchDistance);
+    if (!vmapManager)
+    {
+        LOG_ERROR("No VMapManager in getGroundHeight!");
+        return VMAP::VMAP_INVALID_HEIGHT_VALUE;
+    }
+
+    // IMPORTANT: Try to load the tile at this position!
+    // Calculate which tile contains this position
+    const float GRID_SIZE = 533.33333f;
+    const float MID = 32.0f * GRID_SIZE;
+
+    int tileX = (int)((MID - y) / GRID_SIZE);
+    int tileY = (int)((MID - x) / GRID_SIZE);
+
+    LOG_INFO("Position (" << x << "," << y << ") maps to tile [" << tileX << "," << tileY << "]");
+    LOG_INFO("Attempting to load tile before height query...");
+
+    // Try to load the tile
+    bool tileLoaded = loadMapTile(mapId, tileX, tileY);
+    LOG_INFO("Tile load attempt result: " << (tileLoaded ? "SUCCESS" : "FAILED"));
+
+    // Now query the height
+    LOG_DEBUG("Querying VMAP height...");
+    float height = vmapManager->getHeight(mapId, x, y, z, searchDistance);
+
+    if (height > VMAP::VMAP_INVALID_HEIGHT_VALUE)
+    {
+        LOG_INFO("VMAP height found: " << height);
+    }
+    else
+    {
+        LOG_DEBUG("No VMAP height found");
+    }
+
+    return height;
 }
 
 bool VMapClient::isLineOfSight(uint32_t mapId,

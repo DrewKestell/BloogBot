@@ -15,6 +15,7 @@
 #include <cstring>
 #include <filesystem>
 #include "PhysicsMath.h"
+#include "VMapLog.h"
 
 using namespace PhysicsConstants;
 using namespace PhysicsMath;
@@ -140,72 +141,103 @@ void PhysicsEngine::Shutdown()
 // Ensure map is loaded only once per map change
 void PhysicsEngine::EnsureMapLoaded(uint32_t mapId)
 {
+    LOG_INFO("==================== EnsureMapLoaded START ====================");
+    LOG_INFO("Ensuring map " << mapId << " is loaded");
+    LOG_INFO("Current loaded map ID: " << (m_currentMapId == UINT32_MAX ? "NONE" : std::to_string(m_currentMapId)));
+
     if (m_currentMapId != mapId)
     {
+        LOG_INFO("Map change detected - need to load new map");
+
         if (m_vmapClient)
         {
-            m_vmapClient->preloadMap(mapId);
+            LOG_INFO("VMapClient exists - calling preloadMap");
+
+            try
+            {
+                m_vmapClient->preloadMap(mapId);
+                LOG_INFO("preloadMap completed for map " << mapId);
+            }
+            catch (const std::exception& e)
+            {
+                LOG_ERROR("Exception during preloadMap: " << e.what());
+            }
+            catch (...)
+            {
+                LOG_ERROR("Unknown exception during preloadMap");
+            }
         }
+        else
+        {
+            LOG_WARN("No VMapClient available - VMAP features disabled");
+        }
+
         m_currentMapId = mapId;
+        LOG_INFO("Current map ID updated to: " << m_currentMapId);
     }
+    else
+    {
+        LOG_DEBUG("Map " << mapId << " already current - no reload needed");
+    }
+
+    LOG_INFO("==================== EnsureMapLoaded END ====================");
 }
+
 
 // Main vMaNGOS-style GetHeight implementation
-float PhysicsEngine::GetHeight(uint32_t mapId, float x, float y, float z, bool checkVMap, float maxSearchDist)
-{
-    std::cout << "[Physics::GetHeight] Called - Map: " << mapId
-        << ", Pos: (" << x << ", " << y << ", " << z << ")"
-        << ", checkVMap: " << checkVMap << ", maxSearchDist: " << maxSearchDist << std::endl;
-
-    // Get terrain height from ADT data
-    float adtHeight = GetADTHeight(mapId, x, y, z);
-    std::cout << "[Physics::GetHeight] ADT height: " << adtHeight << std::endl;
-
-    if (!checkVMap || !m_vmapHeightEnabled)
-    {
-        std::cout << "[Physics::GetHeight] Returning ADT height (no VMAP check)" << std::endl;
-        return adtHeight;
-    }
-
-    // Get VMAP height
-    float vmapHeight = GetVMapHeight(mapId, x, y, z, maxSearchDist);
-    std::cout << "[Physics::GetHeight] VMAP height: " << vmapHeight << std::endl;
-
-    // Select best height using vMaNGOS logic
-    float finalHeight = SelectBestHeight(vmapHeight, adtHeight, z, maxSearchDist);
-    std::cout << "[Physics::GetHeight] Final height: " << finalHeight << std::endl;
-
-    return finalHeight;
-}
-
-// Get height from VMAP collision data
 float PhysicsEngine::GetVMapHeight(uint32_t mapId, float x, float y, float z, float maxSearchDist)
 {
-    std::cout << "\n===== VMAP HEIGHT CHECK =====" << std::endl;
-    std::cout << "Map: " << mapId << " Pos: (" << x << ", " << y << ", " << z << ")" << std::endl;
-    std::cout << "Search distance: " << maxSearchDist << std::endl;
+    LOG_INFO("==================== GetVMapHeight START ====================");
+    LOG_INFO("GetVMapHeight called - Map:" << mapId
+        << " Pos:(" << x << "," << y << "," << z << ")"
+        << " SearchDist:" << maxSearchDist);
+
     auto start = std::chrono::high_resolution_clock::now();
 
-    if (!m_vmapClient || !m_vmapHeightEnabled)
+    if (!m_vmapClient)
     {
+        LOG_WARN("No VMapClient - returning invalid height");
+        LOG_INFO("==================== GetVMapHeight END (no client) ====================");
+        return VMAP_INVALID_HEIGHT_VALUE;
+    }
+
+    if (!m_vmapHeightEnabled)
+    {
+        LOG_WARN("VMAP height calculation disabled");
+        LOG_INFO("==================== GetVMapHeight END (disabled) ====================");
         return VMAP_INVALID_HEIGHT_VALUE;
     }
 
     try
     {
+        LOG_DEBUG("Calling VMapClient::getGroundHeight...");
         float height = m_vmapClient->getGroundHeight(mapId, x, y, z, maxSearchDist);
 
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-        std::cout << "Result: " << height << " (took " << duration.count() << " us)" << std::endl;
-        std::cout << "============================\n" << std::endl;
 
+        if (height > VMAP_INVALID_HEIGHT_VALUE)
+        {
+            LOG_INFO("VMAP height found: " << height << " (took " << duration.count() << " us)");
+        }
+        else
+        {
+            LOG_DEBUG("No VMAP height found (took " << duration.count() << " us)");
+        }
+
+        LOG_INFO("==================== GetVMapHeight END ====================");
         return height;
     }
     catch (const std::exception& e)
     {
-        std::cout << "EXCEPTION: " << e.what() << std::endl;
-        std::cout << "============================\n" << std::endl;
+        LOG_ERROR("Exception getting VMAP height: " << e.what());
+        LOG_INFO("==================== GetVMapHeight END (exception) ====================");
+        return VMAP_INVALID_HEIGHT_VALUE;
+    }
+    catch (...)
+    {
+        LOG_ERROR("Unknown exception getting VMAP height");
+        LOG_INFO("==================== GetVMapHeight END (exception) ====================");
         return VMAP_INVALID_HEIGHT_VALUE;
     }
 }
@@ -231,26 +263,36 @@ float PhysicsEngine::GetADTHeight(uint32_t mapId, float x, float y, float z)
 // Select best height using vMaNGOS logic
 float PhysicsEngine::SelectBestHeight(float vmapHeight, float adtHeight, float currentZ, float maxSearchDist)
 {
+    LOG_DEBUG("SelectBestHeight - VMAP:" << vmapHeight
+        << " ADT:" << adtHeight
+        << " CurrentZ:" << currentZ
+        << " MaxSearch:" << maxSearchDist);
+
     // Both invalid - return invalid
     if (vmapHeight <= VMAP_INVALID_HEIGHT_VALUE && adtHeight <= INVALID_HEIGHT_VALUE)
     {
+        LOG_DEBUG("Both heights invalid - returning INVALID");
         return INVALID_HEIGHT_VALUE;
     }
 
     // Only ADT valid
     if (vmapHeight <= VMAP_INVALID_HEIGHT_VALUE)
     {
+        LOG_DEBUG("Only ADT valid - returning ADT height");
         return adtHeight;
     }
 
     // Only VMAP valid
     if (adtHeight <= INVALID_HEIGHT_VALUE)
     {
+        LOG_DEBUG("Only VMAP valid - returning VMAP height");
         return vmapHeight;
     }
 
     // Both valid - return the higher one (you stand on whatever is above)
     float selectedHeight = std::max(vmapHeight, adtHeight);
+    LOG_DEBUG("Both valid - selected " << (selectedHeight == vmapHeight ? "VMAP" : "ADT")
+        << " (higher value)");
     return selectedHeight;
 }
 
@@ -548,6 +590,75 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
     return output;
 }
 
+float PhysicsEngine::GetHeight(uint32_t mapId, float x, float y, float z, bool checkVMap, float maxSearchDist)
+{
+    // Add comprehensive logging
+    LOG_INFO("==================== PhysicsEngine::GetHeight START ====================");
+    LOG_INFO("GetHeight called - Map:" << mapId
+        << " Pos:(" << x << "," << y << "," << z << ")"
+        << " checkVMap:" << checkVMap
+        << " maxSearchDist:" << maxSearchDist);
+
+    std::cout << "[Physics::GetHeight] Called - Map: " << mapId
+        << ", Pos: (" << x << ", " << y << ", " << z << ")"
+        << ", checkVMap: " << checkVMap << ", maxSearchDist: " << maxSearchDist << std::endl;
+
+    // Get terrain height from ADT data
+    LOG_DEBUG("Getting ADT terrain height...");
+    float adtHeight = GetADTHeight(mapId, x, y, z);
+    std::cout << "[Physics::GetHeight] ADT height: " << adtHeight << std::endl;
+    LOG_INFO("ADT height: " << adtHeight);
+
+    if (!checkVMap || !m_vmapHeightEnabled)
+    {
+        std::cout << "[Physics::GetHeight] Returning ADT height (no VMAP check)" << std::endl;
+        LOG_INFO("Returning ADT height only - checkVMap:" << checkVMap
+            << " vmapEnabled:" << m_vmapHeightEnabled);
+        LOG_INFO("==================== PhysicsEngine::GetHeight END ====================");
+        return adtHeight;
+    }
+
+    // Get VMAP height
+    LOG_DEBUG("Getting VMAP height...");
+
+    // ADD THIS: Ensure the map and tile are loaded before querying
+    LOG_INFO("Ensuring map is loaded before VMAP query...");
+    EnsureMapLoaded(mapId);
+
+    // ADD THIS: Calculate which tile we need and try to load it
+    if (m_vmapClient)
+    {
+        const float GRID_SIZE = 533.33333f;
+        const float MID = 32.0f * GRID_SIZE;
+        int tileX = (int)((MID - y) / GRID_SIZE);
+        int tileY = (int)((MID - x) / GRID_SIZE);
+
+        LOG_INFO("Position (" << x << "," << y << ") requires tile [" << tileX << "," << tileY << "]");
+        LOG_INFO("Attempting to load tile...");
+
+        bool tileLoaded = m_vmapClient->loadMapTile(mapId, tileX, tileY);
+        LOG_INFO("Tile load attempt: " << (tileLoaded ? "SUCCESS" : "FAILED"));
+    }
+
+    float vmapHeight = GetVMapHeight(mapId, x, y, z, maxSearchDist);
+    std::cout << "[Physics::GetHeight] VMAP height: " << vmapHeight << std::endl;
+    LOG_INFO("VMAP height: " << vmapHeight);
+
+    // Select best height using vMaNGOS logic
+    LOG_DEBUG("Selecting best height between VMAP and ADT...");
+    float finalHeight = SelectBestHeight(vmapHeight, adtHeight, z, maxSearchDist);
+    std::cout << "[Physics::GetHeight] Final height: " << finalHeight << std::endl;
+
+    LOG_INFO("Final height selected: " << finalHeight);
+    LOG_INFO("  ADT valid: " << (adtHeight > INVALID_HEIGHT_VALUE ? "YES" : "NO"));
+    LOG_INFO("  VMAP valid: " << (vmapHeight > VMAP_INVALID_HEIGHT_VALUE ? "YES" : "NO"));
+    LOG_INFO("  Selection logic: " <<
+        (finalHeight == vmapHeight ? "VMAP" :
+            finalHeight == adtHeight ? "ADT" : "INVALID"));
+
+    LOG_INFO("==================== PhysicsEngine::GetHeight END ====================");
+    return finalHeight;
+}
 
 PhysicsEngine::CollisionInfo PhysicsEngine::QueryEnvironment(uint32_t mapId, float x, float y, float z,
     float radius, float height)

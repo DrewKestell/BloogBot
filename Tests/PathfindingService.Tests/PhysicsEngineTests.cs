@@ -49,6 +49,7 @@ namespace PathfindingService.Tests
         [InlineData(1u, -582.580383f, -4236.643970f, 38.044630f, Race.Orc, 0f, MovementFlags.MOVEFLAG_NONE)]
         [InlineData(1u, -576.927856f, -4242.207030f, 37.980587f, Race.Orc, 0f, MovementFlags.MOVEFLAG_NONE)]
         [InlineData(1u, -618.518f, -4251.67f, 38.718f, Race.Orc, 0f, MovementFlags.MOVEFLAG_NONE)]
+        [InlineData(1u, 1629.359985f, -4373.380377f, 31.255800f, Race.Orc, 3.548300f, MovementFlags.MOVEFLAG_NONE)]
         [InlineData(1u, 10334.000000f, 833.902000f, 1326.110000f, Race.Orc, 0f, MovementFlags.MOVEFLAG_NONE)]
         [InlineData(389u, -247.728561f, -30.644503f, -58.082531f, Race.Orc, 0f, MovementFlags.MOVEFLAG_NONE)]
         [InlineData(389u, -158.395340f, 5.857921f, -42.873611f, Race.Orc, 0f, MovementFlags.MOVEFLAG_NONE)]
