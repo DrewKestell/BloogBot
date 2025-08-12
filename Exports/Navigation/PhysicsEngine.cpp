@@ -338,8 +338,8 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
     state.isGrounded = shouldBeGrounded;
     std::cout << "IsGrounded: " << state.isGrounded << std::endl;
 
-    // Determine if swimming - add small tolerance for floating point precision
-    float swimDepth = input.height * 0.7f;  // Changed to 0.7f per vmangos
+    // Determine if swimming - only if NOT grounded
+    float swimDepth = input.height * 0.7f;  // vmangos value
     std::cout << "Swimming check:" << std::endl;
     std::cout << "  Not grounded: " << !state.isGrounded << std::endl;
     std::cout << "  Has liquid: " << collision.hasLiquid << std::endl;
@@ -348,7 +348,7 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
     std::cout << "  Position below liquid: z=" << input.z << " < liquidZ-swimDepth=" << (collision.liquidZ - swimDepth)
         << " = " << (input.z < (collision.liquidZ - swimDepth + 0.02f)) << std::endl;
 
-    // Add 0.02f tolerance for floating point precision issues
+    // Only swim if NOT grounded AND in deep enough water
     state.isSwimming = !state.isGrounded && collision.hasLiquid &&
         (collision.liquidType & (VMAP::MAP_LIQUID_TYPE_WATER | VMAP::MAP_LIQUID_TYPE_OCEAN)) &&
         input.z < (collision.liquidZ - swimDepth + 0.02f);
@@ -406,11 +406,12 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
     std::cout << "After movement - Position: (" << state.x << ", " << state.y << ", " << state.z << ")" << std::endl;
     std::cout << "After movement - Velocity: (" << state.vx << ", " << state.vy << ", " << state.vz << ")" << std::endl;
 
-    // Recheck swimming after position update (in case we fell into water)
-    if (!state.isSwimming && collision.hasLiquid &&
+    // Recheck swimming after position update (in case we fell into water while airborne)
+    // IMPORTANT: Only check if NOT grounded - grounded characters wade, they don't swim
+    if (!state.isGrounded && !state.isSwimming && collision.hasLiquid &&
         (collision.liquidType & (VMAP::MAP_LIQUID_TYPE_WATER | VMAP::MAP_LIQUID_TYPE_OCEAN)))
     {
-        float currentSwimDepth = input.height * 0.7f;  // Changed to 0.7f
+        float currentSwimDepth = input.height * 0.7f;
         if (state.z < (collision.liquidZ - currentSwimDepth + 0.02f))
         {
             std::cout << "Entered water after movement - now swimming!" << std::endl;
@@ -919,44 +920,74 @@ float PhysicsEngine::GetLiquidHeight(uint32_t mapId, float x, float y, float z, 
 
 void PhysicsEngine::ResolveCollisions(uint32_t mapId, MovementState& state, float radius, float height)
 {
-    if (!m_vmapClient)
+    // For now, disable collision resolution entirely since it's causing false positives
+    // This is temporary until we can properly tune the collision detection
+    return;
+
+    /* COMMENTED OUT - Collision system needs tuning
+    if (!m_vmapClient || !m_navigation)
     {
         return;
     }
 
     try
     {
-        // Check for collision with terrain
+        // Only check for collision if we're actually moving significantly
+        float moveSpeed = std::sqrt(state.vx * state.vx + state.vy * state.vy);
+        if (moveSpeed < 0.1f)  // Not moving fast enough to worry about collision
+        {
+            return;
+        }
+
+        // Check further ahead based on actual movement speed
+        float checkTime = 0.5f;  // Check 0.5 seconds ahead
+        float nextX = state.x + state.vx * checkTime;
+        float nextY = state.y + state.vy * checkTime;
+        float nextZ = state.z + state.vz * checkTime;
+
         float hitX, hitY, hitZ;
-        bool hasCollision = CheckCollision(mapId, state.x, state.y, state.z,
-            state.x + state.vx * 0.1f,
-            state.y + state.vy * 0.1f,
-            state.z + state.vz * 0.1f,
+        bool hasCollision = CheckCollision(mapId,
+            state.x, state.y, state.z,
+            nextX, nextY, nextZ,
             radius, height, hitX, hitY, hitZ);
 
         if (hasCollision)
         {
-            // Stop at collision point
-            state.x = hitX;
-            state.y = hitY;
-            state.z = hitZ;
+            // Calculate distance to collision
+            float dx = hitX - state.x;
+            float dy = hitY - state.y;
+            float dz = hitZ - state.z;
+            float distToCollision = std::sqrt(dx*dx + dy*dy + dz*dz);
 
-            // Kill velocity in collision direction
-            state.vx = 0;
-            state.vy = 0;
-            if (state.vz < 0)
-                state.vz = 0;
+            // Only react if collision is actually close
+            if (distToCollision < 5.0f)  // Within 5 yards
+            {
+                // Just stop movement, don't try to slide or adjust position
+                state.vx = 0;
+                state.vy = 0;
+                if (state.vz < 0)  // Only stop downward velocity
+                    state.vz = 0;
+
+                // Log collision for debugging
+                std::cout << "[COLLISION] Detected at distance " << distToCollision << " - stopping movement" << std::endl;
+            }
         }
     }
     catch (const std::exception& e)
     {
+        // On error, just return without modifying anything
     }
+    */
 }
 
 bool PhysicsEngine::CheckCollision(uint32_t mapId, float startX, float startY, float startZ,
     float endX, float endY, float endZ, float radius, float height,
     float& hitX, float& hitY, float& hitZ)
 {
+    // Temporarily disable collision checking until we can fix false positives
+    return false;
+
+    /* COMMENTED OUT - Needs proper tuning
     if (!m_vmapClient)
     {
         return false;
@@ -964,9 +995,28 @@ bool PhysicsEngine::CheckCollision(uint32_t mapId, float startX, float startY, f
 
     try
     {
-        // Check VMAP for collisions
+        // Check VMAP for collisions (buildings, walls, etc)
         bool vmapHit = m_vmapClient->getCollisionPoint(mapId, startX, startY, startZ,
             endX, endY, endZ, hitX, hitY, hitZ);
+
+        if (vmapHit)
+        {
+            // Additional validation - make sure it's a real collision
+            float dx = hitX - startX;
+            float dy = hitY - startY;
+            float dz = hitZ - startZ;
+            float dist = std::sqrt(dx*dx + dy*dy + dz*dz);
+
+            // Ignore very small distances (likely false positives from terrain)
+            if (dist < 0.5f)
+            {
+                return false;
+            }
+
+            std::cout << "[VMAP Collision] Hit at (" << hitX << ", " << hitY << ", " << hitZ
+                      << ") distance: " << dist << std::endl;
+            return true;
+        }
 
         // Also check NavMesh if available for additional collision
         if (m_navigation)
@@ -977,22 +1027,32 @@ bool PhysicsEngine::CheckCollision(uint32_t mapId, float startX, float startY, f
 
             if (!navMeshLOS)
             {
-                if (!vmapHit)
+                // NavMesh reports collision but we need to be careful about false positives
+                // Only trust it if we're checking a reasonable distance
+                float checkDist = std::sqrt(
+                    (endX-startX)*(endX-startX) +
+                    (endY-startY)*(endY-startY) +
+                    (endZ-startZ)*(endZ-startZ)
+                );
+
+                if (checkDist > 1.0f && checkDist < 10.0f)  // Reasonable range
                 {
                     hitX = endX;
                     hitY = endY;
                     hitZ = endZ;
+                    std::cout << "[NavMesh Collision] No LOS to target" << std::endl;
+                    return true;
                 }
-                return true;
             }
         }
 
-        return vmapHit;
+        return false;
     }
     catch (const std::exception& e)
     {
         return false;
     }
+    */
 }
 
 float PhysicsEngine::GetSplineProgress(float x, float y, float z, const float* points, int index)
