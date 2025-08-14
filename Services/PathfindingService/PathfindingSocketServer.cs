@@ -76,7 +76,7 @@ namespace PathfindingService
                 return ErrorResponse("Position is required");
 
             var pos = new Position(req.Position.X, req.Position.Y, req.Position.Z);
-            float height = _navigation.GetGroundHeight(req.MapId, pos.X, pos.Y, pos.Z, req.SearchDistance);
+            float height = _navigation.GetGroundHeight(req.MapId, pos.X, pos.Y, pos.Z, req.MaxSearchDist);
 
             return new PathfindingResponse
             {
@@ -134,7 +134,7 @@ namespace PathfindingService
                 // Physics modifiers
                 vx = 0,
                 vy = 0,
-                vz = proto.JumpVerticalSpeed,
+                vz = proto.VelZ,
 
                 // Collision
                 height = proto.Height,
@@ -171,10 +171,6 @@ namespace PathfindingService
                 IsGrounded = nav.isGrounded,
                 IsSwimming = nav.isSwimming,
                 IsFlying = nav.isFlying,
-                Collided = nav.collided,
-                GroundZ = nav.groundZ,
-                LiquidZ = nav.liquidZ,
-                FallDistance = nav.fallDistance,
                 FallTime = nav.fallTime,
                 CurrentSplineIndex = nav.currentSplineIndex,
                 SplineProgress = nav.splineProgress

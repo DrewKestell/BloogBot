@@ -189,14 +189,10 @@ namespace WoWSharpClient
                 SwimPitch = player.SwimPitch,
 
                 FallTime = (uint)player.FallTime,
-                JumpVerticalSpeed = player.JumpVerticalSpeed,
-                JumpCosAngle = player.JumpCosAngle,
-                JumpSinAngle = player.JumpSinAngle,
-                JumpHorizontalSpeed = player.JumpHorizontalSpeed,
 
                 VelX = _velocity.X,
                 VelY = _velocity.Y,
-                VelZ = _velocity.Z, // TODO: hook into real velocity
+                VelZ = _velocity.Z,
 
                 Radius = radius,
                 Height = height,
