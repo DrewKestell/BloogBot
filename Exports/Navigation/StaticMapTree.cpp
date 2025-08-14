@@ -606,9 +606,9 @@ namespace VMAP
             << " LoadedTiles:" << iLoadedTiles.size());
 
         // The ray shoots downward from above
-        G3D::Vector3 rayStart = pos + G3D::Vector3(0, 0, maxSearchDist);
-        G3D::Ray ray(rayStart, G3D::Vector3(0, 0, -1));
-        float distance = maxSearchDist * 2.0f;
+        G3D::Vector3 rayStart = pos;
+        G3D::Ray ray(rayStart, G3D::Vector3(0, 0, -maxSearchDist));
+        float distance = maxSearchDist * 2;
 
         LOG_RAY("Height search ray", ray);
         LOG_DEBUG("Search distance: " << distance);
@@ -616,7 +616,7 @@ namespace VMAP
         float originalDistance = distance;
         if (getIntersectionTime(ray, distance, true, false))
         {
-            height = pos.z + maxSearchDist - distance;
+            height = pos.z - distance;
             LOG_INFO("Height found! Distance:" << distance
                 << " Height:" << height
                 << " (z+" << maxSearchDist << "-" << distance << ")");

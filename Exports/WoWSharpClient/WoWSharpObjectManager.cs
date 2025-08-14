@@ -165,34 +165,43 @@ namespace WoWSharpClient
         public void UpdatePlayerPosition(float deltaTimeMs)
         {
             var player = (WoWLocalPlayer)Player;
+            if (player == null)
+                return;
+
+            // Check if we have pending movement changes that were rate-limited
+            if (_movementPending)
+            {
+                var now = DateTime.Now;
+                var timeSinceLastChange = (now - _lastMovementStateChange).TotalMilliseconds;
+
+                if (timeSinceLastChange >= 100)
+                {
+                    // Apply pending movement
+                    player.MovementFlags = _targetMovementFlags;
+                    _lastMovementStateChange = now;
+                    _movementPending = false;
+                }
+            }
+
             float dt = deltaTimeMs * 0.001f;
 
+            // Build physics input
             PhysicsInput physicsInput = new()
             {
                 DeltaTime = dt,
 
+                MapId = MapId,
                 MovementFlags = (uint)player.MovementFlags,
 
                 PosX = player.Position.X,
                 PosY = player.Position.Y,
                 PosZ = player.Position.Z,
                 Facing = player.Facing,
-
-                TransportGuid = player.TransportGuid,
-                TransportOffsetX = player.TransportOffset.X,
-                TransportOffsetY = player.TransportOffset.Y,
-                TransportOffsetZ = player.TransportOffset.Z,
-                TransportOrientation = player.TransportOrientation,
-
                 SwimPitch = player.SwimPitch,
-
-                FallTime = player.FallTime,
 
                 VelX = _velocity.X,
                 VelY = _velocity.Y,
                 VelZ = _velocity.Z,
-
-                SplineElevation = player.SplineElevation,
 
                 WalkSpeed = player.WalkSpeed,
                 RunSpeed = player.RunSpeed,
@@ -200,15 +209,36 @@ namespace WoWSharpClient
                 SwimSpeed = player.SwimSpeed,
                 SwimBackSpeed = player.SwimBackSpeed,
 
-                MapId = MapId,
+                TransportGuid = player.TransportGuid,
+                TransportOffsetX = player.TransportOffset.X,
+                TransportOffsetY = player.TransportOffset.Y,
+                TransportOffsetZ = player.TransportOffset.Z,
+                TransportOrientation = player.TransportOrientation,
+
+                FallTime = player.FallTime
             };
 
+            // Step physics
             PhysicsOutput physicsOutput = _pathfindingClient.PhysicsStep(physicsInput);
+
+            // Apply physics output
             ApplyPhysicsUpdate(physicsOutput);
 
-            if (player.MovementFlags != MovementFlags.MOVEFLAG_NONE || _lastMovementFlags != MovementFlags.MOVEFLAG_NONE)
+            // Only send movement packets if we're actually moving or just stopped
+            if (player.MovementFlags != MovementFlags.MOVEFLAG_NONE ||
+                _lastMovementFlags != MovementFlags.MOVEFLAG_NONE)
             {
-                EmitMovementPacketIfNeeded(player);
+                // Check if position changed significantly
+                float dx = player.Position.X - _lastSentPosition.X;
+                float dy = player.Position.Y - _lastSentPosition.Y;
+                float dz = player.Position.Z - _lastSentPosition.Z;
+                float distMoved = (float)Math.Sqrt(dx * dx + dy * dy + dz * dz);
+
+                // Only send if we've moved enough OR flags changed
+                if (distMoved > 0.1f || player.MovementFlags != _lastMovementFlags)
+                {
+                    EmitMovementPacketIfNeeded(player);
+                }
             }
         }
 
@@ -216,18 +246,37 @@ namespace WoWSharpClient
         {
             var player = (WoWLocalPlayer)Player;
 
-            // Apply new position and velocity
+            // Store old position for validation
+            var oldPos = new Position(player.Position.X, player.Position.Y, player.Position.Z);
+
+            // Apply new position from physics
             player.Position = new Position(
                 physicsOutput.NewPosX,
                 physicsOutput.NewPosY,
                 physicsOutput.NewPosZ);
 
+            // Update velocity
             _velocity = new Vector3(
                 physicsOutput.NewVelX,
                 physicsOutput.NewVelY,
                 physicsOutput.NewVelZ);
 
+            // Update movement flags from physics
             player.MovementFlags = (MovementFlags)physicsOutput.MovementFlags;
+
+            // Validate position change isn't too large (anti-teleport)
+            float dx = player.Position.X - oldPos.X;
+            float dy = player.Position.Y - oldPos.Y;
+            float dz = player.Position.Z - oldPos.Z;
+            float dist = (float)Math.Sqrt(dx * dx + dy * dy + dz * dz);
+
+            // If moved too far in one frame, something's wrong
+            if (dist > 50.0f) // 50 yards in one frame is impossible
+            {
+                Console.WriteLine($"[Physics] WARNING: Large position jump detected: {dist:F2} yards");
+                // Revert to old position
+                player.Position = oldPos;
+            }
         }
 
         /* Emits MOVE_STOP / MOVE_START_* / HEARTBEAT automatically */
@@ -236,41 +285,42 @@ namespace WoWSharpClient
             uint now = (uint)_worldTimeTracker.NowMS.TotalMilliseconds;
             var timestamp = DateTime.Now.ToString("HH:mm:ss.fff");
 
-            // Skip entirely if not moving
+            // Skip entirely if not moving and weren't moving
             if (player.MovementFlags == MovementFlags.MOVEFLAG_NONE &&
                 _lastMovementFlags == MovementFlags.MOVEFLAG_NONE)
             {
-                return;  // No movement at all, don't send anything
+                return;
             }
 
             // Determine the opcode based on flag transitions
             Opcode opcode = DetermineMovementOpcode(player.MovementFlags, _lastMovementFlags);
-
-            // Track state changes vs heartbeats
             bool isStateChange = opcode != Opcode.MSG_MOVE_HEARTBEAT;
-            bool isHeartbeatDue = (now - _lastSentTime >= HeartbeatMinMs) &&
-                                  (player.MovementFlags != MovementFlags.MOVEFLAG_NONE);
 
-            // Log decision making
-            if (!isStateChange && !isHeartbeatDue)
+            // STOP commands MUST be sent immediately when movement ends
+            if (opcode == Opcode.MSG_MOVE_STOP ||
+                opcode == Opcode.MSG_MOVE_STOP_STRAFE ||
+                opcode == Opcode.MSG_MOVE_STOP_TURN)
             {
-                // Uncomment for verbose debugging
-                // Console.WriteLine($"[{timestamp}][{now}ms][Movement-Skip] Not time for heartbeat yet ({now - _lastSentTime}ms < {HeartbeatMinMs}ms)");
-                return;
+                // ALWAYS send STOP immediately - server needs to know we stopped
+                // Don't check distance or timing for STOP commands
+            }
+            else
+            {
+                // For all other packets (START, HEARTBEAT), respect timing
+                const int MinPacketIntervalMs = 450;
+
+                if (now - _lastSentTime < MinPacketIntervalMs)
+                {
+                    return; // Not enough time for non-STOP packets
+                }
             }
 
-            byte[] buf = MovementPacketHandler.BuildMovementInfoBuffer(
-                player,
-                now,
-                _fallTime);
+            // Build and send the packet
+            byte[] buf = MovementPacketHandler.BuildMovementInfoBuffer(player, now, _fallTime);
 
-            // Enhanced logging
             string reason = isStateChange ? "STATE_CHANGE" : "HEARTBEAT";
-            string flagChange = "";
-            if (isStateChange)
-            {
-                flagChange = $" (0x{(uint)_lastMovementFlags:X8} -> 0x{(uint)player.MovementFlags:X8})";
-            }
+            string flagChange = isStateChange ?
+                $" (0x{(uint)_lastMovementFlags:X8} -> 0x{(uint)player.MovementFlags:X8})" : "";
 
             Console.WriteLine(
                 $"[{timestamp}][{now}ms][Movement-Send] {opcode} " +
@@ -283,7 +333,7 @@ namespace WoWSharpClient
             _woWClient.SendMovementOpcode(opcode, buf);
 
             _lastSentTime = now;
-            _lastSentPosition = player.Position;
+            _lastSentPosition = new Position(player.Position.X, player.Position.Y, player.Position.Z);
             _lastMovementFlags = player.MovementFlags;
         }
 
@@ -383,6 +433,11 @@ namespace WoWSharpClient
             return Opcode.MSG_MOVE_HEARTBEAT;
         }
 
+        // Add these fields to the class:
+        private DateTime _lastMovementStateChange = DateTime.MinValue;
+        private MovementFlags _targetMovementFlags = MovementFlags.MOVEFLAG_NONE;
+        private bool _movementPending = false;
+
         public void StartMovement(ControlBits bits)
         {
             // Don't process movement if we're not in control
@@ -393,14 +448,22 @@ namespace WoWSharpClient
             if (player == null)
                 return;
 
-            // Store the old flags for comparison
+            // FIX: Use proper timing to match server expectations
+            uint now = (uint)_worldTimeTracker.NowMS.TotalMilliseconds;
+
+            // Prevent rapid state changes - use 450ms minimum
+            if (now - _lastSentTime < 450)
+            {
+                return; // Too soon for any movement change
+            }
+
             MovementFlags oldFlags = player.MovementFlags;
             MovementFlags newFlags = player.MovementFlags;
 
             // Update control bits
             _controlBits = bits;
 
-            // Clear opposing movement flags and set new ones based on control bits
+            // Clear opposing movement flags and set new ones
             switch (bits)
             {
                 case ControlBits.Front:
@@ -434,11 +497,13 @@ namespace WoWSharpClient
                     break;
 
                 case ControlBits.Jump:
-                    newFlags |= MovementFlags.MOVEFLAG_JUMPING;
+                    if (!player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_JUMPING))
+                    {
+                        newFlags |= MovementFlags.MOVEFLAG_JUMPING;
+                    }
                     break;
 
                 case ControlBits.Nothing:
-                    // Clear all movement flags
                     newFlags &= ~(MovementFlags.MOVEFLAG_FORWARD |
                                  MovementFlags.MOVEFLAG_BACKWARD |
                                  MovementFlags.MOVEFLAG_STRAFE_LEFT |
@@ -446,9 +511,6 @@ namespace WoWSharpClient
                                  MovementFlags.MOVEFLAG_TURN_LEFT |
                                  MovementFlags.MOVEFLAG_TURN_RIGHT);
                     break;
-
-                default:
-                    return; // Unknown control bit, don't process
             }
 
             // Only proceed if flags actually changed
@@ -458,70 +520,76 @@ namespace WoWSharpClient
             // Apply the new movement flags
             player.MovementFlags = newFlags;
 
-            // Emit movement packet immediately for state changes
-            // EmitMovementPacketIfNeeded will determine the correct opcode
+            // Send the movement packet
             EmitMovementPacketIfNeeded(player);
         }
 
         public void StopMovement(ControlBits bits)
         {
+            // Don't process if not in control
+            if (_isBeingTeleported || !_isInControl)
+                return;
+
             var player = (WoWLocalPlayer)Player;
+            if (player == null)
+                return;
+
+            var now = DateTime.Now;
+            var timeSinceLastChange = (now - _lastMovementStateChange).TotalMilliseconds;
+
+            if (timeSinceLastChange < 100) // 100ms minimum between changes
+            {
+                // Don't spam stop commands
+                return;
+            }
+
             var previousFlags = player.MovementFlags;
 
             _controlBits = bits;
 
+            // Clear the appropriate flags based on what we're stopping
             if (bits.HasFlag(ControlBits.Front) || bits.HasFlag(ControlBits.Back))
-                player.MovementFlags &= ~(
-                    MovementFlags.MOVEFLAG_FORWARD | MovementFlags.MOVEFLAG_BACKWARD
-                );
+            {
+                player.MovementFlags &= ~(MovementFlags.MOVEFLAG_FORWARD | MovementFlags.MOVEFLAG_BACKWARD);
+            }
 
             if (bits.HasFlag(ControlBits.StrafeLeft) || bits.HasFlag(ControlBits.StrafeRight))
-                player.MovementFlags &= ~(
-                    MovementFlags.MOVEFLAG_STRAFE_LEFT | MovementFlags.MOVEFLAG_STRAFE_RIGHT
-                );
+            {
+                player.MovementFlags &= ~(MovementFlags.MOVEFLAG_STRAFE_LEFT | MovementFlags.MOVEFLAG_STRAFE_RIGHT);
+            }
 
             if (bits.HasFlag(ControlBits.Left) || bits.HasFlag(ControlBits.Right))
-                player.MovementFlags &= ~(
-                    MovementFlags.MOVEFLAG_TURN_LEFT | MovementFlags.MOVEFLAG_TURN_RIGHT
-                );
+            {
+                player.MovementFlags &= ~(MovementFlags.MOVEFLAG_TURN_LEFT | MovementFlags.MOVEFLAG_TURN_RIGHT);
+            }
 
             if (bits.HasFlag(ControlBits.Jump))
+            {
                 player.MovementFlags &= ~MovementFlags.MOVEFLAG_JUMPING;
+            }
 
-            if (player.MovementFlags == _lastMovementFlags)
+            // Special case: if ALL movement is being stopped
+            if (bits == ControlBits.Nothing || bits == (ControlBits.Front | ControlBits.Back |
+                ControlBits.StrafeLeft | ControlBits.StrafeRight | ControlBits.Left | ControlBits.Right))
+            {
+                // Clear all directional movement
+                player.MovementFlags &= ~(
+                    MovementFlags.MOVEFLAG_FORWARD |
+                    MovementFlags.MOVEFLAG_BACKWARD |
+                    MovementFlags.MOVEFLAG_STRAFE_LEFT |
+                    MovementFlags.MOVEFLAG_STRAFE_RIGHT |
+                    MovementFlags.MOVEFLAG_TURN_LEFT |
+                    MovementFlags.MOVEFLAG_TURN_RIGHT
+                );
+            }
+
+            // Only send if flags actually changed
+            if (player.MovementFlags == previousFlags)
                 return;
 
-            _lastMovementFlags = player.MovementFlags;
-
-            // Determine opcode based on what movement was ACTUALLY stopped
-            Opcode opcode = Opcode.MSG_MOVE_STOP;
-
-            // Check if we were actually strafing and just stopped
-            bool wasStrafing = previousFlags.HasFlag(MovementFlags.MOVEFLAG_STRAFE_LEFT) ||
-                               previousFlags.HasFlag(MovementFlags.MOVEFLAG_STRAFE_RIGHT);
-            bool stoppedStrafing = wasStrafing &&
-                                   !player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_STRAFE_LEFT) &&
-                                   !player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_STRAFE_RIGHT);
-
-            // Check if we were actually turning and just stopped
-            bool wasTurning = previousFlags.HasFlag(MovementFlags.MOVEFLAG_TURN_LEFT) ||
-                              previousFlags.HasFlag(MovementFlags.MOVEFLAG_TURN_RIGHT);
-            bool stoppedTurning = wasTurning &&
-                                  !player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_TURN_LEFT) &&
-                                  !player.MovementFlags.HasFlag(MovementFlags.MOVEFLAG_TURN_RIGHT);
-
-            if (stoppedStrafing)
-                opcode = Opcode.MSG_MOVE_STOP_STRAFE;
-            else if (stoppedTurning)
-                opcode = Opcode.MSG_MOVE_STOP_TURN;
-
-            var buffer = MovementPacketHandler.BuildMovementInfoBuffer(
-                player,
-                (uint)_worldTimeTracker.NowMS.TotalMilliseconds
-            );
-
-            Console.WriteLine($"[Movement] Stop: Opcode={opcode}, Flags={player.MovementFlags}");
-            _woWClient.SendMovementOpcode(opcode, buffer);
+            _targetMovementFlags = player.MovementFlags;
+            _lastMovementStateChange = now;
+            _movementPending = false;
         }
         private WoWObject CreateObjectFromFields(
             WoWObjectType objectType,

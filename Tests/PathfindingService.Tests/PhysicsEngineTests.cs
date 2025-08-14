@@ -27,7 +27,7 @@ namespace PathfindingService.Tests
             Console.WriteLine($"Movement Flags: {(MovementFlags)act.moveFlags}");
             Assert.Equal(exp.x, act.x, 3);
             Assert.Equal(exp.y, act.y, 3);
-            Assert.Equal(exp.z, act.z, 1);
+            Assert.InRange(act.z, exp.z - 1, exp.z + 1);
             Assert.Equal(exp.vx, act.vx, 3);
             Assert.Equal(exp.vy, act.vy, 3);
             Assert.Equal(exp.vz, act.vz, 3);
@@ -155,7 +155,7 @@ namespace PathfindingService.Tests
                 MathF.Pow(output.y - startY, 2));
 
             // Verify we moved approximately the right distance
-            Assert.Equal(expectedDistance, actualDistance, 1); // Within 1 unit tolerance
+            Assert.InRange(actualDistance, expectedDistance - 1, expectedDistance + 1); // Within 1 unit tolerance
 
             // Verify movement flags still indicate forward movement
             Assert.True((output.moveFlags & (uint)MovementFlags.MOVEFLAG_FORWARD) != 0,

@@ -341,9 +341,9 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
     state.x = input.x;
     state.y = input.y;
     state.z = input.z;
-    state.vx = input.vx;
-    state.vy = input.vy;
-    state.vz = input.vz;
+    state.vx = 0;  // FIX: Start with zero velocity
+    state.vy = 0;  // FIX: Start with zero velocity
+    state.vz = 0;  // FIX: Start with zero velocity
     state.orientation = input.orientation;
     state.pitch = input.pitch;
     state.fallTime = 0;
@@ -366,9 +366,9 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
             std::cout << "Close to ground (within " << GROUND_HEIGHT_TOLERANCE << ") - will be grounded" << std::endl;
             shouldBeGrounded = true;
         }
-        else if (distToGround < STEP_HEIGHT)  // Within step height (2.0f)
+        else if (distToGround < 1.0f)  // Within grounding tolerance
         {
-            std::cout << "Within step height (" << STEP_HEIGHT << ") - will be grounded" << std::endl;
+            std::cout << "Within step height (1.0f) - will be grounded" << std::endl;
             shouldBeGrounded = true;
         }
         else
@@ -405,19 +405,15 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
     state.isFlying = (input.moveFlags & MOVEFLAG_FLYING) != 0;
     std::cout << "IsFlying: " << state.isFlying << std::endl;
 
-    // Apply knockback if any
-    if (input.vx != 0 || input.vy != 0 || input.vz != 0)
-    {
-        std::cout << "Applying knockback: (" << input.vx << ", " << input.vy << ", " << input.vz << ")" << std::endl;
-        ApplyKnockback(state, input.vx, input.vy, input.vz);
-        state.isGrounded = false;
-    }
+    // FIX: Only apply knockback for special events, not normal movement
+    // Knockback in WoW is a special effect, not continuous
+    // Remove this block entirely or only use for actual knockback events
 
     // Apply jump velocity
-    if (input.vz > 0 && state.isGrounded && !state.isSwimming)
+    if ((input.moveFlags & MOVEFLAG_JUMP) && state.isGrounded && !state.isSwimming)
     {
-        std::cout << "Jumping with velocity: " << input.vz << std::endl;
-        state.vz = input.vz;
+        std::cout << "Jumping with velocity: " << JUMP_VELOCITY << std::endl;
+        state.vz = JUMP_VELOCITY;
         state.isGrounded = false;
         state.fallStartZ = state.z;  // Set fall start position
     }
@@ -507,9 +503,9 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
             state.vz = 0;
             state.isGrounded = true;
         }
-        else if (state.z - collision.groundZ < STEP_HEIGHT)  // Within step height (2.0f)
+        else if (state.z - collision.groundZ < 1.0f)  // Within grounding tolerance
         {
-            std::cout << "  On ground (within step height " << STEP_HEIGHT << ")" << std::endl;
+            std::cout << "  On ground (within tolerance 1.0f)" << std::endl;
             state.isGrounded = true;
         }
         else
@@ -577,18 +573,11 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
         output.fallDistance = 0;
     }
 
-    // Update spline progress
-    if (input.hasSplinePath)
-    {
-        output.currentSplineIndex = input.currentSplineIndex;
-        output.splineProgress = GetSplineProgress(state.x, state.y, state.z,
-            input.splinePoints, input.currentSplineIndex);
-    }
-
     std::cout << "Final Output:" << std::endl;
     std::cout << "  Position: (" << output.x << ", " << output.y << ", " << output.z << ")" << std::endl;
     std::cout << "  Velocity: (" << output.vx << ", " << output.vy << ", " << output.vz << ")" << std::endl;
-    std::cout << "  Grounded: " << output.isGrounded << ", Swimming: " << output.isSwimming << ", Flying: " << output.isFlying << std::endl;
+    std::cout << "  Grounded: " << output.isGrounded << ", Swimming: " << output.isSwimming
+        << ", Flying: " << output.isFlying << std::endl;
     std::cout << "  MoveFlags: 0x" << std::hex << output.moveFlags << std::dec << std::endl;
     std::cout << "========== PHYSICS STEP END ==========\n" << std::endl;
 
@@ -760,89 +749,133 @@ bool PhysicsEngine::GetLiquidInfo(uint32_t mapId, float x, float y, float z, flo
 PhysicsEngine::MovementState PhysicsEngine::HandleGroundMovement(const PhysicsInput& input,
     MovementState& state, float dt)
 {
-    // Calculate movement direction from flags
-    float moveForward = 0;
-    float moveStrafe = 0;
+    std::cout << "HandleGroundMovement - Start Position: (" << state.x << ", " << state.y << ", " << state.z << ")" << std::endl;
+    std::cout << "  Velocity: (" << state.vx << ", " << state.vy << ", " << state.vz << ")" << std::endl;
 
-    if (input.moveFlags & MOVEFLAG_FORWARD)
-        moveForward = 1.0f;
-    else if (input.moveFlags & MOVEFLAG_BACKWARD)
-        moveForward = -1.0f;
-
-    if (input.moveFlags & MOVEFLAG_STRAFE_LEFT)
-        moveStrafe = -1.0f;
-    else if (input.moveFlags & MOVEFLAG_STRAFE_RIGHT)
-        moveStrafe = 1.0f;
-
+    // Calculate movement direction and speed
     float moveX = 0, moveY = 0;
-    float speed = CalculateMoveSpeed(input, false, false);
-
-    if (moveForward != 0 || moveStrafe != 0)
+    if (input.moveFlags & MOVEFLAG_FORWARD)
     {
-        std::cout << "=== MOVEMENT DEBUG ===" << std::endl;
-        std::cout << "Movement - Forward: " << moveForward << ", Strafe: " << moveStrafe << std::endl;
-        std::cout << "Orientation (rad): " << state.orientation << " (deg): " << (state.orientation * 180.0f / 3.14159f) << std::endl;
-
-        float cos_o = std::cos(state.orientation);
-        float sin_o = std::sin(state.orientation);
-
-        std::cout << "Trig values - cos: " << cos_o << ", sin: " << sin_o << std::endl;
-
-        // Calculate each component separately for debugging
-        float forward_x = moveForward * cos_o;
-        float forward_y = moveForward * sin_o;
-        float strafe_x = moveStrafe * sin_o;
-        float strafe_y = -moveStrafe * cos_o;
-
-        std::cout << "Forward contribution: X=" << forward_x << ", Y=" << forward_y << std::endl;
-        std::cout << "Strafe contribution: X=" << strafe_x << ", Y=" << strafe_y << std::endl;
-
-        moveX = forward_x + strafe_x;
-        moveY = forward_y + strafe_y;
-
-        std::cout << "Combined movement: X=" << moveX << ", Y=" << moveY << std::endl;
-
-        // Show what the expected position change will be
-        float expectedDeltaX = moveX * speed * dt;
-        float expectedDeltaY = moveY * speed * dt;
-        std::cout << "Speed: " << speed << ", dt: " << dt << std::endl;
-        std::cout << "Expected position delta: X=" << expectedDeltaX << ", Y=" << expectedDeltaY << std::endl;
-        std::cout << "Expected new position: X=" << (state.x + expectedDeltaX) << ", Y=" << (state.y + expectedDeltaY) << std::endl;
-
-        // Verify the orientation is what we expect
-        float north_angle = 1.5708f; // 90 degrees
-        float east_angle = 0.0f;      // 0 degrees
-        float south_angle = 4.7124f;  // 270 degrees
-        float west_angle = 3.14159f;  // 180 degrees
-
-        std::cout << "Reference angles - North: " << north_angle << " East: " << east_angle
-            << " South: " << south_angle << " West: " << west_angle << std::endl;
-
-        // Determine approximate cardinal direction
-        const char* facing_dir = "Unknown";
-        float deg = state.orientation * 180.0f / 3.14159f;
-        if (deg < 0) deg += 360.0f;
-
-        if (deg >= 337.5f || deg < 22.5f) facing_dir = "East";
-        else if (deg >= 22.5f && deg < 67.5f) facing_dir = "NorthEast";
-        else if (deg >= 67.5f && deg < 112.5f) facing_dir = "North";
-        else if (deg >= 112.5f && deg < 157.5f) facing_dir = "NorthWest";
-        else if (deg >= 157.5f && deg < 202.5f) facing_dir = "West";
-        else if (deg >= 202.5f && deg < 247.5f) facing_dir = "SouthWest";
-        else if (deg >= 247.5f && deg < 292.5f) facing_dir = "South";
-        else if (deg >= 292.5f && deg < 337.5f) facing_dir = "SouthEast";
-
-        std::cout << "Facing direction: " << facing_dir << std::endl;
+        moveX = std::cos(state.orientation);
+        moveY = std::sin(state.orientation);
+    }
+    else if (input.moveFlags & MOVEFLAG_BACKWARD)
+    {
+        moveX = -std::cos(state.orientation);
+        moveY = -std::sin(state.orientation);
     }
 
-    // Apply movement
-    state.vx = moveX * speed;
-    state.vy = moveY * speed;
-    state.vz = 0;
+    if (input.moveFlags & MOVEFLAG_STRAFE_LEFT)
+    {
+        moveX -= std::sin(state.orientation);
+        moveY += std::cos(state.orientation);
+    }
+    else if (input.moveFlags & MOVEFLAG_STRAFE_RIGHT)
+    {
+        moveX += std::sin(state.orientation);
+        moveY -= std::cos(state.orientation);
+    }
 
-    // Update position
+    // Normalize diagonal movement
+    float moveLength = std::sqrt(moveX * moveX + moveY * moveY);
+    if (moveLength > 1.0f)
+    {
+        moveX /= moveLength;
+        moveY /= moveLength;
+    }
+
+    // Get movement speed
+    float speed = CalculateMoveSpeed(input, false, false);
+
+    // FIX: DON'T SET VELOCITY FOR NORMAL MOVEMENT
+    // DELETE THESE LINES:
+    // state.vx = moveX * speed;
+    // state.vy = moveY * speed;
+
+    // FIX: Update position DIRECTLY without using velocity
+    state.x += moveX * speed * dt;
+    state.y += moveY * speed * dt;
+
+    // FIX: Also apply any existing knockback velocity (but don't modify it)
     state.x += state.vx * dt;
     state.y += state.vy * dt;
+
+    // Store old position for collision recovery
+    float oldX = state.x;
+    float oldY = state.y;
+    float oldZ = state.z;
+
+    // Get ground height at new position
+    float newGroundZ = GetHeight(input.mapId, state.x, state.y, state.z,
+        m_vmapHeightEnabled, DEFAULT_HEIGHT_SEARCH);
+
+    std::cout << "New ground height at (" << state.x << ", " << state.y << "): " << newGroundZ << std::endl;
+
+    // Handle stepping up/down terrain
+    if (newGroundZ > INVALID_HEIGHT_VALUE)
+    {
+        float heightDiff = newGroundZ - oldZ;
+        std::cout << "Height difference: " << heightDiff << " (new: " << newGroundZ
+            << ", old: " << oldZ << ")" << std::endl;
+
+        if (heightDiff > 0 && heightDiff < STEP_HEIGHT)
+        {
+            // Step up - within allowed step height
+            std::cout << "Stepping up from " << oldZ << " to " << newGroundZ
+                << " (diff: " << heightDiff << ")" << std::endl;
+            state.z = newGroundZ;
+        }
+        else if (heightDiff < 0 && std::abs(heightDiff) < STEP_HEIGHT)
+        {
+            // Step down - within allowed step height
+            std::cout << "Stepping down from " << oldZ << " to " << newGroundZ
+                << " (diff: " << heightDiff << ")" << std::endl;
+            state.z = newGroundZ;
+        }
+        // NEW CODE - ALLOW WALKING UP SLOPES
+        else if (heightDiff > STEP_HEIGHT)
+        {
+            // This could be a steep slope, not a wall
+            // Check if we can walk on this slope by checking the distance
+            float horizontalDist = std::sqrt((state.x - oldX) * (state.x - oldX) +
+                (state.y - oldY) * (state.y - oldY));
+            float slope = heightDiff / horizontalDist;
+
+            // If slope is walkable (less than 45 degrees = slope < 1.0)
+            if (slope < 1.0f && horizontalDist > 0.01f)
+            {
+                std::cout << "Walking up slope (slope: " << slope << ")" << std::endl;
+                state.z = newGroundZ;  // Allow walking up the slope
+            }
+            else
+            {
+                // Too steep or vertical wall
+                std::cout << "Too steep to walk (slope: " << slope << ")" << std::endl;
+                // Revert position
+                state.x = oldX;
+                state.y = oldY;
+                state.z = oldZ;
+            }
+        }
+        else
+        {
+            // Going down a slope steeper than step height - let gravity handle it
+            std::cout << "Steep drop (" << heightDiff << ") - becoming airborne" << std::endl;
+            state.isGrounded = false;
+            // Keep current Z, physics will handle falling
+        }
+    }
+    else
+    {
+        // No valid ground at new position (might be a hole or edge)
+        std::cout << "No valid ground at new position - reverting movement" << std::endl;
+        state.x = oldX;
+        state.y = oldY;
+        state.z = oldZ;
+        // FIX: DON'T CLEAR KNOCKBACK VELOCITY
+        // state.vx = 0;  // DELETE THIS
+        // state.vy = 0;  // DELETE THIS
+    }
 
     return state;
 }
@@ -883,30 +916,28 @@ PhysicsEngine::MovementState PhysicsEngine::HandleAirMovement(const PhysicsInput
         float cos_o = std::cos(state.orientation);
         float sin_o = std::sin(state.orientation);
 
-        float moveX = forward * sin_o + strafe * cos_o;
-        float moveY = forward * cos_o - strafe * sin_o;
+        float moveX = forward * cos_o - strafe * sin_o;
+        float moveY = forward * sin_o + strafe * cos_o;
 
-        float speed = CalculateMoveSpeed(input, false, true);
+        float speed = CalculateMoveSpeed(input, false, (input.moveFlags & MOVEFLAG_FLYING) != 0);
 
-        state.vx += moveX * speed * dt;
-        state.vy += moveY * speed * dt;
+        state.x += moveX * speed * dt;
+        state.y += moveY * speed * dt; 
+        state.z += (initial_vz + state.vz) * 0.5f * dt;
     }
-
-    // Update position using average velocity for proper integration
-    state.x += state.vx * dt;
-    state.y += state.vy * dt;
-    state.z += (initial_vz + state.vz) * 0.5f * dt;  // Use average velocity for Z
 
     // Update orientation for turning
     if (input.moveFlags & MOVEFLAG_TURN_LEFT)
     {
         state.orientation -= TURN_SPEED * dt;
-        state.orientation = NormalizeAngle(state.orientation);
+        if (state.orientation < 0)
+            state.orientation += 2 * 3.14159f;
     }
     else if (input.moveFlags & MOVEFLAG_TURN_RIGHT)
     {
         state.orientation += TURN_SPEED * dt;
-        state.orientation = NormalizeAngle(state.orientation);
+        if (state.orientation > 2 * 3.14159f)
+            state.orientation -= 2 * 3.14159f;
     }
 
     return state;
@@ -1050,11 +1081,11 @@ void PhysicsEngine::ApplyGravity(MovementState& state, float dt)
 
 void PhysicsEngine::ApplyFriction(MovementState& state, float friction, float dt)
 {
-    float factor = std::exp(-friction * dt);
+   /* float factor = std::exp(-friction * dt);
     state.vx *= factor;
     state.vy *= factor;
     if (!state.isGrounded)
-        state.vz *= factor;
+        state.vz *= factor;*/
 }
 
 void PhysicsEngine::ApplyKnockback(MovementState& state, float vx, float vy, float vz)
@@ -1275,8 +1306,16 @@ bool PhysicsEngine::IsGrounded(uint32_t mapId, float x, float y, float z, float 
 {
     EnsureMapLoaded(mapId);
     float groundZ = GetHeight(mapId, x, y, z, true, DEFAULT_HEIGHT_SEARCH);
-    bool grounded = (groundZ > INVALID_HEIGHT_VALUE &&
-        std::abs(z - groundZ) < GROUND_HEIGHT_TOLERANCE);
+
+    if (groundZ <= INVALID_HEIGHT_VALUE)
+        return false;
+
+    float distToGround = z - groundZ;
+
+    // Check if within step height (2.0f) of ground
+    bool grounded = (distToGround >= 0 && distToGround < STEP_HEIGHT) ||
+        std::abs(distToGround) < GROUND_HEIGHT_TOLERANCE;
+
     return grounded;
 }
 

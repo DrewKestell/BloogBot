@@ -41,7 +41,7 @@ namespace Pathfinding {
             "LlBvc2l0aW9uIl4KEkxpbmVPZlNpZ2h0UmVxdWVzdBIOCgZtYXBfaWQYASAB",
             "KA0SHAoEZnJvbRgCIAEoCzIOLmdhbWUuUG9zaXRpb24SGgoCdG8YAyABKAsy",
             "Di5nYW1lLlBvc2l0aW9uIiUKE0xpbmVPZlNpZ2h0UmVzcG9uc2USDgoGaW5f",
-            "bG9zGAEgASgIIowECgxQaHlzaWNzSW5wdXQSFgoObW92ZW1lbnRfZmxhZ3MY",
+            "bG9zGAEgASgIIooECgxQaHlzaWNzSW5wdXQSFgoObW92ZW1lbnRfZmxhZ3MY",
             "ASABKA0SDQoFcG9zX3gYAiABKAISDQoFcG9zX3kYAyABKAISDQoFcG9zX3oY",
             "BCABKAISDgoGZmFjaW5nGAUgASgCEhYKDnRyYW5zcG9ydF9ndWlkGAYgASgE",
             "EhoKEnRyYW5zcG9ydF9vZmZzZXRfeBgHIAEoAhIaChJ0cmFuc3BvcnRfb2Zm",
@@ -51,16 +51,16 @@ namespace Pathfinding {
             "Eg0KBXZlbF94GA4gASgCEg0KBXZlbF95GA8gASgCEg0KBXZlbF96GBAgASgC",
             "EhIKCndhbGtfc3BlZWQYESABKAISEQoJcnVuX3NwZWVkGBIgASgCEhYKDnJ1",
             "bl9iYWNrX3NwZWVkGBMgASgCEhIKCnN3aW1fc3BlZWQYFCABKAISFwoPc3dp",
-            "bV9iYWNrX3NwZWVkGBUgASgCEg4KBnJhZGl1cxgWIAEoAhIOCgZoZWlnaHQY",
-            "FyABKAISDgoGbWFwX2lkGBggASgNEhIKCmRlbHRhX3RpbWUYGSABKAIixAIK",
-            "DVBoeXNpY3NPdXRwdXQSEQoJbmV3X3Bvc194GAEgASgCEhEKCW5ld19wb3Nf",
-            "eRgCIAEoAhIRCgluZXdfcG9zX3oYAyABKAISEQoJbmV3X3ZlbF94GAQgASgC",
-            "EhEKCW5ld192ZWxfeRgFIAEoAhIRCgluZXdfdmVsX3oYBiABKAISFgoObW92",
-            "ZW1lbnRfZmxhZ3MYByABKA0SEwoLb3JpZW50YXRpb24YCCABKAISDQoFcGl0",
-            "Y2gYCSABKAISEwoLaXNfZ3JvdW5kZWQYCiABKAgSEwoLaXNfc3dpbW1pbmcY",
-            "CyABKAgSEQoJaXNfZmx5aW5nGAwgASgIEhEKCWZhbGxfdGltZRgNIAEoAhIc",
-            "ChRjdXJyZW50X3NwbGluZV9pbmRleBgOIAEoBRIXCg9zcGxpbmVfcHJvZ3Jl",
-            "c3MYDyABKAJCDqoCC1BhdGhmaW5kaW5nYgZwcm90bzM="));
+            "bV9iYWNrX3NwZWVkGBUgASgCEgwKBHJhY2UYFiABKA0SDgoGZ2VuZGVyGBcg",
+            "ASgNEg4KBm1hcF9pZBgYIAEoDRISCgpkZWx0YV90aW1lGBkgASgCIsQCCg1Q",
+            "aHlzaWNzT3V0cHV0EhEKCW5ld19wb3NfeBgBIAEoAhIRCgluZXdfcG9zX3kY",
+            "AiABKAISEQoJbmV3X3Bvc196GAMgASgCEhEKCW5ld192ZWxfeBgEIAEoAhIR",
+            "CgluZXdfdmVsX3kYBSABKAISEQoJbmV3X3ZlbF96GAYgASgCEhYKDm1vdmVt",
+            "ZW50X2ZsYWdzGAcgASgNEhMKC29yaWVudGF0aW9uGAggASgCEg0KBXBpdGNo",
+            "GAkgASgCEhMKC2lzX2dyb3VuZGVkGAogASgIEhMKC2lzX3N3aW1taW5nGAsg",
+            "ASgIEhEKCWlzX2ZseWluZxgMIAEoCBIRCglmYWxsX3RpbWUYDSABKAISHAoU",
+            "Y3VycmVudF9zcGxpbmVfaW5kZXgYDiABKAUSFwoPc3BsaW5lX3Byb2dyZXNz",
+            "GA8gASgCQg6qAgtQYXRoZmluZGluZ2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Game.GameReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -71,7 +71,7 @@ namespace Pathfinding {
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.CalculatePathResponse), global::Pathfinding.CalculatePathResponse.Parser, new[]{ "Corners" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.LineOfSightRequest), global::Pathfinding.LineOfSightRequest.Parser, new[]{ "MapId", "From", "To" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.LineOfSightResponse), global::Pathfinding.LineOfSightResponse.Parser, new[]{ "InLos" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PhysicsInput), global::Pathfinding.PhysicsInput.Parser, new[]{ "MovementFlags", "PosX", "PosY", "PosZ", "Facing", "TransportGuid", "TransportOffsetX", "TransportOffsetY", "TransportOffsetZ", "TransportOrientation", "SwimPitch", "FallTime", "SplineElevation", "VelX", "VelY", "VelZ", "WalkSpeed", "RunSpeed", "RunBackSpeed", "SwimSpeed", "SwimBackSpeed", "Radius", "Height", "MapId", "DeltaTime" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PhysicsInput), global::Pathfinding.PhysicsInput.Parser, new[]{ "MovementFlags", "PosX", "PosY", "PosZ", "Facing", "TransportGuid", "TransportOffsetX", "TransportOffsetY", "TransportOffsetZ", "TransportOrientation", "SwimPitch", "FallTime", "SplineElevation", "VelX", "VelY", "VelZ", "WalkSpeed", "RunSpeed", "RunBackSpeed", "SwimSpeed", "SwimBackSpeed", "Race", "Gender", "MapId", "DeltaTime" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PhysicsOutput), global::Pathfinding.PhysicsOutput.Parser, new[]{ "NewPosX", "NewPosY", "NewPosZ", "NewVelX", "NewVelY", "NewVelZ", "MovementFlags", "Orientation", "Pitch", "IsGrounded", "IsSwimming", "IsFlying", "FallTime", "CurrentSplineIndex", "SplineProgress" }, null, null, null, null)
           }));
     }
@@ -2103,8 +2103,8 @@ namespace Pathfinding {
       runBackSpeed_ = other.runBackSpeed_;
       swimSpeed_ = other.swimSpeed_;
       swimBackSpeed_ = other.swimBackSpeed_;
-      radius_ = other.radius_;
-      height_ = other.height_;
+      race_ = other.race_;
+      gender_ = other.gender_;
       mapId_ = other.mapId_;
       deltaTime_ = other.deltaTime_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -2392,30 +2392,30 @@ namespace Pathfinding {
       }
     }
 
-    /// <summary>Field number for the "radius" field.</summary>
-    public const int RadiusFieldNumber = 22;
-    private float radius_;
+    /// <summary>Field number for the "race" field.</summary>
+    public const int RaceFieldNumber = 22;
+    private uint race_;
     /// <summary>
     /// Collision
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float Radius {
-      get { return radius_; }
+    public uint Race {
+      get { return race_; }
       set {
-        radius_ = value;
+        race_ = value;
       }
     }
 
-    /// <summary>Field number for the "height" field.</summary>
-    public const int HeightFieldNumber = 23;
-    private float height_;
+    /// <summary>Field number for the "gender" field.</summary>
+    public const int GenderFieldNumber = 23;
+    private uint gender_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float Height {
-      get { return height_; }
+    public uint Gender {
+      get { return gender_; }
       set {
-        height_ = value;
+        gender_ = value;
       }
     }
 
@@ -2482,8 +2482,8 @@ namespace Pathfinding {
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(RunBackSpeed, other.RunBackSpeed)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(SwimSpeed, other.SwimSpeed)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(SwimBackSpeed, other.SwimBackSpeed)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Radius, other.Radius)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Height, other.Height)) return false;
+      if (Race != other.Race) return false;
+      if (Gender != other.Gender) return false;
       if (MapId != other.MapId) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(DeltaTime, other.DeltaTime)) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -2514,8 +2514,8 @@ namespace Pathfinding {
       if (RunBackSpeed != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(RunBackSpeed);
       if (SwimSpeed != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(SwimSpeed);
       if (SwimBackSpeed != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(SwimBackSpeed);
-      if (Radius != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Radius);
-      if (Height != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Height);
+      if (Race != 0) hash ^= Race.GetHashCode();
+      if (Gender != 0) hash ^= Gender.GetHashCode();
       if (MapId != 0) hash ^= MapId.GetHashCode();
       if (DeltaTime != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(DeltaTime);
       if (_unknownFields != null) {
@@ -2620,13 +2620,13 @@ namespace Pathfinding {
         output.WriteRawTag(173, 1);
         output.WriteFloat(SwimBackSpeed);
       }
-      if (Radius != 0F) {
-        output.WriteRawTag(181, 1);
-        output.WriteFloat(Radius);
+      if (Race != 0) {
+        output.WriteRawTag(176, 1);
+        output.WriteUInt32(Race);
       }
-      if (Height != 0F) {
-        output.WriteRawTag(189, 1);
-        output.WriteFloat(Height);
+      if (Gender != 0) {
+        output.WriteRawTag(184, 1);
+        output.WriteUInt32(Gender);
       }
       if (MapId != 0) {
         output.WriteRawTag(192, 1);
@@ -2730,13 +2730,13 @@ namespace Pathfinding {
         output.WriteRawTag(173, 1);
         output.WriteFloat(SwimBackSpeed);
       }
-      if (Radius != 0F) {
-        output.WriteRawTag(181, 1);
-        output.WriteFloat(Radius);
+      if (Race != 0) {
+        output.WriteRawTag(176, 1);
+        output.WriteUInt32(Race);
       }
-      if (Height != 0F) {
-        output.WriteRawTag(189, 1);
-        output.WriteFloat(Height);
+      if (Gender != 0) {
+        output.WriteRawTag(184, 1);
+        output.WriteUInt32(Gender);
       }
       if (MapId != 0) {
         output.WriteRawTag(192, 1);
@@ -2819,11 +2819,11 @@ namespace Pathfinding {
       if (SwimBackSpeed != 0F) {
         size += 2 + 4;
       }
-      if (Radius != 0F) {
-        size += 2 + 4;
+      if (Race != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(Race);
       }
-      if (Height != 0F) {
-        size += 2 + 4;
+      if (Gender != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(Gender);
       }
       if (MapId != 0) {
         size += 2 + pb::CodedOutputStream.ComputeUInt32Size(MapId);
@@ -2906,11 +2906,11 @@ namespace Pathfinding {
       if (other.SwimBackSpeed != 0F) {
         SwimBackSpeed = other.SwimBackSpeed;
       }
-      if (other.Radius != 0F) {
-        Radius = other.Radius;
+      if (other.Race != 0) {
+        Race = other.Race;
       }
-      if (other.Height != 0F) {
-        Height = other.Height;
+      if (other.Gender != 0) {
+        Gender = other.Gender;
       }
       if (other.MapId != 0) {
         MapId = other.MapId;
@@ -3021,12 +3021,12 @@ namespace Pathfinding {
             SwimBackSpeed = input.ReadFloat();
             break;
           }
-          case 181: {
-            Radius = input.ReadFloat();
+          case 176: {
+            Race = input.ReadUInt32();
             break;
           }
-          case 189: {
-            Height = input.ReadFloat();
+          case 184: {
+            Gender = input.ReadUInt32();
             break;
           }
           case 192: {
@@ -3140,12 +3140,12 @@ namespace Pathfinding {
             SwimBackSpeed = input.ReadFloat();
             break;
           }
-          case 181: {
-            Radius = input.ReadFloat();
+          case 176: {
+            Race = input.ReadUInt32();
             break;
           }
-          case 189: {
-            Height = input.ReadFloat();
+          case 184: {
+            Gender = input.ReadUInt32();
             break;
           }
           case 192: {

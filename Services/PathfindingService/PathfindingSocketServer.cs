@@ -5,6 +5,8 @@ using PathfindingService.Repository;
 using System;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using GameData.Core.Constants;
+using GameData.Core.Enums;
 
 namespace PathfindingService
 {
@@ -96,6 +98,7 @@ namespace PathfindingService
         // Convert from Protobuf PhysicsInput to Navigation.PhysicsInput
         public static Repository.PhysicsInput ToPhysicsInput(this Pathfinding.PhysicsInput proto)
         {
+            (float radius, float height) value = RaceDimensions.GetCapsuleForRace((Race)proto.Race, (Gender)proto.Gender);
             return new Repository.PhysicsInput
             {
                 // Position and orientation
@@ -122,8 +125,8 @@ namespace PathfindingService
                 vz = proto.VelZ,
 
                 // Collision
-                height = proto.Height,
-                radius = proto.Radius,
+                height = value.height,
+                radius = value.radius,
 
                 // Spline (not used)
                 hasSplinePath = false,

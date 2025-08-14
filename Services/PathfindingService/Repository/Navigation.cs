@@ -28,10 +28,10 @@ namespace PathfindingService.Repository
         // ===============================
         // PUBLIC METHODS
         // ===============================
-
-        public void PreloadMapData(uint mapId)
+        static Navigation()
         {
-            PreloadMap(mapId);
+            PreloadMap(0);
+            PreloadMap(1);
         }
 
         public XYZ[] CalculatePath(uint mapId, XYZ start, XYZ end, bool smoothPath)
@@ -59,7 +59,6 @@ namespace PathfindingService.Repository
 
         public PhysicsOutput StepPhysics(PhysicsInput input, float deltaTime)
         {
-            var radiusHeight = RaceDimensions.GetCapsuleForRace();
             input.deltaTime = deltaTime;
             return PhysicsStep(ref input);
         }
