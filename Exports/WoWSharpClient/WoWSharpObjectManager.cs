@@ -167,8 +167,6 @@ namespace WoWSharpClient
             var player = (WoWLocalPlayer)Player;
             float dt = deltaTimeMs * 0.001f;
 
-            var (radius, height) = RaceDimensions.GetCapsuleForRace(player.Race, ((WoWLocalPlayer)Player).Gender);
-
             PhysicsInput physicsInput = new()
             {
                 DeltaTime = dt,
@@ -193,9 +191,6 @@ namespace WoWSharpClient
                 VelX = _velocity.X,
                 VelY = _velocity.Y,
                 VelZ = _velocity.Z,
-
-                Radius = radius,
-                Height = height,
 
                 SplineElevation = player.SplineElevation,
 

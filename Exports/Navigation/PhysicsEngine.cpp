@@ -349,7 +349,7 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
     state.fallTime = 0;
     state.fallStartZ = input.z;
 
-    // Determine if grounded
+    // Determine if grounded - using vMaNGOS step height logic
     bool shouldBeGrounded = false;
     if (!(input.moveFlags & MOVEFLAG_FLYING) && collision.hasGround)
     {
@@ -364,6 +364,11 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
         else if (std::abs(distToGround) < GROUND_HEIGHT_TOLERANCE)
         {
             std::cout << "Close to ground (within " << GROUND_HEIGHT_TOLERANCE << ") - will be grounded" << std::endl;
+            shouldBeGrounded = true;
+        }
+        else if (distToGround < STEP_HEIGHT)  // Within step height (2.0f)
+        {
+            std::cout << "Within step height (" << STEP_HEIGHT << ") - will be grounded" << std::endl;
             shouldBeGrounded = true;
         }
         else
@@ -481,7 +486,7 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
         }
     }
 
-    // Final ground placement
+    // Final ground placement - using vMaNGOS step height
     if (!state.isFlying && !(input.moveFlags & (MOVEFLAG_FALLINGFAR | MOVEFLAG_FALLING)) &&
         !state.isSwimming && collision.hasGround && collision.groundZ > INVALID_HEIGHT_VALUE)
     {
@@ -502,9 +507,9 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
             state.vz = 0;
             state.isGrounded = true;
         }
-        else if (state.z - collision.groundZ < 0.5f)
+        else if (state.z - collision.groundZ < STEP_HEIGHT)  // Within step height (2.0f)
         {
-            std::cout << "  On ground (within 0.5)" << std::endl;
+            std::cout << "  On ground (within step height " << STEP_HEIGHT << ")" << std::endl;
             state.isGrounded = true;
         }
         else

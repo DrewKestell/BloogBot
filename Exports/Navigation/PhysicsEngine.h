@@ -15,6 +15,7 @@ class Navigation;
 class MapLoader;
 
 // WoW 1.12.1 Physics Constants
+// WoW 1.12.1 Physics Constants
 namespace PhysicsConstants
 {
     // Gravity in yards/second^2 (WoW uses ~19.29 y/s²)
@@ -27,12 +28,12 @@ namespace PhysicsConstants
     constexpr float WATER_LEVEL_DELTA = 2.0f;
 
     // Ground detection distance - matching vMaNGOS
-    constexpr float GROUND_HEIGHT_TOLERANCE = 0.05f;    // 
-    constexpr float DEFAULT_HEIGHT_SEARCH = 4.0f;      // vMaNGOS default maxSearchDist
+    constexpr float GROUND_HEIGHT_TOLERANCE = 0.05f;    // Safety margin for ground placement
+    constexpr float DEFAULT_HEIGHT_SEARCH = 50.0f;      // vMaNGOS default maxSearchDist
     constexpr float GROUND_SEARCH_RANGE = 100.0f;      // Maximum search range
 
-    // Collision detection
-    constexpr float STEP_HEIGHT = 0.5f;  // Maximum step up height
+    // Collision detection - vMaNGOS values
+    constexpr float STEP_HEIGHT = 2.0f;  // ATTACK_DISTANCE equivalent for step-up
     constexpr float MIN_WALK_NORMAL_Z = 0.7071f;  // 45 degree slope
 
     // Fall damage thresholds
@@ -46,9 +47,9 @@ namespace PhysicsConstants
     // Spline movement
     constexpr float SPLINE_SMOOTH_FACTOR = 0.5f;
 
-    // Height calculation constants (matching vMaNGOS)
-    constexpr float VMAP_INVALID_HEIGHT_VALUE = -100000.0f;
+    // Height calculation constants from vMaNGOS
     constexpr float INVALID_HEIGHT_VALUE = -100000.0f;
+    constexpr float VMAP_INVALID_HEIGHT_VALUE = -100000.0f;
 }
 
 class PhysicsEngine

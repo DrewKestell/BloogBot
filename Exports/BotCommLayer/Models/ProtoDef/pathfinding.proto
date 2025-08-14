@@ -92,8 +92,8 @@ message PhysicsInput {
     float swim_back_speed = 21;
     
     // Collision
-    float radius = 22;
-    float height = 23;
+    uint race = 22;
+    uint gender = 23;
     
     // Context
     uint32 map_id = 24;

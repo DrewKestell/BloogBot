@@ -1,4 +1,5 @@
-﻿using GameData.Core.Models;
+﻿using GameData.Core.Constants;
+using GameData.Core.Models;
 using System;
 using System.Runtime.InteropServices;
 
@@ -58,6 +59,7 @@ namespace PathfindingService.Repository
 
         public PhysicsOutput StepPhysics(PhysicsInput input, float deltaTime)
         {
+            var radiusHeight = RaceDimensions.GetCapsuleForRace();
             input.deltaTime = deltaTime;
             return PhysicsStep(ref input);
         }
