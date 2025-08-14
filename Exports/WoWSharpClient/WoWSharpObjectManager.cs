@@ -188,7 +188,7 @@ namespace WoWSharpClient
 
                 SwimPitch = player.SwimPitch,
 
-                FallTime = (uint)player.FallTime,
+                FallTime = player.FallTime,
 
                 VelX = _velocity.X,
                 VelY = _velocity.Y,
@@ -196,7 +196,6 @@ namespace WoWSharpClient
 
                 Radius = radius,
                 Height = height,
-                Gravity = 19.29f,
 
                 SplineElevation = player.SplineElevation,
 

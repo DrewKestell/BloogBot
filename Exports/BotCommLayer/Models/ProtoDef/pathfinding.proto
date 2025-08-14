@@ -5,31 +5,21 @@ option csharp_namespace = "Pathfinding";
 
 import "game.proto";
 
-// Main request message
+// Main request message - simplified
 message PathfindingRequest {
     oneof payload {
         CalculatePathRequest path = 1;
         LineOfSightRequest los = 2;
         PhysicsInput step = 3;
-        VMapHeightRequest vmap_height = 4;
-        VMapLineOfSightRequest vmap_los = 5;
-        CombinedLineOfSightRequest combined_los = 6;
-        AreaInfoRequest area_info = 7;
-        LiquidInfoRequest liquid_info = 8;
     }
 }
 
-// Main response message
+// Main response message - simplified
 message PathfindingResponse {
     oneof payload {
         CalculatePathResponse path = 1;
         LineOfSightResponse los = 2;
         PhysicsOutput step = 3;
-        VMapHeightResponse vmap_height = 4;
-        VMapLineOfSightResponse vmap_los = 5;
-        CombinedLineOfSightResponse combined_los = 6;
-        AreaInfoResponse area_info = 7;
-        LiquidInfoResponse liquid_info = 8;
         Error error = 99;
     }
 }
@@ -39,19 +29,19 @@ message Error {
     string message = 1;
 }
 
-// Navigation mesh pathfinding
+// Path calculation
 message CalculatePathRequest {
     uint32 map_id = 1;
     game.Position start = 2;
     game.Position end = 3;
-    bool straight = 4;
+    bool straight = 4;  // smooth path
 }
 
 message CalculatePathResponse {
     repeated game.Position corners = 1;
 }
 
-// Navigation mesh line of sight
+// Line of sight check
 message LineOfSightRequest {
     uint32 map_id = 1;
     game.Position from = 2;
@@ -62,7 +52,7 @@ message LineOfSightResponse {
     bool in_los = 1;
 }
 
-// Physics system
+// Physics input
 message PhysicsInput {
     // Movement state
     uint32 movement_flags = 1;
@@ -84,51 +74,33 @@ message PhysicsInput {
     float swim_pitch = 11;
     
     // Falling/jumping
-    uint32 fall_time = 12;
-    // REMOVED: jump_vertical_speed = 13;
-    // REMOVED: jump_cos_angle = 14;
-    // REMOVED: jump_sin_angle = 15;
-    // REMOVED: jump_horizontal_speed = 16;
+    float fall_time = 12;
     
     // Spline
-    float spline_elevation = 17;
-    
-    // Movement speeds
-    float walk_speed = 18;
-    float run_speed = 19;
-    float run_back_speed = 20;
-    float swim_speed = 21;
-    float swim_back_speed = 22;
+    float spline_elevation = 13;
     
     // Current velocity
-    float vel_x = 23;
-    float vel_y = 24;
-    float vel_z = 25;
+    float vel_x = 14;
+    float vel_y = 15;
+    float vel_z = 16;
+    
+    // Movement speeds
+    float walk_speed = 17;
+    float run_speed = 18;
+    float run_back_speed = 19;
+    float swim_speed = 20;
+    float swim_back_speed = 21;
     
     // Collision
-    float radius = 26;
-    float height = 27;
-    float gravity = 28;
+    float radius = 22;
+    float height = 23;
     
     // Context
-    uint32 map_id = 29;
-    float delta_time = 30;
-    
-    // Spline path data
-    repeated float spline_points = 31;  // x,y,z triplets
-    uint32 spline_point_count = 32;
-    uint32 current_spline_index = 33;
-    float spline_speed = 34;
-    uint32 spline_flags = 35;
-    
-    // Additional physics state
-    float fall_start_z = 36;
-    bool is_jumping = 37;
-    float knockback_vx = 38;
-    float knockback_vy = 39;
-    float knockback_vz = 40;
+    uint32 map_id = 24;
+    float delta_time = 25;
 }
 
+// Physics output
 message PhysicsOutput {
     // New position
     float new_pos_x = 1;
@@ -149,77 +121,9 @@ message PhysicsOutput {
     bool is_grounded = 10;
     bool is_swimming = 11;
     bool is_flying = 12;
-    
-    // Fall time tracking (as float for precision)
     float fall_time = 13;
-    float fall_start_z = 14;
     
-    // Spline state
-    uint32 current_spline_index = 15;
-    
-    // Collision info
-    bool has_collision = 16;
-    float ground_z = 17;
-    float liquid_z = 18;
-    uint32 liquid_type = 19;
-}
-
-// VMAP height query
-message VMapHeightRequest {
-    uint32 map_id = 1;
-    game.Position position = 2;
-    float max_search_dist = 3;
-}
-
-message VMapHeightResponse {
-    float height = 1;
-    bool found = 2;
-}
-
-// VMAP line of sight
-message VMapLineOfSightRequest {
-    uint32 map_id = 1;
-    game.Position from = 2;
-    game.Position to = 3;
-}
-
-message VMapLineOfSightResponse {
-    bool in_los = 1;
-}
-
-// Combined line of sight (NavMesh + VMAP)
-message CombinedLineOfSightRequest {
-    uint32 map_id = 1;
-    game.Position from = 2;
-    game.Position to = 3;
-}
-
-message CombinedLineOfSightResponse {
-    bool navmesh_los = 1;
-    bool vmap_los = 2;
-    bool combined_los = 3;
-}
-
-// Area/zone information
-message AreaInfoRequest {
-    uint32 map_id = 1;
-    game.Position position = 2;
-}
-
-message AreaInfoResponse {
-    uint32 area_id = 1;
-    uint32 zone_id = 2;
-    bool found = 3;
-}
-
-// Liquid information
-message LiquidInfoRequest {
-    uint32 map_id = 1;
-    game.Position position = 2;
-}
-
-message LiquidInfoResponse {
-    float liquid_level = 1;
-    uint32 liquid_type = 2;
-    bool has_liquid = 3;
+    // Spline progress (if following path)
+    int32 current_spline_index = 14;
+    float spline_progress = 15;
 }

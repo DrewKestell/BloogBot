@@ -25,93 +25,54 @@ namespace Pathfinding {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "ChFwYXRoZmluZGluZy5wcm90bxILcGF0aGZpbmRpbmcaCmdhbWUucHJvdG8i",
-            "yAMKElBhdGhmaW5kaW5nUmVxdWVzdBIxCgRwYXRoGAEgASgLMiEucGF0aGZp",
+            "rQEKElBhdGhmaW5kaW5nUmVxdWVzdBIxCgRwYXRoGAEgASgLMiEucGF0aGZp",
             "bmRpbmcuQ2FsY3VsYXRlUGF0aFJlcXVlc3RIABIuCgNsb3MYAiABKAsyHy5w",
             "YXRoZmluZGluZy5MaW5lT2ZTaWdodFJlcXVlc3RIABIpCgRzdGVwGAMgASgL",
-            "MhkucGF0aGZpbmRpbmcuUGh5c2ljc0lucHV0SAASNQoLdm1hcF9oZWlnaHQY",
-            "BCABKAsyHi5wYXRoZmluZGluZy5WTWFwSGVpZ2h0UmVxdWVzdEgAEjcKCHZt",
-            "YXBfbG9zGAUgASgLMiMucGF0aGZpbmRpbmcuVk1hcExpbmVPZlNpZ2h0UmVx",
-            "dWVzdEgAEj8KDGNvbWJpbmVkX2xvcxgGIAEoCzInLnBhdGhmaW5kaW5nLkNv",
-            "bWJpbmVkTGluZU9mU2lnaHRSZXF1ZXN0SAASMQoJYXJlYV9pbmZvGAcgASgL",
-            "MhwucGF0aGZpbmRpbmcuQXJlYUluZm9SZXF1ZXN0SAASNQoLbGlxdWlkX2lu",
-            "Zm8YCCABKAsyHi5wYXRoZmluZGluZy5MaXF1aWRJbmZvUmVxdWVzdEgAQgkK",
-            "B3BheWxvYWQi9gMKE1BhdGhmaW5kaW5nUmVzcG9uc2USMgoEcGF0aBgBIAEo",
-            "CzIiLnBhdGhmaW5kaW5nLkNhbGN1bGF0ZVBhdGhSZXNwb25zZUgAEi8KA2xv",
-            "cxgCIAEoCzIgLnBhdGhmaW5kaW5nLkxpbmVPZlNpZ2h0UmVzcG9uc2VIABIq",
-            "CgRzdGVwGAMgASgLMhoucGF0aGZpbmRpbmcuUGh5c2ljc091dHB1dEgAEjYK",
-            "C3ZtYXBfaGVpZ2h0GAQgASgLMh8ucGF0aGZpbmRpbmcuVk1hcEhlaWdodFJl",
-            "c3BvbnNlSAASOAoIdm1hcF9sb3MYBSABKAsyJC5wYXRoZmluZGluZy5WTWFw",
-            "TGluZU9mU2lnaHRSZXNwb25zZUgAEkAKDGNvbWJpbmVkX2xvcxgGIAEoCzIo",
-            "LnBhdGhmaW5kaW5nLkNvbWJpbmVkTGluZU9mU2lnaHRSZXNwb25zZUgAEjIK",
-            "CWFyZWFfaW5mbxgHIAEoCzIdLnBhdGhmaW5kaW5nLkFyZWFJbmZvUmVzcG9u",
-            "c2VIABI2CgtsaXF1aWRfaW5mbxgIIAEoCzIfLnBhdGhmaW5kaW5nLkxpcXVp",
-            "ZEluZm9SZXNwb25zZUgAEiMKBWVycm9yGGMgASgLMhIucGF0aGZpbmRpbmcu",
-            "RXJyb3JIAEIJCgdwYXlsb2FkIhgKBUVycm9yEg8KB21lc3NhZ2UYASABKAki",
-            "dAoUQ2FsY3VsYXRlUGF0aFJlcXVlc3QSDgoGbWFwX2lkGAEgASgNEh0KBXN0",
-            "YXJ0GAIgASgLMg4uZ2FtZS5Qb3NpdGlvbhIbCgNlbmQYAyABKAsyDi5nYW1l",
-            "LlBvc2l0aW9uEhAKCHN0cmFpZ2h0GAQgASgIIjgKFUNhbGN1bGF0ZVBhdGhS",
-            "ZXNwb25zZRIfCgdjb3JuZXJzGAEgAygLMg4uZ2FtZS5Qb3NpdGlvbiJeChJM",
-            "aW5lT2ZTaWdodFJlcXVlc3QSDgoGbWFwX2lkGAEgASgNEhwKBGZyb20YAiAB",
-            "KAsyDi5nYW1lLlBvc2l0aW9uEhoKAnRvGAMgASgLMg4uZ2FtZS5Qb3NpdGlv",
-            "biIlChNMaW5lT2ZTaWdodFJlc3BvbnNlEg4KBmluX2xvcxgBIAEoCCKdBAoM",
-            "UGh5c2ljc0lucHV0EhYKDm1vdmVtZW50X2ZsYWdzGAEgASgNEg0KBXBvc194",
-            "GAIgASgCEg0KBXBvc195GAMgASgCEg0KBXBvc196GAQgASgCEg4KBmZhY2lu",
-            "ZxgFIAEoAhIWCg50cmFuc3BvcnRfZ3VpZBgGIAEoBBIaChJ0cmFuc3BvcnRf",
-            "b2Zmc2V0X3gYByABKAISGgoSdHJhbnNwb3J0X29mZnNldF95GAggASgCEhoK",
-            "EnRyYW5zcG9ydF9vZmZzZXRfehgJIAEoAhIdChV0cmFuc3BvcnRfb3JpZW50",
-            "YXRpb24YCiABKAISEgoKc3dpbV9waXRjaBgLIAEoAhIRCglmYWxsX3RpbWUY",
-            "DCABKA0SGAoQc3BsaW5lX2VsZXZhdGlvbhgNIAEoAhISCgp3YWxrX3NwZWVk",
-            "GA4gASgCEhEKCXJ1bl9zcGVlZBgPIAEoAhIWCg5ydW5fYmFja19zcGVlZBgQ",
-            "IAEoAhISCgpzd2ltX3NwZWVkGBEgASgCEhcKD3N3aW1fYmFja19zcGVlZBgS",
-            "IAEoAhINCgV2ZWxfeBgTIAEoAhINCgV2ZWxfeRgUIAEoAhINCgV2ZWxfehgV",
-            "IAEoAhIOCgZyYWRpdXMYFiABKAISDgoGaGVpZ2h0GBcgASgCEg8KB2dyYXZp",
-            "dHkYGCABKAISDgoGbWFwX2lkGBkgASgNEhIKCmRlbHRhX3RpbWUYGiABKAIi",
-            "jQIKDVBoeXNpY3NPdXRwdXQSEQoJbmV3X3Bvc194GAEgASgCEhEKCW5ld19w",
-            "b3NfeRgCIAEoAhIRCgluZXdfcG9zX3oYAyABKAISEQoJbmV3X3ZlbF94GAQg",
-            "ASgCEhEKCW5ld192ZWxfeRgFIAEoAhIRCgluZXdfdmVsX3oYBiABKAISFgoO",
-            "bW92ZW1lbnRfZmxhZ3MYByABKA0SEwoLb3JpZW50YXRpb24YCCABKAISDQoF",
-            "cGl0Y2gYCSABKAISEwoLaXNfZ3JvdW5kZWQYCiABKAgSEwoLaXNfc3dpbW1p",
-            "bmcYCyABKAgSEQoJaXNfZmx5aW5nGAwgASgIEhEKCWZhbGxfdGltZRgNIAEo",
-            "DSJeChFWTWFwSGVpZ2h0UmVxdWVzdBIOCgZtYXBfaWQYASABKA0SIAoIcG9z",
-            "aXRpb24YAiABKAsyDi5nYW1lLlBvc2l0aW9uEhcKD21heF9zZWFyY2hfZGlz",
-            "dBgDIAEoAiIzChJWTWFwSGVpZ2h0UmVzcG9uc2USDgoGaGVpZ2h0GAEgASgC",
-            "Eg0KBWZvdW5kGAIgASgIImIKFlZNYXBMaW5lT2ZTaWdodFJlcXVlc3QSDgoG",
-            "bWFwX2lkGAEgASgNEhwKBGZyb20YAiABKAsyDi5nYW1lLlBvc2l0aW9uEhoK",
-            "AnRvGAMgASgLMg4uZ2FtZS5Qb3NpdGlvbiIpChdWTWFwTGluZU9mU2lnaHRS",
-            "ZXNwb25zZRIOCgZpbl9sb3MYASABKAgiZgoaQ29tYmluZWRMaW5lT2ZTaWdo",
-            "dFJlcXVlc3QSDgoGbWFwX2lkGAEgASgNEhwKBGZyb20YAiABKAsyDi5nYW1l",
-            "LlBvc2l0aW9uEhoKAnRvGAMgASgLMg4uZ2FtZS5Qb3NpdGlvbiJaChtDb21i",
-            "aW5lZExpbmVPZlNpZ2h0UmVzcG9uc2USEwoLbmF2bWVzaF9sb3MYASABKAgS",
-            "EAoIdm1hcF9sb3MYAiABKAgSFAoMY29tYmluZWRfbG9zGAMgASgIIkMKD0Fy",
-            "ZWFJbmZvUmVxdWVzdBIOCgZtYXBfaWQYASABKA0SIAoIcG9zaXRpb24YAiAB",
-            "KAsyDi5nYW1lLlBvc2l0aW9uIkMKEEFyZWFJbmZvUmVzcG9uc2USDwoHYXJl",
-            "YV9pZBgBIAEoDRIPCgd6b25lX2lkGAIgASgNEg0KBWZvdW5kGAMgASgIIkUK",
-            "EUxpcXVpZEluZm9SZXF1ZXN0Eg4KBm1hcF9pZBgBIAEoDRIgCghwb3NpdGlv",
-            "bhgCIAEoCzIOLmdhbWUuUG9zaXRpb24iUwoSTGlxdWlkSW5mb1Jlc3BvbnNl",
-            "EhQKDGxpcXVpZF9sZXZlbBgBIAEoAhITCgtsaXF1aWRfdHlwZRgCIAEoDRIS",
-            "CgpoYXNfbGlxdWlkGAMgASgIQg6qAgtQYXRoZmluZGluZ2IGcHJvdG8z"));
+            "MhkucGF0aGZpbmRpbmcuUGh5c2ljc0lucHV0SABCCQoHcGF5bG9hZCLWAQoT",
+            "UGF0aGZpbmRpbmdSZXNwb25zZRIyCgRwYXRoGAEgASgLMiIucGF0aGZpbmRp",
+            "bmcuQ2FsY3VsYXRlUGF0aFJlc3BvbnNlSAASLwoDbG9zGAIgASgLMiAucGF0",
+            "aGZpbmRpbmcuTGluZU9mU2lnaHRSZXNwb25zZUgAEioKBHN0ZXAYAyABKAsy",
+            "Gi5wYXRoZmluZGluZy5QaHlzaWNzT3V0cHV0SAASIwoFZXJyb3IYYyABKAsy",
+            "Ei5wYXRoZmluZGluZy5FcnJvckgAQgkKB3BheWxvYWQiGAoFRXJyb3ISDwoH",
+            "bWVzc2FnZRgBIAEoCSJ0ChRDYWxjdWxhdGVQYXRoUmVxdWVzdBIOCgZtYXBf",
+            "aWQYASABKA0SHQoFc3RhcnQYAiABKAsyDi5nYW1lLlBvc2l0aW9uEhsKA2Vu",
+            "ZBgDIAEoCzIOLmdhbWUuUG9zaXRpb24SEAoIc3RyYWlnaHQYBCABKAgiOAoV",
+            "Q2FsY3VsYXRlUGF0aFJlc3BvbnNlEh8KB2Nvcm5lcnMYASADKAsyDi5nYW1l",
+            "LlBvc2l0aW9uIl4KEkxpbmVPZlNpZ2h0UmVxdWVzdBIOCgZtYXBfaWQYASAB",
+            "KA0SHAoEZnJvbRgCIAEoCzIOLmdhbWUuUG9zaXRpb24SGgoCdG8YAyABKAsy",
+            "Di5nYW1lLlBvc2l0aW9uIiUKE0xpbmVPZlNpZ2h0UmVzcG9uc2USDgoGaW5f",
+            "bG9zGAEgASgIIowECgxQaHlzaWNzSW5wdXQSFgoObW92ZW1lbnRfZmxhZ3MY",
+            "ASABKA0SDQoFcG9zX3gYAiABKAISDQoFcG9zX3kYAyABKAISDQoFcG9zX3oY",
+            "BCABKAISDgoGZmFjaW5nGAUgASgCEhYKDnRyYW5zcG9ydF9ndWlkGAYgASgE",
+            "EhoKEnRyYW5zcG9ydF9vZmZzZXRfeBgHIAEoAhIaChJ0cmFuc3BvcnRfb2Zm",
+            "c2V0X3kYCCABKAISGgoSdHJhbnNwb3J0X29mZnNldF96GAkgASgCEh0KFXRy",
+            "YW5zcG9ydF9vcmllbnRhdGlvbhgKIAEoAhISCgpzd2ltX3BpdGNoGAsgASgC",
+            "EhEKCWZhbGxfdGltZRgMIAEoAhIYChBzcGxpbmVfZWxldmF0aW9uGA0gASgC",
+            "Eg0KBXZlbF94GA4gASgCEg0KBXZlbF95GA8gASgCEg0KBXZlbF96GBAgASgC",
+            "EhIKCndhbGtfc3BlZWQYESABKAISEQoJcnVuX3NwZWVkGBIgASgCEhYKDnJ1",
+            "bl9iYWNrX3NwZWVkGBMgASgCEhIKCnN3aW1fc3BlZWQYFCABKAISFwoPc3dp",
+            "bV9iYWNrX3NwZWVkGBUgASgCEg4KBnJhZGl1cxgWIAEoAhIOCgZoZWlnaHQY",
+            "FyABKAISDgoGbWFwX2lkGBggASgNEhIKCmRlbHRhX3RpbWUYGSABKAIixAIK",
+            "DVBoeXNpY3NPdXRwdXQSEQoJbmV3X3Bvc194GAEgASgCEhEKCW5ld19wb3Nf",
+            "eRgCIAEoAhIRCgluZXdfcG9zX3oYAyABKAISEQoJbmV3X3ZlbF94GAQgASgC",
+            "EhEKCW5ld192ZWxfeRgFIAEoAhIRCgluZXdfdmVsX3oYBiABKAISFgoObW92",
+            "ZW1lbnRfZmxhZ3MYByABKA0SEwoLb3JpZW50YXRpb24YCCABKAISDQoFcGl0",
+            "Y2gYCSABKAISEwoLaXNfZ3JvdW5kZWQYCiABKAgSEwoLaXNfc3dpbW1pbmcY",
+            "CyABKAgSEQoJaXNfZmx5aW5nGAwgASgIEhEKCWZhbGxfdGltZRgNIAEoAhIc",
+            "ChRjdXJyZW50X3NwbGluZV9pbmRleBgOIAEoBRIXCg9zcGxpbmVfcHJvZ3Jl",
+            "c3MYDyABKAJCDqoCC1BhdGhmaW5kaW5nYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Game.GameReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PathfindingRequest), global::Pathfinding.PathfindingRequest.Parser, new[]{ "Path", "Los", "Step", "VmapHeight", "VmapLos", "CombinedLos", "AreaInfo", "LiquidInfo" }, new[]{ "Payload" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PathfindingResponse), global::Pathfinding.PathfindingResponse.Parser, new[]{ "Path", "Los", "Step", "VmapHeight", "VmapLos", "CombinedLos", "AreaInfo", "LiquidInfo", "Error" }, new[]{ "Payload" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PathfindingRequest), global::Pathfinding.PathfindingRequest.Parser, new[]{ "Path", "Los", "Step" }, new[]{ "Payload" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PathfindingResponse), global::Pathfinding.PathfindingResponse.Parser, new[]{ "Path", "Los", "Step", "Error" }, new[]{ "Payload" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.Error), global::Pathfinding.Error.Parser, new[]{ "Message" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.CalculatePathRequest), global::Pathfinding.CalculatePathRequest.Parser, new[]{ "MapId", "Start", "End", "Straight" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.CalculatePathResponse), global::Pathfinding.CalculatePathResponse.Parser, new[]{ "Corners" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.LineOfSightRequest), global::Pathfinding.LineOfSightRequest.Parser, new[]{ "MapId", "From", "To" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.LineOfSightResponse), global::Pathfinding.LineOfSightResponse.Parser, new[]{ "InLos" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PhysicsInput), global::Pathfinding.PhysicsInput.Parser, new[]{ "MovementFlags", "PosX", "PosY", "PosZ", "Facing", "TransportGuid", "TransportOffsetX", "TransportOffsetY", "TransportOffsetZ", "TransportOrientation", "SwimPitch", "FallTime", "SplineElevation", "WalkSpeed", "RunSpeed", "RunBackSpeed", "SwimSpeed", "SwimBackSpeed", "VelX", "VelY", "VelZ", "Radius", "Height", "Gravity", "MapId", "DeltaTime" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PhysicsOutput), global::Pathfinding.PhysicsOutput.Parser, new[]{ "NewPosX", "NewPosY", "NewPosZ", "NewVelX", "NewVelY", "NewVelZ", "MovementFlags", "Orientation", "Pitch", "IsGrounded", "IsSwimming", "IsFlying", "FallTime" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.VMapHeightRequest), global::Pathfinding.VMapHeightRequest.Parser, new[]{ "MapId", "Position", "MaxSearchDist" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.VMapHeightResponse), global::Pathfinding.VMapHeightResponse.Parser, new[]{ "Height", "Found" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.VMapLineOfSightRequest), global::Pathfinding.VMapLineOfSightRequest.Parser, new[]{ "MapId", "From", "To" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.VMapLineOfSightResponse), global::Pathfinding.VMapLineOfSightResponse.Parser, new[]{ "InLos" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.CombinedLineOfSightRequest), global::Pathfinding.CombinedLineOfSightRequest.Parser, new[]{ "MapId", "From", "To" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.CombinedLineOfSightResponse), global::Pathfinding.CombinedLineOfSightResponse.Parser, new[]{ "NavmeshLos", "VmapLos", "CombinedLos" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.AreaInfoRequest), global::Pathfinding.AreaInfoRequest.Parser, new[]{ "MapId", "Position" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.AreaInfoResponse), global::Pathfinding.AreaInfoResponse.Parser, new[]{ "AreaId", "ZoneId", "Found" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.LiquidInfoRequest), global::Pathfinding.LiquidInfoRequest.Parser, new[]{ "MapId", "Position" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.LiquidInfoResponse), global::Pathfinding.LiquidInfoResponse.Parser, new[]{ "LiquidLevel", "LiquidType", "HasLiquid" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PhysicsInput), global::Pathfinding.PhysicsInput.Parser, new[]{ "MovementFlags", "PosX", "PosY", "PosZ", "Facing", "TransportGuid", "TransportOffsetX", "TransportOffsetY", "TransportOffsetZ", "TransportOrientation", "SwimPitch", "FallTime", "SplineElevation", "VelX", "VelY", "VelZ", "WalkSpeed", "RunSpeed", "RunBackSpeed", "SwimSpeed", "SwimBackSpeed", "Radius", "Height", "MapId", "DeltaTime" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PhysicsOutput), global::Pathfinding.PhysicsOutput.Parser, new[]{ "NewPosX", "NewPosY", "NewPosZ", "NewVelX", "NewVelY", "NewVelZ", "MovementFlags", "Orientation", "Pitch", "IsGrounded", "IsSwimming", "IsFlying", "FallTime", "CurrentSplineIndex", "SplineProgress" }, null, null, null, null)
           }));
     }
     #endregion
@@ -119,7 +80,7 @@ namespace Pathfinding {
   }
   #region Messages
   /// <summary>
-  /// Main request message
+  /// Main request message - simplified
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class PathfindingRequest : pb::IMessage<PathfindingRequest>
@@ -165,21 +126,6 @@ namespace Pathfinding {
           break;
         case PayloadOneofCase.Step:
           Step = other.Step.Clone();
-          break;
-        case PayloadOneofCase.VmapHeight:
-          VmapHeight = other.VmapHeight.Clone();
-          break;
-        case PayloadOneofCase.VmapLos:
-          VmapLos = other.VmapLos.Clone();
-          break;
-        case PayloadOneofCase.CombinedLos:
-          CombinedLos = other.CombinedLos.Clone();
-          break;
-        case PayloadOneofCase.AreaInfo:
-          AreaInfo = other.AreaInfo.Clone();
-          break;
-        case PayloadOneofCase.LiquidInfo:
-          LiquidInfo = other.LiquidInfo.Clone();
           break;
       }
 
@@ -228,66 +174,6 @@ namespace Pathfinding {
       }
     }
 
-    /// <summary>Field number for the "vmap_height" field.</summary>
-    public const int VmapHeightFieldNumber = 4;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Pathfinding.VMapHeightRequest VmapHeight {
-      get { return payloadCase_ == PayloadOneofCase.VmapHeight ? (global::Pathfinding.VMapHeightRequest) payload_ : null; }
-      set {
-        payload_ = value;
-        payloadCase_ = value == null ? PayloadOneofCase.None : PayloadOneofCase.VmapHeight;
-      }
-    }
-
-    /// <summary>Field number for the "vmap_los" field.</summary>
-    public const int VmapLosFieldNumber = 5;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Pathfinding.VMapLineOfSightRequest VmapLos {
-      get { return payloadCase_ == PayloadOneofCase.VmapLos ? (global::Pathfinding.VMapLineOfSightRequest) payload_ : null; }
-      set {
-        payload_ = value;
-        payloadCase_ = value == null ? PayloadOneofCase.None : PayloadOneofCase.VmapLos;
-      }
-    }
-
-    /// <summary>Field number for the "combined_los" field.</summary>
-    public const int CombinedLosFieldNumber = 6;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Pathfinding.CombinedLineOfSightRequest CombinedLos {
-      get { return payloadCase_ == PayloadOneofCase.CombinedLos ? (global::Pathfinding.CombinedLineOfSightRequest) payload_ : null; }
-      set {
-        payload_ = value;
-        payloadCase_ = value == null ? PayloadOneofCase.None : PayloadOneofCase.CombinedLos;
-      }
-    }
-
-    /// <summary>Field number for the "area_info" field.</summary>
-    public const int AreaInfoFieldNumber = 7;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Pathfinding.AreaInfoRequest AreaInfo {
-      get { return payloadCase_ == PayloadOneofCase.AreaInfo ? (global::Pathfinding.AreaInfoRequest) payload_ : null; }
-      set {
-        payload_ = value;
-        payloadCase_ = value == null ? PayloadOneofCase.None : PayloadOneofCase.AreaInfo;
-      }
-    }
-
-    /// <summary>Field number for the "liquid_info" field.</summary>
-    public const int LiquidInfoFieldNumber = 8;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Pathfinding.LiquidInfoRequest LiquidInfo {
-      get { return payloadCase_ == PayloadOneofCase.LiquidInfo ? (global::Pathfinding.LiquidInfoRequest) payload_ : null; }
-      set {
-        payload_ = value;
-        payloadCase_ = value == null ? PayloadOneofCase.None : PayloadOneofCase.LiquidInfo;
-      }
-    }
-
     private object payload_;
     /// <summary>Enum of possible cases for the "payload" oneof.</summary>
     public enum PayloadOneofCase {
@@ -295,11 +181,6 @@ namespace Pathfinding {
       Path = 1,
       Los = 2,
       Step = 3,
-      VmapHeight = 4,
-      VmapLos = 5,
-      CombinedLos = 6,
-      AreaInfo = 7,
-      LiquidInfo = 8,
     }
     private PayloadOneofCase payloadCase_ = PayloadOneofCase.None;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -333,11 +214,6 @@ namespace Pathfinding {
       if (!object.Equals(Path, other.Path)) return false;
       if (!object.Equals(Los, other.Los)) return false;
       if (!object.Equals(Step, other.Step)) return false;
-      if (!object.Equals(VmapHeight, other.VmapHeight)) return false;
-      if (!object.Equals(VmapLos, other.VmapLos)) return false;
-      if (!object.Equals(CombinedLos, other.CombinedLos)) return false;
-      if (!object.Equals(AreaInfo, other.AreaInfo)) return false;
-      if (!object.Equals(LiquidInfo, other.LiquidInfo)) return false;
       if (PayloadCase != other.PayloadCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -349,11 +225,6 @@ namespace Pathfinding {
       if (payloadCase_ == PayloadOneofCase.Path) hash ^= Path.GetHashCode();
       if (payloadCase_ == PayloadOneofCase.Los) hash ^= Los.GetHashCode();
       if (payloadCase_ == PayloadOneofCase.Step) hash ^= Step.GetHashCode();
-      if (payloadCase_ == PayloadOneofCase.VmapHeight) hash ^= VmapHeight.GetHashCode();
-      if (payloadCase_ == PayloadOneofCase.VmapLos) hash ^= VmapLos.GetHashCode();
-      if (payloadCase_ == PayloadOneofCase.CombinedLos) hash ^= CombinedLos.GetHashCode();
-      if (payloadCase_ == PayloadOneofCase.AreaInfo) hash ^= AreaInfo.GetHashCode();
-      if (payloadCase_ == PayloadOneofCase.LiquidInfo) hash ^= LiquidInfo.GetHashCode();
       hash ^= (int) payloadCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -385,26 +256,6 @@ namespace Pathfinding {
         output.WriteRawTag(26);
         output.WriteMessage(Step);
       }
-      if (payloadCase_ == PayloadOneofCase.VmapHeight) {
-        output.WriteRawTag(34);
-        output.WriteMessage(VmapHeight);
-      }
-      if (payloadCase_ == PayloadOneofCase.VmapLos) {
-        output.WriteRawTag(42);
-        output.WriteMessage(VmapLos);
-      }
-      if (payloadCase_ == PayloadOneofCase.CombinedLos) {
-        output.WriteRawTag(50);
-        output.WriteMessage(CombinedLos);
-      }
-      if (payloadCase_ == PayloadOneofCase.AreaInfo) {
-        output.WriteRawTag(58);
-        output.WriteMessage(AreaInfo);
-      }
-      if (payloadCase_ == PayloadOneofCase.LiquidInfo) {
-        output.WriteRawTag(66);
-        output.WriteMessage(LiquidInfo);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -427,26 +278,6 @@ namespace Pathfinding {
         output.WriteRawTag(26);
         output.WriteMessage(Step);
       }
-      if (payloadCase_ == PayloadOneofCase.VmapHeight) {
-        output.WriteRawTag(34);
-        output.WriteMessage(VmapHeight);
-      }
-      if (payloadCase_ == PayloadOneofCase.VmapLos) {
-        output.WriteRawTag(42);
-        output.WriteMessage(VmapLos);
-      }
-      if (payloadCase_ == PayloadOneofCase.CombinedLos) {
-        output.WriteRawTag(50);
-        output.WriteMessage(CombinedLos);
-      }
-      if (payloadCase_ == PayloadOneofCase.AreaInfo) {
-        output.WriteRawTag(58);
-        output.WriteMessage(AreaInfo);
-      }
-      if (payloadCase_ == PayloadOneofCase.LiquidInfo) {
-        output.WriteRawTag(66);
-        output.WriteMessage(LiquidInfo);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -465,21 +296,6 @@ namespace Pathfinding {
       }
       if (payloadCase_ == PayloadOneofCase.Step) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Step);
-      }
-      if (payloadCase_ == PayloadOneofCase.VmapHeight) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(VmapHeight);
-      }
-      if (payloadCase_ == PayloadOneofCase.VmapLos) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(VmapLos);
-      }
-      if (payloadCase_ == PayloadOneofCase.CombinedLos) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(CombinedLos);
-      }
-      if (payloadCase_ == PayloadOneofCase.AreaInfo) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(AreaInfo);
-      }
-      if (payloadCase_ == PayloadOneofCase.LiquidInfo) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(LiquidInfo);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -511,36 +327,6 @@ namespace Pathfinding {
             Step = new global::Pathfinding.PhysicsInput();
           }
           Step.MergeFrom(other.Step);
-          break;
-        case PayloadOneofCase.VmapHeight:
-          if (VmapHeight == null) {
-            VmapHeight = new global::Pathfinding.VMapHeightRequest();
-          }
-          VmapHeight.MergeFrom(other.VmapHeight);
-          break;
-        case PayloadOneofCase.VmapLos:
-          if (VmapLos == null) {
-            VmapLos = new global::Pathfinding.VMapLineOfSightRequest();
-          }
-          VmapLos.MergeFrom(other.VmapLos);
-          break;
-        case PayloadOneofCase.CombinedLos:
-          if (CombinedLos == null) {
-            CombinedLos = new global::Pathfinding.CombinedLineOfSightRequest();
-          }
-          CombinedLos.MergeFrom(other.CombinedLos);
-          break;
-        case PayloadOneofCase.AreaInfo:
-          if (AreaInfo == null) {
-            AreaInfo = new global::Pathfinding.AreaInfoRequest();
-          }
-          AreaInfo.MergeFrom(other.AreaInfo);
-          break;
-        case PayloadOneofCase.LiquidInfo:
-          if (LiquidInfo == null) {
-            LiquidInfo = new global::Pathfinding.LiquidInfoRequest();
-          }
-          LiquidInfo.MergeFrom(other.LiquidInfo);
           break;
       }
 
@@ -590,51 +376,6 @@ namespace Pathfinding {
             Step = subBuilder;
             break;
           }
-          case 34: {
-            global::Pathfinding.VMapHeightRequest subBuilder = new global::Pathfinding.VMapHeightRequest();
-            if (payloadCase_ == PayloadOneofCase.VmapHeight) {
-              subBuilder.MergeFrom(VmapHeight);
-            }
-            input.ReadMessage(subBuilder);
-            VmapHeight = subBuilder;
-            break;
-          }
-          case 42: {
-            global::Pathfinding.VMapLineOfSightRequest subBuilder = new global::Pathfinding.VMapLineOfSightRequest();
-            if (payloadCase_ == PayloadOneofCase.VmapLos) {
-              subBuilder.MergeFrom(VmapLos);
-            }
-            input.ReadMessage(subBuilder);
-            VmapLos = subBuilder;
-            break;
-          }
-          case 50: {
-            global::Pathfinding.CombinedLineOfSightRequest subBuilder = new global::Pathfinding.CombinedLineOfSightRequest();
-            if (payloadCase_ == PayloadOneofCase.CombinedLos) {
-              subBuilder.MergeFrom(CombinedLos);
-            }
-            input.ReadMessage(subBuilder);
-            CombinedLos = subBuilder;
-            break;
-          }
-          case 58: {
-            global::Pathfinding.AreaInfoRequest subBuilder = new global::Pathfinding.AreaInfoRequest();
-            if (payloadCase_ == PayloadOneofCase.AreaInfo) {
-              subBuilder.MergeFrom(AreaInfo);
-            }
-            input.ReadMessage(subBuilder);
-            AreaInfo = subBuilder;
-            break;
-          }
-          case 66: {
-            global::Pathfinding.LiquidInfoRequest subBuilder = new global::Pathfinding.LiquidInfoRequest();
-            if (payloadCase_ == PayloadOneofCase.LiquidInfo) {
-              subBuilder.MergeFrom(LiquidInfo);
-            }
-            input.ReadMessage(subBuilder);
-            LiquidInfo = subBuilder;
-            break;
-          }
         }
       }
     #endif
@@ -681,51 +422,6 @@ namespace Pathfinding {
             Step = subBuilder;
             break;
           }
-          case 34: {
-            global::Pathfinding.VMapHeightRequest subBuilder = new global::Pathfinding.VMapHeightRequest();
-            if (payloadCase_ == PayloadOneofCase.VmapHeight) {
-              subBuilder.MergeFrom(VmapHeight);
-            }
-            input.ReadMessage(subBuilder);
-            VmapHeight = subBuilder;
-            break;
-          }
-          case 42: {
-            global::Pathfinding.VMapLineOfSightRequest subBuilder = new global::Pathfinding.VMapLineOfSightRequest();
-            if (payloadCase_ == PayloadOneofCase.VmapLos) {
-              subBuilder.MergeFrom(VmapLos);
-            }
-            input.ReadMessage(subBuilder);
-            VmapLos = subBuilder;
-            break;
-          }
-          case 50: {
-            global::Pathfinding.CombinedLineOfSightRequest subBuilder = new global::Pathfinding.CombinedLineOfSightRequest();
-            if (payloadCase_ == PayloadOneofCase.CombinedLos) {
-              subBuilder.MergeFrom(CombinedLos);
-            }
-            input.ReadMessage(subBuilder);
-            CombinedLos = subBuilder;
-            break;
-          }
-          case 58: {
-            global::Pathfinding.AreaInfoRequest subBuilder = new global::Pathfinding.AreaInfoRequest();
-            if (payloadCase_ == PayloadOneofCase.AreaInfo) {
-              subBuilder.MergeFrom(AreaInfo);
-            }
-            input.ReadMessage(subBuilder);
-            AreaInfo = subBuilder;
-            break;
-          }
-          case 66: {
-            global::Pathfinding.LiquidInfoRequest subBuilder = new global::Pathfinding.LiquidInfoRequest();
-            if (payloadCase_ == PayloadOneofCase.LiquidInfo) {
-              subBuilder.MergeFrom(LiquidInfo);
-            }
-            input.ReadMessage(subBuilder);
-            LiquidInfo = subBuilder;
-            break;
-          }
         }
       }
     }
@@ -734,7 +430,7 @@ namespace Pathfinding {
   }
 
   /// <summary>
-  /// Main response message
+  /// Main response message - simplified
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class PathfindingResponse : pb::IMessage<PathfindingResponse>
@@ -780,21 +476,6 @@ namespace Pathfinding {
           break;
         case PayloadOneofCase.Step:
           Step = other.Step.Clone();
-          break;
-        case PayloadOneofCase.VmapHeight:
-          VmapHeight = other.VmapHeight.Clone();
-          break;
-        case PayloadOneofCase.VmapLos:
-          VmapLos = other.VmapLos.Clone();
-          break;
-        case PayloadOneofCase.CombinedLos:
-          CombinedLos = other.CombinedLos.Clone();
-          break;
-        case PayloadOneofCase.AreaInfo:
-          AreaInfo = other.AreaInfo.Clone();
-          break;
-        case PayloadOneofCase.LiquidInfo:
-          LiquidInfo = other.LiquidInfo.Clone();
           break;
         case PayloadOneofCase.Error:
           Error = other.Error.Clone();
@@ -846,66 +527,6 @@ namespace Pathfinding {
       }
     }
 
-    /// <summary>Field number for the "vmap_height" field.</summary>
-    public const int VmapHeightFieldNumber = 4;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Pathfinding.VMapHeightResponse VmapHeight {
-      get { return payloadCase_ == PayloadOneofCase.VmapHeight ? (global::Pathfinding.VMapHeightResponse) payload_ : null; }
-      set {
-        payload_ = value;
-        payloadCase_ = value == null ? PayloadOneofCase.None : PayloadOneofCase.VmapHeight;
-      }
-    }
-
-    /// <summary>Field number for the "vmap_los" field.</summary>
-    public const int VmapLosFieldNumber = 5;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Pathfinding.VMapLineOfSightResponse VmapLos {
-      get { return payloadCase_ == PayloadOneofCase.VmapLos ? (global::Pathfinding.VMapLineOfSightResponse) payload_ : null; }
-      set {
-        payload_ = value;
-        payloadCase_ = value == null ? PayloadOneofCase.None : PayloadOneofCase.VmapLos;
-      }
-    }
-
-    /// <summary>Field number for the "combined_los" field.</summary>
-    public const int CombinedLosFieldNumber = 6;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Pathfinding.CombinedLineOfSightResponse CombinedLos {
-      get { return payloadCase_ == PayloadOneofCase.CombinedLos ? (global::Pathfinding.CombinedLineOfSightResponse) payload_ : null; }
-      set {
-        payload_ = value;
-        payloadCase_ = value == null ? PayloadOneofCase.None : PayloadOneofCase.CombinedLos;
-      }
-    }
-
-    /// <summary>Field number for the "area_info" field.</summary>
-    public const int AreaInfoFieldNumber = 7;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Pathfinding.AreaInfoResponse AreaInfo {
-      get { return payloadCase_ == PayloadOneofCase.AreaInfo ? (global::Pathfinding.AreaInfoResponse) payload_ : null; }
-      set {
-        payload_ = value;
-        payloadCase_ = value == null ? PayloadOneofCase.None : PayloadOneofCase.AreaInfo;
-      }
-    }
-
-    /// <summary>Field number for the "liquid_info" field.</summary>
-    public const int LiquidInfoFieldNumber = 8;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Pathfinding.LiquidInfoResponse LiquidInfo {
-      get { return payloadCase_ == PayloadOneofCase.LiquidInfo ? (global::Pathfinding.LiquidInfoResponse) payload_ : null; }
-      set {
-        payload_ = value;
-        payloadCase_ = value == null ? PayloadOneofCase.None : PayloadOneofCase.LiquidInfo;
-      }
-    }
-
     /// <summary>Field number for the "error" field.</summary>
     public const int ErrorFieldNumber = 99;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -925,11 +546,6 @@ namespace Pathfinding {
       Path = 1,
       Los = 2,
       Step = 3,
-      VmapHeight = 4,
-      VmapLos = 5,
-      CombinedLos = 6,
-      AreaInfo = 7,
-      LiquidInfo = 8,
       Error = 99,
     }
     private PayloadOneofCase payloadCase_ = PayloadOneofCase.None;
@@ -964,11 +580,6 @@ namespace Pathfinding {
       if (!object.Equals(Path, other.Path)) return false;
       if (!object.Equals(Los, other.Los)) return false;
       if (!object.Equals(Step, other.Step)) return false;
-      if (!object.Equals(VmapHeight, other.VmapHeight)) return false;
-      if (!object.Equals(VmapLos, other.VmapLos)) return false;
-      if (!object.Equals(CombinedLos, other.CombinedLos)) return false;
-      if (!object.Equals(AreaInfo, other.AreaInfo)) return false;
-      if (!object.Equals(LiquidInfo, other.LiquidInfo)) return false;
       if (!object.Equals(Error, other.Error)) return false;
       if (PayloadCase != other.PayloadCase) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -981,11 +592,6 @@ namespace Pathfinding {
       if (payloadCase_ == PayloadOneofCase.Path) hash ^= Path.GetHashCode();
       if (payloadCase_ == PayloadOneofCase.Los) hash ^= Los.GetHashCode();
       if (payloadCase_ == PayloadOneofCase.Step) hash ^= Step.GetHashCode();
-      if (payloadCase_ == PayloadOneofCase.VmapHeight) hash ^= VmapHeight.GetHashCode();
-      if (payloadCase_ == PayloadOneofCase.VmapLos) hash ^= VmapLos.GetHashCode();
-      if (payloadCase_ == PayloadOneofCase.CombinedLos) hash ^= CombinedLos.GetHashCode();
-      if (payloadCase_ == PayloadOneofCase.AreaInfo) hash ^= AreaInfo.GetHashCode();
-      if (payloadCase_ == PayloadOneofCase.LiquidInfo) hash ^= LiquidInfo.GetHashCode();
       if (payloadCase_ == PayloadOneofCase.Error) hash ^= Error.GetHashCode();
       hash ^= (int) payloadCase_;
       if (_unknownFields != null) {
@@ -1018,26 +624,6 @@ namespace Pathfinding {
         output.WriteRawTag(26);
         output.WriteMessage(Step);
       }
-      if (payloadCase_ == PayloadOneofCase.VmapHeight) {
-        output.WriteRawTag(34);
-        output.WriteMessage(VmapHeight);
-      }
-      if (payloadCase_ == PayloadOneofCase.VmapLos) {
-        output.WriteRawTag(42);
-        output.WriteMessage(VmapLos);
-      }
-      if (payloadCase_ == PayloadOneofCase.CombinedLos) {
-        output.WriteRawTag(50);
-        output.WriteMessage(CombinedLos);
-      }
-      if (payloadCase_ == PayloadOneofCase.AreaInfo) {
-        output.WriteRawTag(58);
-        output.WriteMessage(AreaInfo);
-      }
-      if (payloadCase_ == PayloadOneofCase.LiquidInfo) {
-        output.WriteRawTag(66);
-        output.WriteMessage(LiquidInfo);
-      }
       if (payloadCase_ == PayloadOneofCase.Error) {
         output.WriteRawTag(154, 6);
         output.WriteMessage(Error);
@@ -1064,26 +650,6 @@ namespace Pathfinding {
         output.WriteRawTag(26);
         output.WriteMessage(Step);
       }
-      if (payloadCase_ == PayloadOneofCase.VmapHeight) {
-        output.WriteRawTag(34);
-        output.WriteMessage(VmapHeight);
-      }
-      if (payloadCase_ == PayloadOneofCase.VmapLos) {
-        output.WriteRawTag(42);
-        output.WriteMessage(VmapLos);
-      }
-      if (payloadCase_ == PayloadOneofCase.CombinedLos) {
-        output.WriteRawTag(50);
-        output.WriteMessage(CombinedLos);
-      }
-      if (payloadCase_ == PayloadOneofCase.AreaInfo) {
-        output.WriteRawTag(58);
-        output.WriteMessage(AreaInfo);
-      }
-      if (payloadCase_ == PayloadOneofCase.LiquidInfo) {
-        output.WriteRawTag(66);
-        output.WriteMessage(LiquidInfo);
-      }
       if (payloadCase_ == PayloadOneofCase.Error) {
         output.WriteRawTag(154, 6);
         output.WriteMessage(Error);
@@ -1106,21 +672,6 @@ namespace Pathfinding {
       }
       if (payloadCase_ == PayloadOneofCase.Step) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Step);
-      }
-      if (payloadCase_ == PayloadOneofCase.VmapHeight) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(VmapHeight);
-      }
-      if (payloadCase_ == PayloadOneofCase.VmapLos) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(VmapLos);
-      }
-      if (payloadCase_ == PayloadOneofCase.CombinedLos) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(CombinedLos);
-      }
-      if (payloadCase_ == PayloadOneofCase.AreaInfo) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(AreaInfo);
-      }
-      if (payloadCase_ == PayloadOneofCase.LiquidInfo) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(LiquidInfo);
       }
       if (payloadCase_ == PayloadOneofCase.Error) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(Error);
@@ -1155,36 +706,6 @@ namespace Pathfinding {
             Step = new global::Pathfinding.PhysicsOutput();
           }
           Step.MergeFrom(other.Step);
-          break;
-        case PayloadOneofCase.VmapHeight:
-          if (VmapHeight == null) {
-            VmapHeight = new global::Pathfinding.VMapHeightResponse();
-          }
-          VmapHeight.MergeFrom(other.VmapHeight);
-          break;
-        case PayloadOneofCase.VmapLos:
-          if (VmapLos == null) {
-            VmapLos = new global::Pathfinding.VMapLineOfSightResponse();
-          }
-          VmapLos.MergeFrom(other.VmapLos);
-          break;
-        case PayloadOneofCase.CombinedLos:
-          if (CombinedLos == null) {
-            CombinedLos = new global::Pathfinding.CombinedLineOfSightResponse();
-          }
-          CombinedLos.MergeFrom(other.CombinedLos);
-          break;
-        case PayloadOneofCase.AreaInfo:
-          if (AreaInfo == null) {
-            AreaInfo = new global::Pathfinding.AreaInfoResponse();
-          }
-          AreaInfo.MergeFrom(other.AreaInfo);
-          break;
-        case PayloadOneofCase.LiquidInfo:
-          if (LiquidInfo == null) {
-            LiquidInfo = new global::Pathfinding.LiquidInfoResponse();
-          }
-          LiquidInfo.MergeFrom(other.LiquidInfo);
           break;
         case PayloadOneofCase.Error:
           if (Error == null) {
@@ -1240,51 +761,6 @@ namespace Pathfinding {
             Step = subBuilder;
             break;
           }
-          case 34: {
-            global::Pathfinding.VMapHeightResponse subBuilder = new global::Pathfinding.VMapHeightResponse();
-            if (payloadCase_ == PayloadOneofCase.VmapHeight) {
-              subBuilder.MergeFrom(VmapHeight);
-            }
-            input.ReadMessage(subBuilder);
-            VmapHeight = subBuilder;
-            break;
-          }
-          case 42: {
-            global::Pathfinding.VMapLineOfSightResponse subBuilder = new global::Pathfinding.VMapLineOfSightResponse();
-            if (payloadCase_ == PayloadOneofCase.VmapLos) {
-              subBuilder.MergeFrom(VmapLos);
-            }
-            input.ReadMessage(subBuilder);
-            VmapLos = subBuilder;
-            break;
-          }
-          case 50: {
-            global::Pathfinding.CombinedLineOfSightResponse subBuilder = new global::Pathfinding.CombinedLineOfSightResponse();
-            if (payloadCase_ == PayloadOneofCase.CombinedLos) {
-              subBuilder.MergeFrom(CombinedLos);
-            }
-            input.ReadMessage(subBuilder);
-            CombinedLos = subBuilder;
-            break;
-          }
-          case 58: {
-            global::Pathfinding.AreaInfoResponse subBuilder = new global::Pathfinding.AreaInfoResponse();
-            if (payloadCase_ == PayloadOneofCase.AreaInfo) {
-              subBuilder.MergeFrom(AreaInfo);
-            }
-            input.ReadMessage(subBuilder);
-            AreaInfo = subBuilder;
-            break;
-          }
-          case 66: {
-            global::Pathfinding.LiquidInfoResponse subBuilder = new global::Pathfinding.LiquidInfoResponse();
-            if (payloadCase_ == PayloadOneofCase.LiquidInfo) {
-              subBuilder.MergeFrom(LiquidInfo);
-            }
-            input.ReadMessage(subBuilder);
-            LiquidInfo = subBuilder;
-            break;
-          }
           case 794: {
             global::Pathfinding.Error subBuilder = new global::Pathfinding.Error();
             if (payloadCase_ == PayloadOneofCase.Error) {
@@ -1338,51 +814,6 @@ namespace Pathfinding {
             }
             input.ReadMessage(subBuilder);
             Step = subBuilder;
-            break;
-          }
-          case 34: {
-            global::Pathfinding.VMapHeightResponse subBuilder = new global::Pathfinding.VMapHeightResponse();
-            if (payloadCase_ == PayloadOneofCase.VmapHeight) {
-              subBuilder.MergeFrom(VmapHeight);
-            }
-            input.ReadMessage(subBuilder);
-            VmapHeight = subBuilder;
-            break;
-          }
-          case 42: {
-            global::Pathfinding.VMapLineOfSightResponse subBuilder = new global::Pathfinding.VMapLineOfSightResponse();
-            if (payloadCase_ == PayloadOneofCase.VmapLos) {
-              subBuilder.MergeFrom(VmapLos);
-            }
-            input.ReadMessage(subBuilder);
-            VmapLos = subBuilder;
-            break;
-          }
-          case 50: {
-            global::Pathfinding.CombinedLineOfSightResponse subBuilder = new global::Pathfinding.CombinedLineOfSightResponse();
-            if (payloadCase_ == PayloadOneofCase.CombinedLos) {
-              subBuilder.MergeFrom(CombinedLos);
-            }
-            input.ReadMessage(subBuilder);
-            CombinedLos = subBuilder;
-            break;
-          }
-          case 58: {
-            global::Pathfinding.AreaInfoResponse subBuilder = new global::Pathfinding.AreaInfoResponse();
-            if (payloadCase_ == PayloadOneofCase.AreaInfo) {
-              subBuilder.MergeFrom(AreaInfo);
-            }
-            input.ReadMessage(subBuilder);
-            AreaInfo = subBuilder;
-            break;
-          }
-          case 66: {
-            global::Pathfinding.LiquidInfoResponse subBuilder = new global::Pathfinding.LiquidInfoResponse();
-            if (payloadCase_ == PayloadOneofCase.LiquidInfo) {
-              subBuilder.MergeFrom(LiquidInfo);
-            }
-            input.ReadMessage(subBuilder);
-            LiquidInfo = subBuilder;
             break;
           }
           case 794: {
@@ -1603,7 +1034,7 @@ namespace Pathfinding {
   }
 
   /// <summary>
-  /// Navigation mesh pathfinding
+  /// Path calculation
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class CalculatePathRequest : pb::IMessage<CalculatePathRequest>
@@ -1692,6 +1123,9 @@ namespace Pathfinding {
     /// <summary>Field number for the "straight" field.</summary>
     public const int StraightFieldNumber = 4;
     private bool straight_;
+    /// <summary>
+    /// smooth path
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public bool Straight {
@@ -2120,7 +1554,7 @@ namespace Pathfinding {
   }
 
   /// <summary>
-  /// Navigation mesh line of sight
+  /// Line of sight check
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class LineOfSightRequest : pb::IMessage<LineOfSightRequest>
@@ -2611,7 +2045,7 @@ namespace Pathfinding {
   }
 
   /// <summary>
-  /// Physics system
+  /// Physics input
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class PhysicsInput : pb::IMessage<PhysicsInput>
@@ -2661,17 +2095,16 @@ namespace Pathfinding {
       swimPitch_ = other.swimPitch_;
       fallTime_ = other.fallTime_;
       splineElevation_ = other.splineElevation_;
+      velX_ = other.velX_;
+      velY_ = other.velY_;
+      velZ_ = other.velZ_;
       walkSpeed_ = other.walkSpeed_;
       runSpeed_ = other.runSpeed_;
       runBackSpeed_ = other.runBackSpeed_;
       swimSpeed_ = other.swimSpeed_;
       swimBackSpeed_ = other.swimBackSpeed_;
-      velX_ = other.velX_;
-      velY_ = other.velY_;
-      velZ_ = other.velZ_;
       radius_ = other.radius_;
       height_ = other.height_;
-      gravity_ = other.gravity_;
       mapId_ = other.mapId_;
       deltaTime_ = other.deltaTime_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -2829,13 +2262,13 @@ namespace Pathfinding {
 
     /// <summary>Field number for the "fall_time" field.</summary>
     public const int FallTimeFieldNumber = 12;
-    private uint fallTime_;
+    private float fallTime_;
     /// <summary>
-    /// Falling/jumping - simplified
+    /// Falling/jumping
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint FallTime {
+    public float FallTime {
       get { return fallTime_; }
       set {
         fallTime_ = value;
@@ -2857,71 +2290,8 @@ namespace Pathfinding {
       }
     }
 
-    /// <summary>Field number for the "walk_speed" field.</summary>
-    public const int WalkSpeedFieldNumber = 14;
-    private float walkSpeed_;
-    /// <summary>
-    /// Movement speeds
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float WalkSpeed {
-      get { return walkSpeed_; }
-      set {
-        walkSpeed_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "run_speed" field.</summary>
-    public const int RunSpeedFieldNumber = 15;
-    private float runSpeed_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float RunSpeed {
-      get { return runSpeed_; }
-      set {
-        runSpeed_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "run_back_speed" field.</summary>
-    public const int RunBackSpeedFieldNumber = 16;
-    private float runBackSpeed_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float RunBackSpeed {
-      get { return runBackSpeed_; }
-      set {
-        runBackSpeed_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "swim_speed" field.</summary>
-    public const int SwimSpeedFieldNumber = 17;
-    private float swimSpeed_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float SwimSpeed {
-      get { return swimSpeed_; }
-      set {
-        swimSpeed_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "swim_back_speed" field.</summary>
-    public const int SwimBackSpeedFieldNumber = 18;
-    private float swimBackSpeed_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float SwimBackSpeed {
-      get { return swimBackSpeed_; }
-      set {
-        swimBackSpeed_ = value;
-      }
-    }
-
     /// <summary>Field number for the "vel_x" field.</summary>
-    public const int VelXFieldNumber = 19;
+    public const int VelXFieldNumber = 14;
     private float velX_;
     /// <summary>
     /// Current velocity
@@ -2936,7 +2306,7 @@ namespace Pathfinding {
     }
 
     /// <summary>Field number for the "vel_y" field.</summary>
-    public const int VelYFieldNumber = 20;
+    public const int VelYFieldNumber = 15;
     private float velY_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2948,7 +2318,7 @@ namespace Pathfinding {
     }
 
     /// <summary>Field number for the "vel_z" field.</summary>
-    public const int VelZFieldNumber = 21;
+    public const int VelZFieldNumber = 16;
     private float velZ_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2956,6 +2326,69 @@ namespace Pathfinding {
       get { return velZ_; }
       set {
         velZ_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "walk_speed" field.</summary>
+    public const int WalkSpeedFieldNumber = 17;
+    private float walkSpeed_;
+    /// <summary>
+    /// Movement speeds
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float WalkSpeed {
+      get { return walkSpeed_; }
+      set {
+        walkSpeed_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "run_speed" field.</summary>
+    public const int RunSpeedFieldNumber = 18;
+    private float runSpeed_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float RunSpeed {
+      get { return runSpeed_; }
+      set {
+        runSpeed_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "run_back_speed" field.</summary>
+    public const int RunBackSpeedFieldNumber = 19;
+    private float runBackSpeed_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float RunBackSpeed {
+      get { return runBackSpeed_; }
+      set {
+        runBackSpeed_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "swim_speed" field.</summary>
+    public const int SwimSpeedFieldNumber = 20;
+    private float swimSpeed_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float SwimSpeed {
+      get { return swimSpeed_; }
+      set {
+        swimSpeed_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "swim_back_speed" field.</summary>
+    public const int SwimBackSpeedFieldNumber = 21;
+    private float swimBackSpeed_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float SwimBackSpeed {
+      get { return swimBackSpeed_; }
+      set {
+        swimBackSpeed_ = value;
       }
     }
 
@@ -2986,20 +2419,8 @@ namespace Pathfinding {
       }
     }
 
-    /// <summary>Field number for the "gravity" field.</summary>
-    public const int GravityFieldNumber = 24;
-    private float gravity_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float Gravity {
-      get { return gravity_; }
-      set {
-        gravity_ = value;
-      }
-    }
-
     /// <summary>Field number for the "map_id" field.</summary>
-    public const int MapIdFieldNumber = 25;
+    public const int MapIdFieldNumber = 24;
     private uint mapId_;
     /// <summary>
     /// Context
@@ -3014,7 +2435,7 @@ namespace Pathfinding {
     }
 
     /// <summary>Field number for the "delta_time" field.</summary>
-    public const int DeltaTimeFieldNumber = 26;
+    public const int DeltaTimeFieldNumber = 25;
     private float deltaTime_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -3051,19 +2472,18 @@ namespace Pathfinding {
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(TransportOffsetZ, other.TransportOffsetZ)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(TransportOrientation, other.TransportOrientation)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(SwimPitch, other.SwimPitch)) return false;
-      if (FallTime != other.FallTime) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(FallTime, other.FallTime)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(SplineElevation, other.SplineElevation)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(VelX, other.VelX)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(VelY, other.VelY)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(VelZ, other.VelZ)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(WalkSpeed, other.WalkSpeed)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(RunSpeed, other.RunSpeed)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(RunBackSpeed, other.RunBackSpeed)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(SwimSpeed, other.SwimSpeed)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(SwimBackSpeed, other.SwimBackSpeed)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(VelX, other.VelX)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(VelY, other.VelY)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(VelZ, other.VelZ)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Radius, other.Radius)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Height, other.Height)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Gravity, other.Gravity)) return false;
       if (MapId != other.MapId) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(DeltaTime, other.DeltaTime)) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -3084,19 +2504,18 @@ namespace Pathfinding {
       if (TransportOffsetZ != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(TransportOffsetZ);
       if (TransportOrientation != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(TransportOrientation);
       if (SwimPitch != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(SwimPitch);
-      if (FallTime != 0) hash ^= FallTime.GetHashCode();
+      if (FallTime != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(FallTime);
       if (SplineElevation != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(SplineElevation);
+      if (VelX != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(VelX);
+      if (VelY != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(VelY);
+      if (VelZ != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(VelZ);
       if (WalkSpeed != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(WalkSpeed);
       if (RunSpeed != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(RunSpeed);
       if (RunBackSpeed != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(RunBackSpeed);
       if (SwimSpeed != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(SwimSpeed);
       if (SwimBackSpeed != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(SwimBackSpeed);
-      if (VelX != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(VelX);
-      if (VelY != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(VelY);
-      if (VelZ != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(VelZ);
       if (Radius != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Radius);
       if (Height != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Height);
-      if (Gravity != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Gravity);
       if (MapId != 0) hash ^= MapId.GetHashCode();
       if (DeltaTime != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(DeltaTime);
       if (_unknownFields != null) {
@@ -3161,45 +2580,45 @@ namespace Pathfinding {
         output.WriteRawTag(93);
         output.WriteFloat(SwimPitch);
       }
-      if (FallTime != 0) {
-        output.WriteRawTag(96);
-        output.WriteUInt32(FallTime);
+      if (FallTime != 0F) {
+        output.WriteRawTag(101);
+        output.WriteFloat(FallTime);
       }
       if (SplineElevation != 0F) {
         output.WriteRawTag(109);
         output.WriteFloat(SplineElevation);
       }
-      if (WalkSpeed != 0F) {
-        output.WriteRawTag(117);
-        output.WriteFloat(WalkSpeed);
-      }
-      if (RunSpeed != 0F) {
-        output.WriteRawTag(125);
-        output.WriteFloat(RunSpeed);
-      }
-      if (RunBackSpeed != 0F) {
-        output.WriteRawTag(133, 1);
-        output.WriteFloat(RunBackSpeed);
-      }
-      if (SwimSpeed != 0F) {
-        output.WriteRawTag(141, 1);
-        output.WriteFloat(SwimSpeed);
-      }
-      if (SwimBackSpeed != 0F) {
-        output.WriteRawTag(149, 1);
-        output.WriteFloat(SwimBackSpeed);
-      }
       if (VelX != 0F) {
-        output.WriteRawTag(157, 1);
+        output.WriteRawTag(117);
         output.WriteFloat(VelX);
       }
       if (VelY != 0F) {
-        output.WriteRawTag(165, 1);
+        output.WriteRawTag(125);
         output.WriteFloat(VelY);
       }
       if (VelZ != 0F) {
-        output.WriteRawTag(173, 1);
+        output.WriteRawTag(133, 1);
         output.WriteFloat(VelZ);
+      }
+      if (WalkSpeed != 0F) {
+        output.WriteRawTag(141, 1);
+        output.WriteFloat(WalkSpeed);
+      }
+      if (RunSpeed != 0F) {
+        output.WriteRawTag(149, 1);
+        output.WriteFloat(RunSpeed);
+      }
+      if (RunBackSpeed != 0F) {
+        output.WriteRawTag(157, 1);
+        output.WriteFloat(RunBackSpeed);
+      }
+      if (SwimSpeed != 0F) {
+        output.WriteRawTag(165, 1);
+        output.WriteFloat(SwimSpeed);
+      }
+      if (SwimBackSpeed != 0F) {
+        output.WriteRawTag(173, 1);
+        output.WriteFloat(SwimBackSpeed);
       }
       if (Radius != 0F) {
         output.WriteRawTag(181, 1);
@@ -3209,16 +2628,12 @@ namespace Pathfinding {
         output.WriteRawTag(189, 1);
         output.WriteFloat(Height);
       }
-      if (Gravity != 0F) {
-        output.WriteRawTag(197, 1);
-        output.WriteFloat(Gravity);
-      }
       if (MapId != 0) {
-        output.WriteRawTag(200, 1);
+        output.WriteRawTag(192, 1);
         output.WriteUInt32(MapId);
       }
       if (DeltaTime != 0F) {
-        output.WriteRawTag(213, 1);
+        output.WriteRawTag(205, 1);
         output.WriteFloat(DeltaTime);
       }
       if (_unknownFields != null) {
@@ -3275,45 +2690,45 @@ namespace Pathfinding {
         output.WriteRawTag(93);
         output.WriteFloat(SwimPitch);
       }
-      if (FallTime != 0) {
-        output.WriteRawTag(96);
-        output.WriteUInt32(FallTime);
+      if (FallTime != 0F) {
+        output.WriteRawTag(101);
+        output.WriteFloat(FallTime);
       }
       if (SplineElevation != 0F) {
         output.WriteRawTag(109);
         output.WriteFloat(SplineElevation);
       }
-      if (WalkSpeed != 0F) {
-        output.WriteRawTag(117);
-        output.WriteFloat(WalkSpeed);
-      }
-      if (RunSpeed != 0F) {
-        output.WriteRawTag(125);
-        output.WriteFloat(RunSpeed);
-      }
-      if (RunBackSpeed != 0F) {
-        output.WriteRawTag(133, 1);
-        output.WriteFloat(RunBackSpeed);
-      }
-      if (SwimSpeed != 0F) {
-        output.WriteRawTag(141, 1);
-        output.WriteFloat(SwimSpeed);
-      }
-      if (SwimBackSpeed != 0F) {
-        output.WriteRawTag(149, 1);
-        output.WriteFloat(SwimBackSpeed);
-      }
       if (VelX != 0F) {
-        output.WriteRawTag(157, 1);
+        output.WriteRawTag(117);
         output.WriteFloat(VelX);
       }
       if (VelY != 0F) {
-        output.WriteRawTag(165, 1);
+        output.WriteRawTag(125);
         output.WriteFloat(VelY);
       }
       if (VelZ != 0F) {
-        output.WriteRawTag(173, 1);
+        output.WriteRawTag(133, 1);
         output.WriteFloat(VelZ);
+      }
+      if (WalkSpeed != 0F) {
+        output.WriteRawTag(141, 1);
+        output.WriteFloat(WalkSpeed);
+      }
+      if (RunSpeed != 0F) {
+        output.WriteRawTag(149, 1);
+        output.WriteFloat(RunSpeed);
+      }
+      if (RunBackSpeed != 0F) {
+        output.WriteRawTag(157, 1);
+        output.WriteFloat(RunBackSpeed);
+      }
+      if (SwimSpeed != 0F) {
+        output.WriteRawTag(165, 1);
+        output.WriteFloat(SwimSpeed);
+      }
+      if (SwimBackSpeed != 0F) {
+        output.WriteRawTag(173, 1);
+        output.WriteFloat(SwimBackSpeed);
       }
       if (Radius != 0F) {
         output.WriteRawTag(181, 1);
@@ -3323,16 +2738,12 @@ namespace Pathfinding {
         output.WriteRawTag(189, 1);
         output.WriteFloat(Height);
       }
-      if (Gravity != 0F) {
-        output.WriteRawTag(197, 1);
-        output.WriteFloat(Gravity);
-      }
       if (MapId != 0) {
-        output.WriteRawTag(200, 1);
+        output.WriteRawTag(192, 1);
         output.WriteUInt32(MapId);
       }
       if (DeltaTime != 0F) {
-        output.WriteRawTag(213, 1);
+        output.WriteRawTag(205, 1);
         output.WriteFloat(DeltaTime);
       }
       if (_unknownFields != null) {
@@ -3378,17 +2789,26 @@ namespace Pathfinding {
       if (SwimPitch != 0F) {
         size += 1 + 4;
       }
-      if (FallTime != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(FallTime);
+      if (FallTime != 0F) {
+        size += 1 + 4;
       }
       if (SplineElevation != 0F) {
         size += 1 + 4;
       }
-      if (WalkSpeed != 0F) {
+      if (VelX != 0F) {
         size += 1 + 4;
       }
-      if (RunSpeed != 0F) {
+      if (VelY != 0F) {
         size += 1 + 4;
+      }
+      if (VelZ != 0F) {
+        size += 2 + 4;
+      }
+      if (WalkSpeed != 0F) {
+        size += 2 + 4;
+      }
+      if (RunSpeed != 0F) {
+        size += 2 + 4;
       }
       if (RunBackSpeed != 0F) {
         size += 2 + 4;
@@ -3399,22 +2819,10 @@ namespace Pathfinding {
       if (SwimBackSpeed != 0F) {
         size += 2 + 4;
       }
-      if (VelX != 0F) {
-        size += 2 + 4;
-      }
-      if (VelY != 0F) {
-        size += 2 + 4;
-      }
-      if (VelZ != 0F) {
-        size += 2 + 4;
-      }
       if (Radius != 0F) {
         size += 2 + 4;
       }
       if (Height != 0F) {
-        size += 2 + 4;
-      }
-      if (Gravity != 0F) {
         size += 2 + 4;
       }
       if (MapId != 0) {
@@ -3468,11 +2876,20 @@ namespace Pathfinding {
       if (other.SwimPitch != 0F) {
         SwimPitch = other.SwimPitch;
       }
-      if (other.FallTime != 0) {
+      if (other.FallTime != 0F) {
         FallTime = other.FallTime;
       }
       if (other.SplineElevation != 0F) {
         SplineElevation = other.SplineElevation;
+      }
+      if (other.VelX != 0F) {
+        VelX = other.VelX;
+      }
+      if (other.VelY != 0F) {
+        VelY = other.VelY;
+      }
+      if (other.VelZ != 0F) {
+        VelZ = other.VelZ;
       }
       if (other.WalkSpeed != 0F) {
         WalkSpeed = other.WalkSpeed;
@@ -3489,23 +2906,11 @@ namespace Pathfinding {
       if (other.SwimBackSpeed != 0F) {
         SwimBackSpeed = other.SwimBackSpeed;
       }
-      if (other.VelX != 0F) {
-        VelX = other.VelX;
-      }
-      if (other.VelY != 0F) {
-        VelY = other.VelY;
-      }
-      if (other.VelZ != 0F) {
-        VelZ = other.VelZ;
-      }
       if (other.Radius != 0F) {
         Radius = other.Radius;
       }
       if (other.Height != 0F) {
         Height = other.Height;
-      }
-      if (other.Gravity != 0F) {
-        Gravity = other.Gravity;
       }
       if (other.MapId != 0) {
         MapId = other.MapId;
@@ -3576,8 +2981,8 @@ namespace Pathfinding {
             SwimPitch = input.ReadFloat();
             break;
           }
-          case 96: {
-            FallTime = input.ReadUInt32();
+          case 101: {
+            FallTime = input.ReadFloat();
             break;
           }
           case 109: {
@@ -3585,35 +2990,35 @@ namespace Pathfinding {
             break;
           }
           case 117: {
-            WalkSpeed = input.ReadFloat();
-            break;
-          }
-          case 125: {
-            RunSpeed = input.ReadFloat();
-            break;
-          }
-          case 133: {
-            RunBackSpeed = input.ReadFloat();
-            break;
-          }
-          case 141: {
-            SwimSpeed = input.ReadFloat();
-            break;
-          }
-          case 149: {
-            SwimBackSpeed = input.ReadFloat();
-            break;
-          }
-          case 157: {
             VelX = input.ReadFloat();
             break;
           }
-          case 165: {
+          case 125: {
             VelY = input.ReadFloat();
             break;
           }
-          case 173: {
+          case 133: {
             VelZ = input.ReadFloat();
+            break;
+          }
+          case 141: {
+            WalkSpeed = input.ReadFloat();
+            break;
+          }
+          case 149: {
+            RunSpeed = input.ReadFloat();
+            break;
+          }
+          case 157: {
+            RunBackSpeed = input.ReadFloat();
+            break;
+          }
+          case 165: {
+            SwimSpeed = input.ReadFloat();
+            break;
+          }
+          case 173: {
+            SwimBackSpeed = input.ReadFloat();
             break;
           }
           case 181: {
@@ -3624,15 +3029,11 @@ namespace Pathfinding {
             Height = input.ReadFloat();
             break;
           }
-          case 197: {
-            Gravity = input.ReadFloat();
-            break;
-          }
-          case 200: {
+          case 192: {
             MapId = input.ReadUInt32();
             break;
           }
-          case 213: {
+          case 205: {
             DeltaTime = input.ReadFloat();
             break;
           }
@@ -3699,8 +3100,8 @@ namespace Pathfinding {
             SwimPitch = input.ReadFloat();
             break;
           }
-          case 96: {
-            FallTime = input.ReadUInt32();
+          case 101: {
+            FallTime = input.ReadFloat();
             break;
           }
           case 109: {
@@ -3708,35 +3109,35 @@ namespace Pathfinding {
             break;
           }
           case 117: {
-            WalkSpeed = input.ReadFloat();
-            break;
-          }
-          case 125: {
-            RunSpeed = input.ReadFloat();
-            break;
-          }
-          case 133: {
-            RunBackSpeed = input.ReadFloat();
-            break;
-          }
-          case 141: {
-            SwimSpeed = input.ReadFloat();
-            break;
-          }
-          case 149: {
-            SwimBackSpeed = input.ReadFloat();
-            break;
-          }
-          case 157: {
             VelX = input.ReadFloat();
             break;
           }
-          case 165: {
+          case 125: {
             VelY = input.ReadFloat();
             break;
           }
-          case 173: {
+          case 133: {
             VelZ = input.ReadFloat();
+            break;
+          }
+          case 141: {
+            WalkSpeed = input.ReadFloat();
+            break;
+          }
+          case 149: {
+            RunSpeed = input.ReadFloat();
+            break;
+          }
+          case 157: {
+            RunBackSpeed = input.ReadFloat();
+            break;
+          }
+          case 165: {
+            SwimSpeed = input.ReadFloat();
+            break;
+          }
+          case 173: {
+            SwimBackSpeed = input.ReadFloat();
             break;
           }
           case 181: {
@@ -3747,15 +3148,11 @@ namespace Pathfinding {
             Height = input.ReadFloat();
             break;
           }
-          case 197: {
-            Gravity = input.ReadFloat();
-            break;
-          }
-          case 200: {
+          case 192: {
             MapId = input.ReadUInt32();
             break;
           }
-          case 213: {
+          case 205: {
             DeltaTime = input.ReadFloat();
             break;
           }
@@ -3766,6 +3163,9 @@ namespace Pathfinding {
 
   }
 
+  /// <summary>
+  /// Physics output
+  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class PhysicsOutput : pb::IMessage<PhysicsOutput>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -3814,6 +3214,8 @@ namespace Pathfinding {
       isSwimming_ = other.isSwimming_;
       isFlying_ = other.isFlying_;
       fallTime_ = other.fallTime_;
+      currentSplineIndex_ = other.currentSplineIndex_;
+      splineProgress_ = other.splineProgress_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -3981,16 +3383,40 @@ namespace Pathfinding {
 
     /// <summary>Field number for the "fall_time" field.</summary>
     public const int FallTimeFieldNumber = 13;
-    private uint fallTime_;
-    /// <summary>
-    /// Fall time tracking
-    /// </summary>
+    private float fallTime_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint FallTime {
+    public float FallTime {
       get { return fallTime_; }
       set {
         fallTime_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "current_spline_index" field.</summary>
+    public const int CurrentSplineIndexFieldNumber = 14;
+    private int currentSplineIndex_;
+    /// <summary>
+    /// Spline progress (if following path)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CurrentSplineIndex {
+      get { return currentSplineIndex_; }
+      set {
+        currentSplineIndex_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "spline_progress" field.</summary>
+    public const int SplineProgressFieldNumber = 15;
+    private float splineProgress_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float SplineProgress {
+      get { return splineProgress_; }
+      set {
+        splineProgress_ = value;
       }
     }
 
@@ -4021,7 +3447,9 @@ namespace Pathfinding {
       if (IsGrounded != other.IsGrounded) return false;
       if (IsSwimming != other.IsSwimming) return false;
       if (IsFlying != other.IsFlying) return false;
-      if (FallTime != other.FallTime) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(FallTime, other.FallTime)) return false;
+      if (CurrentSplineIndex != other.CurrentSplineIndex) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(SplineProgress, other.SplineProgress)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -4041,7 +3469,9 @@ namespace Pathfinding {
       if (IsGrounded != false) hash ^= IsGrounded.GetHashCode();
       if (IsSwimming != false) hash ^= IsSwimming.GetHashCode();
       if (IsFlying != false) hash ^= IsFlying.GetHashCode();
-      if (FallTime != 0) hash ^= FallTime.GetHashCode();
+      if (FallTime != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(FallTime);
+      if (CurrentSplineIndex != 0) hash ^= CurrentSplineIndex.GetHashCode();
+      if (SplineProgress != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(SplineProgress);
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -4108,9 +3538,17 @@ namespace Pathfinding {
         output.WriteRawTag(96);
         output.WriteBool(IsFlying);
       }
-      if (FallTime != 0) {
-        output.WriteRawTag(104);
-        output.WriteUInt32(FallTime);
+      if (FallTime != 0F) {
+        output.WriteRawTag(109);
+        output.WriteFloat(FallTime);
+      }
+      if (CurrentSplineIndex != 0) {
+        output.WriteRawTag(112);
+        output.WriteInt32(CurrentSplineIndex);
+      }
+      if (SplineProgress != 0F) {
+        output.WriteRawTag(125);
+        output.WriteFloat(SplineProgress);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -4170,9 +3608,17 @@ namespace Pathfinding {
         output.WriteRawTag(96);
         output.WriteBool(IsFlying);
       }
-      if (FallTime != 0) {
-        output.WriteRawTag(104);
-        output.WriteUInt32(FallTime);
+      if (FallTime != 0F) {
+        output.WriteRawTag(109);
+        output.WriteFloat(FallTime);
+      }
+      if (CurrentSplineIndex != 0) {
+        output.WriteRawTag(112);
+        output.WriteInt32(CurrentSplineIndex);
+      }
+      if (SplineProgress != 0F) {
+        output.WriteRawTag(125);
+        output.WriteFloat(SplineProgress);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -4220,8 +3666,14 @@ namespace Pathfinding {
       if (IsFlying != false) {
         size += 1 + 1;
       }
-      if (FallTime != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(FallTime);
+      if (FallTime != 0F) {
+        size += 1 + 4;
+      }
+      if (CurrentSplineIndex != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(CurrentSplineIndex);
+      }
+      if (SplineProgress != 0F) {
+        size += 1 + 4;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -4271,9 +3723,15 @@ namespace Pathfinding {
       if (other.IsFlying != false) {
         IsFlying = other.IsFlying;
       }
-      if (other.FallTime != 0) {
+      if (other.FallTime != 0F) {
         FallTime = other.FallTime;
       }
+      if (other.CurrentSplineIndex != 0) {
+        CurrentSplineIndex = other.CurrentSplineIndex;
+      }
+      if (other.SplineProgress != 0F) {
+        SplineProgress = other.SplineProgress;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -4341,8 +3799,16 @@ namespace Pathfinding {
             IsFlying = input.ReadBool();
             break;
           }
-          case 104: {
-            FallTime = input.ReadUInt32();
+          case 109: {
+            FallTime = input.ReadFloat();
+            break;
+          }
+          case 112: {
+            CurrentSplineIndex = input.ReadInt32();
+            break;
+          }
+          case 125: {
+            SplineProgress = input.ReadFloat();
             break;
           }
         }
@@ -4412,2621 +3878,16 @@ namespace Pathfinding {
             IsFlying = input.ReadBool();
             break;
           }
-          case 104: {
-            FallTime = input.ReadUInt32();
+          case 109: {
+            FallTime = input.ReadFloat();
             break;
           }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  /// <summary>
-  /// VMAP height query
-  /// </summary>
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class VMapHeightRequest : pb::IMessage<VMapHeightRequest>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<VMapHeightRequest> _parser = new pb::MessageParser<VMapHeightRequest>(() => new VMapHeightRequest());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<VMapHeightRequest> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[9]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public VMapHeightRequest() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public VMapHeightRequest(VMapHeightRequest other) : this() {
-      mapId_ = other.mapId_;
-      position_ = other.position_ != null ? other.position_.Clone() : null;
-      maxSearchDist_ = other.maxSearchDist_;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public VMapHeightRequest Clone() {
-      return new VMapHeightRequest(this);
-    }
-
-    /// <summary>Field number for the "map_id" field.</summary>
-    public const int MapIdFieldNumber = 1;
-    private uint mapId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint MapId {
-      get { return mapId_; }
-      set {
-        mapId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "position" field.</summary>
-    public const int PositionFieldNumber = 2;
-    private global::Game.Position position_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Position Position {
-      get { return position_; }
-      set {
-        position_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "max_search_dist" field.</summary>
-    public const int MaxSearchDistFieldNumber = 3;
-    private float maxSearchDist_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float MaxSearchDist {
-      get { return maxSearchDist_; }
-      set {
-        maxSearchDist_ = value;
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as VMapHeightRequest);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(VMapHeightRequest other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (MapId != other.MapId) return false;
-      if (!object.Equals(Position, other.Position)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(MaxSearchDist, other.MaxSearchDist)) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (MapId != 0) hash ^= MapId.GetHashCode();
-      if (position_ != null) hash ^= Position.GetHashCode();
-      if (MaxSearchDist != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(MaxSearchDist);
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (MapId != 0) {
-        output.WriteRawTag(8);
-        output.WriteUInt32(MapId);
-      }
-      if (position_ != null) {
-        output.WriteRawTag(18);
-        output.WriteMessage(Position);
-      }
-      if (MaxSearchDist != 0F) {
-        output.WriteRawTag(29);
-        output.WriteFloat(MaxSearchDist);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (MapId != 0) {
-        output.WriteRawTag(8);
-        output.WriteUInt32(MapId);
-      }
-      if (position_ != null) {
-        output.WriteRawTag(18);
-        output.WriteMessage(Position);
-      }
-      if (MaxSearchDist != 0F) {
-        output.WriteRawTag(29);
-        output.WriteFloat(MaxSearchDist);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (MapId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MapId);
-      }
-      if (position_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Position);
-      }
-      if (MaxSearchDist != 0F) {
-        size += 1 + 4;
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(VMapHeightRequest other) {
-      if (other == null) {
-        return;
-      }
-      if (other.MapId != 0) {
-        MapId = other.MapId;
-      }
-      if (other.position_ != null) {
-        if (position_ == null) {
-          Position = new global::Game.Position();
-        }
-        Position.MergeFrom(other.Position);
-      }
-      if (other.MaxSearchDist != 0F) {
-        MaxSearchDist = other.MaxSearchDist;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 8: {
-            MapId = input.ReadUInt32();
+          case 112: {
+            CurrentSplineIndex = input.ReadInt32();
             break;
           }
-          case 18: {
-            if (position_ == null) {
-              Position = new global::Game.Position();
-            }
-            input.ReadMessage(Position);
-            break;
-          }
-          case 29: {
-            MaxSearchDist = input.ReadFloat();
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 8: {
-            MapId = input.ReadUInt32();
-            break;
-          }
-          case 18: {
-            if (position_ == null) {
-              Position = new global::Game.Position();
-            }
-            input.ReadMessage(Position);
-            break;
-          }
-          case 29: {
-            MaxSearchDist = input.ReadFloat();
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class VMapHeightResponse : pb::IMessage<VMapHeightResponse>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<VMapHeightResponse> _parser = new pb::MessageParser<VMapHeightResponse>(() => new VMapHeightResponse());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<VMapHeightResponse> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[10]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public VMapHeightResponse() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public VMapHeightResponse(VMapHeightResponse other) : this() {
-      height_ = other.height_;
-      found_ = other.found_;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public VMapHeightResponse Clone() {
-      return new VMapHeightResponse(this);
-    }
-
-    /// <summary>Field number for the "height" field.</summary>
-    public const int HeightFieldNumber = 1;
-    private float height_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float Height {
-      get { return height_; }
-      set {
-        height_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "found" field.</summary>
-    public const int FoundFieldNumber = 2;
-    private bool found_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Found {
-      get { return found_; }
-      set {
-        found_ = value;
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as VMapHeightResponse);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(VMapHeightResponse other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Height, other.Height)) return false;
-      if (Found != other.Found) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (Height != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Height);
-      if (Found != false) hash ^= Found.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (Height != 0F) {
-        output.WriteRawTag(13);
-        output.WriteFloat(Height);
-      }
-      if (Found != false) {
-        output.WriteRawTag(16);
-        output.WriteBool(Found);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Height != 0F) {
-        output.WriteRawTag(13);
-        output.WriteFloat(Height);
-      }
-      if (Found != false) {
-        output.WriteRawTag(16);
-        output.WriteBool(Found);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (Height != 0F) {
-        size += 1 + 4;
-      }
-      if (Found != false) {
-        size += 1 + 1;
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(VMapHeightResponse other) {
-      if (other == null) {
-        return;
-      }
-      if (other.Height != 0F) {
-        Height = other.Height;
-      }
-      if (other.Found != false) {
-        Found = other.Found;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 13: {
-            Height = input.ReadFloat();
-            break;
-          }
-          case 16: {
-            Found = input.ReadBool();
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 13: {
-            Height = input.ReadFloat();
-            break;
-          }
-          case 16: {
-            Found = input.ReadBool();
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  /// <summary>
-  /// VMAP line of sight
-  /// </summary>
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class VMapLineOfSightRequest : pb::IMessage<VMapLineOfSightRequest>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<VMapLineOfSightRequest> _parser = new pb::MessageParser<VMapLineOfSightRequest>(() => new VMapLineOfSightRequest());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<VMapLineOfSightRequest> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[11]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public VMapLineOfSightRequest() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public VMapLineOfSightRequest(VMapLineOfSightRequest other) : this() {
-      mapId_ = other.mapId_;
-      from_ = other.from_ != null ? other.from_.Clone() : null;
-      to_ = other.to_ != null ? other.to_.Clone() : null;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public VMapLineOfSightRequest Clone() {
-      return new VMapLineOfSightRequest(this);
-    }
-
-    /// <summary>Field number for the "map_id" field.</summary>
-    public const int MapIdFieldNumber = 1;
-    private uint mapId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint MapId {
-      get { return mapId_; }
-      set {
-        mapId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "from" field.</summary>
-    public const int FromFieldNumber = 2;
-    private global::Game.Position from_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Position From {
-      get { return from_; }
-      set {
-        from_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "to" field.</summary>
-    public const int ToFieldNumber = 3;
-    private global::Game.Position to_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Position To {
-      get { return to_; }
-      set {
-        to_ = value;
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as VMapLineOfSightRequest);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(VMapLineOfSightRequest other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (MapId != other.MapId) return false;
-      if (!object.Equals(From, other.From)) return false;
-      if (!object.Equals(To, other.To)) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (MapId != 0) hash ^= MapId.GetHashCode();
-      if (from_ != null) hash ^= From.GetHashCode();
-      if (to_ != null) hash ^= To.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (MapId != 0) {
-        output.WriteRawTag(8);
-        output.WriteUInt32(MapId);
-      }
-      if (from_ != null) {
-        output.WriteRawTag(18);
-        output.WriteMessage(From);
-      }
-      if (to_ != null) {
-        output.WriteRawTag(26);
-        output.WriteMessage(To);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (MapId != 0) {
-        output.WriteRawTag(8);
-        output.WriteUInt32(MapId);
-      }
-      if (from_ != null) {
-        output.WriteRawTag(18);
-        output.WriteMessage(From);
-      }
-      if (to_ != null) {
-        output.WriteRawTag(26);
-        output.WriteMessage(To);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (MapId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MapId);
-      }
-      if (from_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(From);
-      }
-      if (to_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(To);
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(VMapLineOfSightRequest other) {
-      if (other == null) {
-        return;
-      }
-      if (other.MapId != 0) {
-        MapId = other.MapId;
-      }
-      if (other.from_ != null) {
-        if (from_ == null) {
-          From = new global::Game.Position();
-        }
-        From.MergeFrom(other.From);
-      }
-      if (other.to_ != null) {
-        if (to_ == null) {
-          To = new global::Game.Position();
-        }
-        To.MergeFrom(other.To);
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 8: {
-            MapId = input.ReadUInt32();
-            break;
-          }
-          case 18: {
-            if (from_ == null) {
-              From = new global::Game.Position();
-            }
-            input.ReadMessage(From);
-            break;
-          }
-          case 26: {
-            if (to_ == null) {
-              To = new global::Game.Position();
-            }
-            input.ReadMessage(To);
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 8: {
-            MapId = input.ReadUInt32();
-            break;
-          }
-          case 18: {
-            if (from_ == null) {
-              From = new global::Game.Position();
-            }
-            input.ReadMessage(From);
-            break;
-          }
-          case 26: {
-            if (to_ == null) {
-              To = new global::Game.Position();
-            }
-            input.ReadMessage(To);
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class VMapLineOfSightResponse : pb::IMessage<VMapLineOfSightResponse>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<VMapLineOfSightResponse> _parser = new pb::MessageParser<VMapLineOfSightResponse>(() => new VMapLineOfSightResponse());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<VMapLineOfSightResponse> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[12]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public VMapLineOfSightResponse() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public VMapLineOfSightResponse(VMapLineOfSightResponse other) : this() {
-      inLos_ = other.inLos_;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public VMapLineOfSightResponse Clone() {
-      return new VMapLineOfSightResponse(this);
-    }
-
-    /// <summary>Field number for the "in_los" field.</summary>
-    public const int InLosFieldNumber = 1;
-    private bool inLos_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool InLos {
-      get { return inLos_; }
-      set {
-        inLos_ = value;
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as VMapLineOfSightResponse);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(VMapLineOfSightResponse other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (InLos != other.InLos) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (InLos != false) hash ^= InLos.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (InLos != false) {
-        output.WriteRawTag(8);
-        output.WriteBool(InLos);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (InLos != false) {
-        output.WriteRawTag(8);
-        output.WriteBool(InLos);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (InLos != false) {
-        size += 1 + 1;
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(VMapLineOfSightResponse other) {
-      if (other == null) {
-        return;
-      }
-      if (other.InLos != false) {
-        InLos = other.InLos;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 8: {
-            InLos = input.ReadBool();
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 8: {
-            InLos = input.ReadBool();
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  /// <summary>
-  /// Combined line of sight (NavMesh + VMAP)
-  /// </summary>
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class CombinedLineOfSightRequest : pb::IMessage<CombinedLineOfSightRequest>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<CombinedLineOfSightRequest> _parser = new pb::MessageParser<CombinedLineOfSightRequest>(() => new CombinedLineOfSightRequest());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<CombinedLineOfSightRequest> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[13]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public CombinedLineOfSightRequest() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public CombinedLineOfSightRequest(CombinedLineOfSightRequest other) : this() {
-      mapId_ = other.mapId_;
-      from_ = other.from_ != null ? other.from_.Clone() : null;
-      to_ = other.to_ != null ? other.to_.Clone() : null;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public CombinedLineOfSightRequest Clone() {
-      return new CombinedLineOfSightRequest(this);
-    }
-
-    /// <summary>Field number for the "map_id" field.</summary>
-    public const int MapIdFieldNumber = 1;
-    private uint mapId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint MapId {
-      get { return mapId_; }
-      set {
-        mapId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "from" field.</summary>
-    public const int FromFieldNumber = 2;
-    private global::Game.Position from_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Position From {
-      get { return from_; }
-      set {
-        from_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "to" field.</summary>
-    public const int ToFieldNumber = 3;
-    private global::Game.Position to_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Position To {
-      get { return to_; }
-      set {
-        to_ = value;
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as CombinedLineOfSightRequest);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(CombinedLineOfSightRequest other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (MapId != other.MapId) return false;
-      if (!object.Equals(From, other.From)) return false;
-      if (!object.Equals(To, other.To)) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (MapId != 0) hash ^= MapId.GetHashCode();
-      if (from_ != null) hash ^= From.GetHashCode();
-      if (to_ != null) hash ^= To.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (MapId != 0) {
-        output.WriteRawTag(8);
-        output.WriteUInt32(MapId);
-      }
-      if (from_ != null) {
-        output.WriteRawTag(18);
-        output.WriteMessage(From);
-      }
-      if (to_ != null) {
-        output.WriteRawTag(26);
-        output.WriteMessage(To);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (MapId != 0) {
-        output.WriteRawTag(8);
-        output.WriteUInt32(MapId);
-      }
-      if (from_ != null) {
-        output.WriteRawTag(18);
-        output.WriteMessage(From);
-      }
-      if (to_ != null) {
-        output.WriteRawTag(26);
-        output.WriteMessage(To);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (MapId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MapId);
-      }
-      if (from_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(From);
-      }
-      if (to_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(To);
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(CombinedLineOfSightRequest other) {
-      if (other == null) {
-        return;
-      }
-      if (other.MapId != 0) {
-        MapId = other.MapId;
-      }
-      if (other.from_ != null) {
-        if (from_ == null) {
-          From = new global::Game.Position();
-        }
-        From.MergeFrom(other.From);
-      }
-      if (other.to_ != null) {
-        if (to_ == null) {
-          To = new global::Game.Position();
-        }
-        To.MergeFrom(other.To);
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 8: {
-            MapId = input.ReadUInt32();
-            break;
-          }
-          case 18: {
-            if (from_ == null) {
-              From = new global::Game.Position();
-            }
-            input.ReadMessage(From);
-            break;
-          }
-          case 26: {
-            if (to_ == null) {
-              To = new global::Game.Position();
-            }
-            input.ReadMessage(To);
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 8: {
-            MapId = input.ReadUInt32();
-            break;
-          }
-          case 18: {
-            if (from_ == null) {
-              From = new global::Game.Position();
-            }
-            input.ReadMessage(From);
-            break;
-          }
-          case 26: {
-            if (to_ == null) {
-              To = new global::Game.Position();
-            }
-            input.ReadMessage(To);
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class CombinedLineOfSightResponse : pb::IMessage<CombinedLineOfSightResponse>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<CombinedLineOfSightResponse> _parser = new pb::MessageParser<CombinedLineOfSightResponse>(() => new CombinedLineOfSightResponse());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<CombinedLineOfSightResponse> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[14]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public CombinedLineOfSightResponse() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public CombinedLineOfSightResponse(CombinedLineOfSightResponse other) : this() {
-      navmeshLos_ = other.navmeshLos_;
-      vmapLos_ = other.vmapLos_;
-      combinedLos_ = other.combinedLos_;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public CombinedLineOfSightResponse Clone() {
-      return new CombinedLineOfSightResponse(this);
-    }
-
-    /// <summary>Field number for the "navmesh_los" field.</summary>
-    public const int NavmeshLosFieldNumber = 1;
-    private bool navmeshLos_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool NavmeshLos {
-      get { return navmeshLos_; }
-      set {
-        navmeshLos_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "vmap_los" field.</summary>
-    public const int VmapLosFieldNumber = 2;
-    private bool vmapLos_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool VmapLos {
-      get { return vmapLos_; }
-      set {
-        vmapLos_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "combined_los" field.</summary>
-    public const int CombinedLosFieldNumber = 3;
-    private bool combinedLos_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool CombinedLos {
-      get { return combinedLos_; }
-      set {
-        combinedLos_ = value;
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as CombinedLineOfSightResponse);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(CombinedLineOfSightResponse other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (NavmeshLos != other.NavmeshLos) return false;
-      if (VmapLos != other.VmapLos) return false;
-      if (CombinedLos != other.CombinedLos) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (NavmeshLos != false) hash ^= NavmeshLos.GetHashCode();
-      if (VmapLos != false) hash ^= VmapLos.GetHashCode();
-      if (CombinedLos != false) hash ^= CombinedLos.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (NavmeshLos != false) {
-        output.WriteRawTag(8);
-        output.WriteBool(NavmeshLos);
-      }
-      if (VmapLos != false) {
-        output.WriteRawTag(16);
-        output.WriteBool(VmapLos);
-      }
-      if (CombinedLos != false) {
-        output.WriteRawTag(24);
-        output.WriteBool(CombinedLos);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (NavmeshLos != false) {
-        output.WriteRawTag(8);
-        output.WriteBool(NavmeshLos);
-      }
-      if (VmapLos != false) {
-        output.WriteRawTag(16);
-        output.WriteBool(VmapLos);
-      }
-      if (CombinedLos != false) {
-        output.WriteRawTag(24);
-        output.WriteBool(CombinedLos);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (NavmeshLos != false) {
-        size += 1 + 1;
-      }
-      if (VmapLos != false) {
-        size += 1 + 1;
-      }
-      if (CombinedLos != false) {
-        size += 1 + 1;
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(CombinedLineOfSightResponse other) {
-      if (other == null) {
-        return;
-      }
-      if (other.NavmeshLos != false) {
-        NavmeshLos = other.NavmeshLos;
-      }
-      if (other.VmapLos != false) {
-        VmapLos = other.VmapLos;
-      }
-      if (other.CombinedLos != false) {
-        CombinedLos = other.CombinedLos;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 8: {
-            NavmeshLos = input.ReadBool();
-            break;
-          }
-          case 16: {
-            VmapLos = input.ReadBool();
-            break;
-          }
-          case 24: {
-            CombinedLos = input.ReadBool();
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 8: {
-            NavmeshLos = input.ReadBool();
-            break;
-          }
-          case 16: {
-            VmapLos = input.ReadBool();
-            break;
-          }
-          case 24: {
-            CombinedLos = input.ReadBool();
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  /// <summary>
-  /// Area/zone information
-  /// </summary>
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class AreaInfoRequest : pb::IMessage<AreaInfoRequest>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<AreaInfoRequest> _parser = new pb::MessageParser<AreaInfoRequest>(() => new AreaInfoRequest());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<AreaInfoRequest> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[15]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public AreaInfoRequest() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public AreaInfoRequest(AreaInfoRequest other) : this() {
-      mapId_ = other.mapId_;
-      position_ = other.position_ != null ? other.position_.Clone() : null;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public AreaInfoRequest Clone() {
-      return new AreaInfoRequest(this);
-    }
-
-    /// <summary>Field number for the "map_id" field.</summary>
-    public const int MapIdFieldNumber = 1;
-    private uint mapId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint MapId {
-      get { return mapId_; }
-      set {
-        mapId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "position" field.</summary>
-    public const int PositionFieldNumber = 2;
-    private global::Game.Position position_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Position Position {
-      get { return position_; }
-      set {
-        position_ = value;
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as AreaInfoRequest);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(AreaInfoRequest other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (MapId != other.MapId) return false;
-      if (!object.Equals(Position, other.Position)) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (MapId != 0) hash ^= MapId.GetHashCode();
-      if (position_ != null) hash ^= Position.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (MapId != 0) {
-        output.WriteRawTag(8);
-        output.WriteUInt32(MapId);
-      }
-      if (position_ != null) {
-        output.WriteRawTag(18);
-        output.WriteMessage(Position);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (MapId != 0) {
-        output.WriteRawTag(8);
-        output.WriteUInt32(MapId);
-      }
-      if (position_ != null) {
-        output.WriteRawTag(18);
-        output.WriteMessage(Position);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (MapId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MapId);
-      }
-      if (position_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Position);
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(AreaInfoRequest other) {
-      if (other == null) {
-        return;
-      }
-      if (other.MapId != 0) {
-        MapId = other.MapId;
-      }
-      if (other.position_ != null) {
-        if (position_ == null) {
-          Position = new global::Game.Position();
-        }
-        Position.MergeFrom(other.Position);
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 8: {
-            MapId = input.ReadUInt32();
-            break;
-          }
-          case 18: {
-            if (position_ == null) {
-              Position = new global::Game.Position();
-            }
-            input.ReadMessage(Position);
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 8: {
-            MapId = input.ReadUInt32();
-            break;
-          }
-          case 18: {
-            if (position_ == null) {
-              Position = new global::Game.Position();
-            }
-            input.ReadMessage(Position);
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class AreaInfoResponse : pb::IMessage<AreaInfoResponse>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<AreaInfoResponse> _parser = new pb::MessageParser<AreaInfoResponse>(() => new AreaInfoResponse());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<AreaInfoResponse> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[16]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public AreaInfoResponse() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public AreaInfoResponse(AreaInfoResponse other) : this() {
-      areaId_ = other.areaId_;
-      zoneId_ = other.zoneId_;
-      found_ = other.found_;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public AreaInfoResponse Clone() {
-      return new AreaInfoResponse(this);
-    }
-
-    /// <summary>Field number for the "area_id" field.</summary>
-    public const int AreaIdFieldNumber = 1;
-    private uint areaId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint AreaId {
-      get { return areaId_; }
-      set {
-        areaId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "zone_id" field.</summary>
-    public const int ZoneIdFieldNumber = 2;
-    private uint zoneId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint ZoneId {
-      get { return zoneId_; }
-      set {
-        zoneId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "found" field.</summary>
-    public const int FoundFieldNumber = 3;
-    private bool found_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Found {
-      get { return found_; }
-      set {
-        found_ = value;
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as AreaInfoResponse);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(AreaInfoResponse other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (AreaId != other.AreaId) return false;
-      if (ZoneId != other.ZoneId) return false;
-      if (Found != other.Found) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (AreaId != 0) hash ^= AreaId.GetHashCode();
-      if (ZoneId != 0) hash ^= ZoneId.GetHashCode();
-      if (Found != false) hash ^= Found.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (AreaId != 0) {
-        output.WriteRawTag(8);
-        output.WriteUInt32(AreaId);
-      }
-      if (ZoneId != 0) {
-        output.WriteRawTag(16);
-        output.WriteUInt32(ZoneId);
-      }
-      if (Found != false) {
-        output.WriteRawTag(24);
-        output.WriteBool(Found);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (AreaId != 0) {
-        output.WriteRawTag(8);
-        output.WriteUInt32(AreaId);
-      }
-      if (ZoneId != 0) {
-        output.WriteRawTag(16);
-        output.WriteUInt32(ZoneId);
-      }
-      if (Found != false) {
-        output.WriteRawTag(24);
-        output.WriteBool(Found);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (AreaId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(AreaId);
-      }
-      if (ZoneId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ZoneId);
-      }
-      if (Found != false) {
-        size += 1 + 1;
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(AreaInfoResponse other) {
-      if (other == null) {
-        return;
-      }
-      if (other.AreaId != 0) {
-        AreaId = other.AreaId;
-      }
-      if (other.ZoneId != 0) {
-        ZoneId = other.ZoneId;
-      }
-      if (other.Found != false) {
-        Found = other.Found;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 8: {
-            AreaId = input.ReadUInt32();
-            break;
-          }
-          case 16: {
-            ZoneId = input.ReadUInt32();
-            break;
-          }
-          case 24: {
-            Found = input.ReadBool();
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 8: {
-            AreaId = input.ReadUInt32();
-            break;
-          }
-          case 16: {
-            ZoneId = input.ReadUInt32();
-            break;
-          }
-          case 24: {
-            Found = input.ReadBool();
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  /// <summary>
-  /// Liquid information
-  /// </summary>
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class LiquidInfoRequest : pb::IMessage<LiquidInfoRequest>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<LiquidInfoRequest> _parser = new pb::MessageParser<LiquidInfoRequest>(() => new LiquidInfoRequest());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<LiquidInfoRequest> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[17]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public LiquidInfoRequest() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public LiquidInfoRequest(LiquidInfoRequest other) : this() {
-      mapId_ = other.mapId_;
-      position_ = other.position_ != null ? other.position_.Clone() : null;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public LiquidInfoRequest Clone() {
-      return new LiquidInfoRequest(this);
-    }
-
-    /// <summary>Field number for the "map_id" field.</summary>
-    public const int MapIdFieldNumber = 1;
-    private uint mapId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint MapId {
-      get { return mapId_; }
-      set {
-        mapId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "position" field.</summary>
-    public const int PositionFieldNumber = 2;
-    private global::Game.Position position_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Game.Position Position {
-      get { return position_; }
-      set {
-        position_ = value;
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as LiquidInfoRequest);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(LiquidInfoRequest other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (MapId != other.MapId) return false;
-      if (!object.Equals(Position, other.Position)) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (MapId != 0) hash ^= MapId.GetHashCode();
-      if (position_ != null) hash ^= Position.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (MapId != 0) {
-        output.WriteRawTag(8);
-        output.WriteUInt32(MapId);
-      }
-      if (position_ != null) {
-        output.WriteRawTag(18);
-        output.WriteMessage(Position);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (MapId != 0) {
-        output.WriteRawTag(8);
-        output.WriteUInt32(MapId);
-      }
-      if (position_ != null) {
-        output.WriteRawTag(18);
-        output.WriteMessage(Position);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (MapId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MapId);
-      }
-      if (position_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Position);
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(LiquidInfoRequest other) {
-      if (other == null) {
-        return;
-      }
-      if (other.MapId != 0) {
-        MapId = other.MapId;
-      }
-      if (other.position_ != null) {
-        if (position_ == null) {
-          Position = new global::Game.Position();
-        }
-        Position.MergeFrom(other.Position);
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 8: {
-            MapId = input.ReadUInt32();
-            break;
-          }
-          case 18: {
-            if (position_ == null) {
-              Position = new global::Game.Position();
-            }
-            input.ReadMessage(Position);
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 8: {
-            MapId = input.ReadUInt32();
-            break;
-          }
-          case 18: {
-            if (position_ == null) {
-              Position = new global::Game.Position();
-            }
-            input.ReadMessage(Position);
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class LiquidInfoResponse : pb::IMessage<LiquidInfoResponse>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<LiquidInfoResponse> _parser = new pb::MessageParser<LiquidInfoResponse>(() => new LiquidInfoResponse());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<LiquidInfoResponse> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Pathfinding.PathfindingReflection.Descriptor.MessageTypes[18]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public LiquidInfoResponse() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public LiquidInfoResponse(LiquidInfoResponse other) : this() {
-      liquidLevel_ = other.liquidLevel_;
-      liquidType_ = other.liquidType_;
-      hasLiquid_ = other.hasLiquid_;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public LiquidInfoResponse Clone() {
-      return new LiquidInfoResponse(this);
-    }
-
-    /// <summary>Field number for the "liquid_level" field.</summary>
-    public const int LiquidLevelFieldNumber = 1;
-    private float liquidLevel_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float LiquidLevel {
-      get { return liquidLevel_; }
-      set {
-        liquidLevel_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "liquid_type" field.</summary>
-    public const int LiquidTypeFieldNumber = 2;
-    private uint liquidType_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint LiquidType {
-      get { return liquidType_; }
-      set {
-        liquidType_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "has_liquid" field.</summary>
-    public const int HasLiquidFieldNumber = 3;
-    private bool hasLiquid_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasLiquid {
-      get { return hasLiquid_; }
-      set {
-        hasLiquid_ = value;
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as LiquidInfoResponse);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(LiquidInfoResponse other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(LiquidLevel, other.LiquidLevel)) return false;
-      if (LiquidType != other.LiquidType) return false;
-      if (HasLiquid != other.HasLiquid) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (LiquidLevel != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(LiquidLevel);
-      if (LiquidType != 0) hash ^= LiquidType.GetHashCode();
-      if (HasLiquid != false) hash ^= HasLiquid.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (LiquidLevel != 0F) {
-        output.WriteRawTag(13);
-        output.WriteFloat(LiquidLevel);
-      }
-      if (LiquidType != 0) {
-        output.WriteRawTag(16);
-        output.WriteUInt32(LiquidType);
-      }
-      if (HasLiquid != false) {
-        output.WriteRawTag(24);
-        output.WriteBool(HasLiquid);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (LiquidLevel != 0F) {
-        output.WriteRawTag(13);
-        output.WriteFloat(LiquidLevel);
-      }
-      if (LiquidType != 0) {
-        output.WriteRawTag(16);
-        output.WriteUInt32(LiquidType);
-      }
-      if (HasLiquid != false) {
-        output.WriteRawTag(24);
-        output.WriteBool(HasLiquid);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (LiquidLevel != 0F) {
-        size += 1 + 4;
-      }
-      if (LiquidType != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(LiquidType);
-      }
-      if (HasLiquid != false) {
-        size += 1 + 1;
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(LiquidInfoResponse other) {
-      if (other == null) {
-        return;
-      }
-      if (other.LiquidLevel != 0F) {
-        LiquidLevel = other.LiquidLevel;
-      }
-      if (other.LiquidType != 0) {
-        LiquidType = other.LiquidType;
-      }
-      if (other.HasLiquid != false) {
-        HasLiquid = other.HasLiquid;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 13: {
-            LiquidLevel = input.ReadFloat();
-            break;
-          }
-          case 16: {
-            LiquidType = input.ReadUInt32();
-            break;
-          }
-          case 24: {
-            HasLiquid = input.ReadBool();
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 13: {
-            LiquidLevel = input.ReadFloat();
-            break;
-          }
-          case 16: {
-            LiquidType = input.ReadUInt32();
-            break;
-          }
-          case 24: {
-            HasLiquid = input.ReadBool();
+          case 125: {
+            SplineProgress = input.ReadFloat();
             break;
           }
         }

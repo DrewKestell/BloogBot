@@ -3,6 +3,7 @@ using GameData.Core.Models;
 using Pathfinding;
 using PathfindingService;
 using PathfindingService.Repository;
+using PhysicsInput = Pathfinding.PhysicsInput;
 
 public class InMemoryPathfindingClient(Navigation nav) : PathfindingClient
 {
@@ -23,6 +24,6 @@ public class InMemoryPathfindingClient(Navigation nav) : PathfindingClient
     public override bool IsInLineOfSight(uint mapId, Position from, Position to)
         => _nav.LineOfSight(mapId, from.ToXYZ(), to.ToXYZ());
 
-    public override PhysicsOutput PhysicsStep(PhysicsInput physicsInput)
+    public override Pathfinding.PhysicsOutput PhysicsStep(PhysicsInput physicsInput)
         => _nav.StepPhysics(physicsInput.ToPhysicsInput(), physicsInput.DeltaTime).ToPhysicsOutput();
 }

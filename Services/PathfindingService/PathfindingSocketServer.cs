@@ -1,15 +1,14 @@
 ﻿using BotCommLayer;
-using GameData.Core.Enums;
 using GameData.Core.Models;
-using Pathfinding; // Proto-generated C# files
+using Pathfinding;
 using PathfindingService.Repository;
 using System;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace PathfindingService
 {
-    public class PathfindingSocketServer(string ipAddress, int port, ILogger logger)
-        : ProtobufSocketServer<PathfindingRequest, PathfindingResponse>(ipAddress, port, logger)
+    public class PathfindingSocketServer(string ipAddress, int port, ILogger logger) : ProtobufSocketServer<PathfindingRequest, PathfindingResponse>(ipAddress, port, logger)
     {
         private readonly Navigation _navigation = new();
 
@@ -22,7 +21,6 @@ namespace PathfindingService
                     PathfindingRequest.PayloadOneofCase.Path => HandlePath(request.Path),
                     PathfindingRequest.PayloadOneofCase.Los => HandleLineOfSight(request.Los),
                     PathfindingRequest.PayloadOneofCase.Step => HandlePhysics(request.Step),
-                    PathfindingRequest.PayloadOneofCase.VmapHeight => HandleVMapHeight(request.VmapHeight),
                     _ => ErrorResponse("Unknown or unset request type.")
                 };
             }
@@ -33,9 +31,10 @@ namespace PathfindingService
             }
         }
 
-        private PathfindingResponse HandlePhysics(PhysicsInput step)
+        private PathfindingResponse HandlePhysics(Pathfinding.PhysicsInput step)
         {
-            Navigation.PhysicsOutput physicsOutput = _navigation.StepPhysics(step.ToPhysicsInput(), step.DeltaTime);
+            var physicsInput = step.ToPhysicsInput();
+            var physicsOutput = _navigation.StepPhysics(physicsInput, step.DeltaTime);
             return new PathfindingResponse { Step = physicsOutput.ToPhysicsOutput() };
         }
 
@@ -44,9 +43,9 @@ namespace PathfindingService
             if (!CheckPosition(req.MapId, req.Start, req.End, out var err))
                 return err;
 
-            var start = new Position(req.Start.X, req.Start.Y, req.Start.Z);
-            var end = new Position(req.End.X, req.End.Y, req.End.Z);
-            var path = _navigation.CalculatePath(req.MapId, start.ToXYZ(), end.ToXYZ(), req.Straight);
+            var start = new XYZ(req.Start.X, req.Start.Y, req.Start.Z);
+            var end = new XYZ(req.End.X, req.End.Y, req.End.Z);
+            var path = _navigation.CalculatePath(req.MapId, start, end, req.Straight);
 
             var resp = new CalculatePathResponse();
             resp.Corners.AddRange(path.Select(p => new Game.Position { X = p.X, Y = p.Y, Z = p.Z }));
@@ -59,28 +58,14 @@ namespace PathfindingService
             if (!CheckPosition(req.MapId, req.From, req.To, out var err))
                 return err;
 
-            var from = new Position(req.From.X, req.From.Y, req.From.Z);
-            var to = new Position(req.To.X, req.To.Y, req.To.Z);
+            var from = new XYZ(req.From.X, req.From.Y, req.From.Z);
+            var to = new XYZ(req.To.X, req.To.Y, req.To.Z);
 
-            bool hasLOS = _navigation.LineOfSight(req.MapId, from.ToXYZ(), to.ToXYZ());
+            bool hasLOS = _navigation.LineOfSight(req.MapId, from, to);
 
             return new PathfindingResponse
             {
                 Los = new LineOfSightResponse { InLos = hasLOS }
-            };
-        }
-
-        private PathfindingResponse HandleVMapHeight(VMapHeightRequest req)
-        {
-            if (req.Position == null)
-                return ErrorResponse("Position is required");
-
-            var pos = new Position(req.Position.X, req.Position.Y, req.Position.Z);
-            float height = _navigation.GetGroundHeight(req.MapId, pos.X, pos.Y, pos.Z, req.MaxSearchDist);
-
-            return new PathfindingResponse
-            {
-                VmapHeight = new VMapHeightResponse { Height = height }
             };
         }
 
@@ -109,9 +94,9 @@ namespace PathfindingService
     public static class ProtoInteropExtensions
     {
         // Convert from Protobuf PhysicsInput to Navigation.PhysicsInput
-        public static Navigation.PhysicsInput ToPhysicsInput(this PhysicsInput proto)
+        public static Repository.PhysicsInput ToPhysicsInput(this Pathfinding.PhysicsInput proto)
         {
-            var input = new Navigation.PhysicsInput
+            return new Repository.PhysicsInput
             {
                 // Position and orientation
                 x = proto.PosX,
@@ -124,23 +109,23 @@ namespace PathfindingService
                 walkSpeed = proto.WalkSpeed,
                 runSpeed = proto.RunSpeed,
                 swimSpeed = proto.SwimSpeed,
-                flightSpeed = 7.0f, // Default, not in proto
+                flightSpeed = 7.0f, // Default flight speed
                 runBackSpeed = proto.RunBackSpeed,
 
                 // State
                 moveFlags = proto.MovementFlags,
                 mapId = proto.MapId,
 
-                // Physics modifiers
-                vx = 0,
-                vy = 0,
+                // Velocity
+                vx = proto.VelX,
+                vy = proto.VelY,
                 vz = proto.VelZ,
 
                 // Collision
                 height = proto.Height,
                 radius = proto.Radius,
 
-                // Spline (not used in current proto)
+                // Spline (not used)
                 hasSplinePath = false,
                 splineSpeed = 0,
                 splinePoints = IntPtr.Zero,
@@ -148,16 +133,14 @@ namespace PathfindingService
                 currentSplineIndex = 0,
 
                 // Time
-                deltaTime = 0.016f // Will be overridden by parameter
+                deltaTime = proto.DeltaTime
             };
-
-            return input;
         }
 
         // Convert from Navigation.PhysicsOutput to Protobuf PhysicsOutput
-        public static PhysicsOutput ToPhysicsOutput(this Navigation.PhysicsOutput nav)
+        public static Pathfinding.PhysicsOutput ToPhysicsOutput(this Repository.PhysicsOutput nav)
         {
-            return new PhysicsOutput
+            return new Pathfinding.PhysicsOutput
             {
                 NewPosX = nav.x,
                 NewPosY = nav.y,
