@@ -167,7 +167,7 @@ namespace WoWSharpClient
             var player = (WoWLocalPlayer)Player;
             float dt = deltaTimeMs * 0.001f;
 
-            var (radius, height) = RaceDimensions.GetCapsuleForRace(player.Race);
+            var (radius, height) = RaceDimensions.GetCapsuleForRace(player.Race, ((WoWLocalPlayer)Player).Gender);
 
             PhysicsInput physicsInput = new()
             {
@@ -770,14 +770,14 @@ namespace WoWSharpClient
             StartGameLoop();
 
             _woWClient.SendMoveWorldPortAcknowledge();
-            _woWClient.SendMSGPacked(
-                Opcode.CMSG_FORCE_MOVE_ROOT_ACK,
-                MovementPacketHandler.BuildForceMoveAck(
-                    (WoWLocalPlayer)Player,
-                    1,
-                    (uint)_worldTimeTracker.NowMS.TotalMilliseconds
-                )
-            );
+            //_woWClient.SendMSGPacked(
+            //    Opcode.CMSG_FORCE_MOVE_ROOT_ACK,
+            //    MovementPacketHandler.BuildForceMoveAck(
+            //        (WoWLocalPlayer)Player,
+            //        1,
+            //        (uint)_worldTimeTracker.NowMS.TotalMilliseconds
+            //    )
+            //);
         }
 
         private void EventEmitter_OnCharacterListLoaded(object? sender, EventArgs e)
@@ -1390,16 +1390,10 @@ namespace WoWSharpClient
             switch (field)
             {
                 case EObjectFields.OBJECT_FIELD_GUID:
-                    Console.WriteLine(
-                        $"[GUID DEBUG] Attempting to modify object GUID Low for {obj.GetType().Name} (current GUID: {obj.Guid}), ignoring..."
-                    );
-                    // obj.HighGuid.LowGuidValue = (byte[])value; // COMMENTED OUT - should not modify object's own GUID
+                    obj.HighGuid.LowGuidValue = (byte[])value; // COMMENTED OUT - should not modify object's own GUID
                     break;
                 case EObjectFields.OBJECT_FIELD_GUID + 1:
-                    Console.WriteLine(
-                        $"[GUID DEBUG] Attempting to modify object GUID High for {obj.GetType().Name} (current GUID: {obj.Guid}), ignoring..."
-                    );
-                    // obj.HighGuid.HighGuidValue = (byte[])value; // COMMENTED OUT - should not modify object's own GUID
+                    obj.HighGuid.HighGuidValue = (byte[])value; // COMMENTED OUT - should not modify object's own GUID
                     break;
                 case EObjectFields.OBJECT_FIELD_TYPE:
                     break;

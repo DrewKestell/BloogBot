@@ -49,28 +49,23 @@ struct PhysicsInput
 {
     // Current position and orientation
     float x, y, z;
+    float vx, vy, vz;     // velocity Z
     float orientation;      // Facing direction in radians
     float pitch;           // Pitch for swimming/flying
-
-    // Current velocity
-    float vx, vy, vz;
 
     // Movement speeds (yards/second)
     float walkSpeed;       // Default: 2.5
     float runSpeed;        // Default: 7.0
+    float runBackSpeed;
     float swimSpeed;       // Default: 4.72
+    float swimBackSpeed;
     float flightSpeed;     // Default: 7.0
-    float backSpeed;       // Default: 4.5
 
     // State flags
     uint32_t moveFlags;
     uint32_t mapId;
 
     // Physics modifiers
-    float jumpVelocity;    // Initial jump velocity (if jumping this frame)
-    float knockbackVx;     // Knockback velocity X
-    float knockbackVy;     // Knockback velocity Y
-    float knockbackVz;     // Knockback velocity Z
 
     // Collision parameters
     float height;          // Unit height (for collision)

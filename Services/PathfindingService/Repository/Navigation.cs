@@ -26,28 +26,22 @@ namespace PathfindingService.Repository
         {
             // Position and orientation
             public float x, y, z;
+            public float vx, vy, vz;
             public float orientation;
             public float pitch;
 
-            // Velocity
-            public float vx, vy, vz;
-
             // Movement speeds
-            public float walkSpeed;
-            public float runSpeed;
-            public float swimSpeed;
-            public float flightSpeed;
-            public float backSpeed;
+            public float walkSpeed;       // Default: 2.5
+            public float runSpeed;        // Default: 7.0
+            public float runBackSpeed;
+            public float swimSpeed;       // Default: 4.72
+            public float swimBackSpeed;
+            public float flightSpeed;     // Default: 7.0
 
             // State
             public uint moveFlags;
             public uint mapId;
 
-            // Physics modifiers
-            public float jumpVelocity;
-            public float knockbackVx;
-            public float knockbackVy;
-            public float knockbackVz;
 
             // Collision
             public float height;
@@ -350,20 +344,16 @@ namespace PathfindingService.Repository
                 z = z,
                 orientation = orientation,
                 pitch = 0,
-                vx = 0,
-                vy = 0,
-                vz = 0,
                 walkSpeed = 2.5f,
                 runSpeed = 7.0f,
                 swimSpeed = 4.72f,
                 flightSpeed = 7.0f,
-                backSpeed = 4.5f,
+                runBackSpeed = 4.5f,
                 moveFlags = 0,
                 mapId = mapId,
-                jumpVelocity = 0,
-                knockbackVx = 0,
-                knockbackVy = 0,
-                knockbackVz = 0,
+                vx = 0,
+                vy = 0,
+                vz = 0,
                 height = 2.0f,
                 radius = 0.3f,
                 hasSplinePath = false,

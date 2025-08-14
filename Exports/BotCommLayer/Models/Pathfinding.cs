@@ -53,50 +53,43 @@ namespace Pathfinding {
             "ZXNwb25zZRIfCgdjb3JuZXJzGAEgAygLMg4uZ2FtZS5Qb3NpdGlvbiJeChJM",
             "aW5lT2ZTaWdodFJlcXVlc3QSDgoGbWFwX2lkGAEgASgNEhwKBGZyb20YAiAB",
             "KAsyDi5nYW1lLlBvc2l0aW9uEhoKAnRvGAMgASgLMg4uZ2FtZS5Qb3NpdGlv",
-            "biIlChNMaW5lT2ZTaWdodFJlc3BvbnNlEg4KBmluX2xvcxgBIAEoCCK1BQoM",
+            "biIlChNMaW5lT2ZTaWdodFJlc3BvbnNlEg4KBmluX2xvcxgBIAEoCCKdBAoM",
             "UGh5c2ljc0lucHV0EhYKDm1vdmVtZW50X2ZsYWdzGAEgASgNEg0KBXBvc194",
             "GAIgASgCEg0KBXBvc195GAMgASgCEg0KBXBvc196GAQgASgCEg4KBmZhY2lu",
             "ZxgFIAEoAhIWCg50cmFuc3BvcnRfZ3VpZBgGIAEoBBIaChJ0cmFuc3BvcnRf",
             "b2Zmc2V0X3gYByABKAISGgoSdHJhbnNwb3J0X29mZnNldF95GAggASgCEhoK",
             "EnRyYW5zcG9ydF9vZmZzZXRfehgJIAEoAhIdChV0cmFuc3BvcnRfb3JpZW50",
             "YXRpb24YCiABKAISEgoKc3dpbV9waXRjaBgLIAEoAhIRCglmYWxsX3RpbWUY",
-            "DCABKA0SGwoTanVtcF92ZXJ0aWNhbF9zcGVlZBgNIAEoAhIWCg5qdW1wX2Nv",
-            "c19hbmdsZRgOIAEoAhIWCg5qdW1wX3Npbl9hbmdsZRgPIAEoAhIdChVqdW1w",
-            "X2hvcml6b250YWxfc3BlZWQYECABKAISGAoQc3BsaW5lX2VsZXZhdGlvbhgR",
-            "IAEoAhISCgp3YWxrX3NwZWVkGBIgASgCEhEKCXJ1bl9zcGVlZBgTIAEoAhIW",
-            "Cg5ydW5fYmFja19zcGVlZBgUIAEoAhISCgpzd2ltX3NwZWVkGBUgASgCEhcK",
-            "D3N3aW1fYmFja19zcGVlZBgWIAEoAhINCgV2ZWxfeBgXIAEoAhINCgV2ZWxf",
-            "eRgYIAEoAhINCgV2ZWxfehgZIAEoAhIOCgZyYWRpdXMYGiABKAISDgoGaGVp",
-            "Z2h0GBsgASgCEg8KB2dyYXZpdHkYHCABKAISFAoMYWR0X2dyb3VuZF96GB0g",
-            "ASgCEhQKDGFkdF9saXF1aWRfehgeIAEoAhIOCgZtYXBfaWQYHyABKA0SEgoK",
-            "ZGVsdGFfdGltZRggIAEoAiKRAwoNUGh5c2ljc091dHB1dBIRCgluZXdfcG9z",
-            "X3gYASABKAISEQoJbmV3X3Bvc195GAIgASgCEhEKCW5ld19wb3NfehgDIAEo",
-            "AhIRCgluZXdfdmVsX3gYBCABKAISEQoJbmV3X3ZlbF95GAUgASgCEhEKCW5l",
-            "d192ZWxfehgGIAEoAhIWCg5tb3ZlbWVudF9mbGFncxgHIAEoDRITCgtvcmll",
-            "bnRhdGlvbhgIIAEoAhINCgVwaXRjaBgJIAEoAhITCgtpc19ncm91bmRlZBgK",
-            "IAEoCBITCgtpc19zd2ltbWluZxgLIAEoCBIRCglpc19mbHlpbmcYDCABKAgS",
-            "EAoIY29sbGlkZWQYDSABKAgSEAoIZ3JvdW5kX3oYDiABKAISEAoIbGlxdWlk",
-            "X3oYDyABKAISFQoNZmFsbF9kaXN0YW5jZRgQIAEoAhIRCglmYWxsX3RpbWUY",
-            "ESABKAISHAoUY3VycmVudF9zcGxpbmVfaW5kZXgYEiABKAUSFwoPc3BsaW5l",
-            "X3Byb2dyZXNzGBMgASgCIl4KEVZNYXBIZWlnaHRSZXF1ZXN0Eg4KBm1hcF9p",
-            "ZBgBIAEoDRIgCghwb3NpdGlvbhgCIAEoCzIOLmdhbWUuUG9zaXRpb24SFwoP",
-            "c2VhcmNoX2Rpc3RhbmNlGAMgASgCIiQKElZNYXBIZWlnaHRSZXNwb25zZRIO",
-            "CgZoZWlnaHQYASABKAIifAoWVk1hcExpbmVPZlNpZ2h0UmVxdWVzdBIOCgZt",
-            "YXBfaWQYASABKA0SHAoEZnJvbRgCIAEoCzIOLmdhbWUuUG9zaXRpb24SGgoC",
-            "dG8YAyABKAsyDi5nYW1lLlBvc2l0aW9uEhgKEGlnbm9yZV9tMl9tb2RlbHMY",
-            "BCABKAgiKQoXVk1hcExpbmVPZlNpZ2h0UmVzcG9uc2USDgoGaW5fbG9zGAEg",
-            "ASgIImYKGkNvbWJpbmVkTGluZU9mU2lnaHRSZXF1ZXN0Eg4KBm1hcF9pZBgB",
-            "IAEoDRIcCgRmcm9tGAIgASgLMg4uZ2FtZS5Qb3NpdGlvbhIaCgJ0bxgDIAEo",
-            "CzIOLmdhbWUuUG9zaXRpb24iLQobQ29tYmluZWRMaW5lT2ZTaWdodFJlc3Bv",
-            "bnNlEg4KBmluX2xvcxgBIAEoCCJDCg9BcmVhSW5mb1JlcXVlc3QSDgoGbWFw",
-            "X2lkGAEgASgNEiAKCHBvc2l0aW9uGAIgASgLMg4uZ2FtZS5Qb3NpdGlvbiJp",
-            "ChBBcmVhSW5mb1Jlc3BvbnNlEg0KBWZsYWdzGAEgASgNEg4KBmFkdF9pZBgC",
-            "IAEoBRIPCgdyb290X2lkGAMgASgFEhAKCGdyb3VwX2lkGAQgASgFEhMKC2Nv",
-            "cnJlY3RlZF96GAUgASgCIkUKEUxpcXVpZEluZm9SZXF1ZXN0Eg4KBm1hcF9p",
-            "ZBgBIAEoDRIgCghwb3NpdGlvbhgCIAEoCzIOLmdhbWUuUG9zaXRpb24iVAoS",
-            "TGlxdWlkSW5mb1Jlc3BvbnNlEhIKCmhhc19saXF1aWQYASABKAgSFAoMbGlx",
-            "dWlkX2xldmVsGAIgASgCEhQKDGxpcXVpZF9mbG9vchgDIAEoAkIOqgILUGF0",
-            "aGZpbmRpbmdiBnByb3RvMw=="));
+            "DCABKA0SGAoQc3BsaW5lX2VsZXZhdGlvbhgNIAEoAhISCgp3YWxrX3NwZWVk",
+            "GA4gASgCEhEKCXJ1bl9zcGVlZBgPIAEoAhIWCg5ydW5fYmFja19zcGVlZBgQ",
+            "IAEoAhISCgpzd2ltX3NwZWVkGBEgASgCEhcKD3N3aW1fYmFja19zcGVlZBgS",
+            "IAEoAhINCgV2ZWxfeBgTIAEoAhINCgV2ZWxfeRgUIAEoAhINCgV2ZWxfehgV",
+            "IAEoAhIOCgZyYWRpdXMYFiABKAISDgoGaGVpZ2h0GBcgASgCEg8KB2dyYXZp",
+            "dHkYGCABKAISDgoGbWFwX2lkGBkgASgNEhIKCmRlbHRhX3RpbWUYGiABKAIi",
+            "jQIKDVBoeXNpY3NPdXRwdXQSEQoJbmV3X3Bvc194GAEgASgCEhEKCW5ld19w",
+            "b3NfeRgCIAEoAhIRCgluZXdfcG9zX3oYAyABKAISEQoJbmV3X3ZlbF94GAQg",
+            "ASgCEhEKCW5ld192ZWxfeRgFIAEoAhIRCgluZXdfdmVsX3oYBiABKAISFgoO",
+            "bW92ZW1lbnRfZmxhZ3MYByABKA0SEwoLb3JpZW50YXRpb24YCCABKAISDQoF",
+            "cGl0Y2gYCSABKAISEwoLaXNfZ3JvdW5kZWQYCiABKAgSEwoLaXNfc3dpbW1p",
+            "bmcYCyABKAgSEQoJaXNfZmx5aW5nGAwgASgIEhEKCWZhbGxfdGltZRgNIAEo",
+            "DSJeChFWTWFwSGVpZ2h0UmVxdWVzdBIOCgZtYXBfaWQYASABKA0SIAoIcG9z",
+            "aXRpb24YAiABKAsyDi5nYW1lLlBvc2l0aW9uEhcKD21heF9zZWFyY2hfZGlz",
+            "dBgDIAEoAiIzChJWTWFwSGVpZ2h0UmVzcG9uc2USDgoGaGVpZ2h0GAEgASgC",
+            "Eg0KBWZvdW5kGAIgASgIImIKFlZNYXBMaW5lT2ZTaWdodFJlcXVlc3QSDgoG",
+            "bWFwX2lkGAEgASgNEhwKBGZyb20YAiABKAsyDi5nYW1lLlBvc2l0aW9uEhoK",
+            "AnRvGAMgASgLMg4uZ2FtZS5Qb3NpdGlvbiIpChdWTWFwTGluZU9mU2lnaHRS",
+            "ZXNwb25zZRIOCgZpbl9sb3MYASABKAgiZgoaQ29tYmluZWRMaW5lT2ZTaWdo",
+            "dFJlcXVlc3QSDgoGbWFwX2lkGAEgASgNEhwKBGZyb20YAiABKAsyDi5nYW1l",
+            "LlBvc2l0aW9uEhoKAnRvGAMgASgLMg4uZ2FtZS5Qb3NpdGlvbiJaChtDb21i",
+            "aW5lZExpbmVPZlNpZ2h0UmVzcG9uc2USEwoLbmF2bWVzaF9sb3MYASABKAgS",
+            "EAoIdm1hcF9sb3MYAiABKAgSFAoMY29tYmluZWRfbG9zGAMgASgIIkMKD0Fy",
+            "ZWFJbmZvUmVxdWVzdBIOCgZtYXBfaWQYASABKA0SIAoIcG9zaXRpb24YAiAB",
+            "KAsyDi5nYW1lLlBvc2l0aW9uIkMKEEFyZWFJbmZvUmVzcG9uc2USDwoHYXJl",
+            "YV9pZBgBIAEoDRIPCgd6b25lX2lkGAIgASgNEg0KBWZvdW5kGAMgASgIIkUK",
+            "EUxpcXVpZEluZm9SZXF1ZXN0Eg4KBm1hcF9pZBgBIAEoDRIgCghwb3NpdGlv",
+            "bhgCIAEoCzIOLmdhbWUuUG9zaXRpb24iUwoSTGlxdWlkSW5mb1Jlc3BvbnNl",
+            "EhQKDGxpcXVpZF9sZXZlbBgBIAEoAhITCgtsaXF1aWRfdHlwZRgCIAEoDRIS",
+            "CgpoYXNfbGlxdWlkGAMgASgIQg6qAgtQYXRoZmluZGluZ2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Game.GameReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -107,18 +100,18 @@ namespace Pathfinding {
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.CalculatePathResponse), global::Pathfinding.CalculatePathResponse.Parser, new[]{ "Corners" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.LineOfSightRequest), global::Pathfinding.LineOfSightRequest.Parser, new[]{ "MapId", "From", "To" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.LineOfSightResponse), global::Pathfinding.LineOfSightResponse.Parser, new[]{ "InLos" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PhysicsInput), global::Pathfinding.PhysicsInput.Parser, new[]{ "MovementFlags", "PosX", "PosY", "PosZ", "Facing", "TransportGuid", "TransportOffsetX", "TransportOffsetY", "TransportOffsetZ", "TransportOrientation", "SwimPitch", "FallTime", "JumpVerticalSpeed", "JumpCosAngle", "JumpSinAngle", "JumpHorizontalSpeed", "SplineElevation", "WalkSpeed", "RunSpeed", "RunBackSpeed", "SwimSpeed", "SwimBackSpeed", "VelX", "VelY", "VelZ", "Radius", "Height", "Gravity", "AdtGroundZ", "AdtLiquidZ", "MapId", "DeltaTime" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PhysicsOutput), global::Pathfinding.PhysicsOutput.Parser, new[]{ "NewPosX", "NewPosY", "NewPosZ", "NewVelX", "NewVelY", "NewVelZ", "MovementFlags", "Orientation", "Pitch", "IsGrounded", "IsSwimming", "IsFlying", "Collided", "GroundZ", "LiquidZ", "FallDistance", "FallTime", "CurrentSplineIndex", "SplineProgress" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.VMapHeightRequest), global::Pathfinding.VMapHeightRequest.Parser, new[]{ "MapId", "Position", "SearchDistance" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.VMapHeightResponse), global::Pathfinding.VMapHeightResponse.Parser, new[]{ "Height" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.VMapLineOfSightRequest), global::Pathfinding.VMapLineOfSightRequest.Parser, new[]{ "MapId", "From", "To", "IgnoreM2Models" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PhysicsInput), global::Pathfinding.PhysicsInput.Parser, new[]{ "MovementFlags", "PosX", "PosY", "PosZ", "Facing", "TransportGuid", "TransportOffsetX", "TransportOffsetY", "TransportOffsetZ", "TransportOrientation", "SwimPitch", "FallTime", "SplineElevation", "WalkSpeed", "RunSpeed", "RunBackSpeed", "SwimSpeed", "SwimBackSpeed", "VelX", "VelY", "VelZ", "Radius", "Height", "Gravity", "MapId", "DeltaTime" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.PhysicsOutput), global::Pathfinding.PhysicsOutput.Parser, new[]{ "NewPosX", "NewPosY", "NewPosZ", "NewVelX", "NewVelY", "NewVelZ", "MovementFlags", "Orientation", "Pitch", "IsGrounded", "IsSwimming", "IsFlying", "FallTime" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.VMapHeightRequest), global::Pathfinding.VMapHeightRequest.Parser, new[]{ "MapId", "Position", "MaxSearchDist" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.VMapHeightResponse), global::Pathfinding.VMapHeightResponse.Parser, new[]{ "Height", "Found" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.VMapLineOfSightRequest), global::Pathfinding.VMapLineOfSightRequest.Parser, new[]{ "MapId", "From", "To" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.VMapLineOfSightResponse), global::Pathfinding.VMapLineOfSightResponse.Parser, new[]{ "InLos" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.CombinedLineOfSightRequest), global::Pathfinding.CombinedLineOfSightRequest.Parser, new[]{ "MapId", "From", "To" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.CombinedLineOfSightResponse), global::Pathfinding.CombinedLineOfSightResponse.Parser, new[]{ "InLos" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.CombinedLineOfSightResponse), global::Pathfinding.CombinedLineOfSightResponse.Parser, new[]{ "NavmeshLos", "VmapLos", "CombinedLos" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.AreaInfoRequest), global::Pathfinding.AreaInfoRequest.Parser, new[]{ "MapId", "Position" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.AreaInfoResponse), global::Pathfinding.AreaInfoResponse.Parser, new[]{ "Flags", "AdtId", "RootId", "GroupId", "CorrectedZ" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.AreaInfoResponse), global::Pathfinding.AreaInfoResponse.Parser, new[]{ "AreaId", "ZoneId", "Found" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.LiquidInfoRequest), global::Pathfinding.LiquidInfoRequest.Parser, new[]{ "MapId", "Position" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.LiquidInfoResponse), global::Pathfinding.LiquidInfoResponse.Parser, new[]{ "HasLiquid", "LiquidLevel", "LiquidFloor" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Pathfinding.LiquidInfoResponse), global::Pathfinding.LiquidInfoResponse.Parser, new[]{ "LiquidLevel", "LiquidType", "HasLiquid" }, null, null, null, null)
           }));
     }
     #endregion
@@ -2667,10 +2660,6 @@ namespace Pathfinding {
       transportOrientation_ = other.transportOrientation_;
       swimPitch_ = other.swimPitch_;
       fallTime_ = other.fallTime_;
-      jumpVerticalSpeed_ = other.jumpVerticalSpeed_;
-      jumpCosAngle_ = other.jumpCosAngle_;
-      jumpSinAngle_ = other.jumpSinAngle_;
-      jumpHorizontalSpeed_ = other.jumpHorizontalSpeed_;
       splineElevation_ = other.splineElevation_;
       walkSpeed_ = other.walkSpeed_;
       runSpeed_ = other.runSpeed_;
@@ -2683,8 +2672,6 @@ namespace Pathfinding {
       radius_ = other.radius_;
       height_ = other.height_;
       gravity_ = other.gravity_;
-      adtGroundZ_ = other.adtGroundZ_;
-      adtLiquidZ_ = other.adtLiquidZ_;
       mapId_ = other.mapId_;
       deltaTime_ = other.deltaTime_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -2844,7 +2831,7 @@ namespace Pathfinding {
     public const int FallTimeFieldNumber = 12;
     private uint fallTime_;
     /// <summary>
-    /// Falling/jumping
+    /// Falling/jumping - simplified
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2855,56 +2842,8 @@ namespace Pathfinding {
       }
     }
 
-    /// <summary>Field number for the "jump_vertical_speed" field.</summary>
-    public const int JumpVerticalSpeedFieldNumber = 13;
-    private float jumpVerticalSpeed_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float JumpVerticalSpeed {
-      get { return jumpVerticalSpeed_; }
-      set {
-        jumpVerticalSpeed_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "jump_cos_angle" field.</summary>
-    public const int JumpCosAngleFieldNumber = 14;
-    private float jumpCosAngle_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float JumpCosAngle {
-      get { return jumpCosAngle_; }
-      set {
-        jumpCosAngle_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "jump_sin_angle" field.</summary>
-    public const int JumpSinAngleFieldNumber = 15;
-    private float jumpSinAngle_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float JumpSinAngle {
-      get { return jumpSinAngle_; }
-      set {
-        jumpSinAngle_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "jump_horizontal_speed" field.</summary>
-    public const int JumpHorizontalSpeedFieldNumber = 16;
-    private float jumpHorizontalSpeed_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float JumpHorizontalSpeed {
-      get { return jumpHorizontalSpeed_; }
-      set {
-        jumpHorizontalSpeed_ = value;
-      }
-    }
-
     /// <summary>Field number for the "spline_elevation" field.</summary>
-    public const int SplineElevationFieldNumber = 17;
+    public const int SplineElevationFieldNumber = 13;
     private float splineElevation_;
     /// <summary>
     /// Spline
@@ -2919,7 +2858,7 @@ namespace Pathfinding {
     }
 
     /// <summary>Field number for the "walk_speed" field.</summary>
-    public const int WalkSpeedFieldNumber = 18;
+    public const int WalkSpeedFieldNumber = 14;
     private float walkSpeed_;
     /// <summary>
     /// Movement speeds
@@ -2934,7 +2873,7 @@ namespace Pathfinding {
     }
 
     /// <summary>Field number for the "run_speed" field.</summary>
-    public const int RunSpeedFieldNumber = 19;
+    public const int RunSpeedFieldNumber = 15;
     private float runSpeed_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2946,7 +2885,7 @@ namespace Pathfinding {
     }
 
     /// <summary>Field number for the "run_back_speed" field.</summary>
-    public const int RunBackSpeedFieldNumber = 20;
+    public const int RunBackSpeedFieldNumber = 16;
     private float runBackSpeed_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2958,7 +2897,7 @@ namespace Pathfinding {
     }
 
     /// <summary>Field number for the "swim_speed" field.</summary>
-    public const int SwimSpeedFieldNumber = 21;
+    public const int SwimSpeedFieldNumber = 17;
     private float swimSpeed_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2970,7 +2909,7 @@ namespace Pathfinding {
     }
 
     /// <summary>Field number for the "swim_back_speed" field.</summary>
-    public const int SwimBackSpeedFieldNumber = 22;
+    public const int SwimBackSpeedFieldNumber = 18;
     private float swimBackSpeed_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2982,7 +2921,7 @@ namespace Pathfinding {
     }
 
     /// <summary>Field number for the "vel_x" field.</summary>
-    public const int VelXFieldNumber = 23;
+    public const int VelXFieldNumber = 19;
     private float velX_;
     /// <summary>
     /// Current velocity
@@ -2997,7 +2936,7 @@ namespace Pathfinding {
     }
 
     /// <summary>Field number for the "vel_y" field.</summary>
-    public const int VelYFieldNumber = 24;
+    public const int VelYFieldNumber = 20;
     private float velY_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -3009,7 +2948,7 @@ namespace Pathfinding {
     }
 
     /// <summary>Field number for the "vel_z" field.</summary>
-    public const int VelZFieldNumber = 25;
+    public const int VelZFieldNumber = 21;
     private float velZ_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -3021,7 +2960,7 @@ namespace Pathfinding {
     }
 
     /// <summary>Field number for the "radius" field.</summary>
-    public const int RadiusFieldNumber = 26;
+    public const int RadiusFieldNumber = 22;
     private float radius_;
     /// <summary>
     /// Collision
@@ -3036,7 +2975,7 @@ namespace Pathfinding {
     }
 
     /// <summary>Field number for the "height" field.</summary>
-    public const int HeightFieldNumber = 27;
+    public const int HeightFieldNumber = 23;
     private float height_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -3048,7 +2987,7 @@ namespace Pathfinding {
     }
 
     /// <summary>Field number for the "gravity" field.</summary>
-    public const int GravityFieldNumber = 28;
+    public const int GravityFieldNumber = 24;
     private float gravity_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -3059,35 +2998,8 @@ namespace Pathfinding {
       }
     }
 
-    /// <summary>Field number for the "adt_ground_z" field.</summary>
-    public const int AdtGroundZFieldNumber = 29;
-    private float adtGroundZ_;
-    /// <summary>
-    /// Terrain fallbacks
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float AdtGroundZ {
-      get { return adtGroundZ_; }
-      set {
-        adtGroundZ_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "adt_liquid_z" field.</summary>
-    public const int AdtLiquidZFieldNumber = 30;
-    private float adtLiquidZ_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float AdtLiquidZ {
-      get { return adtLiquidZ_; }
-      set {
-        adtLiquidZ_ = value;
-      }
-    }
-
     /// <summary>Field number for the "map_id" field.</summary>
-    public const int MapIdFieldNumber = 31;
+    public const int MapIdFieldNumber = 25;
     private uint mapId_;
     /// <summary>
     /// Context
@@ -3102,7 +3014,7 @@ namespace Pathfinding {
     }
 
     /// <summary>Field number for the "delta_time" field.</summary>
-    public const int DeltaTimeFieldNumber = 32;
+    public const int DeltaTimeFieldNumber = 26;
     private float deltaTime_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -3140,10 +3052,6 @@ namespace Pathfinding {
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(TransportOrientation, other.TransportOrientation)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(SwimPitch, other.SwimPitch)) return false;
       if (FallTime != other.FallTime) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(JumpVerticalSpeed, other.JumpVerticalSpeed)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(JumpCosAngle, other.JumpCosAngle)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(JumpSinAngle, other.JumpSinAngle)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(JumpHorizontalSpeed, other.JumpHorizontalSpeed)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(SplineElevation, other.SplineElevation)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(WalkSpeed, other.WalkSpeed)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(RunSpeed, other.RunSpeed)) return false;
@@ -3156,8 +3064,6 @@ namespace Pathfinding {
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Radius, other.Radius)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Height, other.Height)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Gravity, other.Gravity)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(AdtGroundZ, other.AdtGroundZ)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(AdtLiquidZ, other.AdtLiquidZ)) return false;
       if (MapId != other.MapId) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(DeltaTime, other.DeltaTime)) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -3179,10 +3085,6 @@ namespace Pathfinding {
       if (TransportOrientation != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(TransportOrientation);
       if (SwimPitch != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(SwimPitch);
       if (FallTime != 0) hash ^= FallTime.GetHashCode();
-      if (JumpVerticalSpeed != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(JumpVerticalSpeed);
-      if (JumpCosAngle != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(JumpCosAngle);
-      if (JumpSinAngle != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(JumpSinAngle);
-      if (JumpHorizontalSpeed != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(JumpHorizontalSpeed);
       if (SplineElevation != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(SplineElevation);
       if (WalkSpeed != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(WalkSpeed);
       if (RunSpeed != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(RunSpeed);
@@ -3195,8 +3097,6 @@ namespace Pathfinding {
       if (Radius != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Radius);
       if (Height != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Height);
       if (Gravity != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Gravity);
-      if (AdtGroundZ != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(AdtGroundZ);
-      if (AdtLiquidZ != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(AdtLiquidZ);
       if (MapId != 0) hash ^= MapId.GetHashCode();
       if (DeltaTime != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(DeltaTime);
       if (_unknownFields != null) {
@@ -3265,84 +3165,60 @@ namespace Pathfinding {
         output.WriteRawTag(96);
         output.WriteUInt32(FallTime);
       }
-      if (JumpVerticalSpeed != 0F) {
-        output.WriteRawTag(109);
-        output.WriteFloat(JumpVerticalSpeed);
-      }
-      if (JumpCosAngle != 0F) {
-        output.WriteRawTag(117);
-        output.WriteFloat(JumpCosAngle);
-      }
-      if (JumpSinAngle != 0F) {
-        output.WriteRawTag(125);
-        output.WriteFloat(JumpSinAngle);
-      }
-      if (JumpHorizontalSpeed != 0F) {
-        output.WriteRawTag(133, 1);
-        output.WriteFloat(JumpHorizontalSpeed);
-      }
       if (SplineElevation != 0F) {
-        output.WriteRawTag(141, 1);
+        output.WriteRawTag(109);
         output.WriteFloat(SplineElevation);
       }
       if (WalkSpeed != 0F) {
-        output.WriteRawTag(149, 1);
+        output.WriteRawTag(117);
         output.WriteFloat(WalkSpeed);
       }
       if (RunSpeed != 0F) {
-        output.WriteRawTag(157, 1);
+        output.WriteRawTag(125);
         output.WriteFloat(RunSpeed);
       }
       if (RunBackSpeed != 0F) {
-        output.WriteRawTag(165, 1);
+        output.WriteRawTag(133, 1);
         output.WriteFloat(RunBackSpeed);
       }
       if (SwimSpeed != 0F) {
-        output.WriteRawTag(173, 1);
+        output.WriteRawTag(141, 1);
         output.WriteFloat(SwimSpeed);
       }
       if (SwimBackSpeed != 0F) {
-        output.WriteRawTag(181, 1);
+        output.WriteRawTag(149, 1);
         output.WriteFloat(SwimBackSpeed);
       }
       if (VelX != 0F) {
-        output.WriteRawTag(189, 1);
+        output.WriteRawTag(157, 1);
         output.WriteFloat(VelX);
       }
       if (VelY != 0F) {
-        output.WriteRawTag(197, 1);
+        output.WriteRawTag(165, 1);
         output.WriteFloat(VelY);
       }
       if (VelZ != 0F) {
-        output.WriteRawTag(205, 1);
+        output.WriteRawTag(173, 1);
         output.WriteFloat(VelZ);
       }
       if (Radius != 0F) {
-        output.WriteRawTag(213, 1);
+        output.WriteRawTag(181, 1);
         output.WriteFloat(Radius);
       }
       if (Height != 0F) {
-        output.WriteRawTag(221, 1);
+        output.WriteRawTag(189, 1);
         output.WriteFloat(Height);
       }
       if (Gravity != 0F) {
-        output.WriteRawTag(229, 1);
+        output.WriteRawTag(197, 1);
         output.WriteFloat(Gravity);
       }
-      if (AdtGroundZ != 0F) {
-        output.WriteRawTag(237, 1);
-        output.WriteFloat(AdtGroundZ);
-      }
-      if (AdtLiquidZ != 0F) {
-        output.WriteRawTag(245, 1);
-        output.WriteFloat(AdtLiquidZ);
-      }
       if (MapId != 0) {
-        output.WriteRawTag(248, 1);
+        output.WriteRawTag(200, 1);
         output.WriteUInt32(MapId);
       }
       if (DeltaTime != 0F) {
-        output.WriteRawTag(133, 2);
+        output.WriteRawTag(213, 1);
         output.WriteFloat(DeltaTime);
       }
       if (_unknownFields != null) {
@@ -3403,84 +3279,60 @@ namespace Pathfinding {
         output.WriteRawTag(96);
         output.WriteUInt32(FallTime);
       }
-      if (JumpVerticalSpeed != 0F) {
-        output.WriteRawTag(109);
-        output.WriteFloat(JumpVerticalSpeed);
-      }
-      if (JumpCosAngle != 0F) {
-        output.WriteRawTag(117);
-        output.WriteFloat(JumpCosAngle);
-      }
-      if (JumpSinAngle != 0F) {
-        output.WriteRawTag(125);
-        output.WriteFloat(JumpSinAngle);
-      }
-      if (JumpHorizontalSpeed != 0F) {
-        output.WriteRawTag(133, 1);
-        output.WriteFloat(JumpHorizontalSpeed);
-      }
       if (SplineElevation != 0F) {
-        output.WriteRawTag(141, 1);
+        output.WriteRawTag(109);
         output.WriteFloat(SplineElevation);
       }
       if (WalkSpeed != 0F) {
-        output.WriteRawTag(149, 1);
+        output.WriteRawTag(117);
         output.WriteFloat(WalkSpeed);
       }
       if (RunSpeed != 0F) {
-        output.WriteRawTag(157, 1);
+        output.WriteRawTag(125);
         output.WriteFloat(RunSpeed);
       }
       if (RunBackSpeed != 0F) {
-        output.WriteRawTag(165, 1);
+        output.WriteRawTag(133, 1);
         output.WriteFloat(RunBackSpeed);
       }
       if (SwimSpeed != 0F) {
-        output.WriteRawTag(173, 1);
+        output.WriteRawTag(141, 1);
         output.WriteFloat(SwimSpeed);
       }
       if (SwimBackSpeed != 0F) {
-        output.WriteRawTag(181, 1);
+        output.WriteRawTag(149, 1);
         output.WriteFloat(SwimBackSpeed);
       }
       if (VelX != 0F) {
-        output.WriteRawTag(189, 1);
+        output.WriteRawTag(157, 1);
         output.WriteFloat(VelX);
       }
       if (VelY != 0F) {
-        output.WriteRawTag(197, 1);
+        output.WriteRawTag(165, 1);
         output.WriteFloat(VelY);
       }
       if (VelZ != 0F) {
-        output.WriteRawTag(205, 1);
+        output.WriteRawTag(173, 1);
         output.WriteFloat(VelZ);
       }
       if (Radius != 0F) {
-        output.WriteRawTag(213, 1);
+        output.WriteRawTag(181, 1);
         output.WriteFloat(Radius);
       }
       if (Height != 0F) {
-        output.WriteRawTag(221, 1);
+        output.WriteRawTag(189, 1);
         output.WriteFloat(Height);
       }
       if (Gravity != 0F) {
-        output.WriteRawTag(229, 1);
+        output.WriteRawTag(197, 1);
         output.WriteFloat(Gravity);
       }
-      if (AdtGroundZ != 0F) {
-        output.WriteRawTag(237, 1);
-        output.WriteFloat(AdtGroundZ);
-      }
-      if (AdtLiquidZ != 0F) {
-        output.WriteRawTag(245, 1);
-        output.WriteFloat(AdtLiquidZ);
-      }
       if (MapId != 0) {
-        output.WriteRawTag(248, 1);
+        output.WriteRawTag(200, 1);
         output.WriteUInt32(MapId);
       }
       if (DeltaTime != 0F) {
-        output.WriteRawTag(133, 2);
+        output.WriteRawTag(213, 1);
         output.WriteFloat(DeltaTime);
       }
       if (_unknownFields != null) {
@@ -3529,26 +3381,14 @@ namespace Pathfinding {
       if (FallTime != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(FallTime);
       }
-      if (JumpVerticalSpeed != 0F) {
-        size += 1 + 4;
-      }
-      if (JumpCosAngle != 0F) {
-        size += 1 + 4;
-      }
-      if (JumpSinAngle != 0F) {
-        size += 1 + 4;
-      }
-      if (JumpHorizontalSpeed != 0F) {
-        size += 2 + 4;
-      }
       if (SplineElevation != 0F) {
-        size += 2 + 4;
+        size += 1 + 4;
       }
       if (WalkSpeed != 0F) {
-        size += 2 + 4;
+        size += 1 + 4;
       }
       if (RunSpeed != 0F) {
-        size += 2 + 4;
+        size += 1 + 4;
       }
       if (RunBackSpeed != 0F) {
         size += 2 + 4;
@@ -3575,12 +3415,6 @@ namespace Pathfinding {
         size += 2 + 4;
       }
       if (Gravity != 0F) {
-        size += 2 + 4;
-      }
-      if (AdtGroundZ != 0F) {
-        size += 2 + 4;
-      }
-      if (AdtLiquidZ != 0F) {
         size += 2 + 4;
       }
       if (MapId != 0) {
@@ -3637,18 +3471,6 @@ namespace Pathfinding {
       if (other.FallTime != 0) {
         FallTime = other.FallTime;
       }
-      if (other.JumpVerticalSpeed != 0F) {
-        JumpVerticalSpeed = other.JumpVerticalSpeed;
-      }
-      if (other.JumpCosAngle != 0F) {
-        JumpCosAngle = other.JumpCosAngle;
-      }
-      if (other.JumpSinAngle != 0F) {
-        JumpSinAngle = other.JumpSinAngle;
-      }
-      if (other.JumpHorizontalSpeed != 0F) {
-        JumpHorizontalSpeed = other.JumpHorizontalSpeed;
-      }
       if (other.SplineElevation != 0F) {
         SplineElevation = other.SplineElevation;
       }
@@ -3684,12 +3506,6 @@ namespace Pathfinding {
       }
       if (other.Gravity != 0F) {
         Gravity = other.Gravity;
-      }
-      if (other.AdtGroundZ != 0F) {
-        AdtGroundZ = other.AdtGroundZ;
-      }
-      if (other.AdtLiquidZ != 0F) {
-        AdtLiquidZ = other.AdtLiquidZ;
       }
       if (other.MapId != 0) {
         MapId = other.MapId;
@@ -3765,82 +3581,58 @@ namespace Pathfinding {
             break;
           }
           case 109: {
-            JumpVerticalSpeed = input.ReadFloat();
-            break;
-          }
-          case 117: {
-            JumpCosAngle = input.ReadFloat();
-            break;
-          }
-          case 125: {
-            JumpSinAngle = input.ReadFloat();
-            break;
-          }
-          case 133: {
-            JumpHorizontalSpeed = input.ReadFloat();
-            break;
-          }
-          case 141: {
             SplineElevation = input.ReadFloat();
             break;
           }
-          case 149: {
+          case 117: {
             WalkSpeed = input.ReadFloat();
             break;
           }
-          case 157: {
+          case 125: {
             RunSpeed = input.ReadFloat();
             break;
           }
-          case 165: {
+          case 133: {
             RunBackSpeed = input.ReadFloat();
             break;
           }
-          case 173: {
+          case 141: {
             SwimSpeed = input.ReadFloat();
             break;
           }
-          case 181: {
+          case 149: {
             SwimBackSpeed = input.ReadFloat();
             break;
           }
-          case 189: {
+          case 157: {
             VelX = input.ReadFloat();
             break;
           }
-          case 197: {
+          case 165: {
             VelY = input.ReadFloat();
             break;
           }
-          case 205: {
+          case 173: {
             VelZ = input.ReadFloat();
             break;
           }
-          case 213: {
+          case 181: {
             Radius = input.ReadFloat();
             break;
           }
-          case 221: {
+          case 189: {
             Height = input.ReadFloat();
             break;
           }
-          case 229: {
+          case 197: {
             Gravity = input.ReadFloat();
             break;
           }
-          case 237: {
-            AdtGroundZ = input.ReadFloat();
-            break;
-          }
-          case 245: {
-            AdtLiquidZ = input.ReadFloat();
-            break;
-          }
-          case 248: {
+          case 200: {
             MapId = input.ReadUInt32();
             break;
           }
-          case 261: {
+          case 213: {
             DeltaTime = input.ReadFloat();
             break;
           }
@@ -3912,82 +3704,58 @@ namespace Pathfinding {
             break;
           }
           case 109: {
-            JumpVerticalSpeed = input.ReadFloat();
-            break;
-          }
-          case 117: {
-            JumpCosAngle = input.ReadFloat();
-            break;
-          }
-          case 125: {
-            JumpSinAngle = input.ReadFloat();
-            break;
-          }
-          case 133: {
-            JumpHorizontalSpeed = input.ReadFloat();
-            break;
-          }
-          case 141: {
             SplineElevation = input.ReadFloat();
             break;
           }
-          case 149: {
+          case 117: {
             WalkSpeed = input.ReadFloat();
             break;
           }
-          case 157: {
+          case 125: {
             RunSpeed = input.ReadFloat();
             break;
           }
-          case 165: {
+          case 133: {
             RunBackSpeed = input.ReadFloat();
             break;
           }
-          case 173: {
+          case 141: {
             SwimSpeed = input.ReadFloat();
             break;
           }
-          case 181: {
+          case 149: {
             SwimBackSpeed = input.ReadFloat();
             break;
           }
-          case 189: {
+          case 157: {
             VelX = input.ReadFloat();
             break;
           }
-          case 197: {
+          case 165: {
             VelY = input.ReadFloat();
             break;
           }
-          case 205: {
+          case 173: {
             VelZ = input.ReadFloat();
             break;
           }
-          case 213: {
+          case 181: {
             Radius = input.ReadFloat();
             break;
           }
-          case 221: {
+          case 189: {
             Height = input.ReadFloat();
             break;
           }
-          case 229: {
+          case 197: {
             Gravity = input.ReadFloat();
             break;
           }
-          case 237: {
-            AdtGroundZ = input.ReadFloat();
-            break;
-          }
-          case 245: {
-            AdtLiquidZ = input.ReadFloat();
-            break;
-          }
-          case 248: {
+          case 200: {
             MapId = input.ReadUInt32();
             break;
           }
-          case 261: {
+          case 213: {
             DeltaTime = input.ReadFloat();
             break;
           }
@@ -4045,13 +3813,7 @@ namespace Pathfinding {
       isGrounded_ = other.isGrounded_;
       isSwimming_ = other.isSwimming_;
       isFlying_ = other.isFlying_;
-      collided_ = other.collided_;
-      groundZ_ = other.groundZ_;
-      liquidZ_ = other.liquidZ_;
-      fallDistance_ = other.fallDistance_;
       fallTime_ = other.fallTime_;
-      currentSplineIndex_ = other.currentSplineIndex_;
-      splineProgress_ = other.splineProgress_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -4217,96 +3979,18 @@ namespace Pathfinding {
       }
     }
 
-    /// <summary>Field number for the "collided" field.</summary>
-    public const int CollidedFieldNumber = 13;
-    private bool collided_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Collided {
-      get { return collided_; }
-      set {
-        collided_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "ground_z" field.</summary>
-    public const int GroundZFieldNumber = 14;
-    private float groundZ_;
-    /// <summary>
-    /// Environment info
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float GroundZ {
-      get { return groundZ_; }
-      set {
-        groundZ_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "liquid_z" field.</summary>
-    public const int LiquidZFieldNumber = 15;
-    private float liquidZ_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float LiquidZ {
-      get { return liquidZ_; }
-      set {
-        liquidZ_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "fall_distance" field.</summary>
-    public const int FallDistanceFieldNumber = 16;
-    private float fallDistance_;
-    /// <summary>
-    /// Fall damage info
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float FallDistance {
-      get { return fallDistance_; }
-      set {
-        fallDistance_ = value;
-      }
-    }
-
     /// <summary>Field number for the "fall_time" field.</summary>
-    public const int FallTimeFieldNumber = 17;
-    private float fallTime_;
+    public const int FallTimeFieldNumber = 13;
+    private uint fallTime_;
+    /// <summary>
+    /// Fall time tracking
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float FallTime {
+    public uint FallTime {
       get { return fallTime_; }
       set {
         fallTime_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "current_spline_index" field.</summary>
-    public const int CurrentSplineIndexFieldNumber = 18;
-    private int currentSplineIndex_;
-    /// <summary>
-    /// Spline progress
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CurrentSplineIndex {
-      get { return currentSplineIndex_; }
-      set {
-        currentSplineIndex_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "spline_progress" field.</summary>
-    public const int SplineProgressFieldNumber = 19;
-    private float splineProgress_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float SplineProgress {
-      get { return splineProgress_; }
-      set {
-        splineProgress_ = value;
       }
     }
 
@@ -4337,13 +4021,7 @@ namespace Pathfinding {
       if (IsGrounded != other.IsGrounded) return false;
       if (IsSwimming != other.IsSwimming) return false;
       if (IsFlying != other.IsFlying) return false;
-      if (Collided != other.Collided) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(GroundZ, other.GroundZ)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(LiquidZ, other.LiquidZ)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(FallDistance, other.FallDistance)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(FallTime, other.FallTime)) return false;
-      if (CurrentSplineIndex != other.CurrentSplineIndex) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(SplineProgress, other.SplineProgress)) return false;
+      if (FallTime != other.FallTime) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -4363,13 +4041,7 @@ namespace Pathfinding {
       if (IsGrounded != false) hash ^= IsGrounded.GetHashCode();
       if (IsSwimming != false) hash ^= IsSwimming.GetHashCode();
       if (IsFlying != false) hash ^= IsFlying.GetHashCode();
-      if (Collided != false) hash ^= Collided.GetHashCode();
-      if (GroundZ != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(GroundZ);
-      if (LiquidZ != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(LiquidZ);
-      if (FallDistance != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(FallDistance);
-      if (FallTime != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(FallTime);
-      if (CurrentSplineIndex != 0) hash ^= CurrentSplineIndex.GetHashCode();
-      if (SplineProgress != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(SplineProgress);
+      if (FallTime != 0) hash ^= FallTime.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -4436,33 +4108,9 @@ namespace Pathfinding {
         output.WriteRawTag(96);
         output.WriteBool(IsFlying);
       }
-      if (Collided != false) {
+      if (FallTime != 0) {
         output.WriteRawTag(104);
-        output.WriteBool(Collided);
-      }
-      if (GroundZ != 0F) {
-        output.WriteRawTag(117);
-        output.WriteFloat(GroundZ);
-      }
-      if (LiquidZ != 0F) {
-        output.WriteRawTag(125);
-        output.WriteFloat(LiquidZ);
-      }
-      if (FallDistance != 0F) {
-        output.WriteRawTag(133, 1);
-        output.WriteFloat(FallDistance);
-      }
-      if (FallTime != 0F) {
-        output.WriteRawTag(141, 1);
-        output.WriteFloat(FallTime);
-      }
-      if (CurrentSplineIndex != 0) {
-        output.WriteRawTag(144, 1);
-        output.WriteInt32(CurrentSplineIndex);
-      }
-      if (SplineProgress != 0F) {
-        output.WriteRawTag(157, 1);
-        output.WriteFloat(SplineProgress);
+        output.WriteUInt32(FallTime);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -4522,33 +4170,9 @@ namespace Pathfinding {
         output.WriteRawTag(96);
         output.WriteBool(IsFlying);
       }
-      if (Collided != false) {
+      if (FallTime != 0) {
         output.WriteRawTag(104);
-        output.WriteBool(Collided);
-      }
-      if (GroundZ != 0F) {
-        output.WriteRawTag(117);
-        output.WriteFloat(GroundZ);
-      }
-      if (LiquidZ != 0F) {
-        output.WriteRawTag(125);
-        output.WriteFloat(LiquidZ);
-      }
-      if (FallDistance != 0F) {
-        output.WriteRawTag(133, 1);
-        output.WriteFloat(FallDistance);
-      }
-      if (FallTime != 0F) {
-        output.WriteRawTag(141, 1);
-        output.WriteFloat(FallTime);
-      }
-      if (CurrentSplineIndex != 0) {
-        output.WriteRawTag(144, 1);
-        output.WriteInt32(CurrentSplineIndex);
-      }
-      if (SplineProgress != 0F) {
-        output.WriteRawTag(157, 1);
-        output.WriteFloat(SplineProgress);
+        output.WriteUInt32(FallTime);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -4596,26 +4220,8 @@ namespace Pathfinding {
       if (IsFlying != false) {
         size += 1 + 1;
       }
-      if (Collided != false) {
-        size += 1 + 1;
-      }
-      if (GroundZ != 0F) {
-        size += 1 + 4;
-      }
-      if (LiquidZ != 0F) {
-        size += 1 + 4;
-      }
-      if (FallDistance != 0F) {
-        size += 2 + 4;
-      }
-      if (FallTime != 0F) {
-        size += 2 + 4;
-      }
-      if (CurrentSplineIndex != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(CurrentSplineIndex);
-      }
-      if (SplineProgress != 0F) {
-        size += 2 + 4;
+      if (FallTime != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(FallTime);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -4665,26 +4271,8 @@ namespace Pathfinding {
       if (other.IsFlying != false) {
         IsFlying = other.IsFlying;
       }
-      if (other.Collided != false) {
-        Collided = other.Collided;
-      }
-      if (other.GroundZ != 0F) {
-        GroundZ = other.GroundZ;
-      }
-      if (other.LiquidZ != 0F) {
-        LiquidZ = other.LiquidZ;
-      }
-      if (other.FallDistance != 0F) {
-        FallDistance = other.FallDistance;
-      }
-      if (other.FallTime != 0F) {
+      if (other.FallTime != 0) {
         FallTime = other.FallTime;
-      }
-      if (other.CurrentSplineIndex != 0) {
-        CurrentSplineIndex = other.CurrentSplineIndex;
-      }
-      if (other.SplineProgress != 0F) {
-        SplineProgress = other.SplineProgress;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -4754,31 +4342,7 @@ namespace Pathfinding {
             break;
           }
           case 104: {
-            Collided = input.ReadBool();
-            break;
-          }
-          case 117: {
-            GroundZ = input.ReadFloat();
-            break;
-          }
-          case 125: {
-            LiquidZ = input.ReadFloat();
-            break;
-          }
-          case 133: {
-            FallDistance = input.ReadFloat();
-            break;
-          }
-          case 141: {
-            FallTime = input.ReadFloat();
-            break;
-          }
-          case 144: {
-            CurrentSplineIndex = input.ReadInt32();
-            break;
-          }
-          case 157: {
-            SplineProgress = input.ReadFloat();
+            FallTime = input.ReadUInt32();
             break;
           }
         }
@@ -4849,31 +4413,7 @@ namespace Pathfinding {
             break;
           }
           case 104: {
-            Collided = input.ReadBool();
-            break;
-          }
-          case 117: {
-            GroundZ = input.ReadFloat();
-            break;
-          }
-          case 125: {
-            LiquidZ = input.ReadFloat();
-            break;
-          }
-          case 133: {
-            FallDistance = input.ReadFloat();
-            break;
-          }
-          case 141: {
-            FallTime = input.ReadFloat();
-            break;
-          }
-          case 144: {
-            CurrentSplineIndex = input.ReadInt32();
-            break;
-          }
-          case 157: {
-            SplineProgress = input.ReadFloat();
+            FallTime = input.ReadUInt32();
             break;
           }
         }
@@ -4923,7 +4463,7 @@ namespace Pathfinding {
     public VMapHeightRequest(VMapHeightRequest other) : this() {
       mapId_ = other.mapId_;
       position_ = other.position_ != null ? other.position_.Clone() : null;
-      searchDistance_ = other.searchDistance_;
+      maxSearchDist_ = other.maxSearchDist_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -4957,18 +4497,15 @@ namespace Pathfinding {
       }
     }
 
-    /// <summary>Field number for the "search_distance" field.</summary>
-    public const int SearchDistanceFieldNumber = 3;
-    private float searchDistance_;
-    /// <summary>
-    /// Default: 1000.0
-    /// </summary>
+    /// <summary>Field number for the "max_search_dist" field.</summary>
+    public const int MaxSearchDistFieldNumber = 3;
+    private float maxSearchDist_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float SearchDistance {
-      get { return searchDistance_; }
+    public float MaxSearchDist {
+      get { return maxSearchDist_; }
       set {
-        searchDistance_ = value;
+        maxSearchDist_ = value;
       }
     }
 
@@ -4989,7 +4526,7 @@ namespace Pathfinding {
       }
       if (MapId != other.MapId) return false;
       if (!object.Equals(Position, other.Position)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(SearchDistance, other.SearchDistance)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(MaxSearchDist, other.MaxSearchDist)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -4999,7 +4536,7 @@ namespace Pathfinding {
       int hash = 1;
       if (MapId != 0) hash ^= MapId.GetHashCode();
       if (position_ != null) hash ^= Position.GetHashCode();
-      if (SearchDistance != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(SearchDistance);
+      if (MaxSearchDist != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(MaxSearchDist);
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -5026,9 +4563,9 @@ namespace Pathfinding {
         output.WriteRawTag(18);
         output.WriteMessage(Position);
       }
-      if (SearchDistance != 0F) {
+      if (MaxSearchDist != 0F) {
         output.WriteRawTag(29);
-        output.WriteFloat(SearchDistance);
+        output.WriteFloat(MaxSearchDist);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -5048,9 +4585,9 @@ namespace Pathfinding {
         output.WriteRawTag(18);
         output.WriteMessage(Position);
       }
-      if (SearchDistance != 0F) {
+      if (MaxSearchDist != 0F) {
         output.WriteRawTag(29);
-        output.WriteFloat(SearchDistance);
+        output.WriteFloat(MaxSearchDist);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -5068,7 +4605,7 @@ namespace Pathfinding {
       if (position_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Position);
       }
-      if (SearchDistance != 0F) {
+      if (MaxSearchDist != 0F) {
         size += 1 + 4;
       }
       if (_unknownFields != null) {
@@ -5092,8 +4629,8 @@ namespace Pathfinding {
         }
         Position.MergeFrom(other.Position);
       }
-      if (other.SearchDistance != 0F) {
-        SearchDistance = other.SearchDistance;
+      if (other.MaxSearchDist != 0F) {
+        MaxSearchDist = other.MaxSearchDist;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -5126,7 +4663,7 @@ namespace Pathfinding {
             break;
           }
           case 29: {
-            SearchDistance = input.ReadFloat();
+            MaxSearchDist = input.ReadFloat();
             break;
           }
         }
@@ -5160,7 +4697,7 @@ namespace Pathfinding {
             break;
           }
           case 29: {
-            SearchDistance = input.ReadFloat();
+            MaxSearchDist = input.ReadFloat();
             break;
           }
         }
@@ -5206,6 +4743,7 @@ namespace Pathfinding {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public VMapHeightResponse(VMapHeightResponse other) : this() {
       height_ = other.height_;
+      found_ = other.found_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -5227,6 +4765,18 @@ namespace Pathfinding {
       }
     }
 
+    /// <summary>Field number for the "found" field.</summary>
+    public const int FoundFieldNumber = 2;
+    private bool found_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Found {
+      get { return found_; }
+      set {
+        found_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -5243,6 +4793,7 @@ namespace Pathfinding {
         return true;
       }
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Height, other.Height)) return false;
+      if (Found != other.Found) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -5251,6 +4802,7 @@ namespace Pathfinding {
     public override int GetHashCode() {
       int hash = 1;
       if (Height != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Height);
+      if (Found != false) hash ^= Found.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -5273,6 +4825,10 @@ namespace Pathfinding {
         output.WriteRawTag(13);
         output.WriteFloat(Height);
       }
+      if (Found != false) {
+        output.WriteRawTag(16);
+        output.WriteBool(Found);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -5287,6 +4843,10 @@ namespace Pathfinding {
         output.WriteRawTag(13);
         output.WriteFloat(Height);
       }
+      if (Found != false) {
+        output.WriteRawTag(16);
+        output.WriteBool(Found);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -5299,6 +4859,9 @@ namespace Pathfinding {
       int size = 0;
       if (Height != 0F) {
         size += 1 + 4;
+      }
+      if (Found != false) {
+        size += 1 + 1;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -5314,6 +4877,9 @@ namespace Pathfinding {
       }
       if (other.Height != 0F) {
         Height = other.Height;
+      }
+      if (other.Found != false) {
+        Found = other.Found;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -5338,6 +4904,10 @@ namespace Pathfinding {
             Height = input.ReadFloat();
             break;
           }
+          case 16: {
+            Found = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -5359,6 +4929,10 @@ namespace Pathfinding {
             break;
           case 13: {
             Height = input.ReadFloat();
+            break;
+          }
+          case 16: {
+            Found = input.ReadBool();
             break;
           }
         }
@@ -5409,7 +4983,6 @@ namespace Pathfinding {
       mapId_ = other.mapId_;
       from_ = other.from_ != null ? other.from_.Clone() : null;
       to_ = other.to_ != null ? other.to_.Clone() : null;
-      ignoreM2Models_ = other.ignoreM2Models_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -5455,18 +5028,6 @@ namespace Pathfinding {
       }
     }
 
-    /// <summary>Field number for the "ignore_m2_models" field.</summary>
-    public const int IgnoreM2ModelsFieldNumber = 4;
-    private bool ignoreM2Models_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool IgnoreM2Models {
-      get { return ignoreM2Models_; }
-      set {
-        ignoreM2Models_ = value;
-      }
-    }
-
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -5485,7 +5046,6 @@ namespace Pathfinding {
       if (MapId != other.MapId) return false;
       if (!object.Equals(From, other.From)) return false;
       if (!object.Equals(To, other.To)) return false;
-      if (IgnoreM2Models != other.IgnoreM2Models) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -5496,7 +5056,6 @@ namespace Pathfinding {
       if (MapId != 0) hash ^= MapId.GetHashCode();
       if (from_ != null) hash ^= From.GetHashCode();
       if (to_ != null) hash ^= To.GetHashCode();
-      if (IgnoreM2Models != false) hash ^= IgnoreM2Models.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -5527,10 +5086,6 @@ namespace Pathfinding {
         output.WriteRawTag(26);
         output.WriteMessage(To);
       }
-      if (IgnoreM2Models != false) {
-        output.WriteRawTag(32);
-        output.WriteBool(IgnoreM2Models);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -5553,10 +5108,6 @@ namespace Pathfinding {
         output.WriteRawTag(26);
         output.WriteMessage(To);
       }
-      if (IgnoreM2Models != false) {
-        output.WriteRawTag(32);
-        output.WriteBool(IgnoreM2Models);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -5575,9 +5126,6 @@ namespace Pathfinding {
       }
       if (to_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(To);
-      }
-      if (IgnoreM2Models != false) {
-        size += 1 + 1;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -5605,9 +5153,6 @@ namespace Pathfinding {
           To = new global::Game.Position();
         }
         To.MergeFrom(other.To);
-      }
-      if (other.IgnoreM2Models != false) {
-        IgnoreM2Models = other.IgnoreM2Models;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -5646,10 +5191,6 @@ namespace Pathfinding {
             input.ReadMessage(To);
             break;
           }
-          case 32: {
-            IgnoreM2Models = input.ReadBool();
-            break;
-          }
         }
       }
     #endif
@@ -5685,10 +5226,6 @@ namespace Pathfinding {
               To = new global::Game.Position();
             }
             input.ReadMessage(To);
-            break;
-          }
-          case 32: {
-            IgnoreM2Models = input.ReadBool();
             break;
           }
         }
@@ -6224,7 +5761,9 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public CombinedLineOfSightResponse(CombinedLineOfSightResponse other) : this() {
-      inLos_ = other.inLos_;
+      navmeshLos_ = other.navmeshLos_;
+      vmapLos_ = other.vmapLos_;
+      combinedLos_ = other.combinedLos_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -6234,15 +5773,39 @@ namespace Pathfinding {
       return new CombinedLineOfSightResponse(this);
     }
 
-    /// <summary>Field number for the "in_los" field.</summary>
-    public const int InLosFieldNumber = 1;
-    private bool inLos_;
+    /// <summary>Field number for the "navmesh_los" field.</summary>
+    public const int NavmeshLosFieldNumber = 1;
+    private bool navmeshLos_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool InLos {
-      get { return inLos_; }
+    public bool NavmeshLos {
+      get { return navmeshLos_; }
       set {
-        inLos_ = value;
+        navmeshLos_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "vmap_los" field.</summary>
+    public const int VmapLosFieldNumber = 2;
+    private bool vmapLos_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool VmapLos {
+      get { return vmapLos_; }
+      set {
+        vmapLos_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "combined_los" field.</summary>
+    public const int CombinedLosFieldNumber = 3;
+    private bool combinedLos_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool CombinedLos {
+      get { return combinedLos_; }
+      set {
+        combinedLos_ = value;
       }
     }
 
@@ -6261,7 +5824,9 @@ namespace Pathfinding {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (InLos != other.InLos) return false;
+      if (NavmeshLos != other.NavmeshLos) return false;
+      if (VmapLos != other.VmapLos) return false;
+      if (CombinedLos != other.CombinedLos) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -6269,7 +5834,9 @@ namespace Pathfinding {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (InLos != false) hash ^= InLos.GetHashCode();
+      if (NavmeshLos != false) hash ^= NavmeshLos.GetHashCode();
+      if (VmapLos != false) hash ^= VmapLos.GetHashCode();
+      if (CombinedLos != false) hash ^= CombinedLos.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -6288,9 +5855,17 @@ namespace Pathfinding {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (InLos != false) {
+      if (NavmeshLos != false) {
         output.WriteRawTag(8);
-        output.WriteBool(InLos);
+        output.WriteBool(NavmeshLos);
+      }
+      if (VmapLos != false) {
+        output.WriteRawTag(16);
+        output.WriteBool(VmapLos);
+      }
+      if (CombinedLos != false) {
+        output.WriteRawTag(24);
+        output.WriteBool(CombinedLos);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -6302,9 +5877,17 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (InLos != false) {
+      if (NavmeshLos != false) {
         output.WriteRawTag(8);
-        output.WriteBool(InLos);
+        output.WriteBool(NavmeshLos);
+      }
+      if (VmapLos != false) {
+        output.WriteRawTag(16);
+        output.WriteBool(VmapLos);
+      }
+      if (CombinedLos != false) {
+        output.WriteRawTag(24);
+        output.WriteBool(CombinedLos);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -6316,7 +5899,13 @@ namespace Pathfinding {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (InLos != false) {
+      if (NavmeshLos != false) {
+        size += 1 + 1;
+      }
+      if (VmapLos != false) {
+        size += 1 + 1;
+      }
+      if (CombinedLos != false) {
         size += 1 + 1;
       }
       if (_unknownFields != null) {
@@ -6331,8 +5920,14 @@ namespace Pathfinding {
       if (other == null) {
         return;
       }
-      if (other.InLos != false) {
-        InLos = other.InLos;
+      if (other.NavmeshLos != false) {
+        NavmeshLos = other.NavmeshLos;
+      }
+      if (other.VmapLos != false) {
+        VmapLos = other.VmapLos;
+      }
+      if (other.CombinedLos != false) {
+        CombinedLos = other.CombinedLos;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -6354,7 +5949,15 @@ namespace Pathfinding {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            InLos = input.ReadBool();
+            NavmeshLos = input.ReadBool();
+            break;
+          }
+          case 16: {
+            VmapLos = input.ReadBool();
+            break;
+          }
+          case 24: {
+            CombinedLos = input.ReadBool();
             break;
           }
         }
@@ -6377,7 +5980,15 @@ namespace Pathfinding {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            InLos = input.ReadBool();
+            NavmeshLos = input.ReadBool();
+            break;
+          }
+          case 16: {
+            VmapLos = input.ReadBool();
+            break;
+          }
+          case 24: {
+            CombinedLos = input.ReadBool();
             break;
           }
         }
@@ -6388,7 +5999,7 @@ namespace Pathfinding {
   }
 
   /// <summary>
-  /// Area information
+  /// Area/zone information
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class AreaInfoRequest : pb::IMessage<AreaInfoRequest>
@@ -6669,11 +6280,9 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public AreaInfoResponse(AreaInfoResponse other) : this() {
-      flags_ = other.flags_;
-      adtId_ = other.adtId_;
-      rootId_ = other.rootId_;
-      groupId_ = other.groupId_;
-      correctedZ_ = other.correctedZ_;
+      areaId_ = other.areaId_;
+      zoneId_ = other.zoneId_;
+      found_ = other.found_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -6683,63 +6292,39 @@ namespace Pathfinding {
       return new AreaInfoResponse(this);
     }
 
-    /// <summary>Field number for the "flags" field.</summary>
-    public const int FlagsFieldNumber = 1;
-    private uint flags_;
+    /// <summary>Field number for the "area_id" field.</summary>
+    public const int AreaIdFieldNumber = 1;
+    private uint areaId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint Flags {
-      get { return flags_; }
+    public uint AreaId {
+      get { return areaId_; }
       set {
-        flags_ = value;
+        areaId_ = value;
       }
     }
 
-    /// <summary>Field number for the "adt_id" field.</summary>
-    public const int AdtIdFieldNumber = 2;
-    private int adtId_;
+    /// <summary>Field number for the "zone_id" field.</summary>
+    public const int ZoneIdFieldNumber = 2;
+    private uint zoneId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int AdtId {
-      get { return adtId_; }
+    public uint ZoneId {
+      get { return zoneId_; }
       set {
-        adtId_ = value;
+        zoneId_ = value;
       }
     }
 
-    /// <summary>Field number for the "root_id" field.</summary>
-    public const int RootIdFieldNumber = 3;
-    private int rootId_;
+    /// <summary>Field number for the "found" field.</summary>
+    public const int FoundFieldNumber = 3;
+    private bool found_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int RootId {
-      get { return rootId_; }
+    public bool Found {
+      get { return found_; }
       set {
-        rootId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "group_id" field.</summary>
-    public const int GroupIdFieldNumber = 4;
-    private int groupId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int GroupId {
-      get { return groupId_; }
-      set {
-        groupId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "corrected_z" field.</summary>
-    public const int CorrectedZFieldNumber = 5;
-    private float correctedZ_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float CorrectedZ {
-      get { return correctedZ_; }
-      set {
-        correctedZ_ = value;
+        found_ = value;
       }
     }
 
@@ -6758,11 +6343,9 @@ namespace Pathfinding {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (Flags != other.Flags) return false;
-      if (AdtId != other.AdtId) return false;
-      if (RootId != other.RootId) return false;
-      if (GroupId != other.GroupId) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(CorrectedZ, other.CorrectedZ)) return false;
+      if (AreaId != other.AreaId) return false;
+      if (ZoneId != other.ZoneId) return false;
+      if (Found != other.Found) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -6770,11 +6353,9 @@ namespace Pathfinding {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (Flags != 0) hash ^= Flags.GetHashCode();
-      if (AdtId != 0) hash ^= AdtId.GetHashCode();
-      if (RootId != 0) hash ^= RootId.GetHashCode();
-      if (GroupId != 0) hash ^= GroupId.GetHashCode();
-      if (CorrectedZ != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(CorrectedZ);
+      if (AreaId != 0) hash ^= AreaId.GetHashCode();
+      if (ZoneId != 0) hash ^= ZoneId.GetHashCode();
+      if (Found != false) hash ^= Found.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -6793,25 +6374,17 @@ namespace Pathfinding {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (Flags != 0) {
+      if (AreaId != 0) {
         output.WriteRawTag(8);
-        output.WriteUInt32(Flags);
+        output.WriteUInt32(AreaId);
       }
-      if (AdtId != 0) {
+      if (ZoneId != 0) {
         output.WriteRawTag(16);
-        output.WriteInt32(AdtId);
+        output.WriteUInt32(ZoneId);
       }
-      if (RootId != 0) {
+      if (Found != false) {
         output.WriteRawTag(24);
-        output.WriteInt32(RootId);
-      }
-      if (GroupId != 0) {
-        output.WriteRawTag(32);
-        output.WriteInt32(GroupId);
-      }
-      if (CorrectedZ != 0F) {
-        output.WriteRawTag(45);
-        output.WriteFloat(CorrectedZ);
+        output.WriteBool(Found);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -6823,25 +6396,17 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Flags != 0) {
+      if (AreaId != 0) {
         output.WriteRawTag(8);
-        output.WriteUInt32(Flags);
+        output.WriteUInt32(AreaId);
       }
-      if (AdtId != 0) {
+      if (ZoneId != 0) {
         output.WriteRawTag(16);
-        output.WriteInt32(AdtId);
+        output.WriteUInt32(ZoneId);
       }
-      if (RootId != 0) {
+      if (Found != false) {
         output.WriteRawTag(24);
-        output.WriteInt32(RootId);
-      }
-      if (GroupId != 0) {
-        output.WriteRawTag(32);
-        output.WriteInt32(GroupId);
-      }
-      if (CorrectedZ != 0F) {
-        output.WriteRawTag(45);
-        output.WriteFloat(CorrectedZ);
+        output.WriteBool(Found);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -6853,20 +6418,14 @@ namespace Pathfinding {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (Flags != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Flags);
+      if (AreaId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(AreaId);
       }
-      if (AdtId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(AdtId);
+      if (ZoneId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ZoneId);
       }
-      if (RootId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(RootId);
-      }
-      if (GroupId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(GroupId);
-      }
-      if (CorrectedZ != 0F) {
-        size += 1 + 4;
+      if (Found != false) {
+        size += 1 + 1;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -6880,20 +6439,14 @@ namespace Pathfinding {
       if (other == null) {
         return;
       }
-      if (other.Flags != 0) {
-        Flags = other.Flags;
+      if (other.AreaId != 0) {
+        AreaId = other.AreaId;
       }
-      if (other.AdtId != 0) {
-        AdtId = other.AdtId;
+      if (other.ZoneId != 0) {
+        ZoneId = other.ZoneId;
       }
-      if (other.RootId != 0) {
-        RootId = other.RootId;
-      }
-      if (other.GroupId != 0) {
-        GroupId = other.GroupId;
-      }
-      if (other.CorrectedZ != 0F) {
-        CorrectedZ = other.CorrectedZ;
+      if (other.Found != false) {
+        Found = other.Found;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -6915,23 +6468,15 @@ namespace Pathfinding {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            Flags = input.ReadUInt32();
+            AreaId = input.ReadUInt32();
             break;
           }
           case 16: {
-            AdtId = input.ReadInt32();
+            ZoneId = input.ReadUInt32();
             break;
           }
           case 24: {
-            RootId = input.ReadInt32();
-            break;
-          }
-          case 32: {
-            GroupId = input.ReadInt32();
-            break;
-          }
-          case 45: {
-            CorrectedZ = input.ReadFloat();
+            Found = input.ReadBool();
             break;
           }
         }
@@ -6954,23 +6499,15 @@ namespace Pathfinding {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            Flags = input.ReadUInt32();
+            AreaId = input.ReadUInt32();
             break;
           }
           case 16: {
-            AdtId = input.ReadInt32();
+            ZoneId = input.ReadUInt32();
             break;
           }
           case 24: {
-            RootId = input.ReadInt32();
-            break;
-          }
-          case 32: {
-            GroupId = input.ReadInt32();
-            break;
-          }
-          case 45: {
-            CorrectedZ = input.ReadFloat();
+            Found = input.ReadBool();
             break;
           }
         }
@@ -7262,9 +6799,9 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public LiquidInfoResponse(LiquidInfoResponse other) : this() {
-      hasLiquid_ = other.hasLiquid_;
       liquidLevel_ = other.liquidLevel_;
-      liquidFloor_ = other.liquidFloor_;
+      liquidType_ = other.liquidType_;
+      hasLiquid_ = other.hasLiquid_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -7274,20 +6811,8 @@ namespace Pathfinding {
       return new LiquidInfoResponse(this);
     }
 
-    /// <summary>Field number for the "has_liquid" field.</summary>
-    public const int HasLiquidFieldNumber = 1;
-    private bool hasLiquid_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasLiquid {
-      get { return hasLiquid_; }
-      set {
-        hasLiquid_ = value;
-      }
-    }
-
     /// <summary>Field number for the "liquid_level" field.</summary>
-    public const int LiquidLevelFieldNumber = 2;
+    public const int LiquidLevelFieldNumber = 1;
     private float liquidLevel_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -7298,15 +6823,27 @@ namespace Pathfinding {
       }
     }
 
-    /// <summary>Field number for the "liquid_floor" field.</summary>
-    public const int LiquidFloorFieldNumber = 3;
-    private float liquidFloor_;
+    /// <summary>Field number for the "liquid_type" field.</summary>
+    public const int LiquidTypeFieldNumber = 2;
+    private uint liquidType_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float LiquidFloor {
-      get { return liquidFloor_; }
+    public uint LiquidType {
+      get { return liquidType_; }
       set {
-        liquidFloor_ = value;
+        liquidType_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "has_liquid" field.</summary>
+    public const int HasLiquidFieldNumber = 3;
+    private bool hasLiquid_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasLiquid {
+      get { return hasLiquid_; }
+      set {
+        hasLiquid_ = value;
       }
     }
 
@@ -7325,9 +6862,9 @@ namespace Pathfinding {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (HasLiquid != other.HasLiquid) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(LiquidLevel, other.LiquidLevel)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(LiquidFloor, other.LiquidFloor)) return false;
+      if (LiquidType != other.LiquidType) return false;
+      if (HasLiquid != other.HasLiquid) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -7335,9 +6872,9 @@ namespace Pathfinding {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (HasLiquid != false) hash ^= HasLiquid.GetHashCode();
       if (LiquidLevel != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(LiquidLevel);
-      if (LiquidFloor != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(LiquidFloor);
+      if (LiquidType != 0) hash ^= LiquidType.GetHashCode();
+      if (HasLiquid != false) hash ^= HasLiquid.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -7356,17 +6893,17 @@ namespace Pathfinding {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (HasLiquid != false) {
-        output.WriteRawTag(8);
-        output.WriteBool(HasLiquid);
-      }
       if (LiquidLevel != 0F) {
-        output.WriteRawTag(21);
+        output.WriteRawTag(13);
         output.WriteFloat(LiquidLevel);
       }
-      if (LiquidFloor != 0F) {
-        output.WriteRawTag(29);
-        output.WriteFloat(LiquidFloor);
+      if (LiquidType != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(LiquidType);
+      }
+      if (HasLiquid != false) {
+        output.WriteRawTag(24);
+        output.WriteBool(HasLiquid);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -7378,17 +6915,17 @@ namespace Pathfinding {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (HasLiquid != false) {
-        output.WriteRawTag(8);
-        output.WriteBool(HasLiquid);
-      }
       if (LiquidLevel != 0F) {
-        output.WriteRawTag(21);
+        output.WriteRawTag(13);
         output.WriteFloat(LiquidLevel);
       }
-      if (LiquidFloor != 0F) {
-        output.WriteRawTag(29);
-        output.WriteFloat(LiquidFloor);
+      if (LiquidType != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(LiquidType);
+      }
+      if (HasLiquid != false) {
+        output.WriteRawTag(24);
+        output.WriteBool(HasLiquid);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -7400,14 +6937,14 @@ namespace Pathfinding {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (HasLiquid != false) {
-        size += 1 + 1;
-      }
       if (LiquidLevel != 0F) {
         size += 1 + 4;
       }
-      if (LiquidFloor != 0F) {
-        size += 1 + 4;
+      if (LiquidType != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(LiquidType);
+      }
+      if (HasLiquid != false) {
+        size += 1 + 1;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -7421,14 +6958,14 @@ namespace Pathfinding {
       if (other == null) {
         return;
       }
-      if (other.HasLiquid != false) {
-        HasLiquid = other.HasLiquid;
-      }
       if (other.LiquidLevel != 0F) {
         LiquidLevel = other.LiquidLevel;
       }
-      if (other.LiquidFloor != 0F) {
-        LiquidFloor = other.LiquidFloor;
+      if (other.LiquidType != 0) {
+        LiquidType = other.LiquidType;
+      }
+      if (other.HasLiquid != false) {
+        HasLiquid = other.HasLiquid;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -7449,16 +6986,16 @@ namespace Pathfinding {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
-            HasLiquid = input.ReadBool();
-            break;
-          }
-          case 21: {
+          case 13: {
             LiquidLevel = input.ReadFloat();
             break;
           }
-          case 29: {
-            LiquidFloor = input.ReadFloat();
+          case 16: {
+            LiquidType = input.ReadUInt32();
+            break;
+          }
+          case 24: {
+            HasLiquid = input.ReadBool();
             break;
           }
         }
@@ -7480,16 +7017,16 @@ namespace Pathfinding {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
-            HasLiquid = input.ReadBool();
-            break;
-          }
-          case 21: {
+          case 13: {
             LiquidLevel = input.ReadFloat();
             break;
           }
-          case 29: {
-            LiquidFloor = input.ReadFloat();
+          case 16: {
+            LiquidType = input.ReadUInt32();
+            break;
+          }
+          case 24: {
+            HasLiquid = input.ReadBool();
             break;
           }
         }

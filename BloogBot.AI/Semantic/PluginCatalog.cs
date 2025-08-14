@@ -7,7 +7,7 @@ namespace BloogBot.AI.Semantic;
 
 public sealed class PluginCatalog
 {
-    readonly Dictionary<BotActivity, List<KernelPlugin>> _byActivity = new();
+    readonly Dictionary<BotActivity, List<KernelPlugin>> _byActivity = [];
 
     public PluginCatalog()
     {

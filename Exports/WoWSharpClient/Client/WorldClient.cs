@@ -57,6 +57,14 @@ namespace WoWSharpClient.Client
             }
         }
 
+        private void SendPacket(byte[] packetData, Opcode opcode)
+        {
+            EnqueueSend(async () =>
+            {
+                Console.WriteLine($"[WorldClient] Sending packet: {opcode} ({packetData.Length} bytes)");
+                await _stream.WriteAsync(packetData);
+            });
+        }
         public void HandleAuthChallenge(string username, byte[] sessionKey)
         {
             using var reader = new BinaryReader(_stream, Encoding.UTF8, true);
@@ -79,15 +87,6 @@ namespace WoWSharpClient.Client
             }
 
             SendCMSGAuthSession(username, serverSeed, sessionKey);
-        }
-
-        private void SendPacket(byte[] packetData, Opcode opcode)
-        {
-            EnqueueSend(async () =>
-            {
-                Console.WriteLine($"[WorldClient] Sending packet: {opcode} ({packetData.Length} bytes)");
-                await _stream.WriteAsync(packetData);
-            });
         }
 
         private void SendCMSGAuthSession(string username, byte[] serverSeed, byte[] sessionKey)

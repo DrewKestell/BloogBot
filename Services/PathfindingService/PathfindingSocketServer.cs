@@ -120,27 +120,21 @@ namespace PathfindingService
                 orientation = proto.Facing,
                 pitch = proto.SwimPitch,
 
-                // Velocity
-                vx = proto.VelX,
-                vy = proto.VelY,
-                vz = proto.VelZ,
-
                 // Movement speeds
                 walkSpeed = proto.WalkSpeed,
                 runSpeed = proto.RunSpeed,
                 swimSpeed = proto.SwimSpeed,
                 flightSpeed = 7.0f, // Default, not in proto
-                backSpeed = proto.RunBackSpeed,
+                runBackSpeed = proto.RunBackSpeed,
 
                 // State
                 moveFlags = proto.MovementFlags,
                 mapId = proto.MapId,
 
                 // Physics modifiers
-                jumpVelocity = 0, // Check if jumping
-                knockbackVx = 0,
-                knockbackVy = 0,
-                knockbackVz = 0,
+                vx = 0,
+                vy = 0,
+                vz = proto.JumpVerticalSpeed,
 
                 // Collision
                 height = proto.Height,
@@ -156,10 +150,6 @@ namespace PathfindingService
                 // Time
                 deltaTime = 0.016f // Will be overridden by parameter
             };
-
-            // Check for jump
-            if (proto.JumpVerticalSpeed > 0)
-                input.jumpVelocity = proto.JumpVerticalSpeed;
 
             return input;
         }

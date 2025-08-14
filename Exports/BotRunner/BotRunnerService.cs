@@ -65,19 +65,19 @@ namespace BotRunner
                                                 float pathingDistance = _pathfindingClient.GetPathingDistance(_objectManager.MapId, _objectManager.Player.Position, woWUnit.Position);
                                                 float directDistance = _objectManager.Player.Position.DistanceTo(woWUnit.Position);
 
-                                                //Console.WriteLine($"[BOT] Target: Dallawha | PathDist: {pathingDistance:F2} | DirectDist: {directDistance:F2} | PlayerPos: ({_objectManager.Player.Position.X:F2}, {_objectManager.Player.Position.Y:F2}, {_objectManager.Player.Position.Z:F2}) | TargetPos: ({woWUnit.Position.X:F2}, {woWUnit.Position.Y:F2}, {woWUnit.Position.Z:F2})");
+                                                Console.WriteLine($"[BOT] Target: Dallawha | PathDist: {pathingDistance:F2} | DirectDist: {directDistance:F2} | PlayerPos: ({_objectManager.Player.Position.X:F2}, {_objectManager.Player.Position.Y:F2}, {_objectManager.Player.Position.Z:F2}) | TargetPos: ({woWUnit.Position.X:F2}, {woWUnit.Position.Y:F2}, {woWUnit.Position.Z:F2})");
 
                                                 if (pathingDistance > 25)
                                                 {
-                                                    //Console.WriteLine($"[BOT] MOVING - Distance {pathingDistance:F2} > 25, requesting path...");
+                                                    Console.WriteLine($"[BOT] MOVING - Distance {pathingDistance:F2} > 25, requesting path...");
 
                                                     Position[] positions = _pathfindingClient.GetPath(_objectManager.MapId, _objectManager.Player.Position, woWUnit.Position, true);
 
-                                                    //Console.WriteLine($"[BOT] Path received with {positions.Length} waypoints");
+                                                    Console.WriteLine($"[BOT] Path received with {positions.Length} waypoints");
 
                                                     if (positions.Length > 0)
                                                     {
-                                                        //Console.WriteLine($"[BOT] Moving to waypoint[1]: ({positions[1].X:F2}, {positions[1].Y:F2}, {positions[1].Z:F2})");
+                                                        Console.WriteLine($"[BOT] Moving to waypoint[1]: ({positions[1].X:F2}, {positions[1].Y:F2}, {positions[1].Z:F2})");
                                                         _objectManager.MoveToward(positions[1]);
                                                     }
                                                     else
@@ -87,20 +87,20 @@ namespace BotRunner
                                                 }
                                                 else if (!_objectManager.Player.IsFacing(woWUnit))
                                                 {
-                                                    //Console.WriteLine($"[BOT] FACING - Distance {pathingDistance:F2} <= 25, adjusting facing...");
-                                                    //Console.WriteLine($"[BOT] Current facing: {_objectManager.Player.Facing:F2}, Target direction: {Math.Atan2(woWUnit.Position.Y - _objectManager.Player.Position.Y, woWUnit.Position.X - _objectManager.Player.Position.X):F2}");
+                                                    Console.WriteLine($"[BOT] FACING - Distance {pathingDistance:F2} <= 25, adjusting facing...");
+                                                    Console.WriteLine($"[BOT] Current facing: {_objectManager.Player.Facing:F2}, Target direction: {Math.Atan2(woWUnit.Position.Y - _objectManager.Player.Position.Y, woWUnit.Position.X - _objectManager.Player.Position.X):F2}");
                                                     _objectManager.Face(woWUnit.Position);
                                                 }
                                                 else
                                                 {
-                                                    //Console.WriteLine($"[BOT] STOPPED - Distance {pathingDistance:F2} <= 25 and facing target");
-                                                    //Console.WriteLine($"[BOT] Movement flags: {_objectManager.Player.MovementFlags}");
+                                                    Console.WriteLine($"[BOT] STOPPED - Distance {pathingDistance:F2} <= 25 and facing target");
+                                                    Console.WriteLine($"[BOT] Movement flags: {_objectManager.Player.MovementFlags}");
                                                     _objectManager.StopAllMovement();
                                                 }
                                             }
                                             else
                                             {
-                                                //Console.WriteLine($"[BOT] Dallawha not found in Players list. Total players: {_objectManager.Players.Count()}");
+                                                Console.WriteLine($"[BOT] Dallawha not found in Players list. Total players: {_objectManager.Players.Count()}");
                                                 if (_objectManager.Units.Any(x => x.Name == "Dallawha"))
                                                 {
                                                     Console.WriteLine($"[BOT] WARNING: Dallawha found in Units but not in Players!");
@@ -157,12 +157,12 @@ namespace BotRunner
 
                     _activitySnapshot = incomingActivityMemberState;
                     // Delay to control the frequency of task processing
-                    await Task.Delay(100);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"[BOT RUNNER] {ex}");
                 }
+                await Task.Delay(100);
             }
         }
 

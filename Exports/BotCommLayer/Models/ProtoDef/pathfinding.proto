@@ -83,36 +83,34 @@ message PhysicsInput {
     // Swimming/flying
     float swim_pitch = 11;
     
-    // Falling/jumping
+    // Falling/jumping - simplified
     uint32 fall_time = 12;
-    float jump_vertical_speed = 13;
-    float jump_cos_angle = 14;
-    float jump_sin_angle = 15;
-    float jump_horizontal_speed = 16;
+    // REMOVED: jump_vertical_speed, jump_cos_angle, jump_sin_angle, jump_horizontal_speed
+    // These are now handled by velocity components (vel_x, vel_y, vel_z)
     
     // Spline
-    float spline_elevation = 17;
+    float spline_elevation = 13;
     
     // Movement speeds
-    float walk_speed = 18;
-    float run_speed = 19;
-    float run_back_speed = 20;
-    float swim_speed = 21;
-    float swim_back_speed = 22;
+    float walk_speed = 14;
+    float run_speed = 15;
+    float run_back_speed = 16;
+    float swim_speed = 17;
+    float swim_back_speed = 18;
     
     // Current velocity
-    float vel_x = 23;
-    float vel_y = 24;
-    float vel_z = 25;
+    float vel_x = 19;
+    float vel_y = 20;
+    float vel_z = 21;
     
     // Collision
-    float radius = 26;
-    float height = 27;
-    float gravity = 28;
+    float radius = 22;
+    float height = 23;
+    float gravity = 24;
     
     // Context
-    uint32 map_id = 29;
-    float delta_time = 30;
+    uint32 map_id = 25;
+    float delta_time = 26;
 }
 
 message PhysicsOutput {
@@ -135,30 +133,21 @@ message PhysicsOutput {
     bool is_grounded = 10;
     bool is_swimming = 11;
     bool is_flying = 12;
-    bool collided = 13;
     
-    // Environment info
-    float ground_z = 14;
-    float liquid_z = 15;
-    
-    // Fall damage info
-    float fall_distance = 16;
-    float fall_time = 17;
-    
-    // Spline progress
-    int32 current_spline_index = 18;
-    float spline_progress = 19;
+    // Fall time tracking
+    uint32 fall_time = 13;
 }
 
 // VMAP height query
 message VMapHeightRequest {
     uint32 map_id = 1;
     game.Position position = 2;
-    float search_distance = 3;  // Default: 1000.0
+    float max_search_dist = 3;
 }
 
 message VMapHeightResponse {
     float height = 1;
+    bool found = 2;
 }
 
 // VMAP line of sight
@@ -166,7 +155,6 @@ message VMapLineOfSightRequest {
     uint32 map_id = 1;
     game.Position from = 2;
     game.Position to = 3;
-    bool ignore_m2_models = 4;
 }
 
 message VMapLineOfSightResponse {
@@ -181,21 +169,21 @@ message CombinedLineOfSightRequest {
 }
 
 message CombinedLineOfSightResponse {
-    bool in_los = 1;
+    bool navmesh_los = 1;
+    bool vmap_los = 2;
+    bool combined_los = 3;
 }
 
-// Area information
+// Area/zone information
 message AreaInfoRequest {
     uint32 map_id = 1;
     game.Position position = 2;
 }
 
 message AreaInfoResponse {
-    uint32 flags = 1;
-    int32 adt_id = 2;
-    int32 root_id = 3;
-    int32 group_id = 4;
-    float corrected_z = 5;
+    uint32 area_id = 1;
+    uint32 zone_id = 2;
+    bool found = 3;
 }
 
 // Liquid information
@@ -205,7 +193,7 @@ message LiquidInfoRequest {
 }
 
 message LiquidInfoResponse {
-    bool has_liquid = 1;
-    float liquid_level = 2;
-    float liquid_floor = 3;
+    float liquid_level = 1;
+    uint32 liquid_type = 2;
+    bool has_liquid = 3;
 }

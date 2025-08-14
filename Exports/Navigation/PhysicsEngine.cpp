@@ -401,18 +401,18 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
     std::cout << "IsFlying: " << state.isFlying << std::endl;
 
     // Apply knockback if any
-    if (input.knockbackVx != 0 || input.knockbackVy != 0 || input.knockbackVz != 0)
+    if (input.vx != 0 || input.vy != 0 || input.vz != 0)
     {
-        std::cout << "Applying knockback: (" << input.knockbackVx << ", " << input.knockbackVy << ", " << input.knockbackVz << ")" << std::endl;
-        ApplyKnockback(state, input.knockbackVx, input.knockbackVy, input.knockbackVz);
+        std::cout << "Applying knockback: (" << input.vx << ", " << input.vy << ", " << input.vz << ")" << std::endl;
+        ApplyKnockback(state, input.vx, input.vy, input.vz);
         state.isGrounded = false;
     }
 
     // Apply jump velocity
-    if (input.jumpVelocity > 0 && state.isGrounded && !state.isSwimming)
+    if (input.vz > 0 && state.isGrounded && !state.isSwimming)
     {
-        std::cout << "Jumping with velocity: " << input.jumpVelocity << std::endl;
-        state.vz = input.jumpVelocity;
+        std::cout << "Jumping with velocity: " << input.vz << std::endl;
+        state.vz = input.vz;
         state.isGrounded = false;
         state.fallStartZ = state.z;  // Set fall start position
     }
@@ -1068,7 +1068,7 @@ float PhysicsEngine::CalculateMoveSpeed(const PhysicsInput& input, bool isSwimmi
     if (input.moveFlags & MOVEFLAG_WALK_MODE)
         return input.walkSpeed;
     if (input.moveFlags & MOVEFLAG_BACKWARD)  // Moving backward
-        return input.backSpeed;
+        return input.runBackSpeed;
     return input.runSpeed;
 }
 
