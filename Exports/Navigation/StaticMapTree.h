@@ -29,9 +29,6 @@ namespace VMAP
         std::unordered_map<uint32_t, uint32_t> iLoadedSpawns;
         std::unordered_map<uint32_t, bool> iLoadedTiles;
 
-        bool getIntersectionTime(const G3D::Ray& ray, float& maxDist,
-            bool stopAtFirstHit, bool ignoreM2Model) const;
-
         // NEW: Preload all tiles for maximum performance
         bool PreloadAllTiles(VMapManager2* vm);
 
@@ -53,6 +50,9 @@ namespace VMAP
             int32_t& rootId, int32_t& groupId) const;
         bool GetLocationInfo(const G3D::Vector3& pos, LocationInfo& info) const;
         bool isUnderModel(G3D::Vector3& pos, float* outDist = nullptr, float* inDist = nullptr) const;
+
+        bool getIntersectionTime(const G3D::Ray& ray, float& maxDist,
+            bool stopAtFirstHit, bool ignoreM2Model) const;
 
         ModelInstance* FindCollisionModel(const G3D::Vector3& pos1, const G3D::Vector3& pos2);
 

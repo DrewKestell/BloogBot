@@ -784,17 +784,101 @@ namespace VMAP
             G3D::Vector3 pos = convertPositionToInternalRep(x, y, z);
             LOG_VECTOR3("Internal position", pos);
 
-            // Query the static map tree
+            // First try the standard height query
             float height = instanceTree->second->getHeight(pos, maxSearchDist);
 
+            // Check if we got a valid result
             if (height > -G3D::inf() && height < G3D::inf())
             {
-                LOG_INFO("Found height: " << height << " at (" << x << "," << y << "," << z << ")");
+                LOG_INFO("Found height using standard method: " << height << " at (" << x << "," << y << "," << z << ")");
                 return height;
             }
             else
             {
-                LOG_DEBUG("No valid height found (inf/-inf result)");
+                LOG_DEBUG("Standard height method failed (inf/-inf result), trying fallback methods...");
+
+                // FALLBACK METHOD 1: Try using getAreaInfo which works correctly
+                LOG_DEBUG("Attempting getAreaInfo fallback...");
+                uint32_t flags = 0;
+                int32_t adtId = 0;
+                int32_t rootId = 0;
+                int32_t groupId = 0;
+
+                // Make a copy of position for getAreaInfo to modify
+                G3D::Vector3 areaPos = pos;
+
+                if (instanceTree->second->getAreaInfo(areaPos, flags, adtId, rootId, groupId))
+                {
+                    // getAreaInfo modifies the z component to contain the ground height
+                    height = areaPos.z;
+                    LOG_INFO("Found height using getAreaInfo fallback: " << height
+                        << " RootId:" << rootId
+                        << " GroupId:" << groupId
+                        << " Flags:0x" << std::hex << flags << std::dec);
+
+                    // Validate the height is within search distance
+                    float heightDiff = z - height;
+                    if (maxSearchDist <= 0 || (heightDiff >= 0 && heightDiff <= maxSearchDist))
+                    {
+                        LOG_INFO("Height within search distance, returning: " << height);
+                        return height;
+                    }
+                    else
+                    {
+                        LOG_DEBUG("Found height " << height << " is outside search distance " << maxSearchDist);
+                        height = VMAP_INVALID_HEIGHT_VALUE; // Reset for next attempt
+                    }
+                }
+                else
+                {
+                    LOG_DEBUG("getAreaInfo fallback failed");
+                }
+
+                // FALLBACK METHOD 2: Try a different approach with ray intersection
+                // Create a downward ray and test for intersection
+                LOG_DEBUG("Attempting ray intersection fallback...");
+                G3D::Ray downRay(pos, G3D::Vector3(0.0f, 0.0f, -1.0f));
+                float rayDist = maxSearchDist > 0 ? maxSearchDist : 100.0f;
+
+                // Try to get intersection time directly
+                float intersectTime = instanceTree->second->getIntersectionTime(downRay, rayDist, true, false);
+                if (intersectTime >= 0 && intersectTime < rayDist)
+                {
+                    height = pos.z - intersectTime;
+                    LOG_INFO("Found height using ray intersection fallback: " << height
+                        << " (intersection time: " << intersectTime << ")");
+
+                    // The intersection time already represents the distance, so this is valid
+                    return height;
+                }
+                else
+                {
+                    LOG_DEBUG("Ray intersection fallback failed");
+                }
+
+                // FALLBACK METHOD 3: Try using object hit position
+                LOG_DEBUG("Attempting object hit position fallback...");
+                float endZ = z - (maxSearchDist > 0 ? maxSearchDist : 1000.0f);
+                float hitX = x, hitY = y, hitZ = z;
+                bool modifyDist = false;
+
+                if (getObjectHitPos(pMapId, x, y, z, x, y, endZ, hitX, hitY, hitZ, modifyDist))
+                {
+                    LOG_INFO("Found height using object hit position fallback: " << hitZ);
+
+                    // Validate the height
+                    float heightDiff = z - hitZ;
+                    if (maxSearchDist <= 0 || (heightDiff >= 0 && heightDiff <= maxSearchDist))
+                    {
+                        return hitZ;
+                    }
+                }
+                else
+                {
+                    LOG_DEBUG("Object hit position fallback found no collision");
+                }
+
+                LOG_WARN("All fallback methods failed to find valid height");
             }
         }
         else

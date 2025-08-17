@@ -396,9 +396,10 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
         << " = " << (input.z < (collision.liquidZ - swimDepth + 0.02f)) << std::endl;
 
     // Only swim if NOT grounded AND in deep enough water
+    const float SWIM_DEPTH_THRESHOLD = 2.0f;
     state.isSwimming = !state.isGrounded && collision.hasLiquid &&
         (collision.liquidType & (VMAP::MAP_LIQUID_TYPE_WATER | VMAP::MAP_LIQUID_TYPE_OCEAN)) &&
-        input.z < (collision.liquidZ - swimDepth + 0.02f);
+        (collision.liquidZ - input.z) >= SWIM_DEPTH_THRESHOLD - 0.05f;
 
     std::cout << "IsSwimming: " << state.isSwimming << std::endl;
 
@@ -454,12 +455,12 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
     if (!state.isGrounded && !state.isSwimming && collision.hasLiquid &&
         (collision.liquidType & (VMAP::MAP_LIQUID_TYPE_WATER | VMAP::MAP_LIQUID_TYPE_OCEAN)))
     {
-        float currentSwimDepth = input.height * 0.7f;
-        if (state.z < (collision.liquidZ - currentSwimDepth + 0.02f))
+        float depth = collision.liquidZ - state.z;
+        if (depth >= SWIM_DEPTH_THRESHOLD - 0.05f)
         {
             std::cout << "Entered water after movement - now swimming!" << std::endl;
             state.isSwimming = true;
-            state.vz = std::max(state.vz, -2.0f);  // Limit fall speed in water
+            state.vz = std::max(state.vz, -2.0f);
         }
     }
 
@@ -657,59 +658,63 @@ float PhysicsEngine::GetHeight(uint32_t mapId, float x, float y, float z, bool c
 PhysicsEngine::CollisionInfo PhysicsEngine::QueryEnvironment(uint32_t mapId, float x, float y, float z,
     float radius, float height)
 {
-    std::cout << "\n[Physics::QueryEnvironment] Map: " << mapId
-        << ", Pos: (" << x << ", " << y << ", " << z << ")" << std::endl;
+    CollisionInfo info;
 
-    CollisionInfo info = {};
+    // Get ground height
+    float groundHeight = GetHeight(mapId, x, y, z, true, 50.0f);
+    std::cout << "[Physics::QueryEnvironment] GetHeight returned: " << groundHeight << std::endl;
 
-    // Get ground height using vMaNGOS-style logic
-    float finalHeight = GetHeight(mapId, x, y, z, m_vmapHeightEnabled, DEFAULT_HEIGHT_SEARCH);
+    // Get VMAP height directly for comparison
+    float vmapHeight = GetVMapHeight(mapId, x, y, z, 50.0f);
+    std::cout << "[Physics::QueryEnvironment] GetVMapHeight returned: " << vmapHeight << std::endl;
 
-    info.hasGround = (finalHeight > INVALID_HEIGHT_VALUE);
-    info.groundZ = info.hasGround ? finalHeight : INVALID_HEIGHT_VALUE;
+    // Check if we're indoors (moved BEFORE ground determination)
+    uint32_t flags = 0;
+    int32_t adtId = 0, rootId = 0, groupId = 0;
+    float checkZ = z;
+    float originalZ = z;
+    std::cout << "[Physics::QueryEnvironment] Calling getAreaInfo with z=" << checkZ << std::endl;
+    m_vmapClient->getAreaInfo(mapId, x, y, checkZ, flags, adtId, rootId, groupId);
+    std::cout << "[Physics::QueryEnvironment] After getAreaInfo: checkZ=" << checkZ
+        << ", flags=0x" << std::hex << flags << std::dec
+        << ", rootId=" << rootId << ", groupId=" << groupId << std::endl;
+    std::cout << "[Physics::QueryEnvironment] Z changed: " << (checkZ != originalZ ? "YES" : "NO")
+        << " (from " << originalZ << " to " << checkZ << ")" << std::endl;
 
-    // Store individual height sources for debugging
-    info.vmapHeight = GetVMapHeight(mapId, x, y, z, DEFAULT_HEIGHT_SEARCH);
+    info.isIndoors = (flags & 0x8) != 0;
+    std::cout << "[Physics::QueryEnvironment] Indoor flag check: flags & 0x8 = " << (flags & 0x8)
+        << " -> isIndoors=" << info.isIndoors << std::endl;
 
-    info.adtHeight = finalHeight;  // Just use the result we already have
-    info.vmapValid = (info.vmapHeight > VMAP_INVALID_HEIGHT_VALUE);
-    info.adtValid = (info.adtHeight > INVALID_HEIGHT_VALUE);
-
-    std::cout << "[Physics::QueryEnvironment] Ground: " << (info.hasGround ? "YES" : "NO")
-        << ", Z=" << info.groundZ << std::endl;
+    // Determine ground
+    if (groundHeight > INVALID_HEIGHT_VALUE) {
+        info.hasGround = true;
+        info.groundZ = groundHeight;
+        std::cout << "[Physics::QueryEnvironment] Using GetHeight ground: " << groundHeight << std::endl;
+    }
+    else if (checkZ != originalZ) {
+        // getAreaInfo modified checkZ to ground level - use it regardless of indoor flag
+        info.hasGround = true;
+        info.groundZ = checkZ;
+        std::cout << "[Physics::QueryEnvironment] Using getAreaInfo ground: " << checkZ << std::endl;
+    }
+    else {
+        info.hasGround = false;
+        info.groundZ = INVALID_HEIGHT_VALUE;
+        std::cout << "[Physics::QueryEnvironment] No valid ground found" << std::endl;
+    }
 
     // Get liquid info
-    float liquidFloor;
-    if (GetLiquidInfo(mapId, x, y, z, info.liquidZ, liquidFloor, info.liquidType))
-    {
-        info.hasLiquid = true;
-        std::cout << "[Physics::QueryEnvironment] Liquid: YES, Z=" << info.liquidZ
-            << ", Type=" << info.liquidType << std::endl;
-    }
-    else
-    {
-        info.hasLiquid = false;
-        info.liquidZ = INVALID_HEIGHT_VALUE;
-        std::cout << "[Physics::QueryEnvironment] Liquid: NO" << std::endl;
-    }
+    float liquidFloor = 0.0f;
+    info.hasLiquid = GetLiquidInfo(mapId, x, y, z, info.liquidZ, liquidFloor, info.liquidType);
 
-    // Check if indoors (using VMAP area info)
-    if (m_vmapIndoorCheckEnabled && m_vmapClient)
-    {
-        uint32_t flags;
-        int32_t adtId, rootId, groupId;
-        float checkZ = z;
-        m_vmapClient->getAreaInfo(mapId, x, y, checkZ, flags, adtId, rootId, groupId);
-        info.isIndoors = (rootId >= 0 && groupId >= 0);  // Inside a WMO
-        std::cout << "[Physics::QueryEnvironment] Indoor: " << (info.isIndoors ? "YES" : "NO") << std::endl;
-    }
-
-    // Calculate ground normal (simplified - assumes flat for now)
-    info.groundNormalZ = 1.0f;
+    std::cout << "[Physics::QueryEnvironment] Map: " << mapId << ", Pos: (" << x << ", " << y << ", " << z << ")" << std::endl;
+    std::cout << "[Physics::QueryEnvironment] Ground: " << (info.hasGround ? "YES" : "NO") << ", Z=" << info.groundZ << std::endl;
+    std::cout << "[Physics::QueryEnvironment] Liquid: " << (info.hasLiquid ? "YES" : "NO")
+        << ", Z=" << info.liquidZ << ", Type=0x" << std::hex << info.liquidType << std::dec << std::endl;
+    std::cout << "[Physics::QueryEnvironment] Indoor: " << (info.isIndoors ? "YES" : "NO") << std::endl;
 
     return info;
 }
-
 bool PhysicsEngine::GetLiquidInfo(uint32_t mapId, float x, float y, float z, float& liquidLevel, float& liquidFloor, uint32_t& liquidType)
 {
     // First try to get liquid from MapLoader (ADT data)
@@ -1325,11 +1330,15 @@ bool PhysicsEngine::IsInWater(uint32_t mapId, float x, float y, float z, float h
     uint32_t liquidType;
     float liquidZ = GetLiquidHeight(mapId, x, y, z, liquidType);
 
-    // Use the same swimming depth calculation as in Step() with tolerance
-    float swimDepth = height * 0.75f;
-    bool inWater = (liquidZ > INVALID_HEIGHT_VALUE && z < (liquidZ - swimDepth + 0.02f));
+    if (liquidZ <= INVALID_HEIGHT_VALUE)
+        return false;
 
-    return inWater;
+    // Match server logic: 2.0 units below surface = swimming
+    // Add small tolerance for floating point precision
+    const float SWIM_DEPTH_THRESHOLD = 2.0f;
+    float depth = liquidZ - z;
+
+    return depth >= SWIM_DEPTH_THRESHOLD - 0.05f; // Small tolerance
 }
 
 float PhysicsEngine::GetFallDamage(float fallDistance, bool hasSafeFall)

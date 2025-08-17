@@ -225,7 +225,7 @@ namespace VMAP
         // child bounds are defined in object space:
         G3D::Vector3 pModel = iInvRot * (p - iPos) * iInvScale;
         G3D::Vector3 zDirModel = iInvRot * G3D::Vector3(0, 0, -1);  // Vector3::down()
-        float zDist;
+        float zDist = 10000.0f;;
 
         if (iModel->IntersectPoint(pModel, zDirModel, zDist, info))
         {
@@ -251,7 +251,7 @@ namespace VMAP
 
         G3D::Vector3 pModel = iInvRot * (p - iPos) * iInvScale;
         G3D::Vector3 zDirModel = iInvRot * G3D::Vector3(0, 0, -1);
-        float zDist;
+        float zDist = 10000.0f;;
         GroupLocationInfo groupInfo;
 
         if (iModel->GetLocationInfo(pModel, zDirModel, zDist, groupInfo))
@@ -296,7 +296,7 @@ namespace VMAP
 
         G3D::Vector3 pModel = iInvRot * (pos - iPos) * iInvScale;
         G3D::Vector3 zDirModel = iInvRot * G3D::Vector3(0, 0, -1);
-        float zDist;
+        float zDist = 10000.0f;
 
         AreaInfo info;
         if (iModel->IntersectPoint(pModel, zDirModel, zDist, info))
