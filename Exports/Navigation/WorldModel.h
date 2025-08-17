@@ -134,7 +134,8 @@ namespace VMAP
         bool GetLiquidLevel(const G3D::Vector3& pos, float& liqHeight) const;
         uint32_t GetLiquidType() const;
         bool writeToFile(FILE* wf) const;
-        bool readFromFile(FILE* rf);
+        bool readFromFile(FILE* rf); 
+        void recalculateBounds();
         const G3D::AABox& GetBound() const { return iBound; }
         uint32_t GetMogpFlags() const { return iMogpFlags; }
         uint32_t GetWmoID() const { return iGroupWMOID; }

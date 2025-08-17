@@ -307,7 +307,6 @@ namespace VMAP
                         LOG_DEBUG("  Position: (" << spawn.iPos.x << "," << spawn.iPos.y << "," << spawn.iPos.z << ")");
                         LOG_DEBUG("  Rotation: (" << spawn.iRot.x << "," << spawn.iRot.y << "," << spawn.iRot.z << ")");
                         LOG_DEBUG("  Scale: " << spawn.iScale);
-                        LOG_BOUNDS("  Bounds", spawn.iBound);
 
                         // Read the tree index
                         uint32_t referencedVal;
@@ -607,7 +606,7 @@ namespace VMAP
 
         // The ray shoots downward from above
         G3D::Vector3 rayStart = pos;
-        G3D::Ray ray(rayStart, G3D::Vector3(0, 0, -maxSearchDist));
+        G3D::Ray ray(rayStart, G3D::Vector3(0, 0, -1));
         float distance = maxSearchDist * 2;
 
         LOG_RAY("Height search ray", ray);

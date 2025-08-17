@@ -149,9 +149,9 @@ namespace VMAP
         : ModelSpawn(spawn), iModel(model)
     {
         iInvRot = G3D::Matrix3::fromEulerAnglesZYX(
-            G3D::pi() * iRot.y / 180.f,
-            G3D::pi() * iRot.x / 180.f,
-            G3D::pi() * iRot.z / 180.f
+            G3D::pi() * iRot.y / 180.f,  // z rotation
+            G3D::pi() * iRot.x / 180.f,  // y rotation  
+            G3D::pi() * iRot.z / 180.f   // x rotation
         ).inverse();
         iInvScale = 1.f / iScale;
     }

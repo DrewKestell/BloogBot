@@ -16,6 +16,7 @@ namespace G3D
         // Access to matrix elements for Vector3 * Matrix3 operation
         float get(int i, int j) const { return m[i][j]; }
 
+        Matrix3 operator*(const Matrix3& other) const;
         Vector3 operator*(const Vector3& v) const;
         Matrix3 inverse() const;
 

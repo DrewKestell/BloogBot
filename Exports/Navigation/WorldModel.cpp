@@ -170,23 +170,39 @@ namespace VMAP
 
     // ======================== GroupModel Implementation ========================
 
-    void GroupModel::setMeshData(std::vector<G3D::Vector3>& vert, std::vector<MeshTriangle>& tri)
+    void GroupModel::setMeshData(std::vector<G3D::Vector3>& vert, std::vector<MeshTriangle>& triangles)
     {
         vertices = std::move(vert);
-        triangles = std::move(tri);
+        this->triangles = std::move(triangles);
 
-        std::vector<G3D::AABox> bounds;
-        bounds.reserve(triangles.size());
-
-        for (const auto& tri : triangles)
+        // Calculate the overall bounds for the group
+        if (!vertices.empty())
         {
-            G3D::AABox box;
-            box.set(vertices[tri.idx0], vertices[tri.idx0]);
-            box.merge(vertices[tri.idx1]);
-            box.merge(vertices[tri.idx2]);
-            bounds.push_back(box);
+            iBound = G3D::AABox(vertices[0], vertices[0]);
+            for (const auto& vertex : vertices)
+            {
+                iBound.merge(vertex);
+            }
         }
 
+        // Build bounds for each triangle
+        std::vector<G3D::AABox> bounds;
+        bounds.reserve(this->triangles.size());
+
+        for (const auto& tri : this->triangles)
+        {
+            // Create bounds from all three vertices of the triangle
+            G3D::Vector3 lo = vertices[tri.idx0];
+            G3D::Vector3 hi = lo;
+
+            // Properly expand bounds to include all three vertices
+            lo = lo.min(vertices[tri.idx1]).min(vertices[tri.idx2]);
+            hi = hi.max(vertices[tri.idx1]).max(vertices[tri.idx2]);
+
+            bounds.push_back(G3D::AABox(lo, hi));
+        }
+
+        // Build the BIH tree with proper bounds
         meshTree.build(bounds, 4);
     }
 
@@ -225,7 +241,6 @@ namespace VMAP
         if (time == G3D::inf())
         {
             LOG_DEBUG("Ray misses group bounds");
-            LOG_BOUNDS("Group bounds", iBound);
             return false;
         }
 
@@ -251,15 +266,25 @@ namespace VMAP
                 const G3D::Vector3& v1 = vertices[tri.idx1];
                 const G3D::Vector3& v2 = vertices[tri.idx2];
 
+                LOG_DEBUG("Testing triangle " << triIdx << " with vertices at indices "
+                    << tri.idx0 << ", " << tri.idx1 << ", " << tri.idx2);
+
+                LOG_DEBUG("Triangle " << triIdx << " vertices: "
+                    << "v0(" << v0.x << "," << v0.y << "," << v0.z << ") "
+                    << "v1(" << v1.x << "," << v1.y << "," << v1.z << ") "
+                    << "v2(" << v2.x << "," << v2.y << "," << v2.z << ")");
+
                 // Ray-triangle intersection (Möller-Trumbore algorithm)
                 G3D::Vector3 edge1 = v1 - v0;
                 G3D::Vector3 edge2 = v2 - v0;
+
                 G3D::Vector3 h = r.direction().cross(edge2);
                 float a = edge1.dot(h);
 
                 if (std::abs(a) < 0.00001f)
                 {
-                    return false; // Ray parallel to triangle
+                    LOG_DEBUG("Triangle " << triIdx << " rejected: parallel to ray (a=" << a << ")");
+                    return false;
                 }
 
                 float f = 1.0f / a;
@@ -267,15 +292,23 @@ namespace VMAP
                 float u = f * s.dot(h);
 
                 if (u < 0.0f || u > 1.0f)
+                {
+                    LOG_DEBUG("Triangle " << triIdx << " rejected: u=" << u << " out of range");
                     return false;
+                }
 
                 G3D::Vector3 q = s.cross(edge1);
                 float v = f * r.direction().dot(q);
 
                 if (v < 0.0f || u + v > 1.0f)
+                {
+                    LOG_DEBUG("Triangle " << triIdx << " rejected: v=" << v << " u+v=" << (u + v));
                     return false;
+                }
 
                 float t = f * edge2.dot(q);
+
+                LOG_DEBUG("Triangle " << triIdx << " t=" << t << " (needs t>0.00001 and t<" << dist << ")");
 
                 if (t > 0.00001f && t < dist)
                 {
@@ -498,6 +531,18 @@ namespace VMAP
         return true;
     }
 
+    void GroupModel::recalculateBounds()
+    {
+        if (!vertices.empty())
+        {
+            iBound = G3D::AABox(vertices[0], vertices[0]);
+            for (const auto& vertex : vertices)
+            {
+                iBound.merge(vertex);
+            }
+        }
+    }
+
     // ======================== WorldModel Implementation ========================
 
     void WorldModel::setGroupModels(std::vector<GroupModel>& models)
@@ -544,12 +589,26 @@ namespace VMAP
 
         LOG_DEBUG("Testing " << groupModels.size() << " group models");
 
+        // Log group bounds for debugging
+        for (size_t i = 0; i < groupModels.size() && i < 5; ++i) // Log first 5 groups
+        {
+            const auto& bounds = groupModels[i].GetBound();
+            LOG_DEBUG("Group[" << i << "] bounds: Low("
+                << bounds.low().x << "," << bounds.low().y << "," << bounds.low().z
+                << ") High("
+                << bounds.high().x << "," << bounds.high().y << "," << bounds.high().z << ")");
+        }
+
         int groupsTested = 0;
         int groupsHit = 0;
+        int callbackInvocations = 0;
 
-        auto callback = [this, &groupsTested, &groupsHit](const G3D::Ray& r, uint32_t groupIdx,
+        auto callback = [this, &groupsTested, &groupsHit, &callbackInvocations](const G3D::Ray& r, uint32_t groupIdx,
             float& dist, bool stopAtFirst, bool ignoreM2) -> bool
             {
+                callbackInvocations++;
+                LOG_DEBUG("Callback invoked #" << callbackInvocations << " for groupIdx:" << groupIdx);
+
                 if (groupIdx >= groupModels.size())
                 {
                     LOG_ERROR("Invalid group index: " << groupIdx << " (max:" << groupModels.size() << ")");
@@ -558,6 +617,8 @@ namespace VMAP
 
                 groupsTested++;
                 float oldDist = dist;
+
+                LOG_DEBUG("Testing group " << groupIdx << " with current distance " << dist);
                 bool hit = groupModels[groupIdx].IntersectRay(r, dist, stopAtFirst);
 
                 if (hit)
@@ -566,6 +627,10 @@ namespace VMAP
                     LOG_DEBUG("Group " << groupIdx << " HIT at distance " << dist
                         << " (was " << oldDist << ")");
                 }
+                else
+                {
+                    LOG_DEBUG("Group " << groupIdx << " MISS");
+                }
 
                 return hit;
             };
@@ -573,12 +638,21 @@ namespace VMAP
         float oldDist = distance;
 
         LOG_DEBUG("Starting BIH tree traversal for groups");
+        LOG_DEBUG("GroupTree stats: TreeSize=" << groupTree.tree.size()
+            << " ObjectCount=" << groupTree.objects.size());
+
+        // Log tree bounds
+        LOG_DEBUG("GroupTree bounds: Low("
+            << groupTree.bounds.low().x << "," << groupTree.bounds.low().y << "," << groupTree.bounds.low().z
+            << ") High("
+            << groupTree.bounds.high().x << "," << groupTree.bounds.high().y << "," << groupTree.bounds.high().z << ")");
 
         groupTree.intersectRay(ray, callback, distance, stopAtFirstHit, ignoreM2Model);
 
         bool hasHit = distance < oldDist;
 
-        LOG_INFO("WorldModel ray test - GroupsTested:" << groupsTested
+        LOG_INFO("WorldModel ray test - CallbackInvocations:" << callbackInvocations
+            << " GroupsTested:" << groupsTested
             << " GroupsHit:" << groupsHit
             << " InitialDist:" << oldDist
             << " FinalDist:" << distance
@@ -587,6 +661,7 @@ namespace VMAP
         LOG_TRACE("WorldModel::IntersectRay EXIT - Hit:" << hasHit);
         return hasHit;
     }
+
 
     bool WorldModel::writeFile(const std::string& filename)
     {
@@ -734,6 +809,29 @@ namespace VMAP
         }
 
         fclose(rf);
+
+        for (auto& group : groupModels)
+        {
+            // Check if bounds are invalid (zero or near-zero size)
+            G3D::Vector3 extent = group.GetBound().high() - group.GetBound().low();
+            if (extent.x < 0.001f && extent.y < 0.001f && extent.z < 0.001f)
+            {
+                group.recalculateBounds();
+            }
+        }
+
+        // Now rebuild the group tree with the correct bounds
+        std::vector<G3D::AABox> bounds;
+        bounds.reserve(groupModels.size());
+        for (const auto& group : groupModels)
+        {
+            bounds.push_back(group.GetBound());
+        }
+
+        if (!bounds.empty())
+        {
+            groupTree.build(bounds, 1);
+        }
 
         return result;
     }

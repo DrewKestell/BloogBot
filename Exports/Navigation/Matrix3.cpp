@@ -11,6 +11,23 @@ namespace G3D
                 m[i][j] = (i == j) ? 1.0f : 0.0f;
     }
 
+    Matrix3 Matrix3::operator*(const Matrix3& other) const
+    {
+        Matrix3 result;
+        for (int i = 0; i < 3; ++i)
+        {
+            for (int j = 0; j < 3; ++j)
+            {
+                result.m[i][j] = 0;
+                for (int k = 0; k < 3; ++k)
+                {
+                    result.m[i][j] += m[i][k] * other.m[k][j];
+                }
+            }
+        }
+        return result;
+    }
+
     Vector3 Matrix3::operator*(const Vector3& v) const
     {
         return Vector3(
@@ -48,23 +65,28 @@ namespace G3D
 
     Matrix3 Matrix3::fromEulerAnglesZYX(float z, float y, float x)
     {
-        Matrix3 result;
-        float cx = std::cos(x), sx = std::sin(x);
-        float cy = std::cos(y), sy = std::sin(y);
+        // Z rotation matrix
+        Matrix3 zMat;
         float cz = std::cos(z), sz = std::sin(z);
+        zMat.m[0][0] = cz;  zMat.m[0][1] = -sz; zMat.m[0][2] = 0;
+        zMat.m[1][0] = sz;  zMat.m[1][1] = cz;  zMat.m[1][2] = 0;
+        zMat.m[2][0] = 0;   zMat.m[2][1] = 0;   zMat.m[2][2] = 1;
 
-        result.m[0][0] = cy * cz;
-        result.m[0][1] = -cy * sz;
-        result.m[0][2] = sy;
+        // Y rotation matrix  
+        Matrix3 yMat;
+        float cy = std::cos(y), sy = std::sin(y);
+        yMat.m[0][0] = cy;  yMat.m[0][1] = 0;  yMat.m[0][2] = sy;
+        yMat.m[1][0] = 0;   yMat.m[1][1] = 1;  yMat.m[1][2] = 0;
+        yMat.m[2][0] = -sy; yMat.m[2][1] = 0;  yMat.m[2][2] = cy;
 
-        result.m[1][0] = sx * sy * cz + cx * sz;
-        result.m[1][1] = -sx * sy * sz + cx * cz;
-        result.m[1][2] = -sx * cy;
+        // X rotation matrix
+        Matrix3 xMat;
+        float cx = std::cos(x), sx = std::sin(x);
+        xMat.m[0][0] = 1;  xMat.m[0][1] = 0;   xMat.m[0][2] = 0;
+        xMat.m[1][0] = 0;  xMat.m[1][1] = cx;  xMat.m[1][2] = -sx;
+        xMat.m[2][0] = 0;  xMat.m[2][1] = sx;  xMat.m[2][2] = cx;
 
-        result.m[2][0] = -cx * sy * cz + sx * sz;
-        result.m[2][1] = cx * sy * sz + sx * cz;
-        result.m[2][2] = cx * cy;
-
-        return result;
+        // Return Z * (Y * X)
+        return zMat * (yMat * xMat);
     }
 }

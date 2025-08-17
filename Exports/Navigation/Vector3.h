@@ -45,6 +45,11 @@ namespace G3D
             z *= inv;
             return *this;
         }
+        
+        float length() const
+        {
+            return sqrt(x * x + y * y + z * z);
+        }
 
         bool operator==(const Vector3& v) const { return x == v.x && y == v.y && z == v.z; }
         bool operator!=(const Vector3& v) const { return !(*this == v); }

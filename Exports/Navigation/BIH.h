@@ -19,9 +19,6 @@ public:
     };
 
 private:
-    std::vector<uint32_t> tree;
-    std::vector<uint32_t> objects;
-    G3D::AABox bounds;
 
     void buildNode(const std::vector<G3D::AABox>& primitives,
         std::vector<uint32_t>& indices,
@@ -31,6 +28,9 @@ private:
 public:
     BIH();
 
+    std::vector<uint32_t> tree;
+    std::vector<uint32_t> objects;
+    G3D::AABox bounds;
     // Default copy and move operations work fine with vectors and AABox
     BIH(const BIH&) = default;
     BIH& operator=(const BIH&) = default;
