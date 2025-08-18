@@ -3,6 +3,7 @@
 #include "StaticMapTree.h"
 #include "WorldModel.h"
 #include "VMapDefinitions.h"
+#include "VMapLog.h"
 #include <sstream>
 #include <iomanip>
 #include <filesystem>
@@ -10,7 +11,6 @@
 #include <fstream>
 #include <algorithm>
 #include <unordered_map>
-#include "VMapLog.h"
 
 namespace VMAP
 {

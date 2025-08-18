@@ -641,53 +641,73 @@ namespace VMAP
             return false;
         }
 
-        AreaInfo info;
-        int checkedModels = 0;
-        int modelsWithArea = 0;
-
-        for (uint32_t i = 0; i < iNTreeValues; ++i)
+        // Define the callback class for area info collection
+        class AreaInfoCallback
         {
-            if (iTreeValues[i].iModel)
+        public:
+            AreaInfoCallback(ModelInstance* val) : prims(val), checkedModels(0), modelsWithArea(0) {}
+
+            void operator()(const G3D::Vector3& point, uint32_t entry)
             {
+                LOG_TRACE("AreaInfoCallback checking model at index " << entry);
+
+                if (!prims[entry].iModel)
+                {
+                    LOG_DEBUG("Model at index " << entry << " not loaded - skipping");
+                    return;
+                }
+
                 checkedModels++;
 
-                // Store old z for comparison
-                float oldZ = pos.z;
-                iTreeValues[i].intersectPoint(pos, info);
+                // Make a copy of the point since intersectPoint may modify it
+                G3D::Vector3 testPoint = point;
+                prims[entry].intersectPoint(testPoint, aInfo);
 
-                if (info.result)
+                if (aInfo.result)
                 {
                     modelsWithArea++;
-                    LOG_DEBUG("Model " << i << " has area info"
-                        << " Flags:" << std::hex << info.flags << std::dec
-                        << " AdtId:" << info.adtId
-                        << " RootId:" << info.rootId
-                        << " GroupId:" << info.groupId
-                        << " GroundZ:" << info.ground_Z
-                        << " Name:" << iTreeValues[i].name);
+                    LOG_DEBUG("Model " << entry << " has area info"
+                        << " Flags:" << std::hex << aInfo.flags << std::dec
+                        << " AdtId:" << aInfo.adtId
+                        << " RootId:" << aInfo.rootId
+                        << " GroupId:" << aInfo.groupId
+                        << " GroundZ:" << aInfo.ground_Z
+                        << " Name:" << prims[entry].name);
                 }
             }
-        }
 
-        LOG_DEBUG("Area check complete - Checked:" << checkedModels
-            << " WithArea:" << modelsWithArea);
+            ModelInstance* prims;
+            AreaInfo aInfo;
+            int checkedModels;
+            int modelsWithArea;
+        };
 
-        if (info.result)
+        // Create callback and use BIH tree to find intersections
+        AreaInfoCallback intersectionCallback(iTreeValues);
+        iTree.intersectPoint(pos, intersectionCallback);
+
+        LOG_DEBUG("Area check complete - Checked:" << intersectionCallback.checkedModels
+            << " WithArea:" << intersectionCallback.modelsWithArea);
+
+        if (intersectionCallback.aInfo.result)
         {
-            flags = info.flags;
-            adtId = info.adtId;
-            rootId = info.rootId;
-            groupId = info.groupId;
-            pos.z = info.ground_Z;
+            flags = intersectionCallback.aInfo.flags;
+            adtId = intersectionCallback.aInfo.adtId;
+            rootId = intersectionCallback.aInfo.rootId;
+            groupId = intersectionCallback.aInfo.groupId;
+            pos.z = intersectionCallback.aInfo.ground_Z;
 
-            LOG_INFO("Area info found - Final Z:" << pos.z);
+            LOG_INFO("Area info found - Final Z:" << pos.z
+                << " Flags:0x" << std::hex << flags << std::dec
+                << " AdtId:" << adtId
+                << " RootId:" << rootId
+                << " GroupId:" << groupId);
             return true;
         }
 
         LOG_TRACE("StaticMapTree::getAreaInfo EXIT - Not found");
         return false;
     }
-
 
     bool StaticMapTree::GetLocationInfo(const G3D::Vector3& pos, LocationInfo& info) const
     {

@@ -5,6 +5,7 @@
 #include "VMapClient.h"
 #include "VMapFactory.h"
 #include "MapLoader.h"
+#include "VMapLog.h"
 #include <cmath>
 #include <algorithm>
 #include <iostream>
@@ -15,7 +16,6 @@
 #include <cstring>
 #include <filesystem>
 #include "PhysicsMath.h"
-#include "VMapLog.h"
 
 using namespace PhysicsConstants;
 using namespace PhysicsMath;

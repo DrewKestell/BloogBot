@@ -1,4 +1,4 @@
-// BIH.inl - Aligned with Server_BIH.h implementation with full logging
+// BIH.inl - Fixed BIH ray traversal with proper axis-aligned ray handling
 #pragma once
 #include "VMapDefinitions.h"
 #include "VMapLog.h"
@@ -6,33 +6,23 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <cmath>
+
+// In BIH.inl, REMOVE all the parallel ray handling and restore to match original:
 
 template<typename RayCallback>
 void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
-    float& maxDist, bool stopAtFirst, bool ignoreM2Model) const
+    float& maxDist, bool stopAtFirstHit, bool ignoreM2Model) const
 {
-    int nodesVisited = 0;
-    int leavesChecked = 0;
-    int objectsTested = 0;
-    int objectsHit = 0;
-    int stackDepth = 0;
-    int maxStackDepth = 0;
-
     LOG_TRACE("BIH::intersectRay START TreeSize:" << tree.size()
         << " ObjectCount:" << objects.size()
         << " MaxDist:" << maxDist
-        << " StopAtFirst:" << (stopAtFirst ? "YES" : "NO")
+        << " StopAtFirst:" << (stopAtFirstHit ? "YES" : "NO")
         << " IgnoreM2:" << (ignoreM2Model ? "YES" : "NO"));
 
-    if (tree.empty())
+    if (tree.empty() || objects.empty())
     {
-        LOG_DEBUG("BIH tree is empty - no traversal possible");
-        return;
-    }
-
-    if (objects.empty())
-    {
-        LOG_DEBUG("BIH objects array is empty - no objects to test");
+        LOG_DEBUG("BIH tree or objects empty - no traversal possible");
         return;
     }
 
@@ -42,15 +32,10 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
     const G3D::Vector3& dir = r.direction();
     const G3D::Vector3& invDir = r.invDirection();
 
-    LOG_DEBUG("Ray parameters Origin(" << org.x << ", " << org.y << ", " << org.z
-        << ") Dir(" << dir.x << ", " << dir.y << ", " << dir.z << ")");
-    LOG_DEBUG("BIH bounds Low(" << bounds.low().x << ", " << bounds.low().y << ", " << bounds.low().z
-        << ") High(" << bounds.high().x << ", " << bounds.high().y << ", " << bounds.high().z << ")");
-
     // Calculate initial ray-box intersection with overall bounds
     for (int i = 0; i < 3; ++i)
     {
-        if (G3D::fuzzyNe(dir[i], 0.0f))
+        if (G3D::fuzzyNe(dir[i], 0.0f))  // Use fuzzyNe like original
         {
             float t1 = (bounds.low()[i] - org[i]) * invDir[i];
             float t2 = (bounds.high()[i] - org[i]) * invDir[i];
@@ -61,15 +46,9 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
             if (t2 < intervalMax || intervalMax < 0.f)
                 intervalMax = t2;
 
-            LOG_TRACE("Axis " << i << ": t1=" << t1 << " t2=" << t2
-                << " intervalMin=" << intervalMin << " intervalMax=" << intervalMax);
-
-            // intervalMax can only become smaller for other axis,
-            // and intervalMin only larger respectively, so stop early
             if (intervalMax <= 0 || intervalMin >= maxDist)
             {
-                LOG_DEBUG("Early exit: Ray misses BIH bounds (intervalMax=" << intervalMax
-                    << " intervalMin=" << intervalMin << " maxDist=" << maxDist << ")");
+                LOG_DEBUG("Early exit: Ray misses BIH bounds");
                 return;
             }
         }
@@ -77,7 +56,7 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
 
     if (intervalMin > intervalMax)
     {
-        LOG_DEBUG("Ray misses BIH bounds: intervalMin(" << intervalMin << ") > intervalMax(" << intervalMax << ")");
+        LOG_DEBUG("Ray misses BIH bounds: intervalMin > intervalMax");
         return;
     }
 
@@ -86,25 +65,28 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
 
     LOG_DEBUG("Initial interval: [" << intervalMin << ", " << intervalMax << "]");
 
-    // Compute custom offsets from direction sign bit (Server_BIH.h optimization)
+    // Compute custom offsets from direction sign bit
     uint32_t offsetFront[3], offsetBack[3];
     uint32_t offsetFront3[3], offsetBack3[3];
 
     for (int i = 0; i < 3; ++i)
     {
-        offsetFront[i] = VMAP::floatToRawIntBits(dir[i]) >> 31;
-        offsetBack[i] = offsetFront[i] ^ 1;
+        // Check for near-zero to avoid infinity issues
+        if (std::abs(dir[i]) < 1e-10f)
+        {
+            // Force a tiny non-zero value to avoid infinities
+            const_cast<G3D::Vector3&>(dir)[i] = 1e-10f;
+            const_cast<G3D::Vector3&>(invDir)[i] = 1e10f;
+        }
+
+        // Use comparison-based offset (vMaNGOS style)
+        offsetFront[i] = (dir[i] >= 0.0f) ? 0 : 1;
+        offsetBack[i] = 1 - offsetFront[i];
         offsetFront3[i] = offsetFront[i] * 3;
         offsetBack3[i] = offsetBack[i] * 3;
 
-        // avoid always adding 1 during the inner loop
         ++offsetFront[i];
         ++offsetBack[i];
-
-        LOG_TRACE("Axis " << i << " offsets: front=" << offsetFront[i]
-            << " back=" << offsetBack[i]
-            << " front3=" << offsetFront3[i]
-            << " back3=" << offsetBack3[i]);
     }
 
     // Stack for tree traversal
@@ -112,33 +94,20 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
     int stackPos = 0;
     int node = 0;
 
-    // Main traversal loop
     while (true)
     {
         while (true)
         {
-            nodesVisited++;
-
-            if (nodesVisited % 100 == 0) // Log every 100 nodes to avoid spam
-            {
-                LOG_TRACE("Nodes visited: " << nodesVisited << " Current node: " << node
-                    << " Stack depth: " << stackPos);
-            }
-
             uint32_t tn = tree[node];
             uint32_t axis = (tn >> 30) & 3;
             bool BVH2 = tn & (1 << 29);
             int offset = tn & ~(7 << 29);
 
-            LOG_TRACE("Node " << node << ": axis=" << axis
-                << " BVH2=" << (BVH2 ? "YES" : "NO")
-                << " offset=" << offset);
-
             if (!BVH2)
             {
                 if (axis < 3)
                 {
-                    // "normal" interior node
+                    // "normal" interior node - NO SPECIAL PARALLEL HANDLING
                     float tf = (VMAP::intBitsToFloat(tree[node + offsetFront[axis]]) - org[axis]) * invDir[axis];
                     float tb = (VMAP::intBitsToFloat(tree[node + offsetBack[axis]]) - org[axis]) * invDir[axis];
 
@@ -182,12 +151,6 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
                     stack[stackPos].tnear = (tb >= intervalMin) ? tb : intervalMin;
                     stack[stackPos].tfar = intervalMax;
                     ++stackPos;
-                    maxStackDepth = std::max(maxStackDepth, stackPos);
-
-                    LOG_TRACE("Pushed back child to stack pos " << (stackPos - 1)
-                        << " node=" << back
-                        << " interval=[" << stack[stackPos - 1].tnear
-                        << "," << stack[stackPos - 1].tfar << "]");
 
                     // update ray interval for front node
                     intervalMax = (tf <= intervalMax) ? tf : intervalMax;
@@ -196,44 +159,18 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
                 else
                 {
                     // leaf - test some objects
-                    leavesChecked++;
                     int n = tree[node + 1];
-
                     LOG_TRACE("Leaf node " << node << ": ObjectCount=" << n
                         << " FirstObjIdx=" << offset);
 
                     while (n > 0)
                     {
-                        objectsTested++;
-                        uint32_t objIdx = objects[offset];
-
-                        LOG_TRACE("Testing object " << objIdx << " at offset " << offset);
-
-                        float oldDist = maxDist;
-                        bool hit = intersectCallback(r, objIdx, maxDist, stopAtFirst, ignoreM2Model);
-
-                        if (hit)
+                        bool hit = intersectCallback(r, objects[offset], maxDist, stopAtFirstHit, ignoreM2Model);
+                        if (stopAtFirstHit && hit)
                         {
-                            objectsHit++;
-                            LOG_DEBUG("Object " << objIdx << " HIT at distance " << maxDist
-                                << " (was " << oldDist << ")");
-
-                            if (stopAtFirst)
-                            {
-                                LOG_DEBUG("Stopping at first hit");
-                                LOG_INFO("BIH traversal summary: NodesVisited:" << nodesVisited
-                                    << " LeavesChecked:" << leavesChecked
-                                    << " ObjectsTested:" << objectsTested
-                                    << " ObjectsHit:" << objectsHit
-                                    << " MaxStackDepth:" << maxStackDepth);
-                                return;
-                            }
+                            LOG_DEBUG("Stopping at first hit");
+                            return;
                         }
-                        else
-                        {
-                            LOG_TRACE("Object " << objIdx << " MISS");
-                        }
-
                         --n;
                         ++offset;
                     }
@@ -243,45 +180,28 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
             else  // BVH2 node
             {
                 if (axis > 2)
-                {
-                    LOG_ERROR("Invalid BVH2 node with axis=" << axis << " at node " << node);
                     return; // should not happen
-                }
-
-                LOG_TRACE("BVH2 node " << node << ": Axis=" << axis);
 
                 float tf = (VMAP::intBitsToFloat(tree[node + offsetFront[axis]]) - org[axis]) * invDir[axis];
                 float tb = (VMAP::intBitsToFloat(tree[node + offsetBack[axis]]) - org[axis]) * invDir[axis];
-
-                LOG_TRACE("BVH2 empty space cutoff: tf=" << tf << " tb=" << tb);
 
                 node = offset;
                 intervalMin = (tf >= intervalMin) ? tf : intervalMin;
                 intervalMax = (tb <= intervalMax) ? tb : intervalMax;
 
                 if (intervalMin > intervalMax)
-                {
-                    LOG_TRACE("BVH2 cutoff resulted in empty interval - backtracking");
                     break;
-                }
 
-                LOG_TRACE("BVH2 updated interval: [" << intervalMin << "," << intervalMax << "]");
                 continue;
             }
         } // traversal loop
 
-        // Pop from stack
         do
         {
             // stack is empty?
             if (stackPos == 0)
             {
                 LOG_DEBUG("Stack empty - traversal complete");
-                LOG_INFO("BIH traversal summary: NodesVisited:" << nodesVisited
-                    << " LeavesChecked:" << leavesChecked
-                    << " ObjectsTested:" << objectsTested
-                    << " ObjectsHit:" << objectsHit
-                    << " MaxStackDepth:" << maxStackDepth);
                 return;
             }
 
@@ -290,18 +210,10 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
             intervalMin = stack[stackPos].tnear;
 
             if (maxDist < intervalMin)
-            {
-                LOG_TRACE("Skipping stack entry " << stackPos
-                    << " - beyond maxDist (intervalMin=" << intervalMin
-                    << " maxDist=" << maxDist << ")");
                 continue;
-            }
 
             node = stack[stackPos].node;
             intervalMax = stack[stackPos].tfar;
-
-            LOG_TRACE("Popped from stack pos " << stackPos << " node:" << node
-                << " interval:[" << intervalMin << "," << intervalMax << "]");
             break;
         } while (true);
     }
