@@ -469,20 +469,6 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
     ResolveCollisions(input.mapId, state, input.radius, input.height);
     std::cout << "After collisions - Position: (" << state.x << ", " << state.y << ", " << state.z << ")" << std::endl;
 
-    // Re-query ground at new position if moved
-    if (state.x != input.x || state.y != input.y)
-    {
-        std::cout << "Re-querying ground at new position..." << std::endl;
-        float newGroundZ = GetHeight(input.mapId, state.x, state.y, state.z,
-            m_vmapHeightEnabled, DEFAULT_HEIGHT_SEARCH);
-        if (newGroundZ > INVALID_HEIGHT_VALUE)
-        {
-            collision.groundZ = newGroundZ;
-            collision.hasGround = true;
-            std::cout << "New ground height: " << newGroundZ << std::endl;
-        }
-    }
-
     // Final ground placement - using vMaNGOS step height
     if (!state.isFlying && !(input.moveFlags & (MOVEFLAG_FALLINGFAR | MOVEFLAG_FALLING)) &&
         !state.isSwimming && collision.hasGround && collision.groundZ > INVALID_HEIGHT_VALUE)
@@ -562,7 +548,7 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
     std::cout << "  Output flags: 0x" << std::hex << output.moveFlags << std::dec << std::endl;
 
     // Calculate fall damage info
-    if (!state.isGrounded && state.vz < 0)
+    if (!state.isGrounded && !state.isFlying && !state.isSwimming && state.vz < 0)
     {
         output.fallTime = state.fallTime;
         output.fallDistance = state.fallStartZ - state.z;

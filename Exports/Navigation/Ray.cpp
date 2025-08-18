@@ -20,29 +20,38 @@ namespace G3D
 
     float Ray::intersectionTime(const AABox& box) const
     {
+        const float EPSILON = 1e-6f;  // Add epsilon for stability
         float tmin = -inf();
         float tmax = inf();
 
         for (int i = 0; i < 3; ++i)
         {
-            if (fuzzyNe(m_direction[i], 0.0f))
+            // Check for parallel ray (near-zero direction component)
+            if (std::abs(m_direction[i]) < EPSILON)
+            {
+                // Ray is parallel to slab, check if origin is within slab
+                if (m_origin[i] < box.low()[i] || m_origin[i] > box.high()[i])
+                    return inf();
+            }
+            else
             {
                 float t1 = (box.low()[i] - m_origin[i]) * m_invDirection[i];
                 float t2 = (box.high()[i] - m_origin[i]) * m_invDirection[i];
 
-                if (t1 > t2) std::swap(t1, t2);
+                // Handle negative direction
+                if (m_invDirection[i] < 0.0f)
+                    std::swap(t1, t2);
 
                 tmin = std::max(tmin, t1);
                 tmax = std::min(tmax, t2);
 
-                if (tmin > tmax) return inf();
-            }
-            else if (m_origin[i] < box.low()[i] || m_origin[i] > box.high()[i])
-            {
-                return inf();
+                // Early exit if no intersection
+                if (tmin > tmax)
+                    return inf();
             }
         }
 
+        // Return the entry point (or 0 if ray starts inside)
         return tmin > 0 ? tmin : 0;
     }
 

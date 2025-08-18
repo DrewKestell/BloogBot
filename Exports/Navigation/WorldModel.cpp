@@ -853,38 +853,54 @@ namespace VMAP
         G3D::Ray ray(p, down);
         LOG_RAY("Intersection ray", ray);
 
-        bool hit = false;
         float minDist = dist;
+        bool hit = false;
         int groupsTested = 0;
         int groupsHit = 0;
 
-        for (size_t i = 0; i < groupModels.size(); ++i)
-        {
-            groupsTested++;
-            float groupDist = dist;
-
-            if (groupModels[i].IntersectRay(ray, groupDist, false))
+        // Define callback for BIH traversal
+        auto callback = [this, &ray, &minDist, &info, &hit, &p, &down, &groupsTested, &groupsHit]
+        (const G3D::Ray& r, uint32_t groupIdx, float& currentDist, bool stopAtFirst, bool ignoreM2) -> bool
             {
-                groupsHit++;
-                LOG_DEBUG("Group " << i << " intersects at distance " << groupDist);
-
-                if (groupDist < minDist)
+                if (groupIdx >= groupModels.size())
                 {
-                    minDist = groupDist;
-                    info.result = true;
-                    info.ground_Z = p.z + down.z * groupDist;
-                    info.flags = groupModels[i].GetMogpFlags();
-                    info.rootId = RootWMOID;
-                    info.groupId = groupModels[i].GetWmoID();
-                    hit = true;
-
-                    LOG_INFO("New closest hit - Group:" << i
-                        << " Distance:" << groupDist
-                        << " GroundZ:" << info.ground_Z
-                        << " Flags:" << std::hex << info.flags << std::dec);
+                    LOG_ERROR("Invalid group index: " << groupIdx);
+                    return false;
                 }
-            }
-        }
+
+                groupsTested++;
+                float groupDist = currentDist;
+
+                if (groupModels[groupIdx].IntersectRay(r, groupDist, false))
+                {
+                    groupsHit++;
+                    LOG_DEBUG("Group " << groupIdx << " intersects at distance " << groupDist);
+
+                    if (groupDist < minDist)
+                    {
+                        minDist = groupDist;
+                        info.result = true;
+                        info.ground_Z = p.z + down.z * groupDist;
+                        info.flags = groupModels[groupIdx].GetMogpFlags();
+                        info.rootId = RootWMOID;
+                        info.groupId = groupModels[groupIdx].GetWmoID();
+                        hit = true;
+
+                        LOG_INFO("New closest hit - Group:" << groupIdx
+                            << " Distance:" << groupDist
+                            << " GroundZ:" << info.ground_Z
+                            << " Flags:" << std::hex << info.flags << std::dec);
+
+                        // Update the distance for subsequent checks
+                        currentDist = groupDist;
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+        // Use BIH tree to efficiently find intersections
+        groupTree.intersectRay(ray, callback, dist, false, false);
 
         if (hit)
         {
@@ -956,34 +972,50 @@ namespace VMAP
         G3D::Ray ray(p, down);
         LOG_RAY("Location ray", ray);
 
-        bool hit = false;
         float minDist = dist;
+        bool hit = false;
         int groupsTested = 0;
         int groupsHit = 0;
 
-        for (size_t i = 0; i < groupModels.size(); ++i)
-        {
-            groupsTested++;
-            float groupDist = dist;
-
-            if (groupModels[i].IntersectRay(ray, groupDist, false))
+        // Define callback for BIH traversal
+        auto callback = [this, &minDist, &info, &hit, &groupsTested, &groupsHit]
+        (const G3D::Ray& r, uint32_t groupIdx, float& currentDist, bool stopAtFirst, bool ignoreM2) -> bool
             {
-                groupsHit++;
-                LOG_DEBUG("Group " << i << " has location at distance " << groupDist);
-
-                if (groupDist < minDist)
+                if (groupIdx >= groupModels.size())
                 {
-                    minDist = groupDist;
-                    info.hitModel = &groupModels[i];
-                    info.rootId = RootWMOID;
-                    hit = true;
-
-                    LOG_INFO("New location found - Group:" << i
-                        << " Distance:" << groupDist
-                        << " RootId:" << info.rootId);
+                    LOG_ERROR("Invalid group index: " << groupIdx);
+                    return false;
                 }
-            }
-        }
+
+                groupsTested++;
+                float groupDist = currentDist;
+
+                if (groupModels[groupIdx].IntersectRay(r, groupDist, false))
+                {
+                    groupsHit++;
+                    LOG_DEBUG("Group " << groupIdx << " has location at distance " << groupDist);
+
+                    if (groupDist < minDist)
+                    {
+                        minDist = groupDist;
+                        info.hitModel = &groupModels[groupIdx];
+                        info.rootId = RootWMOID;
+                        hit = true;
+
+                        LOG_INFO("New location found - Group:" << groupIdx
+                            << " Distance:" << groupDist
+                            << " RootId:" << info.rootId);
+
+                        // Update the distance for subsequent checks
+                        currentDist = groupDist;
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+        // Use BIH tree to efficiently find intersections
+        groupTree.intersectRay(ray, callback, dist, false, false);
 
         if (hit)
         {
@@ -1001,12 +1033,4 @@ namespace VMAP
         LOG_TRACE("WorldModel::GetLocationInfo EXIT - Hit:" << hit);
         return hit;
     }
-
-#ifdef MMAP_GENERATOR
-    void WorldModel::getGroupModels(std::vector<GroupModel>& models)
-    {
-        models = groupModels;
-    }
-#endif
-
 } // namespace VMAP

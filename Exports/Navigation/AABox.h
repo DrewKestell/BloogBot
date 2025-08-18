@@ -21,8 +21,9 @@ namespace G3D
         void merge(const AABox& box);
         void merge(const Vector3& v);
 
+        bool intersects(const AABox& other) const;
         bool contains(const Vector3& p) const;
-        Vector3 corner(int i) const;
+        Vector3 corner(int i) const; 
 
         static AABox zero() { return AABox(Vector3::zero(), Vector3::zero()); }
 

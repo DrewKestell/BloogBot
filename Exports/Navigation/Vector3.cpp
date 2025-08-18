@@ -6,8 +6,8 @@ namespace G3D
 {
     // Vector3 * Matrix3 - treats vector as row vector
     // This is equivalent to transpose(M) * v when v is a column vector
-    Vector3 Vector3::operator*(const Matrix3& m) const
-    {
+    Vector3 Vector3::operator*(const Matrix3& m) const {
+        // This assumes row vector * matrix (row-major)
         return Vector3(
             x * m.get(0, 0) + y * m.get(1, 0) + z * m.get(2, 0),
             x * m.get(0, 1) + y * m.get(1, 1) + z * m.get(2, 1),
@@ -15,8 +15,7 @@ namespace G3D
         );
     }
 
-    Vector3 Vector3::cross(const Vector3& v) const
-    {
+    Vector3 Vector3::cross(const Vector3& v) const {
         return Vector3(
             y * v.z - z * v.y,
             z * v.x - x * v.z,

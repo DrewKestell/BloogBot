@@ -709,6 +709,7 @@ namespace VMAP
         return false;
     }
 
+    // StaticMapTree.cpp - Fixed GetLocationInfo to use BIH traversal
     bool StaticMapTree::GetLocationInfo(const G3D::Vector3& pos, LocationInfo& info) const
     {
         LOG_TRACE("StaticMapTree::GetLocationInfo ENTER - MapId:" << iMapID
@@ -720,26 +721,51 @@ namespace VMAP
             return false;
         }
 
-        int checkedModels = 0;
-
-        for (uint32_t i = 0; i < iNTreeValues; ++i)
+        // Define callback for point location query
+        class LocationInfoCallback
         {
-            if (iTreeValues[i].iModel)
-            {
-                checkedModels++;
+        public:
+            LocationInfoCallback(ModelInstance* val) : prims(val), found(false) {}
 
-                if (iTreeValues[i].GetLocationInfo(pos, info))
+            void operator()(const G3D::Vector3& point, uint32_t entry)
+            {
+                LOG_TRACE("LocationInfoCallback checking model at index " << entry);
+
+                if (!prims[entry].iModel)
                 {
-                    LOG_INFO("Location info found in model " << i
-                        << " RootId:" << info.rootId
-                        << " GroundZ:" << info.ground_Z
-                        << " Name:" << iTreeValues[i].name);
-                    return true;
+                    LOG_DEBUG("Model at index " << entry << " not loaded - skipping");
+                    return;
+                }
+
+                // Check if this model can provide location info
+                if (prims[entry].GetLocationInfo(point, tempInfo))
+                {
+                    found = true;
+                    LOG_INFO("Location info found in model " << entry
+                        << " RootId:" << tempInfo.rootId
+                        << " GroundZ:" << tempInfo.ground_Z
+                        << " Name:" << prims[entry].name);
                 }
             }
+
+            ModelInstance* prims;
+            LocationInfo tempInfo;
+            bool found;
+        };
+
+        // Use BIH tree to find relevant models at this position
+        LocationInfoCallback callback(iTreeValues);
+        iTree.intersectPoint(pos, callback);
+
+        if (callback.found)
+        {
+            info = callback.tempInfo;
+            LOG_INFO("Location info found - RootId:" << info.rootId
+                << " GroundZ:" << info.ground_Z);
+            return true;
         }
 
-        LOG_DEBUG("No location info found after checking " << checkedModels << " models");
+        LOG_DEBUG("No location info found");
         LOG_TRACE("StaticMapTree::GetLocationInfo EXIT - Not found");
         return false;
     }
