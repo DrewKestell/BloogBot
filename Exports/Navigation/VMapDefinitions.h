@@ -1,6 +1,7 @@
 // VMapDefinitions.h - Complete VMAP definitions
 #pragma once
 
+#include "PhysicsEngine.h"
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
@@ -10,7 +11,9 @@ namespace VMAP
 {
     // vMaNGOS VMAP format for WoW 1.12.1
     constexpr char VMAP_MAGIC[] = "VMAP_7.0";
-    constexpr char GAMEOBJECT_MODELS[] = "GameObjectModels.dtree";
+
+    // Simple helpers
+    inline bool IsValidHeight(float h) { return h > PhysicsConstants::INVALID_HEIGHT; }
 
     constexpr float LIQUID_TILE_SIZE = (533.333f / 128.f);
 
@@ -28,9 +31,6 @@ namespace VMAP
         MOD_HAS_BOUND = 1 << 2,
         MOD_NO_BREAK_LOS = 1 << 3
     };
-
-    constexpr float VMAP_INVALID_HEIGHT = -100000.0f;
-    constexpr float VMAP_INVALID_HEIGHT_VALUE = -200000.0f;
 
     // Helper functions
     inline bool readChunk(FILE* rf, char* dest, const char* compare, uint32_t len)

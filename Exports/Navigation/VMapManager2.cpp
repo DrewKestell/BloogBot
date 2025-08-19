@@ -11,6 +11,7 @@
 #include <fstream>
 #include <algorithm>
 #include <unordered_map>
+#include "PhysicsEngine.h"
 
 namespace VMAP
 {
@@ -772,7 +773,7 @@ namespace VMAP
         if (!isHeightCalcEnabled())
         {
             LOG_DEBUG("Height calculation disabled globally");
-            return VMAP_INVALID_HEIGHT_VALUE;
+            return PhysicsConstants::INVALID_HEIGHT;
         }
 
         auto instanceTree = iInstanceMapTrees.find(pMapId);
@@ -826,7 +827,7 @@ namespace VMAP
                     else
                     {
                         LOG_DEBUG("Found height " << height << " is outside search distance " << maxSearchDist);
-                        height = VMAP_INVALID_HEIGHT_VALUE; // Reset for next attempt
+                        height = PhysicsConstants::INVALID_HEIGHT; // Reset for next attempt
                     }
                 }
                 else
@@ -887,7 +888,7 @@ namespace VMAP
         }
 
         LOG_TRACE("VMapManager2::getHeight EXIT - Returning INVALID");
-        return VMAP_INVALID_HEIGHT_VALUE;
+        return PhysicsConstants::INVALID_HEIGHT;
     }
 
     bool VMapManager2::getAreaInfo(unsigned int pMapId, float x, float y, float& z,

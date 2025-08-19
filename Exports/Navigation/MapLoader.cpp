@@ -838,7 +838,7 @@ void MapLoader::UnloadAllTiles()
     m_loadedTiles.clear();
 }
 
-float MapLoader::GetHeight(uint32_t mapId, float x, float y, float z)
+float MapLoader::GetHeight(uint32_t mapId, float x, float y)
 {
     uint32_t gridX, gridY;
     worldToGridCoords(x, y, gridX, gridY);
@@ -863,7 +863,7 @@ float MapLoader::GetHeight(uint32_t mapId, float x, float y, float z)
     return height;
 }
 
-float MapLoader::GetLiquidLevel(uint32_t mapId, float x, float y, float z)
+float MapLoader::GetLiquidLevel(uint32_t mapId, float x, float y)
 {
     uint32_t gridX, gridY;
     worldToGridCoords(x, y, gridX, gridY);

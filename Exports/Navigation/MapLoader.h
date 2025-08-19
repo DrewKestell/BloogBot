@@ -190,8 +190,8 @@ public:
     void UnloadMapTile(uint32_t mapId, uint32_t x, uint32_t y);
     void UnloadAllTiles();
 
-    float GetHeight(uint32_t mapId, float x, float y, float z);
-    float GetLiquidLevel(uint32_t mapId, float x, float y, float z);
+    float GetHeight(uint32_t mapId, float x, float y);
+    float GetLiquidLevel(uint32_t mapId, float x, float y);
     uint8_t GetLiquidType(uint32_t mapId, float x, float y);
     uint16_t GetAreaId(uint32_t mapId, float x, float y);
 

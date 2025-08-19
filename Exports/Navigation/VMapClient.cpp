@@ -5,6 +5,7 @@
 #include <iostream>
 #include <filesystem>
 #include "VMapLog.h"
+#include "PhysicsEngine.h"
 
 VMapClient::VMapClient(const std::string& dataPath)
     : vmapPath(dataPath), initialized(false), vmapManager(nullptr)
@@ -204,7 +205,7 @@ float VMapClient::getGroundHeight(uint32_t mapId, float x, float y, float z, flo
     if (!vmapManager)
     {
         LOG_ERROR("No VMapManager in getGroundHeight!");
-        return VMAP::VMAP_INVALID_HEIGHT_VALUE;
+        return PhysicsConstants::INVALID_HEIGHT;
     }
 
     // IMPORTANT: Try to load the tile at this position!
@@ -226,7 +227,7 @@ float VMapClient::getGroundHeight(uint32_t mapId, float x, float y, float z, flo
     LOG_DEBUG("Querying VMAP height...");
     float height = vmapManager->getHeight(mapId, x, y, z, searchDistance);
 
-    if (height > VMAP::VMAP_INVALID_HEIGHT_VALUE)
+    if (height > PhysicsConstants::INVALID_HEIGHT)
     {
         LOG_INFO("VMAP height found: " << height);
     }

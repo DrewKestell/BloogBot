@@ -29,7 +29,6 @@ namespace PhysicsConstants
 
     // Ground detection distance - matching vMaNGOS
     constexpr float GROUND_HEIGHT_TOLERANCE = 0.05f;    // Safety margin for ground placement
-    constexpr float DEFAULT_HEIGHT_SEARCH = 50.0f;      // vMaNGOS default maxSearchDist
     constexpr float GROUND_SEARCH_RANGE = 100.0f;      // Maximum search range
 
     // Collision detection - vMaNGOS values
@@ -47,9 +46,12 @@ namespace PhysicsConstants
     // Spline movement
     constexpr float SPLINE_SMOOTH_FACTOR = 0.5f;
 
-    // Height calculation constants from vMaNGOS
-    constexpr float INVALID_HEIGHT_VALUE = -100000.0f;
-    constexpr float VMAP_INVALID_HEIGHT_VALUE = -100000.0f;
+    // Height constants - using -200000.0f for everything
+    constexpr float INVALID_HEIGHT = -200000.0f;
+    constexpr float MAX_HEIGHT = 100000.0f;
+    constexpr float MAX_FALL_DISTANCE = 250000.0f;
+    constexpr float DEFAULT_HEIGHT_SEARCH = 10.0f;
+    constexpr float DEFAULT_WATER_SEARCH = 50.0f;
 }
 
 class PhysicsEngine
@@ -121,7 +123,6 @@ private:
     bool CheckCollision(uint32_t mapId, float startX, float startY, float startZ,
         float endX, float endY, float endZ, float radius, float height,
         float& hitX, float& hitY, float& hitZ);
-    float GetGroundHeight(uint32_t mapId, float x, float y, float z);
     float GetLiquidHeight(uint32_t mapId, float x, float y, float z, uint32_t& liquidType);
     void ResolveCollisions(uint32_t mapId, MovementState& state, float radius, float height);
 

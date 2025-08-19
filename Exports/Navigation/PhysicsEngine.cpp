@@ -198,14 +198,14 @@ float PhysicsEngine::GetVMapHeight(uint32_t mapId, float x, float y, float z, fl
     {
         LOG_WARN("No VMapClient - returning invalid height");
         LOG_INFO("==================== GetVMapHeight END (no client) ====================");
-        return VMAP_INVALID_HEIGHT_VALUE;
+        return PhysicsConstants::INVALID_HEIGHT;
     }
 
     if (!m_vmapHeightEnabled)
     {
         LOG_WARN("VMAP height calculation disabled");
         LOG_INFO("==================== GetVMapHeight END (disabled) ====================");
-        return VMAP_INVALID_HEIGHT_VALUE;
+        return PhysicsConstants::INVALID_HEIGHT;
     }
 
     try
@@ -216,7 +216,7 @@ float PhysicsEngine::GetVMapHeight(uint32_t mapId, float x, float y, float z, fl
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 
-        if (height > VMAP_INVALID_HEIGHT_VALUE)
+        if (height > PhysicsConstants::INVALID_HEIGHT)
         {
             LOG_INFO("VMAP height found: " << height << " (took " << duration.count() << " us)");
         }
@@ -232,13 +232,13 @@ float PhysicsEngine::GetVMapHeight(uint32_t mapId, float x, float y, float z, fl
     {
         LOG_ERROR("Exception getting VMAP height: " << e.what());
         LOG_INFO("==================== GetVMapHeight END (exception) ====================");
-        return VMAP_INVALID_HEIGHT_VALUE;
+        return PhysicsConstants::INVALID_HEIGHT;
     }
     catch (...)
     {
         LOG_ERROR("Unknown exception getting VMAP height");
         LOG_INFO("==================== GetVMapHeight END (exception) ====================");
-        return VMAP_INVALID_HEIGHT_VALUE;
+        return PhysicsConstants::INVALID_HEIGHT;
     }
 }
 
@@ -251,11 +251,11 @@ float PhysicsEngine::GetADTHeight(uint32_t mapId, float x, float y, float z)
     if (!m_mapLoader || !m_mapLoader->IsInitialized())
     {
         std::cout << "[Physics DEBUG] MapLoader not initialized" << std::endl;
-        return INVALID_HEIGHT_VALUE;
+        return PhysicsConstants::INVALID_HEIGHT;
     }
 
     // MapLoader expects world coordinates directly
-    float adtHeight = m_mapLoader->GetHeight(mapId, x, y, z);
+    float adtHeight = m_mapLoader->GetHeight(mapId, x, y);
     std::cout << "[Physics DEBUG] ADT height result: " << adtHeight << std::endl;
     return adtHeight;
 }
@@ -269,21 +269,21 @@ float PhysicsEngine::SelectBestHeight(float vmapHeight, float adtHeight, float c
         << " MaxSearch:" << maxSearchDist);
 
     // Both invalid - return invalid
-    if (vmapHeight <= VMAP_INVALID_HEIGHT_VALUE && adtHeight <= INVALID_HEIGHT_VALUE)
+    if (vmapHeight <= PhysicsConstants::INVALID_HEIGHT && adtHeight <= PhysicsConstants::INVALID_HEIGHT)
     {
         LOG_DEBUG("Both heights invalid - returning INVALID");
-        return INVALID_HEIGHT_VALUE;
+        return PhysicsConstants::INVALID_HEIGHT;
     }
 
     // Only ADT valid
-    if (vmapHeight <= VMAP_INVALID_HEIGHT_VALUE)
+    if (vmapHeight <= PhysicsConstants::INVALID_HEIGHT)
     {
         LOG_DEBUG("Only ADT valid - returning ADT height");
         return adtHeight;
     }
 
     // Only VMAP valid
-    if (adtHeight <= INVALID_HEIGHT_VALUE)
+    if (adtHeight <= PhysicsConstants::INVALID_HEIGHT)
     {
         LOG_DEBUG("Only VMAP valid - returning VMAP height");
         return vmapHeight;
@@ -385,8 +385,7 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
     state.isGrounded = shouldBeGrounded;
     std::cout << "IsGrounded: " << state.isGrounded << std::endl;
 
-    // Determine if swimming - only if NOT grounded
-    float swimDepth = input.height * 0.7f;  // vmangos value
+    float swimDepth = input.height * 0.75f;
     std::cout << "Swimming check:" << std::endl;
     std::cout << "  Not grounded: " << !state.isGrounded << std::endl;
     std::cout << "  Has liquid: " << collision.hasLiquid << std::endl;
@@ -405,10 +404,6 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
 
     state.isFlying = (input.moveFlags & MOVEFLAG_FLYING) != 0;
     std::cout << "IsFlying: " << state.isFlying << std::endl;
-
-    // FIX: Only apply knockback for special events, not normal movement
-    // Knockback in WoW is a special effect, not continuous
-    // Remove this block entirely or only use for actual knockback events
 
     // Apply jump velocity
     if ((input.moveFlags & MOVEFLAG_JUMP) && state.isGrounded && !state.isSwimming)
@@ -450,20 +445,6 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
     std::cout << "After movement - Position: (" << state.x << ", " << state.y << ", " << state.z << ")" << std::endl;
     std::cout << "After movement - Velocity: (" << state.vx << ", " << state.vy << ", " << state.vz << ")" << std::endl;
 
-    // Recheck swimming after position update (in case we fell into water while airborne)
-    // IMPORTANT: Only check if NOT grounded - grounded characters wade, they don't swim
-    if (!state.isGrounded && !state.isSwimming && collision.hasLiquid &&
-        (collision.liquidType & (VMAP::MAP_LIQUID_TYPE_WATER | VMAP::MAP_LIQUID_TYPE_OCEAN)))
-    {
-        float depth = collision.liquidZ - state.z;
-        if (depth >= SWIM_DEPTH_THRESHOLD - 0.05f)
-        {
-            std::cout << "Entered water after movement - now swimming!" << std::endl;
-            state.isSwimming = true;
-            state.vz = std::max(state.vz, -2.0f);
-        }
-    }
-
     // Resolve collisions
     std::cout << "Resolving collisions..." << std::endl;
     ResolveCollisions(input.mapId, state, input.radius, input.height);
@@ -471,7 +452,7 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
 
     // Final ground placement - using vMaNGOS step height
     if (!state.isFlying && !(input.moveFlags & (MOVEFLAG_FALLINGFAR | MOVEFLAG_FALLING)) &&
-        !state.isSwimming && collision.hasGround && collision.groundZ > INVALID_HEIGHT_VALUE)
+        !state.isSwimming && collision.hasGround && collision.groundZ > PhysicsConstants::INVALID_HEIGHT)
     {
         std::cout << "Final ground placement check:" << std::endl;
         std::cout << "  Current Z: " << state.z << ", Ground Z: " << collision.groundZ << std::endl;
@@ -580,19 +561,13 @@ float PhysicsEngine::GetHeight(uint32_t mapId, float x, float y, float z, bool c
         << " checkVMap:" << checkVMap
         << " maxSearchDist:" << maxSearchDist);
 
-    std::cout << "[Physics::GetHeight] Called - Map: " << mapId
-        << ", Pos: (" << x << ", " << y << ", " << z << ")"
-        << ", checkVMap: " << checkVMap << ", maxSearchDist: " << maxSearchDist << std::endl;
-
     // Get terrain height from ADT data
     LOG_DEBUG("Getting ADT terrain height...");
     float adtHeight = GetADTHeight(mapId, x, y, z);
-    std::cout << "[Physics::GetHeight] ADT height: " << adtHeight << std::endl;
     LOG_INFO("ADT height: " << adtHeight);
 
     if (!checkVMap || !m_vmapHeightEnabled)
     {
-        std::cout << "[Physics::GetHeight] Returning ADT height (no VMAP check)" << std::endl;
         LOG_INFO("Returning ADT height only - checkVMap:" << checkVMap
             << " vmapEnabled:" << m_vmapHeightEnabled);
         LOG_INFO("==================== PhysicsEngine::GetHeight END ====================");
@@ -622,17 +597,15 @@ float PhysicsEngine::GetHeight(uint32_t mapId, float x, float y, float z, bool c
     }
 
     float vmapHeight = GetVMapHeight(mapId, x, y, z, maxSearchDist);
-    std::cout << "[Physics::GetHeight] VMAP height: " << vmapHeight << std::endl;
     LOG_INFO("VMAP height: " << vmapHeight);
 
     // Select best height using vMaNGOS logic
     LOG_DEBUG("Selecting best height between VMAP and ADT...");
     float finalHeight = SelectBestHeight(vmapHeight, adtHeight, z, maxSearchDist);
-    std::cout << "[Physics::GetHeight] Final height: " << finalHeight << std::endl;
 
     LOG_INFO("Final height selected: " << finalHeight);
-    LOG_INFO("  ADT valid: " << (adtHeight > INVALID_HEIGHT_VALUE ? "YES" : "NO"));
-    LOG_INFO("  VMAP valid: " << (vmapHeight > VMAP_INVALID_HEIGHT_VALUE ? "YES" : "NO"));
+    LOG_INFO("  ADT valid: " << (adtHeight > PhysicsConstants::INVALID_HEIGHT ? "YES" : "NO"));
+    LOG_INFO("  VMAP valid: " << (vmapHeight > PhysicsConstants::INVALID_HEIGHT ? "YES" : "NO"));
     LOG_INFO("  Selection logic: " <<
         (finalHeight == vmapHeight ? "VMAP" :
             finalHeight == adtHeight ? "ADT" : "INVALID"));
@@ -672,7 +645,7 @@ PhysicsEngine::CollisionInfo PhysicsEngine::QueryEnvironment(uint32_t mapId, flo
         << " -> isIndoors=" << info.isIndoors << std::endl;
 
     // Determine ground
-    if (groundHeight > INVALID_HEIGHT_VALUE) {
+    if (groundHeight > PhysicsConstants::INVALID_HEIGHT) {
         info.hasGround = true;
         info.groundZ = groundHeight;
         std::cout << "[Physics::QueryEnvironment] Using GetHeight ground: " << groundHeight << std::endl;
@@ -685,7 +658,7 @@ PhysicsEngine::CollisionInfo PhysicsEngine::QueryEnvironment(uint32_t mapId, flo
     }
     else {
         info.hasGround = false;
-        info.groundZ = INVALID_HEIGHT_VALUE;
+        info.groundZ = PhysicsConstants::INVALID_HEIGHT;
         std::cout << "[Physics::QueryEnvironment] No valid ground found" << std::endl;
     }
 
@@ -706,8 +679,8 @@ bool PhysicsEngine::GetLiquidInfo(uint32_t mapId, float x, float y, float z, flo
     // First try to get liquid from MapLoader (ADT data)
     if (m_mapLoader && m_mapLoader->IsInitialized())
     {
-        liquidLevel = m_mapLoader->GetLiquidLevel(mapId, x, y, z);
-        if (liquidLevel > INVALID_HEIGHT_VALUE)
+        liquidLevel = m_mapLoader->GetLiquidLevel(mapId, x, y);
+        if (liquidLevel > PhysicsConstants::INVALID_HEIGHT)
         {
             liquidType = m_mapLoader->GetLiquidType(mapId, x, y);
             // Convert to vmangos liquid mask
@@ -803,13 +776,13 @@ PhysicsEngine::MovementState PhysicsEngine::HandleGroundMovement(const PhysicsIn
     std::cout << "New ground height at (" << state.x << ", " << state.y << "): " << newGroundZ << std::endl;
 
     // Handle stepping up/down terrain
-    if (newGroundZ > INVALID_HEIGHT_VALUE)
+    if (newGroundZ > PhysicsConstants::INVALID_HEIGHT)
     {
         float heightDiff = newGroundZ - oldZ;
         std::cout << "Height difference: " << heightDiff << " (new: " << newGroundZ
             << ", old: " << oldZ << ")" << std::endl;
 
-        if (heightDiff > 0 && heightDiff < STEP_HEIGHT)
+        if (heightDiff >= 0 && heightDiff < STEP_HEIGHT)
         {
             // Step up - within allowed step height
             std::cout << "Stepping up from " << oldZ << " to " << newGroundZ
@@ -1099,19 +1072,13 @@ float PhysicsEngine::CalculateMoveSpeed(const PhysicsInput& input, bool isSwimmi
     return input.runSpeed;
 }
 
-float PhysicsEngine::GetGroundHeight(uint32_t mapId, float x, float y, float z)
-{
-    // Use the main GetHeight function with vMaNGOS logic
-    return GetHeight(mapId, x, y, z, m_vmapHeightEnabled, DEFAULT_HEIGHT_SEARCH);
-}
-
 float PhysicsEngine::GetLiquidHeight(uint32_t mapId, float x, float y, float z, uint32_t& liquidType)
 {
     // First try to get liquid from MapLoader (ADT data)
     if (m_mapLoader && m_mapLoader->IsInitialized())
     {
-        float liquidLevel = m_mapLoader->GetLiquidLevel(mapId, x, y, z);
-        if (liquidLevel > INVALID_HEIGHT_VALUE)
+        float liquidLevel = m_mapLoader->GetLiquidLevel(mapId, x, y);
+        if (liquidLevel > PhysicsConstants::INVALID_HEIGHT)
         {
             liquidType = m_mapLoader->GetLiquidType(mapId, x, y);
             return liquidLevel;
@@ -1135,7 +1102,7 @@ float PhysicsEngine::GetLiquidHeight(uint32_t mapId, float x, float y, float z, 
         }
     }
 
-    return INVALID_HEIGHT_VALUE;
+    return PhysicsConstants::INVALID_HEIGHT;
 }
 
 void PhysicsEngine::ResolveCollisions(uint32_t mapId, MovementState& state, float radius, float height)
@@ -1298,7 +1265,7 @@ bool PhysicsEngine::IsGrounded(uint32_t mapId, float x, float y, float z, float 
     EnsureMapLoaded(mapId);
     float groundZ = GetHeight(mapId, x, y, z, true, DEFAULT_HEIGHT_SEARCH);
 
-    if (groundZ <= INVALID_HEIGHT_VALUE)
+    if (groundZ <= PhysicsConstants::INVALID_HEIGHT)
         return false;
 
     float distToGround = z - groundZ;
@@ -1316,7 +1283,7 @@ bool PhysicsEngine::IsInWater(uint32_t mapId, float x, float y, float z, float h
     uint32_t liquidType;
     float liquidZ = GetLiquidHeight(mapId, x, y, z, liquidType);
 
-    if (liquidZ <= INVALID_HEIGHT_VALUE)
+    if (liquidZ <= PhysicsConstants::INVALID_HEIGHT)
         return false;
 
     // Match server logic: 2.0 units below surface = swimming
