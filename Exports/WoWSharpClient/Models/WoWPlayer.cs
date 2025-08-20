@@ -6,6 +6,7 @@ namespace WoWSharpClient.Models
 {
     public class WoWPlayer(HighGuid highGuid, WoWObjectType woWObjectType = WoWObjectType.Player) : WoWUnit(highGuid, woWObjectType), IWoWPlayer
     {
+        public uint MapId { get; set; }
         public Race Race { get; set; }
         public Class Class { get; set; }
         public Gender Gender { get; set; }

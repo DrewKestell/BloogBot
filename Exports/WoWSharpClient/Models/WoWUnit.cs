@@ -31,7 +31,7 @@ namespace WoWSharpClient.Models
         public uint MovementFlags2 { get; set; }
         public CreatureType CreatureType { get; set; }
 
-        public float FallTime { get; set; }
+        public uint FallTime { get; set; }
         public float WalkSpeed { get; set; }
         public float RunSpeed { get; set; }
         public float RunBackSpeed { get; set; }

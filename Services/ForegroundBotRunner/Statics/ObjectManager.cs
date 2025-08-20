@@ -111,24 +111,6 @@ namespace ForegroundBotRunner.Statics
             }
         }
 
-        public uint MapId
-        {
-            // this is weird and throws an exception right after entering world,
-            // so we catch and ignore the exception to avoid console noise
-            get
-            {
-                try
-                {
-                    var objectManagerPtr = MemoryManager.ReadIntPtr(Offsets.ObjectManager.ManagerBase);
-                    return MemoryManager.ReadUint(nint.Add(objectManagerPtr, 0xCC));
-                }
-                catch (Exception)
-                {
-                    return 0;
-                }
-            }
-        }
-
         public string ServerName
         {
             // this is weird and throws an exception right after entering world,

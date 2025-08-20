@@ -359,7 +359,7 @@ namespace ForegroundBotRunner.Objects
 
         public uint[] PowerCostMultipliers => throw new NotImplementedException();
 
-        public float FallTime => throw new NotImplementedException();
+        public uint FallTime => throw new NotImplementedException();
 
         public float WalkSpeed => throw new NotImplementedException();
 

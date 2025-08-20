@@ -5,6 +5,7 @@ namespace GameData.Core.Interfaces
 {
     public interface IWoWPlayer : IWoWUnit
     {
+        uint MapId { get; }
         Race Race { get; }
         Class Class { get; }
         Gender Gender { get; }

@@ -298,18 +298,18 @@ float PhysicsEngine::SelectBestHeight(float vmapHeight, float adtHeight, float c
 
 PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
 {
-    std::cout << "\n========== PHYSICS STEP START ==========" << std::endl;
-    std::cout << "Input Position: (" << input.x << ", " << input.y << ", " << input.z << ")" << std::endl;
-    std::cout << "Input Velocity: (" << input.vx << ", " << input.vy << ", " << input.vz << ")" << std::endl;
-    std::cout << "Input MoveFlags: 0x" << std::hex << input.moveFlags << std::dec << std::endl;
-    std::cout << "Input Height: " << input.height << ", Radius: " << input.radius << std::endl;
-    std::cout << "Delta Time: " << dt << std::endl;
+    LOG_INFO("========== PHYSICS STEP START ==========");
+    LOG_INFO("Input Position: (" << input.x << ", " << input.y << ", " << input.z << ")");
+    LOG_INFO("Input Velocity: (" << input.vx << ", " << input.vy << ", " << input.vz << ")");
+    LOG_INFO("Input MoveFlags: 0x" << std::hex << input.moveFlags << std::dec);
+    LOG_INFO("Delta Time: " << dt);
 
     PhysicsOutput output = {};
 
+    // Quick passthrough if not initialized
     if (!m_initialized)
     {
-        std::cout << "Physics not initialized - passthrough mode" << std::endl;
+        LOG_WARN("Physics not initialized - passthrough mode");
         output.x = input.x;
         output.y = input.y;
         output.z = input.z;
@@ -322,232 +322,433 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
         return output;
     }
 
-    // Ensure map is loaded ONCE at the start of the step
+    // Ensure map is loaded (only happens on map change)
     EnsureMapLoaded(input.mapId);
 
-    // Query environment at current position
-    std::cout << "Querying environment..." << std::endl;
-    CollisionInfo collision = QueryEnvironment(input.mapId, input.x, input.y, input.z,
-        input.radius, input.height);
-
-    std::cout << "Collision Info:" << std::endl;
-    std::cout << "  hasGround: " << collision.hasGround << ", groundZ: " << collision.groundZ << std::endl;
-    std::cout << "  hasLiquid: " << collision.hasLiquid << ", liquidZ: " << collision.liquidZ
-        << ", liquidType: 0x" << std::hex << collision.liquidType << std::dec << std::endl;
-    std::cout << "  isIndoors: " << collision.isIndoors << std::endl;
-
-    // Initialize movement state from input
-    MovementState state;
+    // ========== STEP 1: Initialize Movement State ==========
+    MovementState state {};
     state.x = input.x;
     state.y = input.y;
     state.z = input.z;
-    state.vx = 0;  // FIX: Start with zero velocity
-    state.vy = 0;  // FIX: Start with zero velocity
-    state.vz = 0;  // FIX: Start with zero velocity
     state.orientation = input.orientation;
     state.pitch = input.pitch;
-    state.fallTime = 0;
+    state.vx = 0;  // Don't inherit velocity for normal movement
+    state.vy = 0;
+    state.vz = 0;
+    state.fallTime = input.fallTime;
     state.fallStartZ = input.z;
 
-    // Determine if grounded - using vMaNGOS step height logic
-    bool shouldBeGrounded = false;
-    if (!(input.moveFlags & MOVEFLAG_FLYING) && collision.hasGround)
-    {
-        float distToGround = input.z - collision.groundZ;
-        std::cout << "Distance to ground: " << distToGround << std::endl;
+    // ========== STEP 2: Query Environment Using New System ==========
+    LOG_INFO("Querying environment with full collision info...");
 
-        if (input.z <= collision.groundZ)
+    CollisionInfo collision = QueryEnvironment(input.mapId, state.x, state.y, state.z,
+        input.radius, input.height);
+
+    LOG_INFO("Environment query results:");
+    LOG_INFO("  hasGround: " << collision.hasGround << ", groundZ: " << collision.groundZ);
+    LOG_INFO("  isIndoors: " << collision.isIndoors);
+    LOG_INFO("  hasLiquid: " << collision.hasLiquid << ", liquidZ: " << collision.liquidZ);
+    LOG_INFO("  vmapValid: " << collision.vmapValid << ", vmapHeight: " << collision.vmapHeight);
+    LOG_INFO("  adtValid: " << collision.adtValid << ", adtHeight: " << collision.adtHeight);
+
+    // ========== STEP 3: Determine Movement State ==========
+
+    // Check if unit can fly/swim based on flags
+    bool canFly = (input.moveFlags & MOVEFLAG_FLYING) != 0;
+    bool canSwim = (input.moveFlags & MOVEFLAG_SWIMMING) != 0;
+
+    // Calculate precise distance to ground
+    float distToGround = collision.hasGround ? (state.z - collision.groundZ) : PhysicsConstants::MAX_HEIGHT;
+
+    LOG_INFO("Distance to ground: " << distToGround);
+
+    // Determine if grounded (using tight tolerance)
+    bool wasGrounded = state.isGrounded;
+    state.isGrounded = collision.hasGround &&
+        distToGround >= -PhysicsConstants::GROUND_HEIGHT_TOLERANCE &&
+        distToGround <= PhysicsConstants::GROUND_HEIGHT_TOLERANCE;
+
+    // Special case: If indoors and close to WMO floor, snap to it
+    if (collision.isIndoors && collision.vmapValid)
+    {
+        float distToWmoFloor = std::abs(state.z - collision.vmapHeight);
+        if (distToWmoFloor < PhysicsConstants::STEP_HEIGHT)
         {
-            std::cout << "Below ground - will be grounded" << std::endl;
-            shouldBeGrounded = true;
-        }
-        else if (std::abs(distToGround) < GROUND_HEIGHT_TOLERANCE)
-        {
-            std::cout << "Close to ground (within " << GROUND_HEIGHT_TOLERANCE << ") - will be grounded" << std::endl;
-            shouldBeGrounded = true;
-        }
-        else if (distToGround < 1.0f)  // Within grounding tolerance
-        {
-            std::cout << "Within step height (1.0f) - will be grounded" << std::endl;
-            shouldBeGrounded = true;
-        }
-        else
-        {
-            std::cout << "Too far from ground - not grounded" << std::endl;
+            LOG_INFO("Indoor WMO floor detected - using precise WMO height: " << collision.vmapHeight);
+            collision.groundZ = collision.vmapHeight;  // Prefer WMO floor when indoors
+            distToGround = state.z - collision.groundZ;
+            state.isGrounded = distToGround >= -PhysicsConstants::GROUND_HEIGHT_TOLERANCE &&
+                distToGround <= PhysicsConstants::GROUND_HEIGHT_TOLERANCE;
         }
     }
-    else
+
+    LOG_INFO("Grounded check - wasGrounded: " << wasGrounded
+        << ", isGrounded: " << state.isGrounded
+        << ", isIndoors: " << collision.isIndoors);
+
+    // Determine if swimming
+    state.isSwimming = collision.hasLiquid && canSwim &&
+        (state.z < collision.liquidZ) &&
+        (state.z > collision.groundZ + 1.0f);  // Not walking on bottom
+
+    state.isFlying = canFly;
+
+    LOG_INFO("Movement state - isSwimming: " << state.isSwimming
+        << ", isFlying: " << state.isFlying);
+
+    // ========== STEP 4: Calculate Movement Direction ==========
+    float moveX = 0, moveY = 0, moveZ = 0;
+
+    if (input.moveFlags & MOVEFLAG_FORWARD)
     {
-        std::cout << "Not checking ground (flying=" << ((input.moveFlags & MOVEFLAG_FLYING) != 0)
-            << ", hasGround=" << collision.hasGround << ")" << std::endl;
+        moveX = std::cos(state.orientation);
+        moveY = std::sin(state.orientation);
+        LOG_INFO("Moving FORWARD");
+    }
+    else if (input.moveFlags & MOVEFLAG_BACKWARD)
+    {
+        moveX = -std::cos(state.orientation);
+        moveY = -std::sin(state.orientation);
+        LOG_INFO("Moving BACKWARD");
     }
 
-    state.isGrounded = shouldBeGrounded;
-    std::cout << "IsGrounded: " << state.isGrounded << std::endl;
-
-    float swimDepth = input.height * 0.75f;
-    std::cout << "Swimming check:" << std::endl;
-    std::cout << "  Not grounded: " << !state.isGrounded << std::endl;
-    std::cout << "  Has liquid: " << collision.hasLiquid << std::endl;
-    std::cout << "  Liquid type has water: " << ((collision.liquidType & (VMAP::MAP_LIQUID_TYPE_WATER | VMAP::MAP_LIQUID_TYPE_OCEAN)) != 0) << std::endl;
-    std::cout << "  Swim depth threshold: " << swimDepth << " (height * 0.7)" << std::endl;
-    std::cout << "  Position below liquid: z=" << input.z << " < liquidZ-swimDepth=" << (collision.liquidZ - swimDepth)
-        << " = " << (input.z < (collision.liquidZ - swimDepth + 0.02f)) << std::endl;
-
-    // Only swim if NOT grounded AND in deep enough water
-    const float SWIM_DEPTH_THRESHOLD = 2.0f;
-    state.isSwimming = !state.isGrounded && collision.hasLiquid &&
-        (collision.liquidType & (VMAP::MAP_LIQUID_TYPE_WATER | VMAP::MAP_LIQUID_TYPE_OCEAN)) &&
-        (collision.liquidZ - input.z) >= SWIM_DEPTH_THRESHOLD - 0.05f;
-
-    std::cout << "IsSwimming: " << state.isSwimming << std::endl;
-
-    state.isFlying = (input.moveFlags & MOVEFLAG_FLYING) != 0;
-    std::cout << "IsFlying: " << state.isFlying << std::endl;
-
-    // Apply jump velocity
-    if ((input.moveFlags & MOVEFLAG_JUMP) && state.isGrounded && !state.isSwimming)
+    if (input.moveFlags & MOVEFLAG_STRAFE_LEFT)
     {
-        std::cout << "Jumping with velocity: " << JUMP_VELOCITY << std::endl;
-        state.vz = JUMP_VELOCITY;
-        state.isGrounded = false;
-        state.fallStartZ = state.z;  // Set fall start position
+        moveX -= std::sin(state.orientation);
+        moveY += std::cos(state.orientation);
+        LOG_INFO("Strafing LEFT");
+    }
+    else if (input.moveFlags & MOVEFLAG_STRAFE_RIGHT)
+    {
+        moveX += std::sin(state.orientation);
+        moveY -= std::cos(state.orientation);
+        LOG_INFO("Strafing RIGHT");
     }
 
-    // Update movement based on state
-    std::cout << "Movement handler: ";
-    if (input.hasSplinePath)
+    // Normalize diagonal movement
+    float moveLength = std::sqrt(moveX * moveX + moveY * moveY);
+    if (moveLength > 1.0f)
     {
-        std::cout << "SPLINE" << std::endl;
-        state = HandleSplineMovement(input, state, dt);
+        moveX /= moveLength;
+        moveY /= moveLength;
+        LOG_INFO("Normalized diagonal movement");
     }
-    else if (state.isFlying)
+
+    // Handle pitch for swimming/flying
+    if (state.isSwimming || state.isFlying)
     {
-        std::cout << "FLYING" << std::endl;
-        state = HandleAirMovement(input, state, dt);
+        moveZ = std::sin(state.pitch);
+        float horizontalScale = std::cos(state.pitch);
+        moveX *= horizontalScale;
+        moveY *= horizontalScale;
+        LOG_INFO("Applied pitch for 3D movement - moveZ: " << moveZ);
+    }
+
+    // ========== STEP 5: Apply Movement Based on State ==========
+
+    if (state.isFlying)
+    {
+        LOG_INFO("Movement handler: FLYING");
+
+        float speed = (input.moveFlags & MOVEFLAG_WALK_MODE) ? input.walkSpeed : input.runSpeed;
+
+        // Flying allows free 3D movement
+        state.x += moveX * speed * dt;
+        state.y += moveY * speed * dt;
+        state.z += moveZ * speed * dt;
+
+        LOG_INFO("Flying movement applied - new pos: ("
+            << state.x << ", " << state.y << ", " << state.z << ")");
     }
     else if (state.isSwimming)
     {
-        std::cout << "SWIMMING" << std::endl;
-        state = HandleSwimMovement(input, state, dt);
+        LOG_INFO("Movement handler: SWIMMING");
+
+        float speed = (input.moveFlags & MOVEFLAG_BACKWARD) ? input.swimBackSpeed : input.swimSpeed;
+
+        // Apply swimming movement
+        state.x += moveX * speed * dt;
+        state.y += moveY * speed * dt;
+        state.z += moveZ * speed * dt;
+
+        // Constrain to water column
+        if (collision.hasGround && state.z < collision.groundZ + PhysicsConstants::GROUND_HEIGHT_TOLERANCE)
+        {
+            state.z = collision.groundZ + PhysicsConstants::GROUND_HEIGHT_TOLERANCE;
+            LOG_INFO("Clamped to ground while swimming");
+        }
+        else if (state.z > collision.liquidZ - 0.1f)
+        {
+            state.z = collision.liquidZ - 0.1f;
+            LOG_INFO("Clamped to water surface");
+        }
+
+        LOG_INFO("Swimming movement applied - new pos: ("
+            << state.x << ", " << state.y << ", " << state.z << ")");
     }
     else if (state.isGrounded)
     {
-        std::cout << "GROUND" << std::endl;
-        state = HandleGroundMovement(input, state, dt);
-    }
-    else
-    {
-        std::cout << "AIR (falling)" << std::endl;
-        state = HandleAirMovement(input, state, dt);
-    }
+        LOG_INFO("Movement handler: GROUND");
 
-    std::cout << "After movement - Position: (" << state.x << ", " << state.y << ", " << state.z << ")" << std::endl;
-    std::cout << "After movement - Velocity: (" << state.vx << ", " << state.vy << ", " << state.vz << ")" << std::endl;
+        // Determine speed based on movement flags
+        float speed = (input.moveFlags & MOVEFLAG_WALK_MODE) ? input.walkSpeed :
+            (input.moveFlags & MOVEFLAG_BACKWARD) ? input.runBackSpeed :
+            input.runSpeed;
 
-    // Resolve collisions
-    std::cout << "Resolving collisions..." << std::endl;
-    ResolveCollisions(input.mapId, state, input.radius, input.height);
-    std::cout << "After collisions - Position: (" << state.x << ", " << state.y << ", " << state.z << ")" << std::endl;
+        LOG_INFO("Ground speed: " << speed << " (walk="
+            << ((input.moveFlags & MOVEFLAG_WALK_MODE) ? "YES" : "NO") << ")");
 
-    // Final ground placement - using vMaNGOS step height
-    if (!state.isFlying && !(input.moveFlags & (MOVEFLAG_FALLINGFAR | MOVEFLAG_FALLING)) &&
-        !state.isSwimming && collision.hasGround && collision.groundZ > PhysicsConstants::INVALID_HEIGHT)
-    {
-        std::cout << "Final ground placement check:" << std::endl;
-        std::cout << "  Current Z: " << state.z << ", Ground Z: " << collision.groundZ << std::endl;
-
-        if (state.z < collision.groundZ)
+        // Handle jumping
+        if (input.moveFlags & MOVEFLAG_JUMP)
         {
-            std::cout << "  Below ground - snapping to ground" << std::endl;
-            state.z = collision.groundZ;
-            state.vz = 0;
-            state.isGrounded = true;
+            LOG_INFO("JUMPING initiated with velocity: " << PhysicsConstants::JUMP_VELOCITY);
+            state.vz = PhysicsConstants::JUMP_VELOCITY;
+            state.isGrounded = false;
+            state.fallStartZ = state.z;
+            state.fallTime = 0;
         }
-        else if (std::abs(state.z - collision.groundZ) < GROUND_HEIGHT_TOLERANCE)
+
+        // Apply DIRECT position change for ground movement (NO VELOCITY)
+        float newX = state.x + moveX * speed * dt;
+        float newY = state.y + moveY * speed * dt;
+
+        LOG_INFO("Checking new position: (" << newX << ", " << newY << ")");
+
+        // Query environment at new position
+        CollisionInfo newCollision = QueryEnvironment(input.mapId, newX, newY, state.z,
+            input.radius, input.height);
+
+        if (newCollision.hasGround)
         {
-            std::cout << "  Very close to ground - snapping" << std::endl;
-            state.z = collision.groundZ;
-            state.vz = 0;
-            state.isGrounded = true;
-        }
-        else if (state.z - collision.groundZ < 1.0f)  // Within grounding tolerance
-        {
-            std::cout << "  On ground (within tolerance 1.0f)" << std::endl;
-            state.isGrounded = true;
+            float newGroundZ = newCollision.groundZ;
+
+            // If indoors, prefer WMO height
+            if (newCollision.isIndoors && newCollision.vmapValid)
+            {
+                LOG_INFO("Using indoor WMO height at new position: " << newCollision.vmapHeight);
+                newGroundZ = newCollision.vmapHeight;
+            }
+
+            float heightDiff = newGroundZ - state.z;
+            LOG_INFO("Height difference at new position: " << heightDiff
+                << " (new: " << newGroundZ << ", current: " << state.z << ")");
+
+            // Check if we can step up/down
+            if (std::abs(heightDiff) <= PhysicsConstants::STEP_HEIGHT)
+            {
+                // Normal step - update position
+                LOG_INFO("Stepping " << (heightDiff > 0 ? "UP" : "DOWN")
+                    << " to height " << newGroundZ);
+                state.x = newX;
+                state.y = newY;
+                state.z = newGroundZ + PhysicsConstants::GROUND_HEIGHT_TOLERANCE;
+            }
+            else if (heightDiff > PhysicsConstants::STEP_HEIGHT)
+            {
+                // Check if it's a climbable slope
+                float horizontalDist = std::sqrt((newX - state.x) * (newX - state.x) +
+                    (newY - state.y) * (newY - state.y));
+                float slope = heightDiff / (horizontalDist > 0.01f ? horizontalDist : 1.0f);
+
+                LOG_INFO("Slope check: slope=" << slope << " (45deg = 1.0)");
+
+                if (slope < 1.0f)  // Less than 45 degrees
+                {
+                    LOG_INFO("Walking up slope to height " << newGroundZ);
+                    state.x = newX;
+                    state.y = newY;
+                    state.z = newGroundZ + PhysicsConstants::GROUND_HEIGHT_TOLERANCE;
+                }
+                else
+                {
+                    LOG_INFO("Slope too steep - movement BLOCKED");
+                    // Don't update position
+                }
+            }
+            else  // heightDiff < -STEP_HEIGHT
+            {
+                // Falling off a ledge
+                LOG_INFO("Falling off ledge - transitioning to AIR movement");
+                state.x = newX;
+                state.y = newY;
+                state.isGrounded = false;
+                state.fallStartZ = state.z;
+                state.fallTime = 0;
+                // Don't snap to ground - let gravity handle it
+            }
         }
         else
         {
-            std::cout << "  Too far above ground - not grounded" << std::endl;
-            state.isGrounded = false;
+            LOG_WARN("No valid ground at new position - movement BLOCKED");
+            // Don't update position
+        }
+    }
+    else  // Airborne (falling/jumping)
+    {
+        LOG_INFO("Movement handler: AIRBORNE (falling/jumping)");
+
+        // Update fall time
+        state.fallTime += dt;
+
+        // Apply gravity
+        state.vz -= PhysicsConstants::GRAVITY * dt;
+
+        // Cap at terminal velocity
+        if (state.vz < -54.0f)
+        {
+            state.vz = -54.0f;
+            LOG_INFO("Terminal velocity reached");
+        }
+
+        LOG_INFO("Airborne - vz: " << state.vz << ", fallTime: " << state.fallTime);
+
+        // Apply horizontal air movement (with reduced control)
+        float airControl = PhysicsConstants::AIR_CONTROL_FACTOR;
+        float speed = (input.moveFlags & MOVEFLAG_WALK_MODE) ? input.walkSpeed : input.runSpeed;
+
+        state.x += moveX * speed * airControl * dt;
+        state.y += moveY * speed * airControl * dt;
+        state.z += state.vz * dt;
+
+        // Check for landing using collision info
+        CollisionInfo airCollision = QueryEnvironment(input.mapId, state.x, state.y, state.z,
+            input.radius, input.height);
+
+        if (airCollision.hasGround && state.vz <= 0)  // Falling down
+        {
+            float groundZ = airCollision.groundZ;
+
+            // Special handling for indoor landings
+            if (airCollision.isIndoors && airCollision.vmapValid)
+            {
+                LOG_INFO("Landing check for indoor area - WMO floor at: " << airCollision.vmapHeight);
+                groundZ = airCollision.vmapHeight;
+            }
+
+            float newDistToGround = state.z - groundZ;
+
+            if (newDistToGround <= PhysicsConstants::GROUND_HEIGHT_TOLERANCE)
+            {
+                // Landed!
+                float fallDistance = state.fallStartZ - groundZ;
+                LOG_INFO("LANDED at height " << groundZ
+                    << " (fall distance: " << fallDistance << ")"
+                    << (airCollision.isIndoors ? " [INDOOR]" : " [OUTDOOR]"));
+
+                state.z = groundZ + PhysicsConstants::GROUND_HEIGHT_TOLERANCE;
+                state.vz = 0;
+                state.isGrounded = true;
+                state.fallTime = 0;
+
+                // TODO: Calculate fall damage here if needed
+                if (fallDistance > PhysicsConstants::SAFE_FALL_HEIGHT)
+                {
+                    LOG_WARN("Fall damage should be applied - distance: " << fallDistance);
+                }
+            }
+        }
+
+        LOG_INFO("Airborne position: (" << state.x << ", " << state.y << ", " << state.z << ")");
+    }
+
+    // ========== STEP 6: Apply External Forces (Knockback) ==========
+    if (std::abs(input.vx) > 0.01f || std::abs(input.vy) > 0.01f || std::abs(input.vz) > 0.01f)
+    {
+        LOG_INFO("Applying knockback/external velocity: ("
+            << input.vx << ", " << input.vy << ", " << input.vz << ")");
+
+        state.x += input.vx * dt;
+        state.y += input.vy * dt;
+
+        if (!state.isGrounded)  // Only apply vertical knockback if airborne
+        {
+            state.vz += input.vz;  // Add to existing vertical velocity
         }
     }
 
-    // Fill output structure
+    // ========== STEP 7: Final Position Validation ==========
+    LOG_INFO("Final position validation...");
+
+    // Do a final environment check at the final position
+    CollisionInfo finalCollision = QueryEnvironment(input.mapId, state.x, state.y, state.z,
+        input.radius, input.height);
+
+    // Ensure we're not below terrain
+    if (finalCollision.hasGround && state.z < finalCollision.groundZ)
+    {
+        LOG_WARN("Position below terrain! Correcting from " << state.z
+            << " to " << finalCollision.groundZ);
+
+        // Use WMO floor if indoors
+        if (finalCollision.isIndoors && finalCollision.vmapValid)
+        {
+            state.z = finalCollision.vmapHeight + PhysicsConstants::GROUND_HEIGHT_TOLERANCE;
+            LOG_INFO("Snapped to indoor WMO floor: " << state.z);
+        }
+        else
+        {
+            state.z = finalCollision.groundZ + PhysicsConstants::GROUND_HEIGHT_TOLERANCE;
+        }
+
+        if (!state.isGrounded)
+        {
+            // Force landing if we're below ground
+            state.isGrounded = true;
+            state.vz = 0;
+            state.fallTime = 0;
+            LOG_INFO("Forced landing due to below-terrain position");
+        }
+    }
+
+    // Apply position limits for safety
+    if (state.z > PhysicsConstants::MAX_HEIGHT)
+    {
+        LOG_WARN("Position above max height! Clamping to " << PhysicsConstants::MAX_HEIGHT);
+        state.z = PhysicsConstants::MAX_HEIGHT;
+    }
+    else if (state.z < -PhysicsConstants::MAX_HEIGHT)
+    {
+        LOG_WARN("Position below min height! Clamping to " << -PhysicsConstants::MAX_HEIGHT);
+        state.z = -PhysicsConstants::MAX_HEIGHT;
+    }
+
+    // ========== STEP 8: Prepare Output ==========
     output.x = state.x;
     output.y = state.y;
     output.z = state.z;
     output.orientation = state.orientation;
     output.pitch = state.pitch;
-    output.vx = state.vx;
-    output.vy = state.vy;
-    output.vz = state.vz;
-    output.isGrounded = state.isGrounded;
-    output.isSwimming = state.isSwimming;
-    output.isFlying = state.isFlying;
-    output.groundZ = collision.groundZ;
-    output.liquidZ = collision.liquidZ;
-    output.collided = false;
+
+    // Only pass velocity for knockback or falling
+    output.vx = (std::abs(input.vx) > 0.01f) ? input.vx : 0;
+    output.vy = (std::abs(input.vy) > 0.01f) ? input.vy : 0;
+    output.vz = state.isGrounded ? 0 : state.vz;
 
     // Update movement flags
-    std::cout << "Updating movement flags..." << std::endl;
-    std::cout << "  Input flags: 0x" << std::hex << input.moveFlags << std::dec << std::endl;
     output.moveFlags = input.moveFlags;
-
-    if (!state.isGrounded && !state.isSwimming)
+    if (state.isGrounded)
     {
-        std::cout << "  Adding FALLING flag" << std::endl;
-        output.moveFlags |= MOVEFLAG_FALLING;
-    }
-    else
-    {
-        std::cout << "  Removing FALLING flag" << std::endl;
+        output.moveFlags &= ~MOVEFLAG_JUMP;
         output.moveFlags &= ~MOVEFLAG_FALLING;
     }
-
-    if (state.isSwimming)
+    else if (state.vz < 0)
     {
-        std::cout << "  Adding SWIMMING flag" << std::endl;
-        output.moveFlags |= MOVEFLAG_SWIMMING;
-    }
-    else
-    {
-        std::cout << "  Removing SWIMMING flag" << std::endl;
-        output.moveFlags &= ~MOVEFLAG_SWIMMING;
+        output.moveFlags |= MOVEFLAG_FALLING;
     }
 
-    std::cout << "  Output flags: 0x" << std::hex << output.moveFlags << std::dec << std::endl;
+    // Update fall time
+    output.fallTime = state.fallTime;
 
-    // Calculate fall damage info
-    if (!state.isGrounded && !state.isFlying && !state.isSwimming && state.vz < 0)
+    // Add indoor flag if needed (custom flag for debugging)
+    if (finalCollision.isIndoors)
     {
-        output.fallTime = state.fallTime;
-        output.fallDistance = state.fallStartZ - state.z;
-        std::cout << "Falling - Time: " << output.fallTime << ", Distance: " << output.fallDistance << std::endl;
-    }
-    else
-    {
-        output.fallTime = 0;
-        output.fallDistance = 0;
+        LOG_INFO("Player is INDOORS");
     }
 
-    std::cout << "Final Output:" << std::endl;
-    std::cout << "  Position: (" << output.x << ", " << output.y << ", " << output.z << ")" << std::endl;
-    std::cout << "  Velocity: (" << output.vx << ", " << output.vy << ", " << output.vz << ")" << std::endl;
-    std::cout << "  Grounded: " << output.isGrounded << ", Swimming: " << output.isSwimming
-        << ", Flying: " << output.isFlying << std::endl;
-    std::cout << "  MoveFlags: 0x" << std::hex << output.moveFlags << std::dec << std::endl;
-    std::cout << "========== PHYSICS STEP END ==========\n" << std::endl;
+    LOG_INFO("Output Position: (" << output.x << ", " << output.y << ", " << output.z << ")");
+    LOG_INFO("Output Velocity: (" << output.vx << ", " << output.vy << ", " << output.vz << ")");
+    LOG_INFO("Output MoveFlags: 0x" << std::hex << output.moveFlags << std::dec);
+    LOG_INFO("========== PHYSICS STEP END ==========\n");
 
     return output;
 }
@@ -617,61 +818,203 @@ float PhysicsEngine::GetHeight(uint32_t mapId, float x, float y, float z, bool c
 PhysicsEngine::CollisionInfo PhysicsEngine::QueryEnvironment(uint32_t mapId, float x, float y, float z,
     float radius, float height)
 {
-    CollisionInfo info;
+    LOG_INFO("==================== QueryEnvironment START ====================");
+    LOG_INFO("Position: (" << x << ", " << y << ", " << z << ")");
+    LOG_INFO("MapId: " << mapId << ", Radius: " << radius << ", Height: " << height);
 
-    // Get ground height
-    float groundHeight = GetHeight(mapId, x, y, z, true, 50.0f);
-    std::cout << "[Physics::QueryEnvironment] GetHeight returned: " << groundHeight << std::endl;
+    CollisionInfo info = {};
 
-    // Get VMAP height directly for comparison
-    float vmapHeight = GetVMapHeight(mapId, x, y, z, 50.0f);
-    std::cout << "[Physics::QueryEnvironment] GetVMapHeight returned: " << vmapHeight << std::endl;
+    // ========== STEP 1: Check Area Info (WMO/Indoor Detection) ==========
+    LOG_INFO("Checking area info for indoor/WMO detection...");
 
-    // Check if we're indoors (moved BEFORE ground determination)
     uint32_t flags = 0;
     int32_t adtId = 0, rootId = 0, groupId = 0;
-    float checkZ = z;
+    float areaCheckZ = z;  // This will be MODIFIED by getAreaInfo!
     float originalZ = z;
-    std::cout << "[Physics::QueryEnvironment] Calling getAreaInfo with z=" << checkZ << std::endl;
-    m_vmapClient->getAreaInfo(mapId, x, y, checkZ, flags, adtId, rootId, groupId);
-    std::cout << "[Physics::QueryEnvironment] After getAreaInfo: checkZ=" << checkZ
-        << ", flags=0x" << std::hex << flags << std::dec
-        << ", rootId=" << rootId << ", groupId=" << groupId << std::endl;
-    std::cout << "[Physics::QueryEnvironment] Z changed: " << (checkZ != originalZ ? "YES" : "NO")
-        << " (from " << originalZ << " to " << checkZ << ")" << std::endl;
 
-    info.isIndoors = (flags & 0x8) != 0;
-    std::cout << "[Physics::QueryEnvironment] Indoor flag check: flags & 0x8 = " << (flags & 0x8)
-        << " -> isIndoors=" << info.isIndoors << std::endl;
+    if (m_vmapClient)
+    {
+        LOG_INFO("Calling getAreaInfo with Z=" << areaCheckZ);
+        m_vmapClient->getAreaInfo(mapId, x, y, areaCheckZ, flags, adtId, rootId, groupId);
 
-    // Determine ground
-    if (groundHeight > PhysicsConstants::INVALID_HEIGHT) {
-        info.hasGround = true;
-        info.groundZ = groundHeight;
-        std::cout << "[Physics::QueryEnvironment] Using GetHeight ground: " << groundHeight << std::endl;
+        LOG_INFO("After getAreaInfo:");
+        LOG_INFO("  Z changed: " << (areaCheckZ != originalZ ? "YES" : "NO")
+            << " (from " << originalZ << " to " << areaCheckZ << ")");
+        LOG_INFO("  Flags: 0x" << std::hex << flags << std::dec);
+        LOG_INFO("  AdtId: " << adtId << ", RootId: " << rootId << ", GroupId: " << groupId);
+
+        // Check indoor flag (0x8 = outdoor WMO flag, so NOT having it means indoor)
+        info.isIndoors = (flags & 0x8) == 0 && rootId >= 0;
+        LOG_INFO("  Indoor detection: flags & 0x8 = " << (flags & 0x8)
+            << ", rootId = " << rootId
+            << " -> isIndoors = " << info.isIndoors);
+
+        // If Z changed, we found a WMO floor!
+        if (std::abs(areaCheckZ - originalZ) > 0.001f)
+        {
+            LOG_INFO("WMO FLOOR DETECTED via getAreaInfo!");
+            LOG_INFO("  WMO ground height: " << areaCheckZ);
+            info.vmapHeight = areaCheckZ;
+            info.vmapValid = true;
+
+            // This is our primary ground if we're inside a building
+            if (info.isIndoors || areaCheckZ > originalZ - 5.0f)  // Within reasonable range
+            {
+                LOG_INFO("  Using WMO floor as primary ground");
+                info.hasGround = true;
+                info.groundZ = areaCheckZ;
+            }
+        }
+        else
+        {
+            LOG_INFO("No WMO floor found via getAreaInfo (Z unchanged)");
+        }
     }
-    else if (checkZ != originalZ) {
-        // getAreaInfo modified checkZ to ground level - use it regardless of indoor flag
-        info.hasGround = true;
-        info.groundZ = checkZ;
-        std::cout << "[Physics::QueryEnvironment] Using getAreaInfo ground: " << checkZ << std::endl;
+    else
+    {
+        LOG_WARN("No VMapClient available for area info check");
     }
-    else {
+
+    // ========== STEP 2: Get Traditional Height (ADT + VMAP Ray) ==========
+    LOG_INFO("Getting traditional height via GetHeight...");
+
+    float combinedHeight = GetVMapHeight(mapId, x, y, z, 50.0f);
+    LOG_INFO("GetHeight returned: " << combinedHeight);
+
+    // Parse out ADT height separately if needed
+    float adtHeight = GetADTHeight(mapId, x, y, z);
+    LOG_INFO("ADT terrain height: " << adtHeight);
+
+    if (adtHeight > PhysicsConstants::INVALID_HEIGHT)
+    {
+        info.adtHeight = adtHeight;
+        info.adtValid = true;
+        LOG_INFO("ADT height is valid");
+    }
+
+    // ========== STEP 3: Determine Final Ground ==========
+    LOG_INFO("Determining final ground height...");
+
+    // If we already have WMO ground from getAreaInfo, compare with other heights
+    if (info.vmapValid && info.hasGround)
+    {
+        LOG_INFO("Have WMO ground at " << info.groundZ);
+
+        // Check if combined height gives us something different
+        if (combinedHeight > PhysicsConstants::INVALID_HEIGHT &&
+            combinedHeight > info.groundZ + 0.1f)
+        {
+            LOG_INFO("Combined height (" << combinedHeight
+                << ") is higher than WMO floor - might be on upper level");
+
+            // Use the height closer to our current position
+            float distToWmo = std::abs(z - info.groundZ);
+            float distToCombined = std::abs(z - combinedHeight);
+
+            if (distToCombined < distToWmo)
+            {
+                LOG_INFO("Using combined height (closer to current position)");
+                info.groundZ = combinedHeight;
+            }
+            else
+            {
+                LOG_INFO("Keeping WMO floor (closer to current position)");
+            }
+        }
+    }
+    else if (combinedHeight > PhysicsConstants::INVALID_HEIGHT)
+    {
+        // No WMO floor, use traditional height
+        LOG_INFO("No WMO floor - using combined height: " << combinedHeight);
+        info.hasGround = true;
+        info.groundZ = combinedHeight;
+
+        // Try to determine if this is VMAP or ADT
+        if (!info.vmapValid && combinedHeight != adtHeight)
+        {
+            LOG_INFO("Combined height differs from ADT - likely VMAP");
+            info.vmapHeight = combinedHeight;
+            info.vmapValid = true;
+        }
+    }
+    else if (info.adtValid)
+    {
+        // Only ADT available
+        LOG_INFO("Only ADT height available: " << adtHeight);
+        info.hasGround = true;
+        info.groundZ = adtHeight;
+    }
+    else
+    {
+        LOG_WARN("No valid ground found!");
         info.hasGround = false;
         info.groundZ = PhysicsConstants::INVALID_HEIGHT;
-        std::cout << "[Physics::QueryEnvironment] No valid ground found" << std::endl;
     }
 
-    // Get liquid info
-    float liquidFloor = 0.0f;
-    info.hasLiquid = GetLiquidInfo(mapId, x, y, z, info.liquidZ, liquidFloor, info.liquidType);
+    // ========== STEP 4: Check Liquid ==========
+    LOG_INFO("Checking for liquid...");
 
-    std::cout << "[Physics::QueryEnvironment] Map: " << mapId << ", Pos: (" << x << ", " << y << ", " << z << ")" << std::endl;
-    std::cout << "[Physics::QueryEnvironment] Ground: " << (info.hasGround ? "YES" : "NO") << ", Z=" << info.groundZ << std::endl;
-    std::cout << "[Physics::QueryEnvironment] Liquid: " << (info.hasLiquid ? "YES" : "NO")
-        << ", Z=" << info.liquidZ << ", Type=0x" << std::hex << info.liquidType << std::dec << std::endl;
-    std::cout << "[Physics::QueryEnvironment] Indoor: " << (info.isIndoors ? "YES" : "NO") << std::endl;
+    float liquidLevel = PhysicsConstants::INVALID_HEIGHT;
+    float liquidFloor = PhysicsConstants::INVALID_HEIGHT;
 
+    // Check MapLoader (ADT) liquids
+    if (m_mapLoader && m_mapLoader->IsInitialized())
+    {
+        liquidLevel = m_mapLoader->GetLiquidLevel(mapId, x, y);
+        if (liquidLevel > PhysicsConstants::INVALID_HEIGHT)
+        {
+            info.liquidType = m_mapLoader->GetLiquidType(mapId, x, y);
+            info.liquidZ = liquidLevel;
+            info.hasLiquid = true;
+            LOG_INFO("ADT liquid found at height: " << liquidLevel
+                << ", type: 0x" << std::hex << info.liquidType << std::dec);
+        }
+    }
+
+    // Check VMAP liquids (WMO water)
+    if (m_vmapClient && !info.hasLiquid)
+    {
+        if (m_vmapClient->getLiquidLevel(mapId, x, y, z, liquidLevel, liquidFloor))
+        {
+            info.liquidZ = liquidLevel;
+            info.liquidType = 0;  // TODO: Get actual type from VMAP
+            info.hasLiquid = true;
+            LOG_INFO("VMAP liquid found at height: " << liquidLevel);
+        }
+    }
+
+    if (!info.hasLiquid)
+    {
+        LOG_INFO("No liquid found");
+        info.liquidZ = PhysicsConstants::INVALID_HEIGHT;
+    }
+
+    // ========== STEP 5: Final Validation ==========
+    LOG_INFO("Final collision info:");
+    LOG_INFO("  hasGround: " << info.hasGround << ", groundZ: " << info.groundZ);
+    LOG_INFO("  isIndoors: " << info.isIndoors);
+    LOG_INFO("  hasLiquid: " << info.hasLiquid << ", liquidZ: " << info.liquidZ);
+    LOG_INFO("  vmapValid: " << info.vmapValid << ", vmapHeight: " << info.vmapHeight);
+    LOG_INFO("  adtValid: " << info.adtValid << ", adtHeight: " << info.adtHeight);
+
+    // Sanity check - ensure ground is reasonable
+    if (info.hasGround)
+    {
+        if (info.groundZ > PhysicsConstants::MAX_HEIGHT)
+        {
+            LOG_WARN("Ground height exceeds max! Clamping from " << info.groundZ
+                << " to " << PhysicsConstants::MAX_HEIGHT);
+            info.groundZ = PhysicsConstants::MAX_HEIGHT;
+        }
+        else if (info.groundZ < -PhysicsConstants::MAX_HEIGHT)
+        {
+            LOG_WARN("Ground height below min! Clamping from " << info.groundZ
+                << " to " << -PhysicsConstants::MAX_HEIGHT);
+            info.groundZ = -PhysicsConstants::MAX_HEIGHT;
+        }
+    }
+
+    LOG_INFO("==================== QueryEnvironment END ====================\n");
     return info;
 }
 bool PhysicsEngine::GetLiquidInfo(uint32_t mapId, float x, float y, float z, float& liquidLevel, float& liquidFloor, uint32_t& liquidType)
@@ -961,9 +1304,9 @@ PhysicsEngine::MovementState PhysicsEngine::HandleSwimMovement(const PhysicsInpu
     state.vz = moveZ * speed;
 
     // Update position
-    state.x += state.vx * dt;
-    state.y += state.vy * dt;
-    state.z += state.vz * dt;
+    state.x += state.vx * dt / 1000;
+    state.y += state.vy * dt / 1000;
+    state.z += state.vz * dt / 1000;
 
     // Update orientation for turning
     if (input.moveFlags & MOVEFLAG_TURN_LEFT)

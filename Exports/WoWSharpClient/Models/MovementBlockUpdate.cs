@@ -85,7 +85,7 @@ namespace WoWSharpClient.Models
         public float? SwimPitch { get; set; }
 
         // Fall / Jump Info
-        public float FallTime { get; set; }
+        public uint FallTime { get; set; }
         public bool IsFalling => MovementFlags.HasFlag(MovementFlags.MOVEFLAG_JUMPING);
         public float? JumpVerticalSpeed { get; set; }
         public float? JumpSinAngle { get; set; }

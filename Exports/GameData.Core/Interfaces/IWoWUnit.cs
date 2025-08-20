@@ -78,7 +78,7 @@ namespace GameData.Core.Interfaces
         UnitFlags UnitFlags { get; }
         MovementFlags MovementFlags { get; }
         uint MovementFlags2 { get; }
-        float FallTime { get; }
+        uint FallTime { get; }
         float WalkSpeed { get; }
         float RunSpeed { get; }
         float RunBackSpeed { get; }

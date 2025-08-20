@@ -11,7 +11,6 @@ namespace GameData.Core.Interfaces
         IRealmSelectScreen RealmSelectScreen { get; }
         ICharacterSelectScreen CharacterSelectScreen { get; }
         HighGuid PlayerGuid { get; }
-        uint MapId { get; }
         string ZoneText { get; }
         string MinimapZoneText { get; }
         string ServerName { get; }

@@ -62,7 +62,7 @@ namespace BotRunner
                                             {
                                                 IWoWUnit woWUnit = _objectManager.Units.First(x => x.Name == "Dallawha");
 
-                                                float pathingDistance = _pathfindingClient.GetPathingDistance(_objectManager.MapId, _objectManager.Player.Position, woWUnit.Position);
+                                                float pathingDistance = _pathfindingClient.GetPathingDistance(_objectManager.Player.MapId, _objectManager.Player.Position, woWUnit.Position);
                                                 float directDistance = _objectManager.Player.Position.DistanceTo(woWUnit.Position);
 
                                                 //Console.WriteLine($"[BOT] Target: Dallawha | PathDist: {pathingDistance:F2} | DirectDist: {directDistance:F2} | PlayerPos: ({_objectManager.Player.Position.X:F2}, {_objectManager.Player.Position.Y:F2}, {_objectManager.Player.Position.Z:F2}) | TargetPos: ({woWUnit.Position.X:F2}, {woWUnit.Position.Y:F2}, {woWUnit.Position.Z:F2})");
@@ -71,7 +71,7 @@ namespace BotRunner
                                                 {
                                                     //Console.WriteLine($"[BOT] MOVING - Distance {pathingDistance:F2} > 25, requesting path...");
 
-                                                    Position[] positions = _pathfindingClient.GetPath(_objectManager.MapId, _objectManager.Player.Position, woWUnit.Position, true);
+                                                    Position[] positions = _pathfindingClient.GetPath(_objectManager.Player.MapId, _objectManager.Player.Position, woWUnit.Position, true);
 
                                                     //Console.WriteLine($"[BOT] Path received with {positions.Length} waypoints");
 
