@@ -64,7 +64,6 @@ namespace VMAP
         bool GetLiquidHeight(const G3D::Vector3& pos, float& liqHeight) const;
         uint32_t GetType() const { return iType; }
 
-        bool writeToFile(FILE* wf) const;
         static bool readFromFile(FILE* rf, WmoLiquid*& liquid);
 
         void getPosInfo(uint32_t& tilesX, uint32_t& tilesY, G3D::Vector3& corner) const;
@@ -134,8 +133,22 @@ namespace VMAP
 
             bool operator()(G3D::Ray const& ray, uint32_t entry, float& distance, bool /*stopAtFirstHit*/, bool /*ignoreM2Model*/)
             {
+                LOG_TRACE("[GModelRayCallback] Testing triangle entry " << entry
+                    << " with distance " << distance);
+
                 bool result = GroupModel::IntersectTriangle(triangles[entry], vertices, ray, distance);
-                if (result) ++hit;
+
+                if (result)
+                {
+                    ++hit;
+                    LOG_INFO("[GModelRayCallback] Triangle " << entry << " HIT! Total hits: " << hit
+                        << " New distance: " << distance);
+                }
+                else
+                {
+                    LOG_TRACE("[GModelRayCallback] Triangle " << entry << " miss");
+                }
+
                 return result;
             }
 

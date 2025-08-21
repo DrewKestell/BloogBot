@@ -13,6 +13,26 @@
 
 namespace VMAP
 {
+	class MapRayCallback
+	{
+	public:
+		MapRayCallback(ModelInstance* val) : prims(val), hit(false) {}
+		bool operator()(G3D::Ray const& ray, uint32_t entry, float& distance, bool pStopAtFirstHit = true, bool ignoreM2Model = false)
+		{
+			bool result = prims[entry].intersectRay(ray, distance, pStopAtFirstHit, ignoreM2Model);
+			if (result)
+				hit = true;
+			return result;
+		}
+		bool didHit() const
+		{
+			return hit;
+		}
+	protected:
+		ModelInstance* prims;
+		bool hit;
+		bool los;
+	};
 	// Constructor
 	StaticMapTree::StaticMapTree(uint32_t mapId, const std::string& basePath)
 		: iMapID(mapId), iBasePath(basePath), iIsTiled(false),
@@ -450,7 +470,6 @@ namespace VMAP
 		return false;
 	}
 
-	// StaticMapTree.cpp - Fixed GetLocationInfo to use BIH traversal
 	bool StaticMapTree::GetLocationInfo(const G3D::Vector3& pos, LocationInfo& info) const
 	{
 		if (!iTreeValues || iNTreeValues == 0)
@@ -496,48 +515,14 @@ namespace VMAP
 		return false;
 	}
 
-	bool StaticMapTree::getIntersectionTime(const G3D::Ray& ray, float& maxDist,
-		bool stopAtFirstHit, bool ignoreM2Model) const
+	bool StaticMapTree::getIntersectionTime(G3D::Ray const& pRay, float& pMaxDist, bool pStopAtFirstHit, bool ignoreM2Model) const
 	{
-		if (!iTreeValues || iNTreeValues == 0)
-		{
-			return false;
-		}
-
-		int testedModels = 0;
-		int hitModels = 0;
-
-		auto intersectCallback = [this, ignoreM2Model, &testedModels, &hitModels](const G3D::Ray& r, uint32_t idx,
-			float& d, bool stopAtFirst, bool ignoreM2) -> bool
-			{
-				if (!iTreeValues || idx >= iNTreeValues)
-				{
-					return false;
-				}
-
-				// Only test models that are actually loaded
-				if (!iTreeValues[idx].iModel)
-				{
-					return false;
-				}
-
-				testedModels++;
-				float oldDist = d;
-				bool hit = iTreeValues[idx].intersectRay(r, d, stopAtFirst, ignoreM2);
-
-				if (hit)
-				{
-					hitModels++;
-				}
-
-				return hit;
-			};
-
-		float oldDist = maxDist;
-
-		iTree.intersectRay(ray, intersectCallback, maxDist, stopAtFirstHit, ignoreM2Model);
-
-		return maxDist < oldDist;
+		float distance = pMaxDist;
+		MapRayCallback intersectionCallBack(iTreeValues);
+		iTree.intersectRay(pRay, intersectionCallBack, distance, pStopAtFirstHit, ignoreM2Model);
+		if (intersectionCallBack.didHit())
+			pMaxDist = distance;
+		return intersectionCallBack.didHit();
 	}
 
 	uint32_t StaticMapTree::packTileID(uint32_t tileX, uint32_t tileY)

@@ -1,4 +1,4 @@
-// PhysicsEngine.h - Refactored to use VMapManager2 directly
+// PhysicsEngine.h - WoW physics without friction, orientation updates, or air control
 #pragma once
 
 #include "PhysicsBridge.h"
@@ -37,13 +37,6 @@ namespace PhysicsConstants
     constexpr float SAFE_FALL_HEIGHT = 10.0f;
     constexpr float LETHAL_FALL_HEIGHT = 60.0f;
 
-    // Movement constants
-    constexpr float TURN_SPEED = 3.14159f;  // Radians per second
-    constexpr float AIR_CONTROL_FACTOR = 0.1f;  // Reduced control while airborne
-
-    // Spline movement
-    constexpr float SPLINE_SMOOTH_FACTOR = 0.5f;
-
     // Height constants - using -200000.0f for everything
     constexpr float INVALID_HEIGHT = -200000.0f;
     constexpr float MAX_HEIGHT = 100000.0f;
@@ -61,13 +54,9 @@ private:
     Navigation* m_navigation;
     bool m_initialized;
 
-    // Configuration flags (matching vMaNGOS)
-    bool m_vmapHeightEnabled;
-    bool m_vmapIndoorCheckEnabled;
-    bool m_vmapLOSEnabled;
-
     uint32_t m_currentMapId;  // Track currently loaded map
-    void EnsureMapLoaded(uint32_t mapId);  // Add this method
+    void EnsureMapLoaded(uint32_t mapId);  // Ensure map tiles are loaded
+
     // Helper structures
     struct CollisionInfo
     {
@@ -90,11 +79,10 @@ private:
     {
         float x, y, z;
         float vx, vy, vz;
-        float orientation;
-        float pitch;
+        float orientation;  // Pass-through from input, never modified
+        float pitch;        // Pass-through from input, never modified
         bool isGrounded;
         bool isSwimming;
-        bool isFlying;
         float fallTime;
         float fallStartZ;
     };
@@ -107,11 +95,10 @@ private:
     MovementState HandleGroundMovement(const PhysicsInput& input, MovementState& state, float dt);
     MovementState HandleAirMovement(const PhysicsInput& input, MovementState& state, float dt);
     MovementState HandleSwimMovement(const PhysicsInput& input, MovementState& state, float dt);
-    MovementState HandleSplineMovement(const PhysicsInput& input, MovementState& state, float dt);
 
     // Height calculation methods (vMaNGOS-style)
     float GetVMapHeight(uint32_t mapId, float x, float y, float z, float maxSearchDist);
-    float GetADTHeight(uint32_t mapId, float x, float y, float z);  // Changed from GetNavMeshHeight
+    float GetADTHeight(uint32_t mapId, float x, float y, float z);
     bool GetLiquidInfo(uint32_t mapId, float x, float y, float z, float& liquidLevel, float& liquidFloor, uint32_t& liquidType);
 
     // Height selection logic (vMaNGOS-style)
@@ -125,15 +112,9 @@ private:
     void ResolveCollisions(uint32_t mapId, MovementState& state, float radius, float height);
 
     // Movement helpers
-    float CalculateMoveSpeed(const PhysicsInput& input, bool isSwimming, bool isFlying);
+    float CalculateMoveSpeed(const PhysicsInput& input, bool isSwimming);
     void ApplyGravity(MovementState& state, float dt);
-    void ApplyFriction(MovementState& state, float friction, float dt);
     void ApplyKnockback(MovementState& state, float vx, float vy, float vz);
-    void UpdateOrientation(MovementState& state, float targetOrientation, float turnSpeed, float dt);
-
-    // Spline helpers
-    void CalculateSplineVelocity(const PhysicsInput& input, MovementState& state);
-    float GetSplineProgress(float x, float y, float z, const float* points, int index);
 
 public:
     static PhysicsEngine* Instance();
@@ -149,13 +130,4 @@ public:
     bool IsInWater(uint32_t mapId, float x, float y, float z, float height);
     bool CanWalkOn(uint32_t mapId, float x, float y, float z);
     float GetHeight(uint32_t mapId, float x, float y, float z, bool checkVMap, float maxSearchDist);
-    float GetFallDamage(float fallDistance, bool hasSafeFall);
-
-    // Configuration
-    void SetVMapHeightEnabled(bool enabled) { m_vmapHeightEnabled = enabled; }
-    void SetVMapIndoorCheckEnabled(bool enabled) { m_vmapIndoorCheckEnabled = enabled; }
-    void SetVMapLOSEnabled(bool enabled) { m_vmapLOSEnabled = enabled; }
-    bool IsVMapHeightEnabled() const { return m_vmapHeightEnabled; }
-    bool IsVMapIndoorCheckEnabled() const { return m_vmapIndoorCheckEnabled; }
-    bool IsVMapLOSEnabled() const { return m_vmapLOSEnabled; }
 };

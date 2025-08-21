@@ -1,4 +1,4 @@
-// BIH.inl - Fixed BIH ray traversal with proper axis-aligned ray handling
+// BIH.inl - Updated with extensive logging
 #pragma once
 #include "VMapDefinitions.h"
 #include "VMapLog.h"
@@ -7,53 +7,6 @@
 #include <string>
 #include <iomanip>
 #include <cmath>
-
-// Build template implementation
-template<class BoundsFunc, class PrimArray>
-void BIH::build(PrimArray const& primitives, BoundsFunc& getBounds, uint32_t leafSize, bool printStats)
-{
-    if (primitives.size() == 0)
-    {
-        init_empty();
-        return;
-    }
-
-    buildData dat;
-    dat.maxPrims = leafSize;
-    dat.numPrims = primitives.size();
-    dat.indices = new uint32_t[dat.numPrims];
-    dat.primBound = new G3D::AABox[dat.numPrims];
-
-    // Initialize bounds with first primitive
-    getBounds(primitives[0], bounds);
-
-    // Process all primitives
-    for (uint32_t i = 0; i < dat.numPrims; ++i)
-    {
-        dat.indices[i] = i;
-        getBounds(primitives[i], dat.primBound[i]);
-        bounds.merge(dat.primBound[i]);
-    }
-
-    std::vector<uint32_t> tempTree;
-    BuildStats stats;
-    buildHierarchy(tempTree, dat, stats);
-
-    if (printStats)
-        stats.printStats();
-
-    // Copy indices to objects array
-    objects.resize(dat.numPrims);
-    for (uint32_t i = 0; i < dat.numPrims; ++i)
-        objects[i] = dat.indices[i];
-
-    // Copy temp tree to final tree
-    tree = tempTree;
-
-    // Clean up
-    delete[] dat.primBound;
-    delete[] dat.indices;
-}
 
 // Ray intersection template implementation
 template<typename RayCallback>
@@ -74,7 +27,7 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
     // Calculate initial ray-box intersection with overall bounds
     for (int i = 0; i < 3; ++i)
     {
-        if (G3D::fuzzyNe(dir[i], 0.0f))  // Use fuzzyNe like original
+        if (G3D::fuzzyNe(dir[i], 0.0f))
         {
             float t1 = (bounds.low()[i] - org[i]) * invDir[i];
             float t2 = (bounds.high()[i] - org[i]) * invDir[i];
@@ -106,13 +59,10 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
 
     for (int i = 0; i < 3; ++i)
     {
-        // Use sign bit extraction (original vMaNGOS style)
         offsetFront[i] = VMAP::floatToRawIntBits(dir[i]) >> 31;
         offsetBack[i] = offsetFront[i] ^ 1;
         offsetFront3[i] = offsetFront[i] * 3;
         offsetBack3[i] = offsetBack[i] * 3;
-
-        // Avoid always adding 1 during the inner loop
         ++offsetFront[i];
         ++offsetBack[i];
     }
@@ -121,11 +71,15 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
     StackNode stack[MAX_STACK_SIZE];
     int stackPos = 0;
     int node = 0;
+    int nodesVisited = 0;
+    int leavesProcessed = 0;
+    int objectsTested = 0;
 
     while (true)
     {
         while (true)
         {
+            nodesVisited++;
             uint32_t tn = tree[node];
             uint32_t axis = (tn >> 30) & 3;
             bool BVH2 = tn & (1 << 29);
@@ -177,11 +131,16 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
                 else
                 {
                     // leaf - test some objects
+                    leavesProcessed++;
                     int n = tree[node + 1];
 
                     while (n > 0)
                     {
-                        bool hit = intersectCallback(r, objects[offset], maxDist, stopAtFirstHit, ignoreM2Model);
+                        objectsTested++;
+                        uint32_t objIdx = objects[offset];
+
+                        bool hit = intersectCallback(r, objIdx, maxDist, stopAtFirstHit, ignoreM2Model);
+
                         if (stopAtFirstHit && hit)
                         {
                             return;
@@ -195,7 +154,9 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
             else  // BVH2 node
             {
                 if (axis > 2)
-                    return; // should not happen
+                {
+                    return;
+                }
 
                 float tf = (VMAP::intBitsToFloat(tree[node + offsetFront[axis]]) - org[axis]) * invDir[axis];
                 float tb = (VMAP::intBitsToFloat(tree[node + offsetBack[axis]]) - org[axis]) * invDir[axis];
@@ -205,7 +166,9 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
                 intervalMax = (tb <= intervalMax) ? tb : intervalMax;
 
                 if (intervalMin > intervalMax)
+                {
                     break;
+                }
 
                 continue;
             }
@@ -224,10 +187,13 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
             intervalMin = stack[stackPos].tnear;
 
             if (maxDist < intervalMin)
+            {
                 continue;
+            }
 
             node = stack[stackPos].node;
             intervalMax = stack[stackPos].tfar;
+
             break;
         } while (true);
     }
@@ -245,7 +211,6 @@ void BIH::intersectPoint(const G3D::Vector3& p, IsectCallback& intersectCallback
     StackNode stack[MAX_STACK_SIZE];
     int stackPos = 0;
     int node = 0;
-
     int nodesVisited = 0;
     int leavesChecked = 0;
     int objectsTested = 0;
@@ -254,6 +219,7 @@ void BIH::intersectPoint(const G3D::Vector3& p, IsectCallback& intersectCallback
     {
         while (true)
         {
+            nodesVisited++;
             uint32_t tn = tree[node];
             uint32_t axis = (tn >> 30) & 3;
             bool const BVH2 = tn & (1 << 29);
@@ -298,10 +264,12 @@ void BIH::intersectPoint(const G3D::Vector3& p, IsectCallback& intersectCallback
                 }
                 else
                 {
+                    leavesChecked++;
                     int n = tree[node + 1];
 
                     while (n > 0)
                     {
+                        objectsTested++;
                         uint32_t objIdx = objects[offset];
 
                         intersectCallback(p, objIdx);
@@ -316,7 +284,7 @@ void BIH::intersectPoint(const G3D::Vector3& p, IsectCallback& intersectCallback
             {
                 if (axis > 2)
                 {
-                    return; // should not happen
+                    return;
                 }
 
                 float tl = VMAP::intBitsToFloat(tree[node + 1]);
@@ -334,13 +302,11 @@ void BIH::intersectPoint(const G3D::Vector3& p, IsectCallback& intersectCallback
         } // traversal loop
 
         // Pop from stack
-        // stack is empty?
         if (stackPos == 0)
         {
             return;
         }
 
-        // move back up the stack
         --stackPos;
         node = stack[stackPos].node;
     }
