@@ -1,8 +1,8 @@
-﻿// PhysicsEngine.cpp
+﻿// PhysicsEngine.cpp - Refactored to use VMapManager2 directly
 #include "PhysicsEngine.h"
 #include "VMapDefinitions.h"
 #include "Navigation.h"
-#include "VMapClient.h"
+#include "VMapManager2.h"
 #include "VMapFactory.h"
 #include "MapLoader.h"
 #include "VMapLog.h"
@@ -45,7 +45,8 @@ PhysicsEngine::PhysicsEngine()
 	m_vmapHeightEnabled(true),
 	m_vmapIndoorCheckEnabled(true),
 	m_vmapLOSEnabled(true),
-	m_currentMapId(UINT32_MAX)  // Add this to track loaded map
+	m_currentMapId(UINT32_MAX),
+	m_vmapManager(nullptr)
 {
 }
 
@@ -76,47 +77,42 @@ void PhysicsEngine::Initialize()
 			}
 		}
 
-		// Initialize VMAP system with better error handling
+		// Initialize VMAP system directly using VMapManager2
 		try
 		{
-			m_vmapClient = std::make_unique<VMapClient>();
+			// Get or create the VMapManager2 instance through the factory
+			m_vmapManager = static_cast<VMAP::VMapManager2*>(
+				VMAP::VMapFactory::createOrGetVMapManager());
 
-			if (m_vmapClient)
+			if (m_vmapManager)
 			{
-				try
-				{
-					m_vmapClient->initialize();
+				// Initialize the factory and set up paths
+				VMAP::VMapFactory::initialize();
 
-					if (!m_vmapClient->isInitialized())
-					{
-						m_vmapClient.reset();
-					}
-				}
-				catch (const std::exception& e)
+				// Find and set the vmaps path
+				std::vector<std::string> vmapPaths = { "vmaps/", "Data/vmaps/", "../Data/vmaps/" };
+				for (const auto& path : vmapPaths)
 				{
-					m_vmapClient.reset();
+					if (std::filesystem::exists(path))
+					{
+						m_vmapManager->setBasePath(path);
+						break;
+					}
 				}
 			}
 		}
-		catch (const std::bad_alloc& e)
-		{
-			m_vmapClient.reset();
-		}
 		catch (const std::exception& e)
 		{
-			m_vmapClient.reset();
+			m_vmapManager = nullptr;
 		}
-
-		// DON'T preload all maps - let them load on demand
-		// Remove the entire map preloading section
 
 		// Get navigation instance
 		m_navigation = Navigation::GetInstance();
 
 		// Set default configuration matching vMaNGOS
-		m_vmapHeightEnabled = (m_vmapClient != nullptr);
-		m_vmapIndoorCheckEnabled = (m_vmapClient != nullptr);
-		m_vmapLOSEnabled = (m_vmapClient != nullptr);
+		m_vmapHeightEnabled = (m_vmapManager != nullptr);
+		m_vmapIndoorCheckEnabled = (m_vmapManager != nullptr);
+		m_vmapLOSEnabled = (m_vmapManager != nullptr);
 
 		m_initialized = true;
 	}
@@ -132,7 +128,8 @@ void PhysicsEngine::Initialize()
 
 void PhysicsEngine::Shutdown()
 {
-	m_vmapClient.reset();
+	// Don't delete m_vmapManager as it's managed by the factory
+	m_vmapManager = nullptr;
 	m_mapLoader.reset();
 	m_currentMapId = UINT32_MAX;
 	m_initialized = false;
@@ -143,20 +140,23 @@ void PhysicsEngine::EnsureMapLoaded(uint32_t mapId)
 {
 	if (m_currentMapId != mapId)
 	{
-		if (m_vmapClient)
+		if (m_vmapManager)
 		{
-			m_vmapClient->preloadMap(mapId);
+			// Initialize the map if not already done
+			if (!m_vmapManager->isMapInitialized(mapId))
+			{
+				m_vmapManager->initializeMap(mapId);
+			}
 		}
 
 		m_currentMapId = mapId;
 	}
 }
 
-
 // Main vMaNGOS-style GetHeight implementation
 float PhysicsEngine::GetVMapHeight(uint32_t mapId, float x, float y, float z, float maxSearchDist)
 {
-	if (!m_vmapClient)
+	if (!m_vmapManager)
 	{
 		return PhysicsConstants::INVALID_HEIGHT;
 	}
@@ -166,7 +166,16 @@ float PhysicsEngine::GetVMapHeight(uint32_t mapId, float x, float y, float z, fl
 		return PhysicsConstants::INVALID_HEIGHT;
 	}
 
-	return m_vmapClient->getGroundHeight(mapId, x, y, z, maxSearchDist);
+	// Calculate tile coordinates
+	const float GRID_SIZE = 533.33333f;
+	const float MID = 32.0f * GRID_SIZE;
+	int tileX = (int)((MID - y) / GRID_SIZE);
+	int tileY = (int)((MID - x) / GRID_SIZE);
+
+	// Load the tile
+	m_vmapManager->loadMap(nullptr, mapId, tileX, tileY);
+
+	return m_vmapManager->getHeight(mapId, x, y, z, maxSearchDist);
 }
 
 // Get height from ADT terrain data
@@ -217,6 +226,393 @@ float PhysicsEngine::SelectBestHeight(float vmapHeight, float adtHeight, float c
 		<< " (higher value)");
 	return selectedHeight;
 }
+
+float PhysicsEngine::GetHeight(uint32_t mapId, float x, float y, float z, bool checkVMap, float maxSearchDist)
+{
+	// Add comprehensive logging
+	LOG_INFO("==================== PhysicsEngine::GetHeight START ====================");
+	LOG_INFO("GetHeight called - Map:" << mapId
+		<< " Pos:(" << x << "," << y << "," << z << ")"
+		<< " checkVMap:" << checkVMap
+		<< " maxSearchDist:" << maxSearchDist);
+
+	// Get terrain height from ADT data
+	LOG_DEBUG("Getting ADT terrain height...");
+	float adtHeight = GetADTHeight(mapId, x, y, z);
+	LOG_INFO("ADT height: " << adtHeight);
+
+	if (!checkVMap || !m_vmapHeightEnabled)
+	{
+		LOG_INFO("Returning ADT height only - checkVMap:" << checkVMap
+			<< " vmapEnabled:" << m_vmapHeightEnabled);
+		LOG_INFO("==================== PhysicsEngine::GetHeight END ====================");
+		return adtHeight;
+	}
+
+	// Get VMAP height
+	LOG_DEBUG("Getting VMAP height...");
+
+	// Ensure the map and tile are loaded before querying
+	LOG_INFO("Ensuring map is loaded before VMAP query...");
+	EnsureMapLoaded(mapId);
+
+	// Calculate which tile we need and try to load it
+	if (m_vmapManager)
+	{
+		const float GRID_SIZE = 533.33333f;
+		const float MID = 32.0f * GRID_SIZE;
+		int tileX = (int)((MID - y) / GRID_SIZE);
+		int tileY = (int)((MID - x) / GRID_SIZE);
+
+		LOG_INFO("Position (" << x << "," << y << ") requires tile [" << tileX << "," << tileY << "]");
+		LOG_INFO("Attempting to load tile...");
+
+		VMAP::VMAPLoadResult result = m_vmapManager->loadMap(nullptr, mapId, tileX, tileY);
+		LOG_INFO("Tile load attempt: " << (result == VMAP::VMAP_LOAD_RESULT_OK ? "SUCCESS" : "FAILED"));
+	}
+
+	float vmapHeight = GetVMapHeight(mapId, x, y, z, maxSearchDist);
+	LOG_INFO("VMAP height: " << vmapHeight);
+
+	// Select best height using vMaNGOS logic
+	LOG_DEBUG("Selecting best height between VMAP and ADT...");
+	float finalHeight = SelectBestHeight(vmapHeight, adtHeight, z, maxSearchDist);
+
+	LOG_INFO("Final height selected: " << finalHeight);
+	LOG_INFO("  ADT valid: " << (adtHeight > PhysicsConstants::INVALID_HEIGHT ? "YES" : "NO"));
+	LOG_INFO("  VMAP valid: " << (vmapHeight > PhysicsConstants::INVALID_HEIGHT ? "YES" : "NO"));
+	LOG_INFO("  Selection logic: " <<
+		(finalHeight == vmapHeight ? "VMAP" :
+			finalHeight == adtHeight ? "ADT" : "INVALID"));
+
+	LOG_INFO("==================== PhysicsEngine::GetHeight END ====================");
+	return finalHeight;
+}
+
+PhysicsEngine::CollisionInfo PhysicsEngine::QueryEnvironment(uint32_t mapId, float x, float y, float z,
+	float radius, float height)
+{
+	LOG_INFO("==================== QueryEnvironment START ====================");
+	LOG_INFO("Position: (" << x << ", " << y << ", " << z << ")");
+	LOG_INFO("MapId: " << mapId << ", Radius: " << radius << ", Height: " << height);
+
+	CollisionInfo info = {};
+
+	// ========== STEP 1: Check Area Info (WMO/Indoor Detection) ==========
+	LOG_INFO("Checking area info for indoor/WMO detection...");
+
+	uint32_t flags = 0;
+	int32_t adtId = 0, rootId = 0, groupId = 0;
+	float areaCheckZ = z;  // This will be MODIFIED by getAreaInfo!
+	float originalZ = z;
+
+	if (m_vmapManager)
+	{
+		LOG_INFO("Calling getAreaInfo with Z=" << areaCheckZ);
+		m_vmapManager->getAreaInfo(mapId, x, y, areaCheckZ, flags, adtId, rootId, groupId);
+
+		LOG_INFO("After getAreaInfo:");
+		LOG_INFO("  Z changed: " << (areaCheckZ != originalZ ? "YES" : "NO")
+			<< " (from " << originalZ << " to " << areaCheckZ << ")");
+		LOG_INFO("  Flags: 0x" << std::hex << flags << std::dec);
+		LOG_INFO("  AdtId: " << adtId << ", RootId: " << rootId << ", GroupId: " << groupId);
+
+		// Check indoor flag (0x8 = outdoor WMO flag, so NOT having it means indoor)
+		info.isIndoors = (flags & 0x8) == 0 && rootId >= 0;
+		LOG_INFO("  Indoor detection: flags & 0x8 = " << (flags & 0x8)
+			<< ", rootId = " << rootId
+			<< " -> isIndoors = " << info.isIndoors);
+
+		// If Z changed, we found a WMO floor!
+		if (std::abs(areaCheckZ - originalZ) > 0.001f)
+		{
+			LOG_INFO("WMO FLOOR DETECTED via getAreaInfo!");
+			LOG_INFO("  WMO ground height: " << areaCheckZ);
+			info.vmapHeight = areaCheckZ;
+			info.vmapValid = true;
+
+			// This is our primary ground if we're inside a building
+			if (info.isIndoors || areaCheckZ > originalZ - 5.0f)  // Within reasonable range
+			{
+				LOG_INFO("  Using WMO floor as primary ground");
+				info.hasGround = true;
+				info.groundZ = areaCheckZ;
+			}
+		}
+		else
+		{
+			LOG_INFO("No WMO floor found via getAreaInfo (Z unchanged)");
+		}
+	}
+	else
+	{
+		LOG_WARN("No VMapManager available for area info check");
+	}
+
+	// ========== STEP 2: Get Traditional Height (ADT + VMAP Ray) ==========
+	LOG_INFO("Getting traditional height via GetHeight...");
+
+	float combinedHeight = GetVMapHeight(mapId, x, y, z, 50.0f);
+	LOG_INFO("GetHeight returned: " << combinedHeight);
+
+	// Parse out ADT height separately if needed
+	float adtHeight = GetADTHeight(mapId, x, y, z);
+	LOG_INFO("ADT terrain height: " << adtHeight);
+
+	if (adtHeight > PhysicsConstants::INVALID_HEIGHT)
+	{
+		info.adtHeight = adtHeight;
+		info.adtValid = true;
+		LOG_INFO("ADT height is valid");
+	}
+
+	// ========== STEP 3: Determine Final Ground ==========
+	LOG_INFO("Determining final ground height...");
+
+	// If we already have WMO ground from getAreaInfo, compare with other heights
+	if (info.vmapValid && info.hasGround)
+	{
+		LOG_INFO("Have WMO ground at " << info.groundZ);
+
+		// Check if combined height gives us something different
+		if (combinedHeight > PhysicsConstants::INVALID_HEIGHT &&
+			combinedHeight > info.groundZ + 0.1f)
+		{
+			LOG_INFO("Combined height (" << combinedHeight
+				<< ") is higher than WMO floor - might be on upper level");
+
+			// Use the height closer to our current position
+			float distToWmo = std::abs(z - info.groundZ);
+			float distToCombined = std::abs(z - combinedHeight);
+
+			if (distToCombined < distToWmo)
+			{
+				LOG_INFO("Using combined height (closer to current position)");
+				info.groundZ = combinedHeight;
+			}
+			else
+			{
+				LOG_INFO("Keeping WMO floor (closer to current position)");
+			}
+		}
+	}
+	else if (combinedHeight > PhysicsConstants::INVALID_HEIGHT)
+	{
+		// No WMO floor, use traditional height
+		LOG_INFO("No WMO floor - using combined height: " << combinedHeight);
+		info.hasGround = true;
+		info.groundZ = combinedHeight;
+
+		// Try to determine if this is VMAP or ADT
+		if (!info.vmapValid && combinedHeight != adtHeight)
+		{
+			LOG_INFO("Combined height differs from ADT - likely VMAP");
+			info.vmapHeight = combinedHeight;
+			info.vmapValid = true;
+		}
+	}
+	else if (info.adtValid)
+	{
+		// Only ADT available
+		LOG_INFO("Only ADT height available: " << adtHeight);
+		info.hasGround = true;
+		info.groundZ = adtHeight;
+	}
+	else
+	{
+		LOG_WARN("No valid ground found!");
+		info.hasGround = false;
+		info.groundZ = PhysicsConstants::INVALID_HEIGHT;
+	}
+
+	// ========== STEP 4: Check Liquid ==========
+	LOG_INFO("Checking for liquid...");
+
+	float liquidLevel = PhysicsConstants::INVALID_HEIGHT;
+	float liquidFloor = PhysicsConstants::INVALID_HEIGHT;
+
+	// Check MapLoader (ADT) liquids
+	if (m_mapLoader && m_mapLoader->IsInitialized())
+	{
+		liquidLevel = m_mapLoader->GetLiquidLevel(mapId, x, y);
+		if (liquidLevel > PhysicsConstants::INVALID_HEIGHT)
+		{
+			info.liquidType = m_mapLoader->GetLiquidType(mapId, x, y);
+			info.liquidZ = liquidLevel;
+			info.hasLiquid = true;
+			LOG_INFO("ADT liquid found at height: " << liquidLevel
+				<< ", type: 0x" << std::hex << info.liquidType << std::dec);
+		}
+	}
+
+	// Check VMAP liquids (WMO water)
+	if (m_vmapManager && !info.hasLiquid)
+	{
+		uint32_t liquidType;
+		if (m_vmapManager->GetLiquidLevel(mapId, x, y, z, 0xFF, liquidLevel, liquidFloor, liquidType))
+		{
+			info.liquidZ = liquidLevel;
+			info.liquidType = liquidType;
+			info.hasLiquid = true;
+			LOG_INFO("VMAP liquid found at height: " << liquidLevel);
+		}
+	}
+
+	if (!info.hasLiquid)
+	{
+		LOG_INFO("No liquid found");
+		info.liquidZ = PhysicsConstants::INVALID_HEIGHT;
+	}
+
+	// ========== STEP 5: Final Validation ==========
+	LOG_INFO("Final collision info:");
+	LOG_INFO("  hasGround: " << info.hasGround << ", groundZ: " << info.groundZ);
+	LOG_INFO("  isIndoors: " << info.isIndoors);
+	LOG_INFO("  hasLiquid: " << info.hasLiquid << ", liquidZ: " << info.liquidZ);
+	LOG_INFO("  vmapValid: " << info.vmapValid << ", vmapHeight: " << info.vmapHeight);
+	LOG_INFO("  adtValid: " << info.adtValid << ", adtHeight: " << info.adtHeight);
+
+	// Sanity check - ensure ground is reasonable
+	if (info.hasGround)
+	{
+		if (info.groundZ > PhysicsConstants::MAX_HEIGHT)
+		{
+			LOG_WARN("Ground height exceeds max! Clamping from " << info.groundZ
+				<< " to " << PhysicsConstants::MAX_HEIGHT);
+			info.groundZ = PhysicsConstants::MAX_HEIGHT;
+		}
+		else if (info.groundZ < -PhysicsConstants::MAX_HEIGHT)
+		{
+			LOG_WARN("Ground height below min! Clamping from " << info.groundZ
+				<< " to " << -PhysicsConstants::MAX_HEIGHT);
+			info.groundZ = -PhysicsConstants::MAX_HEIGHT;
+		}
+	}
+
+	LOG_INFO("==================== QueryEnvironment END ====================\n");
+	return info;
+}
+
+bool PhysicsEngine::GetLiquidInfo(uint32_t mapId, float x, float y, float z, float& liquidLevel, float& liquidFloor, uint32_t& liquidType)
+{
+	// First try to get liquid from MapLoader (ADT data)
+	if (m_mapLoader && m_mapLoader->IsInitialized())
+	{
+		liquidLevel = m_mapLoader->GetLiquidLevel(mapId, x, y);
+		if (liquidLevel > PhysicsConstants::INVALID_HEIGHT)
+		{
+			liquidType = m_mapLoader->GetLiquidType(mapId, x, y);
+			// Convert to vmangos liquid mask
+
+			liquidFloor = liquidLevel - 2.0f;  // Estimate floor
+			return true;
+		}
+	}
+
+	// Then try VMAP for WMO liquids
+	if (m_vmapManager)
+	{
+		try
+		{
+			if (m_vmapManager->GetLiquidLevel(mapId, x, y, z, 0xFF, liquidLevel, liquidFloor, liquidType))
+			{
+				// liquidType is already set by GetLiquidLevel
+				return true;
+			}
+		}
+		catch (const std::exception& e)
+		{
+		}
+	}
+
+	return false;
+}
+
+float PhysicsEngine::GetLiquidHeight(uint32_t mapId, float x, float y, float z, uint32_t& liquidType)
+{
+	// First try to get liquid from MapLoader (ADT data)
+	if (m_mapLoader && m_mapLoader->IsInitialized())
+	{
+		float liquidLevel = m_mapLoader->GetLiquidLevel(mapId, x, y);
+		if (liquidLevel > PhysicsConstants::INVALID_HEIGHT)
+		{
+			liquidType = m_mapLoader->GetLiquidType(mapId, x, y);
+			return liquidLevel;
+		}
+	}
+
+	// Then try VMAP for WMO liquids
+	if (m_vmapManager)
+	{
+		try
+		{
+			float liquidLevel, liquidFloor;
+			uint32_t vmapLiquidType;
+			if (m_vmapManager->GetLiquidLevel(mapId, x, y, z, 0xFF, liquidLevel, liquidFloor, vmapLiquidType))
+			{
+				liquidType = vmapLiquidType;
+				return liquidLevel;
+			}
+		}
+		catch (const std::exception& e)
+		{
+		}
+	}
+
+	return PhysicsConstants::INVALID_HEIGHT;
+}
+
+void PhysicsEngine::ResolveCollisions(uint32_t mapId, MovementState& state, float radius, float height)
+{
+	// For now, disable collision resolution entirely since it's causing false positives
+	// This is temporary until we can properly tune the collision detection
+	return;
+}
+
+bool PhysicsEngine::CheckCollision(uint32_t mapId, float startX, float startY, float startZ,
+	float endX, float endY, float endZ, float radius, float height,
+	float& hitX, float& hitY, float& hitZ)
+{
+	// Temporarily disable collision checking until we can fix false positives
+	return false;
+}
+
+bool PhysicsEngine::IsGrounded(uint32_t mapId, float x, float y, float z, float radius, float height)
+{
+	EnsureMapLoaded(mapId);
+	float groundZ = GetHeight(mapId, x, y, z, true, DEFAULT_HEIGHT_SEARCH);
+
+	if (groundZ <= PhysicsConstants::INVALID_HEIGHT)
+		return false;
+
+	float distToGround = z - groundZ;
+
+	// Check if within step height (2.0f) of ground
+	bool grounded = (distToGround >= 0 && distToGround < STEP_HEIGHT) ||
+		std::abs(distToGround) < GROUND_HEIGHT_TOLERANCE;
+
+	return grounded;
+}
+
+bool PhysicsEngine::IsInWater(uint32_t mapId, float x, float y, float z, float height)
+{
+	EnsureMapLoaded(mapId);
+	uint32_t liquidType;
+	float liquidZ = GetLiquidHeight(mapId, x, y, z, liquidType);
+
+	if (liquidZ <= PhysicsConstants::INVALID_HEIGHT)
+		return false;
+
+	// Match server logic: 2.0 units below surface = swimming
+	// Add small tolerance for floating point precision
+	const float SWIM_DEPTH_THRESHOLD = 2.0f;
+	float depth = liquidZ - z;
+
+	return depth >= SWIM_DEPTH_THRESHOLD - 0.05f; // Small tolerance
+}
+
+// PhysicsOutput Step() and Movement handlers remain exactly the same...
+// (Rest of the file continues unchanged from the original)
 
 PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
 {
@@ -675,305 +1071,6 @@ PhysicsOutput PhysicsEngine::Step(const PhysicsInput& input, float dt)
 	return output;
 }
 
-float PhysicsEngine::GetHeight(uint32_t mapId, float x, float y, float z, bool checkVMap, float maxSearchDist)
-{
-	// Add comprehensive logging
-	LOG_INFO("==================== PhysicsEngine::GetHeight START ====================");
-	LOG_INFO("GetHeight called - Map:" << mapId
-		<< " Pos:(" << x << "," << y << "," << z << ")"
-		<< " checkVMap:" << checkVMap
-		<< " maxSearchDist:" << maxSearchDist);
-
-	// Get terrain height from ADT data
-	LOG_DEBUG("Getting ADT terrain height...");
-	float adtHeight = GetADTHeight(mapId, x, y, z);
-	LOG_INFO("ADT height: " << adtHeight);
-
-	if (!checkVMap || !m_vmapHeightEnabled)
-	{
-		LOG_INFO("Returning ADT height only - checkVMap:" << checkVMap
-			<< " vmapEnabled:" << m_vmapHeightEnabled);
-		LOG_INFO("==================== PhysicsEngine::GetHeight END ====================");
-		return adtHeight;
-	}
-
-	// Get VMAP height
-	LOG_DEBUG("Getting VMAP height...");
-
-	// ADD THIS: Ensure the map and tile are loaded before querying
-	LOG_INFO("Ensuring map is loaded before VMAP query...");
-	EnsureMapLoaded(mapId);
-
-	// ADD THIS: Calculate which tile we need and try to load it
-	if (m_vmapClient)
-	{
-		const float GRID_SIZE = 533.33333f;
-		const float MID = 32.0f * GRID_SIZE;
-		int tileX = (int)((MID - y) / GRID_SIZE);
-		int tileY = (int)((MID - x) / GRID_SIZE);
-
-		LOG_INFO("Position (" << x << "," << y << ") requires tile [" << tileX << "," << tileY << "]");
-		LOG_INFO("Attempting to load tile...");
-
-		bool tileLoaded = m_vmapClient->loadMapTile(mapId, tileX, tileY);
-		LOG_INFO("Tile load attempt: " << (tileLoaded ? "SUCCESS" : "FAILED"));
-	}
-
-	float vmapHeight = GetVMapHeight(mapId, x, y, z, maxSearchDist);
-	LOG_INFO("VMAP height: " << vmapHeight);
-
-	// Select best height using vMaNGOS logic
-	LOG_DEBUG("Selecting best height between VMAP and ADT...");
-	float finalHeight = SelectBestHeight(vmapHeight, adtHeight, z, maxSearchDist);
-
-	LOG_INFO("Final height selected: " << finalHeight);
-	LOG_INFO("  ADT valid: " << (adtHeight > PhysicsConstants::INVALID_HEIGHT ? "YES" : "NO"));
-	LOG_INFO("  VMAP valid: " << (vmapHeight > PhysicsConstants::INVALID_HEIGHT ? "YES" : "NO"));
-	LOG_INFO("  Selection logic: " <<
-		(finalHeight == vmapHeight ? "VMAP" :
-			finalHeight == adtHeight ? "ADT" : "INVALID"));
-
-	LOG_INFO("==================== PhysicsEngine::GetHeight END ====================");
-	return finalHeight;
-}
-
-PhysicsEngine::CollisionInfo PhysicsEngine::QueryEnvironment(uint32_t mapId, float x, float y, float z,
-	float radius, float height)
-{
-	LOG_INFO("==================== QueryEnvironment START ====================");
-	LOG_INFO("Position: (" << x << ", " << y << ", " << z << ")");
-	LOG_INFO("MapId: " << mapId << ", Radius: " << radius << ", Height: " << height);
-
-	CollisionInfo info = {};
-
-	// ========== STEP 1: Check Area Info (WMO/Indoor Detection) ==========
-	LOG_INFO("Checking area info for indoor/WMO detection...");
-
-	uint32_t flags = 0;
-	int32_t adtId = 0, rootId = 0, groupId = 0;
-	float areaCheckZ = z;  // This will be MODIFIED by getAreaInfo!
-	float originalZ = z;
-
-	if (m_vmapClient)
-	{
-		LOG_INFO("Calling getAreaInfo with Z=" << areaCheckZ);
-		m_vmapClient->getAreaInfo(mapId, x, y, areaCheckZ, flags, adtId, rootId, groupId);
-
-		LOG_INFO("After getAreaInfo:");
-		LOG_INFO("  Z changed: " << (areaCheckZ != originalZ ? "YES" : "NO")
-			<< " (from " << originalZ << " to " << areaCheckZ << ")");
-		LOG_INFO("  Flags: 0x" << std::hex << flags << std::dec);
-		LOG_INFO("  AdtId: " << adtId << ", RootId: " << rootId << ", GroupId: " << groupId);
-
-		// Check indoor flag (0x8 = outdoor WMO flag, so NOT having it means indoor)
-		info.isIndoors = (flags & 0x8) == 0 && rootId >= 0;
-		LOG_INFO("  Indoor detection: flags & 0x8 = " << (flags & 0x8)
-			<< ", rootId = " << rootId
-			<< " -> isIndoors = " << info.isIndoors);
-
-		// If Z changed, we found a WMO floor!
-		if (std::abs(areaCheckZ - originalZ) > 0.001f)
-		{
-			LOG_INFO("WMO FLOOR DETECTED via getAreaInfo!");
-			LOG_INFO("  WMO ground height: " << areaCheckZ);
-			info.vmapHeight = areaCheckZ;
-			info.vmapValid = true;
-
-			// This is our primary ground if we're inside a building
-			if (info.isIndoors || areaCheckZ > originalZ - 5.0f)  // Within reasonable range
-			{
-				LOG_INFO("  Using WMO floor as primary ground");
-				info.hasGround = true;
-				info.groundZ = areaCheckZ;
-			}
-		}
-		else
-		{
-			LOG_INFO("No WMO floor found via getAreaInfo (Z unchanged)");
-		}
-	}
-	else
-	{
-		LOG_WARN("No VMapClient available for area info check");
-	}
-
-	// ========== STEP 2: Get Traditional Height (ADT + VMAP Ray) ==========
-	LOG_INFO("Getting traditional height via GetHeight...");
-
-	float combinedHeight = GetVMapHeight(mapId, x, y, z, 50.0f);
-	LOG_INFO("GetHeight returned: " << combinedHeight);
-
-	// Parse out ADT height separately if needed
-	float adtHeight = GetADTHeight(mapId, x, y, z);
-	LOG_INFO("ADT terrain height: " << adtHeight);
-
-	if (adtHeight > PhysicsConstants::INVALID_HEIGHT)
-	{
-		info.adtHeight = adtHeight;
-		info.adtValid = true;
-		LOG_INFO("ADT height is valid");
-	}
-
-	// ========== STEP 3: Determine Final Ground ==========
-	LOG_INFO("Determining final ground height...");
-
-	// If we already have WMO ground from getAreaInfo, compare with other heights
-	if (info.vmapValid && info.hasGround)
-	{
-		LOG_INFO("Have WMO ground at " << info.groundZ);
-
-		// Check if combined height gives us something different
-		if (combinedHeight > PhysicsConstants::INVALID_HEIGHT &&
-			combinedHeight > info.groundZ + 0.1f)
-		{
-			LOG_INFO("Combined height (" << combinedHeight
-				<< ") is higher than WMO floor - might be on upper level");
-
-			// Use the height closer to our current position
-			float distToWmo = std::abs(z - info.groundZ);
-			float distToCombined = std::abs(z - combinedHeight);
-
-			if (distToCombined < distToWmo)
-			{
-				LOG_INFO("Using combined height (closer to current position)");
-				info.groundZ = combinedHeight;
-			}
-			else
-			{
-				LOG_INFO("Keeping WMO floor (closer to current position)");
-			}
-		}
-	}
-	else if (combinedHeight > PhysicsConstants::INVALID_HEIGHT)
-	{
-		// No WMO floor, use traditional height
-		LOG_INFO("No WMO floor - using combined height: " << combinedHeight);
-		info.hasGround = true;
-		info.groundZ = combinedHeight;
-
-		// Try to determine if this is VMAP or ADT
-		if (!info.vmapValid && combinedHeight != adtHeight)
-		{
-			LOG_INFO("Combined height differs from ADT - likely VMAP");
-			info.vmapHeight = combinedHeight;
-			info.vmapValid = true;
-		}
-	}
-	else if (info.adtValid)
-	{
-		// Only ADT available
-		LOG_INFO("Only ADT height available: " << adtHeight);
-		info.hasGround = true;
-		info.groundZ = adtHeight;
-	}
-	else
-	{
-		LOG_WARN("No valid ground found!");
-		info.hasGround = false;
-		info.groundZ = PhysicsConstants::INVALID_HEIGHT;
-	}
-
-	// ========== STEP 4: Check Liquid ==========
-	LOG_INFO("Checking for liquid...");
-
-	float liquidLevel = PhysicsConstants::INVALID_HEIGHT;
-	float liquidFloor = PhysicsConstants::INVALID_HEIGHT;
-
-	// Check MapLoader (ADT) liquids
-	if (m_mapLoader && m_mapLoader->IsInitialized())
-	{
-		liquidLevel = m_mapLoader->GetLiquidLevel(mapId, x, y);
-		if (liquidLevel > PhysicsConstants::INVALID_HEIGHT)
-		{
-			info.liquidType = m_mapLoader->GetLiquidType(mapId, x, y);
-			info.liquidZ = liquidLevel;
-			info.hasLiquid = true;
-			LOG_INFO("ADT liquid found at height: " << liquidLevel
-				<< ", type: 0x" << std::hex << info.liquidType << std::dec);
-		}
-	}
-
-	// Check VMAP liquids (WMO water)
-	if (m_vmapClient && !info.hasLiquid)
-	{
-		if (m_vmapClient->getLiquidLevel(mapId, x, y, z, liquidLevel, liquidFloor))
-		{
-			info.liquidZ = liquidLevel;
-			info.liquidType = 0;  // TODO: Get actual type from VMAP
-			info.hasLiquid = true;
-			LOG_INFO("VMAP liquid found at height: " << liquidLevel);
-		}
-	}
-
-	if (!info.hasLiquid)
-	{
-		LOG_INFO("No liquid found");
-		info.liquidZ = PhysicsConstants::INVALID_HEIGHT;
-	}
-
-	// ========== STEP 5: Final Validation ==========
-	LOG_INFO("Final collision info:");
-	LOG_INFO("  hasGround: " << info.hasGround << ", groundZ: " << info.groundZ);
-	LOG_INFO("  isIndoors: " << info.isIndoors);
-	LOG_INFO("  hasLiquid: " << info.hasLiquid << ", liquidZ: " << info.liquidZ);
-	LOG_INFO("  vmapValid: " << info.vmapValid << ", vmapHeight: " << info.vmapHeight);
-	LOG_INFO("  adtValid: " << info.adtValid << ", adtHeight: " << info.adtHeight);
-
-	// Sanity check - ensure ground is reasonable
-	if (info.hasGround)
-	{
-		if (info.groundZ > PhysicsConstants::MAX_HEIGHT)
-		{
-			LOG_WARN("Ground height exceeds max! Clamping from " << info.groundZ
-				<< " to " << PhysicsConstants::MAX_HEIGHT);
-			info.groundZ = PhysicsConstants::MAX_HEIGHT;
-		}
-		else if (info.groundZ < -PhysicsConstants::MAX_HEIGHT)
-		{
-			LOG_WARN("Ground height below min! Clamping from " << info.groundZ
-				<< " to " << -PhysicsConstants::MAX_HEIGHT);
-			info.groundZ = -PhysicsConstants::MAX_HEIGHT;
-		}
-	}
-
-	LOG_INFO("==================== QueryEnvironment END ====================\n");
-	return info;
-}
-bool PhysicsEngine::GetLiquidInfo(uint32_t mapId, float x, float y, float z, float& liquidLevel, float& liquidFloor, uint32_t& liquidType)
-{
-	// First try to get liquid from MapLoader (ADT data)
-	if (m_mapLoader && m_mapLoader->IsInitialized())
-	{
-		liquidLevel = m_mapLoader->GetLiquidLevel(mapId, x, y);
-		if (liquidLevel > PhysicsConstants::INVALID_HEIGHT)
-		{
-			liquidType = m_mapLoader->GetLiquidType(mapId, x, y);
-			// Convert to vmangos liquid mask
-
-			liquidFloor = liquidLevel - 2.0f;  // Estimate floor
-			return true;
-		}
-	}
-
-	// Then try VMAP for WMO liquids
-	if (m_vmapClient)
-	{
-		try
-		{
-			if (m_vmapClient->getLiquidLevel(mapId, x, y, z, liquidLevel, liquidFloor))
-			{
-				liquidType = VMAP::MAP_LIQUID_TYPE_WATER;  // Default for VMAP liquids
-				return true;
-			}
-		}
-		catch (const std::exception& e)
-		{
-		}
-	}
-
-	return false;
-}
-
 // Movement handlers remain the same...
 PhysicsEngine::MovementState PhysicsEngine::HandleGroundMovement(const PhysicsInput& input,
 	MovementState& state, float dt)
@@ -1337,175 +1434,6 @@ float PhysicsEngine::CalculateMoveSpeed(const PhysicsInput& input, bool isSwimmi
 	return input.runSpeed;
 }
 
-float PhysicsEngine::GetLiquidHeight(uint32_t mapId, float x, float y, float z, uint32_t& liquidType)
-{
-	// First try to get liquid from MapLoader (ADT data)
-	if (m_mapLoader && m_mapLoader->IsInitialized())
-	{
-		float liquidLevel = m_mapLoader->GetLiquidLevel(mapId, x, y);
-		if (liquidLevel > PhysicsConstants::INVALID_HEIGHT)
-		{
-			liquidType = m_mapLoader->GetLiquidType(mapId, x, y);
-			return liquidLevel;
-		}
-	}
-
-	// Then try VMAP for WMO liquids
-	if (m_vmapClient)
-	{
-		try
-		{
-			float liquidLevel, liquidFloor;
-			if (m_vmapClient->getLiquidLevel(mapId, x, y, z, liquidLevel, liquidFloor))
-			{
-				liquidType = 0;  // TODO: Get actual liquid type from VMAP
-				return liquidLevel;
-			}
-		}
-		catch (const std::exception& e)
-		{
-		}
-	}
-
-	return PhysicsConstants::INVALID_HEIGHT;
-}
-
-void PhysicsEngine::ResolveCollisions(uint32_t mapId, MovementState& state, float radius, float height)
-{
-	// For now, disable collision resolution entirely since it's causing false positives
-	// This is temporary until we can properly tune the collision detection
-	return;
-
-	/* COMMENTED OUT - Collision system needs tuning */
-	if (!m_vmapClient || !m_navigation)
-	{
-		return;
-	}
-
-	try
-	{
-		// Only check for collision if we're actually moving significantly
-		float moveSpeed = std::sqrt(state.vx * state.vx + state.vy * state.vy);
-		if (moveSpeed < 0.1f)  // Not moving fast enough to worry about collision
-		{
-			return;
-		}
-
-		// Check further ahead based on actual movement speed
-		float checkTime = 0.5f;  // Check 0.5 seconds ahead
-		float nextX = state.x + state.vx * checkTime;
-		float nextY = state.y + state.vy * checkTime;
-		float nextZ = state.z + state.vz * checkTime;
-
-		float hitX, hitY, hitZ;
-		bool hasCollision = CheckCollision(mapId,
-			state.x, state.y, state.z,
-			nextX, nextY, nextZ,
-			radius, height, hitX, hitY, hitZ);
-
-		if (hasCollision)
-		{
-			// Calculate distance to collision
-			float dx = hitX - state.x;
-			float dy = hitY - state.y;
-			float dz = hitZ - state.z;
-			float distToCollision = std::sqrt(dx * dx + dy * dy + dz * dz);
-
-			// Only react if collision is actually close
-			if (distToCollision < 5.0f)  // Within 5 yards
-			{
-				// Just stop movement, don't try to slide or adjust position
-				state.vx = 0;
-				state.vy = 0;
-				if (state.vz < 0)  // Only stop downward velocity
-					state.vz = 0;
-
-				// Log collision for debugging
-				std::cout << "[COLLISION] Detected at distance " << distToCollision << " - stopping movement" << std::endl;
-			}
-		}
-	}
-	catch (const std::exception& e)
-	{
-		// On error, just return without modifying anything
-	}
-}
-
-bool PhysicsEngine::CheckCollision(uint32_t mapId, float startX, float startY, float startZ,
-	float endX, float endY, float endZ, float radius, float height,
-	float& hitX, float& hitY, float& hitZ)
-{
-	// Temporarily disable collision checking until we can fix false positives
-	return false;
-
-	/* COMMENTED OUT - Needs proper tuning
-	if (!m_vmapClient)
-	{
-		return false;
-	}
-
-	try
-	{
-		// Check VMAP for collisions (buildings, walls, etc)
-		bool vmapHit = m_vmapClient->getCollisionPoint(mapId, startX, startY, startZ,
-			endX, endY, endZ, hitX, hitY, hitZ);
-
-		if (vmapHit)
-		{
-			// Additional validation - make sure it's a real collision
-			float dx = hitX - startX;
-			float dy = hitY - startY;
-			float dz = hitZ - startZ;
-			float dist = std::sqrt(dx*dx + dy*dy + dz*dz);
-
-			// Ignore very small distances (likely false positives from terrain)
-			if (dist < 0.5f)
-			{
-				return false;
-			}
-
-			std::cout << "[VMAP Collision] Hit at (" << hitX << ", " << hitY << ", " << hitZ
-					  << ") distance: " << dist << std::endl;
-			return true;
-		}
-
-		// Also check NavMesh if available for additional collision
-		if (m_navigation)
-		{
-			XYZ from = { startX, startY, startZ };
-			XYZ to = { endX, endY, endZ };
-			bool navMeshLOS = m_navigation->IsLineOfSight(mapId, from, to);
-
-			if (!navMeshLOS)
-			{
-				// NavMesh reports collision but we need to be careful about false positives
-				// Only trust it if we're checking a reasonable distance
-				float checkDist = std::sqrt(
-					(endX-startX)*(endX-startX) +
-					(endY-startY)*(endY-startY) +
-					(endZ-startZ)*(endZ-startZ)
-				);
-
-				if (checkDist > 1.0f && checkDist < 10.0f)  // Reasonable range
-				{
-					hitX = endX;
-					hitY = endY;
-					hitZ = endZ;
-					std::cout << "[NavMesh Collision] No LOS to target" << std::endl;
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-	catch (const std::exception& e)
-	{
-		return false;
-	}
-	*/
-}
-
 float PhysicsEngine::GetSplineProgress(float x, float y, float z, const float* points, int index)
 {
 	if (!points || index < 0)
@@ -1523,40 +1451,6 @@ float PhysicsEngine::GetSplineProgress(float x, float y, float z, const float* p
 		return Clamp(currentDist / totalDist, 0.0f, 1.0f);
 
 	return 0.0f;
-}
-
-bool PhysicsEngine::IsGrounded(uint32_t mapId, float x, float y, float z, float radius, float height)
-{
-	EnsureMapLoaded(mapId);
-	float groundZ = GetHeight(mapId, x, y, z, true, DEFAULT_HEIGHT_SEARCH);
-
-	if (groundZ <= PhysicsConstants::INVALID_HEIGHT)
-		return false;
-
-	float distToGround = z - groundZ;
-
-	// Check if within step height (2.0f) of ground
-	bool grounded = (distToGround >= 0 && distToGround < STEP_HEIGHT) ||
-		std::abs(distToGround) < GROUND_HEIGHT_TOLERANCE;
-
-	return grounded;
-}
-
-bool PhysicsEngine::IsInWater(uint32_t mapId, float x, float y, float z, float height)
-{
-	EnsureMapLoaded(mapId);
-	uint32_t liquidType;
-	float liquidZ = GetLiquidHeight(mapId, x, y, z, liquidType);
-
-	if (liquidZ <= PhysicsConstants::INVALID_HEIGHT)
-		return false;
-
-	// Match server logic: 2.0 units below surface = swimming
-	// Add small tolerance for floating point precision
-	const float SWIM_DEPTH_THRESHOLD = 2.0f;
-	float depth = liquidZ - z;
-
-	return depth >= SWIM_DEPTH_THRESHOLD - 0.05f; // Small tolerance
 }
 
 float PhysicsEngine::GetFallDamage(float fallDistance, bool hasSafeFall)

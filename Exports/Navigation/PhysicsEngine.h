@@ -1,4 +1,4 @@
-// PhysicsEngine.h - Complete with MapLoader instead of NavMesh for heights
+// PhysicsEngine.h - Refactored to use VMapManager2 directly
 #pragma once
 
 #include "PhysicsBridge.h"
@@ -10,11 +10,9 @@
 
 // Forward declarations
 namespace VMAP { class VMapManager2; }
-class VMapClient;
 class Navigation;
 class MapLoader;
 
-// WoW 1.12.1 Physics Constants
 // WoW 1.12.1 Physics Constants
 namespace PhysicsConstants
 {
@@ -58,7 +56,7 @@ class PhysicsEngine
 {
 private:
     static PhysicsEngine* s_instance;
-    std::unique_ptr<VMapClient> m_vmapClient;
+    VMAP::VMapManager2* m_vmapManager;  // Direct pointer to VMapManager2
     std::unique_ptr<MapLoader> m_mapLoader;  // Use MapLoader for terrain heights
     Navigation* m_navigation;
     bool m_initialized;

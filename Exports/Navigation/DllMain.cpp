@@ -1,6 +1,6 @@
-﻿// DllMain.cpp - Minimal Navigation DLL with essential exports only
+﻿// DllMain.cpp - Refactored to use VMapManager2 directly
 #include "Navigation.h"
-#include "VMapClient.h"
+#include "VMapManager2.h"
 #include "VMapFactory.h"
 #include "PhysicsEngine.h"
 #include "PhysicsBridge.h"
@@ -15,7 +15,7 @@
 #include <vector>
 
 // Global instances
-static std::unique_ptr<VMapClient> g_vmapClient = nullptr;
+static VMAP::VMapManager2* g_vmapManager = nullptr;  // Direct pointer to VMapManager2
 static std::unique_ptr<MapLoader> g_mapLoader = nullptr;
 static bool g_initialized = false;
 static std::mutex g_initMutex;
@@ -42,17 +42,23 @@ void InitializeAllSystems()
             }
         }
 
-        // Initialize VMAP system (optional)
+        // Initialize VMAP system directly using VMapManager2
         std::vector<std::string> vmapPaths = { "vmaps/" };
         for (const auto& path : vmapPaths)
         {
             if (std::filesystem::exists(path))
             {
-                g_vmapClient = std::make_unique<VMapClient>(path);
-                g_vmapClient->initialize();
-                if (g_vmapClient->isInitialized())
+                // Get or create the VMapManager2 instance through factory
+                g_vmapManager = static_cast<VMAP::VMapManager2*>(
+                    VMAP::VMapFactory::createOrGetVMapManager());
+
+                if (g_vmapManager)
+                {
+                    // Initialize factory and set base path
+                    VMAP::VMapFactory::initialize();
+                    g_vmapManager->setBasePath(path);
                     break;
-                g_vmapClient.reset();
+                }
             }
         }
 
@@ -79,10 +85,17 @@ extern "C" __declspec(dllexport) void PreloadMap(uint32_t mapId)
     if (!g_initialized)
         InitializeAllSystems();
 
-    // Preload VMAP data
-    if (g_vmapClient)
+    // Preload VMAP data directly using VMapManager2
+    if (g_vmapManager)
     {
-        try { g_vmapClient->preloadMap(mapId); }
+        try
+        {
+            // Initialize the map if not already done
+            if (!g_vmapManager->isMapInitialized(mapId))
+            {
+                g_vmapManager->initializeMap(mapId);
+            }
+        }
         catch (...) {}
     }
 
@@ -155,9 +168,11 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     {
         if (lpReserved == nullptr)  // FreeLibrary was called
         {
-            g_vmapClient.reset();
+            // Don't delete g_vmapManager as it's managed by the factory
+            g_vmapManager = nullptr;
             g_mapLoader.reset();
             PhysicsEngine::Destroy();
+            VMAP::VMapFactory::clear();  // Clean up the factory
         }
     }
     return TRUE;

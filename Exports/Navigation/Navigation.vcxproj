@@ -247,7 +247,6 @@
     <ClInclude Include="Ray.h" />
     <ClInclude Include="StaticMapTree.h" />
     <ClInclude Include="Vector3.h" />
-    <ClInclude Include="VMapClient.h" />
     <ClInclude Include="VMapDefinitions.h" />
     <ClInclude Include="VMapFactory.h" />
     <ClInclude Include="VMapLog.h" />
@@ -287,7 +286,6 @@
     <ClCompile Include="Ray.cpp" />
     <ClCompile Include="StaticMapTree.cpp" />
     <ClCompile Include="Vector3.cpp" />
-    <ClCompile Include="VMapClient.cpp" />
     <ClCompile Include="VMapFactory.cpp" />
     <ClCompile Include="VMapManager2.cpp" />
     <ClCompile Include="WorldModel.cpp" />

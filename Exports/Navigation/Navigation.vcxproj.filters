@@ -58,9 +58,6 @@
     <ClCompile Include="VMapManager2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VMapClient.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="VMapFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -115,9 +112,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VMapManager2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VMapClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PhysicsBridge.h">
