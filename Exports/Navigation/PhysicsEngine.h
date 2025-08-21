@@ -58,21 +58,13 @@ private:
     void EnsureMapLoaded(uint32_t mapId);  // Ensure map tiles are loaded
 
     // Helper structures
-    struct CollisionInfo
-    {
-        bool hasGround;
-        float groundZ;
-        float groundNormalZ;
-        bool hasLiquid;
-        float liquidZ;
-        uint32_t liquidType;
-        bool isIndoors;
-
-        // Additional fields for vMaNGOS compatibility
-        float vmapHeight;
-        float adtHeight;
-        bool vmapValid;
-        bool adtValid;
+    struct CollisionInfo {
+        bool hasGround = false;
+        float groundZ = PhysicsConstants::INVALID_HEIGHT;
+        bool hasLiquid = false;
+        float liquidZ = PhysicsConstants::INVALID_HEIGHT;
+        uint32_t liquidType = 0;
+        bool isIndoors = false;
     };
 
     struct MovementState
@@ -100,9 +92,6 @@ private:
     float GetVMapHeight(uint32_t mapId, float x, float y, float z, float maxSearchDist);
     float GetADTHeight(uint32_t mapId, float x, float y, float z);
     bool GetLiquidInfo(uint32_t mapId, float x, float y, float z, float& liquidLevel, float& liquidFloor, uint32_t& liquidType);
-
-    // Height selection logic (vMaNGOS-style)
-    float SelectBestHeight(float vmapHeight, float adtHeight, float currentZ, float maxSearchDist);
 
     // Collision handling
     bool CheckCollision(uint32_t mapId, float startX, float startY, float startZ,
