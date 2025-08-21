@@ -8,6 +8,7 @@
 #include "AABox.h"
 #include "Ray.h"
 #include "BIH.h"
+#include "G3D/BoundsTrait.h"
 
 namespace VMAP
 {
@@ -87,6 +88,7 @@ namespace VMAP
         GroupModel(const GroupModel& other) = delete;
         GroupModel& operator=(const GroupModel& other) = delete;
 
+
     public:
         GroupModel() : iMogpFlags(0), iGroupWMOID(0), iLiquid(nullptr) {}
         GroupModel(uint32_t mogpFlags, uint32_t groupWMOID, const G3D::AABox& bound)
@@ -106,39 +108,41 @@ namespace VMAP
             other.iLiquid = nullptr;
         }
 
-        // Move assignment operator
-        GroupModel& operator=(GroupModel&& other) noexcept
-        {
-            if (this != &other)
-            {
-                delete iLiquid;
-
-                iBound = std::move(other.iBound);
-                iMogpFlags = other.iMogpFlags;
-                iGroupWMOID = other.iGroupWMOID;
-                vertices = std::move(other.vertices);
-                triangles = std::move(other.triangles);
-                meshTree = std::move(other.meshTree);
-                iLiquid = other.iLiquid;
-                other.iLiquid = nullptr;
-            }
-            return *this;
-        }
-
         ~GroupModel() { delete iLiquid; }
 
         void setMeshData(std::vector<G3D::Vector3>& vert, std::vector<MeshTriangle>& tri);
         void setLiquidData(WmoLiquid* liquid) { iLiquid = liquid; }
-        bool IntersectRay(const G3D::Ray& ray, float& distance, bool stopAtFirstHit) const;
+        uint32_t IntersectRay(const G3D::Ray& ray, float& distance, bool stopAtFirstHit, bool ignoreM2Model) const;
         bool IsInsideObject(const G3D::Vector3& pos, const G3D::Vector3& down, float& z_dist) const;
         bool GetLiquidLevel(const G3D::Vector3& pos, float& liqHeight) const;
         uint32_t GetLiquidType() const;
         bool writeToFile(FILE* wf) const;
         bool readFromFile(FILE* rf); 
-        void recalculateBounds();
         const G3D::AABox& GetBound() const { return iBound; }
         uint32_t GetMogpFlags() const { return iMogpFlags; }
         uint32_t GetWmoID() const { return iGroupWMOID; }
+
+        static bool IntersectTriangle(const MeshTriangle& tri,
+            std::vector<G3D::Vector3>::const_iterator vertices,
+            const G3D::Ray& ray, float& distance);
+
+        struct GModelRayCallback
+        {
+            GModelRayCallback(std::vector<MeshTriangle> const& tris, std::vector<G3D::Vector3> const& vert) :
+                vertices(vert.begin()), triangles(tris.begin()), hit(0) {
+            }
+
+            bool operator()(G3D::Ray const& ray, uint32_t entry, float& distance, bool /*stopAtFirstHit*/, bool /*ignoreM2Model*/)
+            {
+                bool result = GroupModel::IntersectTriangle(triangles[entry], vertices, ray, distance);
+                if (result) ++hit;
+                return result;
+            }
+
+            std::vector<G3D::Vector3>::const_iterator vertices;
+            std::vector<MeshTriangle>::const_iterator triangles;
+            uint32_t hit;
+        };
     };
 
     // WorldModel class
@@ -147,8 +151,6 @@ namespace VMAP
     public:
         WorldModel() : RootWMOID(0), modelFlags(0) {}
 
-        //! pass group models to WorldModel and create BIH. Passed vector is swapped with old geometry!
-        void setGroupModels(std::vector<GroupModel>& models);
         void setRootWmoID(uint32_t id) { RootWMOID = id; }
         bool IntersectRay(const G3D::Ray& ray, float& distance, bool stopAtFirstHit, bool ignoreM2Model) const;
         bool IntersectPoint(const G3D::Vector3& p, const G3D::Vector3& down, float& dist, AreaInfo& info) const;
@@ -156,7 +158,6 @@ namespace VMAP
             float* outDist = nullptr, float* inDist = nullptr) const;
         bool GetLocationInfo(const G3D::Vector3& p, const G3D::Vector3& down, float& dist,
             GroupLocationInfo& info) const;
-        bool writeFile(const std::string& filename);
         bool readFile(const std::string& filename);
         void setModelFlags(uint32_t newFlags) { modelFlags = newFlags; }
         uint32_t getModelFlags() const { return modelFlags; }
@@ -166,10 +167,13 @@ namespace VMAP
         std::vector<GroupModel> groupModels;
         BIH groupTree;
         uint32_t modelFlags;
-
-#ifdef MMAP_GENERATOR
-    public:
-        void getGroupModels(std::vector<GroupModel>& models);
-#endif
     };
 } // namespace VMAP
+
+template<> struct BoundsTrait<VMAP::GroupModel>
+{
+    static void getBounds(const VMAP::GroupModel& obj, G3D::AABox& out)
+    {
+        out = obj.GetBound();
+    }
+};

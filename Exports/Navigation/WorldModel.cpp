@@ -1,6 +1,7 @@
 // WorldModel.cpp - Fixed to properly handle VMAP_7.0 format files
 #include "WorldModel.h"
 #include "VMapDefinitions.h"
+#include "G3D/BoundsTrait.h"
 #include <fstream>
 #include <cstring>
 #include <iostream>
@@ -201,9 +202,6 @@ namespace VMAP
 
             bounds.push_back(G3D::AABox(lo, hi));
         }
-
-        // Build the BIH tree with proper bounds
-        meshTree.build(bounds, 4);
     }
 
     bool GroupModel::IsInsideObject(const G3D::Vector3& pos, const G3D::Vector3& down, float& z_dist) const
@@ -214,7 +212,7 @@ namespace VMAP
         G3D::Ray ray(pos, down);
         float dist = z_dist;
 
-        if (IntersectRay(ray, dist, true))
+        if (IntersectRay(ray, dist, true, false))
         {
             z_dist = dist;
             return true;
@@ -223,7 +221,7 @@ namespace VMAP
         return false;
     }
 
-    bool GroupModel::IntersectRay(const G3D::Ray& ray, float& distance, bool stopAtFirstHit) const
+    uint32_t GroupModel::IntersectRay(const G3D::Ray& ray, float& distance, bool stopAtFirstHit, bool ignoreM2Model) const
     {
         LOG_TRACE("GroupModel::IntersectRay ENTER"
             << " GroupWMOID:" << iGroupWMOID
@@ -233,7 +231,7 @@ namespace VMAP
         if (triangles.empty())
         {
             LOG_DEBUG("No triangles in group model");
-            return false;
+            return 0;
         }
 
         // Check bounding box first
@@ -241,107 +239,63 @@ namespace VMAP
         if (time == G3D::inf())
         {
             LOG_DEBUG("Ray misses group bounds");
-            return false;
+            return 0;
         }
 
         LOG_DEBUG("Ray hits bounds at time " << time);
         LOG_DEBUG("Group has " << triangles.size() << " triangles, " << vertices.size() << " vertices");
 
-        int trianglesTested = 0;
-        int trianglesHit = 0;
+        GModelRayCallback callback(triangles, vertices);
+        meshTree.intersectRay(ray, callback, distance, stopAtFirstHit, ignoreM2Model);
 
-        auto callback = [this, &trianglesTested, &trianglesHit](const G3D::Ray& r, uint32_t triIdx, float& dist,
-            bool stopAtFirst, bool ignoreM2) -> bool
-            {
-                if (triIdx >= triangles.size())
-                {
-                    LOG_ERROR("Invalid triangle index: " << triIdx << " (max:" << triangles.size() << ")");
-                    return false;
-                }
+        LOG_INFO("GroupModel ray test - TrianglesHit:" << callback.hit
+            << " FinalDist:" << distance);
 
-                trianglesTested++;
-
-                const MeshTriangle& tri = triangles[triIdx];
-                const G3D::Vector3& v0 = vertices[tri.idx0];
-                const G3D::Vector3& v1 = vertices[tri.idx1];
-                const G3D::Vector3& v2 = vertices[tri.idx2];
-
-                LOG_DEBUG("Testing triangle " << triIdx << " with vertices at indices "
-                    << tri.idx0 << ", " << tri.idx1 << ", " << tri.idx2);
-
-                LOG_DEBUG("Triangle " << triIdx << " vertices: "
-                    << "v0(" << v0.x << "," << v0.y << "," << v0.z << ") "
-                    << "v1(" << v1.x << "," << v1.y << "," << v1.z << ") "
-                    << "v2(" << v2.x << "," << v2.y << "," << v2.z << ")");
-
-                // Ray-triangle intersection (Möller-Trumbore algorithm)
-                G3D::Vector3 edge1 = v1 - v0;
-                G3D::Vector3 edge2 = v2 - v0;
-
-                G3D::Vector3 h = r.direction().cross(edge2);
-                float a = edge1.dot(h);
-
-                if (std::abs(a) < 0.00001f)
-                {
-                    LOG_DEBUG("Triangle " << triIdx << " rejected: parallel to ray (a=" << a << ")");
-                    return false;
-                }
-
-                float f = 1.0f / a;
-                G3D::Vector3 s = r.origin() - v0;
-                float u = f * s.dot(h);
-
-                if (u < 0.0f || u > 1.0f)
-                {
-                    LOG_DEBUG("Triangle " << triIdx << " rejected: u=" << u << " out of range");
-                    return false;
-                }
-
-                G3D::Vector3 q = s.cross(edge1);
-                float v = f * r.direction().dot(q);
-
-                if (v < 0.0f || u + v > 1.0f)
-                {
-                    LOG_DEBUG("Triangle " << triIdx << " rejected: v=" << v << " u+v=" << (u + v));
-                    return false;
-                }
-
-                float t = f * edge2.dot(q);
-
-                LOG_DEBUG("Triangle " << triIdx << " t=" << t << " (needs t>0.00001 and t<" << dist << ")");
-
-                if (t > 0.00001f && t < dist)
-                {
-                    trianglesHit++;
-                    dist = t;
-
-                    LOG_DEBUG("Triangle " << triIdx << " HIT at distance " << t
-                        << " Verts: (" << tri.idx0 << "," << tri.idx1 << "," << tri.idx2 << ")");
-
-                    return true;
-                }
-
-                return false;
-            };
-
-        float oldDist = distance;
-
-        LOG_DEBUG("Starting mesh BIH traversal");
-
-        meshTree.intersectRay(ray, callback, distance, stopAtFirstHit, false);
-
-        bool hasHit = distance < oldDist;
-
-        LOG_INFO("GroupModel ray test - TrianglesTested:" << trianglesTested
-            << " TrianglesHit:" << trianglesHit
-            << " InitialDist:" << oldDist
-            << " FinalDist:" << distance
-            << " HasHit:" << hasHit);
-
-        LOG_TRACE("GroupModel::IntersectRay EXIT - Hit:" << hasHit);
-        return hasHit;
+        LOG_TRACE("GroupModel::IntersectRay EXIT - Hits:" << callback.hit);
+        return callback.hit;
     }
 
+    // You'll also need to add the IntersectTriangle function as a static method in GroupModel class:
+    bool GroupModel::IntersectTriangle(const MeshTriangle& tri, std::vector<G3D::Vector3>::const_iterator vertices,
+        const G3D::Ray& ray, float& distance)
+    {
+        const G3D::Vector3& v0 = vertices[tri.idx0];
+        const G3D::Vector3& v1 = vertices[tri.idx1];
+        const G3D::Vector3& v2 = vertices[tri.idx2];
+
+        // Ray-triangle intersection (Möller-Trumbore algorithm)
+        G3D::Vector3 edge1 = v1 - v0;
+        G3D::Vector3 edge2 = v2 - v0;
+
+        G3D::Vector3 h = ray.direction().cross(edge2);
+        float a = edge1.dot(h);
+
+        if (std::abs(a) < 0.00001f)
+            return false; // Ray is parallel to triangle
+
+        float f = 1.0f / a;
+        G3D::Vector3 s = ray.origin() - v0;
+        float u = f * s.dot(h);
+
+        if (u < 0.0f || u > 1.0f)
+            return false;
+
+        G3D::Vector3 q = s.cross(edge1);
+        float v = f * ray.direction().dot(q);
+
+        if (v < 0.0f || u + v > 1.0f)
+            return false;
+
+        float t = f * edge2.dot(q);
+
+        if (t > 0.00001f && t < distance)
+        {
+            distance = t;
+            return true;
+        }
+
+        return false;
+    }
 
     bool GroupModel::GetLiquidLevel(const G3D::Vector3& pos, float& liqHeight) const
     {
@@ -375,43 +329,6 @@ namespace VMAP
         if (iLiquid)
             return iLiquid->GetType();
         return 0;
-    }
-
-    bool GroupModel::writeToFile(FILE* wf) const
-    {
-        if (fwrite(&iMogpFlags, sizeof(uint32_t), 1, wf) != 1) return false;
-        if (fwrite(&iGroupWMOID, sizeof(uint32_t), 1, wf) != 1) return false;
-
-        G3D::Vector3 low = iBound.low();
-        G3D::Vector3 high = iBound.high();
-        if (fwrite(&low, sizeof(float), 3, wf) != 3) return false;
-        if (fwrite(&high, sizeof(float), 3, wf) != 3) return false;
-
-        uint32_t nVertices = vertices.size();
-        if (fwrite(&nVertices, sizeof(uint32_t), 1, wf) != 1) return false;
-        if (nVertices > 0)
-        {
-            if (fwrite(&vertices[0], sizeof(G3D::Vector3), nVertices, wf) != nVertices)
-                return false;
-        }
-
-        uint32_t nTriangles = triangles.size();
-        if (fwrite(&nTriangles, sizeof(uint32_t), 1, wf) != 1) return false;
-        if (nTriangles > 0)
-        {
-            if (fwrite(&triangles[0], sizeof(MeshTriangle), nTriangles, wf) != nTriangles)
-                return false;
-        }
-
-        if (!meshTree.writeToFile(wf))
-            return false;
-
-        bool hasLiquid = (iLiquid != nullptr);
-        if (fwrite(&hasLiquid, sizeof(bool), 1, wf) != 1) return false;
-        if (hasLiquid && !iLiquid->writeToFile(wf))
-            return false;
-
-        return true;
     }
 
     bool GroupModel::readFromFile(FILE* rf)
@@ -492,6 +409,7 @@ namespace VMAP
                 std::cerr << "[GroupModel] Failed to read triangles" << std::endl;
                 return false;
             }
+            LOG_DEBUG("[GroupModel] Has " << count << " triangles");
         }
 
         // Read MBIH chunk (mesh BIH tree)
@@ -529,38 +447,6 @@ namespace VMAP
         }
 
         return true;
-    }
-
-    void GroupModel::recalculateBounds()
-    {
-        if (!vertices.empty())
-        {
-            iBound = G3D::AABox(vertices[0], vertices[0]);
-            for (const auto& vertex : vertices)
-            {
-                iBound.merge(vertex);
-            }
-        }
-    }
-
-    // ======================== WorldModel Implementation ========================
-
-    void WorldModel::setGroupModels(std::vector<GroupModel>& models)
-    {
-        groupModels = std::move(models);
-
-        std::vector<G3D::AABox> bounds;
-        bounds.reserve(groupModels.size());
-
-        for (const auto& group : groupModels)
-        {
-            bounds.push_back(group.GetBound());
-        }
-
-        if (!bounds.empty())
-        {
-            groupTree.build(bounds, 1);
-        }
     }
 
     bool WorldModel::IntersectRay(const G3D::Ray& ray, float& distance, bool stopAtFirstHit, bool ignoreM2Model) const
@@ -619,7 +505,7 @@ namespace VMAP
                 float oldDist = dist;
 
                 LOG_DEBUG("Testing group " << groupIdx << " with current distance " << dist);
-                bool hit = groupModels[groupIdx].IntersectRay(r, dist, stopAtFirst);
+                bool hit = groupModels[groupIdx].IntersectRay(r, dist, stopAtFirst, ignoreM2);
 
                 if (hit)
                 {
@@ -660,65 +546,6 @@ namespace VMAP
 
         LOG_TRACE("WorldModel::IntersectRay EXIT - Hit:" << hasHit);
         return hasHit;
-    }
-
-
-    bool WorldModel::writeFile(const std::string& filename)
-    {
-        FILE* wf = fopen(filename.c_str(), "wb");
-        if (!wf)
-            return false;
-
-        char magic[8] = { 'V', 'M', 'O', 'D', '\0', '\0', '\0', '\0' };
-        if (fwrite(magic, 1, 8, wf) != 8)
-        {
-            fclose(wf);
-            return false;
-        }
-
-        uint32_t version = 17;
-        if (fwrite(&version, sizeof(uint32_t), 1, wf) != 1)
-        {
-            fclose(wf);
-            return false;
-        }
-
-        if (fwrite(&RootWMOID, sizeof(uint32_t), 1, wf) != 1)
-        {
-            fclose(wf);
-            return false;
-        }
-
-        if (fwrite(&modelFlags, sizeof(uint32_t), 1, wf) != 1)
-        {
-            fclose(wf);
-            return false;
-        }
-
-        uint32_t nGroups = groupModels.size();
-        if (fwrite(&nGroups, sizeof(uint32_t), 1, wf) != 1)
-        {
-            fclose(wf);
-            return false;
-        }
-
-        for (const auto& group : groupModels)
-        {
-            if (!group.writeToFile(wf))
-            {
-                fclose(wf);
-                return false;
-            }
-        }
-
-        if (!groupTree.writeToFile(wf))
-        {
-            fclose(wf);
-            return false;
-        }
-
-        fclose(wf);
-        return true;
     }
 
     bool WorldModel::readFile(const std::string& filename)
@@ -771,20 +598,11 @@ namespace VMAP
             }
 
             groupModels.clear();
-            groupModels.reserve(count);
+            groupModels.resize(count);
 
             // Read each group model
             for (uint32_t i = 0; i < count && result; ++i)
-            {
-                GroupModel group;
-                if (!group.readFromFile(rf))
-                {
-                    std::cerr << "[WorldModel] Failed to read group " << i << std::endl;
-                    result = false;
-                    break;
-                }
-                groupModels.push_back(std::move(group));
-            }
+                result = groupModels[i].readFromFile(rf);
 
             // Read GBIH chunk (BIH tree)
             if (result && !readChunk(rf, chunk, "GBIH", 4))
@@ -810,48 +628,17 @@ namespace VMAP
 
         fclose(rf);
 
-        for (auto& group : groupModels)
-        {
-            // Check if bounds are invalid (zero or near-zero size)
-            G3D::Vector3 extent = group.GetBound().high() - group.GetBound().low();
-            if (extent.x < 0.001f && extent.y < 0.001f && extent.z < 0.001f)
-            {
-                group.recalculateBounds();
-            }
-        }
-
-        // Now rebuild the group tree with the correct bounds
-        std::vector<G3D::AABox> bounds;
-        bounds.reserve(groupModels.size());
-        for (const auto& group : groupModels)
-        {
-            bounds.push_back(group.GetBound());
-        }
-
-        if (!bounds.empty())
-        {
-            groupTree.build(bounds, 1);
-        }
-
         return result;
     }
 
     bool WorldModel::IntersectPoint(const G3D::Vector3& p, const G3D::Vector3& down, float& dist, AreaInfo& info) const
     {
-        LOG_TRACE("WorldModel::IntersectPoint ENTER"
-            << " RootWMOID:" << RootWMOID
-            << " Point:(" << p.x << "," << p.y << "," << p.z << ")"
-            << " Down:(" << down.x << "," << down.y << "," << down.z << ")"
-            << " MaxDist:" << dist);
-
         if (groupModels.empty())
         {
-            LOG_DEBUG("No group models for intersection");
             return false;
         }
 
         G3D::Ray ray(p, down);
-        LOG_RAY("Intersection ray", ray);
 
         float minDist = dist;
         bool hit = false;
@@ -864,14 +651,13 @@ namespace VMAP
             {
                 if (groupIdx >= groupModels.size())
                 {
-                    LOG_ERROR("Invalid group index: " << groupIdx);
                     return false;
                 }
 
                 groupsTested++;
                 float groupDist = currentDist;
 
-                if (groupModels[groupIdx].IntersectRay(r, groupDist, false))
+                if (groupModels[groupIdx].IntersectRay(r, groupDist, false, ignoreM2))
                 {
                     groupsHit++;
                     LOG_DEBUG("Group " << groupIdx << " intersects at distance " << groupDist);
@@ -937,7 +723,7 @@ namespace VMAP
                 if (groupIdx >= groupModels.size())
                     return false;
 
-                return groupModels[groupIdx].IntersectRay(r, d, stopAtFirst);
+                return groupModels[groupIdx].IntersectRay(r, d, stopAtFirst, ignoreM2);
             };
 
         float distance = maxDist;
@@ -990,7 +776,7 @@ namespace VMAP
                 groupsTested++;
                 float groupDist = currentDist;
 
-                if (groupModels[groupIdx].IntersectRay(r, groupDist, false))
+                if (groupModels[groupIdx].IntersectRay(r, groupDist, stopAtFirst, ignoreM2))
                 {
                     groupsHit++;
                     LOG_DEBUG("Group " << groupIdx << " has location at distance " << groupDist);
