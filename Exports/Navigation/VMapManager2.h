@@ -47,8 +47,6 @@ namespace VMAP
             return iLoadedMaps.count(mapId) > 0;
         }
 
-        void listAvailableVMapFiles() const;
-
         // IVMapManager interface implementation
         VMAPLoadResult loadMap(const char* pBasePath, unsigned int pMapId, int x, int y) override;
         void unloadMap(unsigned int pMapId, int x, int y) override;

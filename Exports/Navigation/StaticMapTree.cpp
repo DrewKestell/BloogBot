@@ -199,9 +199,7 @@ namespace VMAP
 		FILE* rf = fopen(fullPath.c_str(), "rb");
 		if (!rf)
 		{
-			LOG_ERROR("Failed to open tile file! Error: " << strerror(errno));
 			iLoadedTiles[tileID] = false;
-			LOG_INFO("==================== LoadMapTile END (open failed) ====================");
 			return false;
 		}
 
@@ -212,8 +210,6 @@ namespace VMAP
 		// Read VMAP magic
 		if (!readChunk(rf, chunk, VMAP_MAGIC, 8))
 		{
-			LOG_ERROR("Invalid VMAP magic in tile file!");
-			LOG_ERROR("Expected: " << VMAP_MAGIC << " Got: " << std::string(chunk, 8));
 			success = false;
 		}
 
@@ -223,18 +219,10 @@ namespace VMAP
 			uint32_t numSpawns;
 			if (fread(&numSpawns, sizeof(uint32_t), 1, rf) != 1)
 			{
-				LOG_ERROR("Failed to read spawn count!");
 				success = false;
 			}
 			else
 			{
-				LOG_INFO("Number of spawns in tile: " << numSpawns);
-
-				if (numSpawns > 10000)
-				{
-					LOG_WARN("Suspicious spawn count: " << numSpawns << " - possible corruption?");
-				}
-
 				// Read each spawn
 				for (uint32_t i = 0; i < numSpawns && success; ++i)
 				{
@@ -341,47 +329,22 @@ namespace VMAP
 	// All query methods remain the same with null checks
 	bool StaticMapTree::isInLineOfSight(const G3D::Vector3& pos1, const G3D::Vector3& pos2, bool ignoreM2Model) const
 	{
-		LOG_DEBUG("=== StaticMapTree::isInLineOfSight ===");
-		LOG_VECTOR3("  Start", pos1);
-		LOG_VECTOR3("  End", pos2);
-		LOG_DEBUG("  IgnoreM2: " << (ignoreM2Model ? "YES" : "NO"));
-		LOG_DEBUG("  Tree values: " << (iTreeValues ? "LOADED" : "NULL") << ", Count: " << iNTreeValues);
-
 		if (!iTreeValues || iNTreeValues == 0)
 		{
-			LOG_DEBUG("  No tree values - returning clear LOS");
 			return true;
 		}
 
 		float maxDist = (pos2 - pos1).magnitude();
-		LOG_DEBUG("  Max distance: " << maxDist);
 
 		if (maxDist < 0.001f)
 		{
-			LOG_DEBUG("  Distance too small - returning clear LOS");
 			return true;
 		}
 
 		G3D::Ray ray = G3D::Ray::fromOriginAndDirection(pos1, (pos2 - pos1) / maxDist);
-		LOG_RAY("  Ray", ray);
-
-		// Count loaded models for logging
-		int loadedCount = 0;
-		for (uint32_t i = 0; i < iNTreeValues; ++i)
-		{
-			if (iTreeValues[i].iModel)
-				loadedCount++;
-		}
-		LOG_DEBUG("  Models loaded: " << loadedCount << "/" << iNTreeValues);
 
 		float intersectDist = maxDist;
 		bool hit = getIntersectionTime(ray, intersectDist, true, ignoreM2Model);
-
-		LOG_DEBUG("  Intersection result: " << (hit ? "BLOCKED" : "CLEAR"));
-		if (hit)
-		{
-			LOG_DEBUG("  Hit distance: " << intersectDist);
-		}
 
 		return !hit;
 	}
@@ -423,17 +386,10 @@ namespace VMAP
 
 	float StaticMapTree::getHeight(const G3D::Vector3& pos, float maxSearchDist) const
 	{
-		LOG_TRACE("StaticMapTree::getHeight ENTER - MapId:" << iMapID
-			<< " Pos:(" << pos.x << "," << pos.y << "," << pos.z << ")"
-			<< " MaxSearch:" << maxSearchDist);
-
 		float height = -G3D::inf();
 
 		if (!iTreeValues || iNTreeValues == 0)
 		{
-			LOG_WARN("No tree values loaded - MapId:" << iMapID
-				<< " TreeValues:" << (iTreeValues ? "ALLOCATED" : "NULL")
-				<< " Count:" << iNTreeValues);
 			return height;
 		}
 
@@ -446,33 +402,17 @@ namespace VMAP
 				loadedCount++;
 		}
 
-		LOG_DEBUG("Tree stats - Total nodes:" << iNTreeValues
-			<< " Loaded models:" << loadedCount
-			<< " Tiled:" << (iIsTiled ? "YES" : "NO")
-			<< " LoadedTiles:" << iLoadedTiles.size());
-
 		// The ray shoots downward from above
 		G3D::Vector3 rayStart = pos;
 		G3D::Ray ray(rayStart, G3D::Vector3(0, 0, -1));
 		float distance = maxSearchDist * 2;
 
-		LOG_RAY("Height search ray", ray);
-		LOG_DEBUG("Search distance: " << distance);
-
 		float originalDistance = distance;
 		if (getIntersectionTime(ray, distance, false, false))
 		{
 			height = pos.z - distance;
-			LOG_INFO("Height found! Distance:" << distance
-				<< " Height:" << height
-				<< " (z+" << maxSearchDist << "-" << distance << ")");
-		}
-		else
-		{
-			LOG_DEBUG("No intersection found - returning -inf");
 		}
 
-		LOG_TRACE("StaticMapTree::getHeight EXIT - Height:" << height);
 		return height;
 	}
 
@@ -513,12 +453,8 @@ namespace VMAP
 	// StaticMapTree.cpp - Fixed GetLocationInfo to use BIH traversal
 	bool StaticMapTree::GetLocationInfo(const G3D::Vector3& pos, LocationInfo& info) const
 	{
-		LOG_TRACE("StaticMapTree::GetLocationInfo ENTER - MapId:" << iMapID
-			<< " Pos:(" << pos.x << "," << pos.y << "," << pos.z << ")");
-
 		if (!iTreeValues || iNTreeValues == 0)
 		{
-			LOG_DEBUG("No tree values - no location info");
 			return false;
 		}
 
@@ -530,11 +466,8 @@ namespace VMAP
 
 			void operator()(const G3D::Vector3& point, uint32_t entry)
 			{
-				LOG_TRACE("LocationInfoCallback checking model at index " << entry);
-
 				if (!prims[entry].iModel)
 				{
-					LOG_DEBUG("Model at index " << entry << " not loaded - skipping");
 					return;
 				}
 
@@ -542,10 +475,6 @@ namespace VMAP
 				if (prims[entry].GetLocationInfo(point, tempInfo))
 				{
 					found = true;
-					LOG_INFO("Location info found in model " << entry
-						<< " RootId:" << tempInfo.rootId
-						<< " GroundZ:" << tempInfo.ground_Z
-						<< " Name:" << prims[entry].name);
 				}
 			}
 
@@ -561,27 +490,17 @@ namespace VMAP
 		if (callback.found)
 		{
 			info = callback.tempInfo;
-			LOG_INFO("Location info found - RootId:" << info.rootId
-				<< " GroundZ:" << info.ground_Z);
 			return true;
 		}
 
-		LOG_DEBUG("No location info found");
-		LOG_TRACE("StaticMapTree::GetLocationInfo EXIT - Not found");
 		return false;
 	}
 
 	bool StaticMapTree::getIntersectionTime(const G3D::Ray& ray, float& maxDist,
 		bool stopAtFirstHit, bool ignoreM2Model) const
 	{
-		LOG_TRACE("StaticMapTree::getIntersectionTime ENTER"
-			<< " MaxDist:" << maxDist
-			<< " StopAtFirst:" << stopAtFirstHit
-			<< " IgnoreM2:" << ignoreM2Model);
-
 		if (!iTreeValues || iNTreeValues == 0)
 		{
-			LOG_DEBUG("No tree values - no intersection possible");
 			return false;
 		}
 
@@ -593,14 +512,12 @@ namespace VMAP
 			{
 				if (!iTreeValues || idx >= iNTreeValues)
 				{
-					LOG_ERROR("Invalid tree index: " << idx << " (max:" << iNTreeValues << ")");
 					return false;
 				}
 
 				// Only test models that are actually loaded
 				if (!iTreeValues[idx].iModel)
 				{
-					LOG_TRACE("Model at index " << idx << " not loaded - skipping");
 					return false;
 				}
 
@@ -611,8 +528,6 @@ namespace VMAP
 				if (hit)
 				{
 					hitModels++;
-					LOG_DEBUG("Model " << idx << " HIT at distance " << d
-						<< " (was " << oldDist << ") Name:" << iTreeValues[idx].name);
 				}
 
 				return hit;
@@ -620,19 +535,9 @@ namespace VMAP
 
 		float oldDist = maxDist;
 
-		LOG_DEBUG("Starting BIH tree traversal - Initial maxDist:" << maxDist);
-
 		iTree.intersectRay(ray, intersectCallback, maxDist, stopAtFirstHit, ignoreM2Model);
 
-		bool hasHit = maxDist < oldDist;
-
-		LOG_INFO("Intersection result - TestedModels:" << testedModels
-			<< " HitModels:" << hitModels
-			<< " FinalDist:" << maxDist
-			<< " HasHit:" << hasHit);
-
-		LOG_TRACE("StaticMapTree::getIntersectionTime EXIT - Hit:" << hasHit);
-		return hasHit;
+		return maxDist < oldDist;
 	}
 
 	uint32_t StaticMapTree::packTileID(uint32_t tileX, uint32_t tileY)

@@ -80,7 +80,6 @@ namespace VMAP
 		return true;
 	}
 
-	// ... Rest of ModelInstance implementation remains the same ...
 	ModelInstance::ModelInstance()
 		: iInvScale(0), iModel(nullptr)
 	{
@@ -102,34 +101,19 @@ namespace VMAP
 	{
 		if (!iModel)
 		{
-			std::cout << "[ModelInstance] No model loaded for " << name << std::endl;
 			return false;
 		}
 
 		float time = ray.intersectionTime(iBound);
 		if (time == G3D::inf())
 		{
-			std::cout << "[ModelInstance] Ray misses bounds for " << name << std::endl;
 			return false;
 		}
-
-		std::cout << "[ModelInstance] Testing model: " << name
-			<< " Flags=0x" << std::hex << flags << std::dec
-			<< " Bound hit at t=" << time << std::endl;
-
-		// ADD THIS DIAGNOSTIC LOGGING:
-		std::cout << "[ModelInstance] Model details: "
-			<< " HasModel=" << (iModel ? "YES" : "NO")
-			<< " IsM2=" << ((flags & MOD_M2) ? "YES" : "NO")
-			<< " IgnoreM2=" << (ignoreM2Model ? "YES" : "NO") << std::endl;
 
 		// child bounds are defined in object space:
 		G3D::Vector3 p = iInvRot * (ray.origin() - iPos) * iInvScale;
 		G3D::Ray modRay(p, iInvRot * ray.direction());
 		float distance = maxDist * iInvScale;
-
-		// ADD THIS:
-		std::cout << "[ModelInstance] Calling WorldModel::IntersectRay..." << std::endl;
 
 		bool hit = iModel->IntersectRay(modRay, distance, stopAtFirstHit, ignoreM2Model);
 
@@ -137,12 +121,6 @@ namespace VMAP
 		{
 			distance *= iScale;
 			maxDist = distance;
-			std::cout << "[ModelInstance] HIT! Model: " << name
-				<< " Distance: " << distance << " Flags: 0x" << std::hex << flags << std::dec << std::endl;
-		}
-		else
-		{
-			std::cout << "[ModelInstance] MISS - WorldModel returned no hit" << std::endl;
 		}
 
 		return hit;
@@ -152,7 +130,6 @@ namespace VMAP
 	{
 		if (!iModel)
 		{
-			std::cout << "[ModelInstance] No model loaded" << std::endl;
 			return;
 		}
 

@@ -223,8 +223,6 @@ namespace GameData.Core.Constants
             if (!isInitialized)
                 Initialize();
 
-            Console.WriteLine("\n========== MODEL SCALE DEBUG INFO ==========\n");
-
             var playerModels = new List<(string name, uint id, float scale, float width, float height)>();
 
             foreach (var kvp in modelDataCache)
@@ -240,11 +238,6 @@ namespace GameData.Core.Constants
             // Sort by model name
             playerModels.Sort((a, b) => a.name.CompareTo(b.name));
 
-            Console.WriteLine("Player Model Scale Values:");
-            Console.WriteLine("{0,-25} {1,5} {2,10} {3,12} {4,12} {5,12} {6,12}",
-                              "Model", "ID", "Scale", "Raw Width", "Raw Height", "Scaled W", "Scaled H");
-            Console.WriteLine(new string('-', 100));
-
             foreach (var model in playerModels)
             {
                 float scaledWidth = model.width * model.scale;
@@ -255,9 +248,6 @@ namespace GameData.Core.Constants
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
                 }
-
-                Console.WriteLine("{0,-25} {1,5} {2,10:F4} {3,12:F4} {4,12:F4} {5,12:F4} {6,12:F4}",
-                                  model.name, model.id, model.scale, model.width, model.height, scaledWidth, scaledHeight);
 
                 Console.ForegroundColor = originalColor;
             }
@@ -280,10 +270,6 @@ namespace GameData.Core.Constants
 
             if (druidModels.Count > 0)
             {
-                Console.WriteLine("\n\nDruid Form Scale Values:");
-                Console.WriteLine("{0,-30} {1,5} {2,10} {3,12} {4,12} {5,12} {6,12}",
-                                  "Model", "ID", "Scale", "Raw Width", "Raw Height", "Scaled W", "Scaled H");
-                Console.WriteLine(new string('-', 105));
 
                 foreach (var model in druidModels)
                 {
@@ -296,14 +282,9 @@ namespace GameData.Core.Constants
                         Console.ForegroundColor = ConsoleColor.Yellow;
                     }
 
-                    Console.WriteLine("{0,-30} {1,5} {2,10:F4} {3,12:F4} {4,12:F4} {5,12:F4} {6,12:F4}",
-                                      model.name, model.id, model.scale, model.width, model.height, scaledWidth, scaledHeight);
-
                     Console.ForegroundColor = originalColor;
                 }
             }
-
-            Console.WriteLine("\n====================================================\n");
         }
 
         /// <summary>
@@ -349,12 +330,10 @@ namespace GameData.Core.Constants
             if (form.HasValue && CanBeDruid(race))
             {
                 var (radius, height) = GetCapsuleForDruidForm(race, form.Value);
-                Console.WriteLine($"{race} {form} Form: Radius={radius:F4}, Height={height:F4}");
             }
             else
             {
                 var (radius, height) = GetCapsuleForRace(race, gender);
-                Console.WriteLine($"{race} {gender}: Radius={radius:F4}, Height={height:F4}");
             }
         }
 
@@ -383,8 +362,6 @@ namespace GameData.Core.Constants
         {
             if (isInitialized) return;
 
-            Console.WriteLine("\n========== RACE DIMENSIONS INITIALIZATION ==========");
-
             // Initialize all caches
             dimensionCache = new Dictionary<Race, (float radius, float height)>();
             raceGenderCache = new Dictionary<(Race, Gender), (float radius, float height)>();
@@ -398,22 +375,18 @@ namespace GameData.Core.Constants
 
                 if (dbcPath == null)
                 {
-                    Console.WriteLine("CreatureModelData.dbc not found - using fallback values");
                     UseHardcodedValues();
                     isInitialized = true;
                     return;
                 }
 
-                Console.WriteLine($"Loading from: {dbcPath}\n");
                 LoadModelData(dbcPath);
                 CacheRaceDimensions();
                 CacheDruidFormDimensions();
-                PrintPlayerModelSummary();
                 isInitialized = true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to load DBC data: {ex.Message}");
                 UseHardcodedValues();
                 isInitialized = true;
             }
@@ -459,11 +432,6 @@ namespace GameData.Core.Constants
                     float scaledWidth = record.CollisionWidth * record.ModelScale;
                     float scaledHeight = record.CollisionHeight * record.ModelScale;
 
-                    // Log if scale is not 1.0 for player models
-                    if (modelPath.StartsWith("Character\\") && Math.Abs(record.ModelScale - 1.0f) > 0.001f)
-                    {
-                        Console.WriteLine($"[SCALE WARNING] {modelName}: ModelScale={record.ModelScale:F4} (Width: {record.CollisionWidth:F4} -> {scaledWidth:F4}, Height: {record.CollisionHeight:F4} -> {scaledHeight:F4})");
-                    }
 
                     // Check for player models
                     if (modelPath.StartsWith("Character\\"))
@@ -479,12 +447,6 @@ namespace GameData.Core.Constants
                              modelPath.Contains("TravelForm"))
                     {
                         druidFormDimensions[modelName] = (record.Id, scaledWidth, scaledHeight);
-
-                        // Log scale for druid forms too
-                        if (Math.Abs(record.ModelScale - 1.0f) > 0.001f)
-                        {
-                            Console.WriteLine($"[SCALE WARNING] Druid form {modelName}: ModelScale={record.ModelScale:F4}");
-                        }
                     }
                 }
             }
@@ -629,108 +591,7 @@ namespace GameData.Core.Constants
                 }
             }
         }
-
-        private static void PrintPlayerModelSummary()
-        {
-            Console.WriteLine("========== PLAYER CHARACTER DIMENSIONS ==========\n");
-
-            // First, print any scale warnings
-            bool hasScaleIssues = false;
-            foreach (var kvp in modelDataCache)
-            {
-                var record = kvp.Value;
-                if (record.ModelPath != null && record.ModelPath.StartsWith("Character\\"))
-                {
-                    if (Math.Abs(record.ModelScale - 1.0f) > 0.001f)
-                    {
-                        if (!hasScaleIssues)
-                        {
-                            Console.WriteLine("WARNING: Non-standard ModelScale values detected:");
-                            hasScaleIssues = true;
-                        }
-                        string modelName = ExtractModelName(record.ModelPath);
-                        Console.WriteLine($"  {modelName}: Scale={record.ModelScale:F4}");
-                    }
-                }
-            }
-
-            if (hasScaleIssues)
-                Console.WriteLine();
-
-            // Print by race and gender
-            foreach (Race race in Enum.GetValues(typeof(Race)))
-            {
-                bool foundRace = false;
-
-                // Male
-                if (raceGenderCache.TryGetValue((race, Gender.Male), out var maleDims))
-                {
-                    Console.WriteLine($"{race,-10} Male:   Radius={maleDims.radius:F4}, Height={maleDims.height:F4}, SwimDepth={maleDims.height * 0.75f:F4}");
-                    foundRace = true;
-                }
-
-                // Female
-                if (raceGenderCache.TryGetValue((race, Gender.Female), out var femaleDims))
-                {
-                    Console.WriteLine($"{race,-10} Female: Radius={femaleDims.radius:F4}, Height={femaleDims.height:F4}, SwimDepth={femaleDims.height * 0.75f:F4}");
-                    foundRace = true;
-                }
-
-                if (foundRace)
-                    Console.WriteLine();
-            }
-
-            // Print druid forms if any found
-            if (druidFormCache.Count > 0 || druidFormDimensions.Count > 0)
-            {
-                Console.WriteLine("========== DRUID FORM DIMENSIONS ==========\n");
-
-                // Organized forms
-                if (druidFormCache.Count > 0)
-                {
-                    Console.WriteLine("Night Elf Forms:");
-                    foreach (DruidForm form in Enum.GetValues(typeof(DruidForm)))
-                    {
-                        if (form == DruidForm.Human) continue;
-
-                        if (druidFormCache.TryGetValue((Race.NightElf, form), out var dims))
-                        {
-                            Console.WriteLine($"  {form,-10}: Radius={dims.radius:F4}, Height={dims.height:F4}");
-                        }
-                    }
-
-                    Console.WriteLine("\nTauren Forms:");
-                    foreach (DruidForm form in Enum.GetValues(typeof(DruidForm)))
-                    {
-                        if (form == DruidForm.Human) continue;
-
-                        if (druidFormCache.TryGetValue((Race.Tauren, form), out var dims))
-                        {
-                            Console.WriteLine($"  {form,-10}: Radius={dims.radius:F4}, Height={dims.height:F4}");
-                        }
-                    }
-                }
-
-                // Raw druid form data (for any that couldn't be categorized)
-                if (druidFormDimensions.Count > 0)
-                {
-                    Console.WriteLine("\nAll Druid-Related Models Found:");
-                    foreach (var form in druidFormDimensions.OrderBy(x => x.Key))
-                    {
-                        var dims = form.Value;
-                        Console.WriteLine($"  {form.Key,-30} (ID: {dims.id,4}): Radius={dims.radius:F4}, Height={dims.height:F4}");
-                    }
-                }
-
-                Console.WriteLine();
-            }
-
-            Console.WriteLine($"Total race+gender combinations cached: {raceGenderCache.Count}");
-            Console.WriteLine($"Total druid forms cached: {druidFormCache.Count}");
-            Console.WriteLine($"Total raw druid models found: {druidFormDimensions.Count}");
-            Console.WriteLine("\n====================================================\n");
-        }
-
+        
         private static void UseHardcodedValues()
         {
             // Fallback values for male models

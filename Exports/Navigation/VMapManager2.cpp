@@ -276,92 +276,41 @@ namespace VMAP
 
 	void VMapManager2::initializeMap(uint32_t mapId)
 	{
-		LOG_INFO("==================== VMapManager2::initializeMap START ====================");
-		LOG_INFO("Initializing map " << mapId);
-
-		try
+		if (iLoadedMaps.count(mapId) > 0)
 		{
-			if (iLoadedMaps.count(mapId) > 0)
-			{
-				LOG_DEBUG("Map already in loaded set");
-				LOG_INFO("==================== VMapManager2::initializeMap END (already loaded) ====================");
-				return;
-			}
-
-			std::string mapFileName = getMapFileName(mapId);
-			std::string fullPath = iBasePath + mapFileName;
-
-			LOG_INFO("Looking for map file: " << mapFileName);
-			LOG_INFO("Full path: " << fullPath);
-
-			if (!std::filesystem::exists(fullPath))
-			{
-				LOG_WARN("Map file does not exist - map has no VMAP data");
-				LOG_INFO("==================== VMapManager2::initializeMap END (no file) ====================");
-				return;
-			}
-
-			// Get file size
-			auto fileSize = std::filesystem::file_size(fullPath);
-			LOG_INFO("Map file size: " << fileSize << " bytes");
-
-			// Quick check if file is readable
-			FILE* rf = fopen(fullPath.c_str(), "rb");
-			if (!rf)
-			{
-				LOG_ERROR("Cannot open map file! Error: " << strerror(errno));
-				LOG_INFO("==================== VMapManager2::initializeMap END (cannot open) ====================");
-				return;
-			}
-			fclose(rf);
-			LOG_DEBUG("Map file is readable");
-
-			StaticMapTree* newTree = nullptr;
-			try
-			{
-				LOG_DEBUG("Creating StaticMapTree for map " << mapId);
-				newTree = new StaticMapTree(mapId, iBasePath);
-
-				LOG_DEBUG("Initializing tree from file...");
-				if (newTree->InitMap(mapFileName, this))
-				{
-					LOG_INFO("Tree initialization successful");
-					LOG_INFO("  Is tiled: " << (newTree->isTiled() ? "YES" : "NO"));
-
-					iInstanceMapTrees[mapId] = newTree;
-					iLoadedMaps.insert(mapId);
-
-					LOG_INFO("Map " << mapId << " added to loaded maps set");
-				}
-				else
-				{
-					LOG_ERROR("Tree initialization failed!");
-					delete newTree;
-				}
-			}
-			catch (const std::bad_alloc& e)
-			{
-				LOG_ERROR("Bad allocation while initializing map " << mapId << ": " << e.what());
-				delete newTree;
-				throw;
-			}
-			catch (const std::exception& e)
-			{
-				LOG_ERROR("Exception while initializing map " << mapId << ": " << e.what());
-				delete newTree;
-			}
-		}
-		catch (const std::bad_alloc& e)
-		{
-			LOG_ERROR("Memory allocation failed for map " << mapId << ": " << e.what());
-			throw;
-		}
-		catch (const std::exception& e)
-		{
-			LOG_ERROR("Failed to initialize map " << mapId << ": " << e.what());
+			return;
 		}
 
-		LOG_INFO("==================== VMapManager2::initializeMap END ====================");
+		std::string mapFileName = getMapFileName(mapId);
+		std::string fullPath = iBasePath + mapFileName;
+
+		if (!std::filesystem::exists(fullPath))
+		{
+			return;
+		}
+
+		// Get file size
+		auto fileSize = std::filesystem::file_size(fullPath);
+
+		// Quick check if file is readable
+		FILE* rf = fopen(fullPath.c_str(), "rb");
+		if (!rf)
+		{
+			return;
+		}
+		fclose(rf);
+
+		StaticMapTree* newTree = new StaticMapTree(mapId, iBasePath);
+
+		if (newTree->InitMap(mapFileName, this))
+		{
+			iInstanceMapTrees[mapId] = newTree;
+			iLoadedMaps.insert(mapId);
+		}
+		else
+		{
+			delete newTree;
+		}
 	}
 
 	bool VMapManager2::isUnderModel(unsigned int pMapId, float x, float y, float z,
@@ -374,40 +323,6 @@ namespace VMAP
 			return instanceTree->second->isUnderModel(pos, outDist, inDist);
 		}
 		return false;
-	}
-
-	void VMapManager2::listAvailableVMapFiles() const
-	{
-		std::cout << "[VMAP] Searching for VMAP files in: " << iBasePath << std::endl;
-
-		try
-		{
-			std::cout << "[VMAP] Available maps (.vmtree files):" << std::endl;
-			for (const auto& entry : std::filesystem::directory_iterator(iBasePath))
-			{
-				if (entry.path().extension() == ".vmtree")
-				{
-					std::cout << "  - " << entry.path().filename() << std::endl;
-				}
-			}
-
-			std::cout << "[VMAP] Available tiles (.vmtile files):" << std::endl;
-			int tileCount = 0;
-			for (const auto& entry : std::filesystem::directory_iterator(iBasePath))
-			{
-				if (entry.path().extension() == ".vmtile")
-				{
-					tileCount++;
-				}
-			}
-			std::cout << "  Found " << tileCount << " tile files" << std::endl;
-
-			std::cout << "[VMAP] Model mappings loaded: " << modelNameToPath.size() << std::endl;
-		}
-		catch (const std::exception& e)
-		{
-			std::cerr << "[VMAP] Error listing files: " << e.what() << std::endl;
-		}
 	}
 
 	std::string VMapManager2::getMapFileName(unsigned int pMapId)
@@ -626,7 +541,6 @@ namespace VMAP
 		if (instanceTree != iInstanceMapTrees.end())
 		{
 			G3D::Vector3 pos = convertPositionToInternalRep(x, y, z);
-			LOG_VECTOR3("Internal position", pos);
 
 			bool result = instanceTree->second->getAreaInfo(pos, flags, adtId, rootId, groupId);
 
@@ -643,39 +557,26 @@ namespace VMAP
 				LOG_DEBUG("No area info at position");
 			}
 		}
-		else
-		{
-			LOG_WARN("No map tree for area info query");
-		}
 
 		flags = 0;
 		adtId = -1;
 		rootId = -1;
 		groupId = -1;
 
-		LOG_TRACE("VMapManager2::getAreaInfo EXIT - Not found");
 		return false;
 	}
 
 	bool VMapManager2::GetLiquidLevel(uint32_t pMapId, float x, float y, float z,
 		uint8_t ReqLiquidTypeMask, float& level, float& floor, uint32_t& type) const
 	{
-		LOG_TRACE("VMapManager2::GetLiquidLevel ENTER - Map:" << pMapId
-			<< " Pos:(" << x << "," << y << "," << z << ")"
-			<< " ReqMask:" << std::hex << (int)ReqLiquidTypeMask << std::dec);
-
 		auto instanceTree = iInstanceMapTrees.find(pMapId);
 		if (instanceTree != iInstanceMapTrees.end())
 		{
 			G3D::Vector3 pos = convertPositionToInternalRep(x, y, z);
 			LocationInfo info;
 
-			LOG_VECTOR3("Internal position", pos);
-
 			if (instanceTree->second->GetLocationInfo(pos, info))
 			{
-				LOG_DEBUG("Got location info - HitModel:" << (info.hitModel ? "YES" : "NO"));
-
 				if (info.hitModel)
 				{
 					float liqHeight;
@@ -684,34 +585,19 @@ namespace VMAP
 						uint32_t liquidType = info.hitModel->GetLiquidType();
 						uint32_t liquidMask = GetLiquidMask(liquidType);
 
-						LOG_DEBUG("Liquid found - Type:" << liquidType
-							<< " Mask:" << std::hex << liquidMask << std::dec
-							<< " Height:" << liqHeight);
-
 						if (ReqLiquidTypeMask & liquidMask)
 						{
 							level = liqHeight;
 							floor = info.ground_Z;
 							type = liquidType;
 
-							LOG_INFO("Liquid match - Level:" << level
-								<< " Floor:" << floor << " Type:" << type);
 							return true;
-						}
-						else
-						{
-							LOG_DEBUG("Liquid type doesn't match requested mask");
 						}
 					}
 				}
 			}
 		}
-		else
-		{
-			LOG_WARN("No map tree for liquid query");
-		}
 
-		LOG_TRACE("VMapManager2::GetLiquidLevel EXIT - Not found");
 		return false;
 	}
 

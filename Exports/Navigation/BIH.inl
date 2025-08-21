@@ -60,15 +60,8 @@ template<typename RayCallback>
 void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
     float& maxDist, bool stopAtFirstHit, bool ignoreM2Model) const
 {
-    LOG_TRACE("BIH::intersectRay START TreeSize:" << tree.size()
-        << " ObjectCount:" << objects.size()
-        << " MaxDist:" << maxDist
-        << " StopAtFirst:" << (stopAtFirstHit ? "YES" : "NO")
-        << " IgnoreM2:" << (ignoreM2Model ? "YES" : "NO"));
-
     if (tree.empty() || objects.empty())
     {
-        LOG_DEBUG("BIH tree or objects empty - no traversal possible");
         return;
     }
 
@@ -94,7 +87,6 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
 
             if (intervalMax <= 0 || intervalMin >= maxDist)
             {
-                LOG_DEBUG("Early exit: Ray misses BIH bounds");
                 return;
             }
         }
@@ -102,14 +94,11 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
 
     if (intervalMin > intervalMax)
     {
-        LOG_DEBUG("Ray misses BIH bounds: intervalMin > intervalMax");
         return;
     }
 
     intervalMin = std::max(intervalMin, 0.f);
     intervalMax = std::min(intervalMax, maxDist);
-
-    LOG_DEBUG("Initial interval: [" << intervalMin << ", " << intervalMax << "]");
 
     // Compute custom offsets from direction sign bit
     uint32_t offsetFront[3], offsetBack[3];
@@ -150,14 +139,9 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
                     float tf = (VMAP::intBitsToFloat(tree[node + offsetFront[axis]]) - org[axis]) * invDir[axis];
                     float tb = (VMAP::intBitsToFloat(tree[node + offsetBack[axis]]) - org[axis]) * invDir[axis];
 
-                    LOG_TRACE("Interior node " << node << ": Axis=" << axis
-                        << " tf=" << tf << " tb=" << tb
-                        << " interval=[" << intervalMin << "," << intervalMax << "]");
-
                     // ray passes between clip zones
                     if (tf < intervalMin && tb > intervalMax)
                     {
-                        LOG_TRACE("Ray passes between clip zones - skipping subtree");
                         break;
                     }
 
@@ -167,7 +151,6 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
                     // ray passes through far node only
                     if (tf < intervalMin)
                     {
-                        LOG_TRACE("Ray passes through far node only");
                         intervalMin = (tb >= intervalMin) ? tb : intervalMin;
                         continue;
                     }
@@ -177,13 +160,9 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
                     // ray passes through near node only
                     if (tb > intervalMax)
                     {
-                        LOG_TRACE("Ray passes through near node only");
                         intervalMax = (tf <= intervalMax) ? tf : intervalMax;
                         continue;
                     }
-
-                    // ray passes through both nodes
-                    LOG_TRACE("Ray passes through both children");
 
                     // push back node
                     stack[stackPos].node = back;
@@ -199,15 +178,12 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
                 {
                     // leaf - test some objects
                     int n = tree[node + 1];
-                    LOG_TRACE("Leaf node " << node << ": ObjectCount=" << n
-                        << " FirstObjIdx=" << offset);
 
                     while (n > 0)
                     {
                         bool hit = intersectCallback(r, objects[offset], maxDist, stopAtFirstHit, ignoreM2Model);
                         if (stopAtFirstHit && hit)
                         {
-                            LOG_DEBUG("Stopping at first hit");
                             return;
                         }
                         --n;
@@ -240,7 +216,6 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
             // stack is empty?
             if (stackPos == 0)
             {
-                LOG_DEBUG("Stack empty - traversal complete");
                 return;
             }
 
@@ -262,11 +237,8 @@ void BIH::intersectRay(const G3D::Ray& r, RayCallback& intersectCallback,
 template<typename IsectCallback>
 void BIH::intersectPoint(const G3D::Vector3& p, IsectCallback& intersectCallback) const
 {
-    LOG_TRACE("BIH::intersectPoint START Point:(" << p.x << "," << p.y << "," << p.z << ")");
-
     if (!bounds.contains(p))
     {
-        LOG_DEBUG("Point is outside BIH bounds");
         return;
     }
 
@@ -278,8 +250,6 @@ void BIH::intersectPoint(const G3D::Vector3& p, IsectCallback& intersectCallback
     int leavesChecked = 0;
     int objectsTested = 0;
 
-    LOG_DEBUG("Starting point intersection traversal");
-
     while (true)
     {
         while (true)
@@ -289,10 +259,6 @@ void BIH::intersectPoint(const G3D::Vector3& p, IsectCallback& intersectCallback
             bool const BVH2 = tn & (1 << 29);
             int offset = tn & ~(7 << 29);
 
-            LOG_TRACE("Node " << node << ": axis=" << axis
-                << " BVH2=" << (BVH2 ? "YES" : "NO")
-                << " offset=" << offset);
-
             if (!BVH2)
             {
                 if (axis < 3)
@@ -301,14 +267,9 @@ void BIH::intersectPoint(const G3D::Vector3& p, IsectCallback& intersectCallback
                     float tl = VMAP::intBitsToFloat(tree[node + 1]);
                     float tr = VMAP::intBitsToFloat(tree[node + 2]);
 
-                    LOG_TRACE("Interior node " << node
-                        << ": Split planes tl=" << tl << " tr=" << tr
-                        << " point[axis]=" << p[axis]);
-
                     // point is between clip zones
                     if (tl < p[axis] && tr > p[axis])
                     {
-                        LOG_TRACE("Point is between clip zones - skipping subtree");
                         break;
                     }
 
@@ -318,7 +279,6 @@ void BIH::intersectPoint(const G3D::Vector3& p, IsectCallback& intersectCallback
                     // point is in right node only
                     if (tl < p[axis])
                     {
-                        LOG_TRACE("Point is in right child only");
                         continue;
                     }
 
@@ -327,37 +287,24 @@ void BIH::intersectPoint(const G3D::Vector3& p, IsectCallback& intersectCallback
                     // point is in left node only
                     if (tr > p[axis])
                     {
-                        LOG_TRACE("Point is in left child only");
                         continue;
                     }
-
-                    // point is in both nodes
-                    LOG_TRACE("Point is in both children - pushing right to stack");
 
                     // push back right node
                     stack[stackPos].node = right;
                     ++stackPos;
 
-                    LOG_TRACE("Pushed right child to stack pos " << (stackPos - 1));
                     continue;
                 }
                 else
                 {
                     int n = tree[node + 1];
 
-                    LOG_TRACE("Leaf node " << node << ": ObjectCount=" << n
-                        << " FirstObjIdx=" << offset);
-
                     while (n > 0)
                     {
                         uint32_t objIdx = objects[offset];
 
-                        LOG_TRACE("Testing point against object " << objIdx);
-
-                        // Point callback only takes 2 parameters (point and index)
                         intersectCallback(p, objIdx);
-
-                        LOG_TRACE("Object " << objIdx << " processed");
 
                         --n;
                         ++offset;
@@ -369,27 +316,19 @@ void BIH::intersectPoint(const G3D::Vector3& p, IsectCallback& intersectCallback
             {
                 if (axis > 2)
                 {
-                    LOG_ERROR("Invalid BVH2 node with axis=" << axis << " at node " << node);
                     return; // should not happen
                 }
 
-                LOG_TRACE("BVH2 node " << node << ": Axis=" << axis);
-
                 float tl = VMAP::intBitsToFloat(tree[node + 1]);
                 float tr = VMAP::intBitsToFloat(tree[node + 2]);
-
-                LOG_TRACE("BVH2 empty space bounds: tl=" << tl << " tr=" << tr
-                    << " point[axis]=" << p[axis]);
 
                 node = offset;
 
                 if (tl > p[axis] || tr < p[axis])
                 {
-                    LOG_TRACE("Point is outside BVH2 bounds - skipping");
                     break;
                 }
 
-                LOG_TRACE("Point is within BVH2 bounds - continuing to child");
                 continue;
             }
         } // traversal loop
@@ -398,17 +337,11 @@ void BIH::intersectPoint(const G3D::Vector3& p, IsectCallback& intersectCallback
         // stack is empty?
         if (stackPos == 0)
         {
-            LOG_DEBUG("Stack empty - point traversal complete");
-            LOG_INFO("Point traversal summary: NodesVisited:" << nodesVisited
-                << " LeavesChecked:" << leavesChecked
-                << " ObjectsTested:" << objectsTested);
             return;
         }
 
         // move back up the stack
         --stackPos;
         node = stack[stackPos].node;
-
-        LOG_TRACE("Popped from stack pos " << stackPos << " node:" << node);
     }
 }
