@@ -259,9 +259,12 @@ namespace BloogBot
                 else
                 {
                     var wardenBaseAddr = MemoryManager.ReadIntPtr(wardenPtr);
-                    Console.WriteLine($"[WARDEN] DisableWardenHook found WardenBaseAddress = {wardenBaseAddr} (0x{wardenBaseAddr.ToString("X")})");
-                    InitializeWardenPageScanHook(wardenBaseAddr);
-                    InitializeWardenMemScanHook(wardenBaseAddr);
+                    if (wardenBaseAddr != IntPtr.Zero)
+                    {
+                        Console.WriteLine($"[WARDEN] DisableWardenHook found WardenBaseAddress = {wardenBaseAddr} (0x{wardenBaseAddr.ToString("X")})");
+                        InitializeWardenPageScanHook(wardenBaseAddr);
+                        InitializeWardenMemScanHook(wardenBaseAddr);
+                    }
                 }
             }
         }
