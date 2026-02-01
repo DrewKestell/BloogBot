@@ -85,6 +85,13 @@ namespace BloogBot.AI.SharedStates
                     botStates.Push(new LootState(botStates, container, target));
                 }
 
+                var threat = container.FindThreat();
+
+                if (threat != null)
+                {
+                    botStates.Push(container.CreateMoveToTargetState(botStates, container, threat));
+                }
+
                 return true;
             }
 
