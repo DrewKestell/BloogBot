@@ -17,14 +17,7 @@ namespace BloogBot.Game.Objects
         {
             get
             {
-                if (ClientHelper.ClientVersion == ClientVersion.WotLK)
-                {
-                    return MemoryManager.ReadInt(Pointer + 0xC70) > 0;
-                }
-                else
-                {
-                    return HasBuff("Food");
-                }
+                return HasBuff("Food");
             }
         }
 
@@ -32,14 +25,7 @@ namespace BloogBot.Game.Objects
         {
             get
             {
-                if (ClientHelper.ClientVersion == ClientVersion.WotLK)
-                {
-                    return MemoryManager.ReadInt(Pointer + 0xF3C) == 4;
-                }
-                else
-                {
-                    return HasBuff("Drink"); ;
-                }
+                return HasBuff("Drink"); ;
             }
         }
     }
