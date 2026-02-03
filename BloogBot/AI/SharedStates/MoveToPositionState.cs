@@ -1,5 +1,6 @@
 ﻿using BloogBot.Game;
 using BloogBot.Game.Objects;
+using System;
 using System.Collections.Generic;
 
 namespace BloogBot.AI.SharedStates
@@ -12,15 +13,17 @@ namespace BloogBot.AI.SharedStates
         readonly bool use2DPop;
         readonly LocalPlayer player;
         readonly StuckHelper stuckHelper;
+        readonly int deadline;
 
         int stuckCount;
 
-        public MoveToPositionState(Stack<IBotState> botStates, IDependencyContainer container, Position destination, bool use2DPop = false)
+        public MoveToPositionState(Stack<IBotState> botStates, IDependencyContainer container, Position destination, bool use2DPop = false, int deadline = -1)
         {
             this.botStates = botStates;
             this.container = container;
             this.destination = destination;
             this.use2DPop = use2DPop;
+            this.deadline = deadline;
             player = ObjectManager.Player;
             stuckHelper = new StuckHelper(botStates, container);
         }
@@ -57,7 +60,14 @@ namespace BloogBot.AI.SharedStates
                     return;
                 }
             }
-            
+
+            if (deadline > 0 && Environment.TickCount > deadline)
+            {
+                player.StopAllMovement();
+                botStates.Pop();
+                return;
+            }
+
             var nextWaypoint = Navigation.GetNextWaypoint(ObjectManager.MapId, player.Position, destination, false);
             player.MoveToward(nextWaypoint);
         }
