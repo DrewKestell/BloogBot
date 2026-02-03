@@ -35,6 +35,10 @@ namespace BloogBot.AI.SharedStates
                     .Units
                     .Single(u => u.Name == npcName);
                 state = State.Interacting;
+
+                // Some NPCs like to walk around. Move to their location before interating.
+                botStates.Push(new MoveToPositionState(botStates, container, npc.Position));
+                return;
             }
             if (state == State.Interacting)
             {
