@@ -1,4 +1,5 @@
-﻿using BloogBot.AI;
+﻿using BloogBot;
+using BloogBot.AI;
 using BloogBot.AI.SharedStates;
 using BloogBot.Game;
 using BloogBot.Game.Enums;
@@ -6,6 +7,7 @@ using BloogBot.Game.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 
 namespace FrostMageBot
 {
@@ -35,16 +37,23 @@ namespace FrostMageBot
         readonly WoWUnit target;
         readonly string nuke;
         readonly int range;
+        readonly Stack<IBotState> botStates;
+        readonly IDependencyContainer container;
 
         bool frostNovaBackpedaling;
         int frostNovaBackpedalStartTime;
         bool frostNovaJumped;
         bool frostNovaStartedMoving;
+        bool unstucking;
+
+        int combatStateStartTime;
 
         internal CombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) : base(botStates, container, target, 29 + (ObjectManager.GetTalentRank(3, 11) * 3))
         {
             player = ObjectManager.Player;
             this.target = target;
+            this.botStates = botStates;
+            this.container = container;
 
             if (!player.KnowsSpell(Frostbolt))
                 nuke = Fireball;
@@ -58,6 +67,8 @@ namespace FrostMageBot
                 nuke = Fireball;
 
             range = 29 + (ObjectManager.GetTalentRank(3, 11) * 3);
+
+            combatStateStartTime = Environment.TickCount;
         }
 
         public new void Update()
@@ -88,6 +99,45 @@ namespace FrostMageBot
 
             if (base.Update())
                 return;
+
+            if (unstucking)
+            {
+                // Move towards the target.
+                var nextWaypoint = Navigation.GetNextWaypoint(
+                    ObjectManager.MapId, player.Position, target.Position, false);
+                player.MoveToward(nextWaypoint);
+
+                // Once we've dealt any damage, we are no longer stuck.
+                if (target.HealthPercent < 100)
+                {
+                    player.StopAllMovement();
+                    unstucking = false;
+                }
+
+                // If we get any threat while moving, just fight that enemy instead.
+                var threat = container.FindThreat();
+                if (threat != null)
+                {
+                    botStates.Pop();
+                    botStates.Push(container.CreateMoveToTargetState(botStates, container, threat));
+                    return;
+                }
+
+                // No return here. We keep trying to cast spells. Although only instant spells will
+                // succeed.
+            }
+
+            // If we haven't dealt any damage to the target for 30 seconds, we're probably stuck.
+            if (Environment.TickCount - combatStateStartTime > 30 * 1000 && target.HealthPercent >= 99)
+            {
+                unstucking = true;
+                botStates.Push(new StuckState(botStates, container));
+
+                // Reset the timer so we don't keep trying to unstuck.
+                combatStateStartTime = Environment.TickCount;
+
+                return;
+            }
 
             TryCastSpell(Evocation, 0, int.MaxValue, (player.HealthPercent > 50 || player.HasBuff(IceBarrier)) && player.ManaPercent < 8 && target.HealthPercent > 15);
 
