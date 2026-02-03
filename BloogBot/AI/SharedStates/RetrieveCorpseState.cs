@@ -15,11 +15,13 @@ namespace BloogBot.AI.SharedStates
         // in every direction, adding 1 to account for the center.
         static readonly int length = Convert.ToInt32(Math.Pow((resDistance * 2) + 1, 2.0));
         readonly Position[] resLocs = new Position[length];
+        readonly HashSet<int> attemptedResLocIndices = new HashSet<int>();
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
         readonly LocalPlayer player;
 
         bool initialized;
+        bool resurrecting = false;
 
         public RetrieveCorpseState(Stack<IBotState> botStates, IDependencyContainer container)
         {
@@ -32,9 +34,6 @@ namespace BloogBot.AI.SharedStates
         {
             if (!initialized)
             {
-                // corpse position is wrong immediately after releasing, so we wait for 5s.
-                //Thread.Sleep(5000);
-
                 var resLocation = player.CorpsePosition;
 
                 var threats = ObjectManager
@@ -62,28 +61,53 @@ namespace BloogBot.AI.SharedStates
                     }
 
                     var maxDistance = 0f;
+                    int maxDistanceIndex = -1;
 
-                    foreach (var resLoc in resLocs)
+                    for (int i = 0; i < resLocs.Length; i++)
                     {
-                        var path = Navigation.CalculatePath(ObjectManager.MapId, player.CorpsePosition, resLoc, false);
+                        var path = Navigation.CalculatePath(ObjectManager.MapId, player.Position, resLocs[i], false);
                         if (path.Length == 0) continue;
                         var endPoint = path[path.Length - 1];
-                        var distanceToClosestThreat = endPoint.DistanceTo(threats.OrderBy(u => u.Position.DistanceTo(resLoc)).First().Position);
+                        var distanceToClosestThreat = endPoint.DistanceTo(threats.OrderBy(u => u.Position.DistanceTo(resLocs[i])).First().Position);
 
-                        if (endPoint.DistanceTo(player.Position) < resDistance && distanceToClosestThreat > maxDistance)
+                        if (endPoint.DistanceTo(player.CorpsePosition) < resDistance && distanceToClosestThreat > maxDistance && !attemptedResLocIndices.Contains(i))
                         {
                             maxDistance = distanceToClosestThreat;
-                            resLocation = resLoc;
+                            maxDistanceIndex = i;
+                            resLocation = resLocs[i];
                         }
                     }
+
+                    attemptedResLocIndices.Add(maxDistanceIndex);
                 }
 
                 initialized = true;
 
-                botStates.Push(new MoveToPositionState(botStates, container, resLocation, true));
+                botStates.Push(new MoveToPositionState(
+                    botStates, container, resLocation, true,
+                    // Give it a minute to walk there. If we can't walk 30 yards in a minute, we're
+                    // probably stuck.
+                    deadline: Environment.TickCount + 60 * 1000));
+
                 return;
             }
 
+            // If here we are still too far from the corpse, it means we failed to move to the res
+            // location. Let's try another one.
+            if (!resurrecting && player.Position.DistanceTo(player.CorpsePosition) > resDistance)
+            {
+                initialized = false;
+                return;
+            }
+            else
+            {
+                // We must stop checking res distance once we confirmed we are at where we want
+                // because after res the corpse position will become (0, 0). We don't want to set
+                // initialized to false in next update.
+                resurrecting = true;
+            }
+
+            // Now we can res.
             if (Wait.For("StartRetrieveCorpseStateDelay", 1000))
             {
                 if (ObjectManager.Player.InGhostForm)
