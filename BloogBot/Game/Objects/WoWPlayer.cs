@@ -17,7 +17,7 @@ namespace BloogBot.Game.Objects
         {
             get
             {
-                return HasBuff("Food");
+                return HasBuff("Food") || HasDebuff("Food");
             }
         }
 
@@ -25,7 +25,7 @@ namespace BloogBot.Game.Objects
         {
             get
             {
-                return HasBuff("Drink"); ;
+                return HasBuff("Drink") || HasDebuff("Drink");
             }
         }
     }
