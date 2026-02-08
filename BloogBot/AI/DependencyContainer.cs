@@ -53,6 +53,12 @@ namespace BloogBot.AI
         // this is broken up into multiple sub-expressions to improve readability and debuggability
         public WoWUnit FindThreat()
         {
+            // If we are dead, nothing is a threat.
+            if (ObjectManager.Player.InGhostForm)
+            {
+                return null;
+            }
+
             var potentialThreats = ObjectManager.Units
                 .Where(u =>
                     u.TargetGuid == ObjectManager.Player.Guid ||
