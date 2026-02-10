@@ -32,6 +32,8 @@ namespace FrostMageBot
         const string IceBarrier = "Ice Barrier";
         const string IcyVeins = "Icy Veins";
         const string SummonWaterElemental = "Summon Water Elemental";
+        const string BrainFreezeBuff = "Fireball!";
+        const string FrostfireBolt = "Frostfire Bolt";
 
         readonly LocalPlayer player;
         readonly WoWUnit target;
@@ -139,7 +141,7 @@ namespace FrostMageBot
                 return;
             }
 
-            TryCastSpell(Evocation, 0, int.MaxValue, (player.HealthPercent > 50 || player.HasBuff(IceBarrier)) && player.ManaPercent < 8 && target.HealthPercent > 15);
+            TryCastSpell(Evocation, 0, int.MaxValue, (player.HealthPercent > 50 || PlayerHasIceBarrier) && player.ManaPercent < 8 && target.HealthPercent > 15);
 
             var wand = Inventory.GetEquippedItem(EquipSlot.Ranged);
             if (wand != null && player.ManaPercent <= 10 && !player.IsCasting && !player.IsChanneling)
@@ -158,13 +160,17 @@ namespace FrostMageBot
 
                 TryCastSpell(Counterspell, 0, 30, target.Mana > 0 && target.IsCasting);
 
-                TryCastSpell(IceBarrier, 0, 50, !player.HasBuff(IceBarrier) && (ObjectManager.Aggressors.Count() >= 2 || (!player.IsSpellReady(FrostNova) && player.HealthPercent < 95 && player.ManaPercent > 40 && (target.HealthPercent > 20 || player.HealthPercent < 10))));
+                TryCastSpell(IceBarrier, 0, 50, !PlayerHasIceBarrier && (ObjectManager.Aggressors.Count() >= 2 || (!player.IsSpellReady(FrostNova) && player.HealthPercent < 95 && player.ManaPercent > 40 && (target.HealthPercent > 20 || player.HealthPercent < 10))));
 
                 TryCastSpell(FrostNova, 0, 9, target.TargetGuid == player.Guid && (target.HealthPercent > 20 || player.HealthPercent < 30) && !IsTargetFrozen && !ObjectManager.Units.Any(u => u.Guid != target.Guid && u.HealthPercent > 0 && u.Guid != player.Guid && u.Position.DistanceTo(player.Position) <= 12), callback: FrostNovaCallback);
 
                 TryCastSpell(ConeOfCold, 0, 8, player.Level >= 30 && target.HealthPercent > 20 && IsTargetFrozen);
 
                 TryCastSpell(FireBlast, 0, 20, !IsTargetFrozen);
+
+                TryCastSpell(FrostfireBolt, 0, 40, player.HasBuff(BrainFreezeBuff));
+
+                TryCastSpell(Fireball, 0, 35, player.HasBuff(BrainFreezeBuff));
 
                 // Either Frostbolt or Fireball depending on what is stronger. Will always use Frostbolt at level 8+.
                 TryCastSpell(nuke, 0, range);
@@ -179,6 +185,10 @@ namespace FrostMageBot
             frostNovaBackpedalStartTime = Environment.TickCount;
         };
 
-        bool IsTargetFrozen => target.HasDebuff(Frostbite) || target.HasDebuff(FrostNova);
+        // Sometimes frostbite and frostnova are considered buffs.
+        bool IsTargetFrozen => target.HasDebuff(Frostbite) || target.HasBuff(Frostbite) || target.HasDebuff(FrostNova) || target.HasBuff(FrostNova);
+
+        // Sometimes ice barrier is considered a debuff.
+        bool PlayerHasIceBarrier => player.HasBuff(IceBarrier) || player.HasDebuff(IceBarrier);
     }
 }
