@@ -25,10 +25,10 @@ namespace FrostMageBot
             player = ObjectManager.Player;
 
             foodItem = Inventory.GetAllItems()
-                .FirstOrDefault(i => i.Info.Name == container.BotSettings.Food);
+                .FirstOrDefault(i => container.BotSettings.Food.Split('|').Any(m => i.Info.Name.Contains(m)));
 
             drinkItem = Inventory.GetAllItems()
-                .FirstOrDefault(i => i.Info.Name == container.BotSettings.Drink);
+                .FirstOrDefault(i => container.BotSettings.Drink.Split('|').Any(m => i.Info.Name.Contains(m)));
         }
 
         public void Update()
