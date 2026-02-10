@@ -335,6 +335,10 @@ namespace BloogBot.Game
                 probe.CurrentZone = MinimapZoneText;
 
                 var target = Units.FirstOrDefault(u => u.Guid == Player.TargetGuid);
+                if (Player.TargetGuid == Player.Guid)
+                {
+                    target = Player;
+                }
                 if (target != null)
                 {
                     probe.TargetName = target.Name;
@@ -345,6 +349,8 @@ namespace BloogBot.Game
                     probe.TargetFactionId = target.FactionId.ToString();
                     probe.TargetIsCasting = target.IsCasting.ToString();
                     probe.TargetIsChanneling = target.IsChanneling.ToString();
+                    probe.TargetBuffs = string.Join(", ", target.Buffs.Select(u => u.Name));
+                    probe.TargetDebuffs = string.Join(", ", target.Debuffs.Select(u => u.Name));
                 }
 
                 probe.Callback();

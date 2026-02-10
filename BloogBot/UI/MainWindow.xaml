@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BloogBot.UI"
         mc:Ignorable="d"
-        Title="BloogBot" MinHeight="900" Height="900" MaxHeight="900" MinWidth="437" Width="400" MaxWidth="400" ResizeMode="CanMinimize" SizeToContent="WidthAndHeight">
+        Title="BloogBot" MinHeight="1000" Height="1000" MaxHeight="1000" MinWidth="437" Width="400" MaxWidth="400" ResizeMode="CanMinimize" SizeToContent="WidthAndHeight">
     <Window.DataContext>
         <local:MainViewModel />
     </Window.DataContext>
@@ -276,6 +276,8 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="114"/>
@@ -316,8 +318,14 @@
                         <Label Grid.Row="12" Content="Target IsChanneling:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
                         <Label Grid.Row="12" Grid.Column="1" Content="{Binding TargetIsChanneling}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2" />
 
-                        <Label Grid.Row="13" Content="Update Latency:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
-                        <Label Grid.Row="13" Grid.Column="1" Content="{Binding UpdateLatency}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2" />
+                        <Label Grid.Row="13" Content="Target Buffs:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                        <Label Grid.Row="13" Grid.Column="1" Content="{Binding TargetBuffs}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2" />
+
+                        <Label Grid.Row="14" Content="Target Debuffs:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                        <Label Grid.Row="14" Grid.Column="1" Content="{Binding TargetDebuffs}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2" />
+
+                        <Label Grid.Row="15" Content="Update Latency:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right"/>
+                        <Label Grid.Row="15" Grid.Column="1" Content="{Binding UpdateLatency}" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2" />
                     </Grid>
                 </Grid>
             </TabItem>

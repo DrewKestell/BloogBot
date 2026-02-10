@@ -37,6 +37,10 @@ namespace BloogBot
 
         public string TargetIsChanneling { get; set; }
 
+        public string TargetBuffs { get; set; }
+
+        public string TargetDebuffs { get; set; }
+
         public string UpdateLatency { get; set; }
 
         public IList<ulong> BlacklistedMobIds { get; set; }
