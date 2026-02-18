@@ -89,6 +89,12 @@ namespace BloogBot.AI.SharedStates
 
                 if (threat != null)
                 {
+                    // We also need to do the same check against the threat we found.
+                    var checkThreat = ObjectManager.Units.FirstOrDefault(u => u.Guid == threat.Guid);
+                    if (threat.Health == 0 || threat.TappedByOther || checkThreat == null) {
+                        return true;
+                    }
+
                     botStates.Push(container.CreateMoveToTargetState(botStates, container, threat));
                 }
 
@@ -214,7 +220,6 @@ namespace BloogBot.AI.SharedStates
                     player.CastSpell(name, target.Guid);
                     callback?.Invoke();
                 }
-                
             }
         }
 
