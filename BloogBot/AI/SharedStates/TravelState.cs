@@ -12,6 +12,7 @@ namespace BloogBot.AI.SharedStates
         readonly Position[] travelPathWaypoints;
         readonly Action callback;
         readonly LocalPlayer player;
+        readonly StuckHelper stuckHelper;
         
         int travelPathIndex;
 
@@ -23,6 +24,7 @@ namespace BloogBot.AI.SharedStates
             this.callback = callback;
             player = ObjectManager.Player;
             travelPathIndex = startingIndex;
+            stuckHelper = new StuckHelper(botStates, container);
         }
 
         public void Update()
@@ -46,6 +48,8 @@ namespace BloogBot.AI.SharedStates
                 callback?.Invoke();
                 return;
             }
+
+            stuckHelper.CheckIfStuck();
             
             player.MoveToward(travelPathWaypoints[travelPathIndex]);
         }
