@@ -988,6 +988,18 @@ namespace BloogBot.UI
         }
 
         [ProbeField]
+        public string TargetBuffs
+        {
+            get => probe.TargetBuffs;
+        }
+
+        [ProbeField]
+        public string TargetDebuffs
+        {
+            get => probe.TargetDebuffs;
+        }
+
+        [ProbeField]
         public string UpdateLatency
         {
             get => probe.UpdateLatency;
