@@ -13,6 +13,8 @@ namespace BloogBot.AI
 
         bool Running();
 
+        void Login(IDependencyContainer container, Action stopCallback);
+
         void Start(IDependencyContainer container, Action stopCallback);
 
         void Stop();

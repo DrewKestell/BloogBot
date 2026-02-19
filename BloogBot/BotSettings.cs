@@ -43,13 +43,13 @@ namespace BloogBot
         public bool CreatureTypeUndead { get; set; }
 
         public bool CreatureTypeGiant { get; set; }
-        
+
         public bool UnitReactionHostile { get; set; }
 
         public bool UnitReactionUnfriendly { get; set; }
 
         public bool UnitReactionNeutral { get; set; }
-        
+
         public bool LootPoor { get; set; }
 
         public bool LootCommon { get; set; }
@@ -93,6 +93,10 @@ namespace BloogBot
         public int ProximityStopTimer { get; set; }
 
         public bool UseVerboseLogging { get; set; }
+
+        public string Username { get; set; }
+
+        public string Password { get; set; }
 
         [JsonIgnore]
         public Hotspot GrindingHotspot { get; set; }
