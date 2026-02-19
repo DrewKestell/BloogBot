@@ -342,6 +342,12 @@ namespace BloogBot.AI
 
                         if (botStates.Count > 0 && (botStates.Peek()?.GetType() == typeof(GrindState) || botStates.Peek()?.GetType() == typeof(PowerlevelState)))
                         {
+                            if (retrievingCorpse)
+                            {
+                                // We just resurrected. Let's rest.
+                                botStates.Push(container.CreateRestState(botStates, container));
+                            }
+
                             container.RunningErrands = false;
                             retrievingCorpse = false;
                         }
@@ -386,7 +392,6 @@ namespace BloogBot.AI
 
                             container.DisableTeleportChecker = true;
 
-                            botStates.Push(container.CreateRestState(botStates, container));
                             botStates.Push(new RetrieveCorpseState(botStates, container));
                             botStates.Push(new MoveToCorpseState(botStates, container));
                             botStates.Push(new ReleaseCorpseState(botStates, container));
