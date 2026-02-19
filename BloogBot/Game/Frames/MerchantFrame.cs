@@ -37,8 +37,24 @@ namespace BloogBot.Game.Frames
 
         public void BuyItemByName(ulong vendorGuid, string itemName, int quantity)
         {
-            var item = items.Single(i => i.Name == itemName);
-            Functions.BuyVendorItem(vendorGuid, item.ItemId, quantity);
+            if (ClientHelper.ClientVersion == Enums.ClientVersion.WotLK)
+            {
+                // BuyVendorItem doesn't work in WotLK. But we can use lua instead.
+                Functions.LuaCall($@"
+                    for i = 1, GetMerchantNumItems() do
+                        local info = GetMerchantItemInfo(i)
+                        if info and info:find('{itemName}') then
+                            BuyMerchantItem(i, {quantity})
+                            break
+                        end
+                    end
+                ");
+            }
+            else
+            {
+                var item = items.Single(i => i.Name == itemName);
+                Functions.BuyVendorItem(vendorGuid, item.ItemId, quantity);
+            }
         }
 
         public void RepairAll() => Functions.LuaCall("RepairAllItems()");
