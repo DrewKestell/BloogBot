@@ -1,5 +1,4 @@
 ﻿using Binarysharp.Assemblers.Fasm;
-using BloogBot.Game;
 using BloogBot.Game.Cache;
 using System;
 using System.Diagnostics;
@@ -204,24 +203,13 @@ namespace BloogBot
             if (address == IntPtr.Zero)
                 return null;
 
-            try
-            {
-                var ret = new byte[count];
-                var ptr = (byte*)address;
+            var ret = new byte[count];
+            var ptr = (byte*)address;
 
-                for (var i = 0; i < count; i++)
-                    ret[i] = ptr[i];
+            for (var i = 0; i < count; i++)
+                ret[i] = ptr[i];
 
-                return ret;
-            }
-            catch (NullReferenceException)
-            {
-                return default;
-            }
-            catch (AccessViolationException)
-            {
-                return default;
-            }
+            return ret;
         }
 
         [HandleProcessCorruptedStateExceptions]
@@ -302,7 +290,7 @@ namespace BloogBot
             var hack = new Hack(hackName, start, byteCode);
             HackManager.AddHack(hack);
 
-            return start;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+            return start;
         }
 
         static internal void InjectAssembly(string hackName, uint ptr, string instructions)
