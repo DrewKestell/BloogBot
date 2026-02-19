@@ -44,9 +44,20 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
                         <Button
+                            Grid.Column="0"
+                            Command="{Binding LoginCommand}"
+                            IsEnabled="{Binding LoginCommandEnabled}"
+                            Content="Login"
+                            Height="24"
+                            HorizontalAlignment="Left"
+                            Margin="0,0,10,0"
+                            Padding="6,0,6,0"/>
+                        <Button
+                            Grid.Column="1"
                             Command="{Binding StartCommand}"
                             IsEnabled="{Binding StartCommandEnabled}"
                             Content="Start"
@@ -55,7 +66,7 @@
                             Margin="0,0,10,0"
                             Padding="6,0,6,0"/>
                         <Button
-                            Grid.Column="1"
+                            Grid.Column="2"
                             Command="{Binding StopCommand}"
                             IsEnabled="{Binding StopCommandEnabled}"
                             Content="Stop"
@@ -64,7 +75,7 @@
                             Margin="0,0,10,0"
                             Padding="6,0,6,0"/>
                         <Button
-                            Grid.Column="2"
+                            Grid.Column="3"
                             Command="{Binding ReloadBotsCommand}"
                             IsEnabled="{Binding ReloadBotsCommandEnabled}"
                             Content="Reload Bots"
@@ -73,7 +84,7 @@
                             Margin="0,0,10,0"
                             Padding="6,0,6,0"/>
                         <Button
-                            Grid.Column="3"
+                            Grid.Column="4"
                             Command="{Binding BlacklistCurrentTargetCommand}"
                             Content="Blacklist Target"
                             Height="24"
@@ -81,7 +92,7 @@
                             Margin="0,0,10,0"
                             Padding="6,0,6,0"/>
                         <Button
-                            Grid.Column="4"
+                            Grid.Column="5"
                             Command="{Binding TestCommand}"
                             Content="Test"
                             Height="24"
@@ -340,6 +351,11 @@
                         <RowDefinition Height="10"/>
                         <RowDefinition Height="24"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="24"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="10"/>
                         <RowDefinition Height="24"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
@@ -723,15 +739,70 @@
                             VerticalContentAlignment="Center"/>
                     </Grid>
 
+                    <Separator Grid.Row="13" Grid.ColumnSpan="2" />
+
                     <Label
-                        Grid.Row="13"
+                        Grid.Row="14"
+                        Padding="0"
+                        Content="LOGIN"
+                        VerticalContentAlignment="Center"
+                        FontWeight="Bold" Grid.ColumnSpan="2"/>
+
+                    <Grid Grid.Row="15" Grid.ColumnSpan="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label
+                            Grid.Row="1"
+                            Content="Username:"
+                            VerticalContentAlignment="Center"
+                            HorizontalContentAlignment="Right"/>
+                        <TextBox
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Text="{Binding Path=Username}"
+                            Margin="0,4,0,4"
+                            VerticalContentAlignment="Center"/>
+                    </Grid>
+
+                    <Grid Grid.Row="16" Grid.ColumnSpan="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label
+                            Grid.Row="1"
+                            Content="Password:"
+                            VerticalContentAlignment="Center"
+                            HorizontalContentAlignment="Right"/>
+                        <TextBox
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Text="{Binding Path=Password}"
+                            Margin="0,4,0,4"
+                            VerticalContentAlignment="Center"/>
+                    </Grid>
+
+                    <Separator Grid.Row="17" Grid.ColumnSpan="2" />
+
+                    <Label
+                        Grid.Row="18"
                         Padding="0"
                         Content="MISCELLANEOUS"
                         VerticalContentAlignment="Center"
                         FontWeight="Bold" Grid.ColumnSpan="2"/>
 
                     <CheckBox
-                        Grid.Row="14"
+                        Grid.Row="19"
                         Margin="12,2,8,2"
                         Content="Use Verbose Logging"
                         IsChecked="{Binding UseVerboseLogging}" Grid.ColumnSpan="2"/>
