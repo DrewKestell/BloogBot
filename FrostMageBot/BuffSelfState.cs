@@ -14,6 +14,7 @@ namespace FrostMageBot
         const string FrostArmor = "Frost Armor";
         const string IceArmor = "Ice Armor";
         const string MageArmor = "Mage Armor";
+        const string MoltenArmor = "Molten Armor";
 
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
@@ -28,7 +29,7 @@ namespace FrostMageBot
 
         public void Update()
         {
-            if ((!player.KnowsSpell(ArcaneIntellect) || player.HasBuff(ArcaneIntellect)) && (player.HasBuff(FrostArmor) || player.HasBuff(IceArmor) || player.HasBuff(MageArmor)) && (!player.KnowsSpell(DampenMagic) || player.HasBuff(DampenMagic)))
+            if ((!player.KnowsSpell(ArcaneIntellect) || player.HasBuff(ArcaneIntellect)) && (player.HasBuff(FrostArmor) || player.HasBuff(IceArmor) || player.HasBuff(MageArmor) || player.HasBuff(MoltenArmor)) && (!player.KnowsSpell(DampenMagic) || player.HasBuff(DampenMagic)))
             {
                 botStates.Pop();
                 botStates.Push(new ConjureItemsState(botStates, container));
@@ -37,12 +38,22 @@ namespace FrostMageBot
 
             TryCastSpell(ArcaneIntellect, castOnSelf: true);
 
-            if (player.KnowsSpell(MageArmor))
+            if (player.KnowsSpell(MoltenArmor))
+            {
+                TryCastSpell(MoltenArmor);
+            }
+            else if (player.KnowsSpell(MageArmor))
+            {
                 TryCastSpell(MageArmor);
+            }
             else if (player.KnowsSpell(IceArmor))
+            {
                 TryCastSpell(IceArmor);
+            }
             else
+            {
                 TryCastSpell(FrostArmor);
+            }
 
             TryCastSpell(DampenMagic, castOnSelf: true);
         }
@@ -60,7 +71,7 @@ namespace FrostMageBot
                     else
                     {
                         player.CastSpell(name, player.Guid);
-                    }    
+                    }
                 }
                 else
                     player.LuaCall($"CastSpellByName('{name}')");
