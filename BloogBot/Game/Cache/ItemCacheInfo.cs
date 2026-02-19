@@ -187,7 +187,21 @@ namespace BloogBot.Game.Cache
 
         public int MaxDurability => itemCacheEntry.MaxDurability;
 
-        public string Name => MemoryManager.ReadString(itemCacheEntry.NamePtr);
+        public string Name
+        {
+            get
+            {
+                try
+                {
+                    return MemoryManager.ReadString(itemCacheEntry.NamePtr);
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(e + "\n");
+                }
+                return null;
+            }
+        }
     }
 
     public class ItemCacheEntry
