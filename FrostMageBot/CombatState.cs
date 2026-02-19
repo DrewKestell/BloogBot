@@ -34,6 +34,10 @@ namespace FrostMageBot
         const string SummonWaterElemental = "Summon Water Elemental";
         const string BrainFreezeBuff = "Fireball!";
         const string FrostfireBolt = "Frostfire Bolt";
+        const string DeepFreeze = "Deep Freeze";
+        const string FingersOfFrostBuff = "Fingers of Frost";
+        const string IceLance = "Ice Lance";
+        const string ShatteredBarrier = "Shattered Barrier";
 
         readonly LocalPlayer player;
         readonly WoWUnit target;
@@ -164,6 +168,10 @@ namespace FrostMageBot
 
                 TryCastSpell(FrostNova, 0, 9, target.TargetGuid == player.Guid && (target.HealthPercent > 20 || player.HealthPercent < 30) && !IsTargetFrozen && !ObjectManager.Units.Any(u => u.Guid != target.Guid && u.HealthPercent > 0 && u.Guid != player.Guid && u.Position.DistanceTo(player.Position) <= 12), callback: FrostNovaCallback);
 
+                TryCastSpell(DeepFreeze, 0, range, IsTargetFrozen || player.HasBuff(FingersOfFrostBuff));
+
+                TryCastSpell(IceLance, 0, range, IsTargetFrozen || player.HasBuff(FingersOfFrostBuff));
+
                 TryCastSpell(ConeOfCold, 0, 8, player.Level >= 30 && target.HealthPercent > 20 && IsTargetFrozen);
 
                 TryCastSpell(FireBlast, 0, 20, !IsTargetFrozen);
@@ -186,7 +194,12 @@ namespace FrostMageBot
         };
 
         // Sometimes frostbite and frostnova are considered buffs.
-        bool IsTargetFrozen => target.HasDebuff(Frostbite) || target.HasBuff(Frostbite) || target.HasDebuff(FrostNova) || target.HasBuff(FrostNova);
+        bool IsTargetFrozen => target.HasDebuff(Frostbite) ||
+            target.HasBuff(Frostbite) ||
+            target.HasDebuff(FrostNova) ||
+            target.HasBuff(FrostNova) ||
+            target.HasBuff(DeepFreeze) ||
+            target.HasBuff(ShatteredBarrier);
 
         // Sometimes ice barrier is considered a debuff.
         bool PlayerHasIceBarrier => player.HasBuff(IceBarrier) || player.HasDebuff(IceBarrier);
