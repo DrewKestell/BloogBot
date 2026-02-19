@@ -414,13 +414,23 @@ namespace BloogBot.AI
                                 botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.TravelPath.Waypoints[0]));
                             }
 
+                            // Since we are repairing, might as well sell items.
+                            botStates.Push(new SellItemsState(botStates, container, currentHotspot.RepairVendor.Name));
+
                             botStates.Push(new RepairEquipmentState(botStates, container, currentHotspot.RepairVendor.Name));
                             botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.RepairVendor.Position));
                             container.CheckForTravelPath(botStates, true);
                         }
 
                         // if inventory is full
-                        if (Inventory.CountFreeSlots(false) == 0 && currentHotspot.Innkeeper != null && !container.RunningErrands)
+                        if (Inventory.CountFreeSlots(false) == 0 &&
+                            (
+                                // We can sell items at any of them.
+                                currentHotspot.Innkeeper != null ||
+                                currentHotspot.RepairVendor != null ||
+                                currentHotspot.AmmoVendor != null
+                            ) &&
+                            !container.RunningErrands)
                         {
                             ShapeshiftToHumanForm(container);
                             PopStackToBaseState();
@@ -432,9 +442,20 @@ namespace BloogBot.AI
                                 botStates.Push(new TravelState(botStates, container, currentHotspot.TravelPath.Waypoints, 0));
                                 botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.TravelPath.Waypoints[0]));
                             }
-                            
-                            botStates.Push(new SellItemsState(botStates, container, currentHotspot.Innkeeper.Name));
-                            botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.Innkeeper.Position));
+
+                            // Find a vendor to sell items.
+                            Npc vendor = currentHotspot.Innkeeper;
+                            if (vendor == null)
+                            {
+                                vendor = currentHotspot.RepairVendor;
+                            }
+                            if (vendor == null)
+                            {
+                                vendor = currentHotspot.AmmoVendor;
+                            }
+
+                            botStates.Push(new SellItemsState(botStates, container, vendor.Name));
+                            botStates.Push(new MoveToPositionState(botStates, container, vendor.Position));
                             container.CheckForTravelPath(botStates, true);
                         }
 
