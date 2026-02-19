@@ -133,6 +133,7 @@
     <Compile Include="AI\SharedStates\EquipBagsState.cs" />
     <Compile Include="AI\SharedStates\GatherObjectState.cs" />
     <Compile Include="AI\SharedStates\GrindState.cs" />
+    <Compile Include="AI\SharedStates\LoginState.cs" />
     <Compile Include="AI\SharedStates\LootState.cs" />
     <Compile Include="AI\SharedStates\MoveToCorpseState.cs" />
     <Compile Include="AI\SharedStates\MoveToHotspotWaypointState.cs" />

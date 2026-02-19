@@ -43,6 +43,27 @@ namespace BloogBot.AI
             stopCallback?.Invoke();
         }
 
+        public void Login(IDependencyContainer container, Action stopCallback)
+        {
+            this.stopCallback = stopCallback;
+
+            try
+            {
+                running = true;
+
+                ThreadSynchronizer.RunOnMainThread(() =>
+                {
+                    botStates.Push(new LoginState(botStates, container));
+                });
+
+                StartInternal(container);
+            }
+            catch (Exception e)
+            {
+                Logger.Log(e);
+            }
+        }
+
         public void Start(IDependencyContainer container, Action stopCallback)
         {
             this.stopCallback = stopCallback;
@@ -72,7 +93,7 @@ namespace BloogBot.AI
                 Logger.Log(e);
             }
         }
-        
+
         public void Travel(IDependencyContainer container, bool reverseTravelPath, Action callback)
         {
             try
@@ -125,7 +146,7 @@ namespace BloogBot.AI
             }
         }
 
-        public void StartPowerlevel(IDependencyContainer container,Action stopCallback)
+        public void StartPowerlevel(IDependencyContainer container, Action stopCallback)
         {
             this.stopCallback = stopCallback;
 
@@ -298,9 +319,30 @@ namespace BloogBot.AI
 
                     ThreadSynchronizer.RunOnMainThread(() =>
                     {
+                        // If we are disconnected, try logging in.
+                        if (LoginState.ShouldLogin() &&
+                            (botStates.Count == 0 || !(botStates.Peek() is LoginState)))
+                        {
+                            // We need to clear all states because some references are no longer
+                            // valid.
+                            botStates.Clear();
+                            botStates.Push(new GrindState(botStates, container));
+
+                            // Go to login state.
+                            botStates.Push(new LoginState(botStates, container));
+                        }
+
                         if (botStates.Count() == 0)
                         {
                             Stop();
+                            return;
+                        }
+
+                        // If we are logging in, just call update here and skip everything else
+                        // because most stuff will fail due to invalid references.
+                        if (botStates.Peek() is LoginState)
+                        {
+                            botStates.Peek().Update();
                             return;
                         }
 
@@ -444,7 +486,7 @@ namespace BloogBot.AI
                             botStates.Peek()?.Update();
                         }
                     });
-                    
+
                     await Task.Delay(50);
 
                     container.Probe.UpdateLatency = $"{stopwatch.ElapsedMilliseconds}ms";
