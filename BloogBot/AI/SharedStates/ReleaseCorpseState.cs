@@ -18,15 +18,18 @@ namespace BloogBot.AI.SharedStates
         {
             if (Wait.For("StartReleaseCorpseStateDelay", 1000))
             {
-                if (!ObjectManager.Player.InGhostForm)
-                    ObjectManager.Player.ReleaseCorpse();
-                else
+                if (ObjectManager.Player.InGhostForm || ObjectManager.Player.Health > 0)
                 {
                     if (Wait.For("LeaveReleaseCorpseStateDelay", 2000))
                     {
                         botStates.Pop();
                         return;
                     }
+                }
+                else
+                {
+                    ObjectManager.Player.ReleaseCorpse();
+
                 }
             }
         }
