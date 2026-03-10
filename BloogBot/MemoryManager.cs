@@ -84,6 +84,11 @@ namespace BloogBot
                 Logger.Log("Access Violation on " + address.ToString("X") + " with type Byte");
                 return default;
             }
+            catch (NullReferenceException)
+            {
+                Logger.Log("Null Reference on " + address.ToString("X") + " with type Byte");
+                return default;
+            }
         }
 
         [HandleProcessCorruptedStateExceptions]
@@ -99,6 +104,11 @@ namespace BloogBot
             catch (AccessViolationException)
             {
                 Logger.Log("Access Violation on " + address.ToString("X") + " with type Int");
+                return default;
+            }
+            catch (NullReferenceException)
+            {
+                Logger.Log("Null Reference on " + address.ToString("X") + " with type Int");
                 return default;
             }
         }
@@ -118,6 +128,11 @@ namespace BloogBot
                 Logger.Log("Access Violation on " + address.ToString("X") + " with type Uint");
                 return default;
             }
+            catch (NullReferenceException)
+            {
+                Logger.Log("Null Reference on " + address.ToString("X") + " with type Uint");
+                return default;
+            }
         }
 
         [HandleProcessCorruptedStateExceptions]
@@ -133,6 +148,11 @@ namespace BloogBot
             catch (AccessViolationException)
             {
                 Logger.Log("Access Violation on " + address.ToString("X") + " with type Ulong");
+                return default;
+            }
+            catch (NullReferenceException)
+            {
+                Logger.Log("Null Reference on " + address.ToString("X") + " with type Ulong");
                 return default;
             }
         }
@@ -152,6 +172,11 @@ namespace BloogBot
                 Logger.Log("Access Violation on " + address.ToString("X") + " with type IntPtr");
                 return default;
             }
+            catch (NullReferenceException)
+            {
+                Logger.Log("Null Reference on " + address.ToString("X") + " with type IntPtr");
+                return default;
+            }
         }
 
         [HandleProcessCorruptedStateExceptions]
@@ -167,6 +192,11 @@ namespace BloogBot
             catch (AccessViolationException)
             {
                 Logger.Log("Access Violation on " + address.ToString("X") + " with type Float");
+                return default;
+            }
+            catch (NullReferenceException)
+            {
+                Logger.Log("Null Reference on " + address.ToString("X") + " with type Float");
                 return default;
             }
         }
