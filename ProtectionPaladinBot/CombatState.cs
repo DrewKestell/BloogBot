@@ -27,6 +27,8 @@ namespace ProtectionPaladinBot
         const string RighteousFury = "Righteous Fury";
         const string SealOfRighteousness = "Seal of Righteousness";
         const string SealOfTheCrusader = "Seal of the Crusader";
+        const string AvengersShield = "Avenger's Shield";
+        const string HammerOfTheRighteous = "Hammer of the Righteous";
 
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
@@ -57,7 +59,7 @@ namespace ProtectionPaladinBot
             TryCastSpell(Purify, player.IsPoisoned || player.IsDiseased, castOnSelf: true);
 
             TryCastSpell(RighteousFury, !player.HasBuff(RighteousFury));
-            
+
             TryCastSpell(DevotionAura, !player.HasBuff(DevotionAura) && !player.KnowsSpell(RetributionAura));
 
             TryCastSpell(RetributionAura, !player.HasBuff(RetributionAura) && player.KnowsSpell(RetributionAura));
@@ -66,15 +68,16 @@ namespace ProtectionPaladinBot
 
             TryCastSpell(HammerOfJustice, 0, 10, (target.CreatureType != CreatureType.Humanoid || (target.CreatureType == CreatureType.Humanoid && target.HealthPercent < 20)));
 
+            TryCastSpell(HammerOfTheRighteous, 0, 4);
+
             TryCastSpell(Consecration, ObjectManager.Aggressors.Count() > 1);
 
             // for judgements - in WotLK they reworked Paladins to have "Judgement of Light" and "Judgement of Wisdom" instead of "Judgement".
             // we may want different bot .dlls for each client?
             if (ClientHelper.ClientVersion == ClientVersion.WotLK)
             {
-                // do we need to use JudgementOfWisdom? prot pally seems to always be at full mana.
-
-                TryCastSpell(JudgementOfLight, 0, 10, !target.HasDebuff(JudgementOfLight) && player.Buffs.Any(b => b.Name.StartsWith("Seal of")));
+                TryCastSpell(JudgementOfWisdom, 0, 10, !target.HasDebuff(JudgementOfWisdom) && player.Buffs.Any(b => b.Name.StartsWith("Seal of")));
+                TryCastSpell(JudgementOfLight, 0, 10, !target.HasDebuff(JudgementOfLight) && player.Buffs.Any(b => b.Name.StartsWith("Seal of")) && !player.KnowsSpell(JudgementOfWisdom));
             }
             else
             {
