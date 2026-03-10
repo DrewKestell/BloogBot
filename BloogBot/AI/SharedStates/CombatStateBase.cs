@@ -24,6 +24,8 @@ namespace BloogBot.AI.SharedStates
         bool noLos;
         int noLosStartTime;
 
+        int combatStateStartTime;
+
         public CombatStateBase(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target, int desiredRange)
         {
             player = ObjectManager.Player;
@@ -33,6 +35,8 @@ namespace BloogBot.AI.SharedStates
             this.botStates = botStates;
             this.container = container;
             this.desiredRange = desiredRange;
+
+            combatStateStartTime = Environment.TickCount;
 
             WoWEventHandler.OnErrorMessage += OnErrorMessageCallback;
         }
@@ -60,6 +64,15 @@ namespace BloogBot.AI.SharedStates
             {
                 var nextWaypoint = Navigation.GetNextWaypoint(ObjectManager.MapId, player.Position, target.Position, false);
                 player.MoveToward(nextWaypoint);
+                return true;
+            }
+
+            // If we haven't dealt any damage to the target for 30 seconds, we're probably stuck.
+            if (Environment.TickCount - combatStateStartTime > 30 * 1000 && target.HealthPercent >= 99)
+            {
+                // Add the target to the in-memory blacklist and stop fighting it.
+                container.Probe.BlacklistedMobIds.Add(target.Guid);
+                botStates.Pop();
                 return true;
             }
 
@@ -91,7 +104,8 @@ namespace BloogBot.AI.SharedStates
                 {
                     // We also need to do the same check against the threat we found.
                     var checkThreat = ObjectManager.Units.FirstOrDefault(u => u.Guid == threat.Guid);
-                    if (threat.Health == 0 || threat.TappedByOther || checkThreat == null) {
+                    if (threat.Health == 0 || threat.TappedByOther || checkThreat == null)
+                    {
                         return true;
                     }
 
