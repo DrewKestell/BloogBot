@@ -2,6 +2,7 @@
 using BloogBot.AI;
 using BloogBot.AI.SharedStates;
 using BloogBot.Game;
+using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace ProtectionPaladinBot
         readonly IDependencyContainer container;
         readonly LocalPlayer player;
         readonly WoWItem drinkItem;
-        
+
         public RestState(Stack<IBotState> botStates, IDependencyContainer container)
         {
             this.botStates = botStates;
@@ -67,14 +68,26 @@ namespace ProtectionPaladinBot
                     botStates.Push(new BuffSelfState(botStates, container));
 
             }
-            
+
             if (!player.IsDrinking && Wait.For("HealSelfDelay", 3500, true))
             {
                 player.Stand();
                 if (player.HealthPercent < 70)
+                {
                     player.LuaCall($"CastSpellByName('{HolyLight}')");
-                if (player.HealthPercent > 70 && player.HealthPercent < 90)
-                    player.LuaCall($"CastSpellByName('{HolyLight}(Rank 1)')");
+                }
+                else if (player.HealthPercent > 70 && player.HealthPercent < 90)
+                {
+                    if (ClientHelper.ClientVersion != ClientVersion.WotLK)
+                    {
+                        player.LuaCall($"CastSpellByName('{HolyLight}(Rank 1)')");
+                    }
+                    else
+                    {
+                        // In WotLK holy light costs same amount of mana regardless of rank.
+                        player.LuaCall($"CastSpellByName('{HolyLight}')");
+                    }
+                }
             }
 
             if (player.Level > 10 && drinkItem != null && !player.IsDrinking && player.ManaPercent < 60 && Wait.For("UseDrinkDelay", 1000, true))
