@@ -53,7 +53,20 @@ namespace BloogBot.AI
 
                 ThreadSynchronizer.RunOnMainThread(() =>
                 {
-                    botStates.Push(new LoginState(botStates, container));
+                    botStates.Push(new LoginState(botStates, container, onLoginComplete: () =>
+                    {
+                        currentLevel = ObjectManager.Player.Level;
+
+                        botStates.Push(new GrindState(botStates, container));
+
+                        currentState = botStates.Peek().GetType();
+                        currentStateStartTime = Environment.TickCount;
+                        currentPosition = ObjectManager.Player.Position;
+                        currentPositionStartTime = Environment.TickCount;
+                        teleportCheckPosition = ObjectManager.Player.Position;
+
+                        container.CheckForTravelPath(botStates, false);
+                    }));
                 });
 
                 StartInternal(container);

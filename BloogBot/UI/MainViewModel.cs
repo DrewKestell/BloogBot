@@ -128,6 +128,9 @@ namespace BloogBot.UI
 
         void Start()
         {
+            // Save current grinding hotspot ID to file.
+            SaveSettings();
+
             try
             {
                 ObjectManager.KillswitchTriggered = false;
@@ -1701,6 +1704,38 @@ namespace BloogBot.UI
 
                 Repository.AddReportSignature(player.Name, summary.CommandId);
             }
+        }
+
+        public void RpcLogin()
+        {
+            ThreadSynchronizer.RunOnMainThread(() =>
+            {
+                CurrentBot.Login(CurrentBot.GetDependencyContainer(botSettings, probe, Hotspots),
+                    stopCallback: () =>
+                {
+                    OnPropertyChanged(nameof(LoginCommandEnabled));
+                    OnPropertyChanged(nameof(StartCommandEnabled));
+                    OnPropertyChanged(nameof(StopCommandEnabled));
+                    OnPropertyChanged(nameof(StartPowerlevelCommandEnabled));
+                    OnPropertyChanged(nameof(StartTravelPathCommandEnabled));
+                    OnPropertyChanged(nameof(StopTravelPathCommandEnabled));
+                    OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
+                    OnPropertyChanged(nameof(CurrentBotEnabled));
+                    OnPropertyChanged(nameof(GrindingHotspotEnabled));
+                    OnPropertyChanged(nameof(CurrentTravelPathEnabled));
+                });
+
+                OnPropertyChanged(nameof(LoginCommandEnabled));
+                OnPropertyChanged(nameof(StartCommandEnabled));
+                OnPropertyChanged(nameof(StopCommandEnabled));
+                OnPropertyChanged(nameof(StartPowerlevelCommandEnabled));
+                OnPropertyChanged(nameof(StartTravelPathCommandEnabled));
+                OnPropertyChanged(nameof(StopTravelPathCommandEnabled));
+                OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
+                OnPropertyChanged(nameof(CurrentBotEnabled));
+                OnPropertyChanged(nameof(GrindingHotspotEnabled));
+                OnPropertyChanged(nameof(CurrentTravelPathEnabled));
+            });
         }
     }
 
