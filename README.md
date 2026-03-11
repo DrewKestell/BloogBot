@@ -1,6 +1,6 @@
 # BloogBot
 
-Join the [BloogBot Discord Server](https://discord.gg/S4tvykaGcJ) to chat with other folks hacking on BloogBot!
+Join the [BloogBot Discord Server](https://discord.gg/YfNqMgfFBh) to chat with other folks hacking on BloogBot!
 
 BloogBot is an in-process bot for the Vanilla (v 1.12.1), Burning Crusade (v 2.4.3), and Wrath of the Lich King (v 3.3.5) clients.
 
