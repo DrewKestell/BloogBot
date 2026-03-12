@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace FeralDruidBot
 {
-    class CombatState : IBotState
+    class CombatState : CombatStateBase, IBotState
     {
         const string AutoAttackLuaScript = "if IsCurrentAction('12') == nil then CastSpellByName('Attack') end";
 
@@ -38,10 +38,10 @@ namespace FeralDruidBot
         readonly IDependencyContainer container;
         readonly LocalPlayer player;
         readonly WoWUnit target;
-        
+
         Position targetLastPosition;
 
-        internal CombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target)
+        internal CombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) : base(botStates, container, target, 30)
         {
             this.botStates = botStates;
             this.container = container;
@@ -49,7 +49,7 @@ namespace FeralDruidBot
             this.target = target;
         }
 
-        public void Update()
+        public new void Update()
         {
             if (player.HealthPercent < 30 && player.Mana >= player.GetManaCost(HealingTouch))
             {
@@ -64,37 +64,10 @@ namespace FeralDruidBot
                 return;
             }
 
-            if (target.TappedByOther)
+            if (base.Update())
             {
-                player.StopAllMovement();
-                Wait.RemoveAll();
-                botStates.Pop();
                 return;
             }
-
-            if (target.Health == 0)
-            {
-                const string waitKey = "PopCombatState";
-
-                if (Wait.For(waitKey, 1500))
-                {
-                    player.StopAllMovement();
-                    botStates.Pop();
-                    botStates.Push(new LootState(botStates, container, target));
-                    Wait.Remove(waitKey);
-                }
-
-                return;
-            }
-
-            if (player.TargetGuid == player.Guid)
-                player.SetTarget(target.Guid);
-
-            // ensure we're facing the target
-            if (!player.IsFacing(target.Position)) player.Face(target.Position);
-
-            // ensure auto-attack is turned on
-            player.LuaCall(AutoAttackLuaScript);
 
             // if less than level 13, use spellcasting
             if (player.Level <= 12)
@@ -109,7 +82,7 @@ namespace FeralDruidBot
 
                 TryCastSpell(Moonfire, 0, 10, !target.HasDebuff(Moonfire));
 
-                TryCastSpell(Wrath, 10, 30);
+                TryCastSpell(Wrath, 0, 30);
             }
             // bear form
             else if (player.Level > 12 && player.Level < 20)
@@ -146,7 +119,7 @@ namespace FeralDruidBot
                 else
                     player.StopAllMovement();
 
-                TryCastSpell(CatForm, 0, 50, player.CurrentShapeshiftForm != CatForm);
+                TryCastSpell(CatForm, 0, int.MaxValue, player.CurrentShapeshiftForm != CatForm);
 
                 TryUseCatAbility(TigersFury, 30, condition: target.HealthPercent > 30 && !player.HasBuff(TigersFury));
 
@@ -182,17 +155,6 @@ namespace FeralDruidBot
         {
             if (player.IsSpellReady(name) && !player.IsCasting)
                 player.LuaCall($"CastSpellByName(\"{name}\")");
-        }
-
-        void TryCastSpell(string name, int minRange, int maxRange, bool condition = true, Action callback = null)
-        {
-            var distanceToTarget = player.Position.DistanceTo(target.Position);
-
-            if (player.IsSpellReady(name) && player.Mana >= player.GetManaCost(name) && distanceToTarget >= minRange && distanceToTarget <= maxRange && condition && !player.IsStunned && !player.IsCasting && !player.IsChanneling)
-            {
-                player.LuaCall($"CastSpellByName(\"{name}\")");
-                callback?.Invoke();
-            }
         }
 
         bool TargetMovingTowardPlayer =>

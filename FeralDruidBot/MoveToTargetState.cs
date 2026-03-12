@@ -28,7 +28,12 @@ namespace FeralDruidBot
 
         public void Update()
         {
-            if (target.TappedByOther || (ObjectManager.Aggressors.Count() > 0 && !ObjectManager.Aggressors.Any(a => a.Guid == target.Guid)))
+            if (player.IsCasting)
+            {
+                return;
+            }
+
+            if (target.TappedByOther || container.FindClosestTarget()?.Guid != target.Guid)
             {
                 player.StopAllMovement();
                 Wait.RemoveAll();
@@ -37,24 +42,22 @@ namespace FeralDruidBot
             }
 
             stuckHelper.CheckIfStuck();
-            
-            if (player.Position.DistanceTo(target.Position) < 27 && !player.IsCasting && player.IsSpellReady(Wrath) && player.InLosWith(target.Position))
+
+            if (player.Position.DistanceTo(target.Position) < 27 && player.InLosWith(target.Position))
             {
                 if (player.IsMoving)
                     player.StopAllMovement();
 
-                if (Wait.For("PullWithWrathDelay", 100))
+                if (Wait.For("PullWithWrathDelay", 250))
                 {
                     if (!player.IsInCombat)
-                        player.LuaCall($"CastSpellByName('{Wrath}')");
-
-                    if (player.IsCasting || player.CurrentShapeshiftForm != "Human Form" || player.IsInCombat)
                     {
-                        player.StopAllMovement();
-                        Wait.RemoveAll();
-                        botStates.Pop();
-                        botStates.Push(new CombatState(botStates, container, target));
+                        player.LuaCall($"CastSpellByName('{Wrath}')");
                     }
+
+                    Wait.RemoveAll();
+                    botStates.Pop();
+                    botStates.Push(new CombatState(botStates, container, target));
                 }
                 return;
             }
