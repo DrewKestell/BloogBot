@@ -1,6 +1,7 @@
 ﻿using BloogBot.Game;
 using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
+using BloogBot.Properties;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -70,8 +71,13 @@ namespace BloogBot.AI.SharedStates
             // If we haven't dealt any damage to the target for 30 seconds, we're probably stuck.
             if (Environment.TickCount - combatStateStartTime > 30 * 1000 && target.HealthPercent >= 99)
             {
-                // Add the target to the in-memory blacklist and stop fighting it.
+                // Add the target to the blacklist and stop fighting it.
                 container.Probe.BlacklistedMobIds.Add(target.Guid);
+                if (container.BotSettings.PermanentlyBlacklistUnreachableTargets)
+                {
+                    Repository.AddBlacklistedMob(target.Guid);
+                }
+
                 botStates.Pop();
                 return true;
             }

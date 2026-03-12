@@ -94,6 +94,8 @@ namespace BloogBot
 
         public bool UseVerboseLogging { get; set; }
 
+        public bool PermanentlyBlacklistUnreachableTargets { get; set; }
+
         public string Username { get; set; }
 
         public string Password { get; set; }
