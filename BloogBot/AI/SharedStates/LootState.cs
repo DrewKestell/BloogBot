@@ -51,7 +51,7 @@ namespace BloogBot.AI.SharedStates
             if (target.CanBeLooted && currentState == LootStates.Initial && player.Position.DistanceTo(target.Position) < 5)
             {
                 player.StopAllMovement();
-                
+
                 if (Wait.For("StartLootDelay", 200))
                 {
                     target.Interact();
@@ -69,18 +69,7 @@ namespace BloogBot.AI.SharedStates
             {
                 player.StopAllMovement();
                 botStates.Pop();
-                botStates.Push(new EquipBagsState(botStates, container));
-                if (player.IsSwimming)
-                {
-                    var nearestWaypoint = container
-                        .Hotspots
-                        .Where(h => h != null)
-                        .SelectMany(h => h.Waypoints)
-                        .OrderBy(w => player.Position.DistanceTo(w))
-                        .FirstOrDefault();
-                    if (nearestWaypoint != null)
-                        botStates.Push(new MoveToPositionState(botStates, container, nearestWaypoint));
-                }
+                botStates.Push(new SkinningState(botStates, container, target));
                 return;
             }
 
