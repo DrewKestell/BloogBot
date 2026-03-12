@@ -143,6 +143,7 @@
     <Compile Include="AI\SharedStates\RepairEquipmentState.cs" />
     <Compile Include="AI\SharedStates\RetrieveCorpseState.cs" />
     <Compile Include="AI\SharedStates\SellItemsState.cs" />
+    <Compile Include="AI\SharedStates\SkinningState.cs" />
     <Compile Include="AI\SharedStates\StuckState.cs" />
     <Compile Include="AI\SharedStates\TravelState.cs" />
     <Compile Include="AI\StuckHelper.cs" />
