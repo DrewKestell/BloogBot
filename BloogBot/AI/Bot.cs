@@ -450,6 +450,9 @@ namespace BloogBot.AI
                             botStates.Push(new RetrieveCorpseState(botStates, container));
                             botStates.Push(new MoveToCorpseState(botStates, container));
                             botStates.Push(new ReleaseCorpseState(botStates, container));
+
+                            // Stop checking anything else. We can't do anything while dead.
+                            return;
                         }
 
                         var currentHotspot = container.GetCurrentHotspot();
