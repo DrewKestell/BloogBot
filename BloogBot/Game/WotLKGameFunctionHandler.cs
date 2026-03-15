@@ -188,7 +188,9 @@ namespace BloogBot.Game
             var unk0 = 0;
             GetSpellCooldownFunction(spellId, false, ref duration, ref start, ref isReady, ref unk0);
 
-            var result = start + duration - (int)PerformanceCounter();
+            // Sometimes we get an invalid value (start = 0). We have to ignore it in that case.
+            var result = start != 0 ? start + duration - (int)PerformanceCounter() : 0;
+
             var cooldown = isReady ? (result > 0 ? result / 1000f : 0f) : float.MaxValue;
 
             return cooldown > 0;
