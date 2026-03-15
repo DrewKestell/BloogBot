@@ -2,7 +2,9 @@
 using BloogBot.AI;
 using BloogBot.AI.SharedStates;
 using BloogBot.Game;
+using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,8 +15,6 @@ namespace FeralDruidBot
         const int stackCount = 5;
 
         const string HumanForm = "Human Form";
-        const string BearForm = "Bear Form";
-        const string CatForm = "Cat Form";
         const string Regrowth = "Regrowth";
         const string Rejuvenation = "Rejuvenation";
 
@@ -37,7 +37,7 @@ namespace FeralDruidBot
         {
             if (player.IsCasting)
                 return;
-            
+
             if (InCombat)
             {
                 Wait.RemoveAll();
@@ -48,57 +48,44 @@ namespace FeralDruidBot
 
             if (HealthOk && ManaOk)
             {
-                if (player.HasBuff(BearForm) && Wait.For("BearFormDelay", 1000, true))
-                    CastSpell(BearForm);
-                else if (player.HasBuff(CatForm) && Wait.For("CatFormDelay", 1000, true))
-                    CastSpell(CatForm);
-                else
+                Wait.RemoveAll();
+                player.Stand();
+                botStates.Pop();
+
+                var drinkCount = drinkItem == null ? 0 : Inventory.GetItemCount(drinkItem.ItemId);
+
+                if (!InCombat && drinkCount == 0 && !container.RunningErrands)
                 {
-                    Wait.RemoveAll();
-                    player.Stand();
-                    botStates.Pop();
-
-                    var drinkCount = drinkItem == null ? 0 : Inventory.GetItemCount(drinkItem.ItemId);
-
-                    if (!InCombat && drinkCount == 0 && !container.RunningErrands)
-                    {
-                        var drinkToBuy = 28 - (drinkCount / stackCount);
-                        var itemsToBuy = new Dictionary<string, int>
+                    var drinkToBuy = 28 - (drinkCount / stackCount);
+                    var itemsToBuy = new Dictionary<string, int>
                         {
                             { container.BotSettings.Drink, drinkToBuy }
                         };
 
-                        var currentHotspot = container.GetCurrentHotspot();
-                        if (currentHotspot.TravelPath != null)
-                        {
-                            botStates.Push(new TravelState(botStates, container, currentHotspot.TravelPath.Waypoints, 0));
-                            botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.TravelPath.Waypoints[0]));
-                        }
-
-                        botStates.Push(new BuyItemsState(botStates, currentHotspot.Innkeeper.Name, itemsToBuy));
-                        botStates.Push(new SellItemsState(botStates, container, currentHotspot.Innkeeper.Name));
-                        botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.Innkeeper.Position));
-                        container.CheckForTravelPath(botStates, true, false);
-                        container.RunningErrands = true;
+                    var currentHotspot = container.GetCurrentHotspot();
+                    if (currentHotspot.TravelPath != null)
+                    {
+                        botStates.Push(new TravelState(botStates, container, currentHotspot.TravelPath.Waypoints, 0));
+                        botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.TravelPath.Waypoints[0]));
                     }
-                    else
-                        botStates.Push(new BuffSelfState(botStates, container));
+
+                    botStates.Push(new BuyItemsState(botStates, currentHotspot.Innkeeper.Name, itemsToBuy));
+                    botStates.Push(new SellItemsState(botStates, container, currentHotspot.Innkeeper.Name));
+                    botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.Innkeeper.Position));
+                    container.CheckForTravelPath(botStates, true, false);
+                    container.RunningErrands = true;
                 }
+                else
+                    botStates.Push(new BuffSelfState(botStates, container));
             }
 
-            if (player.CurrentShapeshiftForm == BearForm)
-                CastSpell(BearForm);
-
-            if (player.CurrentShapeshiftForm == CatForm)
-                CastSpell(CatForm);
-
-            if (player.HealthPercent < 60 && player.CurrentShapeshiftForm == HumanForm && !player.HasBuff(Regrowth) && Wait.For("SelfHealDelay", 5000, true))
+            if (player.HealthPercent < 60 && !player.HasBuff(Regrowth))
                 TryCastSpell(Regrowth);
 
-            if (player.HealthPercent < 80 && player.CurrentShapeshiftForm == HumanForm && !player.HasBuff(Rejuvenation) && !player.HasBuff(Regrowth) && Wait.For("SelfHealDelay", 5000, true))
+            if (player.HealthPercent < 80 && !player.HasBuff(Rejuvenation))
                 TryCastSpell(Rejuvenation);
 
-            if (player.Level > 8 && drinkItem != null && !player.IsDrinking && player.ManaPercent < 60 && player.CurrentShapeshiftForm == HumanForm)
+            if (player.Level > 8 && drinkItem != null && !player.IsDrinking && player.ManaPercent < 60)
                 drinkItem.Use();
         }
 
@@ -111,13 +98,31 @@ namespace FeralDruidBot
         void CastSpell(string name)
         {
             if (player.IsSpellReady(name) && !player.IsDrinking)
-                player.LuaCall($"CastSpellByName('{name}')");
+            {
+                if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+                {
+                    player.LuaCall($"CastSpellByName(\"{name}\")");
+                }
+                else
+                {
+                    player.CastSpell(name, player.Guid);
+                }
+            }
         }
 
         void TryCastSpell(string name)
         {
             if (player.IsSpellReady(name) && !player.IsCasting && player.Mana > player.GetManaCost(name) && !player.IsDrinking)
-                player.LuaCall($"CastSpellByName('{name}',1)");
+            {
+                if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+                {
+                    player.LuaCall($"CastSpellByName(\"{name}\", 1)");
+                }
+                else
+                {
+                    player.CastSpell(name, player.Guid);
+                }
+            }
         }
     }
 }
