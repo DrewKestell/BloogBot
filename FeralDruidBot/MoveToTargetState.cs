@@ -10,6 +10,7 @@ namespace FeralDruidBot
     class MoveToTargetState : IBotState
     {
         const string Wrath = "Wrath";
+        const string FeralCharge = "Feral Charge - Cat";
 
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
@@ -43,16 +44,22 @@ namespace FeralDruidBot
 
             stuckHelper.CheckIfStuck();
 
-            if (player.Position.DistanceTo(target.Position) < 27 && player.InLosWith(target.Position))
+            if (player.Position.DistanceTo(target.Position) < 25 && player.InLosWith(target.Position))
             {
                 if (player.IsMoving)
                     player.StopAllMovement();
 
                 if (Wait.For("PullWithWrathDelay", 250))
                 {
-                    if (!player.IsInCombat)
+                    if (!player.IsInCombat && player.Level <= 12)
                     {
+                        // Human form
                         player.LuaCall($"CastSpellByName('{Wrath}')");
+                    }
+                    else if (player.Level >= 20)
+                    {
+                        // Cat form
+                        player.LuaCall($"CastSpellByName('{FeralCharge}')");
                     }
 
                     Wait.RemoveAll();
