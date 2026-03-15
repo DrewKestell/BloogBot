@@ -14,6 +14,7 @@ namespace BloogBot.AI.SharedStates
         readonly string npcName;
         readonly LocalPlayer player;
         readonly IEnumerable<WoWItem> itemsToSell;
+        readonly IDependencyContainer container;
 
         State state = State.Uninitialized;
         WoWUnit npc;
@@ -25,6 +26,7 @@ namespace BloogBot.AI.SharedStates
         {
             this.botStates = botStates;
             this.npcName = npcName;
+            this.container = container;
             player = ObjectManager.Player;
 
             itemsToSell = Inventory
@@ -48,6 +50,10 @@ namespace BloogBot.AI.SharedStates
                     .Units
                     .Single(u => u.Name == npcName);
                 state = State.Interacting;
+
+                // Some NPCs like to walk around. Move to their location before interating.
+                botStates.Push(new MoveToPositionState(botStates, container, npc.Position));
+                return;
             }
             if (state == State.Interacting)
             {
