@@ -29,6 +29,13 @@ namespace BloogBot.AI.SharedStates
 
         public void Update()
         {
+            if (player.IsInCombat)
+            {
+                StopMovement();
+                botStates.Pop();
+                return;
+            }
+
             if (player.Position.DistanceTo(startingPosition) > 3)
             {
                 StopMovement();
@@ -42,7 +49,7 @@ namespace BloogBot.AI.SharedStates
                     state = State.Stuck;
                 return;
             }
-                
+
             var ran = random.Next(0, 4);
             state = State.Moving;
             stopwatch.Restart();
