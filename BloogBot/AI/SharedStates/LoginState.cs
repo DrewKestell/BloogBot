@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using BloogBot.Game;
 
 namespace BloogBot.AI.SharedStates
@@ -18,14 +19,25 @@ namespace BloogBot.AI.SharedStates
 
         State state = State.LOGIN;
 
-        public LoginState(Stack<IBotState> botStates, IDependencyContainer container)
+        Action onLoginComplete;
+
+        public LoginState(Stack<IBotState> botStates, IDependencyContainer container, Action onLoginComplete = null)
         {
             this.botStates = botStates;
             this.container = container;
+            this.onLoginComplete = onLoginComplete;
         }
 
         public void Update()
         {
+            if (GetCurrentGlueScreen() == "")
+            {
+                // We are already logged in.
+                botStates.Pop();
+                onLoginComplete?.Invoke();
+                return;
+            }
+
             switch (state)
             {
                 case State.LOGIN:
@@ -80,16 +92,25 @@ namespace BloogBot.AI.SharedStates
                         {
                             // We are in.
                             botStates.Pop();
+
+                            // The callback must be AFTER we pop the login state, because it
+                            // may add states to the stack.
+                            onLoginComplete?.Invoke();
                         }
                     }
                     break;
+            }
 
+            // At any point, if the realm list is shown, click it away.
+            if (IsRealmListShown())
+            {
+                ClickRealmListOkButton();
             }
         }
 
         public static bool ShouldLogin()
         {
-            return GetCurrentGlueScreen() == "login";
+            return GetCurrentGlueScreen() == "login" || GetCurrentGlueScreen() == "charselect";
         }
 
         static bool IsGlueDialogShown()
@@ -124,6 +145,20 @@ namespace BloogBot.AI.SharedStates
         {
             Functions.LuaCall(@"
                 CharacterSelect_EnterWorld()
+            ");
+        }
+
+        static bool IsRealmListShown()
+        {
+            return Functions.LuaCallWithResult(@"
+                {0} = RealmList:IsShown()
+            ")[0] == "1";
+        }
+
+        static void ClickRealmListOkButton()
+        {
+            Functions.LuaCall(@"
+                RealmList_OnOk()
             ");
         }
     }

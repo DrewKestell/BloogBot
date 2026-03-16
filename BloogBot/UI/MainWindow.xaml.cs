@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -21,6 +22,8 @@ namespace BloogBot.UI
                     Console.ScrollToEnd();
             });
             timer.Start();
+
+            Task.Run(() => BotService.Run(context));
         }
     }
 }

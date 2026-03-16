@@ -43,17 +43,14 @@ namespace TestBot
         {
             ThreadSynchronizer.RunOnMainThread(() =>
             {
-                var player = ObjectManager.Player;
-
-                var result = player.LuaCallWithResults("{0} = IsAttackAction(84)");
-                if (result.Length > 0)
                 {
-                    Console.WriteLine(result.Length);
-                    foreach (var r in result)
-                    {
-                        Console.WriteLine(r);
-                    }
-                }    
+                    Console.WriteLine(Functions.LuaCallWithResult(@"
+                        {0} = RealmList:IsShown()
+                        if {0} then
+                            RealmList_OnOk()
+                        end
+                    ")[0]);
+                }
             });
         }
     }
