@@ -23,6 +23,8 @@ namespace ProtectionPaladinBot
 
         public void Update()
         {
+            player.StopAllMovement();
+
             if (player.IsCasting) return;
 
             if (player.HealthPercent > 70 || player.Mana < player.GetManaCost(HolyLight))
