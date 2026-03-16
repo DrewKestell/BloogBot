@@ -289,7 +289,9 @@ namespace BloogBot.Game.Objects
         {
             get
             {
-                var result = ObjectManager.Player.LuaCallWithResults($"{{0}} = GetComboPoints('target')");
+                var result = ClientHelper.ClientVersion == ClientVersion.WotLK ?
+                    Functions.LuaCallWithResult("{0} = GetComboPoints('player', 'target')") :
+                    Functions.LuaCallWithResult("{0} = GetComboPoints('target')");
 
                 if (result.Length > 0)
                     return Convert.ToByte(result[0]);
@@ -336,7 +338,7 @@ namespace BloogBot.Game.Objects
                 if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                 {
                     var spellsBasePtr = MemoryManager.ReadIntPtr((IntPtr)0x00C0D788);
-                    var spellPtr =  MemoryManager.ReadIntPtr(spellsBasePtr + currentSpellId * 4);
+                    var spellPtr = MemoryManager.ReadIntPtr(spellsBasePtr + currentSpellId * 4);
 
                     var spellNamePtr = MemoryManager.ReadIntPtr(spellPtr + 0x1E0);
                     name = MemoryManager.ReadString(spellNamePtr);
@@ -413,7 +415,7 @@ namespace BloogBot.Game.Objects
         public ulong GetBackpackItemGuid(int slot) => MemoryManager.ReadUlong(GetDescriptorPtr() + (MemoryAddresses.LocalPlayer_BackpackFirstItemOffset + (slot * 8)));
 
         public ulong GetEquippedItemGuid(EquipSlot slot) => MemoryManager.ReadUlong(IntPtr.Add(Pointer, (MemoryAddresses.LocalPlayer_EquipmentFirstItemOffset + ((int)slot - 1) * 0x8)));
-        
+
         public void CastSpell(string spellName, ulong targetGuid)
         {
             var spellId = GetSpellId(spellName);
