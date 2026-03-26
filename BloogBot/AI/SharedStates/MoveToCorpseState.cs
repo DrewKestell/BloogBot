@@ -16,7 +16,9 @@ namespace BloogBot.AI.SharedStates
         int stuckCount;
 
         bool initialized;
-        
+
+        Position startingPosition;
+
         public MoveToCorpseState(Stack<IBotState> botStates, IDependencyContainer container)
         {
             this.botStates = botStates;
@@ -30,6 +32,7 @@ namespace BloogBot.AI.SharedStates
             if (!initialized)
             {
                 container.DisableTeleportChecker = false;
+                startingPosition = player.Position;
                 initialized = true;
             }
 
@@ -53,7 +56,29 @@ namespace BloogBot.AI.SharedStates
                 return;
             }
 
-            var nextWaypoint = Navigation.GetNextWaypoint(ObjectManager.MapId, player.Position, player.CorpsePosition, false);
+            var path = Navigation.CalculatePath(ObjectManager.MapId, player.Position, player.CorpsePosition, false);
+            Position nextWaypoint;
+            if (path.Length <= 1)
+            {
+                if (player.Position.DistanceTo2D(startingPosition) < 10)
+                {
+                    // We can't reach the corpse. E.g. we fell into the void. Try using the spirit
+                    // healer.
+                    botStates.Pop();
+                    botStates.Push(new ResurrectFromGraveyardState(botStates, container));
+                    return;
+                }
+                else
+                {
+                    // We're likely temporarily stuck. Just proceed as normal.
+                    Logger.Log($"Problem building path for mapId \"{ObjectManager.MapId}\". Make sure the \"mmaps\" directory contains the required mmap and tile-files. Returning destination as next waypoint...");
+                    nextWaypoint = player.CorpsePosition;
+                }
+            }
+            else
+            {
+                nextWaypoint = path[1];
+            }
 
             if (player.Position.Z - nextWaypoint.Z > 5)
                 walkingOnWater = true;

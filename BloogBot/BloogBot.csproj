@@ -206,6 +206,7 @@
     <Compile Include="AI\SharedStates\PowerlevelState.cs" />
     <Compile Include="AI\SharedStates\ReleaseCorpseState.cs" />
     <Compile Include="AI\SharedStates\RepairEquipmentState.cs" />
+    <Compile Include="AI\SharedStates\ResurrectFromGraveyardState.cs" />
     <Compile Include="AI\SharedStates\RetrieveCorpseState.cs" />
     <Compile Include="AI\SharedStates\SellItemsState.cs" />
     <Compile Include="AI\SharedStates\SkinningState.cs" />

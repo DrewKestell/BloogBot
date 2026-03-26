@@ -33,6 +33,13 @@ namespace BloogBot.AI.SharedStates
         {
             if (state == State.Initializing)
             {
+                if (!player.InGhostForm)
+                {
+                    // We are already alive. No need to do anything.
+                    botStates.Pop();
+                    return;
+                }
+
                 var resLocation = player.CorpsePosition;
 
                 var threats = ObjectManager
