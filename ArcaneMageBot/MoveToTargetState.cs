@@ -1,12 +1,13 @@
 ﻿using BloogBot;
 using BloogBot.AI;
+using BloogBot.AI.SharedStates;
 using BloogBot.Game;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
 
 namespace ArcaneMageBot
 {
-    class MoveToTargetState : IBotState
+    class MoveToTargetState : MoveToTargetStateBase, IBotState
     {
         const string Fireball = "Fireball";
         const string Frostbolt = "Frostbolt";
@@ -19,7 +20,9 @@ namespace ArcaneMageBot
 
         readonly string pullingSpell;
 
-        internal MoveToTargetState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target)
+        internal MoveToTargetState(
+            Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) :
+            base(botStates, container, target)
         {
             this.botStates = botStates;
             this.container = container;
@@ -33,12 +36,10 @@ namespace ArcaneMageBot
                 pullingSpell = Fireball;
         }
 
-        public void Update()
+        public new void Update()
         {
-            if (target.TappedByOther || container.FindClosestTarget()?.Guid != target.Guid)
+            if (base.Update())
             {
-                player.StopAllMovement();
-                botStates.Pop();
                 return;
             }
 

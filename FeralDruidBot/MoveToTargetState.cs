@@ -1,13 +1,13 @@
 ﻿using BloogBot;
 using BloogBot.AI;
+using BloogBot.AI.SharedStates;
 using BloogBot.Game;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace FeralDruidBot
 {
-    class MoveToTargetState : IBotState
+    class MoveToTargetState : MoveToTargetStateBase, IBotState
     {
         const string Wrath = "Wrath";
         const string FeralCharge = "Feral Charge - Cat";
@@ -18,7 +18,9 @@ namespace FeralDruidBot
         readonly LocalPlayer player;
         readonly StuckHelper stuckHelper;
 
-        internal MoveToTargetState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target)
+        internal MoveToTargetState(
+            Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) :
+            base(botStates, container, target)
         {
             this.botStates = botStates;
             this.container = container;
@@ -27,18 +29,16 @@ namespace FeralDruidBot
             stuckHelper = new StuckHelper(botStates, container);
         }
 
-        public void Update()
+        public new void Update()
         {
             if (player.IsCasting)
             {
                 return;
             }
 
-            if (target.TappedByOther || container.FindClosestTarget()?.Guid != target.Guid)
+            if (base.Update())
             {
-                player.StopAllMovement();
                 Wait.RemoveAll();
-                botStates.Pop();
                 return;
             }
 
