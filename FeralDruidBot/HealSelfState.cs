@@ -13,6 +13,7 @@ namespace FeralDruidBot
         const string WarStomp = "War Stomp";
         const string HealingTouch = "Healing Touch";
         const string SurvivalInstincts = "Survival Instincts";
+        const string Barkskin = "Barkskin";
 
         readonly Stack<IBotState> botStates;
         readonly WoWUnit target;
@@ -39,6 +40,11 @@ namespace FeralDruidBot
             }
 
             CastSpell(SurvivalInstincts);
+
+            if (!player.HasBuff(SurvivalInstincts))
+            {
+                CastSpell(Barkskin);
+            }
 
             if (player.IsSpellReady(WarStomp) && player.Position.DistanceTo(target.Position) <= 8)
                 player.LuaCall($"CastSpellByName('{WarStomp}')");
