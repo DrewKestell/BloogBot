@@ -24,6 +24,10 @@ namespace EnhancementShamanBot
         const string Stormstrike = "Stormstrike";
         const string TremorTotem = "Tremor Totem";
         const string WindfuryWeapon = "Windfury Weapon";
+        const string ShamanisticRage = "Shamanistic Rage";
+        const string LavaLash = "Lava Lash";
+        const string WindShear = "Wind Shear";
+        const string FeralSpirit = "Feral Spirit";
 
         readonly string[] fearingCreatures = new[] { "Scorpid Terror" };
         readonly string[] fireImmuneCreatures = new[] { "Rogue Flame Spirit", "Burning Destroyer" };
@@ -53,13 +57,17 @@ namespace EnhancementShamanBot
             if (base.Update())
                 return;
 
+            TryCastSpell(WindShear, 0, 25, target.Mana > 0 && target.IsCasting);
+
+            TryCastSpell(FeralSpirit);
+
             TryCastSpell(GroundingTotem, 0, int.MaxValue, ObjectManager.Aggressors.Any(a => a.IsCasting && target.Mana > 0));
 
             TryCastSpell(TremorTotem, 0, int.MaxValue, fearingCreatures.Contains(target.Name) && !ObjectManager.Units.Any(u => u.Position.DistanceTo(player.Position) < 29 && u.HealthPercent > 0 && u.Name.Contains(TremorTotem)));
 
             TryCastSpell(WindfuryWeapon, 0, int.MaxValue, !player.MainhandIsEnchanted && player.KnowsSpell(WindfuryWeapon));
 
-            TryCastSpell(StoneclawTotem, 0, int.MaxValue, ObjectManager.Aggressors.Count() > 1);
+            TryCastSpell(StoneclawTotem, 0, int.MaxValue, ObjectManager.Aggressors.Count() > 1 || player.HealthPercent < 50);
 
             TryCastSpell(ManaSpringTotem, 0, int.MaxValue, !ObjectManager.Units.Any(u => u.Position.DistanceTo(player.Position) < 19 && u.HealthPercent > 0 && u.Name.Contains(ManaSpringTotem)));
 
@@ -69,6 +77,8 @@ namespace EnhancementShamanBot
 
             TryCastSpell(Stormstrike, 0, 5);
 
+            TryCastSpell(ShamanisticRage);
+
             TryCastSpell(FlameShock, 0, 20, !target.HasDebuff(FlameShock) && target.HealthPercent > 70 || natureImmuneCreatures.Contains(target.Name) && !fireImmuneCreatures.Contains(target.Name));
 
             TryCastSpell(EarthShock, 0, 20, !natureImmuneCreatures.Contains(target.Name) && (!player.KnowsSpell(Stormstrike) && target.HealthPercent < 70) || target.HasDebuff(Stormstrike) || target.IsCasting || target.IsChanneling || player.HasBuff(Clearcasting));
@@ -77,7 +87,15 @@ namespace EnhancementShamanBot
 
             TryCastSpell(RockbiterWeapon, 0, int.MaxValue, !player.MainhandIsEnchanted && player.KnowsSpell(RockbiterWeapon) && !player.KnowsSpell(FlametongueWeapon) && !player.KnowsSpell(WindfuryWeapon));
 
-            TryCastSpell(FlametongueWeapon, 0, int.MaxValue, !player.MainhandIsEnchanted && player.KnowsSpell(FlametongueWeapon) && !player.KnowsSpell(WindfuryWeapon));
+            TryCastSpell(FlametongueWeapon, 0, int.MaxValue,
+                condition: (
+                        !player.MainhandIsEnchanted && !player.KnowsSpell(WindfuryWeapon)
+                    ) || (
+                        player.OffhandHasWeapon && !player.OffhandIsEnchanted
+                    )
+            );
+
+            TryCastSpell(LavaLash, 0, 5);
         }
     }
 }
