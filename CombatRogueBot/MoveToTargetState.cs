@@ -1,5 +1,6 @@
 ﻿using BloogBot;
 using BloogBot.AI;
+using BloogBot.AI.SharedStates;
 using BloogBot.Game;
 using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
@@ -7,7 +8,7 @@ using System.Collections.Generic;
 
 namespace CombatRogueBot
 {
-    class MoveToTargetState : IBotState
+    class MoveToTargetState : MoveToTargetStateBase, IBotState
     {
         const string Distract = "Distract";
         const string Garrote = "Garrote";
@@ -20,7 +21,9 @@ namespace CombatRogueBot
         readonly LocalPlayer player;
         readonly StuckHelper stuckHelper;
 
-        internal MoveToTargetState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target)
+        internal MoveToTargetState(
+            Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) :
+            base(botStates, container, target)
         {
             this.botStates = botStates;
             this.container = container;
@@ -29,12 +32,10 @@ namespace CombatRogueBot
             stuckHelper = new StuckHelper(botStates, container);
         }
 
-        public void Update()
+        public new void Update()
         {
-            if (target.TappedByOther || container.FindClosestTarget()?.Guid != target.Guid)
+            if (base.Update())
             {
-                player.StopAllMovement();
-                botStates.Pop();
                 return;
             }
 
@@ -69,7 +70,7 @@ namespace CombatRogueBot
                     player.LuaCall($"CastSpellByName('{CheapShot}')");
                     return;
                 }
-            } 
+            }
 
             if (distanceToTarget < 3)
             {

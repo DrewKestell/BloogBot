@@ -1,12 +1,13 @@
 ﻿using BloogBot;
 using BloogBot.AI;
+using BloogBot.AI.SharedStates;
 using BloogBot.Game;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
 
 namespace FrostMageBot
 {
-    class MoveToTargetState : IBotState
+    class MoveToTargetState : MoveToTargetStateBase, IBotState
     {
         const string waitKey = "FrostMagePull";
 
@@ -22,7 +23,9 @@ namespace FrostMageBot
         readonly string pullingSpell;
         readonly int range;
 
-        internal MoveToTargetState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target)
+        internal MoveToTargetState(
+            Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) :
+            base(botStates, container, target)
         {
             this.botStates = botStates;
             this.container = container;
@@ -38,15 +41,13 @@ namespace FrostMageBot
             range = 28 + (ObjectManager.GetTalentRank(3, 11) * 3);
         }
 
-        public void Update()
+        public new void Update()
         {
             if (player.IsCasting)
                 return;
 
-            if (target.TappedByOther || container.FindClosestTarget()?.Guid != target.Guid)
+            if (base.Update())
             {
-                player.StopAllMovement();
-                botStates.Pop();
                 return;
             }
 
@@ -62,7 +63,7 @@ namespace FrostMageBot
                 {
                     player.StopAllMovement();
                     Wait.Remove(waitKey);
-                    
+
                     if (!player.IsInCombat)
                         player.LuaCall($"CastSpellByName('{pullingSpell}')");
 

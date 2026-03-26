@@ -1,13 +1,13 @@
 ﻿using BloogBot;
 using BloogBot.AI;
+using BloogBot.AI.SharedStates;
 using BloogBot.Game;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace EnhancementShamanBot
 {
-    class MoveToTargetState : IBotState
+    class MoveToTargetState : MoveToTargetStateBase, IBotState
     {
         const string LightningBolt = "Lightning Bolt";
 
@@ -17,7 +17,9 @@ namespace EnhancementShamanBot
         readonly LocalPlayer player;
         readonly StuckHelper stuckHelper;
 
-        internal MoveToTargetState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target)
+        internal MoveToTargetState(
+            Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) :
+            base(botStates, container, target)
         {
             this.botStates = botStates;
             this.container = container;
@@ -26,40 +28,40 @@ namespace EnhancementShamanBot
             stuckHelper = new StuckHelper(botStates, container);
         }
 
-        public void Update()
+        public new void Update()
         {
-            if (target.TappedByOther || (ObjectManager.Aggressors.Count() > 0 && !ObjectManager.Aggressors.Any(a => a.Guid == target.Guid)))
+            if (player.IsCasting)
             {
-                Wait.RemoveAll();
-                botStates.Pop();
+                return;
+            }
+
+            if (base.Update())
+            {
                 return;
             }
 
             stuckHelper.CheckIfStuck();
 
-            if (player.Position.DistanceTo(target.Position) < 27 && !player.IsCasting && player.IsSpellReady(LightningBolt) && player.InLosWith(target.Position))
+            if (player.Position.DistanceTo(target.Position) < 27 && player.InLosWith(target.Position))
             {
                 if (player.IsMoving)
                     player.StopAllMovement();
 
-                if (Wait.For("PullWithLightningBoltDelay", 100))
+                if (Wait.For("PullWithLightningBoltDelay", 250))
                 {
                     if (!player.IsInCombat)
                         player.LuaCall($"CastSpellByName('{LightningBolt}')");
 
-                    if (player.IsCasting || player.IsInCombat)
-                    {
-                        player.StopAllMovement();
-                        Wait.RemoveAll();
-                        botStates.Pop();
-                        botStates.Push(new CombatState(botStates, container, target));
-                    }
+                    botStates.Pop();
+                    botStates.Push(new CombatState(botStates, container, target));
+                    return;
                 }
-                return;
             }
-
-            var nextWaypoint = Navigation.GetNextWaypoint(ObjectManager.MapId, player.Position, target.Position, false);
-            player.MoveToward(nextWaypoint);
+            else
+            {
+                var nextWaypoint = Navigation.GetNextWaypoint(ObjectManager.MapId, player.Position, target.Position, false);
+                player.MoveToward(nextWaypoint);
+            }
         }
     }
 }

@@ -1,18 +1,19 @@
 ﻿using BloogBot;
 using BloogBot.AI;
+using BloogBot.AI.SharedStates;
 using BloogBot.Game;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
 
 namespace AfflictionWarlockBot
 {
-    class MoveToTargetState : IBotState
+    class MoveToTargetState : MoveToTargetStateBase, IBotState
     {
         const string SummonImp = "Summon Imp";
         const string SummonVoidwalker = "Summon Voidwalker";
         const string CurseOfAgony = "Curse of Agony";
         const string ShadowBolt = "Shadow Bolt";
-        
+
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
         readonly WoWUnit target;
@@ -21,7 +22,9 @@ namespace AfflictionWarlockBot
 
         readonly string pullingSpell;
 
-        internal MoveToTargetState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target)
+        internal MoveToTargetState(
+            Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) :
+            base(botStates, container, target)
         {
             this.botStates = botStates;
             this.container = container;
@@ -35,12 +38,10 @@ namespace AfflictionWarlockBot
                 pullingSpell = ShadowBolt;
         }
 
-        public void Update()
+        public new void Update()
         {
-            if (target.TappedByOther || container.FindClosestTarget()?.Guid != target.Guid)
+            if (base.Update())
             {
-                player.StopAllMovement();
-                botStates.Pop();
                 return;
             }
 

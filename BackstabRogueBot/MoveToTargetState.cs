@@ -6,10 +6,11 @@ using BloogBot.Game.Enums;
 using System.Collections.Generic;
 using BloogBot;
 using BloogBot.Game;
+using BloogBot.AI.SharedStates;
 
 namespace BackstabRogueBot
 {
-    class MoveToTargetState : IBotState
+    class MoveToTargetState : MoveToTargetStateBase, IBotState
     {
         const string Distract = "Distract";
         const string Garrote = "Garrote";
@@ -28,7 +29,9 @@ namespace BackstabRogueBot
         bool SwapMaceOrSwordReady;
         bool MaceOrSwordEquipped;
 
-        internal MoveToTargetState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target)
+        internal MoveToTargetState(
+            Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) :
+            base(botStates, container, target)
         {
             this.botStates = botStates;
             this.container = container;
@@ -37,12 +40,10 @@ namespace BackstabRogueBot
             stuckHelper = new StuckHelper(botStates, container);
         }
 
-        public void Update()
+        public new void Update()
         {
-            if (target.TappedByOther || container.FindClosestTarget()?.Guid != target.Guid)
+            if (base.Update())
             {
-                player.StopAllMovement();
-                botStates.Pop();
                 return;
             }
 
@@ -54,7 +55,7 @@ namespace BackstabRogueBot
 
             // Weapon Swap Logic
             ThreadSynchronizer.RunOnMainThread(() =>
-            {                                             
+            {
 
                 WoWItem MainHand = Inventory.GetEquippedItem(EquipSlot.MainHand);
                 WoWItem OffHand = Inventory.GetEquippedItem(EquipSlot.OffHand);

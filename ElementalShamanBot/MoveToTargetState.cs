@@ -1,5 +1,6 @@
 ﻿using BloogBot;
 using BloogBot.AI;
+using BloogBot.AI.SharedStates;
 using BloogBot.Game;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Linq;
 
 namespace ElementalShamanBot
 {
-    class MoveToTargetState : IBotState
+    class MoveToTargetState : MoveToTargetStateBase, IBotState
     {
         const string LightningBolt = "Lightning Bolt";
 
@@ -17,7 +18,9 @@ namespace ElementalShamanBot
         readonly LocalPlayer player;
         readonly StuckHelper stuckHelper;
 
-        internal MoveToTargetState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target)
+        internal MoveToTargetState(
+            Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) :
+            base(botStates, container, target)
         {
             this.botStates = botStates;
             this.container = container;
@@ -26,12 +29,10 @@ namespace ElementalShamanBot
             stuckHelper = new StuckHelper(botStates, container);
         }
 
-        public void Update()
+        public new void Update()
         {
-            if (target.TappedByOther || (ObjectManager.Aggressors.Count() > 0 && !ObjectManager.Aggressors.Any(a => a.Guid == target.Guid)))
+            if (base.Update())
             {
-                player.StopAllMovement();
-                botStates.Pop();
                 return;
             }
 
