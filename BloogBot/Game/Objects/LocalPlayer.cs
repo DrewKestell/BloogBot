@@ -412,6 +412,10 @@ namespace BloogBot.Game.Objects
 
         public bool MainhandIsEnchanted => LuaCallWithResults("{0} = GetWeaponEnchantInfo()")[0] == "1";
 
+        public bool OffhandIsEnchanted => LuaCallWithResults("{0}, {1}, {2}, {3} = GetWeaponEnchantInfo()")[3] == "1";
+
+        public bool OffhandHasWeapon => LuaCallWithResults("{0} = OffhandHasWeapon()")[0] == "1";
+
         public ulong GetBackpackItemGuid(int slot) => MemoryManager.ReadUlong(GetDescriptorPtr() + (MemoryAddresses.LocalPlayer_BackpackFirstItemOffset + (slot * 8)));
 
         public ulong GetEquippedItemGuid(EquipSlot slot) => MemoryManager.ReadUlong(IntPtr.Add(Pointer, (MemoryAddresses.LocalPlayer_EquipmentFirstItemOffset + ((int)slot - 1) * 0x8)));

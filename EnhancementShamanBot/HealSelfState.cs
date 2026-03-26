@@ -1,5 +1,7 @@
-﻿using BloogBot.AI;
+﻿using BloogBot;
+using BloogBot.AI;
 using BloogBot.Game;
+using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
 
@@ -26,13 +28,22 @@ namespace EnhancementShamanBot
         {
             if (player.IsCasting) return;
 
+            player.StopAllMovement();
+
             if (player.HealthPercent > 70 || player.Mana < player.GetManaCost(HealingWave))
             {
                 botStates.Pop();
                 return;
             }
 
-            player.LuaCall($"CastSpellByName('{HealingWave}',1)");
+            if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+            {
+                player.LuaCall($"CastSpellByName('{HealingWave}',1)");
+            }
+            else
+            {
+                player.CastSpell(HealingWave, player.Guid);
+            }
         }
     }
 }

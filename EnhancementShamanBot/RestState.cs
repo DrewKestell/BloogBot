@@ -2,6 +2,7 @@
 using BloogBot.AI;
 using BloogBot.AI.SharedStates;
 using BloogBot.Game;
+using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace EnhancementShamanBot
         readonly IDependencyContainer container;
         readonly LocalPlayer player;
         readonly WoWItem drinkItem;
-        
+
         public RestState(Stack<IBotState> botStates, IDependencyContainer container)
         {
             this.botStates = botStates;
@@ -36,7 +37,6 @@ namespace EnhancementShamanBot
 
             if (InCombat || (HealthOk && ManaOk))
             {
-                Wait.RemoveAll();
                 player.Stand();
                 botStates.Pop();
 
@@ -66,12 +66,22 @@ namespace EnhancementShamanBot
                 return;
             }
 
-            if (!player.IsDrinking && Wait.For("HealSelfDelay", 3500, true))
+            if (!player.IsDrinking)
             {
                 player.Stand();
-                if (player.HealthPercent < 70)
+                if (player.HealthPercent < 70 ||
+
+                    // In WotLK, healing wave rank 3 doesn't have much difference in mana cost
+                    // compared to max rank.
+                    (
+                        !HealthOk &&
+                        ClientHelper.ClientVersion == ClientVersion.WotLK &&
+                        player.Level >= 40
+                    ))
+                {
                     player.LuaCall($"CastSpellByName('{HealingWave}')");
-                if (player.HealthPercent > 70 && player.HealthPercent < 85)
+                }
+                else if (!HealthOk)
                 {
                     if (player.Level >= 40)
                         player.LuaCall($"CastSpellByName('{HealingWave}(Rank 3)')");
