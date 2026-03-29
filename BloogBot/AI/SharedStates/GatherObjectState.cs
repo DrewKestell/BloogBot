@@ -2,6 +2,7 @@
 using BloogBot.Game.Objects;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BloogBot.AI.SharedStates
 {
@@ -10,7 +11,7 @@ namespace BloogBot.AI.SharedStates
         readonly Stack<IBotState> botStates;
         readonly WoWGameObject target;
         readonly LocalPlayer player;
-        readonly int initialCount = 0;
+        readonly int initialItemCount = Inventory.GetAllItems().Sum(i => i.StackCount);
 
         readonly int startTime = Environment.TickCount;
 
@@ -19,7 +20,6 @@ namespace BloogBot.AI.SharedStates
             this.botStates = botStates;
             this.target = target;
             player = ObjectManager.Player;
-            initialCount = Inventory.GetItemCount(target.Name);
         }
 
         public void Update()
@@ -33,7 +33,7 @@ namespace BloogBot.AI.SharedStates
             if (Wait.For("InteractWithObjectDelay", 15000, true))
                 target.Interact();
 
-            if (Inventory.GetItemCount(target.Name) > initialCount)
+            if (Inventory.GetAllItems().Sum(i => i.StackCount) != initialItemCount)
             {
                 if (Wait.For("PopGatherObjectStateDelay", 2000))
                 {

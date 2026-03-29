@@ -430,5 +430,15 @@ namespace BloogBot
             string sql = $"SELECT TOP 1 Id FROM TravelPaths WHERE Name = '{name}'";
             return this.RowExistsSql(sql);
         }
+
+        public GatherRoute AddGatherRoute(string name, string nodeNames, TravelPath travelPath)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<GatherRoute> ListGatherRoutes()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

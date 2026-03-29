@@ -121,3 +121,9 @@ CREATE TABLE IF NOT EXISTS [main].[TravelPaths](
 	[Id] [integer] PRIMARY KEY AUTOINCREMENT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS [main].[GatherRoutes](
+	[Name] [text] NOT NULL,
+	[TravelPathId] [int] NOT NULL,
+	[NodeNames] [text] NOT NULL,
+	[Id] [integer] PRIMARY KEY AUTOINCREMENT NOT NULL
+);

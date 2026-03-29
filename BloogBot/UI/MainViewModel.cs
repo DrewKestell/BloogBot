@@ -58,6 +58,7 @@ namespace BloogBot.UI
             InitializeTravelPaths();
             InitializeHotspots();
             InitializeNpcs();
+            InitializeGatherRoutes();
             ReloadBots();
         }
 
@@ -68,6 +69,7 @@ namespace BloogBot.UI
         public ObservableCollection<Npc> RepairNpcs { get; private set; }
         public ObservableCollection<Npc> InkeeperNpcs { get; private set; }
         public ObservableCollection<Npc> AmmoNpcs { get; private set; }
+        public ObservableCollection<GatherRoute> GatherRoutes { get; private set; }
 
         #region Commands
 
@@ -86,6 +88,7 @@ namespace BloogBot.UI
                     OnPropertyChanged(nameof(StartCommandEnabled));
                     OnPropertyChanged(nameof(StopCommandEnabled));
                     OnPropertyChanged(nameof(StartPowerlevelCommandEnabled));
+                    OnPropertyChanged(nameof(StartGatheringCommandEnabled));
                     OnPropertyChanged(nameof(StartTravelPathCommandEnabled));
                     OnPropertyChanged(nameof(StopTravelPathCommandEnabled));
                     OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
@@ -100,6 +103,7 @@ namespace BloogBot.UI
                 OnPropertyChanged(nameof(StartCommandEnabled));
                 OnPropertyChanged(nameof(StopCommandEnabled));
                 OnPropertyChanged(nameof(StartPowerlevelCommandEnabled));
+                OnPropertyChanged(nameof(StartGatheringCommandEnabled));
                 OnPropertyChanged(nameof(StartTravelPathCommandEnabled));
                 OnPropertyChanged(nameof(StopTravelPathCommandEnabled));
                 OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
@@ -143,6 +147,7 @@ namespace BloogBot.UI
                     OnPropertyChanged(nameof(StartCommandEnabled));
                     OnPropertyChanged(nameof(StopCommandEnabled));
                     OnPropertyChanged(nameof(StartPowerlevelCommandEnabled));
+                    OnPropertyChanged(nameof(StartGatheringCommandEnabled));
                     OnPropertyChanged(nameof(StartTravelPathCommandEnabled));
                     OnPropertyChanged(nameof(StopTravelPathCommandEnabled));
                     OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
@@ -157,6 +162,7 @@ namespace BloogBot.UI
                 OnPropertyChanged(nameof(StartCommandEnabled));
                 OnPropertyChanged(nameof(StopCommandEnabled));
                 OnPropertyChanged(nameof(StartPowerlevelCommandEnabled));
+                OnPropertyChanged(nameof(StartGatheringCommandEnabled));
                 OnPropertyChanged(nameof(StartTravelPathCommandEnabled));
                 OnPropertyChanged(nameof(StopTravelPathCommandEnabled));
                 OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
@@ -195,6 +201,7 @@ namespace BloogBot.UI
                 OnPropertyChanged(nameof(StartCommandEnabled));
                 OnPropertyChanged(nameof(StopCommandEnabled));
                 OnPropertyChanged(nameof(StartPowerlevelCommandEnabled));
+                OnPropertyChanged(nameof(StartGatheringCommandEnabled));
                 OnPropertyChanged(nameof(StartTravelPathCommandEnabled));
                 OnPropertyChanged(nameof(StopTravelPathCommandEnabled));
                 OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
@@ -225,6 +232,7 @@ namespace BloogBot.UI
                 OnPropertyChanged(nameof(StartCommandEnabled));
                 OnPropertyChanged(nameof(StopCommandEnabled));
                 OnPropertyChanged(nameof(StartPowerlevelCommandEnabled));
+                OnPropertyChanged(nameof(StartGatheringCommandEnabled));
                 OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
 
                 Log("Bot successfully loaded!");
@@ -300,6 +308,7 @@ namespace BloogBot.UI
                 OnPropertyChanged(nameof(StartCommandEnabled));
                 OnPropertyChanged(nameof(StopCommandEnabled));
                 OnPropertyChanged(nameof(StartPowerlevelCommandEnabled));
+                OnPropertyChanged(nameof(StartGatheringCommandEnabled));
                 OnPropertyChanged(nameof(StartTravelPathCommandEnabled));
                 OnPropertyChanged(nameof(StopTravelPathCommandEnabled));
                 OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
@@ -314,6 +323,7 @@ namespace BloogBot.UI
             OnPropertyChanged(nameof(StartCommandEnabled));
             OnPropertyChanged(nameof(StopCommandEnabled));
             OnPropertyChanged(nameof(StartPowerlevelCommandEnabled));
+            OnPropertyChanged(nameof(StartGatheringCommandEnabled));
             OnPropertyChanged(nameof(StartTravelPathCommandEnabled));
             OnPropertyChanged(nameof(StopTravelPathCommandEnabled));
             OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
@@ -334,6 +344,7 @@ namespace BloogBot.UI
             {
                 botSettings.CurrentTravelPathId = CurrentTravelPath?.Id;
                 botSettings.GrindingHotspotId = GrindingHotspot?.Id;
+                botSettings.CurrentGatherRouteId = CurrentGatherRoute?.Id;
                 botSettings.CurrentBotName = CurrentBot.Name;
 
                 var currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -457,6 +468,7 @@ namespace BloogBot.UI
                     OnPropertyChanged(nameof(StartCommandEnabled));
                     OnPropertyChanged(nameof(StopCommandEnabled));
                     OnPropertyChanged(nameof(StartPowerlevelCommandEnabled));
+                    OnPropertyChanged(nameof(StartGatheringCommandEnabled));
                     OnPropertyChanged(nameof(StartTravelPathCommandEnabled));
                     OnPropertyChanged(nameof(StopTravelPathCommandEnabled));
                     OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
@@ -471,6 +483,7 @@ namespace BloogBot.UI
                 OnPropertyChanged(nameof(StartCommandEnabled));
                 OnPropertyChanged(nameof(StopCommandEnabled));
                 OnPropertyChanged(nameof(StartPowerlevelCommandEnabled));
+                OnPropertyChanged(nameof(StartGatheringCommandEnabled));
                 OnPropertyChanged(nameof(StartTravelPathCommandEnabled));
                 OnPropertyChanged(nameof(StopTravelPathCommandEnabled));
                 OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
@@ -505,6 +518,7 @@ namespace BloogBot.UI
                 OnPropertyChanged(nameof(StartCommandEnabled));
                 OnPropertyChanged(nameof(StopCommandEnabled));
                 OnPropertyChanged(nameof(StartPowerlevelCommandEnabled));
+                OnPropertyChanged(nameof(StartGatheringCommandEnabled));
                 OnPropertyChanged(nameof(StartTravelPathCommandEnabled));
                 OnPropertyChanged(nameof(StopTravelPathCommandEnabled));
                 OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
@@ -736,6 +750,76 @@ namespace BloogBot.UI
         public ICommand CancelHotspotCommand =>
             cancelHotspotCommand ?? (cancelHotspotCommand = new CommandHandler(CancelHotspot, true));
 
+        // SaveGatherRoute
+        ICommand saveGatherRouteCommand;
+
+        void SaveGatherRoute()
+        {
+            try
+            {
+                var gatherRoute = Repository.AddGatherRoute(
+                    NewGatherRouteName,
+                    NewGatherRouteNodeNames,
+                    NewGatherRouteTravelPath);
+
+                GatherRoutes.Add(gatherRoute);
+
+                NewGatherRouteName = string.Empty;
+                NewGatherRouteNodeNames = string.Empty;
+                NewGatherRouteTravelPath = null;
+
+                Log("New gather route successfully saved!");
+            }
+            catch (Exception e)
+            {
+                Logger.Log(e);
+                Log(COMMAND_ERROR);
+            }
+        }
+
+        public ICommand SaveGatherRouteCommand =>
+            saveGatherRouteCommand ?? (saveGatherRouteCommand = new CommandHandler(SaveGatherRoute, true));
+
+        // StartGathering
+        ICommand startGatheringCommand;
+
+        void StartGathering()
+        {
+            var container = CurrentBot.GetDependencyContainer(botSettings, probe, Hotspots);
+
+            void stopCallback()
+            {
+                OnPropertyChanged(nameof(LoginCommandEnabled));
+                OnPropertyChanged(nameof(StartCommandEnabled));
+                OnPropertyChanged(nameof(StopCommandEnabled));
+                OnPropertyChanged(nameof(StartPowerlevelCommandEnabled));
+                OnPropertyChanged(nameof(StartGatheringCommandEnabled));
+                OnPropertyChanged(nameof(StartTravelPathCommandEnabled));
+                OnPropertyChanged(nameof(StopTravelPathCommandEnabled));
+                OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
+                OnPropertyChanged(nameof(CurrentBotEnabled));
+                OnPropertyChanged(nameof(GrindingHotspotEnabled));
+                OnPropertyChanged(nameof(CurrentTravelPathEnabled));
+            }
+
+            currentBot.StartGathering(container, stopCallback);
+
+            OnPropertyChanged(nameof(LoginCommandEnabled));
+            OnPropertyChanged(nameof(StartCommandEnabled));
+            OnPropertyChanged(nameof(StopCommandEnabled));
+            OnPropertyChanged(nameof(StartPowerlevelCommandEnabled));
+            OnPropertyChanged(nameof(StartGatheringCommandEnabled));
+            OnPropertyChanged(nameof(StartTravelPathCommandEnabled));
+            OnPropertyChanged(nameof(StopTravelPathCommandEnabled));
+            OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
+            OnPropertyChanged(nameof(CurrentBotEnabled));
+            OnPropertyChanged(nameof(GrindingHotspotEnabled));
+            OnPropertyChanged(nameof(CurrentTravelPathEnabled));
+        }
+
+        public ICommand StartGatheringCommand =>
+            startGatheringCommand ?? (startGatheringCommand = new CommandHandler(StartGathering, true));
+
         #endregion
 
         #region Observables
@@ -769,6 +853,8 @@ namespace BloogBot.UI
 
         public bool StartPowerlevelCommandEnabled => !currentBot.Running();
 
+        public bool StartGatheringCommandEnabled => !currentBot.Running();
+
         public bool ReloadBotsCommandEnabled => !currentBot.Running();
 
         public bool StartRecordingHotspotCommandEnabled =>
@@ -790,6 +876,11 @@ namespace BloogBot.UI
         public bool CurrentBotEnabled => !currentBot.Running();
 
         public bool GrindingHotspotEnabled => !currentBot.Running();
+
+        public bool SaveGatherRouteCommandEnabled =>
+            NewGatherRouteTravelPath != null &&
+            !string.IsNullOrWhiteSpace(NewGatherRouteNodeNames) &&
+            !string.IsNullOrWhiteSpace(NewGatherRouteName);
 
         // General
         IBot currentBot;
@@ -976,6 +1067,42 @@ namespace BloogBot.UI
             {
                 newHotspotSafeForGrinding = value;
                 OnPropertyChanged(nameof(NewHotspotSafeForGrinding));
+            }
+        }
+
+        string newGatherRouteName;
+        public string NewGatherRouteName
+        {
+            get => newGatherRouteName;
+            set
+            {
+                newGatherRouteName = value;
+                OnPropertyChanged(nameof(NewGatherRouteName));
+                OnPropertyChanged(nameof(SaveGatherRouteCommandEnabled));
+            }
+        }
+
+        TravelPath newGatherRouteTravelPath;
+        public TravelPath NewGatherRouteTravelPath
+        {
+            get => newGatherRouteTravelPath;
+            set
+            {
+                newGatherRouteTravelPath = value;
+                OnPropertyChanged(nameof(NewGatherRouteTravelPath));
+                OnPropertyChanged(nameof(SaveGatherRouteCommandEnabled));
+            }
+        }
+
+        string newGatherRouteNodeNames;
+        public string NewGatherRouteNodeNames
+        {
+            get => newGatherRouteNodeNames;
+            set
+            {
+                newGatherRouteNodeNames = value;
+                OnPropertyChanged(nameof(NewGatherRouteNodeNames));
+                OnPropertyChanged(nameof(SaveGatherRouteCommandEnabled));
             }
         }
 
@@ -1341,6 +1468,18 @@ namespace BloogBot.UI
         }
 
         [BotSetting]
+        public GatherRoute CurrentGatherRoute
+        {
+            get => botSettings.CurrentGatherRoute;
+            set
+            {
+                botSettings.CurrentGatherRoute = value;
+                OnPropertyChanged(nameof(CurrentGatherRoute));
+                OnPropertyChanged(nameof(StartGatheringCommandEnabled));
+            }
+        }
+
+        [BotSetting]
         public bool UseTeleportKillswitch
         {
             get => botSettings.UseTeleportKillswitch;
@@ -1540,6 +1679,15 @@ namespace BloogBot.UI
             OnPropertyChanged(nameof(AmmoNpcs));
         }
 
+        void InitializeGatherRoutes()
+        {
+            GatherRoutes = new ObservableCollection<GatherRoute>(Repository.ListGatherRoutes());
+            GatherRoutes.Insert(0, null);
+            CurrentGatherRoute = GatherRoutes.FirstOrDefault(gr => gr?.Id == botSettings.CurrentGatherRouteId);
+            OnPropertyChanged(nameof(CurrentGatherRoute));
+            OnPropertyChanged(nameof(GatherRoutes));
+        }
+
         public void InitializeObjectManager()
         {
             ObjectManager.Initialize(probe);
@@ -1717,6 +1865,7 @@ namespace BloogBot.UI
                     OnPropertyChanged(nameof(StartCommandEnabled));
                     OnPropertyChanged(nameof(StopCommandEnabled));
                     OnPropertyChanged(nameof(StartPowerlevelCommandEnabled));
+                    OnPropertyChanged(nameof(StartGatheringCommandEnabled));
                     OnPropertyChanged(nameof(StartTravelPathCommandEnabled));
                     OnPropertyChanged(nameof(StopTravelPathCommandEnabled));
                     OnPropertyChanged(nameof(ReloadBotsCommandEnabled));
@@ -1729,6 +1878,7 @@ namespace BloogBot.UI
                 OnPropertyChanged(nameof(StartCommandEnabled));
                 OnPropertyChanged(nameof(StopCommandEnabled));
                 OnPropertyChanged(nameof(StartPowerlevelCommandEnabled));
+                OnPropertyChanged(nameof(StartGatheringCommandEnabled));
                 OnPropertyChanged(nameof(StartTravelPathCommandEnabled));
                 OnPropertyChanged(nameof(StopTravelPathCommandEnabled));
                 OnPropertyChanged(nameof(ReloadBotsCommandEnabled));

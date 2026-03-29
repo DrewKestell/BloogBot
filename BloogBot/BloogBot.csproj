@@ -196,6 +196,7 @@
     <Compile Include="AI\SharedStates\EquipArmorState.cs" />
     <Compile Include="AI\SharedStates\EquipBagsState.cs" />
     <Compile Include="AI\SharedStates\GatherObjectState.cs" />
+    <Compile Include="AI\SharedStates\GatherState.cs" />
     <Compile Include="AI\SharedStates\GrindState.cs" />
     <Compile Include="AI\SharedStates\LoginState.cs" />
     <Compile Include="AI\SharedStates\LootState.cs" />
@@ -268,6 +269,7 @@
     <Compile Include="Game\WoWEventHandler.cs" />
     <Compile Include="Game\XYZ.cs" />
     <Compile Include="Game\XYZXYZ.cs" />
+    <Compile Include="GatherRoute.cs" />
     <Compile Include="Hack.cs" />
     <Compile Include="HackManager.cs" />
     <Compile Include="Hotspot.cs" />

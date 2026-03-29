@@ -39,7 +39,11 @@ namespace ArmsWarriorBot
         readonly WoWUnit target;
         readonly LocalPlayer player;
 
-        internal CombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) : base(botStates, container, target, 5)
+        internal CombatState(
+            Stack<IBotState> botStates,
+            IDependencyContainer container,
+            WoWUnit target,
+            bool loot = true) : base(botStates, container, target, 5, loot)
         {
             player = ObjectManager.Player;
             this.target = target;

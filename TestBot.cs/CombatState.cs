@@ -8,7 +8,11 @@ namespace TestBot
     {
         readonly Stack<IBotState> botStates;
 
-        internal CombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target)
+        internal CombatState(
+            Stack<IBotState> botStates,
+            IDependencyContainer container,
+            WoWUnit target,
+            bool loot = true)
         {
             this.botStates = botStates;
         }

@@ -14,16 +14,24 @@ namespace BloogBot.AI.SharedStates
         readonly LocalPlayer player;
         readonly StuckHelper stuckHelper;
         readonly int deadline;
+        readonly Action onDeadline;
 
         int stuckCount;
 
-        public MoveToPositionState(Stack<IBotState> botStates, IDependencyContainer container, Position destination, bool use2DPop = false, int deadline = -1)
+        public MoveToPositionState(
+            Stack<IBotState> botStates,
+            IDependencyContainer container,
+            Position destination,
+            bool use2DPop = false,
+            int deadline = -1,
+            Action onDeadline = null)
         {
             this.botStates = botStates;
             this.container = container;
             this.destination = destination;
             this.use2DPop = use2DPop;
             this.deadline = deadline;
+            this.onDeadline = onDeadline;
             player = ObjectManager.Player;
             stuckHelper = new StuckHelper(botStates, container);
         }
@@ -65,6 +73,7 @@ namespace BloogBot.AI.SharedStates
             {
                 player.StopAllMovement();
                 botStates.Pop();
+                onDeadline?.Invoke();
                 return;
             }
 

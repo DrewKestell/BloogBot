@@ -37,7 +37,11 @@ namespace ElementalShamanBot
         readonly WoWUnit target;
         Position targetLastPosition;
 
-        internal CombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) : base(botStates, container, target, 30)
+        internal CombatState(
+            Stack<IBotState> botStates,
+            IDependencyContainer container,
+            WoWUnit target,
+            bool loot = true) : base(botStates, container, target, 30, loot)
         {
             this.botStates = botStates;
             this.container = container;
@@ -61,7 +65,7 @@ namespace ElementalShamanBot
             TryCastSpell(EarthShock, 0, 20, !natureImmuneCreatures.Contains(target.Name) && (target.IsCasting || target.IsChanneling || player.HasBuff(Clearcasting)));
 
             TryCastSpell(LightningBolt, 0, 30, !natureImmuneCreatures.Contains(target.Name) && ((TargetMovingTowardPlayer && target.Position.DistanceTo(player.Position) > 15) || (!TargetMovingTowardPlayer && target.Position.DistanceTo(player.Position) > 5) || (player.HasBuff(FocusedCasting) && target.HealthPercent > 20 && Wait.For("FocusedLightningBoltDelay", 4000, true))));
-            
+
             TryCastSpell(TremorTotem, 0, int.MaxValue, fearingCreatures.Contains(target.Name) && !ObjectManager.Units.Any(u => u.Position.DistanceTo(player.Position) < 29 && u.HealthPercent > 0 && u.Name.Contains(TremorTotem)));
 
             TryCastSpell(StoneclawTotem, 0, int.MaxValue, ObjectManager.Aggressors.Count() > 1);

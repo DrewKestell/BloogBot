@@ -155,6 +155,32 @@ namespace BloogBot
             return travelPath;
         }
 
+        public GatherRoute AddGatherRoute(string name, string nodeNames, TravelPath travelPath)
+        {
+            string insertSql = $"INSERT INTO GatherRoutes (Name, NodeNames, TravelPathId) VALUES ('{name}', '{nodeNames}', {travelPath.Id});";
+            string selectSql = $"SELECT * FROM GatherRoutes WHERE Name = '{name}' LIMIT 1;";
+
+            GatherRoute gatherRoute;
+
+            RunSqlQuery(insertSql);
+
+            using (var db = NewConnection())
+            {
+                db.Open();
+                var command = NewCommand(selectSql, db);
+                var reader = command.ExecuteReader();
+                reader.Read();
+
+                var id = Convert.ToInt32(reader["Id"]);
+                gatherRoute = new GatherRoute(id, name, nodeNames, travelPath);
+
+                reader.Close();
+                db.Close();
+
+            }
+            return gatherRoute;
+        }
+
         public bool BlacklistedMobExists(ulong guid)
         {
             string sql = $"SELECT Id FROM BlacklistedMobs WHERE Guid = '{guid}' LIMIT 1;";
@@ -425,6 +451,56 @@ namespace BloogBot
                 db.Close();
 
                 return travelPaths;
+            }
+
+        }
+
+        public List<GatherRoute> ListGatherRoutes()
+        {
+            string sql = $@"
+                SELECT
+                    gr.Id,
+                    gr.Name,
+                    gr.NodeNames,
+                    tp.Id as TravelPath_Id,
+                    tp.Name as TravelPath_Name,
+                    tp.Waypoints as TravelPath_Waypoints
+                FROM GatherRoutes gr
+                LEFT JOIN TravelPaths tp ON gr.TravelPathId = tp.Id
+                ORDER BY gr.Name
+            ";
+
+            var gatherRoutes = new List<GatherRoute>();
+
+            using (var db = this.NewConnection())
+            {
+                db.Open();
+
+                var command = this.NewCommand(sql, db);
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var id = Convert.ToInt32(reader["Id"]);
+                    var name = Convert.ToString(reader["Name"]);
+                    var nodeNames = Convert.ToString(reader["NodeNames"]);
+
+                    TravelPath travelPath = null;
+                    var travelPathId = reader["TravelPath_Id"];
+                    if (IsNotNullOrZero(travelPathId))
+                    {
+                        var travelPathName = Convert.ToString(reader["TravelPath_Name"]);
+                        var waypointsJson = Convert.ToString(reader["TravelPath_Waypoints"]);
+                        var waypoints = JsonConvert.DeserializeObject<Position[]>(waypointsJson);
+                        travelPath = new TravelPath(Convert.ToInt32(travelPathId), travelPathName, waypoints);
+                    }
+
+                    gatherRoutes.Add(new GatherRoute(id, name, nodeNames, travelPath));
+                }
+
+                reader.Close();
+                db.Close();
+
+                return gatherRoutes;
             }
 
         }

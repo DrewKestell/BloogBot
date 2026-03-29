@@ -28,7 +28,11 @@ namespace ProtectionWarriorBot
         readonly WoWUnit target;
         readonly LocalPlayer player;
 
-        internal CombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) : base(botStates, container, target, 3)
+        internal CombatState(
+            Stack<IBotState> botStates,
+            IDependencyContainer container,
+            WoWUnit target,
+            bool loot = true) : base(botStates, container, target, 3, loot)
         {
             player = ObjectManager.Player;
             this.target = target;
@@ -58,9 +62,9 @@ namespace ProtectionWarriorBot
                 TryUseAbility(Overpower, 5, player.CanOverpower);
 
                 TryUseAbility(Berserking, 5, player.HealthPercent < 30);
-                
+
                 TryUseAbility(ShieldBash, 10, target.IsCasting && target.Mana > 0);
-                
+
                 TryUseAbility(Rend, 10, (!target.HasDebuff(Rend) && target.HealthPercent > 50 && (target.CreatureType != CreatureType.Elemental && target.CreatureType != CreatureType.Undead)));
 
                 TryUseAbility(BattleShout, 10, !player.HasBuff(BattleShout));
@@ -70,7 +74,7 @@ namespace ProtectionWarriorBot
                 TryUseAbility(Execute, 20, target.HealthPercent < 20);
 
                 TryUseAbility(ShieldSlam, 20, target.HealthPercent > 30);
-                
+
                 TryUseAbility(HeroicStrike, 40, target.HealthPercent > 40 && !player.IsCasting);
             }
         }

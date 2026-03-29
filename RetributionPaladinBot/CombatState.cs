@@ -28,7 +28,11 @@ namespace RetributionPaladinBot
         readonly LocalPlayer player;
         readonly WoWUnit target;
 
-        internal CombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) : base(botStates, container, target, 3)
+        internal CombatState(
+            Stack<IBotState> botStates,
+            IDependencyContainer container,
+            WoWUnit target,
+            bool loot = true) : base(botStates, container, target, 3, loot)
         {
             this.botStates = botStates;
             this.container = container;
@@ -58,7 +62,7 @@ namespace RetributionPaladinBot
             TryCastSpell(Exorcism, target.CreatureType == CreatureType.Undead || target.CreatureType == CreatureType.Demon);
 
             TryCastSpell(HammerOfJustice, (target.CreatureType != CreatureType.Humanoid || (target.CreatureType == CreatureType.Humanoid && target.HealthPercent < 20)));
-            
+
             TryCastSpell(SealOfTheCrusader, !player.HasBuff(SealOfTheCrusader) && !target.HasDebuff(JudgementOfTheCrusader));
 
             TryCastSpell(SealOfRighteousness, !player.HasBuff(SealOfRighteousness) && target.HasDebuff(JudgementOfTheCrusader) && !player.KnowsSpell(SealOfCommand));

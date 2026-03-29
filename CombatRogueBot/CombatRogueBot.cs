@@ -10,7 +10,7 @@ using System.Linq;
 namespace CombatRogueBot
 {
     [Export(typeof(IBot))]
-    
+
     class CombatRogueBot : Bot, IBot
     {
         public string Name => "Combat Rogue";
@@ -35,12 +35,19 @@ namespace CombatRogueBot
         IBotState CreatePowerlevelCombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target, WoWPlayer powerlevelTarget) =>
             new PowerlevelCombatState(botStates, container, target, powerlevelTarget);
 
+        IBotState CreateCombatState(
+            Stack<IBotState> botStates,
+            IDependencyContainer container,
+            WoWUnit target,
+            bool loot = true) => new CombatState(botStates, container, target, loot);
+
         public IDependencyContainer GetDependencyContainer(BotSettings botSettings, Probe probe, IEnumerable<Hotspot> hotspots) =>
             new DependencyContainer(
                 AdditionalTargetingCriteria,
                 CreateRestState,
                 CreateMoveToTargetState,
                 CreatePowerlevelCombatState,
+                CreateCombatState,
                 botSettings,
                 probe,
                 hotspots);
