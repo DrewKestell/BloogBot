@@ -57,7 +57,18 @@ namespace BloogBot.AI
                     {
                         currentLevel = ObjectManager.Player.Level;
 
-                        botStates.Push(new GrindState(botStates, container));
+                        switch (container.BotSettings.LastUsedBotType)
+                        {
+                            case BotSettings.BotType.Grinding:
+                                botStates.Push(new GrindState(botStates, container));
+                                break;
+                            case BotSettings.BotType.Powerlevel:
+                                botStates.Push(new PowerlevelState(botStates, container));
+                                break;
+                            case BotSettings.BotType.Gathering:
+                                botStates.Push(new GatherState(botStates, container));
+                                break;
+                        }
 
                         currentState = botStates.Peek().GetType();
                         currentStateStartTime = Environment.TickCount;
@@ -65,7 +76,10 @@ namespace BloogBot.AI
                         currentPositionStartTime = Environment.TickCount;
                         teleportCheckPosition = ObjectManager.Player.Position;
 
-                        container.CheckForTravelPath(botStates, false);
+                        if (container.BotSettings.LastUsedBotType != BotSettings.BotType.Gathering)
+                        {
+                            container.CheckForTravelPath(botStates, false);
+                        }
                     }));
                 });
 
@@ -87,6 +101,8 @@ namespace BloogBot.AI
 
                 ThreadSynchronizer.RunOnMainThread(() =>
                 {
+                    container.BotSettings.LastUsedBotType = BotSettings.BotType.Grinding;
+
                     currentLevel = ObjectManager.Player.Level;
 
                     botStates.Push(new GrindState(botStates, container));
@@ -169,6 +185,8 @@ namespace BloogBot.AI
 
                 ThreadSynchronizer.RunOnMainThread(() =>
                 {
+                    container.BotSettings.LastUsedBotType = BotSettings.BotType.Powerlevel;
+
                     botStates.Push(new PowerlevelState(botStates, container));
 
                     currentState = botStates.Peek().GetType();
@@ -179,6 +197,35 @@ namespace BloogBot.AI
                 });
 
                 StartPowerlevelInternal(container);
+            }
+            catch (Exception e)
+            {
+                Logger.Log(e);
+            }
+        }
+
+        public void StartGathering(IDependencyContainer container, Action stopCallback)
+        {
+            this.stopCallback = stopCallback;
+
+            try
+            {
+                running = true;
+
+                ThreadSynchronizer.RunOnMainThread(() =>
+                {
+                    container.BotSettings.LastUsedBotType = BotSettings.BotType.Gathering;
+
+                    botStates.Push(new GatherState(botStates, container));
+
+                    currentState = botStates.Peek().GetType();
+                    currentStateStartTime = Environment.TickCount;
+                    currentPosition = ObjectManager.Player.Position;
+                    currentPositionStartTime = Environment.TickCount;
+                    teleportCheckPosition = ObjectManager.Player.Position;
+                });
+
+                StartInternal(container);
             }
             catch (Exception e)
             {

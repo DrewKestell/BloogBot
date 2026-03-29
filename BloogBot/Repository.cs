@@ -115,7 +115,18 @@ namespace BloogBot
             return hotspots;
         }
 
+        static public GatherRoute AddGatherRoute(string name, string nodeNames, TravelPath travelPath)
+        {
+            var encodedName = Encode(name);
+            var encodedNodeNames = Encode(nodeNames);
 
+            return databaseWrapper.AddGatherRoute(encodedName, encodedNodeNames, travelPath);
+        }
+
+        static public IEnumerable<GatherRoute> ListGatherRoutes()
+        {
+            return databaseWrapper.ListGatherRoutes();
+        }
 
         static public void AddBlacklistedMob(ulong guid)
         {

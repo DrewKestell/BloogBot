@@ -33,7 +33,11 @@ namespace ShadowPriestBot
         readonly WoWUnit target;
         readonly LocalPlayer player;
 
-        internal CombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) : base(botStates, container, target, 30)
+        internal CombatState(
+            Stack<IBotState> botStates,
+            IDependencyContainer container,
+            WoWUnit target,
+            bool loot = true) : base(botStates, container, target, 30, loot)
         {
             this.botStates = botStates;
             this.container = container;
@@ -59,7 +63,7 @@ namespace ShadowPriestBot
             else
             {
                 var aggressors = ObjectManager.Aggressors;
-                
+
                 TryCastSpell(ShadowForm, 0, int.MaxValue, !player.HasBuff(ShadowForm));
 
                 TryCastSpell(VampiricEmbrace, 0, 29, player.HealthPercent < 100 && !target.HasDebuff(VampiricEmbrace) && target.HealthPercent > 50);
@@ -70,7 +74,7 @@ namespace ShadowPriestBot
                 TryCastSpell(ShadowWordPain, 0, 29, target.HealthPercent > 70 && !target.HasDebuff(ShadowWordPain));
 
                 TryCastSpell(DispelMagic, 0, int.MaxValue, player.HasMagicDebuff, castOnSelf: true);
-                
+
                 if (player.KnowsSpell(AbolishDisease))
                     TryCastSpell(AbolishDisease, 0, int.MaxValue, player.IsDiseased && !player.HasBuff(ShadowForm), castOnSelf: true);
                 else if (player.KnowsSpell(CureDisease))

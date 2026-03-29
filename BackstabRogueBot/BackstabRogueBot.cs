@@ -36,12 +36,19 @@ namespace BackstabRogueBot
         IBotState CreatePowerlevelCombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target, WoWPlayer powerlevelTarget) =>
             new PowerlevelCombatState(botStates, container, target, powerlevelTarget);
 
+        IBotState CreateCombatState(
+            Stack<IBotState> botStates,
+            IDependencyContainer container,
+            WoWUnit target,
+            bool loot = true) => new CombatState(botStates, container, target, loot);
+
         public IDependencyContainer GetDependencyContainer(BotSettings botSettings, Probe probe, IEnumerable<Hotspot> hotspots) =>
             new DependencyContainer(
                 AdditionalTargetingCriteria,
                 CreateRestState,
                 CreateMoveToTargetState,
                 CreatePowerlevelCombatState,
+                CreateCombatState,
                 botSettings,
                 probe,
                 hotspots);
@@ -50,8 +57,8 @@ namespace BackstabRogueBot
         {
 
             // this script simply swaps out your mainhand for something in a bag
-            
-            
+
+
 
             ThreadSynchronizer.RunOnMainThread(() =>
             {
@@ -75,26 +82,26 @@ namespace BackstabRogueBot
                 // Check to see if a Dagger is Equipped in the mainhand
 
                 if (MainHand.Info.ItemSubclass == ItemSubclass.Dagger)
-                   
+
                     DaggerEquipped = true;
-                
+
                 else DaggerEquipped = false;
 
                 // Check to see if a 1H Sword or Mace is Equipped in the mainhand
 
                 // if (MainHand.Info.ItemSubclass == ItemSubclass.OneHandedMace || ItemSubclass.OneHandedSword || ItemSubclass.OneHandedExotic)
                 if (MainHand.Info.ItemSubclass == ItemSubclass.OneHandedSword)
-                   
+
                     MaceOrSwordEquipped = true;
-               
+
                 else MaceOrSwordEquipped = false;
 
                 // Check to see if a Dagger is ready in the swap slot
 
                 if (SwapSlotWeap.Info.ItemSubclass == ItemSubclass.Dagger)
-                    
+
                     SwapDaggerReady = true;
-               
+
                 else SwapDaggerReady = false;
 
 
@@ -102,11 +109,11 @@ namespace BackstabRogueBot
 
                 // if (SwapSlotWeap.Info.ItemSubclass == ItemSubclass.OneHandedMace || ItemSubclass.OneHandedSword || ItemSubclass.OneHandedExotic)
                 if (SwapSlotWeap.Info.ItemSubclass == ItemSubclass.OneHandedSword)
-                    
+
                     SwapMaceOrSwordReady = true;
-                
+
                 else SwapMaceOrSwordReady = false;
-         
+
                 // If Swap dagger is ready and the playe is not in combat, swap to a mainhand dagger.
 
                 if (SwapDaggerReady == true && !player.IsInCombat)
@@ -125,7 +132,7 @@ namespace BackstabRogueBot
 
 
             });
-            
+
 
         }
     }

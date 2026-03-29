@@ -13,6 +13,8 @@ namespace BloogBot.AI
 
         Func<Stack<IBotState>, IDependencyContainer, WoWUnit, WoWPlayer, IBotState> CreatePowerlevelCombatState { get; }
 
+        Func<Stack<IBotState>, IDependencyContainer, WoWUnit, bool, IBotState> CreateCombatState { get; }
+
         BotSettings BotSettings { get; }
 
         Probe Probe { get; }
@@ -24,6 +26,8 @@ namespace BloogBot.AI
         WoWUnit FindThreat();
 
         Hotspot GetCurrentHotspot();
+
+        GatherRoute GetCurrentGatherRoute();
 
         void CheckForTravelPath(Stack<IBotState> botStates, bool reverse, bool needsToRest = true);
 

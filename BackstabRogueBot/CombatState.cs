@@ -32,7 +32,7 @@ namespace BackstabRogueBot
         readonly LocalPlayer player;
         WoWUnit target;
         WoWUnit secondaryTarget;
-        
+
         bool SwapDaggerReady;
         bool DaggerEquipped;
         bool SwapMaceOrSwordReady;
@@ -41,7 +41,11 @@ namespace BackstabRogueBot
         bool readyToRiposte;
         int riposteStartTime;
 
-        internal CombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) : base(botStates, container, target, 3)
+        internal CombatState(
+            Stack<IBotState> botStates,
+            IDependencyContainer container,
+            WoWUnit target,
+            bool loot = true) : base(botStates, container, target, 3, loot)
         {
             player = ObjectManager.Player;
             this.target = target;
@@ -63,7 +67,7 @@ namespace BackstabRogueBot
                 return;
 
             // Ensure Sword/Mace/1H is equipped (not dagger)
-            
+
             ThreadSynchronizer.RunOnMainThread(() =>
             {
 
@@ -137,7 +141,7 @@ namespace BackstabRogueBot
                 || target.HealthPercent <= 30 && player.ComboPoints >= 3
                 || target.HealthPercent <= 40 && player.ComboPoints >= 4
                 || player.ComboPoints == 5;
-            
+
             TryUseAbility(Eviscerate, 35, readyToEviscerate);
 
             TryUseAbility(SliceAndDice, 25, !player.HasBuff(SliceAndDice) && target.HealthPercent > 40 && player.ComboPoints <= 3 && player.ComboPoints >= 2);
@@ -145,7 +149,7 @@ namespace BackstabRogueBot
             // TryUseAbility(ExposeArmor, 25, player.HasBuff(SliceAndDice) && target.HealthPercent > 50 && player.ComboPoints <= 2 && player.ComboPoints >= 1);
 
             TryUseAbility(SinisterStrike, 45, !player.IsSpellReady(GhostlyStrike) && !ReadyToInterrupt(target) && player.ComboPoints < 5 && !readyToEviscerate);
-        
+
             TryUseAbility(GhostlyStrike, 40, player.IsSpellReady(GhostlyStrike) && player.KnowsSpell(GhostlyStrike) && !ReadyToInterrupt(target) && player.ComboPoints < 5 && !readyToEviscerate);
 
             TryUseAbilityById(BloodFury, 3, 0, player.IsSpellReady(BloodFury) && target.HealthPercent > 80);
@@ -161,9 +165,9 @@ namespace BackstabRogueBot
             TryUseAbility(Kick, 25, ReadyToInterrupt(target));
 
             // we use Kidneyshot (with 1 or 2 combo points only) before Gouge as Gouge has a longer cooldown and requires more energy, so sometimes gouge doesn't fire before casting is done.
-            
-            TryUseAbility(KidneyShot, 25, ReadyToInterrupt(target) && !player.IsSpellReady(Kick) && player.ComboPoints >= 1 && player.ComboPoints <=2);
-                        
+
+            TryUseAbility(KidneyShot, 25, ReadyToInterrupt(target) && !player.IsSpellReady(Kick) && player.ComboPoints >= 1 && player.ComboPoints <= 2);
+
             TryUseAbility(Gouge, 45, ReadyToInterrupt(target) && !player.IsSpellReady(Kick));
         }
 

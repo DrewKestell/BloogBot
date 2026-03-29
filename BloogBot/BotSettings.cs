@@ -70,6 +70,8 @@ namespace BloogBot
 
         public int? CurrentTravelPathId { get; set; }
 
+        public int? CurrentGatherRouteId { get; set; }
+
         public string CurrentBotName { get; set; }
 
         public bool UseTeleportKillswitch { get; set; }
@@ -100,11 +102,16 @@ namespace BloogBot
 
         public string Password { get; set; }
 
+        public BotType LastUsedBotType { get; set; } = BotType.Grinding;
+
         [JsonIgnore]
         public Hotspot GrindingHotspot { get; set; }
 
         [JsonIgnore]
         public TravelPath CurrentTravelPath { get; set; }
+
+        [JsonIgnore]
+        public GatherRoute CurrentGatherRoute { get; set; }
 
         [JsonIgnore]
         public IList<string> CreatureTypes
@@ -138,6 +145,13 @@ namespace BloogBot
 
                 return unitReactions;
             }
+        }
+
+        public enum BotType
+        {
+            Grinding,
+            Powerlevel,
+            Gathering,
         }
     }
 }

@@ -1345,6 +1345,166 @@
                 </Grid>
 
             </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    Gathering
+                </TabItem.Header>
+                <Grid Margin="10,4,10,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Row="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button
+                            Command="{Binding StartGatheringCommand}"
+                            IsEnabled="{Binding StartGatheringCommandEnabled}"
+                            Content="Start"
+                            Height="24"
+                            HorizontalAlignment="Left"
+                            Margin="0,0,10,0"
+                            Padding="6,0,6,0"/>
+
+                        <Button
+                            Grid.Column="1"
+                            Command="{Binding StopCommand}"
+                            IsEnabled="{Binding StopCommandEnabled}"
+                            Content="Stop"
+                            Height="24"
+                            HorizontalAlignment="Left"
+                            Margin="0,0,10,0"
+                            Padding="6,0,6,0"/>
+                    </Grid>
+
+                    <Grid Grid.Row="1" Grid.ColumnSpan="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition  />
+                        </Grid.ColumnDefinitions>
+
+                        <Label
+                            Content="Gathering Route:"
+                            VerticalContentAlignment="Center"
+                            HorizontalContentAlignment="Right"/>
+                        <ComboBox
+                            Grid.Column="1"
+                            Margin="0,4"
+                            VerticalContentAlignment="Center"
+                            SelectedItem="{Binding Path=CurrentGatherRoute, Mode=TwoWay}"
+                            ItemsSource="{Binding Path=GatherRoutes, Mode=OneWay}"
+                            IsEnabled="{Binding Path=CurrentGatherRouteEnabled}" Grid.ColumnSpan="2">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock>
+                                        <TextBlock.Text>
+                                            <MultiBinding StringFormat="{}{0}">
+                                                <Binding Path="Name"/>
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </Grid>
+
+                    <Grid Grid.Row="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button
+                            Command="{Binding SaveGatherRouteCommand}"
+                            IsEnabled="{Binding SaveGatherRouteCommandEnabled}"
+                            Content="Save Route"
+                            Height="24"
+                            HorizontalAlignment="Left"
+                            Margin="0,0,10,0"
+                            Padding="6,0,6,0"/>
+                    </Grid>
+
+
+                    <Grid Grid.Row="3">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="30"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Label
+                            Grid.Row="0"
+                            Content="Name:"
+                            VerticalContentAlignment="Center"
+                            HorizontalContentAlignment="Right"/>
+                        <TextBox
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Text="{Binding Path=NewGatherRouteName}"
+                            VerticalContentAlignment="Center"
+                            Margin="0,4,6,4"/>
+
+                        <Label
+                            Grid.Row="1"
+                            Content="Node Names:"
+                            VerticalContentAlignment="Center"
+                            HorizontalContentAlignment="Right"/>
+                        <TextBox
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Text="{Binding Path=NewGatherRouteNodeNames}"
+                            VerticalContentAlignment="Center"
+                            Margin="0,4,6,4"/>
+
+                        <Label
+                            Grid.Row="2"
+                            Content="Travel Path:"
+                            VerticalContentAlignment="Center"
+                            HorizontalContentAlignment="Right"/>
+                        <ComboBox
+                            Grid.Row="2"
+                            Grid.Column="1"
+                            Margin="0,4,6,4"
+                            IsEditable="False"
+                            VerticalContentAlignment="Center"
+                            SelectedItem="{Binding Path=NewGatherRouteTravelPath, Mode=TwoWay}"
+                            ItemsSource="{Binding Path=TravelPaths, Mode=OneWay}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock>
+                                        <TextBlock.Text>
+                                            <MultiBinding StringFormat="{}{0}">
+                                                <Binding Path="Name"/>
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </Grid>
+                </Grid>
+            </TabItem>
         </TabControl>
         <Grid Grid.Row="1" Margin="10,10,10,0">
             <Grid.RowDefinitions>

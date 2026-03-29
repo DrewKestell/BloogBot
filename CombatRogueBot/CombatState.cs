@@ -23,7 +23,11 @@ namespace CombatRogueBot
         readonly LocalPlayer player;
         readonly WoWUnit target;
 
-        internal CombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) : base(botStates, container, target, 3)
+        internal CombatState(
+            Stack<IBotState> botStates,
+            IDependencyContainer container,
+            WoWUnit target,
+            bool loot = true) : base(botStates, container, target, 3, loot)
         {
             player = ObjectManager.Player;
             this.target = target;

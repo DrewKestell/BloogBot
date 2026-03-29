@@ -54,7 +54,11 @@ namespace FuryWarriorBot
         bool initialized;
         int combatStateEnterTime = Environment.TickCount;
 
-        internal CombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) : base(botStates, container, target, 5)
+        internal CombatState(
+            Stack<IBotState> botStates,
+            IDependencyContainer container,
+            WoWUnit target,
+            bool loot = true) : base(botStates, container, target, 5, loot)
         {
             this.botStates = botStates;
             this.container = container;
@@ -139,7 +143,7 @@ namespace FuryWarriorBot
             if (ObjectManager.Aggressors.Count() >= 1 || (ObjectManager.Aggressors.Count() > 1 && !AggressorsInMelee))
             {
                 TryUseAbility(Slam, 15, target.HealthPercent > 20 && slamReady, SlamCallback);
-                
+
                 // TryUseAbility(Rend, 10, (currentStance == BattleStance && target.HealthPercent > 50 && !target.HasDebuff(Rend) && (target.CreatureType != CreatureType.Elemental && target.CreatureType != CreatureType.Undead)));
 
                 TryUseAbility(Bloodthirst, 30);

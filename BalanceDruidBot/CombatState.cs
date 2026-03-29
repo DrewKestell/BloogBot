@@ -39,7 +39,11 @@ namespace BalanceDruidBot
             castingEntanglingRoots = true;
         };
 
-        internal CombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) : base(botStates, container, target, 30)
+        internal CombatState(
+            Stack<IBotState> botStates,
+            IDependencyContainer container,
+            WoWUnit target,
+            bool loot = true) : base(botStates, container, target, 30, loot)
         {
             this.botStates = botStates;
             player = ObjectManager.Player;
