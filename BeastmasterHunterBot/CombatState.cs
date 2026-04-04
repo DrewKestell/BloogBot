@@ -39,7 +39,11 @@ namespace BeastMasterHunterBot
         readonly LocalPlayer player;
         //readonly pet;
 
-        internal CombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) : base(botStates, container, target, 30)
+        internal CombatState(
+            Stack<IBotState> botStates,
+            IDependencyContainer container,
+            WoWUnit target,
+            bool loot = true) : base(botStates, container, target, 30, loot)
         {
             player = ObjectManager.Player;
             this.target = target;
@@ -62,7 +66,7 @@ namespace BeastMasterHunterBot
             else if (canUseRanged && player.ManaPercent < 60)
             {
                 player.LuaCall(GunLuaScript);
-            } 
+            }
             else if (gun != null && canUseRanged)
             {
                 //if (!target.HasDebuff(HuntersMark)) 
@@ -71,7 +75,7 @@ namespace BeastMasterHunterBot
                 //}
                 //else 
                 if (!target.HasDebuff(SerpentSting))
-                { 
+                {
                     TryCastSpell(SerpentSting, 0, 34);
                 }
                 else if (player.ManaPercent > 60)
@@ -85,7 +89,7 @@ namespace BeastMasterHunterBot
             }
             else
             {
-            // melee rotation
+                // melee rotation
                 TryCastSpell(RaptorStrike, 0, 5);
             }
         }

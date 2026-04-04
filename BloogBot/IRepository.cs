@@ -10,6 +10,7 @@ namespace BloogBot
         Npc AddNpc(string name, bool isInnkeeper, bool sellsAmmo, bool repairs, bool quest, bool horde, bool alliance, float positionX, float positionY, float positionZ, string zone);
         void AddReportSignature(string playerName, int commandId);
         TravelPath AddTravelPath(string name, string waypointsJson);
+        GatherRoute AddGatherRoute(string name, string nodeNames, TravelPath travelPath);
         bool BlacklistedMobExists(ulong guid);
         void DeleteCommand(int id);
         void DeleteCommandsForPlayer(string player);
@@ -20,6 +21,7 @@ namespace BloogBot
         List<Hotspot> ListHotspots();
         List<Npc> ListNPCs();
         List<TravelPath> ListTravelPaths();
+        List<GatherRoute> ListGatherRoutes();
         bool NpcExists(string name);
         void RemoveBlacklistedMob(ulong guid);
         bool RowExistsSql(string sql);

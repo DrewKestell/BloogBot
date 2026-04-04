@@ -23,6 +23,8 @@ namespace BloogBot.AI
 
         void StartPowerlevel(IDependencyContainer container, Action stopCallback);
 
+        void StartGathering(IDependencyContainer container, Action stopCallback);
+
         void Test(IDependencyContainer container);
     }
 }

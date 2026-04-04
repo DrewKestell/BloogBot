@@ -29,7 +29,11 @@ namespace ArcaneMageBot
         bool frostNovaBackpedaling;
         int frostNovaBackpedalStartTime;
 
-        internal CombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) : base(botStates, container, target, 30)
+        internal CombatState(
+            Stack<IBotState> botStates,
+            IDependencyContainer container,
+            WoWUnit target,
+            bool loot = true) : base(botStates, container, target, 30, loot)
         {
             player = ObjectManager.Player;
             this.target = target;

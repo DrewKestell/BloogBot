@@ -54,7 +54,17 @@ namespace FrostMageBot
 
         int combatStateStartTime;
 
-        internal CombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) : base(botStates, container, target, 29 + (ObjectManager.GetTalentRank(3, 11) * 3))
+        internal CombatState(
+            Stack<IBotState> botStates,
+            IDependencyContainer container,
+            WoWUnit target,
+            bool loot = true) :
+            base(
+                botStates,
+                container,
+                target,
+                desiredRange: 29 + (ObjectManager.GetTalentRank(3, 11) * 3),
+                loot)
         {
             player = ObjectManager.Player;
             this.target = target;

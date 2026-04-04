@@ -2,6 +2,7 @@
 using BloogBot.Game.Objects;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BloogBot.AI.SharedStates
 {
@@ -10,30 +11,47 @@ namespace BloogBot.AI.SharedStates
         readonly Stack<IBotState> botStates;
         readonly WoWGameObject target;
         readonly LocalPlayer player;
-        readonly int initialCount = 0;
+        readonly Action onDeadline;
+        readonly int initialItemCount = Inventory.GetAllItems().Sum(i => i.StackCount);
 
-        readonly int startTime = Environment.TickCount;
+        int startTime = -1;
 
-        internal GatherObjectState(Stack<IBotState> botStates, IDependencyContainer container, WoWGameObject target)
+        internal GatherObjectState(
+            Stack<IBotState> botStates,
+            IDependencyContainer container,
+            WoWGameObject target,
+            Action onDeadline = null)
         {
             this.botStates = botStates;
             this.target = target;
+            this.onDeadline = onDeadline;
             player = ObjectManager.Player;
-            initialCount = Inventory.GetItemCount(target.Name);
         }
 
         public void Update()
         {
-            if (player.IsInCombat || (Environment.TickCount - startTime > 15000))
+            if (startTime == -1)
+            {
+                startTime = Environment.TickCount;
+            }
+
+            if (player.IsInCombat)
             {
                 botStates.Pop();
                 return;
             }
 
-            if (Wait.For("InteractWithObjectDelay", 15000, true))
+            if (Environment.TickCount - startTime > 15 * 1000)
+            {
+                onDeadline?.Invoke();
+                botStates.Pop();
+                return;
+            }
+
+            if (Wait.For("InteractWithObjectDelay", 10 * 1000, true))
                 target.Interact();
 
-            if (Inventory.GetItemCount(target.Name) > initialCount)
+            if (Inventory.GetAllItems().Sum(i => i.StackCount) != initialItemCount)
             {
                 if (Wait.For("PopGatherObjectStateDelay", 2000))
                 {

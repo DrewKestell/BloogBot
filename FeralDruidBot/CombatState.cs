@@ -41,8 +41,17 @@ namespace FeralDruidBot
         readonly LocalPlayer player;
         readonly WoWUnit target;
 
-        internal CombatState(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target) :
-            base(botStates, container, target, desiredRange: ObjectManager.Player.Level <= 12 ? 30 : 4)
+        internal CombatState(
+            Stack<IBotState> botStates,
+            IDependencyContainer container,
+            WoWUnit target,
+            bool loot = true) :
+            base(
+                botStates,
+                container,
+                target,
+                desiredRange: ObjectManager.Player.Level <= 12 ? 30 : 4,
+                loot)
         {
             this.botStates = botStates;
             this.container = container;
