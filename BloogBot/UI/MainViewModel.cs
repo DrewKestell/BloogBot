@@ -785,6 +785,9 @@ namespace BloogBot.UI
 
         void StartGathering()
         {
+            // Save current grinding hotspot ID to file.
+            SaveSettings();
+
             var container = CurrentBot.GetDependencyContainer(botSettings, probe, Hotspots);
 
             void stopCallback()

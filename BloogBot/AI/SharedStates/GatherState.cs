@@ -14,6 +14,7 @@ namespace BloogBot.AI.SharedStates
         readonly LocalPlayer player;
         readonly HashSet<string> nodeNames;
         readonly StuckHelper stuckHelper;
+        readonly Dictionary<ulong, int> nodeGatherFailTimestamps = new Dictionary<ulong, int>();
 
         int nextWaypointIndex = -1;
         int lastWaypointTime = Environment.TickCount;
@@ -71,16 +72,27 @@ namespace BloogBot.AI.SharedStates
                 .GameObjects
                 .Where(g => nodeNames.Contains(g.Name))
                 .Where(g => !container.Probe.BlacklistedMobIds?.Contains(g.Guid) ?? true)
+                // Filter out nodes we've recently failed to gather (e.g. skill level too low).
+                .Where(g => !(
+                    nodeGatherFailTimestamps.ContainsKey(g.Guid) &&
+                    Environment.TickCount - nodeGatherFailTimestamps[g.Guid] < 5 * 60 * 1000))
                 .OrderBy(g => g.Position.DistanceTo(player.Position));
 
             if (gatherNodes.Any())
             {
                 var gatherNode = gatherNodes.First();
-                botStates.Push(new GatherObjectState(botStates, container, gatherNode));
+                botStates.Push(new GatherObjectState(
+                    botStates, container, gatherNode, onDeadline: () =>
+                    {
+                        // We failed to gather this node (e.g. skill level too low). Blacklist it
+                        // temporarily.
+                        nodeGatherFailTimestamps[gatherNode.Guid] = Environment.TickCount;
+                    }));
                 botStates.Push(new MoveToPositionState(
                     botStates,
                     container,
                     gatherNode.Position,
+                    ignoreThreats: true,
                     deadline: Environment.TickCount + 60 * 1000,
                     onDeadline: () =>
                     {
