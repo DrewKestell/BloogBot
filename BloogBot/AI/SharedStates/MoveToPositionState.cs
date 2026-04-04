@@ -11,6 +11,7 @@ namespace BloogBot.AI.SharedStates
         readonly IDependencyContainer container;
         readonly Position destination;
         readonly bool use2DPop;
+        readonly bool ignoreThreats;
         readonly LocalPlayer player;
         readonly StuckHelper stuckHelper;
         readonly int deadline;
@@ -23,6 +24,7 @@ namespace BloogBot.AI.SharedStates
             IDependencyContainer container,
             Position destination,
             bool use2DPop = false,
+            bool ignoreThreats = false,
             int deadline = -1,
             Action onDeadline = null)
         {
@@ -30,6 +32,7 @@ namespace BloogBot.AI.SharedStates
             this.container = container;
             this.destination = destination;
             this.use2DPop = use2DPop;
+            this.ignoreThreats = ignoreThreats;
             this.deadline = deadline;
             this.onDeadline = onDeadline;
             player = ObjectManager.Player;
@@ -40,7 +43,7 @@ namespace BloogBot.AI.SharedStates
         {
             var threat = container.FindThreat();
 
-            if (threat != null)
+            if (threat != null && !ignoreThreats)
             {
                 player.StopAllMovement();
                 botStates.Push(container.CreateMoveToTargetState(botStates, container, threat));
