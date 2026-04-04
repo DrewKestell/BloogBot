@@ -203,3 +203,15 @@ CREATE TABLE [dbo].[TravelPaths](
 	[Id] [int] IDENTITY(1,1) NOT NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 END
+
+SET ANSI_NULLS ON
+SET QUOTED_IDENTIFIER ON
+IF OBJECT_ID(N'dbo.GatherRoutes', N'U') IS NULL
+BEGIN
+CREATE TABLE [dbo].[GatherRoutes](
+	[Name] [nvarchar](max) NOT NULL,
+	[TravelPathId] [int] NOT NULL,
+	[NodeNames][nvarchar](max) NOT NULL,
+	[Id] [int] IDENTITY(1,1) NOT NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+END
