@@ -29,6 +29,7 @@ namespace ProtectionPaladinBot
         const string SealOfTheCrusader = "Seal of the Crusader";
         const string AvengersShield = "Avenger's Shield";
         const string HammerOfTheRighteous = "Hammer of the Righteous";
+        const string DivinePlea = "Divine Plea";
 
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
@@ -53,6 +54,8 @@ namespace ProtectionPaladinBot
 
             if (base.Update())
                 return;
+
+            TryCastSpell(DivinePlea, player.ManaPercent < 50);
 
             TryCastSpell(LayOnHands, player.Mana < player.GetManaCost(HolyLight) && player.HealthPercent < 10, castOnSelf: true);
 
