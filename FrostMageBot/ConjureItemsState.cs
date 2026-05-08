@@ -62,20 +62,17 @@ namespace FrostMageBot
                 return;
             }
 
-            if (!foodSelection.HasEnough && Wait.For("FrostMageConjureFood", 3000, true) && TryCastSpell(ConjureFood))
+            if (!foodSelection.HasEnough && player.IsSpellReady(ConjureFood) && Wait.For("FrostMageConjureFood", 3000, true))
+            {
+                player.LuaCall($"CastSpellByName('{ConjureFood}')");
                 return;
+            }
 
-            if (!drinkSelection.HasEnough && Wait.For("FrostMageConjureDrink", 3000, true) && TryCastSpell(ConjureWater))
+            if (!drinkSelection.HasEnough && player.IsSpellReady(ConjureWater) && Wait.For("FrostMageConjureDrink", 3000, true))
+            {
+                player.LuaCall($"CastSpellByName('{ConjureWater}')");
                 return;
-        }
-
-        bool TryCastSpell(string name)
-        {
-            if (!player.IsSpellReady(name) || player.IsCasting)
-                return false;
-
-            player.LuaCall($"CastSpellByName('{name}')");
-            return true;
+            }
         }
     }
 }
