@@ -56,6 +56,7 @@ namespace FrostMageBot
 
             var selected = matchingItems
                 .OrderByDescending(i => IsConfiguredItemName(i.Name, configuredNameList))
+                .ThenBy(i => ConjuredRank(i.Name, conjuredNameList))
                 .ThenByDescending(i => i.StackCount)
                 .FirstOrDefault();
 
@@ -71,6 +72,12 @@ namespace FrostMageBot
                     .Select(name => name.Trim())
                     .Where(name => !string.IsNullOrEmpty(name))
                     .ToArray();
+
+        static int ConjuredRank(string itemName, string[] conjuredNameList)
+        {
+            var index = Array.FindIndex(conjuredNameList, n => string.Equals(n, itemName, StringComparison.OrdinalIgnoreCase));
+            return index < 0 ? int.MaxValue : index;
+        }
 
         static bool IsConfiguredItemName(string itemName, IEnumerable<string> configuredNames)
         {
