@@ -15,22 +15,19 @@ namespace BeastMasterHunterBot
     {
         const int stackCount = 5;
 
-        const string noPetErrorMessage = "You do not have a pet";
+        const string MendPet = "Mend Pet";
 
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
         readonly LocalPlayer player;
-        readonly LocalPet pet;
-        readonly WoWItem foodItem;
-        readonly WoWItem drinkItem;
-        readonly WoWItem petFood;
+        WoWItem foodItem;
+        WoWItem drinkItem;
 
         public RestState(Stack<IBotState> botStates, IDependencyContainer container)
         {
             this.botStates = botStates;
             this.container = container;
             player = ObjectManager.Player;
-            pet = ObjectManager.Pet;
 
             foodItem = Inventory.GetAllItems()
                 .FirstOrDefault(i => i.Info.Name == container.BotSettings.Food);
@@ -41,24 +38,43 @@ namespace BeastMasterHunterBot
 
         public void Update()
         {
-            // Check on your pet
-            if (pet != null && !PetHappy && !PetBeingFed)
-            {
-                
-            }
-            if (player.HealthPercent >= 95 ||
-                player.HealthPercent >= 80 && !player.IsEating ||
-                ObjectManager.Player.IsInCombat ||
-                ObjectManager.Units.Any(u => u.TargetGuid == ObjectManager.Player.Guid))
+            if (InCombat)
             {
                 Wait.RemoveAll();
                 player.Stand();
                 botStates.Pop();
+                return;
+            }
+
+            var pet = ObjectManager.Pet;
+            if (pet != null && !pet.IsHappy() && !pet.HasBuff("Feed Pet Effect") && Wait.For("FeedPetDelay", 3000, true))
+            {
+                FeedPet();
+            }
+
+            if (foodItem != null && !player.IsEating && player.HealthPercent < 80 && Wait.For("EatDelay", 2000, true))
+                foodItem.Use();
+
+            if (drinkItem != null && !player.IsDrinking && player.ManaPercent < 80 && Wait.For("DrinkDelay", 2000, true))
+                drinkItem.Use();
+
+            if (pet != null && pet.HealthPercent > 0 && pet.HealthPercent < 90
+                && !pet.HasBuff(MendPet) && player.IsSpellReady(MendPet))
+            {
+                player.LuaCall($"CastSpellByName('{MendPet}')");
+            }
+
+            if (HealthOk && ManaOk && PetHealthOk)
+            {
+                Wait.RemoveAll();
+                player.Stand();
+                botStates.Pop();
+                botStates.Push(new BuffSelfState(botStates, container));
 
                 var foodCount = foodItem == null ? 0 : Inventory.GetItemCount(foodItem.ItemId);
                 var drinkCount = drinkItem == null ? 0 : Inventory.GetItemCount(drinkItem.ItemId);
 
-                if (!InCombat && (foodCount == 0 || drinkCount == 0) && !container.RunningErrands)
+                if (foodCount == 0 || drinkCount == 0)
                 {
                     var foodToBuy = 12 - (foodCount / stackCount);
                     var drinkToBuy = 28 - (drinkCount / stackCount);
@@ -85,14 +101,35 @@ namespace BeastMasterHunterBot
 
                 return;
             }
-
-            if (foodItem != null && !ObjectManager.Player.IsEating && Wait.For("EatDelay", 250, true))
-                foodItem.Use();
         }
 
-        bool InCombat => ObjectManager.Aggressors.Count() > 0;
-        bool PetHealthOk => ObjectManager.Pet == null || ObjectManager.Pet.HealthPercent >= 80;
-        bool PetHappy => pet.IsHappy();
-        bool PetBeingFed => pet.HasBuff("Feed Pet Effect");
+        void FeedPet()
+        {
+            if (string.IsNullOrEmpty(container.BotSettings.Food)) return;
+
+            var foodName = container.BotSettings.Food;
+
+            player.LuaCall("CastSpellByName('Feed Pet')");
+            player.LuaCall(
+                "for bag = 0,4 do for slot = 1,GetContainerNumSlots(bag) do local item = GetContainerItemLink(bag,slot) " +
+                "if item then if string.find(item, '" + foodName.Replace("'", "\\'") + "') then " +
+                "PickupContainerItem(bag,slot) break end end end end");
+            player.LuaCall("ClearCursor()");
+        }
+
+        bool HealthOk => foodItem == null || player.HealthPercent >= 95 || (player.HealthPercent >= 80 && !player.IsEating);
+
+        bool ManaOk => drinkItem == null || player.ManaPercent >= 95 || (player.ManaPercent >= 80 && !player.IsDrinking);
+
+        bool InCombat => ObjectManager.Player.IsInCombat || ObjectManager.Units.Any(u => u.TargetGuid == ObjectManager.Player.Guid);
+
+        bool PetHealthOk
+        {
+            get
+            {
+                var pet = ObjectManager.Pet;
+                return pet == null || pet.HealthPercent == 0 || pet.HealthPercent >= 90;
+            }
+        }
     }
 }

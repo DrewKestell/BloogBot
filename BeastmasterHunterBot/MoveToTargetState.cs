@@ -43,7 +43,7 @@ namespace BeastMasterHunterBot
             stuckHelper.CheckIfStuck();
 
             var distanceToTarget = player.Position.DistanceTo(target.Position);
-            if (distanceToTarget < 33 && !player.IsCasting)
+            if (distanceToTarget < 33 && player.InLosWith(target.Position) && !player.IsCasting)
             {
                 player.StopAllMovement();
                 player.LuaCall(GunLuaScript);
