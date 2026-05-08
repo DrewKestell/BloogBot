@@ -15,9 +15,6 @@ namespace BeastMasterHunterBot
     {
         const string AutoAttackLuaScript = "if IsCurrentAction('84') == nil then CastSpellByName('Attack') end";
         const string GunLuaScript = "if IsAutoRepeatAction(11) == nil then CastSpellByName('Auto Shot') end"; // 8-35 yards
-        const string LosErrorMessage = "Target not in line of sight";
-        const string OutOfAmmoErrorMessage = "Ammo needs to be in the paper doll ammo slot before it can be fired";
-
         const string RaptorStrike = "Raptor Strike";
         const string ArcaneShot = "Arcane Shot";
         const string SerpentSting = "Serpent Sting";
@@ -43,7 +40,7 @@ namespace BeastMasterHunterBot
             Stack<IBotState> botStates,
             IDependencyContainer container,
             WoWUnit target,
-            bool loot = true) : base(botStates, container, target, 30, loot)
+            bool loot = true) : base(botStates, container, target, 28, loot)
         {
             player = ObjectManager.Player;
             this.target = target;
@@ -55,25 +52,34 @@ namespace BeastMasterHunterBot
             if (base.Update())
                 return;
 
-            Console.WriteLine("foo");
+            var pet = ObjectManager.Pet;
+            if (pet != null && pet.HealthPercent > 0 && pet.HealthPercent < 75
+                && player.Position.DistanceTo(pet.Position) <= 10
+                && !pet.HasBuff(MendPet))
+            {
+                TryCastSpell(MendPet, 0, int.MaxValue);
+            }
 
             var gun = Inventory.GetEquippedItem(EquipSlot.Ranged);
             var canUseRanged = gun != null && player.Position.DistanceTo(target.Position) > 5 && player.Position.DistanceTo(target.Position) < 34;
+
             if (gun == null)
             {
                 player.LuaCall(AutoAttackLuaScript);
             }
-            else if (canUseRanged && player.ManaPercent < 60)
+            else if (canUseRanged)
             {
+                // Proactive LOS check: if we can't see the target, move toward it until we can
+                if (!player.InLosWith(target.Position))
+                {
+                    var nextWaypoint = Navigation.GetNextWaypoint(ObjectManager.MapId, player.Position, target.Position, false);
+                    player.MoveToward(nextWaypoint);
+                    return;
+                }
+
+                // Always keep Auto Shot toggled on during ranged combat
                 player.LuaCall(GunLuaScript);
-            }
-            else if (gun != null && canUseRanged)
-            {
-                //if (!target.HasDebuff(HuntersMark)) 
-                //{
-                //     TryCastSpell(HuntersMark, 0, 34);
-                //}
-                //else 
+
                 if (!target.HasDebuff(SerpentSting))
                 {
                     TryCastSpell(SerpentSting, 0, 34);
@@ -82,10 +88,6 @@ namespace BeastMasterHunterBot
                 {
                     TryCastSpell(ArcaneShot, 0, 34);
                 }
-                return;
-
-
-                //TryCastSpell(ConcussiveShot, 0, 34);
             }
             else
             {
