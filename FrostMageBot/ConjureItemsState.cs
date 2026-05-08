@@ -1,8 +1,8 @@
-﻿using BloogBot.AI;
+using BloogBot;
+using BloogBot.AI;
 using BloogBot.Game;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace FrostMageBot
 {
@@ -14,24 +14,33 @@ namespace FrostMageBot
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
         readonly LocalPlayer player;
-
-        WoWItem foodItem;
-        WoWItem drinkItem;
+        readonly string[] configuredFoodNames;
+        readonly string[] configuredDrinkNames;
 
         public ConjureItemsState(Stack<IBotState> botStates, IDependencyContainer container)
         {
             this.botStates = botStates;
             this.container = container;
             player = ObjectManager.Player;
+            configuredFoodNames = FrostMageConsumables.GetConfiguredNames(container.BotSettings.Food);
+            configuredDrinkNames = FrostMageConsumables.GetConfiguredNames(container.BotSettings.Drink);
         }
 
         public void Update()
         {
-            foodItem = Inventory.GetAllItems()
-                .FirstOrDefault(i => container.BotSettings.Food.Split('|').Any(m => i.Info.Name.Contains(m)));
-
-            drinkItem = Inventory.GetAllItems()
-                .FirstOrDefault(i => container.BotSettings.Drink.Split('|').Any(m => i.Info.Name.Contains(m)));
+            var items = Inventory.GetAllItems();
+            var foodSelection = FrostMageConsumables.SelectItem(
+                items,
+                i => i.Info?.Name,
+                i => i.StackCount,
+                configuredFoodNames,
+                FrostMageConsumables.ConjuredFoodNames);
+            var drinkSelection = FrostMageConsumables.SelectItem(
+                items,
+                i => i.Info?.Name,
+                i => i.StackCount,
+                configuredDrinkNames,
+                FrostMageConsumables.ConjuredDrinkNames);
 
             if (player.IsCasting)
                 return;
@@ -43,7 +52,7 @@ namespace FrostMageBot
                 return;
             }
 
-            if (Inventory.CountFreeSlots(false) == 0 || (foodItem != null || !player.KnowsSpell(ConjureFood)) && (drinkItem != null || !player.KnowsSpell(ConjureWater)))
+            if (Inventory.CountFreeSlots(false) == 0 || (foodSelection.HasEnough || !player.KnowsSpell(ConjureFood)) && (drinkSelection.HasEnough || !player.KnowsSpell(ConjureWater)))
             {
                 botStates.Pop();
 
@@ -53,19 +62,20 @@ namespace FrostMageBot
                 return;
             }
 
-            var foodCount = foodItem == null ? 0 : Inventory.GetItemCount(foodItem.ItemId);
-            if (foodItem == null || foodCount <= 2)
-                TryCastSpell(ConjureFood);
+            if (!foodSelection.HasEnough && Wait.For("FrostMageConjureFood", 3000, true) && TryCastSpell(ConjureFood))
+                return;
 
-            var drinkCount = drinkItem == null ? 0 : Inventory.GetItemCount(drinkItem.ItemId);
-            if (drinkItem == null || drinkCount <= 2)
-                TryCastSpell(ConjureWater);
+            if (!drinkSelection.HasEnough && Wait.For("FrostMageConjureDrink", 3000, true) && TryCastSpell(ConjureWater))
+                return;
         }
 
-        void TryCastSpell(string name)
+        bool TryCastSpell(string name)
         {
-            if (player.IsSpellReady(name) && !player.IsCasting)
-                player.LuaCall($"CastSpellByName('{name}')");
+            if (!player.IsSpellReady(name) || player.IsCasting)
+                return false;
+
+            player.LuaCall($"CastSpellByName('{name}')");
+            return true;
         }
     }
 }

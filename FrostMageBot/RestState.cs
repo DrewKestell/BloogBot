@@ -1,4 +1,4 @@
-﻿using BloogBot.AI;
+using BloogBot.AI;
 using BloogBot.Game;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
@@ -14,25 +14,37 @@ namespace FrostMageBot
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
         readonly LocalPlayer player;
+        readonly string[] configuredFoodNames;
+        readonly string[] configuredDrinkNames;
 
-        readonly WoWItem foodItem;
-        readonly WoWItem drinkItem;
+        WoWItem foodItem;
+        WoWItem drinkItem;
 
         public RestState(Stack<IBotState> botStates, IDependencyContainer container)
         {
             this.botStates = botStates;
             this.container = container;
             player = ObjectManager.Player;
-
-            foodItem = Inventory.GetAllItems()
-                .FirstOrDefault(i => container.BotSettings.Food.Split('|').Any(m => i.Info.Name.Contains(m)));
-
-            drinkItem = Inventory.GetAllItems()
-                .FirstOrDefault(i => container.BotSettings.Drink.Split('|').Any(m => i.Info.Name.Contains(m)));
+            configuredFoodNames = FrostMageConsumables.GetConfiguredNames(container.BotSettings.Food);
+            configuredDrinkNames = FrostMageConsumables.GetConfiguredNames(container.BotSettings.Drink);
         }
 
         public void Update()
         {
+            var items = Inventory.GetAllItems();
+            foodItem = FrostMageConsumables.SelectItem(
+                items,
+                i => i.Info?.Name,
+                i => i.StackCount,
+                configuredFoodNames,
+                FrostMageConsumables.ConjuredFoodNames).Item;
+            drinkItem = FrostMageConsumables.SelectItem(
+                items,
+                i => i.Info?.Name,
+                i => i.StackCount,
+                configuredDrinkNames,
+                FrostMageConsumables.ConjuredDrinkNames).Item;
+
             if (player.IsChanneling)
                 return;
 
