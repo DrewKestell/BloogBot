@@ -386,7 +386,18 @@ namespace BloogBot.AI
                             // We need to clear all states because some references are no longer
                             // valid.
                             botStates.Clear();
-                            botStates.Push(new GrindState(botStates, container));
+                            switch (container.BotSettings.LastUsedBotType)
+                            {
+                                case BotSettings.BotType.Grinding:
+                                    botStates.Push(new GrindState(botStates, container));
+                                    break;
+                                case BotSettings.BotType.Powerlevel:
+                                    botStates.Push(new PowerlevelState(botStates, container));
+                                    break;
+                                case BotSettings.BotType.Gathering:
+                                    botStates.Push(new GatherState(botStates, container));
+                                    break;
+                            }
 
                             // Go to login state.
                             botStates.Push(new LoginState(botStates, container));
