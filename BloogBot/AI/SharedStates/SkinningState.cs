@@ -118,7 +118,10 @@ namespace BloogBot.AI.SharedStates
                     .OrderBy(w => player.Position.DistanceTo(w))
                     .FirstOrDefault();
                 if (nearestWaypoint != null)
-                    botStates.Push(new MoveToPositionState(botStates, container, nearestWaypoint));
+                {
+                    botStates.Push(new MoveToHotspotWaypointState(
+                        botStates, container, nearestWaypoint));
+                }
             }
         }
 
