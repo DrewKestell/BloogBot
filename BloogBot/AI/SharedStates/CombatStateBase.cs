@@ -20,6 +20,7 @@ namespace BloogBot.AI.SharedStates
         readonly LocalPlayer player;
         readonly WoWUnit target;
         readonly bool loot;
+        readonly StuckHelper stuckHelper;
 
         bool backpedaling;
         int backpedalStartTime;
@@ -47,6 +48,8 @@ namespace BloogBot.AI.SharedStates
             combatStateStartTime = Environment.TickCount;
 
             WoWEventHandler.OnErrorMessage += OnErrorMessageCallback;
+
+            stuckHelper = new StuckHelper(botStates, container);
         }
 
         public bool Update()
@@ -148,6 +151,7 @@ namespace BloogBot.AI.SharedStates
             {
                 var nextWaypoint = Navigation.GetNextWaypoint(ObjectManager.MapId, player.Position, target.Position, false);
                 player.MoveToward(nextWaypoint);
+                stuckHelper.CheckIfStuck();
             }
             else if (player.IsMoving && player.Position.DistanceTo(target.Position) < desiredRange - 1)
                 player.StopAllMovement();
