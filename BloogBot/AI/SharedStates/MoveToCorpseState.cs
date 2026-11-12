@@ -2,6 +2,7 @@
 using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BloogBot.AI.SharedStates
 {
@@ -60,7 +61,8 @@ namespace BloogBot.AI.SharedStates
             Position nextWaypoint;
             if (path.Length <= 1)
             {
-                if (player.Position.DistanceTo2D(startingPosition) < 10)
+                if (player.Position.DistanceTo2D(startingPosition) < 10 &&
+                    ObjectManager.Units.Any(u => u.Name == "Spirit Healer"))
                 {
                     // We can't reach the corpse. E.g. we fell into the void. Try using the spirit
                     // healer.
