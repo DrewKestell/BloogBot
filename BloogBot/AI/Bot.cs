@@ -449,8 +449,15 @@ namespace BloogBot.AI
                                 // We just resurrected. Let's rest.
                                 botStates.Push(container.CreateRestState(botStates, container));
                             }
+                            else
+                            {
+                                // Keep RunningErrands=true until we are done resting. This makes
+                                // sure we are ready to fight before we start running towards
+                                // vendors, in the case equipment needs repair or inventory is
+                                // full.
+                                container.RunningErrands = false;
+                            }
 
-                            container.RunningErrands = false;
                             retrievingCorpse = false;
                         }
 
