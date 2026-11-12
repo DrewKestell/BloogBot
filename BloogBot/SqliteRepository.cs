@@ -53,7 +53,30 @@ namespace BloogBot
 
         public Hotspot AddHotspot(string description, string zone = "", string faction = "", string waypointsJson = "", Npc innkeeper = null, Npc repairVendor = null, Npc ammoVendor = null, int minLevel = 0, TravelPath travelPath = null, bool safeForGrinding = false, Position[] waypoints = null)
         {
-            string insertSql = $"INSERT INTO Hotspots (Zone, Description, Faction, Waypoints, InnkeeperId, RepairVendorId, AmmoVendorId, MinimumLevel, TravelPathId, SafeForGrinding) VALUES ('{zone}', '{description}', '{faction}', '{waypointsJson}', {innkeeper?.Id.ToString() ?? "NULL"}, {repairVendor?.Id.ToString() ?? "NULL"}, {ammoVendor?.Id.ToString() ?? "NULL"}, {minLevel}, {travelPath?.Id.ToString() ?? "NULL"}, {Convert.ToInt32(safeForGrinding)});";
+            string insertSql = $@"
+                INSERT INTO Hotspots (
+                    Zone,
+                    Description,
+                    Faction,
+                    Waypoints,
+                    InnkeeperId,
+                    RepairVendorId,
+                    AmmoVendorId,
+                    MinimumLevel,
+                    TravelPathId,
+                    SafeForGrinding)
+                VALUES (
+                    '{zone.Replace("'", "''")}',
+                    '{description.Replace("'", "''")}',
+                    '{faction.Replace("'", "''")}',
+                    '{waypointsJson.Replace("'", "''")}',
+                    {innkeeper?.Id.ToString() ?? "NULL"},
+                    {repairVendor?.Id.ToString() ?? "NULL"},
+                    {ammoVendor?.Id.ToString() ?? "NULL"},
+                    {minLevel},
+                    {travelPath?.Id.ToString() ?? "NULL"},
+                    {Convert.ToInt32(safeForGrinding)});
+            ";
             string selectSql = $"SELECT * FROM Hotspots WHERE Description = '{description}' LIMIT 1;";
             int id;
 
