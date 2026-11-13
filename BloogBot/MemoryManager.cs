@@ -69,10 +69,12 @@ namespace BloogBot
         static readonly IntPtr wowProcessHandle = Process.GetCurrentProcess().Handle;
         static readonly FasmNet fasm = new FasmNet();
 
+        static bool IsInvalidAddress(IntPtr address) => (uint)(void*)address < 0x10000;
+
         [HandleProcessCorruptedStateExceptions]
         static internal byte ReadByte(IntPtr address)
         {
-            if (address == IntPtr.Zero)
+            if (IsInvalidAddress(address))
                 return 0;
 
             try
@@ -94,7 +96,7 @@ namespace BloogBot
         [HandleProcessCorruptedStateExceptions]
         static public int ReadInt(IntPtr address)
         {
-            if (address == IntPtr.Zero)
+            if (IsInvalidAddress(address))
                 return 0;
 
             try
@@ -116,7 +118,7 @@ namespace BloogBot
         [HandleProcessCorruptedStateExceptions]
         static public uint ReadUint(IntPtr address)
         {
-            if (address == IntPtr.Zero)
+            if (IsInvalidAddress(address))
                 return 0;
 
             try
@@ -138,7 +140,7 @@ namespace BloogBot
         [HandleProcessCorruptedStateExceptions]
         static public ulong ReadUlong(IntPtr address)
         {
-            if (address == IntPtr.Zero)
+            if (IsInvalidAddress(address))
                 return 0;
 
             try
@@ -160,7 +162,7 @@ namespace BloogBot
         [HandleProcessCorruptedStateExceptions]
         static public IntPtr ReadIntPtr(IntPtr address)
         {
-            if (address == IntPtr.Zero)
+            if (IsInvalidAddress(address))
                 return IntPtr.Zero;
 
             try
@@ -182,7 +184,7 @@ namespace BloogBot
         [HandleProcessCorruptedStateExceptions]
         static public float ReadFloat(IntPtr address)
         {
-            if (address == IntPtr.Zero)
+            if (IsInvalidAddress(address))
                 return 0;
 
             try
@@ -204,13 +206,13 @@ namespace BloogBot
         [HandleProcessCorruptedStateExceptions]
         static public string ReadString(IntPtr address, int size = 512)
         {
-            if (address == IntPtr.Zero)
+            if (IsInvalidAddress(address))
                 return null;
 
             try
             {
                 var buffer = ReadBytes(address, size);
-                if (buffer.Length == 0)
+                if (buffer == null || buffer.Length == 0)
                     return default;
 
                 var ret = Encoding.ASCII.GetString(buffer);
@@ -230,7 +232,7 @@ namespace BloogBot
         [HandleProcessCorruptedStateExceptions]
         static public byte[] ReadBytes(IntPtr address, int count)
         {
-            if (address == IntPtr.Zero)
+            if (IsInvalidAddress(address))
                 return null;
 
             var ret = new byte[count];
@@ -245,7 +247,7 @@ namespace BloogBot
         [HandleProcessCorruptedStateExceptions]
         static public ItemCacheEntry ReadItemCacheEntry(IntPtr address)
         {
-            if (address == IntPtr.Zero)
+            if (IsInvalidAddress(address))
                 return null;
 
             try
@@ -259,9 +261,21 @@ namespace BloogBot
             }
         }
 
-        static internal void WriteByte(IntPtr address, byte value) => Marshal.StructureToPtr(value, address, false);
+        static internal void WriteByte(IntPtr address, byte value)
+        {
+            if (IsInvalidAddress(address))
+                return;
 
-        static internal void WriteInt(IntPtr address, int value) => Marshal.StructureToPtr(value, address, false);
+            Marshal.StructureToPtr(value, address, false);
+        }
+
+        static internal void WriteInt(IntPtr address, int value)
+        {
+            if (IsInvalidAddress(address))
+                return;
+
+            Marshal.StructureToPtr(value, address, false);
+        }
 
         // certain memory locations (Warden for example) are protected from modification.
         // we use OpenAccess with ProcessAccessFlags to remove the protection.
@@ -270,7 +284,7 @@ namespace BloogBot
         // if you have further issues, you may need to use VirtualProtect from the Win32 API.
         static internal void WriteBytes(IntPtr address, byte[] bytes)
         {
-            if (address == IntPtr.Zero)
+            if (IsInvalidAddress(address))
                 return;
 
             var access = ProcessAccessFlags.PROCESS_CREATE_THREAD |
