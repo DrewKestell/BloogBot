@@ -213,6 +213,45 @@ namespace BloogBot.Game
             return -1;
         }
 
+        static bool IsValidObjectPointer(IntPtr pointer, ulong guid)
+        {
+            if (pointer == IntPtr.Zero || guid == 0)
+                return false;
+
+            var descriptorPtr = MemoryManager.ReadIntPtr(IntPtr.Add(pointer, MemoryAddresses.WoWObject_DescriptorOffset));
+            return descriptorPtr != IntPtr.Zero && MemoryManager.ReadUlong(descriptorPtr) == guid;
+        }
+
+        // Must be called on the main thread.
+        static internal bool RefreshPlayer()
+        {
+            var guid = Functions.GetPlayerGuid();
+            if (guid == 0)
+            {
+                Player?.Invalidate();
+                return false;
+            }
+
+            var pointer = Functions.GetObjectPtr(guid);
+            if (!IsValidObjectPointer(pointer, guid))
+            {
+                Player?.Invalidate();
+                return false;
+            }
+
+            if (Player != null && Player.Guid == guid)
+            {
+                Player.UpdatePointer(pointer);
+            }
+            else
+            {
+                var objectType = (ObjectType)MemoryManager.ReadInt(IntPtr.Add(pointer, OBJECT_TYPE_OFFSET));
+                Player = new LocalPlayer(pointer, guid, objectType);
+            }
+
+            return true;
+        }
+
         static internal async void StartEnumeration()
         {
             while (true)
@@ -240,26 +279,39 @@ namespace BloogBot.Game
                     Functions.EnumerateVisibleObjects(callbackPtr, 0);
                     Objects = new List<WoWObject>(ObjectsBuffer);
 
-                    if (Player != null)
+                    if (!RefreshPlayer())
                     {
-                        var petFound = false;
-
-                        foreach (var unit in Units)
-                        {
-                            if (unit.SummonedByGuid == Player?.Guid)
-                            {
-                                Pet = new LocalPet(unit.Pointer, unit.Guid, unit.ObjectType);
-                                petFound = true;
-                            }
-
-                            if (!petFound)
-                                Pet = null;
-                        }
-
-                        Player.RefreshSpells();
-
-                        UpdateProbe();
+                        Pet = null;
+                        return;
                     }
+
+                    var petFound = false;
+
+                    foreach (var unit in Units)
+                    {
+                        if (unit.SummonedByGuid == Player.Guid)
+                        {
+                            if (Pet != null && Pet.Guid == unit.Guid)
+                                Pet.UpdatePointer(unit.Pointer);
+                            else
+                                Pet = new LocalPet(unit.Pointer, unit.Guid, unit.ObjectType);
+
+                            petFound = true;
+                            break;
+                        }
+                    }
+
+                    if (!petFound)
+                        Pet = null;
+
+                    Player.RefreshSpells();
+
+                    UpdateProbe();
+                }
+                else
+                {
+                    Player?.Invalidate();
+                    Pet = null;
                 }
             });
         }
@@ -279,6 +331,9 @@ namespace BloogBot.Game
         static int CallbackInternal(ulong guid, int filter)
         {
             var pointer = Functions.GetObjectPtr(guid);
+            if (pointer == IntPtr.Zero)
+                return 1;
+
             var objectType = (ObjectType)MemoryManager.ReadInt(IntPtr.Add(pointer, OBJECT_TYPE_OFFSET));
 
             try
@@ -294,9 +349,15 @@ namespace BloogBot.Game
                     case ObjectType.Player:
                         if (guid == playerGuid)
                         {
-                            var player = new LocalPlayer(pointer, guid, objectType);
-                            Player = player;
-                            ObjectsBuffer.Add(player);
+                            if (Player != null && Player.Guid == guid)
+                            {
+                                Player.UpdatePointer(pointer);
+                            }
+                            else
+                            {
+                                Player = new LocalPlayer(pointer, guid, objectType);
+                            }
+                            ObjectsBuffer.Add(Player);
                         }
                         else
                             ObjectsBuffer.Add(new WoWPlayer(pointer, guid, objectType));
