@@ -101,6 +101,12 @@ namespace BloogBot.AI
 
                 ThreadSynchronizer.RunOnMainThread(() =>
                 {
+                    if (!ObjectManager.RefreshPlayer())
+                    {
+                        Stop();
+                        return;
+                    }
+
                     container.BotSettings.LastUsedBotType = BotSettings.BotType.Grinding;
 
                     currentLevel = ObjectManager.Player.Level;
@@ -113,6 +119,9 @@ namespace BloogBot.AI
                     currentPositionStartTime = Environment.TickCount;
                     teleportCheckPosition = ObjectManager.Player.Position;
                 });
+
+                if (!running)
+                    return;
 
                 container.CheckForTravelPath(botStates, false);
                 StartInternal(container);
@@ -137,16 +146,22 @@ namespace BloogBot.AI
                 if (reverseTravelPath)
                     waypoints = waypoints.Reverse().ToArray();
 
-                var closestWaypoint = waypoints
-                    .OrderBy(w => w.DistanceTo(ObjectManager.Player.Position))
-                    .First();
-
-                var startingIndex = waypoints
-                    .ToList()
-                    .IndexOf(closestWaypoint);
-
                 ThreadSynchronizer.RunOnMainThread(() =>
                 {
+                    if (!ObjectManager.RefreshPlayer())
+                    {
+                        Stop();
+                        return;
+                    }
+
+                    var closestWaypoint = waypoints
+                        .OrderBy(w => w.DistanceTo(ObjectManager.Player.Position))
+                        .First();
+
+                    var startingIndex = waypoints
+                        .ToList()
+                        .IndexOf(closestWaypoint);
+
                     currentLevel = ObjectManager.Player.Level;
 
                     void callbackInternal()
@@ -167,6 +182,9 @@ namespace BloogBot.AI
                     teleportCheckPosition = ObjectManager.Player.Position;
                 });
 
+                if (!running)
+                    return;
+
                 StartInternal(container);
             }
             catch (Exception e)
@@ -185,6 +203,12 @@ namespace BloogBot.AI
 
                 ThreadSynchronizer.RunOnMainThread(() =>
                 {
+                    if (!ObjectManager.RefreshPlayer())
+                    {
+                        Stop();
+                        return;
+                    }
+
                     container.BotSettings.LastUsedBotType = BotSettings.BotType.Powerlevel;
 
                     botStates.Push(new PowerlevelState(botStates, container));
@@ -195,6 +219,9 @@ namespace BloogBot.AI
                     currentPositionStartTime = Environment.TickCount;
                     teleportCheckPosition = ObjectManager.Player.Position;
                 });
+
+                if (!running)
+                    return;
 
                 StartPowerlevelInternal(container);
             }
@@ -214,6 +241,12 @@ namespace BloogBot.AI
 
                 ThreadSynchronizer.RunOnMainThread(() =>
                 {
+                    if (!ObjectManager.RefreshPlayer())
+                    {
+                        Stop();
+                        return;
+                    }
+
                     container.BotSettings.LastUsedBotType = BotSettings.BotType.Gathering;
 
                     botStates.Push(new GatherState(botStates, container));
@@ -224,6 +257,9 @@ namespace BloogBot.AI
                     currentPositionStartTime = Environment.TickCount;
                     teleportCheckPosition = ObjectManager.Player.Position;
                 });
+
+                if (!running)
+                    return;
 
                 StartInternal(container);
             }
@@ -248,6 +284,9 @@ namespace BloogBot.AI
                             Stop();
                             return;
                         }
+
+                        if (!ObjectManager.RefreshPlayer())
+                            return;
 
                         var player = ObjectManager.Player;
                         player.AntiAfk();
@@ -416,6 +455,9 @@ namespace BloogBot.AI
                             botStates.Peek().Update();
                             return;
                         }
+
+                        if (!ObjectManager.RefreshPlayer())
+                            return;
 
                         var player = ObjectManager.Player;
 
