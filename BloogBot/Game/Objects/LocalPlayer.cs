@@ -40,6 +40,16 @@ namespace BloogBot.Game.Objects
         float amountPerTurn;
         Position turningToward;
 
+        protected override void OnPointerChanged()
+        {
+            turning = false;
+            totalTurns = 0;
+            turnCount = 0;
+            amountPerTurn = 0;
+            turningToward = null;
+            ComboPointGuid = 0;
+        }
+
         public Class Class => (Class)MemoryManager.ReadByte((IntPtr)MemoryAddresses.LocalPlayerClass);
 
         public void AntiAfk() => MemoryManager.WriteInt((IntPtr)MemoryAddresses.LastHardwareAction, Environment.TickCount);
@@ -137,6 +147,9 @@ namespace BloogBot.Game.Objects
 
         public void SetFacing(float facing)
         {
+            if (!IsValid)
+                return;
+
             if (ClientHelper.ClientVersion == ClientVersion.WotLK)
             {
                 Functions.SetFacing(Pointer, facing);
@@ -265,7 +278,13 @@ namespace BloogBot.Game.Objects
                 }
                 else
                 {
+                    if (!IsValid)
+                        return false;
+
                     var ptr1 = MemoryManager.ReadIntPtr(Pointer + 0xE68);
+                    if (ptr1 == IntPtr.Zero)
+                        return false;
+
                     var ptr2 = IntPtr.Add(ptr1, 0x1029);
                     if (ComboPointGuid == 0)
                         MemoryManager.WriteBytes(ptr2, new byte[] { 0 });
@@ -322,7 +341,13 @@ namespace BloogBot.Game.Objects
 
         public bool HasMagicDebuff => GetDebuffs(LuaTarget.Player).Any(t => t.Type == EffectType.Magic);
 
-        public void ReleaseCorpse() => Functions.ReleaseCorpse(Pointer);
+        public void ReleaseCorpse()
+        {
+            if (!IsValid && ClientHelper.ClientVersion != ClientVersion.WotLK)
+                return;
+
+            Functions.ReleaseCorpse(Pointer);
+        }
 
         public void RetrieveCorpse() => Functions.RetrieveCorpse();
 
@@ -418,7 +443,10 @@ namespace BloogBot.Game.Objects
 
         public ulong GetBackpackItemGuid(int slot) => MemoryManager.ReadUlong(GetDescriptorPtr() + (MemoryAddresses.LocalPlayer_BackpackFirstItemOffset + (slot * 8)));
 
-        public ulong GetEquippedItemGuid(EquipSlot slot) => MemoryManager.ReadUlong(IntPtr.Add(Pointer, (MemoryAddresses.LocalPlayer_EquipmentFirstItemOffset + ((int)slot - 1) * 0x8)));
+        public ulong GetEquippedItemGuid(EquipSlot slot) =>
+            IsValid
+                ? MemoryManager.ReadUlong(IntPtr.Add(Pointer, (MemoryAddresses.LocalPlayer_EquipmentFirstItemOffset + ((int)slot - 1) * 0x8)))
+                : 0;
 
         public void CastSpell(string spellName, ulong targetGuid)
         {
