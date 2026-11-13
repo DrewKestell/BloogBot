@@ -44,10 +44,18 @@ namespace BloogBot.Game
         [DllImport("FastCall.dll", EntryPoint = "EnumerateVisibleObjects")]
         static extern void EnumerateVisibleObjectsFunction(IntPtr callback, int filter, IntPtr ptr);
 
-        // what does this do? [HandleProcessCorruptedStateExceptions]
+        [HandleProcessCorruptedStateExceptions]
         public void EnumerateVisibleObjects(IntPtr callback, int filter)
         {
-            EnumerateVisibleObjectsFunction(callback, filter, (IntPtr)MemoryAddresses.EnumerateVisibleObjectsFunPtr);
+            try
+            {
+                if (GetPlayerGuid() > 0)
+                    EnumerateVisibleObjectsFunction(callback, filter, (IntPtr)MemoryAddresses.EnumerateVisibleObjectsFunPtr);
+            }
+            catch (AccessViolationException)
+            {
+                Logger.Log("Access Violation in VanillaGameFunctionHandler.EnumerateVisibleObjects");
+            }
         }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
@@ -59,6 +67,9 @@ namespace BloogBot.Game
 
         public int GetCreatureRank(IntPtr unitPtr)
         {
+            if (unitPtr == IntPtr.Zero)
+                return 0;
+
             return GetCreatureRankFunction(unitPtr);
         }
 
@@ -70,6 +81,9 @@ namespace BloogBot.Game
 
         public CreatureType GetCreatureType(IntPtr unitPtr)
         {
+            if (unitPtr == IntPtr.Zero)
+                return default;
+
             return (CreatureType)GetCreatureTypeFunction(unitPtr);
         }
 
@@ -96,9 +110,21 @@ namespace BloogBot.Game
         static readonly GetObjectPtrDelegate GetObjectPtrFunction =
             Marshal.GetDelegateForFunctionPointer<GetObjectPtrDelegate>((IntPtr)MemoryAddresses.GetObjectPtrFunPtr);
 
+        [HandleProcessCorruptedStateExceptions]
         public IntPtr GetObjectPtr(ulong guid)
         {
-            return GetObjectPtrFunction(guid);
+            if (guid == 0)
+                return IntPtr.Zero;
+
+            try
+            {
+                return GetObjectPtrFunction(guid);
+            }
+            catch (AccessViolationException)
+            {
+                Logger.Log("Access Violation in VanillaGameFunctionHandler.GetObjectPtr");
+                return IntPtr.Zero;
+            }
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -134,6 +160,9 @@ namespace BloogBot.Game
 
         public UnitReaction GetUnitReaction(IntPtr unitPtr1, IntPtr unitPtr2)
         {
+            if (unitPtr1 == IntPtr.Zero || unitPtr2 == IntPtr.Zero)
+                return UnitReaction.Neutral;
+
             return (UnitReaction)GetUnitReactionFunction(unitPtr1, unitPtr2);
         }
 
@@ -218,6 +247,9 @@ namespace BloogBot.Game
         [HandleProcessCorruptedStateExceptions]
         public void ReleaseCorpse(IntPtr ptr)
         {
+            if (ptr == IntPtr.Zero)
+                return;
+
             try
             {
                 ReleaseCorpseFunction(ptr);
@@ -270,6 +302,9 @@ namespace BloogBot.Game
 
         public void SendMovementUpdate(IntPtr playerPtr, int opcode)
         {
+            if (playerPtr == IntPtr.Zero)
+                return;
+
             SendMovementUpdateFunction(playerPtr, (IntPtr)0x00BE1E2C, opcode, 0, 0);
         }
 
@@ -282,6 +317,9 @@ namespace BloogBot.Game
         public void SetControlBit(int bit, int state, int tickCount)
         {
             var ptr = MemoryManager.ReadIntPtr((IntPtr)MemoryAddresses.SetControlBitDevicePtr);
+            if (ptr == IntPtr.Zero)
+                return;
+
             SetControlBitFunction(ptr, bit, state, tickCount);
         }
 
@@ -293,6 +331,9 @@ namespace BloogBot.Game
 
         public void SetFacing(IntPtr playerSetFacingPtr, float facing)
         {
+            if (playerSetFacingPtr == IntPtr.Zero)
+                return;
+
             SetFacingFunction(playerSetFacingPtr, facing);
         }
 
@@ -304,6 +345,9 @@ namespace BloogBot.Game
 
         public void UseItem(IntPtr itemPtr)
         {
+            if (itemPtr == IntPtr.Zero)
+                return;
+
             ulong unused1 = 0;
             UseItemFunction(itemPtr, ref unused1, 0);
         }
