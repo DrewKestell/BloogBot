@@ -26,7 +26,11 @@ namespace BloogBot.Game.Objects
 
         public ItemCacheInfo Info { get; }
 
-        public void Use() => Functions.UseItem(Pointer);
+        public void Use()
+        {
+            if (IsValid)
+                Functions.UseItem(Pointer);
+        }
 
         public ItemQuality Quality => Info.Quality;
 

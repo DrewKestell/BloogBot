@@ -47,14 +47,14 @@ namespace BloogBot.Game.Objects
                 }
                 else
                 {
-                    return MemoryManager.ReadInt(Pointer + MemoryAddresses.WoWUnit_CurrentChannelingOffset);
+                    return IsValid ? MemoryManager.ReadInt(Pointer + MemoryAddresses.WoWUnit_CurrentChannelingOffset) : 0;
                 }
             }
         }
 
         public bool IsChanneling => CurrentChannelingId > 0;
 
-        public int CurrentSpellcastId => MemoryManager.ReadInt(Pointer + MemoryAddresses.WoWUnit_CurrentSpellcastOffset);
+        public int CurrentSpellcastId => IsValid ? MemoryManager.ReadInt(Pointer + MemoryAddresses.WoWUnit_CurrentSpellcastOffset) : 0;
 
         public bool IsCasting => CurrentSpellcastId > 0;
 
@@ -112,7 +112,7 @@ namespace BloogBot.Game.Objects
             return condition && IsFacing(target.Position);
         }
 
-        public MovementFlags MovementFlags => (MovementFlags)MemoryManager.ReadInt(IntPtr.Add(Pointer, MemoryAddresses.WoWUnit_MovementFlagsOffset));
+        public MovementFlags MovementFlags => IsValid ? (MovementFlags)MemoryManager.ReadInt(IntPtr.Add(Pointer, MemoryAddresses.WoWUnit_MovementFlagsOffset)) : 0;
 
         public bool IsMoving => MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FORWARD);
 
@@ -124,11 +124,14 @@ namespace BloogBot.Game.Objects
 
         public bool IsPet => SummonedByGuid > 0;
 
-        public CreatureType CreatureType => Functions.GetCreatureType(Pointer);
+        public CreatureType CreatureType => IsValid ? Functions.GetCreatureType(Pointer) : default;
 
-        public UnitReaction UnitReaction => Functions.GetUnitReaction(Pointer, ObjectManager.Player.Pointer);
+        public UnitReaction UnitReaction =>
+            IsValid && ObjectManager.Player != null && ObjectManager.Player.IsValid
+                ? Functions.GetUnitReaction(Pointer, ObjectManager.Player.Pointer)
+                : UnitReaction.Neutral;
 
-        public virtual CreatureRank CreatureRank => (CreatureRank)Functions.GetCreatureRank(Pointer);
+        public virtual CreatureRank CreatureRank => IsValid ? (CreatureRank)Functions.GetCreatureRank(Pointer) : CreatureRank.Normal;
 
         public Spell GetSpellById(int spellId)
         {
@@ -164,6 +167,9 @@ namespace BloogBot.Game.Objects
         {
             get
             {
+                if (!IsValid)
+                    return new List<Spell>();
+
                 // TODO: figure out what's going on here. WotLK seems to store buffs at a static offset from the Player Pointer,
                 // but TBC seems to store them as a Descriptor
                 if (ClientHelper.ClientVersion == ClientVersion.WotLK)
@@ -207,6 +213,9 @@ namespace BloogBot.Game.Objects
         {
             get
             {
+                if (!IsValid)
+                    return new List<Spell>();
+
                 // TODO: figure out what's going on here. WotLK seems to store buffs at a static offset from the Player Pointer,
                 // but TBC seems to store them as a Descriptor
                 if (ClientHelper.ClientVersion == ClientVersion.WotLK)
