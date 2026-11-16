@@ -1,4 +1,4 @@
-﻿using BloogBot.AI;
+using BloogBot.AI;
 using BloogBot.Game;
 using BloogBot.Game.Objects;
 using Newtonsoft.Json;
@@ -25,13 +25,14 @@ namespace BloogBot.UI
         readonly BotLoader botLoader = new BotLoader();
         readonly Probe probe;
         readonly BotSettings botSettings;
+        readonly object saveSettingsLock = new object();
         bool readyForCommands;
 
         public MainViewModel()
         {
-            var currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var botSettingsFilePath = Path.Combine(currentFolder, "botSettings.json");
-            botSettings = JsonConvert.DeserializeObject<BotSettings>(File.ReadAllText(botSettingsFilePath));
+            var botSettingsFilePath = GetBotSettingsFilePath();
+            botSettings = JsonConvert.DeserializeObject<BotSettings>(File.ReadAllText(botSettingsFilePath))
+                ?? throw new InvalidOperationException($"Bot settings file '{botSettingsFilePath}' is empty or null.");
             UpdatePropertiesWithAttribute(typeof(BotSettingAttribute));
 
             Logger.Initialize(botSettings);
@@ -342,15 +343,17 @@ namespace BloogBot.UI
         {
             try
             {
-                botSettings.CurrentTravelPathId = CurrentTravelPath?.Id;
-                botSettings.GrindingHotspotId = GrindingHotspot?.Id;
-                botSettings.CurrentGatherRouteId = CurrentGatherRoute?.Id;
-                botSettings.CurrentBotName = CurrentBot.Name;
+                lock (saveSettingsLock)
+                {
+                    botSettings.CurrentTravelPathId = CurrentTravelPath?.Id;
+                    botSettings.GrindingHotspotId = GrindingHotspot?.Id;
+                    botSettings.CurrentGatherRouteId = CurrentGatherRoute?.Id;
+                    botSettings.CurrentBotName = CurrentBot?.Name;
 
-                var currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                var botSettingsFilePath = Path.Combine(currentFolder, "botSettings.json");
-                var json = JsonConvert.SerializeObject(botSettings, Formatting.Indented);
-                File.WriteAllText(botSettingsFilePath, json);
+                    var botSettingsFilePath = GetBotSettingsFilePath();
+                    var json = JsonConvert.SerializeObject(botSettings, Formatting.Indented);
+                    WriteBotSettingsAtomically(botSettingsFilePath, json);
+                }
 
                 Log("Settings successfully saved!");
             }
@@ -363,6 +366,44 @@ namespace BloogBot.UI
 
         public ICommand SaveSettingsCommand =>
             saveSettingsCommand ?? (saveSettingsCommand = new CommandHandler(SaveSettings, true));
+
+        static string GetBotSettingsFilePath()
+        {
+            var currentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            return Path.Combine(currentFolder, "botSettings.json");
+        }
+
+        static void WriteBotSettingsAtomically(string targetFilePath, string json)
+        {
+            var tempFilePath = $"{targetFilePath}.{Guid.NewGuid():N}.tmp";
+
+            try
+            {
+                using (var stream = new FileStream(tempFilePath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                using (var writer = new StreamWriter(stream, new UTF8Encoding(false)))
+                {
+                    writer.Write(json);
+                    writer.Flush();
+                    stream.Flush(true);
+                }
+
+                if (File.Exists(targetFilePath))
+                {
+                    File.Replace(tempFilePath, targetFilePath, null, ignoreMetadataErrors: true);
+                }
+                else
+                {
+                    File.Move(tempFilePath, targetFilePath);
+                }
+            }
+            finally
+            {
+                if (File.Exists(tempFilePath))
+                {
+                    File.Delete(tempFilePath);
+                }
+            }
+        }
 
         // StartRecordingTravelPath command
         ICommand startRecordingTravelPathCommand;
