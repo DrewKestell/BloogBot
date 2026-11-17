@@ -21,6 +21,7 @@ namespace BloogBot.AI
         bool retrievingCorpse;
 
         Type currentState;
+        Type lastLoggedState;
         int currentStateStartTime;
         Position currentPosition;
         int currentPositionStartTime;
@@ -36,6 +37,8 @@ namespace BloogBot.AI
         {
             running = false;
             currentLevel = 0;
+            currentState = null;
+            lastLoggedState = null;
 
             while (botStates.Count > 0)
                 botStates.Pop();
@@ -71,6 +74,7 @@ namespace BloogBot.AI
                         }
 
                         currentState = botStates.Peek().GetType();
+                        lastLoggedState = currentState;
                         currentStateStartTime = Environment.TickCount;
                         currentPosition = ObjectManager.Player.Position;
                         currentPositionStartTime = Environment.TickCount;
@@ -108,6 +112,7 @@ namespace BloogBot.AI
                     botStates.Push(new GrindState(botStates, container));
 
                     currentState = botStates.Peek().GetType();
+                    lastLoggedState = currentState;
                     currentStateStartTime = Environment.TickCount;
                     currentPosition = ObjectManager.Player.Position;
                     currentPositionStartTime = Environment.TickCount;
@@ -153,6 +158,7 @@ namespace BloogBot.AI
                     {
                         running = false;
                         currentState = null;
+                        lastLoggedState = null;
                         currentPosition = null;
                         callback();
                     }
@@ -161,6 +167,7 @@ namespace BloogBot.AI
                     botStates.Push(new MoveToPositionState(botStates, container, closestWaypoint));
 
                     currentState = botStates.Peek().GetType();
+                    lastLoggedState = currentState;
                     currentStateStartTime = Environment.TickCount;
                     currentPosition = ObjectManager.Player.Position;
                     currentPositionStartTime = Environment.TickCount;
@@ -190,6 +197,7 @@ namespace BloogBot.AI
                     botStates.Push(new PowerlevelState(botStates, container));
 
                     currentState = botStates.Peek().GetType();
+                    lastLoggedState = currentState;
                     currentStateStartTime = Environment.TickCount;
                     currentPosition = ObjectManager.Player.Position;
                     currentPositionStartTime = Environment.TickCount;
@@ -219,6 +227,7 @@ namespace BloogBot.AI
                     botStates.Push(new GatherState(botStates, container));
 
                     currentState = botStates.Peek().GetType();
+                    lastLoggedState = currentState;
                     currentStateStartTime = Environment.TickCount;
                     currentPosition = ObjectManager.Player.Position;
                     currentPositionStartTime = Environment.TickCount;
@@ -278,20 +287,16 @@ namespace BloogBot.AI
                             retrievingCorpse = false;
                         }
 
+                        UpdateCurrentState();
+
                         // if the player has been stuck in the same state for more than 5 minutes
-                        if (Environment.TickCount - currentStateStartTime > 300000 && currentState != typeof(TravelState) && container.BotSettings.UseStuckInStateKillswitch)
+                        if (currentState != null && Environment.TickCount - currentStateStartTime > 300000 && currentState != typeof(TravelState) && container.BotSettings.UseStuckInStateKillswitch)
                         {
                             var msg = $"Hey, it's {player.Name}, and I need help! I've been stuck in the {currentState.Name} for over 5 minutes. I'm stopping for now.";
                             LogToFile(msg);
                             DiscordClientWrapper.SendMessage(msg);
                             Stop();
                             return;
-                        }
-                        if (botStates.Peek().GetType() != currentState)
-                        {
-                            Logger.LogStateTransition($"{currentState?.Name ?? "(none)"} -> {botStates.Peek().GetType().Name}");
-                            currentState = botStates.Peek().GetType();
-                            currentStateStartTime = Environment.TickCount;
                         }
 
                         // if the player has been stuck in the same position for more than 5 minutes
@@ -473,20 +478,16 @@ namespace BloogBot.AI
                             retrievingCorpse = false;
                         }
 
+                        UpdateCurrentState();
+
                         // if the player has been stuck in the same state for more than 5 minutes
-                        if (Environment.TickCount - currentStateStartTime > 300000 && currentState != typeof(TravelState) && container.BotSettings.UseStuckInStateKillswitch)
+                        if (currentState != null && Environment.TickCount - currentStateStartTime > 300000 && currentState != typeof(TravelState) && container.BotSettings.UseStuckInStateKillswitch)
                         {
                             var msg = $"Hey, it's {player.Name}, and I need help! I've been stuck in the {currentState.Name} for over 5 minutes. I'm stopping for now.";
                             LogToFile(msg);
                             DiscordClientWrapper.SendMessage(msg);
                             Stop();
                             return;
-                        }
-                        if (botStates.Peek().GetType() != currentState)
-                        {
-                            Logger.LogStateTransition($"{currentState?.Name ?? "(none)"} -> {botStates.Peek().GetType().Name}");
-                            currentState = botStates.Peek().GetType();
-                            currentStateStartTime = Environment.TickCount;
                         }
 
                         // if the player has been stuck in the same position for more than 5 minutes
@@ -625,6 +626,24 @@ namespace BloogBot.AI
                 ObjectManager.Player.LuaCall("CastSpellByName('Bear Form')");
             if (ObjectManager.Player.Class == Class.Druid && ObjectManager.Player.CurrentShapeshiftForm == "Cat Form")
                 ObjectManager.Player.LuaCall("CastSpellByName('Cat Form')");
+        }
+
+        void UpdateCurrentState()
+        {
+            var topState = botStates.Peek().GetType();
+            if (topState != lastLoggedState)
+            {
+                Logger.LogStateTransition($"{lastLoggedState?.Name ?? "(none)"} -> {topState.Name}");
+                lastLoggedState = topState;
+            }
+
+            // StuckState is a brief recovery substate; ignore it here so oscillating
+            // between a state and StuckState does not reset the 5-minute stuck timer.
+            if (topState != typeof(StuckState) && topState != currentState)
+            {
+                currentState = topState;
+                currentStateStartTime = Environment.TickCount;
+            }
         }
 
         void PopStackToBaseState()
