@@ -41,10 +41,18 @@ namespace BloogBot.AI.SharedStates
 
             if (stuckCount == 10)
             {
+                if (TryResurrectFromGraveyard())
+                {
+                    return;
+                }
+
+                player.StopAllMovement();
                 DiscordClientWrapper.SendMessage($"{player.Name} is stuck in the MoveToCorpseState. Stopping.");
 
                 while (botStates.Count > 0)
+                {
                     botStates.Pop();
+                }
 
                 return;
             }
@@ -63,33 +71,30 @@ namespace BloogBot.AI.SharedStates
             Position nextWaypoint;
             if (path.Length <= 1)
             {
-                if (player.Position.DistanceTo2D(startingPosition) < 10 &&
-                    ObjectManager.Units.Any(u => u.Name == "Spirit Healer"))
+                if (player.Position.DistanceTo2D(startingPosition) < 10)
                 {
                     // We can't reach the corpse. E.g. we fell into the void. Try using the spirit
                     // healer.
-                    botStates.Pop();
-                    botStates.Push(new ResurrectFromGraveyardState(botStates, container));
-                    return;
+                    if (TryResurrectFromGraveyard())
+                    {
+                        return;
+                    }
                 }
-                else
-                {
-                    // We're likely temporarily stuck. Just proceed as normal.
-                    Logger.Log($"Problem building path for mapId \"{ObjectManager.MapId}\". Make sure the \"mmaps\" directory contains the required mmap and tile-files. Returning destination as next waypoint...");
-                    nextWaypoint = player.CorpsePosition;
-                }
+
+                // We're likely temporarily stuck. Just proceed as normal.
+                Logger.Log($"Problem building path for mapId \"{ObjectManager.MapId}\". Make sure the \"mmaps\" directory contains the required mmap and tile-files. Returning destination as next waypoint...");
+                nextWaypoint = player.CorpsePosition;
             }
             else
             {
                 var pathEnd = path[path.Length - 1];
-                if (pathEnd.DistanceTo(player.CorpsePosition) > resDistance &&
-                    ObjectManager.Units.Any(u => u.Name == "Spirit Healer"))
+                if (pathEnd.DistanceTo(player.CorpsePosition) > resDistance)
                 {
                     // Partial path ends out of resurrection range; use the spirit healer instead.
-                    player.StopAllMovement();
-                    botStates.Pop();
-                    botStates.Push(new ResurrectFromGraveyardState(botStates, container));
-                    return;
+                    if (TryResurrectFromGraveyard())
+                    {
+                        return;
+                    }
                 }
 
                 // If the corpse is slightly off-mesh (3-30 yards from pathEnd, e.g. shallow water or
@@ -123,6 +128,19 @@ namespace BloogBot.AI.SharedStates
 
             else
                 player.MoveToward(nextWaypoint);
+        }
+
+        bool TryResurrectFromGraveyard()
+        {
+            if (!ObjectManager.Units.Any(u => u.Name == "Spirit Healer"))
+            {
+                return false;
+            }
+
+            player.StopAllMovement();
+            botStates.Pop();
+            botStates.Push(new ResurrectFromGraveyardState(botStates, container));
+            return true;
         }
     }
 }
