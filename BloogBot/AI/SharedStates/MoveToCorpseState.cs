@@ -1,6 +1,7 @@
 ﻿using BloogBot.Game;
 using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -21,6 +22,7 @@ namespace BloogBot.AI.SharedStates
         bool initialized;
 
         Position startingPosition;
+        Position spiritHealerPosition;
 
         public MoveToCorpseState(Stack<IBotState> botStates, IDependencyContainer container)
         {
@@ -36,6 +38,7 @@ namespace BloogBot.AI.SharedStates
             {
                 container.DisableTeleportChecker = false;
                 startingPosition = player.Position;
+                spiritHealerPosition = ObjectManager.Units.FirstOrDefault(u => u.Name == "Spirit Healer")?.Position;
                 initialized = true;
             }
 
@@ -132,15 +135,33 @@ namespace BloogBot.AI.SharedStates
 
         bool TryResurrectFromGraveyard()
         {
-            if (!ObjectManager.Units.Any(u => u.Name == "Spirit Healer"))
+            if (ObjectManager.Units.Any(u => u.Name == "Spirit Healer"))
             {
-                return false;
+                player.StopAllMovement();
+                botStates.Pop();
+                botStates.Push(new ResurrectFromGraveyardState(botStates, container));
+                return true;
             }
 
-            player.StopAllMovement();
-            botStates.Pop();
-            botStates.Push(new ResurrectFromGraveyardState(botStates, container));
-            return true;
+            if (spiritHealerPosition != null)
+            {
+                var returnPath = Navigation.CalculatePath(ObjectManager.MapId, player.Position, spiritHealerPosition, false);
+                if (returnPath.Length > 1 && returnPath[returnPath.Length - 1].DistanceTo(spiritHealerPosition) <= resDistance)
+                {
+                    player.StopAllMovement();
+                    botStates.Pop();
+                    botStates.Push(new ResurrectFromGraveyardState(botStates, container));
+                    botStates.Push(new MoveToPositionState(
+                        botStates,
+                        container,
+                        spiritHealerPosition,
+                        ignoreThreats: true,
+                        deadline: Environment.TickCount + 5 * 60 * 1000));
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
