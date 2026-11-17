@@ -8,6 +8,8 @@ namespace BloogBot.AI.SharedStates
 {
     public class MoveToCorpseState : IBotState
     {
+        const int resDistance = 30;
+
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
         readonly LocalPlayer player;
@@ -79,6 +81,28 @@ namespace BloogBot.AI.SharedStates
             }
             else
             {
+                var pathEnd = path[path.Length - 1];
+                if (pathEnd.DistanceTo(player.CorpsePosition) > resDistance &&
+                    ObjectManager.Units.Any(u => u.Name == "Spirit Healer"))
+                {
+                    // Partial path ends out of resurrection range; use the spirit healer instead.
+                    player.StopAllMovement();
+                    botStates.Pop();
+                    botStates.Push(new ResurrectFromGraveyardState(botStates, container));
+                    return;
+                }
+
+                // If the corpse is slightly off-mesh (3-30 yards from pathEnd, e.g. shallow water or
+                // a ledge), DistanceTo2D(CorpsePosition) < 3 can never be reached; pop once at pathEnd
+                // since we are already within RetrieveCorpseState's resurrection range.
+                if (player.Position.DistanceTo2D(pathEnd) < 3 &&
+                    player.Position.DistanceTo(player.CorpsePosition) <= resDistance)
+                {
+                    player.StopAllMovement();
+                    botStates.Pop();
+                    return;
+                }
+
                 nextWaypoint = path[1];
             }
 
