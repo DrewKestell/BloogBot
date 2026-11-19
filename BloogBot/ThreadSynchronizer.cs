@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 
 namespace BloogBot
 {
@@ -15,7 +15,7 @@ namespace BloogBot
         static extern int CallWindowProc(IntPtr lpPrevWndFunc, IntPtr hWnd, int Msg, int wParam, int lParam);
 
         [DllImport("user32.dll")]
-        static extern int GetWindowThreadProcessId(IntPtr handle, out int processId);
+        static extern uint GetWindowThreadProcessId(IntPtr handle, out uint processId);
 
         [DllImport("user32.dll")]
         static extern bool IsWindowVisible(IntPtr hWnd);
@@ -38,84 +38,166 @@ namespace BloogBot
         );
 
         [DllImport("kernel32.dll")]
+        static extern uint GetCurrentProcessId();
+
+        [DllImport("kernel32.dll")]
         static extern uint GetCurrentThreadId();
 
         delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
 
         delegate int WindowProc(IntPtr hWnd, int Msg, int wParam, int lParam);
 
-        static readonly Queue<Action> actionQueue = new Queue<Action>();
-        static readonly Queue<Delegate> delegateQueue = new Queue<Delegate>();
-        static readonly Queue<object> returnValueQueue = new Queue<object>();
+        sealed class WorkItem
+        {
+            readonly Action action;
+            volatile bool done;
+
+            public WorkItem(Action action)
+            {
+                this.action = action;
+            }
+
+            public void Execute()
+            {
+                try
+                {
+                    action?.Invoke();
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(e);
+                }
+                finally
+                {
+                    lock (this)
+                    {
+                        done = true;
+                        Monitor.Pulse(this);
+                    }
+                }
+            }
+
+            public void Wait()
+            {
+                if (done)
+                {
+                    return;
+                }
+
+                lock (this)
+                {
+                    while (!done)
+                    {
+                        Monitor.Wait(this);
+                    }
+                }
+            }
+        }
+
+        static readonly object queueLock = new object();
+        static readonly Queue<WorkItem> actionQueue = new Queue<WorkItem>();
 
         const int GWL_WNDPROC = -4;
         const int WM_USER = 0x0400;
-        static IntPtr oldCallback;
-        static WindowProc newCallback;
+        static readonly IntPtr oldCallback;
+        static readonly WindowProc newCallback;
         static int windowHandle;
+        static uint mainThreadId;
+        static readonly uint currentProcessId;
 
         static ThreadSynchronizer()
         {
+            currentProcessId = GetCurrentProcessId();
             EnumWindows(FindWindowProc, IntPtr.Zero);
+
+            if (windowHandle == 0 || mainThreadId == 0)
+            {
+                throw new InvalidOperationException("Failed to find World of Warcraft window and main thread ID.");
+            }
+
             newCallback = WndProc;
             oldCallback = SetWindowLong((IntPtr)windowHandle, GWL_WNDPROC, Marshal.GetFunctionPointerForDelegate(newCallback));
         }
 
         static public void RunOnMainThread(Action action)
         {
-            if (GetCurrentThreadId() == Process.GetCurrentProcess().Threads[0].Id)
+            if (GetCurrentThreadId() == mainThreadId)
             {
                 action();
                 return;
             }
-            actionQueue.Enqueue(action);
+
+            var item = new WorkItem(action);
+            lock (queueLock)
+            {
+                actionQueue.Enqueue(item);
+            }
             SendUserMessage();
+            item.Wait();
         }
 
         static public T RunOnMainThread<T>(Func<T> function)
         {
-            if (GetCurrentThreadId() == Process.GetCurrentProcess().Threads[0].Id)
+            if (GetCurrentThreadId() == mainThreadId)
+            {
                 return function();
+            }
 
-            delegateQueue.Enqueue(function);
-            SendUserMessage();
-            return (T)returnValueQueue.Dequeue();
+            T result = default(T);
+            RunOnMainThread(() =>
+            {
+                result = function();
+            });
+            return result;
         }
 
         static int WndProc(IntPtr hWnd, int msg, int wParam, int lParam)
         {
-            try
+            if (msg != WM_USER)
             {
-                if (msg != WM_USER) return CallWindowProc(oldCallback, hWnd, msg, wParam, lParam);
+                return CallWindowProc(oldCallback, hWnd, msg, wParam, lParam);
+            }
 
-                while (actionQueue.Count > 0)
-                    actionQueue.Dequeue()?.Invoke();
-                while (delegateQueue.Count > 0)
-                {
-                    var invokeTarget = delegateQueue.Dequeue();
-                    returnValueQueue.Enqueue(invokeTarget?.DynamicInvoke());
-                }
-                return 0;
-            }
-            catch (Exception e)
+            while (true)
             {
-                Logger.Log(e);
+                WorkItem item;
+                lock (queueLock)
+                {
+                    if (actionQueue.Count == 0)
+                    {
+                        break;
+                    }
+                    item = actionQueue.Dequeue();
+                }
+                item.Execute();
             }
-            
-            return CallWindowProc(oldCallback, hWnd, msg, wParam, lParam);
+            return 0;
         }
 
         static bool FindWindowProc(IntPtr hWnd, IntPtr lParam)
         {
-            GetWindowThreadProcessId(hWnd, out int procId);
-            if (procId != Process.GetCurrentProcess().Id) return true;
-            if (!IsWindowVisible(hWnd)) return true;
+            var threadId = GetWindowThreadProcessId(hWnd, out uint procId);
+            if (procId != currentProcessId)
+            {
+                return true;
+            }
+            if (!IsWindowVisible(hWnd))
+            {
+                return true;
+            }
             var l = GetWindowTextLength(hWnd);
-            if (l == 0) return true;
+            if (l == 0)
+            {
+                return true;
+            }
             var builder = new StringBuilder(l + 1);
             GetWindowText(hWnd, builder, builder.Capacity);
             if (builder.ToString() == "World of Warcraft")
+            {
                 windowHandle = (int)hWnd;
+                mainThreadId = threadId;
+                return false;
+            }
             return true;
         }
 
