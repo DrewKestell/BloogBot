@@ -352,6 +352,19 @@ namespace BloogBot.Game
                     probe.TargetBuffs = string.Join(", ", target.Buffs.Select(u => u.Name));
                     probe.TargetDebuffs = string.Join(", ", target.Debuffs.Select(u => u.Name));
                 }
+                else
+                {
+                    probe.TargetName = string.Empty;
+                    probe.TargetClass = string.Empty;
+                    probe.TargetCreatureType = string.Empty;
+                    probe.TargetPosition = string.Empty;
+                    probe.TargetRange = string.Empty;
+                    probe.TargetFactionId = string.Empty;
+                    probe.TargetIsCasting = string.Empty;
+                    probe.TargetIsChanneling = string.Empty;
+                    probe.TargetBuffs = string.Empty;
+                    probe.TargetDebuffs = string.Empty;
+                }
 
                 probe.Callback();
             }
