@@ -48,45 +48,68 @@ namespace BloogBot.AI.SharedStates
                     .Where(u => !u.TappedByOther)
                     .Where(u => !u.IsPet)
                     .Where(u => u.UnitReaction == UnitReaction.Hated || u.UnitReaction == UnitReaction.Hostile)
-                    .Where(u => u.Level > player.Level - 10);
+                    .Where(u => u.Level > player.Level - 10)
+                    .ToList();
 
-                if (threats.FirstOrDefault() != null)
+                var index = 0;
+                var currentFloatX = player.CorpsePosition.X;
+                var currentFloatY = player.CorpsePosition.Y;
+                var currentFloatZ = player.CorpsePosition.Z;
+
+                for (var i = -resDistance; i <= resDistance; i++)
                 {
-                    var index = 0;
-                    var currentFloatX = player.CorpsePosition.X;
-                    var currentFloatY = player.CorpsePosition.Y;
-                    var currentFloatZ = player.CorpsePosition.Z;
-
-                    for (var i = -resDistance; i <= resDistance; i++)
+                    for (var j = -resDistance; j <= resDistance; j++)
                     {
-                        for (var j = -resDistance; j <= resDistance; j++)
-                        {
-                            resLocs[index] = new Position(currentFloatX + i, currentFloatY + j, currentFloatZ);
-                            index++;
-                        }
+                        resLocs[index] = new Position(currentFloatX + i, currentFloatY + j, currentFloatZ);
+                        index++;
+                    }
+                }
+
+                var maxThreatDistance = 0f;
+                var minCorpseDistance = float.MaxValue;
+                int selectedIndex = -1;
+
+                for (int i = 0; i < resLocs.Length; i++)
+                {
+                    if (attemptedResLocIndices.Contains(i))
+                    {
+                        continue;
                     }
 
-                    var maxDistance = 0f;
-                    int maxDistanceIndex = -1;
-
-                    for (int i = 0; i < resLocs.Length; i++)
+                    var path = Navigation.CalculatePath(ObjectManager.MapId, player.Position, resLocs[i], false);
+                    if (path.Length == 0)
                     {
-                        var path = Navigation.CalculatePath(ObjectManager.MapId, player.Position, resLocs[i], false);
-                        if (path.Length == 0) continue;
-                        var endPoint = path[path.Length - 1];
-                        var distanceToClosestThreat = endPoint.DistanceTo(threats.OrderBy(u => u.Position.DistanceTo(resLocs[i])).First().Position);
+                        continue;
+                    }
 
-                        if (endPoint.DistanceTo(player.CorpsePosition) < resDistance &&
-                            distanceToClosestThreat > maxDistance &&
-                            !attemptedResLocIndices.Contains(i))
+                    var endPoint = path[path.Length - 1];
+                    var distanceToCorpse = endPoint.DistanceTo(player.CorpsePosition);
+                    if (distanceToCorpse >= resDistance)
+                    {
+                        continue;
+                    }
+
+                    if (threats.Count > 0)
+                    {
+                        var distanceToClosestThreat = endPoint.DistanceTo(threats.OrderBy(u => u.Position.DistanceTo(resLocs[i])).First().Position);
+                        if (distanceToClosestThreat > maxThreatDistance)
                         {
-                            maxDistance = distanceToClosestThreat;
-                            maxDistanceIndex = i;
+                            maxThreatDistance = distanceToClosestThreat;
+                            selectedIndex = i;
                             resLocation = resLocs[i];
                         }
                     }
+                    else if (distanceToCorpse < minCorpseDistance)
+                    {
+                        minCorpseDistance = distanceToCorpse;
+                        selectedIndex = i;
+                        resLocation = resLocs[i];
+                    }
+                }
 
-                    attemptedResLocIndices.Add(maxDistanceIndex);
+                if (selectedIndex != -1)
+                {
+                    attemptedResLocIndices.Add(selectedIndex);
                 }
 
                 botStates.Push(new MoveToPositionState(
