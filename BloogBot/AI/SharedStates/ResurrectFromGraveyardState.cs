@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using BloogBot.Game;
 using BloogBot.Game.Objects;
@@ -26,8 +26,11 @@ namespace BloogBot.AI.SharedStates
             // At any point, if we're already alive, just leave the state.
             if (!player.InGhostForm)
             {
-                Wait.RemoveAll();
-                botStates.Pop();
+                if (player.IsAlive)
+                {
+                    Wait.RemoveAll();
+                    botStates.Pop();
+                }
                 return;
             }
 
@@ -53,7 +56,7 @@ namespace BloogBot.AI.SharedStates
             {
                 if (Wait.For("LeaveDelay", 2000))
                 {
-                    if (player.InGhostForm)
+                    if (!player.IsAlive)
                     {
                         // Somehow we didn't successfully resurrect. Just try again.
                         state = State.Uninitialized;
