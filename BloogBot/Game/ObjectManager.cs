@@ -26,6 +26,7 @@ namespace BloogBot.Game
 
         static internal IList<WoWObject> Objects = new List<WoWObject>();
         static internal IList<WoWObject> ObjectsBuffer = new List<WoWObject>();
+        static internal readonly HashSet<ulong> UnselectableGuids = new HashSet<ulong>();
         static internal bool KillswitchTriggered;
 
         static internal void Initialize(Probe parProbe)

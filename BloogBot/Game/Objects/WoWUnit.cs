@@ -84,7 +84,13 @@ namespace BloogBot.Game.Objects
             UnitFlags.UNIT_FLAG_TAXI_FLIGHT |
             UnitFlags.UNIT_FLAG_NOT_SELECTABLE;
 
-        public bool NotAttackable => (UnitFlags & NonAttackableFlags) != 0;
+        public bool NotAttackable => (UnitFlags & NonAttackableFlags) != 0 || ObjectManager.UnselectableGuids.Contains(Guid);
+
+        public bool IsFriendly =>
+            UnitReaction == UnitReaction.Friendly ||
+            UnitReaction == UnitReaction.Honored ||
+            UnitReaction == UnitReaction.Revered ||
+            UnitReaction == UnitReaction.Exalted;
 
         public bool IsFacing(Position position) => Math.Abs(GetFacingForPosition(position) - Facing) < 0.05f;
 
