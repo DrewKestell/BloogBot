@@ -33,10 +33,22 @@ namespace BloogBot.AI.SharedStates
 
             if (state == State.Uninitialized)
             {
-                spiritHealer = ObjectManager.Units.First(u => u.Name == "Spirit Healer");
+                spiritHealer = ObjectManager.Units.FirstOrDefault(u => u.Name == "Spirit Healer");
+                if (spiritHealer == null)
+                {
+                    player.StopAllMovement();
+                    DiscordClientWrapper.SendMessage($"{player.Name} could not find a Spirit Healer in ResurrectFromGraveyardState. Stopping.");
+
+                    while (botStates.Count > 0)
+                    {
+                        botStates.Pop();
+                    }
+
+                    return;
+                }
 
                 // Move to the spirit healer.
-                botStates.Push(new MoveToPositionState(botStates, container, spiritHealer.Position));
+                botStates.Push(new MoveToPositionState(botStates, container, spiritHealer.Position, ignoreThreats: true));
                 state = State.Interacting;
             }
             else if (state == State.Interacting)
