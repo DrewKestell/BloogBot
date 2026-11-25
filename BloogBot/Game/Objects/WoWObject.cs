@@ -28,15 +28,15 @@ namespace BloogBot.Game.Objects
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         delegate IntPtr GetNameDelegate(IntPtr objectPtr);
 
-        readonly GetPositionDelegate getPositionFunction;
+        GetPositionDelegate getPositionFunction;
 
-        readonly GetFacingDelegate getFacingFunction;
+        GetFacingDelegate getFacingFunction;
 
-        readonly RightClickObjectDelegate rightClickObjectFunction;
+        RightClickObjectDelegate rightClickObjectFunction;
 
-        readonly InteractDelegate interactFunction;
+        InteractDelegate interactFunction;
 
-        readonly GetNameDelegate getNameFunction;
+        GetNameDelegate getNameFunction;
 
         public WoWObject() { }
 
@@ -46,31 +46,85 @@ namespace BloogBot.Game.Objects
             Guid = guid;
             ObjectType = objectType;
 
-            var vTableAddr = MemoryManager.ReadIntPtr(pointer);
+            InitializeFunctions(pointer);
+        }
+
+        void InitializeFunctions(IntPtr pointer)
+        {
+            if (pointer == IntPtr.Zero)
+                return;
 
             // TODO: I can't figure out how to get the vtable addresses for the Vanilla client (or if they even exist) so we do it this way for now
             if (ClientHelper.ClientVersion != ClientVersion.Vanilla)
             {
+                var vTableAddr = MemoryManager.ReadIntPtr(pointer);
+                if (vTableAddr == IntPtr.Zero)
+                    return;
+
                 var getPositionAddr = IntPtr.Add(vTableAddr, MemoryAddresses.WoWObject_GetPositionFunOffset);
                 var getPositionFunPtr = MemoryManager.ReadIntPtr(getPositionAddr);
-                getPositionFunction = Marshal.GetDelegateForFunctionPointer<GetPositionDelegate>(getPositionFunPtr);
+                if (getPositionFunPtr != IntPtr.Zero)
+                    getPositionFunction = Marshal.GetDelegateForFunctionPointer<GetPositionDelegate>(getPositionFunPtr);
 
                 var getFacingAddr = IntPtr.Add(vTableAddr, MemoryAddresses.WoWObject_GetFacingFunOffset);
                 var getFacingFunPtr = MemoryManager.ReadIntPtr(getFacingAddr);
-                getFacingFunction = Marshal.GetDelegateForFunctionPointer<GetFacingDelegate>(getFacingFunPtr);
+                if (getFacingFunPtr != IntPtr.Zero)
+                    getFacingFunction = Marshal.GetDelegateForFunctionPointer<GetFacingDelegate>(getFacingFunPtr);
 
                 var interactAddr = IntPtr.Add(vTableAddr, MemoryAddresses.WoWObject_InteractFunOffset);
                 var interactFunPtr = MemoryManager.ReadIntPtr(interactAddr);
-                interactFunction = Marshal.GetDelegateForFunctionPointer<InteractDelegate>(interactFunPtr);
+                if (interactFunPtr != IntPtr.Zero)
+                    interactFunction = Marshal.GetDelegateForFunctionPointer<InteractDelegate>(interactFunPtr);
 
                 var getNameAddr = IntPtr.Add(vTableAddr, MemoryAddresses.WoWObject_GetNameFunOffset);
                 var getNameFunPtr = MemoryManager.ReadIntPtr(getNameAddr);
-                getNameFunction = Marshal.GetDelegateForFunctionPointer<GetNameDelegate>(getNameFunPtr);
+                if (getNameFunPtr != IntPtr.Zero)
+                    getNameFunction = Marshal.GetDelegateForFunctionPointer<GetNameDelegate>(getNameFunPtr);
             }
-            else
+            else if (rightClickObjectFunction == null)
             {
                 rightClickObjectFunction = Marshal.GetDelegateForFunctionPointer<RightClickObjectDelegate>((IntPtr)0x60BEA0);
-            }    
+            }
+        }
+
+        internal void UpdatePointer(IntPtr pointer)
+        {
+            if (pointer == IntPtr.Zero || pointer == Pointer)
+                return;
+
+            Pointer = pointer;
+            InitializeFunctions(pointer);
+            OnPointerChanged();
+        }
+
+        internal void Invalidate()
+        {
+            if (Pointer == IntPtr.Zero)
+                return;
+
+            Pointer = IntPtr.Zero;
+            OnPointerChanged();
+        }
+
+        protected virtual void OnPointerChanged()
+        {
+        }
+
+        IntPtr ReadDescriptorPtr() =>
+            Pointer == IntPtr.Zero
+                ? IntPtr.Zero
+                : MemoryManager.ReadIntPtr(IntPtr.Add(Pointer, MemoryAddresses.WoWObject_DescriptorOffset));
+
+        internal bool IsValid
+        {
+            get
+            {
+                if (Pointer == IntPtr.Zero || Guid == 0)
+                    return false;
+
+                var descriptorPtr = ReadDescriptorPtr();
+                return descriptorPtr != IntPtr.Zero && MemoryManager.ReadUlong(descriptorPtr) == Guid;
+            }
         }
 
         public virtual Position Position => GetPosition();
@@ -80,6 +134,9 @@ namespace BloogBot.Game.Objects
         {
             try
             {
+                if (!IsValid)
+                    return new Position(0, 0, 0);
+
                 if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                 {
                     if (ObjectType == ObjectType.Unit || ObjectType == ObjectType.Player)
@@ -135,6 +192,9 @@ namespace BloogBot.Game.Objects
                 }
                 else
                 {
+                    if (getPositionFunction == null)
+                        return new Position(0, 0, 0);
+
                     var xyz = new XYZ();
                     getPositionFunction(Pointer, ref xyz);
 
@@ -156,6 +216,9 @@ namespace BloogBot.Game.Objects
         {
             try
             {
+                if (!IsValid)
+                    return 0;
+
                 if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                 {
                     if (ObjectType == ObjectType.Player || ObjectType == ObjectType.Unit)
@@ -169,6 +232,9 @@ namespace BloogBot.Game.Objects
                 }
                 else
                 {
+                    if (getFacingFunction == null)
+                        return 0;
+
                     return getFacingFunction(Pointer);
                 }
             }
@@ -186,6 +252,9 @@ namespace BloogBot.Game.Objects
         {
             try
             {
+                if (!IsValid)
+                    return "";
+
                 if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                 {
                     if (ObjectType == ObjectType.Player)
@@ -217,6 +286,9 @@ namespace BloogBot.Game.Objects
                 }
                 else
                 {
+                    if (getNameFunction == null)
+                        return "";
+
                     var ptr = getNameFunction(Pointer);
 
                     if (ptr != IntPtr.Zero)
@@ -233,18 +305,39 @@ namespace BloogBot.Game.Objects
             }
         }
         
+        [HandleProcessCorruptedStateExceptions]
         public void Interact()
         {
-            if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+            try
             {
-                rightClickObjectFunction(Pointer, 0);
+                if (!IsValid)
+                    return;
+
+                if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
+                {
+                    rightClickObjectFunction?.Invoke(Pointer, 0);
+                }
+                else
+                {
+                    interactFunction?.Invoke(Pointer);
+                }
             }
-            else
+            catch (AccessViolationException)
             {
-                interactFunction(Pointer);
+                Console.WriteLine("Access violation on WoWObject.Interact. Swallowing.");
             }
         }
 
-        protected IntPtr GetDescriptorPtr() => MemoryManager.ReadIntPtr(IntPtr.Add(Pointer, MemoryAddresses.WoWObject_DescriptorOffset));
+        protected IntPtr GetDescriptorPtr()
+        {
+            var descriptorPtr = ReadDescriptorPtr();
+            if (descriptorPtr == IntPtr.Zero)
+                return IntPtr.Zero;
+
+            if (Guid != 0 && MemoryManager.ReadUlong(descriptorPtr) != Guid)
+                return IntPtr.Zero;
+
+            return descriptorPtr;
+        }
     }
 }
