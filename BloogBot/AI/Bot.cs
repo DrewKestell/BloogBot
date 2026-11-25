@@ -289,6 +289,7 @@ namespace BloogBot.AI
                         }
                         if (botStates.Peek().GetType() != currentState)
                         {
+                            Logger.LogStateTransition($"{currentState?.Name ?? "(none)"} -> {botStates.Peek().GetType().Name}");
                             currentState = botStates.Peek().GetType();
                             currentStateStartTime = Environment.TickCount;
                         }
@@ -483,6 +484,7 @@ namespace BloogBot.AI
                         }
                         if (botStates.Peek().GetType() != currentState)
                         {
+                            Logger.LogStateTransition($"{currentState?.Name ?? "(none)"} -> {botStates.Peek().GetType().Name}");
                             currentState = botStates.Peek().GetType();
                             currentStateStartTime = Environment.TickCount;
                         }
