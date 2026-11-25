@@ -1,4 +1,4 @@
-﻿using BloogBot.Game;
+using BloogBot.Game;
 using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
 using System;
@@ -9,13 +9,16 @@ namespace BloogBot.AI.SharedStates
 {
     public class StuckState : IBotState
     {
-        static readonly Stopwatch stopwatch = new Stopwatch();
+        const int StuckTimeoutMs = 5000;
+
         static readonly Random random = new Random();
 
+        readonly Stopwatch stopwatch = new Stopwatch();
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
         readonly LocalPlayer player;
         readonly Position startingPosition;
+        readonly int startTime = Environment.TickCount;
 
         State state = State.Stuck;
 
@@ -29,14 +32,8 @@ namespace BloogBot.AI.SharedStates
 
         public void Update()
         {
-            if (player.IsInCombat)
-            {
-                StopMovement();
-                botStates.Pop();
-                return;
-            }
-
-            if (player.Position.DistanceTo(startingPosition) > 3)
+            if (player.Position.DistanceTo(startingPosition) > 3 ||
+                Environment.TickCount - startTime > StuckTimeoutMs)
             {
                 StopMovement();
                 botStates.Pop();
