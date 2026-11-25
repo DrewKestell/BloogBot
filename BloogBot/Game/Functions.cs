@@ -1,4 +1,4 @@
-﻿using BloogBot.Game.Enums;
+using BloogBot.Game.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +8,7 @@ namespace BloogBot.Game
     static public class Functions
     {
         static readonly Random random = new Random();
+        static readonly List<string> luaVarNames = new List<string>();
 
         static readonly IGameFunctionHandler gameFunctionHandler;
 
@@ -108,26 +109,47 @@ namespace BloogBot.Game
 
         static public string[] LuaCallWithResult(string code)
         {
-            var luaVarNames = new List<string>();
-            for (var i = 0; i < 11; i++)
+            // Make some temporary varaible names for return values.
+            var usedVarNames = new List<string>();
+            for (var i = 0; ; i++)
             {
                 var currentPlaceHolder = "{" + i + "}";
-                if (!code.Contains(currentPlaceHolder)) break;
-                var randomName = GetRandomLuaVarName();
-                code = code.Replace(currentPlaceHolder, randomName);
-                luaVarNames.Add(randomName);
+                if (!code.Contains(currentPlaceHolder))
+                {
+                    break;
+                }
+                var varName = GetLuaVarName(i);
+                code = code.Replace(currentPlaceHolder, varName);
+                usedVarNames.Add(varName);
             }
 
-            LuaCall(code);
-
-            var results = new List<string>();
-            foreach (var varName in luaVarNames)
+            // If there is no return value, just call lua.
+            if (usedVarNames.Count == 0)
             {
-                var address = gameFunctionHandler.GetText(varName);
-                results.Add(MemoryManager.ReadString(address));
+                LuaCall(code);
+                return Array.Empty<string>();
             }
 
-            return results.ToArray();
+            // Make sure the temporary variables don't contain any values, then run the code.
+            var clearCode = string.Join(", ", usedVarNames) + " = nil";
+            LuaCall(clearCode + "\n" + code);
+
+            try
+            {
+                // Retrieve the return values.
+                var results = new string[usedVarNames.Count];
+                for (var i = 0; i < usedVarNames.Count; i++)
+                {
+                    var address = gameFunctionHandler.GetText(usedVarNames[i]);
+                    results[i] = MemoryManager.ReadString(address);
+                }
+
+                return results;
+            }
+            finally
+            {
+                LuaCall(clearCode);
+            }
         }
 
         static public Spell GetSpellDBEntry(int index)
@@ -188,6 +210,20 @@ namespace BloogBot.Game
         static public IntPtr GetLocalizedRow(IntPtr tablePtr, int index, IntPtr rowPtr)
         {
             return gameFunctionHandler.GetLocalizedRow(tablePtr, index, rowPtr);
+        }
+
+        static string GetLuaVarName(int index)
+        {
+            while (luaVarNames.Count <= index)
+            {
+                var candidate = GetRandomLuaVarName();
+                if (candidate != "function" && !luaVarNames.Contains(candidate))
+                {
+                    luaVarNames.Add(candidate);
+                }
+            }
+
+            return luaVarNames[index];
         }
 
         static string GetRandomLuaVarName()
