@@ -1,4 +1,4 @@
-﻿using BloogBot.Game;
+using BloogBot.Game;
 using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
 using System;
@@ -31,15 +31,18 @@ namespace BloogBot.AI.SharedStates
 
         public void Update()
         {
+            if (!player.InGhostForm)
+            {
+                if (player.IsAlive)
+                {
+                    Wait.RemoveAll();
+                    botStates.Pop();
+                }
+                return;
+            }
+
             if (state == State.Initializing)
             {
-                if (!player.InGhostForm)
-                {
-                    // We are already alive. No need to do anything.
-                    botStates.Pop();
-                    return;
-                }
-
                 var resLocation = player.CorpsePosition;
 
                 var threats = ObjectManager
@@ -124,9 +127,8 @@ namespace BloogBot.AI.SharedStates
                 if (Wait.For("LeaveRetrieveCorpseStateDelay", 2000))
                 {
                     // In some cases we failed to res. E.g. when we checked for res distance we
-                    // happened to be in range while falling off a cliff. In that case, we should
-                    // try again.
-                    if (player.InGhostForm)
+                    // happened to be in range while falling off a cliff.
+                    if (!player.IsAlive)
                     {
                         state = State.Initializing;
                     }

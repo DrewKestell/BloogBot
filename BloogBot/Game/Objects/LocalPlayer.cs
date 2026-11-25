@@ -252,6 +252,22 @@ namespace BloogBot.Game.Objects
             }
         }
 
+        public bool IsAlive
+        {
+            get
+            {
+                if (!IsValid || Health <= 0)
+                {
+                    return false;
+                }
+
+                var result = LuaCallWithResults(
+                    "if UnitExists('player') then if UnitIsDeadOrGhost('player') then {0} = 1 else {0} = 0 end end");
+
+                return result.Length > 0 && result[0] == "0";
+            }
+        }
+
         public void SetTarget(ulong guid) => Functions.SetTarget(guid);
 
         ulong ComboPointGuid { get; set; }

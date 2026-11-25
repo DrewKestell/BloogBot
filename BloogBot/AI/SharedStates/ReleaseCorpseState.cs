@@ -8,6 +8,8 @@ namespace BloogBot.AI.SharedStates
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
 
+        bool triedSoulstone;
+
         public ReleaseCorpseState(Stack<IBotState> botStates, IDependencyContainer container)
         {
             this.botStates = botStates;
@@ -18,7 +20,7 @@ namespace BloogBot.AI.SharedStates
         {
             if (Wait.For("StartReleaseCorpseStateDelay", 1000))
             {
-                if (ObjectManager.Player.InGhostForm || ObjectManager.Player.Health > 0)
+                if (ObjectManager.Player.InGhostForm || ObjectManager.Player.IsAlive)
                 {
                     if (Wait.For("LeaveReleaseCorpseStateDelay", 2000))
                     {
@@ -28,7 +30,17 @@ namespace BloogBot.AI.SharedStates
                 }
                 else
                 {
-                    Functions.LuaCall("UseSoulstone()");
+                    if (!triedSoulstone)
+                    {
+                        triedSoulstone = true;
+                        var hasSoulstone = Functions.LuaCallWithResult("{0} = HasSoulstone()");
+                        if (hasSoulstone.Length > 0 && !string.IsNullOrEmpty(hasSoulstone[0]))
+                        {
+                            Functions.LuaCall("UseSoulstone()");
+                            return;
+                        }
+                    }
+
                     ObjectManager.Player.ReleaseCorpse();
                 }
             }

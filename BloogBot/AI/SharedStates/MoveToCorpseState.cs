@@ -30,6 +30,16 @@ namespace BloogBot.AI.SharedStates
 
         public void Update()
         {
+            if (!player.InGhostForm)
+            {
+                if (player.IsAlive)
+                {
+                    player.StopAllMovement();
+                    botStates.Pop();
+                }
+                return;
+            }
+
             if (!initialized)
             {
                 container.DisableTeleportChecker = false;
