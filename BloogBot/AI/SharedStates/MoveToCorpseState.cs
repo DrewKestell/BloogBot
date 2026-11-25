@@ -1,5 +1,4 @@
-﻿using BloogBot.Game;
-using BloogBot.Game.Enums;
+using BloogBot.Game;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +12,6 @@ namespace BloogBot.AI.SharedStates
         readonly LocalPlayer player;
         readonly StuckHelper stuckHelper;
 
-        bool walkingOnWater;
         int stuckCount;
 
         bool initialized;
@@ -82,23 +80,7 @@ namespace BloogBot.AI.SharedStates
                 nextWaypoint = path[1];
             }
 
-            if (player.Position.Z - nextWaypoint.Z > 5)
-                walkingOnWater = true;
-
-            if (walkingOnWater)
-            {
-                if (!player.IsMoving)
-                    player.StartMovement(ControlBits.Front);
-
-                if (player.Position.Z - nextWaypoint.Z < .05)
-                {
-                    walkingOnWater = false;
-                    player.StopMovement(ControlBits.Front);
-                }
-            }
-
-            else
-                player.MoveToward(nextWaypoint);
+            player.MoveToward(nextWaypoint);
         }
     }
 }
