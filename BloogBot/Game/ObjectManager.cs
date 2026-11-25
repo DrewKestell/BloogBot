@@ -191,10 +191,13 @@ namespace BloogBot.Game
         static public IEnumerable<WoWUnit> Aggressors =>
             Units
                 .Where(u => u.Health > 0)
+                .Where(u => !u.TappedByOther)
+                .Where(u => !u.NotAttackable)
                 .Where(u => 
                     u.TargetGuid == Player?.Guid ||
                     u.TargetGuid == Pet?.Guid)
                 .Where(u =>
+                    u.UnitReaction == UnitReaction.Hated ||
                     u.UnitReaction == UnitReaction.Hostile ||
                     u.UnitReaction == UnitReaction.Unfriendly ||
                     u.UnitReaction == UnitReaction.Neutral)

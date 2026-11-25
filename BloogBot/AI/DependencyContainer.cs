@@ -63,11 +63,7 @@ namespace BloogBot.AI
                 return null;
             }
 
-            var potentialThreats = ObjectManager.Units
-                .Where(u =>
-                    u.TargetGuid == ObjectManager.Player.Guid ||
-                    u.TargetGuid == ObjectManager.Pet?.Guid &&
-                    !Probe.BlacklistedMobIds.Contains(u.Guid));
+            var potentialThreats = ObjectManager.Aggressors;
 
             if (potentialThreats.Any())
                 return potentialThreats.First();
@@ -76,6 +72,8 @@ namespace BloogBot.AI
             potentialThreats = ObjectManager.Units
                 .Where(u =>
                     u.CreatureType == CreatureType.Totem &&
+                    u.Health > 0 &&
+                    !u.NotAttackable &&
                     u.Position.DistanceTo(ObjectManager.Player.Position) <= 20 &&
                     u.UnitReaction == UnitReaction.Hostile);
 
@@ -85,6 +83,8 @@ namespace BloogBot.AI
             // find stoneclaw totems? for some reason the above will not find these.
             potentialThreats = ObjectManager.Units
                 .Where(u =>
+                    u.Health > 0 &&
+                    !u.NotAttackable &&
                     u.Position.DistanceTo(ObjectManager.Player.Position) < 10 &&
                     Convert.ToBoolean(ObjectManager.Units.FirstOrDefault(ou => ou.Guid == u.TargetGuid)?.Name?.Contains("Stoneclaw Totem")) &&
                     u.IsInCombat);
@@ -102,7 +102,7 @@ namespace BloogBot.AI
 
             // Make sure this threat is not a dead summoned unit.
             var checkThreat = ObjectManager.Units.FirstOrDefault(u => u.Guid == threat?.Guid);
-            if (threat != null && checkThreat != null && checkThreat.Health != 0 && !checkThreat.TappedByOther)
+            if (threat != null && checkThreat != null && checkThreat.Health != 0 && !checkThreat.TappedByOther && !checkThreat.NotAttackable)
             {
                 return checkThreat;
             }
@@ -132,8 +132,8 @@ namespace BloogBot.AI
                 .Where(u => u.Level <= ObjectManager.Player?.Level + BotSettings.LevelRangeMax && u.Level >= ObjectManager.Player?.Level - BotSettings.LevelRangeMin)
                 // exclude certain factions known to cause targeting issues (like neutral, non attackable NPCs in town)
                 .Where(u => u.FactionId != 71 && u.FactionId != 85 && u.FactionId != 474 && u.FactionId != 475 && u.FactionId != 1475)
-                // exclude units with the UNIT_FLAG_NON_ATTACKABLE flag
-                .Where(u => u.UnitFlags != UnitFlags.UNIT_FLAG_NON_ATTACKABLE)
+                // exclude non-attackable and non-selectable units
+                .Where(u => !u.NotAttackable)
                 // apply bot profile specific targeting criteria
                 .Where(u => targetingCriteria(u))
                 .ToList();
