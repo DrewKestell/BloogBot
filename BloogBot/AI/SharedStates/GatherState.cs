@@ -58,7 +58,7 @@ namespace BloogBot.AI.SharedStates
             // If we are in combat, deal with the threat.
             if (player.IsInCombat)
             {
-                var target = container.FindClosestTarget();
+                var target = container.FindThreat();
                 if (target != null)
                 {
                     botStates.Push(container.CreateCombatState(
