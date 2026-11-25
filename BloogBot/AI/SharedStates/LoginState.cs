@@ -33,6 +33,9 @@ namespace BloogBot.AI.SharedStates
             if (GetCurrentGlueScreen() == "")
             {
                 // We are already logged in.
+                if (!ObjectManager.RefreshPlayer())
+                    return;
+
                 botStates.Pop();
                 onLoginComplete?.Invoke();
                 return;
@@ -91,6 +94,9 @@ namespace BloogBot.AI.SharedStates
                         else
                         {
                             // We are in.
+                            if (!ObjectManager.RefreshPlayer())
+                                return;
+
                             botStates.Pop();
 
                             // The callback must be AFTER we pop the login state, because it
