@@ -27,7 +27,9 @@ namespace BloogBot.AI.SharedStates
         bool noLos;
         int noLosStartTime;
 
-        int combatStateStartTime;
+        int lowestTargetHealth;
+        int lastDamageTime;
+        int? targetSelectStartTime;
 
         public CombatStateBase(
             Stack<IBotState> botStates,
@@ -45,7 +47,8 @@ namespace BloogBot.AI.SharedStates
             this.desiredRange = desiredRange;
             this.loot = loot;
 
-            combatStateStartTime = Environment.TickCount;
+            lowestTargetHealth = target.Health;
+            lastDamageTime = Environment.TickCount;
 
             WoWEventHandler.OnErrorMessage += OnErrorMessageCallback;
 
@@ -78,18 +81,11 @@ namespace BloogBot.AI.SharedStates
                 return true;
             }
 
-            // If we haven't dealt any damage to the target for 30 seconds, we're probably stuck.
-            if (Environment.TickCount - combatStateStartTime > 30 * 1000 && target.HealthPercent >= 99)
+            var currentHealth = target.Health;
+            if (currentHealth < lowestTargetHealth)
             {
-                // Add the target to the blacklist and stop fighting it.
-                container.Probe.BlacklistedMobIds.Add(target.Guid);
-                if (container.BotSettings.PermanentlyBlacklistUnreachableTargets)
-                {
-                    Repository.AddBlacklistedMob(target.Guid);
-                }
-
-                botStates.Pop();
-                return true;
+                lowestTargetHealth = currentHealth;
+                lastDamageTime = Environment.TickCount;
             }
 
             // see if somebody else stole the mob we were targeting
@@ -102,7 +98,7 @@ namespace BloogBot.AI.SharedStates
             // when killing certain summoned units (like totems), our local reference to target will still have 100% health even after the totem is destroyed
             // so we need to lookup the target again in the object manager, and if it's null, we can assume it's dead and leave combat.
             var checkTarget = ObjectManager.Units.FirstOrDefault(u => u.Guid == target.Guid);
-            if (target.Health == 0 || target.TappedByOther || checkTarget == null)
+            if (currentHealth == 0 || target.TappedByOther || checkTarget == null)
             {
                 player.StopAllMovement();
 
@@ -123,7 +119,7 @@ namespace BloogBot.AI.SharedStates
                 {
                     // We also need to do the same check against the threat we found.
                     var checkThreat = ObjectManager.Units.FirstOrDefault(u => u.Guid == threat.Guid);
-                    if (threat.Health == 0 || threat.TappedByOther || checkThreat == null)
+                    if (threat.Health == 0 || threat.TappedByOther || checkThreat == null || checkThreat.NotAttackable)
                     {
                         return true;
                     }
@@ -134,9 +130,46 @@ namespace BloogBot.AI.SharedStates
                 return true;
             }
 
-            // ensure the correct target is set
+            if (checkTarget.NotAttackable || checkTarget.IsFriendly)
+            {
+                CleanUp();
+                return true;
+            }
+
+            // If we haven't dealt any new damage to the target for 30 seconds, we're probably stuck.
+            if (Environment.TickCount - lastDamageTime > 30 * 1000)
+            {
+                // Add the target to the blacklist and stop fighting it.
+                BlacklistTarget();
+                if (container.BotSettings.PermanentlyBlacklistUnreachableTargets && !Repository.BlacklistedMobExists(target.Guid))
+                {
+                    Repository.AddBlacklistedMob(target.Guid);
+                }
+
+                CleanUp();
+                return true;
+            }
+
+            // ensure the correct target is set; if the client refuses to select it (e.g. a
+            // non-targetable trigger/prop creature), blacklist it and leave combat.
             if (player.TargetGuid != target.Guid)
+            {
                 player.SetTarget(target.Guid);
+                if (!targetSelectStartTime.HasValue)
+                {
+                    targetSelectStartTime = Environment.TickCount;
+                }
+                else if (Environment.TickCount - targetSelectStartTime.Value > 2000)
+                {
+                    ObjectManager.UnselectableGuids.Add(target.Guid);
+                    CleanUp();
+                    return true;
+                }
+            }
+            else
+            {
+                targetSelectStartTime = null;
+            }
 
             // ensure we're facing the target
             if (!player.IsFacing(target.Position))
@@ -227,6 +260,14 @@ namespace BloogBot.AI.SharedStates
                     player.CastSpell(name, target.Guid);
                     callback?.Invoke();
                 }
+            }
+        }
+
+        void BlacklistTarget()
+        {
+            if (!container.Probe.BlacklistedMobIds.Contains(target.Guid))
+            {
+                container.Probe.BlacklistedMobIds.Add(target.Guid);
             }
         }
 

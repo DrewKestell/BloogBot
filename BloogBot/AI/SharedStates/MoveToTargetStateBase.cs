@@ -14,6 +14,7 @@ namespace BloogBot.AI.SharedStates
         readonly LocalPlayer player;
 
         int stateStartTime = Environment.TickCount;
+        int? targetSelectStartTime;
 
         public MoveToTargetStateBase(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target)
         {
@@ -25,9 +26,15 @@ namespace BloogBot.AI.SharedStates
 
         public bool Update()
         {
-            // If the target is tapped by others, or we are already in combat with another mob,
-            // stop.
-            if (target.TappedByOther ||
+            var checkTarget = ObjectManager.Units.FirstOrDefault(u => u.Guid == target.Guid);
+
+            // If the target disappeared, died, became unattackable, is tapped by others, or we are
+            // already in combat with another mob, stop.
+            if (checkTarget == null ||
+                target.Health == 0 ||
+                target.TappedByOther ||
+                checkTarget.NotAttackable ||
+                checkTarget.IsFriendly ||
                 (
                     ObjectManager.Aggressors.Count() > 0 &&
                     !ObjectManager.Aggressors.Any(a => a.Guid == target.Guid)
@@ -36,6 +43,28 @@ namespace BloogBot.AI.SharedStates
                 player.StopAllMovement();
                 botStates.Pop();
                 return true;
+            }
+
+            if (player.TargetGuid != target.Guid)
+            {
+                player.SetTarget(target.Guid);
+
+                // If we can't set target for 2 seconds, it's probably not targetable.
+                if (!targetSelectStartTime.HasValue)
+                {
+                    targetSelectStartTime = Environment.TickCount;
+                }
+                else if (Environment.TickCount - targetSelectStartTime.Value > 2000)
+                {
+                    ObjectManager.UnselectableGuids.Add(target.Guid);
+                    player.StopAllMovement();
+                    botStates.Pop();
+                    return true;
+                }
+            }
+            else
+            {
+                targetSelectStartTime = null;
             }
 
             // If we've been trying to move to the target for more than 30 seconds, we're probably

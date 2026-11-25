@@ -26,6 +26,7 @@ namespace BloogBot.Game
 
         static internal IList<WoWObject> Objects = new List<WoWObject>();
         static internal IList<WoWObject> ObjectsBuffer = new List<WoWObject>();
+        static internal readonly HashSet<ulong> UnselectableGuids = new HashSet<ulong>();
         static internal bool KillswitchTriggered;
 
         static internal void Initialize(Probe parProbe)
@@ -191,10 +192,13 @@ namespace BloogBot.Game
         static public IEnumerable<WoWUnit> Aggressors =>
             Units
                 .Where(u => u.Health > 0)
+                .Where(u => !u.TappedByOther)
+                .Where(u => !u.NotAttackable)
                 .Where(u => 
                     u.TargetGuid == Player?.Guid ||
                     u.TargetGuid == Pet?.Guid)
                 .Where(u =>
+                    u.UnitReaction == UnitReaction.Hated ||
                     u.UnitReaction == UnitReaction.Hostile ||
                     u.UnitReaction == UnitReaction.Unfriendly ||
                     u.UnitReaction == UnitReaction.Neutral)

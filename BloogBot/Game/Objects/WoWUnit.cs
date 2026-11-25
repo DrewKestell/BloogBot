@@ -76,7 +76,21 @@ namespace BloogBot.Game.Objects
 
         public int FactionId => MemoryManager.ReadInt(GetDescriptorPtr() + MemoryAddresses.WoWUnit_FactionIdOffset);
 
-        public bool NotAttackable => UnitFlags.HasFlag(UnitFlags.UNIT_FLAG_NON_ATTACKABLE);
+        const UnitFlags NonAttackableFlags =
+            UnitFlags.UNIT_FLAG_NON_ATTACKABLE |
+            UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_1 |
+            UnitFlags.UNIT_FLAG_IMMUNE_TO_PLAYER |
+            UnitFlags.UNIT_FLAG_NON_ATTACKABLE_2 |
+            UnitFlags.UNIT_FLAG_TAXI_FLIGHT |
+            UnitFlags.UNIT_FLAG_NOT_SELECTABLE;
+
+        public bool NotAttackable => (UnitFlags & NonAttackableFlags) != 0 || ObjectManager.UnselectableGuids.Contains(Guid);
+
+        public bool IsFriendly =>
+            UnitReaction == UnitReaction.Friendly ||
+            UnitReaction == UnitReaction.Honored ||
+            UnitReaction == UnitReaction.Revered ||
+            UnitReaction == UnitReaction.Exalted;
 
         public bool IsFacing(Position position) => Math.Abs(GetFacingForPosition(position) - Facing) < 0.05f;
 
